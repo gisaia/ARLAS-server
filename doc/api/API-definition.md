@@ -32,7 +32,15 @@ The [`filter`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-| f | None | {fieldName}{operator}{value} | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters having different fieldNames. The **OR** operator is applied on filters having the same fieldName. | true |
+| f | None | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters having different fieldNames. The **OR** operator is applied on filters having the same fieldName. If the fieldName starts with **-** then a **must not** filter is used | true |
+
+| Operator | Description | Value type |
+| --- | ------ | --- |
+| **:** | `{fieldName}` equals `{value}` | numeric or strings |
+| **:>=** | `{fieldName}` is greater than or equal to `{value}` | numeric |
+| **:>** | `{fieldName}` is greater than `{value}` | numeric |
+| **:<=** | `{fieldName}` is less than or equal to `{value}` | numeric |
+| **:<** | `{fieldName}` is less than `{value}` | numeric |
 
 > Example: `...`
 
