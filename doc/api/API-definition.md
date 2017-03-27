@@ -11,8 +11,8 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/**_describe**                                                                              |  List  the collections configured in ARLAS  |
 | /arlas/`{collection}`/**_describe**?`form`                                                      |  Describe the structure and the content of the given collection  |
 | /arlas/`{collections}`/**_count**?`filter`,`form`                                              |  Count the number of elements found in the collection(s), given the filters  |
-| /arlas/`{collections}`/**_search**?[`filter`][`form`][`format`][`projection`][`size`][`sort`]     |  Count the number of elements found in the collection(s), given the parameters  |
-| /arlas/`{collections}`/**_aggregate**?[`aggregation`][`filter`][`form`][`format`][`size`][`sort`] |  Count the number of elements found in the collection(s), given the parameters  |
+| /arlas/`{collections}`/**_search**?[filter][form][format][projection][size][sort]     |  Count the number of elements found in the collection(s), given the parameters  |
+| /arlas/`{collections}`/**_aggregate**?[aggregation][filter][form][format][`size`][`sort`] |  Count the number of elements found in the collection(s), given the parameters  |
 | /arlas/`{collections}`/**_suggest**?[`filter`][`form`][`size`][`suggest`]                         |  Suggest the the n (n=`size`) most relevant terms given the filters  |
 
 When multiple collections are permited ({collections}), the comma is used for seperating the collection names.
