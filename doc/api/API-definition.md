@@ -12,7 +12,10 @@
 
 [^2]: When multiple collections are allowed ({collections}), the comma is used for seperating the collection names.
 
-## `aggregation`
+
+
+`aggregation`
+======
 
 The [`aggregation`] url part allows the following parameters to be specified:
 
@@ -20,7 +23,12 @@ The [`aggregation`] url part allows the following parameters to be specified:
 | --- | --- | --- | ------ | --- |
 |  | false | true,false |  | false |
 
-## `filter`
+> Example: `...`
+
+
+
+`filter`
+======
 
 The [`filter`] url part allows the following parameters to be specified:
 
@@ -28,7 +36,12 @@ The [`filter`] url part allows the following parameters to be specified:
 | --- | --- | --- | ------ | --- |
 | f | None | {fieldName}{operator}{value} | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters having different fieldNames. The **OR** operator is applied on filters having the same fieldName. | true |
 
-## `form`
+> Example: `...`
+
+
+
+`form`
+======
 
 The [`form`] url part allows the following parameters to be specified:
 
@@ -37,7 +50,12 @@ The [`form`] url part allows the following parameters to be specified:
 | pretty | false | true,false | Pretty print | false |
 | human | false | true,false | Human readable print | false |
 
-## `format`
+> Example: `pretty=true`
+
+
+
+`format`
+======
 
 The [`format`] url part allows the following parameters to be specified:
 
@@ -45,7 +63,10 @@ The [`format`] url part allows the following parameters to be specified:
 | --- | --- | --- | ------ | --- |
 | format | false | json,geojson | JSON or GeoJSON format | false |
 
-## `size`
+> Example: `...`
+
+`size`
+======
 
 The [`size`] url part allows the following parameters to be specified:
 
@@ -53,7 +74,12 @@ The [`size`] url part allows the following parameters to be specified:
 | --- | --- | --- | ------ | --- |
 | size | 10 | >0 | The maximum number of entries to be returned.  | true |
 
-## `sort`
+> Example: `...`
+
+
+
+`sort`
+======
 
 The [`sort`] url part allows the following parameters to be specified:
 
@@ -61,3 +87,4 @@ The [`sort`] url part allows the following parameters to be specified:
 | --- | --- | --- | ------ | --- |
 | sort | None | {fieldName}:(ASC,DESC) | Sort the result on a given field, ascending or descending. The parameter can be provided several times. The order matters.  | true |
 
+> Example: `...`
