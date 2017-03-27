@@ -39,9 +39,6 @@ The [`aggregation`] url part allows the following parameters to be specified:
 | **agg_interval**  | `None`    | interval                          | Size of the intervals.        | true  |
 | **agg_format**  | `None`      | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation                          | Size of the intervals.        | true  |
 
-
-
-
 Each aggregation has its own type of interval. The table below lists the semantic of the interval.
 
 | Aggregation | Interval | Description |
@@ -67,9 +64,7 @@ The table below shows the metric dimensions for cells covered by various string 
 |11|14.9cm x 14.9cm|
 |12|3.7cm x 1.9cm|
 
-
-> Example: `...`
-
+> Example: `agg=datehistogram&agg_field=date&agg_interval=10d&agg_format=yyyyMMdd`
 
 ---
 ## Part: `filter`
@@ -84,7 +79,7 @@ The `filter` url part allows the following parameters to be specified:
 | **after**  | None | timestamp | Any element having its point in time reference after the given timestamp | false |
 | **pwithin** | None | geometry  | Any element having its centroid contained within the given geometry | false |
 | **gwithin** | None | geometry  | Any element having its geometry contained within the given geometry | false |
-| **gintersect** | None | geometry  | Any element having its geometry intersecting the given geometry | false |
+| **gintersect** | None | geometry  | Any element having its geometry intersecting the given geometry (WKT) | false |
 
 
 
@@ -96,7 +91,7 @@ The `filter` url part allows the following parameters to be specified:
 | **:<=** | `{fieldName}` is less than or equal to `{value}` | numeric |
 | **:<** | `{fieldName}` is less than `{value}` | numeric |
 
-> Example: `...`
+> Example: `f=city:Toulouse`&`f=city:Bordeaux&after=1490613808&`
 
 ---
 ## Part: `form`
@@ -108,7 +103,7 @@ The `form` url part allows the following parameters to be specified:
 | **pretty** | `false` | `true,false` | Pretty print | false |
 | **human** | `false` | `true,false` | Human readable print | false |
 
-> Example: `pretty=true`
+> Example: `pretty=true&human=true`
 
 ---
 ## Part: `format`
@@ -119,7 +114,7 @@ The `format` url part allows the following parameters to be specified:
 | --- | --- | --- | ------ | --- |
 | **format** | `false` | `json`,`geojson` | JSON or GeoJSON format | false |
 
-> Example: `...`
+> Example: `format=geojson`
 
 ---
 ## Part: `projection`
@@ -131,10 +126,10 @@ The `projection` url part allows the following parameters to be specified:
 | **include** | `*` | `{fieldNamePattern}` | List the name patterns of the field to be included in the result. Seperate patterns with a comma. | true |
 | **exclude** | `*` | `{fieldNamePattern}` | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. | true |
 
-> Example: `...`
+> Example: `include=*&exclude=city,state`
 
 ---
-## Part: `suggest`
+## Part: `suggest` -- TODO
 
 The `suggest` url part allows the following parameters to be specified:
 
@@ -153,7 +148,7 @@ The `size` url part allows the following parameters to be specified:
 | --- | --- | --- | ------ | --- |
 | **size** | 10 | >0 | The maximum number of entries or sub-entries to be returned. | true |
 
-> Example: `...`
+> Example: `size=1000`
 
 ---
 ## Part: `sort`
@@ -164,4 +159,4 @@ The `sort` url part allows the following parameters to be specified:
 | --- | --- | --- | ------ | --- |
 | **sort** | None | `{fieldName}`:(`ASC`,`DESC`) | Sort the result on a given field, ascending or descending. The parameter can be provided several times. The order matters. For aggregation, provide the `agg` keyword as the `{fieldName}`. | true |
 
-> Example: `...`
+> Example: `sort=country:ASC&sort=city:ASC`
