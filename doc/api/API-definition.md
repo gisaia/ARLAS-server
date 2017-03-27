@@ -16,15 +16,15 @@
 The [`format`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
-| ---- | -------- |-------- |-------- |-------- |
-| sort | false | json,geojson | JSON or GeoJSON format | true |
+| --- | --- | --- | ------ | --- |
+| sort | None | {fieldName}:(ASC,DESC) | Sort the result on a given field, ascending or descending. The parameter can be provided several times. The order matters.  | true |
 
 ## `format`
 
 The [`format`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
-| ---- | -------- |-------- |-------- | -------- |
+| --- | --- | --- | ------ | --- |
 | format | false | json,geojson | JSON or GeoJSON format | false |
 
 ## `form`
@@ -32,6 +32,6 @@ The [`format`] url part allows the following parameters to be specified:
 The [`form`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
-| ---- | -------- |-------- |-------- | -------- |
+| --- | --- | --- | ------ | --- |
 | pretty | false | true,false | Pretty print | false |
 | human | false | true,false | Human readable print | false |
