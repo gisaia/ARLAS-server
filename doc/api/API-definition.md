@@ -22,7 +22,20 @@ The [`aggregation`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-|  | false | true,false |  | false |
+| **histogram** | None | `{fieldName}` | Aggregates on the date buckets of `{fieldName}` | true |
+| **interval** | None | interval | Size of the intervals. | true |
+| **** | None | true,false |  | false |
+| **** | None | true,false |  | false |
+| **** | None | true,false |  | false |
+
+
+| Aggregation type | Interval | Description |
+| --- | --- | ------ | --- |
+| time | `{size}`**(year,quarter,month,week,day,hour,minute,second)** |  Size of a time interval with the given unit (no space between number and unit)  |
+| time | **** |   |
+| numeric | **** |   |
+| numeric | **** |   |
+
 
 > Example: `...`
 
@@ -95,7 +108,7 @@ The [`size`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-| **size** | 10 | >0 | The maximum number of entries to be returned.  | true |
+| **size** | 10 | >0 | The maximum number of entries or sub-entries to be returned. | true |
 
 > Example: `...`
 
