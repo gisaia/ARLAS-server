@@ -13,9 +13,8 @@
 [^2]: When multiple collections are allowed ({collections}), the comma is used for seperating the collection names.
 
 
-
-`aggregation`
-======
+---
+### `aggregation`
 
 The [`aggregation`] url part allows the following parameters to be specified:
 
@@ -26,9 +25,8 @@ The [`aggregation`] url part allows the following parameters to be specified:
 > Example: `...`
 
 
-
-`filter`
-======
+---
+### `filter`
 
 The [`filter`] url part allows the following parameters to be specified:
 
@@ -38,10 +36,8 @@ The [`filter`] url part allows the following parameters to be specified:
 
 > Example: `...`
 
-
-
-`form`
-======
+---
+### `form`
 
 The [`form`] url part allows the following parameters to be specified:
 
@@ -52,10 +48,8 @@ The [`form`] url part allows the following parameters to be specified:
 
 > Example: `pretty=true`
 
-
-
-`format`
-======
+---
+### `format`
 
 The [`format`] url part allows the following parameters to be specified:
 
@@ -65,8 +59,8 @@ The [`format`] url part allows the following parameters to be specified:
 
 > Example: `...`
 
-`size`
-======
+---
+### `size`
 
 The [`size`] url part allows the following parameters to be specified:
 
@@ -76,10 +70,8 @@ The [`size`] url part allows the following parameters to be specified:
 
 > Example: `...`
 
-
-
-`sort`
-======
+---
+### `sort`
 
 The [`sort`] url part allows the following parameters to be specified:
 
