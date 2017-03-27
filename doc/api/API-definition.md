@@ -61,7 +61,7 @@ The table below shows the metric dimensions for cells covered by various string 
 ---
 ## Part: `filter`
 
-The [`filter`] url part allows the following parameters to be specified:
+The `filter` url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
@@ -88,7 +88,7 @@ The [`filter`] url part allows the following parameters to be specified:
 ---
 ## Part: `form`
 
-The [`form`] url part allows the following parameters to be specified:
+The `form` url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
@@ -100,7 +100,7 @@ The [`form`] url part allows the following parameters to be specified:
 ---
 ## Part: `format`
 
-The [`format`] url part allows the following parameters to be specified:
+The `format` url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
@@ -111,7 +111,7 @@ The [`format`] url part allows the following parameters to be specified:
 ---
 ## Part: `suggest`
 
-The [`suggest`] url part allows the following parameters to be specified:
+The `suggest` url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
@@ -122,7 +122,7 @@ The [`suggest`] url part allows the following parameters to be specified:
 ---
 ## Part: `size`
 
-The [`size`] url part allows the following parameters to be specified:
+The `size` url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
@@ -133,7 +133,7 @@ The [`size`] url part allows the following parameters to be specified:
 ---
 ## Part: `sort`
 
-The [`sort`] url part allows the following parameters to be specified:
+The `sort` url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
