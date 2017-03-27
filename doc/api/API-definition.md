@@ -17,6 +17,13 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 
 When multiple collections are permited ({collections}), the comma is used for seperating the collection names.
 
+
+| Example |
+| ---- | -------- |
+| `https://api.gisaia.com/demo/arlas/_describe` |
+| `https://api.gisaia.com/demo/arlas/city,state,country/_describe` |
+| `https://api.gisaia.com/demo/arlas/city,state,country/_count?q=bord*&f=country:France&pretty=true&human=true` |
+
 # URL Parts
 
 ## Part: `aggregation`
