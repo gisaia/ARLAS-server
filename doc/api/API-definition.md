@@ -25,19 +25,16 @@ The [`aggregation`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-| **histogram** | `None` | `{fieldName}` | Aggregates on the date buckets of `{fieldName}` | true |
-| **interval**  | `None` | interval | Size of the intervals. | true |
-| **** | None | `true`,`false` |  | false |
-| **** | None | `true`,`false` |  | false |
-| **** | None | `true`,`false` |  | false |
+| **agg**           | `None`    | `datehistogram,geohash,histogram` | Type of aggregation           | false |
+| **agg_field**     | `None`    | `{field}`                         | Aggregates on the `{field}`.  | true  |
+| **agg_interval**  | `None`    | interval                          | Size of the intervals.        | true  |
 
 
 | Aggregation type | Interval | Description |
 | --- | --- | ------ | --- |
-| time | `{size}**(year,quarter,month,week,day,hour,minute,second)` |  Size of a time interval with the given unit (no space between number and unit)  |
-| time | **** |   |
-| numeric | **** |   |
-| numeric | **** |   |
+| ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` |  Size of a time interval with the given unit (no space between number and unit)  |
+| ***geohash***  |  |   |
+| ***numeric*** | `{size}` |   |
 
 
 > Example: `...`
