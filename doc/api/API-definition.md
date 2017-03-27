@@ -28,6 +28,10 @@ The [`aggregation`] url part allows the following parameters to be specified:
 | **agg**           | `None`    | `datehistogram,geohash,histogram` | Type of aggregation           | false |
 | **agg_field**     | `None`    | `{field}`                         | Aggregates on the `{field}`.  | true  |
 | **agg_interval**  | `None`    | interval                          | Size of the intervals.        | true  |
+| **agg_format**  | `None`      | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation                          | Size of the intervals.        | true  |
+
+
+
 
 Each aggregation has its own type of interval. The table below lists the semantic of the interval.
 
