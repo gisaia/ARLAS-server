@@ -23,7 +23,7 @@ When multiple collections are permited ({collections}), the comma is used for se
 | https://api.gisaia.com/demo/arlas/`_describe` |
 | https://api.gisaia.com/demo/arlas/`city,state,country`/`_describe` |
 | https://api.gisaia.com/demo/arlas/`city,state,country`/`_count`?`q=bord*`&`f=country:France`&`pretty=true`&`human=true` |
-| https://api.gisaia.com/demo/arlas/`election`/`_search`?`f=country:France`&`after=1490623808`&`format=geojson`&`pretty=true`&`human=true` |
+| https://api.gisaia.com/demo/arlas/`election`/`_search`?`f=country:France`&`after=1490613808`&`format=geojson`&`pretty=true`&`human=true`&`size=1000` |
 
 # URL Parts
 
