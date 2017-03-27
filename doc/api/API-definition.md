@@ -8,8 +8,9 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/`{version}`/**_describe**                                  |  List all the collections configured in ARLAS  |
 | /arlas/`{version}`/`{collection}`/**_describe**?[`filter`][`form`]|  Describe the structure of the collection  |
 | /arlas/`{version}`/`{collections}`/**_count**?[`filter`][`form`]  |  Count the number of elements found in the collection(s)[^2], given the parameters  |
-| /arlas/`{version}`/`{collections}`/**_search**?[`filter`][`projection`][`sort`][`size`][`form`][`format`]      |  Count the number of elements found in the collection(s), given the parameters  |
-| /arlas/`{version}`/`{collections}`/**_aggregate**?[`filter`][`aggregation`][`sort`][`size`][`form`][`format`]      |  Count the number of elements found in the collection(s), given the parameters  |
+| /arlas/`{version}`/`{collections}`/**_search**?[`filter`][`form`][`format`][`projection`][`size`][`sort`]      |  Count the number of elements found in the collection(s), given the parameters  |
+| /arlas/`{version}`/`{collections}`/**_aggregate**?[`aggregation`][`filter`][`form`][`format`][`size`][`sort`]      |  Count the number of elements found in the collection(s), given the parameters  |
+| /arlas/`{version}`/`{collections}`/**_suggest**?[`filter`][`form`][`size`][`suggest`]      |  Suggest the the n (n=`size`) most relevant terms given the filters  |
 
 [^2]: When multiple collections are allowed ({collections}), the comma is used for seperating the collection names.
 
@@ -73,6 +74,17 @@ The [`format`] url part allows the following parameters to be specified:
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
 | **format** | false | json,geojson | JSON or GeoJSON format | false |
+
+> Example: `...`
+
+---
+### `suggest`
+
+The [`suggest`] url part allows the following parameters to be specified:
+
+| Parameter | Default value | Values | Description | Multiple |
+| --- | --- | --- | ------ | --- |
+|  | false | true,false |  | false |
 
 > Example: `...`
 
