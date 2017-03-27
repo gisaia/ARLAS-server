@@ -23,7 +23,7 @@ When multiple collections are permited ({collections}), the comma is used for se
 | https://api.gisaia.com/demo/arlas/`_describe` |
 | https://api.gisaia.com/demo/arlas/`city,state,country`/`_describe` |
 | https://api.gisaia.com/demo/arlas/`city,state,country`/`_count`?`q=bord*`&`f=country:France`&`pretty=true`&`human=true` |
-| https://api.gisaia.com/demo/arlas/`election`/`_search`?`f=country:France`&`after=1490613808`&`format=geojson`&`pretty=true`&`human=true`&`size=1000` |
+| https://api.gisaia.com/demo/arlas/`election`/`_search`?`f=country:France`&`after=1490613808`&`format=geojson`&`pretty=true`&`human=true`&`size=1000`&`include=id,name` |
 
 # URL Parts
 
@@ -117,6 +117,18 @@ The `format` url part allows the following parameters to be specified:
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
 | **format** | `false` | `json`,`geojson` | JSON or GeoJSON format | false |
+
+> Example: `...`
+
+---
+## Part: `projection`
+
+The `projection` url part allows the following parameters to be specified:
+
+| Parameter | Default value | Values | Description | Multiple |
+| --- | --- | --- | ------ | --- |
+| **include** | `*` | `{fieldNamePattern}` | List the name patterns of the field to be included in the result. Seperate patterns with a comma. | true |
+| **exclude** | `*` | `{fieldNamePattern}` | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. | true |
 
 > Example: `...`
 
