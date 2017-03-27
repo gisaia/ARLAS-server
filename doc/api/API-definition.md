@@ -1,5 +1,6 @@
 # URL Schema
 
+The table below lists the URL endpoints and their optional "parts". A part is composed of optional parameters. The parameters are seperated with the character `&`.
 
 | PATH Template | Description |
 | ---- | -------- |
