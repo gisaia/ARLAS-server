@@ -32,8 +32,14 @@ The [`filter`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-| f | None | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters having different fieldNames. The **OR** operator is applied on filters having the same fieldName. If the fieldName starts with **-** then a **must not** filter is used | true |
-| q | None | text | A full text search | false |
+| **f** | None | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters having different fieldNames. The **OR** operator is applied on filters having the same fieldName. If the fieldName starts with **-** then a **must not** filter is used | true |
+| **q** | None | text | A full text search | false |
+| **before** | None | timestamp | Any element having its point in time reference before the given timestamp | false |
+| **after**  | None | timestamp | Any element having its point in time reference after the given timestamp | false |
+| **pwithin** | None | geometry  | Any element having its centroid contained within the given geometry | false |
+| **gwithin** | None | geometry  | Any element having its geometry contained within the given geometry | false |
+| **gintersect** | None | geometry  | Any element having its geometry intersecting the given geometry | false |
+
 
 
 | Operator | Description | Value type |
@@ -53,8 +59,8 @@ The [`form`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-| pretty | false | true,false | Pretty print | false |
-| human | false | true,false | Human readable print | false |
+| **pretty** | false | true,false | Pretty print | false |
+| **human** | false | true,false | Human readable print | false |
 
 > Example: `pretty=true`
 
@@ -65,7 +71,7 @@ The [`format`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-| format | false | json,geojson | JSON or GeoJSON format | false |
+| **format** | false | json,geojson | JSON or GeoJSON format | false |
 
 > Example: `...`
 
@@ -76,7 +82,7 @@ The [`size`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-| size | 10 | >0 | The maximum number of entries to be returned.  | true |
+| **size** | 10 | >0 | The maximum number of entries to be returned.  | true |
 
 > Example: `...`
 
@@ -87,6 +93,6 @@ The [`sort`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-| sort | None | {fieldName}:(ASC,DESC) | Sort the result on a given field, ascending or descending. The parameter can be provided several times. The order matters.  | true |
+| **sort** | None | {fieldName}:(ASC,DESC) | Sort the result on a given field, ascending or descending. The parameter can be provided several times. The order matters.  | true |
 
 > Example: `...`
