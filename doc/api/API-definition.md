@@ -5,10 +5,10 @@
 | ---- | -------- |
 | /arlas/**_describe**                                              |  List all the **REST API** versions supported by ARLAS. Use the keyword `current` to use the current one |
 | /arlas/`{version}`/**_describe**                                  |  List all the collections configured in ARLAS  |
-| /arlas/`{version}`/`{collection}`/**_describe**?[`search`][`form`]|  Describe the structure of the collection  |
-| /arlas/`{version}`/`{collections}`/**_count**?[`search`][`form`]  |  Count the number of elements found in the collection(s)[^2], given the parameters  |
-| /arlas/`{version}`/`{collections}`/**_search**?[`search`][`projection`][`sort`][`size`][`form`][`format`]      |  Count the number of elements found in the collection(s), given the parameters  |
-| /arlas/`{version}`/`{collections}`/**_aggregate**?[`search`][`aggregation`][`sort`][`size`][`form`][`format`]      |  Count the number of elements found in the collection(s), given the parameters  |
+| /arlas/`{version}`/`{collection}`/**_describe**?[`filter`][`form`]|  Describe the structure of the collection  |
+| /arlas/`{version}`/`{collections}`/**_count**?[`filter`][`form`]  |  Count the number of elements found in the collection(s)[^2], given the parameters  |
+| /arlas/`{version}`/`{collections}`/**_search**?[`filter`][`projection`][`sort`][`size`][`form`][`format`]      |  Count the number of elements found in the collection(s), given the parameters  |
+| /arlas/`{version}`/`{collections}`/**_aggregate**?[`filter`][`aggregation`][`sort`][`size`][`form`][`format`]      |  Count the number of elements found in the collection(s), given the parameters  |
 
 [^2]: When multiple collections are allowed ({collections}), the comma is used for seperating the collection names.
 
@@ -19,6 +19,14 @@ The [`aggregation`] url part allows the following parameters to be specified:
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
 |  | false | true,false |  | false |
+
+## `filter`
+
+The [`filter`] url part allows the following parameters to be specified:
+
+| Parameter | Default value | Values | Description | Multiple |
+| --- | --- | --- | ------ | --- |
+| f | None | {fieldName}{operator}{value} | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters having different fieldNames. The **OR** operator is applied on filters having the same fieldName. | true |
 
 ## `form`
 
@@ -36,15 +44,6 @@ The [`format`] url part allows the following parameters to be specified:
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
 | format | false | json,geojson | JSON or GeoJSON format | false |
-
-## `search`
-
-The [`search`] url part allows the following parameters to be specified:
-
-| Parameter | Default value | Values | Description | Multiple |
-| --- | --- | --- | ------ | --- |
-|  | false | true,false |  | false |
-
 
 ## `size`
 
