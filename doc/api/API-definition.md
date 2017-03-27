@@ -1,19 +1,21 @@
+# ARLAS
+
+The ARLAS API makes the ARLAS catalog available for exploration and browsing. The catalog contains collections of geo-referenced products. Every product has a geometry, a centroid, a timestamp and a set of fields specific to the collection.
+
 # URL Schema
 
 The table below lists the URL endpoints and their optional "parts". A part is composed of optional parameters. The parameters are seperated with the character `&`.
 
 | PATH Template | Description |
 | ---- | -------- |
-| /arlas/**_describe**                                  |  List all the collections configured in ARLAS  |
-| /arlas/`{collection}`/**_describe**?[`filter`][`form`]|  Describe the structure of the collection  |
-| /arlas/`{collections}`/**_count**?[`filter`][`form`]  |  Count the number of elements found in the collection(s)[^2], given the parameters  |
-| /arlas/`{collections}`/**_search**?[`filter`][`form`][`format`][`projection`][`size`][`sort`]      |  Count the number of elements found in the collection(s), given the parameters  |
-| /arlas/`{collections}`/**_aggregate**?[`aggregation`][`filter`][`form`][`format`][`size`][`sort`]      |  Count the number of elements found in the collection(s), given the parameters  |
-| /arlas/`{collections}`/**_suggest**?[`filter`][`form`][`size`][`suggest`]      |  Suggest the the n (n=`size`) most relevant terms given the filters  |
+| /arlas/**_describe**                                                                              |  List  the collections configured in ARLAS  |
+| /arlas/`{collection}`/**_describe**?[`form`]                                                      |  Describe the structure and the content of the given collection  |
+| /arlas/`{collections}`/**_count**?[`filter`][`form`]                                              |  Count the number of elements found in the collection(s), given the filters  |
+| /arlas/`{collections}`/**_search**?[`filter`][`form`][`format`][`projection`][`size`][`sort`]     |  Count the number of elements found in the collection(s), given the parameters  |
+| /arlas/`{collections}`/**_aggregate**?[`aggregation`][`filter`][`form`][`format`][`size`][`sort`] |  Count the number of elements found in the collection(s), given the parameters  |
+| /arlas/`{collections}`/**_suggest**?[`filter`][`form`][`size`][`suggest`]                         |  Suggest the the n (n=`size`) most relevant terms given the filters  |
 
-[^2]: When multiple collections are allowed ({collections}), the comma is used for seperating the collection names.
-
-
+When multiple collections are permited ({collections}), the comma is used for seperating the collection names.
 
 # URL Parts
 
