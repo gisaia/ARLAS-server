@@ -33,6 +33,8 @@ The [`filter`] url part allows the following parameters to be specified:
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
 | f | None | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters having different fieldNames. The **OR** operator is applied on filters having the same fieldName. If the fieldName starts with **-** then a **must not** filter is used | true |
+| q | None | text | A full text search | false |
+
 
 | Operator | Description | Value type |
 | --- | ------ | --- |
