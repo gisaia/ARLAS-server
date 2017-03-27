@@ -18,7 +18,7 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 
 # URL Parts
 
-### Part: `aggregation`
+## Part: `aggregation`
 
 The [`aggregation`] url part allows the following parameters to be specified:
 
@@ -43,7 +43,7 @@ The [`aggregation`] url part allows the following parameters to be specified:
 
 
 ---
-### Part: `filter`
+## Part: `filter`
 
 The [`filter`] url part allows the following parameters to be specified:
 
@@ -70,7 +70,7 @@ The [`filter`] url part allows the following parameters to be specified:
 > Example: `...`
 
 ---
-### Part: `form`
+## Part: `form`
 
 The [`form`] url part allows the following parameters to be specified:
 
@@ -82,7 +82,7 @@ The [`form`] url part allows the following parameters to be specified:
 > Example: `pretty=true`
 
 ---
-### Part: `format`
+## Part: `format`
 
 The [`format`] url part allows the following parameters to be specified:
 
@@ -93,7 +93,7 @@ The [`format`] url part allows the following parameters to be specified:
 > Example: `...`
 
 ---
-### Part: `suggest`
+## Part: `suggest`
 
 The [`suggest`] url part allows the following parameters to be specified:
 
@@ -104,7 +104,7 @@ The [`suggest`] url part allows the following parameters to be specified:
 > Example: `...`
 
 ---
-### Part: `size`
+## Part: `size`
 
 The [`size`] url part allows the following parameters to be specified:
 
@@ -115,7 +115,7 @@ The [`size`] url part allows the following parameters to be specified:
 > Example: `...`
 
 ---
-### Part: `sort`
+## Part: `sort`
 
 The [`sort`] url part allows the following parameters to be specified:
 
