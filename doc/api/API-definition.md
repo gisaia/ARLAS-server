@@ -22,16 +22,16 @@ The [`aggregation`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-| **histogram** | None | `{fieldName}` | Aggregates on the date buckets of `{fieldName}` | true |
-| **interval** | None | interval | Size of the intervals. | true |
-| **** | None | true,false |  | false |
-| **** | None | true,false |  | false |
-| **** | None | true,false |  | false |
+| **histogram** | `None` | `{fieldName}` | Aggregates on the date buckets of `{fieldName}` | true |
+| **interval**  | `None` | interval | Size of the intervals. | true |
+| **** | None | `true`,`false` |  | false |
+| **** | None | `true`,`false` |  | false |
+| **** | None | `true`,`false` |  | false |
 
 
 | Aggregation type | Interval | Description |
 | --- | --- | ------ | --- |
-| time | `{size}`**(year,quarter,month,week,day,hour,minute,second)** |  Size of a time interval with the given unit (no space between number and unit)  |
+| time | `{size}**(year,quarter,month,week,day,hour,minute,second)` |  Size of a time interval with the given unit (no space between number and unit)  |
 | time | **** |   |
 | numeric | **** |   |
 | numeric | **** |   |
@@ -74,8 +74,8 @@ The [`form`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-| **pretty** | false | true,false | Pretty print | false |
-| **human** | false | true,false | Human readable print | false |
+| **pretty** | `false` | `true,false` | Pretty print | false |
+| **human** | `false` | `true,false` | Human readable print | false |
 
 > Example: `pretty=true`
 
@@ -86,7 +86,7 @@ The [`format`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-| **format** | false | json,geojson | JSON or GeoJSON format | false |
+| **format** | `false` | `json`,`geojson` | JSON or GeoJSON format | false |
 
 > Example: `...`
 
@@ -97,7 +97,7 @@ The [`suggest`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-|  | false | true,false |  | false |
+|  | `false` | `true,false` |  | false |
 
 > Example: `...`
 
@@ -119,6 +119,6 @@ The [`sort`] url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description | Multiple |
 | --- | --- | --- | ------ | --- |
-| **sort** | None | {fieldName}:(ASC,DESC) | Sort the result on a given field, ascending or descending. The parameter can be provided several times. The order matters.  | true |
+| **sort** | None | `{fieldName}`:(`ASC`,`DESC`) | Sort the result on a given field, ascending or descending. The parameter can be provided several times. The order matters. For aggregation, provide the `agg` keyword as the `{fieldName}`. | true |
 
 > Example: `...`
