@@ -15,8 +15,10 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 [^2]: When multiple collections are allowed ({collections}), the comma is used for seperating the collection names.
 
 
----
-### `aggregation`
+
+# URL Parts
+
+### Part: `aggregation`
 
 The [`aggregation`] url part allows the following parameters to be specified:
 
@@ -41,7 +43,7 @@ The [`aggregation`] url part allows the following parameters to be specified:
 
 
 ---
-### `filter`
+### Part: `filter`
 
 The [`filter`] url part allows the following parameters to be specified:
 
@@ -68,7 +70,7 @@ The [`filter`] url part allows the following parameters to be specified:
 > Example: `...`
 
 ---
-### `form`
+### Part: `form`
 
 The [`form`] url part allows the following parameters to be specified:
 
@@ -80,7 +82,7 @@ The [`form`] url part allows the following parameters to be specified:
 > Example: `pretty=true`
 
 ---
-### `format`
+### Part: `format`
 
 The [`format`] url part allows the following parameters to be specified:
 
@@ -91,7 +93,7 @@ The [`format`] url part allows the following parameters to be specified:
 > Example: `...`
 
 ---
-### `suggest`
+### Part: `suggest`
 
 The [`suggest`] url part allows the following parameters to be specified:
 
@@ -102,7 +104,7 @@ The [`suggest`] url part allows the following parameters to be specified:
 > Example: `...`
 
 ---
-### `size`
+### Part: `size`
 
 The [`size`] url part allows the following parameters to be specified:
 
@@ -113,7 +115,7 @@ The [`size`] url part allows the following parameters to be specified:
 > Example: `...`
 
 ---
-### `sort`
+### Part: `sort`
 
 The [`sort`] url part allows the following parameters to be specified:
 
