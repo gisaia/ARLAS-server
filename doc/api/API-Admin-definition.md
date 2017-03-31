@@ -19,6 +19,5 @@ The following methods let you get, add and delete collection references from ela
 | Method     | Input Data | Output Data | Description                  | Multiple |
 | -----------| ------------- | ------------- | ---------------------------------------- | ---------------------------- | -------- |
 | **GET**    | `None` | Collection Reference as JSON |  Type of aggregation          | false    |
-| **PUT**    | Collection Reference as JSON | Collection Reference as JSON |  Aggregates on the `{field}`. | true     |
-| **PATCH**  | Collection Reference as JSON | Collection Reference as JSON |  Size of the intervals.       | true     |
-| **DELETE** | Collection Reference as JSON | `None` | Size of the intervals.       | true     |
+| **PUT**    | Collection Reference Profile as JSON | Collection Reference as JSON |  Aggregates on the `{field}`. | true     |
+| **DELETE** | `None` | `None` | Size of the intervals.       | true     |
