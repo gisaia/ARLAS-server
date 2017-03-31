@@ -3,66 +3,22 @@
 The ARLAS Admin API let you change the collection references of the ARLAS catalog.
 
 # URL Schema
-The table below lists the URL endpoints and their optional "parts". A part is composed of optional parameters. The parameters are seperated with the character `&`.
+The table below lists the URL endpoints.
 
 | PATH Template                            | Description                              |
 | ---------------------------------------- | ---------------------------------------- |
 | /arlas-admin/                 | List  the collections configured in ARLAS with the technical details |
-| /arlas-admin/`{collection}`   | Get, add, update or delete a collection reference in ARLAS |
+| /arlas-admin/`{collection}`   | Get, add or delete a collection reference in ARLAS |
 
-# URL Parts
+# Managing collections
 
-## Part: `aggregation`
+## /arlas-admin/`{collection}`
 
-The [`aggregation`] url part allows the following parameters to be specified:
+The following methods let you get, add and delete collection references from elasticsearch into the ARLAS catalog:
 
-| Parameter        | Default value | Values                                   | Description                  | Multiple |
-| ---------------- | ------------- | ---------------------------------------- | ---------------------------- | -------- |
-| **agg**          | `None`        | `datehistogram,geohash,histogram`        | Type of aggregation          | false    |
-| **agg_field**    | `None`        | `{field}`                                | Aggregates on the `{field}`. | true     |
-| **agg_interval** | `None`        | interval                                 | Size of the intervals.       | true     |
-| **agg_format**   | `None`        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Size of the intervals.       | true     |
-
-Each aggregation has its own type of interval. The table below lists the semantic of the interval.
-
-| Aggregation         | Interval                                 | Description                              |
-| ------------------- | ---------------------------------------- | ---------------------------------------- |
-| ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit) |
-| ***geohash***       | `{length}`                               | The geohash length: lower the length, greater is the surface of aggregation. See table below. |
-| ***numeric***       | `{size}`                                 | The interval size of the numeric aggregation |
-
-The table below shows the metric dimensions for cells covered by various string lengths of geohash. Cell dimensions vary with latitude and so the table is for the worst-case scenario at the equator.
-
-| GeoHash length | Area width x height   |
-| -------------- | --------------------- |
-| 1              | 5,009.4km x 4,992.6km |
-| 2              | 1,252.3km x 624.1km   |
-| 3              | 156.5km x 156km       |
-| 4              | 39.1km x 19.5km       |
-| 5              | 4.9km x 4.9km         |
-| 6              | 1.2km x 609.4m        |
-| 7              | 152.9m x 152.4m       |
-| 8              | 38.2m x 19m           |
-| 9              | 4.8m x 4.8m           |
-| 10             | 1.2m x 59.5cm         |
-| 11             | 14.9cm x 14.9cm       |
-| 12             | 3.7cm x 1.9cm         |
-
-> Example: `agg=datehistogram&agg_field=date&agg_interval=10d&agg_format=yyyyMMdd`
-
----
-## Part: `filter`
-
-The `filter` url part allows the following parameters to be specified:
-
-| Parameter      | Default value | Values                         | Description                              | Multiple |
-| -------------- | ------------- | ------------------------------ | ---------------------------------------- | -------- |
-| **f**          | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters having different fieldNames. The **OR** operator is applied on filters having the same fieldName. If the fieldName starts with **-** then a **must not** filter is used | true     |
-| **q**          | None          | text                           | A full text search                       | false    |
-| **before**     | None          | timestamp                      | Any element having its point in time reference before the given timestamp | false    |
-| **after**      | None          | timestamp                      | Any element having its point in time reference after the given timestamp | false    |
-| **pwithin**    | None          | geometry                       | Any element having its centroid contained within the given geometry | false    |
-| **gwithin**    | None          | geometry                       | Any element having its geometry contained within the given geometry | false    |
-| **gintersect** | None          | geometry                       | Any element having its geometry intersecting the given geometry (WKT) | false    |
-
-
+| Method     | Input Data | Output Data | Description                  | Multiple |
+| -----------| ------------- | ------------- | ---------------------------------------- | ---------------------------- | -------- |
+| **GET**    | `None` | Collection Reference as JSON |  Type of aggregation          | false    |
+| **PUT**    | Collection Reference as JSON | Collection Reference as JSON |  Aggregates on the `{field}`. | true     |
+| **PATCH**  | Collection Reference as JSON | Collection Reference as JSON |  Size of the intervals.       | true     |
+| **DELETE** | Collection Reference as JSON | `None` | Size of the intervals.       | true     |
