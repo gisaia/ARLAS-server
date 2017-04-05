@@ -16,7 +16,7 @@ server:
   #      archivedLogFilenamePattern: ${ACCESS_LOG_DIR:-log}/our-app/accedd-%d.log.gz
   registerDefaultExceptionMappers: false
   type: simple
-  applicationContextPath: /
+  applicationContextPath: /arlas/
   connector:
     type: http
     port: 9999

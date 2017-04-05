@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-@Path("/arlas")
-@Api(value="/arlas")
+@Path("/explore")
+@Api(value="/explore")
 @SwaggerDefinition(
 		info=@Info(
 				contact=@Contact(email="contact@gisaia.com", name="Gisaia", url="http://www.gisaia.com/")

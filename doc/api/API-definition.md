@@ -8,22 +8,22 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 
 | PATH Template                            | Description                              |
 | ---------------------------------------- | ---------------------------------------- |
-| /arlas/**_describe**                     | List  the collections configured in ARLAS |
-| /arlas/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
-| /arlas/`{collections}`/**_count**?`filter` & `form` | Count the number of products found in the collection(s), given the filters |
-| /arlas/`{collections}`/**_search**?`filter` & `form` & `format` & `projection` & `size` & `sort` | Search and return the products found in the collection(s), given the filters |
-| /arlas/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` & `format` & `size` & `sort` | Aggregate the products in the collection(s), given the filters and the aggregation parameters |
-| /arlas/`{collections}`/**_suggest**?`filter` & `form` & `size` & `suggest` | Suggest the the n (n=`size`) most relevant terms given the filters |
+| /arlas/explore/**_describe**                     | List  the collections configured in ARLAS |
+| /arlas/explore/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
+| /arlas/explore/`{collections}`/**_count**?`filter` & `form` | Count the number of products found in the collection(s), given the filters |
+| /arlas/explore/`{collections}`/**_search**?`filter` & `form` & `format` & `projection` & `size` & `sort` | Search and return the products found in the collection(s), given the filters |
+| /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` & `format` & `size` & `sort` | Aggregate the products in the collection(s), given the filters and the aggregation parameters |
+| /arlas/explore/`{collections}`/**_suggest**?`filter` & `form` & `size` & `suggest` | Suggest the the n (n=`size`) most relevant terms given the filters |
 
 When multiple collections are permited ({collections}), the comma is used for seperating the collection names.
 
 | Examples                                 |
 | ---------------------------------------- |
-| https://api.gisaia.com/demo/arlas/`_describe` |
-| https://api.gisaia.com/demo/arlas/`city,state,country`/`_describe` |
-| https://api.gisaia.com/demo/arlas/`city,state,country`/`_count`?`q=bord*`&`f=country:France`&`pretty=true`&`human=true` |
-| https://api.gisaia.com/demo/arlas/`election`/`_search`?`f=country:France`&`after=1490613808`&`format=geojson`& `pretty=true`&`human=true`&`size=1000`&`include=id,name` |
-| https://api.gisaia.com/demo/arlas/`election`/`_aggregate`?`f=country:France`&`after=1490613808`&`format=geojson`& `pretty=true`&`human=true`&`size=1000`&`include=id,name`&`agg=geohash`&`agg_interval=4` |
+| https://api.gisaia.com/demo/arlas/explore/`_describe` |
+| https://api.gisaia.com/demo/arlas/explore/`city,state,country`/`_describe` |
+| https://api.gisaia.com/demo/arlas/explore/`city,state,country`/`_count`?`q=bord*`&`f=country:France`&`pretty=true`&`human=true` |
+| https://api.gisaia.com/demo/arlas/explore/`election`/`_search`?`f=country:France`&`after=1490613808`&`format=geojson`& `pretty=true`&`human=true`&`size=1000`&`include=id,name` |
+| https://api.gisaia.com/demo/arlas/explore/`election`/`_aggregate`?`f=country:France`&`after=1490613808`&`format=geojson`& `pretty=true`&`human=true`&`size=1000`&`include=id,name`&`agg=geohash`&`agg_interval=4` |
 
 # URL Parts
 

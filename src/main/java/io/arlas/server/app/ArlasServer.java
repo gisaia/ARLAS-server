@@ -5,6 +5,7 @@ import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.rest.ExceptionHandlerMapper;
 import io.arlas.server.rest.explore.count.CountService;
+import io.arlas.server.rest.explore.search.SearchService;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -72,5 +73,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 		environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
 		environment.jersey().register(new ExceptionHandlerMapper());
 		environment.jersey().register(new CountService());
+		environment.jersey().register(new SearchService());
 	}
 }

@@ -8,8 +8,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
 
-@Path("/arlas-admin")
-@Api(value="/arlas-admin")
+@Path("/admin")
+@Api(value="/admin")
 @SwaggerDefinition(
 		info=@Info(
 				contact=@Contact(email="contact@gisaia.com", name="Gisaia", url="http://www.gisaia.com/")
