@@ -1,4 +1,4 @@
-package io.arlas.server.rest.explore.count;
+package io.arlas.server.rest.explore.search;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -8,13 +8,12 @@ import io.swagger.annotations.ApiParam;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class CountService extends ExploreServices {
+public class SearchService extends ExploreServices {
 
     @Timed
-    @Path("{collections}/count") // TODO : fill it
+    @Path("{collections}/search") // TODO : fill it
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -31,6 +30,6 @@ public class CountService extends ExploreServices {
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("count").build();
+        return Response.ok("search").build();
     }
 }
