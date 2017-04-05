@@ -10,7 +10,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-public class SearchService extends ExploreServices {
+public class SearchRESTService extends ExploreServices {
 
     @Timed
     @Path("{collections}/search") // TODO : fill it

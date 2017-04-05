@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class CountService extends ExploreServices {
+public class CountRESTService extends ExploreServices {
 
     @Timed
     @Path("{collections}/count") // TODO : fill it
