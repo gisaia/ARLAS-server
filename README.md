@@ -23,6 +23,6 @@ java -jar zipkin.jar &
 
 # Run
 ```sh
-java -jar target/elastic-tiler-1.0.jar server configuration.yaml
+java -jar target/arlas-server-x.x.jar server configuration.yaml
 ```
 
