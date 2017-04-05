@@ -15,6 +15,7 @@ mvn clean install
 In order to monitor the REST service performances in ZIPKIN:
 - Enable zipkin in configuration.yaml
 - Then:
+
 ```sh
 wget -O zipkin.jar 'https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec'
 java -jar zipkin.jar &
