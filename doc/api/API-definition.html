@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset="utf-8" />
+      <title>API-definition</title>
+      <style>.markdown-preview:not([data-use-github-style]) { padding: 2em; font-size: 1.2em; color: rgb(56, 58, 66); overflow: auto; background-color: rgb(250, 250, 250); }
+.markdown-preview:not([data-use-github-style]) > :first-child { margin-top: 0px; }
+.markdown-preview:not([data-use-github-style]) h1, .markdown-preview:not([data-use-github-style]) h2, .markdown-preview:not([data-use-github-style]) h3, .markdown-preview:not([data-use-github-style]) h4, .markdown-preview:not([data-use-github-style]) h5, .markdown-preview:not([data-use-github-style]) h6 { line-height: 1.2; margin-top: 1.5em; margin-bottom: 0.5em; color: rgb(0, 0, 0); }
+.markdown-preview:not([data-use-github-style]) h1 { font-size: 2.4em; font-weight: 300; }
+.markdown-preview:not([data-use-github-style]) h2 { font-size: 1.8em; font-weight: 400; }
+.markdown-preview:not([data-use-github-style]) h3 { font-size: 1.5em; font-weight: 500; }
+.markdown-preview:not([data-use-github-style]) h4 { font-size: 1.2em; font-weight: 600; }
+.markdown-preview:not([data-use-github-style]) h5 { font-size: 1.1em; font-weight: 600; }
+.markdown-preview:not([data-use-github-style]) h6 { font-size: 1em; font-weight: 600; }
+.markdown-preview:not([data-use-github-style]) strong { color: rgb(0, 0, 0); }
+.markdown-preview:not([data-use-github-style]) del { color: rgb(94, 97, 110); }
+.markdown-preview:not([data-use-github-style]) a, .markdown-preview:not([data-use-github-style]) a code { color: rgb(82, 111, 255); }
+.markdown-preview:not([data-use-github-style]) img { max-width: 100%; }
+.markdown-preview:not([data-use-github-style]) > p { margin-top: 0px; margin-bottom: 1.5em; }
+.markdown-preview:not([data-use-github-style]) > ul, .markdown-preview:not([data-use-github-style]) > ol { margin-bottom: 1.5em; }
+.markdown-preview:not([data-use-github-style]) blockquote { margin: 1.5em 0px; font-size: inherit; color: rgb(94, 97, 110); border-color: rgb(209, 209, 210); border-width: 4px; }
+.markdown-preview:not([data-use-github-style]) hr { margin: 3em 0px; border-top: 2px dashed rgb(209, 209, 210); background: none; }
+.markdown-preview:not([data-use-github-style]) table { margin: 1.5em 0px; }
+.markdown-preview:not([data-use-github-style]) th { color: rgb(0, 0, 0); }
+.markdown-preview:not([data-use-github-style]) th, .markdown-preview:not([data-use-github-style]) td { padding: 0.66em 1em; border: 1px solid rgb(209, 209, 210); }
+.markdown-preview:not([data-use-github-style]) code { color: rgb(0, 0, 0); background-color: rgb(234, 234, 235); }
+.markdown-preview:not([data-use-github-style]) pre.editor-colors { margin: 1.5em 0px; padding: 1em; font-size: 0.92em; border-radius: 3px; background-color: rgb(240, 240, 240); }
+.markdown-preview:not([data-use-github-style]) kbd { color: rgb(0, 0, 0); border-width: 1px 1px 2px; border-style: solid; border-color: rgb(209, 209, 210) rgb(209, 209, 210) rgb(193, 193, 194); background-color: rgb(234, 234, 235); }
+.markdown-preview[data-use-github-style] { font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif; line-height: 1.6; word-wrap: break-word; padding: 30px; font-size: 16px; color: rgb(51, 51, 51); overflow: scroll; background-color: rgb(255, 255, 255); }
+.markdown-preview[data-use-github-style] > :first-child { margin-top: 0px !important; }
+.markdown-preview[data-use-github-style] > :last-child { margin-bottom: 0px !important; }
+.markdown-preview[data-use-github-style] a:not([href]) { color: inherit; text-decoration: none; }
+.markdown-preview[data-use-github-style] .absent { color: rgb(204, 0, 0); }
+.markdown-preview[data-use-github-style] .anchor { position: absolute; top: 0px; left: 0px; display: block; padding-right: 6px; padding-left: 30px; margin-left: -30px; }
+.markdown-preview[data-use-github-style] .anchor:focus { outline: none; }
+.markdown-preview[data-use-github-style] h1, .markdown-preview[data-use-github-style] h2, .markdown-preview[data-use-github-style] h3, .markdown-preview[data-use-github-style] h4, .markdown-preview[data-use-github-style] h5, .markdown-preview[data-use-github-style] h6 { position: relative; margin-top: 1em; margin-bottom: 16px; font-weight: bold; line-height: 1.4; }
+.markdown-preview[data-use-github-style] h1 .octicon-link, .markdown-preview[data-use-github-style] h2 .octicon-link, .markdown-preview[data-use-github-style] h3 .octicon-link, .markdown-preview[data-use-github-style] h4 .octicon-link, .markdown-preview[data-use-github-style] h5 .octicon-link, .markdown-preview[data-use-github-style] h6 .octicon-link { display: none; color: rgb(0, 0, 0); vertical-align: middle; }
+.markdown-preview[data-use-github-style] h1:hover .anchor, .markdown-preview[data-use-github-style] h2:hover .anchor, .markdown-preview[data-use-github-style] h3:hover .anchor, .markdown-preview[data-use-github-style] h4:hover .anchor, .markdown-preview[data-use-github-style] h5:hover .anchor, .markdown-preview[data-use-github-style] h6:hover .anchor { padding-left: 8px; margin-left: -30px; text-decoration: none; }
+.markdown-preview[data-use-github-style] h1:hover .anchor .octicon-link, .markdown-preview[data-use-github-style] h2:hover .anchor .octicon-link, .markdown-preview[data-use-github-style] h3:hover .anchor .octicon-link, .markdown-preview[data-use-github-style] h4:hover .anchor .octicon-link, .markdown-preview[data-use-github-style] h5:hover .anchor .octicon-link, .markdown-preview[data-use-github-style] h6:hover .anchor .octicon-link { display: inline-block; }
+.markdown-preview[data-use-github-style] h1 tt, .markdown-preview[data-use-github-style] h2 tt, .markdown-preview[data-use-github-style] h3 tt, .markdown-preview[data-use-github-style] h4 tt, .markdown-preview[data-use-github-style] h5 tt, .markdown-preview[data-use-github-style] h6 tt, .markdown-preview[data-use-github-style] h1 code, .markdown-preview[data-use-github-style] h2 code, .markdown-preview[data-use-github-style] h3 code, .markdown-preview[data-use-github-style] h4 code, .markdown-preview[data-use-github-style] h5 code, .markdown-preview[data-use-github-style] h6 code { font-size: inherit; }
+.markdown-preview[data-use-github-style] h1 { padding-bottom: 0.3em; font-size: 2.25em; line-height: 1.2; border-bottom: 1px solid rgb(238, 238, 238); }
+.markdown-preview[data-use-github-style] h1 .anchor { line-height: 1; }
+.markdown-preview[data-use-github-style] h2 { padding-bottom: 0.3em; font-size: 1.75em; line-height: 1.225; border-bottom: 1px solid rgb(238, 238, 238); }
+.markdown-preview[data-use-github-style] h2 .anchor { line-height: 1; }
+.markdown-preview[data-use-github-style] h3 { font-size: 1.5em; line-height: 1.43; }
+.markdown-preview[data-use-github-style] h3 .anchor { line-height: 1.2; }
+.markdown-preview[data-use-github-style] h4 { font-size: 1.25em; }
+.markdown-preview[data-use-github-style] h4 .anchor { line-height: 1.2; }
+.markdown-preview[data-use-github-style] h5 { font-size: 1em; }
+.markdown-preview[data-use-github-style] h5 .anchor { line-height: 1.1; }
+.markdown-preview[data-use-github-style] h6 { font-size: 1em; color: rgb(119, 119, 119); }
+.markdown-preview[data-use-github-style] h6 .anchor { line-height: 1.1; }
+.markdown-preview[data-use-github-style] p, .markdown-preview[data-use-github-style] blockquote, .markdown-preview[data-use-github-style] ul, .markdown-preview[data-use-github-style] ol, .markdown-preview[data-use-github-style] dl, .markdown-preview[data-use-github-style] table, .markdown-preview[data-use-github-style] pre { margin-top: 0px; margin-bottom: 16px; }
+.markdown-preview[data-use-github-style] hr { height: 4px; padding: 0px; margin: 16px 0px; border: 0px none; background-color: rgb(231, 231, 231); }
+.markdown-preview[data-use-github-style] ul, .markdown-preview[data-use-github-style] ol { padding-left: 2em; }
+.markdown-preview[data-use-github-style] ul.no-list, .markdown-preview[data-use-github-style] ol.no-list { padding: 0px; list-style-type: none; }
+.markdown-preview[data-use-github-style] ul ul, .markdown-preview[data-use-github-style] ul ol, .markdown-preview[data-use-github-style] ol ol, .markdown-preview[data-use-github-style] ol ul { margin-top: 0px; margin-bottom: 0px; }
+.markdown-preview[data-use-github-style] li > p { margin-top: 16px; }
+.markdown-preview[data-use-github-style] dl { padding: 0px; }
+.markdown-preview[data-use-github-style] dl dt { padding: 0px; margin-top: 16px; font-size: 1em; font-style: italic; font-weight: bold; }
+.markdown-preview[data-use-github-style] dl dd { padding: 0px 16px; margin-bottom: 16px; }
+.markdown-preview[data-use-github-style] blockquote { padding: 0px 15px; color: rgb(119, 119, 119); border-left: 4px solid rgb(221, 221, 221); }
+.markdown-preview[data-use-github-style] blockquote > :first-child { margin-top: 0px; }
+.markdown-preview[data-use-github-style] blockquote > :last-child { margin-bottom: 0px; }
+.markdown-preview[data-use-github-style] table { display: block; width: 100%; overflow: auto; word-break: keep-all; }
+.markdown-preview[data-use-github-style] table th { font-weight: bold; }
+.markdown-preview[data-use-github-style] table th, .markdown-preview[data-use-github-style] table td { padding: 6px 13px; border: 1px solid rgb(221, 221, 221); }
+.markdown-preview[data-use-github-style] table tr { border-top: 1px solid rgb(204, 204, 204); background-color: rgb(255, 255, 255); }
+.markdown-preview[data-use-github-style] table tr:nth-child(2n) { background-color: rgb(248, 248, 248); }
+.markdown-preview[data-use-github-style] img { max-width: 100%; box-sizing: border-box; }
+.markdown-preview[data-use-github-style] .emoji { max-width: none; }
+.markdown-preview[data-use-github-style] span.frame { display: block; overflow: hidden; }
+.markdown-preview[data-use-github-style] span.frame > span { display: block; float: left; width: auto; padding: 7px; margin: 13px 0px 0px; overflow: hidden; border: 1px solid rgb(221, 221, 221); }
+.markdown-preview[data-use-github-style] span.frame span img { display: block; float: left; }
+.markdown-preview[data-use-github-style] span.frame span span { display: block; padding: 5px 0px 0px; clear: both; color: rgb(51, 51, 51); }
+.markdown-preview[data-use-github-style] span.align-center { display: block; overflow: hidden; clear: both; }
+.markdown-preview[data-use-github-style] span.align-center > span { display: block; margin: 13px auto 0px; overflow: hidden; text-align: center; }
+.markdown-preview[data-use-github-style] span.align-center span img { margin: 0px auto; text-align: center; }
+.markdown-preview[data-use-github-style] span.align-right { display: block; overflow: hidden; clear: both; }
+.markdown-preview[data-use-github-style] span.align-right > span { display: block; margin: 13px 0px 0px; overflow: hidden; text-align: right; }
+.markdown-preview[data-use-github-style] span.align-right span img { margin: 0px; text-align: right; }
+.markdown-preview[data-use-github-style] span.float-left { display: block; float: left; margin-right: 13px; overflow: hidden; }
+.markdown-preview[data-use-github-style] span.float-left span { margin: 13px 0px 0px; }
+.markdown-preview[data-use-github-style] span.float-right { display: block; float: right; margin-left: 13px; overflow: hidden; }
+.markdown-preview[data-use-github-style] span.float-right > span { display: block; margin: 13px auto 0px; overflow: hidden; text-align: right; }
+.markdown-preview[data-use-github-style] code, .markdown-preview[data-use-github-style] tt { padding: 0.2em 0px; margin: 0px; font-size: 85%; border-radius: 3px; background-color: rgba(0, 0, 0, 0.0392157); }
+.markdown-preview[data-use-github-style] code::before, .markdown-preview[data-use-github-style] tt::before, .markdown-preview[data-use-github-style] code::after, .markdown-preview[data-use-github-style] tt::after { letter-spacing: -0.2em; content: " "; }
+.markdown-preview[data-use-github-style] code br, .markdown-preview[data-use-github-style] tt br { display: none; }
+.markdown-preview[data-use-github-style] del code { text-decoration: inherit; }
+.markdown-preview[data-use-github-style] pre > code { padding: 0px; margin: 0px; font-size: 100%; word-break: normal; white-space: pre; border: 0px; background: transparent; }
+.markdown-preview[data-use-github-style] .highlight { margin-bottom: 16px; }
+.markdown-preview[data-use-github-style] .highlight pre, .markdown-preview[data-use-github-style] pre { padding: 16px; overflow: auto; font-size: 85%; line-height: 1.45; border-radius: 3px; background-color: rgb(247, 247, 247); }
+.markdown-preview[data-use-github-style] .highlight pre { margin-bottom: 0px; word-break: normal; }
+.markdown-preview[data-use-github-style] pre { word-wrap: normal; }
+.markdown-preview[data-use-github-style] pre code, .markdown-preview[data-use-github-style] pre tt { display: inline; max-width: initial; padding: 0px; margin: 0px; overflow: initial; line-height: inherit; word-wrap: normal; border: 0px; background-color: transparent; }
+.markdown-preview[data-use-github-style] pre code::before, .markdown-preview[data-use-github-style] pre tt::before, .markdown-preview[data-use-github-style] pre code::after, .markdown-preview[data-use-github-style] pre tt::after { content: normal; }
+.markdown-preview[data-use-github-style] kbd { display: inline-block; padding: 3px 5px; font-size: 11px; line-height: 10px; color: rgb(85, 85, 85); vertical-align: middle; border-width: 1px; border-style: solid; border-color: rgb(204, 204, 204) rgb(204, 204, 204) rgb(187, 187, 187); border-radius: 3px; box-shadow: rgb(187, 187, 187) 0px -1px 0px inset; background-color: rgb(252, 252, 252); }
+.markdown-preview[data-use-github-style] a { color: rgb(51, 122, 183); }
+.markdown-preview[data-use-github-style] code { color: inherit; }
+.markdown-preview[data-use-github-style] pre.editor-colors { padding: 0.8em 1em; margin-bottom: 1em; font-size: 0.85em; border-radius: 4px; overflow: auto; }
+.scrollbars-visible-always .markdown-preview pre.editor-colors .vertical-scrollbar, .scrollbars-visible-always .markdown-preview pre.editor-colors .horizontal-scrollbar { visibility: hidden; }
+.scrollbars-visible-always .markdown-preview pre.editor-colors:hover .vertical-scrollbar, .scrollbars-visible-always .markdown-preview pre.editor-colors:hover .horizontal-scrollbar { visibility: visible; }
+.markdown-preview .task-list-item-checkbox { position: absolute; margin: 0.25em 0px 0px -1.4em; }
+.bracket-matcher .region {
+  border-bottom: 1px dotted lime;
+  position: absolute;
+}
+
+.spell-check-misspelling .region {
+  border-bottom: 2px dotted rgba(255, 51, 51, 0.75);
+}
+.spell-check-corrections {
+  width: 25em !important;
+}
+
+pre.editor-colors {
+  background-color: #fafafa;
+  color: #383a42;
+}
+pre.editor-colors .line.cursor-line {
+  background-color: rgba(56, 58, 66, 0.05);
+}
+pre.editor-colors .invisible {
+  color: #383a42;
+}
+pre.editor-colors .cursor {
+  border-left: 2px solid #526fff;
+}
+pre.editor-colors .selection .region {
+  background-color: #e5e5e6;
+}
+pre.editor-colors .bracket-matcher .region {
+  border-bottom: 1px solid #526fff;
+  box-sizing: border-box;
+}
+pre.editor-colors .invisible-character {
+  color: rgba(56, 58, 66, 0.2);
+}
+pre.editor-colors .indent-guide {
+  color: rgba(56, 58, 66, 0.2);
+}
+pre.editor-colors .wrap-guide {
+  background-color: rgba(56, 58, 66, 0.2);
+}
+pre.editor-colors .find-result .region.region.region,
+pre.editor-colors .current-result .region.region.region {
+  border-radius: 2px;
+  background-color: rgba(82, 111, 255, 0.2);
+  transition: border-color 0.4s;
+}
+pre.editor-colors .find-result .region.region.region {
+  border: 2px solid transparent;
+}
+pre.editor-colors .current-result .region.region.region {
+  border: 2px solid #526fff;
+  transition-duration: .1s;
+}
+pre.editor-colors .gutter .line-number {
+  color: #9d9d9f;
+  -webkit-font-smoothing: antialiased;
+}
+pre.editor-colors .gutter .line-number.cursor-line {
+  color: #383a42;
+  background-color: #f2f2f2;
+}
+pre.editor-colors .gutter .line-number.cursor-line-no-selection {
+  background-color: transparent;
+}
+pre.editor-colors .gutter .line-number .icon-right {
+  color: #383a42;
+}
+pre.editor-colors .gutter:not(.git-diff-icon) .line-number.git-line-removed.git-line-removed::before {
+  bottom: -3px;
+}
+pre.editor-colors .gutter:not(.git-diff-icon) .line-number.git-line-removed::after {
+  content: "";
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 25px;
+  border-bottom: 1px dotted rgba(255, 20, 20, 0.5);
+  pointer-events: none;
+}
+pre.editor-colors .gutter .line-number.folded,
+pre.editor-colors .gutter .line-number:after,
+pre.editor-colors .fold-marker:after {
+  color: #383a42;
+}
+.syntax--comment {
+  color: #a0a1a7;
+  font-style: italic;
+}
+.syntax--comment .syntax--markup.syntax--link {
+  color: #a0a1a7;
+}
+.syntax--entity.syntax--name.syntax--type {
+  color: #c18401;
+}
+.syntax--entity.syntax--other.syntax--inherited-class {
+  color: #50a14f;
+}
+.syntax--keyword {
+  color: #a626a4;
+}
+.syntax--keyword.syntax--control {
+  color: #a626a4;
+}
+.syntax--keyword.syntax--operator {
+  color: #383a42;
+}
+.syntax--keyword.syntax--other.syntax--special-method {
+  color: #4078f2;
+}
+.syntax--keyword.syntax--other.syntax--unit {
+  color: #986801;
+}
+.syntax--storage {
+  color: #a626a4;
+}
+.syntax--storage.syntax--type.syntax--annotation,
+.syntax--storage.syntax--type.syntax--primitive {
+  color: #a626a4;
+}
+.syntax--storage.syntax--modifier.syntax--package,
+.syntax--storage.syntax--modifier.syntax--import {
+  color: #383a42;
+}
+.syntax--constant {
+  color: #986801;
+}
+.syntax--constant.syntax--variable {
+  color: #986801;
+}
+.syntax--constant.syntax--character.syntax--escape {
+  color: #0184bc;
+}
+.syntax--constant.syntax--numeric {
+  color: #986801;
+}
+.syntax--constant.syntax--other.syntax--color {
+  color: #0184bc;
+}
+.syntax--constant.syntax--other.syntax--symbol {
+  color: #0184bc;
+}
+.syntax--variable {
+  color: #e45649;
+}
+.syntax--variable.syntax--interpolation {
+  color: #ca1243;
+}
+.syntax--variable.syntax--parameter {
+  color: #383a42;
+}
+.syntax--string {
+  color: #50a14f;
+}
+.syntax--string.syntax--regexp {
+  color: #0184bc;
+}
+.syntax--string.syntax--regexp .syntax--source.syntax--ruby.syntax--embedded {
+  color: #c18401;
+}
+.syntax--string.syntax--other.syntax--link {
+  color: #e45649;
+}
+.syntax--punctuation.syntax--definition.syntax--comment {
+  color: #a0a1a7;
+}
+.syntax--punctuation.syntax--definition.syntax--method-parameters,
+.syntax--punctuation.syntax--definition.syntax--function-parameters,
+.syntax--punctuation.syntax--definition.syntax--parameters,
+.syntax--punctuation.syntax--definition.syntax--separator,
+.syntax--punctuation.syntax--definition.syntax--seperator,
+.syntax--punctuation.syntax--definition.syntax--array {
+  color: #383a42;
+}
+.syntax--punctuation.syntax--definition.syntax--heading,
+.syntax--punctuation.syntax--definition.syntax--identity {
+  color: #4078f2;
+}
+.syntax--punctuation.syntax--definition.syntax--bold {
+  color: #c18401;
+  font-weight: bold;
+}
+.syntax--punctuation.syntax--definition.syntax--italic {
+  color: #a626a4;
+  font-style: italic;
+}
+.syntax--punctuation.syntax--section.syntax--embedded {
+  color: #ca1243;
+}
+.syntax--punctuation.syntax--section.syntax--method,
+.syntax--punctuation.syntax--section.syntax--class,
+.syntax--punctuation.syntax--section.syntax--inner-class {
+  color: #383a42;
+}
+.syntax--support.syntax--class {
+  color: #c18401;
+}
+.syntax--support.syntax--type {
+  color: #0184bc;
+}
+.syntax--support.syntax--function {
+  color: #0184bc;
+}
+.syntax--support.syntax--function.syntax--any-method {
+  color: #4078f2;
+}
+.syntax--entity.syntax--name.syntax--function {
+  color: #4078f2;
+}
+.syntax--entity.syntax--name.syntax--class,
+.syntax--entity.syntax--name.syntax--type.syntax--class {
+  color: #c18401;
+}
+.syntax--entity.syntax--name.syntax--section {
+  color: #4078f2;
+}
+.syntax--entity.syntax--name.syntax--tag {
+  color: #e45649;
+}
+.syntax--entity.syntax--other.syntax--attribute-name {
+  color: #986801;
+}
+.syntax--entity.syntax--other.syntax--attribute-name.syntax--id {
+  color: #4078f2;
+}
+.syntax--meta.syntax--class {
+  color: #c18401;
+}
+.syntax--meta.syntax--class.syntax--body {
+  color: #383a42;
+}
+.syntax--meta.syntax--method-call,
+.syntax--meta.syntax--method {
+  color: #383a42;
+}
+.syntax--meta.syntax--definition.syntax--variable {
+  color: #e45649;
+}
+.syntax--meta.syntax--link {
+  color: #986801;
+}
+.syntax--meta.syntax--require {
+  color: #4078f2;
+}
+.syntax--meta.syntax--selector {
+  color: #a626a4;
+}
+.syntax--meta.syntax--separator {
+  background-color: #373b41;
+  color: #383a42;
+}
+.syntax--meta.syntax--tag {
+  color: #383a42;
+}
+.syntax--underline {
+  text-decoration: underline;
+}
+.syntax--none {
+  color: #383a42;
+}
+.syntax--invalid.syntax--deprecated {
+  color: #000000 !important;
+  background-color: #f2a60d !important;
+}
+.syntax--invalid.syntax--illegal {
+  color: #ffffff !important;
+  background-color: #ff1414 !important;
+}
+.syntax--markup.syntax--bold {
+  color: #986801;
+  font-weight: bold;
+}
+.syntax--markup.syntax--changed {
+  color: #a626a4;
+}
+.syntax--markup.syntax--deleted {
+  color: #e45649;
+}
+.syntax--markup.syntax--italic {
+  color: #a626a4;
+  font-style: italic;
+}
+.syntax--markup.syntax--heading {
+  color: #e45649;
+}
+.syntax--markup.syntax--heading .syntax--punctuation.syntax--definition.syntax--heading {
+  color: #4078f2;
+}
+.syntax--markup.syntax--link {
+  color: #0184bc;
+}
+.syntax--markup.syntax--inserted {
+  color: #50a14f;
+}
+.syntax--markup.syntax--quote {
+  color: #986801;
+}
+.syntax--markup.syntax--raw {
+  color: #50a14f;
+}
+.syntax--source.syntax--c .syntax--keyword.syntax--operator {
+  color: #a626a4;
+}
+.syntax--source.syntax--cpp .syntax--keyword.syntax--operator {
+  color: #a626a4;
+}
+.syntax--source.syntax--cs .syntax--keyword.syntax--operator {
+  color: #a626a4;
+}
+.syntax--source.syntax--css .syntax--property-name,
+.syntax--source.syntax--css .syntax--property-value {
+  color: #696c77;
+}
+.syntax--source.syntax--css .syntax--property-name.syntax--support,
+.syntax--source.syntax--css .syntax--property-value.syntax--support {
+  color: #383a42;
+}
+.syntax--source.syntax--gfm .syntax--markup {
+  -webkit-font-smoothing: auto;
+}
+.syntax--source.syntax--gfm .syntax--link .syntax--entity {
+  color: #4078f2;
+}
+.syntax--source.syntax--go .syntax--storage.syntax--type.syntax--string {
+  color: #a626a4;
+}
+.syntax--source.syntax--ini .syntax--keyword.syntax--other.syntax--definition.syntax--ini {
+  color: #e45649;
+}
+.syntax--source.syntax--java .syntax--storage.syntax--modifier.syntax--import {
+  color: #c18401;
+}
+.syntax--source.syntax--java .syntax--storage.syntax--type {
+  color: #c18401;
+}
+.syntax--source.syntax--java .syntax--keyword.syntax--operator.syntax--instanceof {
+  color: #a626a4;
+}
+.syntax--source.syntax--java-properties .syntax--meta.syntax--key-pair {
+  color: #e45649;
+}
+.syntax--source.syntax--java-properties .syntax--meta.syntax--key-pair > .syntax--punctuation {
+  color: #383a42;
+}
+.syntax--source.syntax--js .syntax--keyword.syntax--operator {
+  color: #0184bc;
+}
+.syntax--source.syntax--js .syntax--keyword.syntax--operator.syntax--delete,
+.syntax--source.syntax--js .syntax--keyword.syntax--operator.syntax--in,
+.syntax--source.syntax--js .syntax--keyword.syntax--operator.syntax--of,
+.syntax--source.syntax--js .syntax--keyword.syntax--operator.syntax--instanceof,
+.syntax--source.syntax--js .syntax--keyword.syntax--operator.syntax--new,
+.syntax--source.syntax--js .syntax--keyword.syntax--operator.syntax--typeof,
+.syntax--source.syntax--js .syntax--keyword.syntax--operator.syntax--void {
+  color: #a626a4;
+}
+.syntax--source.syntax--json .syntax--meta.syntax--structure.syntax--dictionary.syntax--json > .syntax--string.syntax--quoted.syntax--json {
+  color: #e45649;
+}
+.syntax--source.syntax--json .syntax--meta.syntax--structure.syntax--dictionary.syntax--json > .syntax--string.syntax--quoted.syntax--json > .syntax--punctuation.syntax--string {
+  color: #e45649;
+}
+.syntax--source.syntax--json .syntax--meta.syntax--structure.syntax--dictionary.syntax--json > .syntax--value.syntax--json > .syntax--string.syntax--quoted.syntax--json,
+.syntax--source.syntax--json .syntax--meta.syntax--structure.syntax--array.syntax--json > .syntax--value.syntax--json > .syntax--string.syntax--quoted.syntax--json,
+.syntax--source.syntax--json .syntax--meta.syntax--structure.syntax--dictionary.syntax--json > .syntax--value.syntax--json > .syntax--string.syntax--quoted.syntax--json > .syntax--punctuation,
+.syntax--source.syntax--json .syntax--meta.syntax--structure.syntax--array.syntax--json > .syntax--value.syntax--json > .syntax--string.syntax--quoted.syntax--json > .syntax--punctuation {
+  color: #50a14f;
+}
+.syntax--source.syntax--json .syntax--meta.syntax--structure.syntax--dictionary.syntax--json > .syntax--constant.syntax--language.syntax--json,
+.syntax--source.syntax--json .syntax--meta.syntax--structure.syntax--array.syntax--json > .syntax--constant.syntax--language.syntax--json {
+  color: #0184bc;
+}
+.syntax--source.syntax--ruby .syntax--constant.syntax--other.syntax--symbol > .syntax--punctuation {
+  color: inherit;
+}
+.syntax--source.syntax--python .syntax--keyword.syntax--operator.syntax--logical.syntax--python {
+  color: #a626a4;
+}
+.syntax--source.syntax--python .syntax--variable.syntax--parameter {
+  color: #986801;
+}
+</style>
+  </head>
+  <body class='markdown-preview' data-use-github-style><h1 id="arlas">ARLAS</h1>
+<p>The ARLAS API makes the ARLAS catalog available for exploration and browsing. The catalog contains collections of geo-referenced products. Every product has a geometry, a centroid, a timestamp and a set of fields specific to the collection.</p>
+<h1 id="url-schema">URL Schema</h1>
+<p>The table below lists the URL endpoints and their optional &quot;parts&quot;. A part is composed of optional parameters. The parameters are seperated with the character <code>&amp;</code>.</p>
+<table>
+<thead>
+<tr>
+<th>PATH Template</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/arlas/<strong>_describe</strong></td>
+<td>List  the collections configured in ARLAS</td>
+</tr>
+<tr>
+<td>/arlas/<code>{collection}</code>/<strong>_describe</strong>?<code>form</code></td>
+<td>Describe the structure and the content of the given collection</td>
+</tr>
+<tr>
+<td>/arlas/<code>{collections}</code>/<strong>_count</strong>?<code>filter</code>&amp;<code>form</code></td>
+<td>Count the number of products found in the collection(s), given the filters</td>
+</tr>
+<tr>
+<td>/arlas/<code>{collections}</code>/<strong>_search</strong>?<code>filter</code>&amp;<code>form</code>&amp;<code>format</code>&amp;<code>projection</code>&amp;<code>size</code>&amp;<code>sort</code></td>
+<td>Search and return the products found in the collection(s), given the filters</td>
+</tr>
+<tr>
+<td>/arlas/<code>{collections}</code>/<strong>_aggregate</strong>?<code>aggregation</code>&amp;<code>filter</code>&amp;<code>form</code>&amp;<code>format</code>&amp;<code>size</code>&amp;<code>sort</code></td>
+<td>Aggregate the products in the collection(s), given the filters and the aggregation parameters</td>
+</tr>
+<tr>
+<td>/arlas/<code>{collections}</code>/<strong>_suggest</strong>?<code>filter</code>&amp;<code>form</code>&amp;<code>size</code>&amp;<code>suggest</code></td>
+<td>Suggest the the n (n=<code>size</code>) most relevant terms given the filters</td>
+</tr>
+</tbody>
+</table>
+<p>When multiple collections are permited ({collections}), the comma is used for seperating the collection names.</p>
+<table>
+<thead>
+<tr>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://api.gisaia.com/demo/arlas/`_describe`">https://api.gisaia.com/demo/arlas/`_describe`</a></td>
+</tr>
+<tr>
+<td><a href="https://api.gisaia.com/demo/arlas/`city,state,country`/`_describe`">https://api.gisaia.com/demo/arlas/`city,state,country`/`_describe`</a></td>
+</tr>
+<tr>
+<td><a href="https://api.gisaia.com/demo/arlas/`city,state,country`/`_count`?`q=bord*`&amp;`f=country:France`&amp;`pretty=true`&amp;`human=true`">https://api.gisaia.com/demo/arlas/`city,state,country`/`_count`?`q=bord*`&amp;`f=country:France`&amp;`pretty=true`&amp;`human=true`</a></td>
+</tr>
+<tr>
+<td><a href="https://api.gisaia.com/demo/arlas/`election`/`_search`?`f=country:France`&amp;`after=1490613808`&amp;`format=geojson`&amp;">https://api.gisaia.com/demo/arlas/`election`/`_search`?`f=country:France`&amp;`after=1490613808`&amp;`format=geojson`&amp;</a> <code>pretty=true</code>&amp;<code>human=true</code>&amp;<code>size=1000</code>&amp;<code>include=id,name</code></td>
+</tr>
+<tr>
+<td><a href="https://api.gisaia.com/demo/arlas/`election`/`_aggregate`?`f=country:France`&amp;`after=1490613808`&amp;`format=geojson`&amp;">https://api.gisaia.com/demo/arlas/`election`/`_aggregate`?`f=country:France`&amp;`after=1490613808`&amp;`format=geojson`&amp;</a> <code>pretty=true</code>&amp;<code>human=true</code>&amp;<code>size=1000</code>&amp;<code>include=id,name</code>&amp;<code>agg=geohash</code>&amp;<code>agg_interval=4</code></td>
+</tr>
+</tbody>
+</table>
+<h1 id="url-parts">URL Parts</h1>
+<h2 id="part-aggregation-">Part: <code>aggregation</code></h2>
+<p>The [<code>aggregation</code>] url part allows the following parameters to be specified:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default value</th>
+<th>Values</th>
+<th>Description</th>
+<th>Multiple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>agg</strong></td>
+<td><code>None</code></td>
+<td><code>datehistogram,geohash,histogram</code></td>
+<td>Type of aggregation</td>
+<td>false</td>
+</tr>
+<tr>
+<td><strong>agg_field</strong></td>
+<td><code>None</code></td>
+<td><code>{field}</code></td>
+<td>Aggregates on the <code>{field}</code>.</td>
+<td>true</td>
+</tr>
+<tr>
+<td><strong>agg_interval</strong></td>
+<td><code>None</code></td>
+<td>interval</td>
+<td>Size of the intervals.</td>
+<td>true</td>
+</tr>
+<tr>
+<td><strong>agg_format</strong></td>
+<td><code>None</code></td>
+<td><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern">Date format</a> for key aggregation</td>
+<td>Size of the intervals.</td>
+<td>true</td>
+</tr>
+</tbody>
+</table>
+<p>Each aggregation has its own type of interval. The table below lists the semantic of the interval.</p>
+<table>
+<thead>
+<tr>
+<th>Aggregation</th>
+<th>Interval</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><em>datehistogram</em></strong></td>
+<td><code>{size}(year,quarter,month,week,day,hour,minute,second)</code></td>
+<td>Size of a time interval with the given unit (no space between number and unit)</td>
+</tr>
+<tr>
+<td><strong><em>geohash</em></strong></td>
+<td><code>{length}</code></td>
+<td>The geohash length: lower the length, greater is the surface of aggregation. See table below.</td>
+</tr>
+<tr>
+<td><strong><em>numeric</em></strong></td>
+<td><code>{size}</code></td>
+<td>The interval size of the numeric aggregation</td>
+</tr>
+</tbody>
+</table>
+<p>The table below shows the metric dimensions for cells covered by various string lengths of geohash. Cell dimensions vary with latitude and so the table is for the worst-case scenario at the equator.</p>
+<table>
+<thead>
+<tr>
+<th>GeoHash length</th>
+<th>Area width x height</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>5,009.4km x 4,992.6km</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1,252.3km x 624.1km</td>
+</tr>
+<tr>
+<td>3</td>
+<td>156.5km x 156km</td>
+</tr>
+<tr>
+<td>4</td>
+<td>39.1km x 19.5km</td>
+</tr>
+<tr>
+<td>5</td>
+<td>4.9km x 4.9km</td>
+</tr>
+<tr>
+<td>6</td>
+<td>1.2km x 609.4m</td>
+</tr>
+<tr>
+<td>7</td>
+<td>152.9m x 152.4m</td>
+</tr>
+<tr>
+<td>8</td>
+<td>38.2m x 19m</td>
+</tr>
+<tr>
+<td>9</td>
+<td>4.8m x 4.8m</td>
+</tr>
+<tr>
+<td>10</td>
+<td>1.2m x 59.5cm</td>
+</tr>
+<tr>
+<td>11</td>
+<td>14.9cm x 14.9cm</td>
+</tr>
+<tr>
+<td>12</td>
+<td>3.7cm x 1.9cm</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Example: <code>agg=datehistogram&amp;agg_field=date&amp;agg_interval=10d&amp;agg_format=yyyyMMdd</code></p>
+</blockquote>
+<hr>
+<h2 id="part-filter-">Part: <code>filter</code></h2>
+<p>The <code>filter</code> url part allows the following parameters to be specified:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default value</th>
+<th>Values</th>
+<th>Description</th>
+<th>Multiple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>f</strong></td>
+<td>None</td>
+<td><code>{fieldName}{operator}{value}</code></td>
+<td>A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The <strong>AND</strong> operator is applied between filters having different fieldNames. The <strong>OR</strong> operator is applied on filters having the same fieldName. If the fieldName starts with <strong>-</strong> then a <strong>must not</strong> filter is used</td>
+<td>true</td>
+</tr>
+<tr>
+<td><strong>q</strong></td>
+<td>None</td>
+<td>text</td>
+<td>A full text search</td>
+<td>false</td>
+</tr>
+<tr>
+<td><strong>before</strong></td>
+<td>None</td>
+<td>timestamp</td>
+<td>Any element having its point in time reference before the given timestamp</td>
+<td>false</td>
+</tr>
+<tr>
+<td><strong>after</strong></td>
+<td>None</td>
+<td>timestamp</td>
+<td>Any element having its point in time reference after the given timestamp</td>
+<td>false</td>
+</tr>
+<tr>
+<td><strong>pwithin</strong></td>
+<td>None</td>
+<td>geometry</td>
+<td>Any element having its centroid contained within the given geometry</td>
+<td>false</td>
+</tr>
+<tr>
+<td><strong>gwithin</strong></td>
+<td>None</td>
+<td>geometry</td>
+<td>Any element having its geometry contained within the given geometry</td>
+<td>false</td>
+</tr>
+<tr>
+<td><strong>gintersect</strong></td>
+<td>None</td>
+<td>geometry</td>
+<td>Any element having its geometry intersecting the given geometry (WKT)</td>
+<td>false</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Description</th>
+<th>Value type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>:</strong></td>
+<td><code>{fieldName}</code> equals <code>{value}</code></td>
+<td>numeric or strings</td>
+</tr>
+<tr>
+<td><strong>:&gt;=</strong></td>
+<td><code>{fieldName}</code> is greater than or equal to <code>{value}</code></td>
+<td>numeric</td>
+</tr>
+<tr>
+<td><strong>:&gt;</strong></td>
+<td><code>{fieldName}</code> is greater than <code>{value}</code></td>
+<td>numeric</td>
+</tr>
+<tr>
+<td><strong>:&lt;=</strong></td>
+<td><code>{fieldName}</code> is less than or equal to <code>{value}</code></td>
+<td>numeric</td>
+</tr>
+<tr>
+<td><strong>:&lt;</strong></td>
+<td><code>{fieldName}</code> is less than <code>{value}</code></td>
+<td>numeric</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Example: <code>f=city:Toulouse</code>&amp;<code>f=city:Bordeaux&amp;after=1490613808&amp;</code></p>
+</blockquote>
+<hr>
+<h2 id="part-form-">Part: <code>form</code></h2>
+<p>The <code>form</code> url part allows the following parameters to be specified:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default value</th>
+<th>Values</th>
+<th>Description</th>
+<th>Multiple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>pretty</strong></td>
+<td><code>false</code></td>
+<td><code>true,false</code></td>
+<td>Pretty print</td>
+<td>false</td>
+</tr>
+<tr>
+<td><strong>human</strong></td>
+<td><code>false</code></td>
+<td><code>true,false</code></td>
+<td>Human readable print</td>
+<td>false</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Example: <code>pretty=true&amp;human=true</code></p>
+</blockquote>
+<hr>
+<h2 id="part-format-">Part: <code>format</code></h2>
+<p>The <code>format</code> url part allows the following parameters to be specified:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default value</th>
+<th>Values</th>
+<th>Description</th>
+<th>Multiple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>format</strong></td>
+<td><code>false</code></td>
+<td><code>json</code>,<code>geojson</code></td>
+<td>JSON or GeoJSON format</td>
+<td>false</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Example: <code>format=geojson</code></p>
+</blockquote>
+<hr>
+<h2 id="part-projection-">Part: <code>projection</code></h2>
+<p>The <code>projection</code> url part allows the following parameters to be specified:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default value</th>
+<th>Values</th>
+<th>Description</th>
+<th>Multiple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>include</strong></td>
+<td><code>*</code></td>
+<td><code>{fieldNamePattern}</code></td>
+<td>List the name patterns of the field to be included in the result. Seperate patterns with a comma.</td>
+<td>true</td>
+</tr>
+<tr>
+<td><strong>exclude</strong></td>
+<td><code>*</code></td>
+<td><code>{fieldNamePattern}</code></td>
+<td>List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.</td>
+<td>true</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Example: <code>include=*&amp;exclude=city,state</code></p>
+</blockquote>
+<hr>
+<h2 id="part-suggest-">Part: <code>suggest</code></h2>
+<p>The <code>suggest</code> url part allows the following parameters to be specified:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default value</th>
+<th>Values</th>
+<th>Description</th>
+<th>Multiple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field</td>
+<td><code>_all</code></td>
+<td><code>{fieldName}</code></td>
+<td>Name of the field to be used for retrieving the most relevant terms</td>
+<td>false</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Example: <code>field=recommended</code></p>
+</blockquote>
+<hr>
+<h2 id="part-size-">Part: <code>size</code></h2>
+<p>The <code>size</code> url part allows the following parameters to be specified:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default value</th>
+<th>Values</th>
+<th>Description</th>
+<th>Multiple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>size</strong></td>
+<td>10</td>
+<td>&gt;0</td>
+<td>The maximum number of entries or sub-entries to be returned.</td>
+<td>true</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Example: <code>size=1000</code></p>
+</blockquote>
+<hr>
+<h2 id="part-sort-">Part: <code>sort</code></h2>
+<p>The <code>sort</code> url part allows the following parameters to be specified:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default value</th>
+<th>Values</th>
+<th>Description</th>
+<th>Multiple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>sort</strong></td>
+<td>None</td>
+<td><code>{fieldName}</code>:(<code>ASC</code>,<code>DESC</code>)</td>
+<td>Sort the result on a given field, ascending or descending. The parameter can be provided several times. The order matters. For aggregation, provide the <code>agg</code> keyword as the <code>{fieldName}</code>.</td>
+<td>true</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Example: <code>sort=country:ASC&amp;sort=city:ASC</code></p>
+</blockquote></body>
+</html>

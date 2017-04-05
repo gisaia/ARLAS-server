@@ -10,10 +10,10 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | ---------------------------------------- | ---------------------------------------- |
 | /arlas/**_describe**                     | List  the collections configured in ARLAS |
 | /arlas/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
-| /arlas/`{collections}`/**_count**?`filter`&`form` | Count the number of products found in the collection(s), given the filters |
-| /arlas/`{collections}`/**_search**?`filter`&`form`&`format`&`projection`&`size`&`sort` | Search and return the products found in the collection(s), given the filters |
-| /arlas/`{collections}`/**_aggregate**?`aggregation`&`filter`&`form`&`format`&`size`&`sort` | Aggregate the products in the collection(s), given the filters and the aggregation parameters |
-| /arlas/`{collections}`/**_suggest**?`filter`&`form`&`size`&`suggest` | Suggest the the n (n=`size`) most relevant terms given the filters |
+| /arlas/`{collections}`/**_count**?`filter` & `form` | Count the number of products found in the collection(s), given the filters |
+| /arlas/`{collections}`/**_search**?`filter` & `form` & `format` & `projection` & `size` & `sort` | Search and return the products found in the collection(s), given the filters |
+| /arlas/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` & `format` & `size` & `sort` | Aggregate the products in the collection(s), given the filters and the aggregation parameters |
+| /arlas/`{collections}`/**_suggest**?`filter` & `form` & `size` & `suggest` | Suggest the the n (n=`size`) most relevant terms given the filters |
 
 When multiple collections are permited ({collections}), the comma is used for seperating the collection names.
 
@@ -128,7 +128,7 @@ The `projection` url part allows the following parameters to be specified:
 > Example: `include=*&exclude=city,state`
 
 ---
-## Part: `suggest` 
+## Part: `suggest`
 
 The `suggest` url part allows the following parameters to be specified:
 
