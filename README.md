@@ -11,7 +11,15 @@ The exploration API is described [here](doc/api/API-definition.md) while the  Ad
 mvn clean install
 ```
 
-# [OPTIONAL] Zipkin monitoring
+
+# Run
+```sh
+java -jar target/arlas-server-x.x.jar server configuration.yaml
+```
+
+# Optional
+
+## Zipkin monitoring
 In order to monitor the REST service performances in ZIPKIN:
 - Enable zipkin in configuration.yaml
 - Then:
@@ -20,9 +28,3 @@ In order to monitor the REST service performances in ZIPKIN:
 wget -O zipkin.jar 'https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec'
 java -jar zipkin.jar &
 ```
-
-# Run
-```sh
-java -jar target/arlas-server-x.x.jar server configuration.yaml
-```
-
