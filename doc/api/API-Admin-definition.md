@@ -14,10 +14,11 @@ The table below lists the URL endpoints.
 
 ## /arlas-admin/`{collection}`
 
-The following methods let you get, add and delete collection references from elasticsearch into the ARLAS catalog:
+The following methods let you get, add and delete **collection references** from elasticsearch into the ARLAS catalog. 
+A **collection reference** is the description of the elasticsearch index and the way ARLAS API will serve it.
 
-| Method     | Input Data | Output Data | Description                  | Multiple |
-| -----------| ------------- | ------------- | ---------------------------------------- | ---------------------------- | -------- |
-| **GET**    | `None` | Collection Reference as JSON |  Type of aggregation          | false    |
-| **PUT**    | Collection Reference Profile as JSON | Collection Reference as JSON |  Aggregates on the `{field}`. | true     |
-| **DELETE** | `None` | `None` | Size of the intervals.       | true     |
+| Method     | Input Data | Output Data | Description                  |
+| -----------| ------------- | ------------- | ---------------------------------------- | ---------------------------- |
+| **GET**    | `None` | `CollectionReference` as JSON |  Return the full description of the Collection Reference | 
+| **PUT**    | `CollectionReference` as JSON | `CollectionReference` as JSON | Provide  |
+| **DELETE** | `None` | `None` | Size of the intervals.       |
