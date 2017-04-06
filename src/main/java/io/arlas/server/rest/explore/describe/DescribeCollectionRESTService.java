@@ -54,6 +54,6 @@ public class DescribeCollectionRESTService extends ExploreServices {
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("count").build();
+        return Response.ok("describeCollection").build(); //TODO : right response
     }
 }

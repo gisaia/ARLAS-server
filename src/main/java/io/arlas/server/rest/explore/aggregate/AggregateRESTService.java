@@ -174,6 +174,6 @@ public class AggregateRESTService extends ExploreServices {
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("search").build();
+        return Response.ok("aggregate").build();//TODO : right response
     }
 }

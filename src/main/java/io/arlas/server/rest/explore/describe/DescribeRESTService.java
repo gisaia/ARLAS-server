@@ -10,9 +10,6 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Created by hamou on 06/04/17.
- */
 public class DescribeRESTService extends ExploreServices {
     @Timed
     @Path("describe")
@@ -33,7 +30,7 @@ public class DescribeRESTService extends ExploreServices {
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("count").build();
+        return Response.ok("describe").build();//TODO : right response
     }
 }
 

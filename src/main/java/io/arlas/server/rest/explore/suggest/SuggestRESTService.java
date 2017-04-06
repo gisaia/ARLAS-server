@@ -119,6 +119,6 @@ public class SuggestRESTService extends ExploreServices {
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("count").build();
+        return Response.ok("suggest").build();//TODO : right response
     }
 }
