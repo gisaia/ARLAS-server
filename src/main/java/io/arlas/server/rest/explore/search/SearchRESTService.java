@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Example;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -100,6 +101,50 @@ public class SearchRESTService extends ExploreServices {
                     allowableValues ="json,geojson",
                     required=false)
             @QueryParam(value="format") String format,
+
+            // --------------------------------------------------------
+            // -----------------------  PROJECTION   -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(name ="include", value="List the name patterns of the field to be included in the result. Seperate patterns with a comma.",
+                    allowMultiple = true,
+                    defaultValue = "*",
+                    example = "*",
+                    required=false)
+            @QueryParam(value="include") String include,
+
+            @ApiParam(name ="exclude", value="List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.",
+                    allowMultiple = true,
+                    defaultValue = "*",
+                    example = "city,state",
+                    required=false)
+            @QueryParam(value="exclude") String exclude,
+
+            // --------------------------------------------------------
+            // -----------------------  SIZE   -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(name ="size", value="The maximum number of entries or sub-entries to be returned. The default value is 10",
+                    allowMultiple = true,
+                    defaultValue = "10",
+                    allowableValues = "range[1, infinity]",
+                    example = "1000",
+                    required=false)
+            @QueryParam(value="size") Integer size,
+
+            // --------------------------------------------------------
+            // -----------------------  SORT   -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(name ="sort",
+                    value="Sort the result on a given field, ascending or descending (ASC, DESC). " +
+                            "The parameter can be provided several times. The order matters. " +
+                            "For aggregation, provide the 'agg' keyword as the {fieldName}.",
+                    allowMultiple = true,
+                    defaultValue = "10",
+                    example = "city:DESC",
+                    required=false)
+            @QueryParam(value="sort") String sort,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
