@@ -5,5 +5,5 @@ package io.arlas.server.rest.explore.enumerations;
  */
 public enum FormatValues {
     json,geojson;
-    public static final String allowableFormatValues="datehistogram,geohash,histogram";
+    public static final String allowableFormatValues="json,geojson;";
 }
