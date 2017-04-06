@@ -2,6 +2,8 @@ package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.rest.explore.enumerations.AggregationType;
+import io.arlas.server.rest.explore.enumerations.FormatValues;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
@@ -40,9 +42,9 @@ public class AggregateRESTService extends ExploreServices {
             @ApiParam(name ="agg",
                     value="Type of aggregation",
                     allowMultiple = false,
-                    allowableValues ="datehistogram,geohash,histogram",
+                    allowableValues = AggregationType.allowableAggregationTypes,
                     example = "datehistogram",
-                    required=false)
+                    required=true)
             @QueryParam(value="agg") String agg,
 
             @ApiParam(name ="agg_field", value="Aggregates on the {field}.",
@@ -64,7 +66,7 @@ public class AggregateRESTService extends ExploreServices {
                             "If aggregation type is 'numeric' : The interval size of the numeric aggregation",
                     allowMultiple = true,
                     example = "10day",
-                    required=false)
+                    required=true)
             @QueryParam(value="agg_interval") String agg_interval,
 
             @ApiParam(name ="agg_format", value="Date format for key aggregation.",
@@ -137,7 +139,7 @@ public class AggregateRESTService extends ExploreServices {
             @ApiParam(name ="format", value="JSON or GeoJSON format",
                     allowMultiple = false,
                     defaultValue = "json",
-                    allowableValues ="json,geojson",
+                    allowableValues = FormatValues.allowableFormatValues,
                     required=false)
             @QueryParam(value="format") String format,
 

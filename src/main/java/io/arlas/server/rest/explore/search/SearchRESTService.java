@@ -2,6 +2,7 @@ package io.arlas.server.rest.explore.search;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.rest.explore.enumerations.FormatValues;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
@@ -97,7 +98,7 @@ public class SearchRESTService extends ExploreServices {
             @ApiParam(name ="format", value="JSON or GeoJSON format",
                     allowMultiple = false,
                     defaultValue = "json",
-                    allowableValues ="json,geojson",
+                    allowableValues = FormatValues.allowableFormatValues,
                     required=false)
             @QueryParam(value="format") String format,
 
