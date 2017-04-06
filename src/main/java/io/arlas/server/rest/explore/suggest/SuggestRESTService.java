@@ -1,4 +1,4 @@
-package io.arlas.server.rest.explore.aggregate;
+package io.arlas.server.rest.explore.suggest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -10,20 +10,19 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-public class AggregateRESTService extends ExploreServices {
-
+public class SuggestRESTService extends ExploreServices {
     @Timed
-    @Path("{collections}/aggregate")
+    @Path("{collections}/suggest")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="Aggregate",
+            value="Suggest",
             produces=UTF8JSON,
-            notes = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters",
+            notes = "Suggest the the n (n=size) most relevant terms given the filters",
             consumes=UTF8JSON
     )
-    public Response aggregate(
+    public Response suggest(
             // --------------------------------------------------------
             // -----------------------  PATH    -----------------------
             // --------------------------------------------------------
@@ -33,45 +32,6 @@ public class AggregateRESTService extends ExploreServices {
                     allowMultiple = false,
                     required=true)
             @PathParam(value = "collections") String collections,
-
-            // --------------------------------------------------------
-            // -----------------------  AGGREGATION  -----------------------
-            // --------------------------------------------------------
-            @ApiParam(name ="agg",
-                    value="Type of aggregation",
-                    allowMultiple = false,
-                    allowableValues ="datehistogram,geohash,histogram",
-                    example = "datehistogram",
-                    required=false)
-            @QueryParam(value="agg") String agg,
-
-            @ApiParam(name ="agg_field", value="Aggregates on the {field}.",
-                    allowMultiple = true,
-                    example = "date",
-                    required=false)
-            @QueryParam(value="agg_field") String agg_field,
-
-            @ApiParam(name ="agg_interval",
-                    value="Size of the intervals. " +
-                            "\n \n" +
-                            "If aggregation type is 'datehistogram' : Size of a time interval with the given unit " +
-                            "(no space between number and unit) " +
-                            "{size}(year,quarter,month,week,day,hour,minute,second) " +
-                            "\n \n" +
-                            "If aggregation type is 'geohash' : The geohash length range is from 1 to 12: " +
-                            "lower the length, greater is the surface of aggregation. " +
-                            "\n \n" +
-                            "If aggregation type is 'numeric' : The interval size of the numeric aggregation",
-                    allowMultiple = true,
-                    example = "10day",
-                    required=false)
-            @QueryParam(value="agg_interval") String agg_interval,
-
-            @ApiParam(name ="agg_format", value="Date format for key aggregation.",
-                    allowMultiple = true,
-                    example = "yyyyMMdd",
-                    required=false)
-            @QueryParam(value="agg_format") String agg_format,
 
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------
@@ -132,16 +92,6 @@ public class AggregateRESTService extends ExploreServices {
             @QueryParam(value="human") Boolean human,
 
             // --------------------------------------------------------
-            // -----------------------  FORMAT   -----------------------
-            // --------------------------------------------------------
-            @ApiParam(name ="format", value="JSON or GeoJSON format",
-                    allowMultiple = false,
-                    defaultValue = "json",
-                    allowableValues ="json,geojson",
-                    required=false)
-            @QueryParam(value="format") String format,
-
-            // --------------------------------------------------------
             // -----------------------  SIZE   -----------------------
             // --------------------------------------------------------
 
@@ -153,18 +103,15 @@ public class AggregateRESTService extends ExploreServices {
             @QueryParam(value="size") Integer size,
 
             // --------------------------------------------------------
-            // -----------------------  SORT   -----------------------
+            // -----------------------  SUGGEST   -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(name ="sort",
-                    value="Sort the result on a given field, ascending or descending (ASC, DESC). " +
-                            "The parameter can be provided several times. The order matters. " +
-                            "For aggregation, provide the 'agg' keyword as the {fieldName}.",
-                    allowMultiple = true,
-                    defaultValue = "10",
-                    example = "city:DESC",
+            @ApiParam(name ="field", value="Name of the field to be used for retrieving the most relevant terms",
+                    allowMultiple = false,
+                    defaultValue = "_all",
+                    example = "recommended",
                     required=false)
-            @QueryParam(value="sort") String sort,
+            @QueryParam(value="field") String field,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
@@ -172,6 +119,6 @@ public class AggregateRESTService extends ExploreServices {
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("search").build();
+        return Response.ok("count").build();
     }
 }

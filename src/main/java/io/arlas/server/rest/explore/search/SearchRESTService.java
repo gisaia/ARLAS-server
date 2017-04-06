@@ -23,7 +23,7 @@ public class SearchRESTService extends ExploreServices {
             notes = "Search and return the elements found in the collection(s), given the filters",
             consumes=UTF8JSON
     )
-    public Response tile(
+    public Response search(
             // --------------------------------------------------------
             // -----------------------  PATH    -----------------------
             // --------------------------------------------------------
