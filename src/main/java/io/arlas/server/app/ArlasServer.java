@@ -7,6 +7,8 @@ import io.arlas.server.rest.ExceptionHandlerMapper;
 import io.arlas.server.rest.admin.CollectionService;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
 import io.arlas.server.rest.explore.count.CountRESTService;
+import io.arlas.server.rest.explore.describe.DescribeCollectionRESTService;
+import io.arlas.server.rest.explore.describe.DescribeRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
 import io.dropwizard.Application;
@@ -80,6 +82,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 		environment.jersey().register(new SearchRESTService());
 		environment.jersey().register(new AggregateRESTService());
 		environment.jersey().register(new SuggestRESTService());
+		environment.jersey().register(new DescribeRESTService());
+		environment.jersey().register(new DescribeCollectionRESTService());
 		environment.jersey().register(new CollectionService());
 	}
 }
