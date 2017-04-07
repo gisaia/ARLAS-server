@@ -85,10 +85,10 @@ The `filter` url part allows the following parameters to be specified:
 | Operator | Description                              | Value type         |
 | -------- | ---------------------------------------- | ------------------ |
 | **:**    | `{fieldName}` equals `{value}`           | numeric or strings |
-| **:>=**  | `{fieldName}` is greater than or equal to `{value}` | numeric            |
-| **:>**   | `{fieldName}` is greater than `{value}`  | numeric            |
-| **:<=**  | `{fieldName}` is less than or equal to `{value}` | numeric            |
-| **:<**   | `{fieldName}` is less than `{value}`     | numeric            |
+| **:gte:**  | `{fieldName}` is greater than or equal to `{value}` | numeric            |
+| **:gt:**   | `{fieldName}` is greater than `{value}`  | numeric            |
+| **:lte:**  | `{fieldName}` is less than or equal to `{value}` | numeric            |
+| **:lt:**   | `{fieldName}` is less than `{value}`     | numeric            |
 
 > Example: `f=city:Toulouse`&`f=city:Bordeaux&after=1490613808&`
 
