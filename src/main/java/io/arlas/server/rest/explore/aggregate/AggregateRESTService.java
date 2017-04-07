@@ -6,6 +6,7 @@ import io.arlas.server.rest.explore.enumerations.AggregationType;
 import io.arlas.server.rest.explore.enumerations.FormatValues;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.geojson.FeatureCollection;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -23,7 +24,9 @@ public class AggregateRESTService extends ExploreServices {
             value="Aggregate",
             produces=UTF8JSON,
             notes = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters",
-            consumes=UTF8JSON
+            consumes=UTF8JSON,
+            response = FeatureCollection.class
+
     )
     public Response aggregate(
             // --------------------------------------------------------

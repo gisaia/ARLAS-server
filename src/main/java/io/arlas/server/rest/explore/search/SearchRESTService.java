@@ -5,6 +5,7 @@ import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.rest.explore.enumerations.FormatValues;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.geojson.FeatureCollection;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -22,7 +23,8 @@ public class SearchRESTService extends ExploreServices {
             value="Search",
             produces=UTF8JSON,
             notes = "Search and return the elements found in the collection(s), given the filters",
-            consumes=UTF8JSON
+            consumes=UTF8JSON,
+            response = FeatureCollection.class
     )
     public Response search(
             // --------------------------------------------------------
