@@ -17,6 +17,8 @@ mvn clean install
 java -jar target/arlas-server-x.x.jar server configuration.yaml
 ```
 
+Then, go to `http://localhost:9999/arlas/swagger` for exploring and testing the API.
+
 # Optional
 
 ## Zipkin monitoring
