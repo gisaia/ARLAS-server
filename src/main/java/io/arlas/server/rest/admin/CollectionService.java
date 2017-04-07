@@ -2,7 +2,6 @@ package io.arlas.server.rest.admin;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.collectionsModel.CollectionReference;
-import io.arlas.server.rest.explore.ExploreServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
@@ -58,7 +57,7 @@ public class CollectionService extends AdminServices {
             // -----------------------  COLLECTION REFERENCE    -----------------------
             // --------------------------------------------------------
             @ApiParam(value="collectionReference", required=true)
-            @QueryParam(value = "collectionReference") String collectionReference
+            CollectionReference collectionReference
 
     ) throws InterruptedException, ExecutionException, IOException {
         return Response.ok("count").build();// TODO : right response
