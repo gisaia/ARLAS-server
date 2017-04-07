@@ -28,3 +28,16 @@ In order to monitor the REST service performances in ZIPKIN:
 wget -O zipkin.jar 'https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec'
 java -jar zipkin.jar &
 ```
+
+## Generate API Documentation
+
+Install swagger-codegen:
+```sh
+brew install swagger-codegen
+```
+
+Generate the documentation:
+```sh
+swagger-codegen generate  -i http://localhost:9999/arlas/swagger.json  -l html2 -o doc/api/html/
+```
+
