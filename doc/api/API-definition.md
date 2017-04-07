@@ -1,6 +1,6 @@
 # ARLAS
 
-The ARLAS API makes the ARLAS catalog available for exploration and browsing. The catalog contains collections of geo-referenced products. Every product has a geometry, a centroid, a timestamp and a set of fields specific to the collection.
+The ARLAS API makes the ARLAS catalog available for exploration and browsing. The catalog contains collections of geo-referenced elements. Every element has a geometry, a centroid, a timestamp and a set of fields specific to the collection.
 
 # URL Schema
 
@@ -10,9 +10,9 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | ---------------------------------------- | ---------------------------------------- |
 | /arlas/explore/**_describe**                     | List  the collections configured in ARLAS |
 | /arlas/explore/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
-| /arlas/explore/`{collections}`/**_count**?`filter` & `form` | Count the number of products found in the collection(s), given the filters |
-| /arlas/explore/`{collections}`/**_search**?`filter` & `form` & `format` & `projection` & `size` & `sort` | Search and return the products found in the collection(s), given the filters |
-| /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` & `format` & `size` & `sort` | Aggregate the products in the collection(s), given the filters and the aggregation parameters |
+| /arlas/explore/`{collections}`/**_count**?`filter` & `form` | Count the number of elements found in the collection(s), given the filters |
+| /arlas/explore/`{collections}`/**_search**?`filter` & `form` & `format` & `projection` & `size` & `sort` | Search and return the elements found in the collection(s), given the filters |
+| /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` & `format` & `size` & `sort` | Aggregate the elements in the collection(s), given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_suggest**?`filter` & `form` & `size` & `suggest` | Suggest the the n (n=`size`) most relevant terms given the filters |
 
 When multiple collections are permited ({collections}), the comma is used for seperating the collection names.
@@ -36,7 +36,7 @@ The [`aggregation`] url part allows the following parameters to be specified:
 | **agg**          | `None`        | `datehistogram,geohash,histogram`        | Type of aggregation          | false    |
 | **agg_field**    | `None`        | `{field}`                                | Aggregates on the `{field}`. | true     |
 | **agg_interval** | `None`        | interval                                 | Size of the intervals.       | true     |
-| **agg_format**   | `None`        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Size of the intervals.       | true     |
+| **agg_format**   | `None`        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.       | true     |
 
 Each aggregation has its own type of interval. The table below lists the semantic of the interval.
 
@@ -63,7 +63,7 @@ The table below shows the metric dimensions for cells covered by various string 
 | 11             | 14.9cm x 14.9cm       |
 | 12             | 3.7cm x 1.9cm         |
 
-> Example: `agg=datehistogram&agg_field=date&agg_interval=10d&agg_format=yyyyMMdd`
+> Example: `agg=datehistogram&agg_field=date&agg_interval=10day&agg_format=yyyyMMdd`
 
 ---
 ## Part: `filter`

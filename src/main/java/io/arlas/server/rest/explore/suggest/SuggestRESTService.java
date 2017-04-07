@@ -1,8 +1,7 @@
-package io.arlas.server.rest.explore.search;
+package io.arlas.server.rest.explore.suggest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.rest.explore.ExploreServices;
-import io.arlas.server.rest.explore.enumerations.FormatValues;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
@@ -11,20 +10,19 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-public class SearchRESTService extends ExploreServices {
-
+public class SuggestRESTService extends ExploreServices {
     @Timed
-    @Path("{collections}/search")
+    @Path("{collections}/suggest")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="Search",
+            value="Suggest",
             produces=UTF8JSON,
-            notes = "Search and return the elements found in the collection(s), given the filters",
+            notes = "Suggest the the n (n=size) most relevant terms given the filters",
             consumes=UTF8JSON
     )
-    public Response search(
+    public Response suggest(
             // --------------------------------------------------------
             // -----------------------  PATH    -----------------------
             // --------------------------------------------------------
@@ -34,6 +32,7 @@ public class SearchRESTService extends ExploreServices {
                     allowMultiple = false,
                     required=true)
             @PathParam(value = "collections") String collections,
+
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
@@ -93,34 +92,6 @@ public class SearchRESTService extends ExploreServices {
             @QueryParam(value="human") Boolean human,
 
             // --------------------------------------------------------
-            // -----------------------  FORMAT   -----------------------
-            // --------------------------------------------------------
-            @ApiParam(name ="format", value="JSON or GeoJSON format",
-                    allowMultiple = false,
-                    defaultValue = "json",
-                    allowableValues = FormatValues.allowableFormatValues,
-                    required=false)
-            @QueryParam(value="format") String format,
-
-            // --------------------------------------------------------
-            // -----------------------  PROJECTION   -----------------------
-            // --------------------------------------------------------
-
-            @ApiParam(name ="include", value="List the name patterns of the field to be included in the result. Seperate patterns with a comma.",
-                    allowMultiple = true,
-                    defaultValue = "*",
-                    example = "*",
-                    required=false)
-            @QueryParam(value="include") String include,
-
-            @ApiParam(name ="exclude", value="List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.",
-                    allowMultiple = true,
-                    defaultValue = "*",
-                    example = "city,state",
-                    required=false)
-            @QueryParam(value="exclude") String exclude,
-
-            // --------------------------------------------------------
             // -----------------------  SIZE   -----------------------
             // --------------------------------------------------------
 
@@ -132,18 +103,15 @@ public class SearchRESTService extends ExploreServices {
             @QueryParam(value="size") Integer size,
 
             // --------------------------------------------------------
-            // -----------------------  SORT   -----------------------
+            // -----------------------  SUGGEST   -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(name ="sort",
-                    value="Sort the result on a given field, ascending or descending (ASC, DESC). " +
-                            "The parameter can be provided several times. The order matters. " +
-                            "For aggregation, provide the 'agg' keyword as the {fieldName}.",
-                    allowMultiple = true,
-                    defaultValue = "10",
-                    example = "city:DESC",
+            @ApiParam(name ="field", value="Name of the field to be used for retrieving the most relevant terms",
+                    allowMultiple = false,
+                    defaultValue = "_all",
+                    example = "recommended",
                     required=false)
-            @QueryParam(value="sort") String sort,
+            @QueryParam(value="field") String field,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
@@ -151,6 +119,6 @@ public class SearchRESTService extends ExploreServices {
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("search").build();
+        return Response.ok("suggest").build();//TODO : right response
     }
 }

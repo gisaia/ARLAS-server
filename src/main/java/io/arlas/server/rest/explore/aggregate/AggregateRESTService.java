@@ -1,7 +1,8 @@
-package io.arlas.server.rest.explore.search;
+package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.rest.explore.enumerations.AggregationType;
 import io.arlas.server.rest.explore.enumerations.FormatValues;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -11,20 +12,20 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-public class SearchRESTService extends ExploreServices {
+public class AggregateRESTService extends ExploreServices {
 
     @Timed
-    @Path("{collections}/search")
+    @Path("{collections}/aggregate")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="Search",
+            value="Aggregate",
             produces=UTF8JSON,
-            notes = "Search and return the elements found in the collection(s), given the filters",
+            notes = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters",
             consumes=UTF8JSON
     )
-    public Response search(
+    public Response aggregate(
             // --------------------------------------------------------
             // -----------------------  PATH    -----------------------
             // --------------------------------------------------------
@@ -34,6 +35,46 @@ public class SearchRESTService extends ExploreServices {
                     allowMultiple = false,
                     required=true)
             @PathParam(value = "collections") String collections,
+
+            // --------------------------------------------------------
+            // -----------------------  AGGREGATION  -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name ="agg",
+                    value="Type of aggregation",
+                    allowMultiple = false,
+                    allowableValues = AggregationType.allowableAggregationTypes,
+                    example = "datehistogram",
+                    required=true)
+            @QueryParam(value="agg") String agg,
+
+            @ApiParam(name ="agg_field", value="Aggregates on the {field}.",
+                    allowMultiple = true,
+                    example = "date",
+                    required=false)
+            @QueryParam(value="agg_field") String agg_field,
+
+            @ApiParam(name ="agg_interval",
+                    value="Size of the intervals. " +
+                            "\n \n" +
+                            "If aggregation type is 'datehistogram' : Size of a time interval with the given unit " +
+                            "(no space between number and unit) " +
+                            "{size}(year,quarter,month,week,day,hour,minute,second) " +
+                            "\n \n" +
+                            "If aggregation type is 'geohash' : The geohash length range is from 1 to 12: " +
+                            "lower the length, greater is the surface of aggregation. " +
+                            "\n \n" +
+                            "If aggregation type is 'numeric' : The interval size of the numeric aggregation",
+                    allowMultiple = true,
+                    example = "10day",
+                    required=true)
+            @QueryParam(value="agg_interval") String agg_interval,
+
+            @ApiParam(name ="agg_format", value="Date format for key aggregation.",
+                    allowMultiple = true,
+                    example = "yyyyMMdd",
+                    required=false)
+            @QueryParam(value="agg_format") String agg_format,
+
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
@@ -103,24 +144,6 @@ public class SearchRESTService extends ExploreServices {
             @QueryParam(value="format") String format,
 
             // --------------------------------------------------------
-            // -----------------------  PROJECTION   -----------------------
-            // --------------------------------------------------------
-
-            @ApiParam(name ="include", value="List the name patterns of the field to be included in the result. Seperate patterns with a comma.",
-                    allowMultiple = true,
-                    defaultValue = "*",
-                    example = "*",
-                    required=false)
-            @QueryParam(value="include") String include,
-
-            @ApiParam(name ="exclude", value="List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.",
-                    allowMultiple = true,
-                    defaultValue = "*",
-                    example = "city,state",
-                    required=false)
-            @QueryParam(value="exclude") String exclude,
-
-            // --------------------------------------------------------
             // -----------------------  SIZE   -----------------------
             // --------------------------------------------------------
 
@@ -151,6 +174,6 @@ public class SearchRESTService extends ExploreServices {
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("search").build();
+        return Response.ok("aggregate").build();//TODO : right response
     }
 }
