@@ -1,9 +1,10 @@
 package io.arlas.server.rest.admin;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.collectionsModel.CollectionReference;
+import io.arlas.server.model.CollectionReference;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.geojson.FeatureCollection;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -21,7 +22,9 @@ public class CollectionService extends AdminServices {
             value="Get a collection reference",
             produces=UTF8JSON,
             notes = "Get a collection reference in ARLAS",
-            consumes=UTF8JSON
+            consumes=UTF8JSON,
+            response = CollectionReference.class
+
     )
     public Response get(
             @ApiParam(
@@ -43,7 +46,8 @@ public class CollectionService extends AdminServices {
             value="Add a collection reference",
             produces=UTF8JSON,
             notes = "Add a collection reference in ARLAS",
-            consumes=UTF8JSON
+            consumes=UTF8JSON,
+            response = CollectionReference.class
     )
     public Response put(
             @ApiParam(
@@ -56,7 +60,9 @@ public class CollectionService extends AdminServices {
             // --------------------------------------------------------
             // -----------------------  COLLECTION REFERENCE    -----------------------
             // --------------------------------------------------------
-            @ApiParam(value="collectionReference", required=true)
+            @ApiParam(name = "collectionReference",
+                        value="collectionReference",
+                        required=true)
             CollectionReference collectionReference
 
     ) throws InterruptedException, ExecutionException, IOException {
