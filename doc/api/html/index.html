@@ -737,11 +737,23 @@ margin-bottom: 20px;
                       <a href="#api-Admin-put">put</a>
                     </li>
                   <li class="nav-header" data-group="Explore"><a href="#api-Explore">API Methods - Explore</a></li>
+                    <li data-group="Explore" data-name="aggregate" class="">
+                      <a href="#api-Explore-aggregate">aggregate</a>
+                    </li>
                     <li data-group="Explore" data-name="count" class="">
                       <a href="#api-Explore-count">count</a>
                     </li>
-                    <li data-group="Explore" data-name="tile" class="">
-                      <a href="#api-Explore-tile">tile</a>
+                    <li data-group="Explore" data-name="describe" class="">
+                      <a href="#api-Explore-describe">describe</a>
+                    </li>
+                    <li data-group="Explore" data-name="describeCollection" class="">
+                      <a href="#api-Explore-describeCollection">describeCollection</a>
+                    </li>
+                    <li data-group="Explore" data-name="search" class="">
+                      <a href="#api-Explore-search">search</a>
+                    </li>
+                    <li data-group="Explore" data-name="suggest" class="">
+                      <a href="#api-Explore-suggest">suggest</a>
                     </li>
           </ul>
         </nav>
@@ -768,12 +780,12 @@ margin-bottom: 20px;
                       <article id="api-Admin-delete-0" data-group="User" data-name="delete" data-version="0">
                         <div class="pull-left">
                           <h1>delete</h1>
-                          <p>...</p>
+                          <p>Add a collection reference</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
                         <p></p>
-                        <p class="marked">...</p>
+                        <p class="marked">Add a collection reference in ARLAS</p>
                         <p></p>
                         <br />
                         <pre class="prettyprint language-html prettyprinted" data-type="delete"><code><span class="pln">/admin/{collection}</span></code></pre>
@@ -849,7 +861,7 @@ public class AdminApiExample {
 
 AdminApi *apiInstance = [[AdminApi alloc] init];
 
-// ...
+// Add a collection reference
 [apiInstance deleteWith:collection
               completionHandler: ^(NSError* error) {
                             if (error) {
@@ -900,7 +912,7 @@ namespace Example
 
             try
             {
-                // ...
+                // Add a collection reference
                 apiInstance.delete(collection);
             }
             catch (Exception e)
@@ -955,7 +967,7 @@ api_instance = swagger_client.AdminApi()
 collection = collection_example # String | collection
 
 try: 
-    # ...
+    # Add a collection reference
     api_instance.delete(collection)
 except ApiException as e:
     print("Exception when calling AdminApi->delete: %s\n" % e)</code></pre>
@@ -1025,12 +1037,12 @@ except ApiException as e:
                       <article id="api-Admin-get-0" data-group="User" data-name="get" data-version="0">
                         <div class="pull-left">
                           <h1>get</h1>
-                          <p>...</p>
+                          <p>Get a collection reference</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
                         <p></p>
-                        <p class="marked">...</p>
+                        <p class="marked">Get a collection reference in ARLAS</p>
                         <p></p>
                         <br />
                         <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/admin/{collection}</span></code></pre>
@@ -1106,7 +1118,7 @@ public class AdminApiExample {
 
 AdminApi *apiInstance = [[AdminApi alloc] init];
 
-// ...
+// Get a collection reference
 [apiInstance getWith:collection
               completionHandler: ^(NSError* error) {
                             if (error) {
@@ -1157,7 +1169,7 @@ namespace Example
 
             try
             {
-                // ...
+                // Get a collection reference
                 apiInstance.get(collection);
             }
             catch (Exception e)
@@ -1212,7 +1224,7 @@ api_instance = swagger_client.AdminApi()
 collection = collection_example # String | collection
 
 try: 
-    # ...
+    # Get a collection reference
     api_instance.get(collection)
 except ApiException as e:
     print("Exception when calling AdminApi->get: %s\n" % e)</code></pre>
@@ -1282,12 +1294,12 @@ except ApiException as e:
                       <article id="api-Admin-put-0" data-group="User" data-name="put" data-version="0">
                         <div class="pull-left">
                           <h1>put</h1>
-                          <p>...</p>
+                          <p>Add a collection reference</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
                         <p></p>
-                        <p class="marked">...</p>
+                        <p class="marked">Add a collection reference in ARLAS</p>
                         <p></p>
                         <br />
                         <pre class="prettyprint language-html prettyprinted" data-type="put"><code><span class="pln">/admin/{collection}</span></code></pre>
@@ -1310,7 +1322,7 @@ except ApiException as e:
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-Admin-put-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">put</span> "http://localhost/arlas/admin/{collection}"</code></pre>
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">put</span> "http://localhost/arlas/admin/{collection}?collectionReference="</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Admin-put-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -1327,8 +1339,9 @@ public class AdminApiExample {
         
         AdminApi apiInstance = new AdminApi();
         String collection = collection_example; // String | collection
+        String collectionReference = collectionReference_example; // String | collectionReference
         try {
-            apiInstance.put(collection);
+            apiInstance.put(collection, collectionReference);
         } catch (ApiException e) {
             System.err.println("Exception when calling AdminApi#put");
             e.printStackTrace();
@@ -1345,8 +1358,9 @@ public class AdminApiExample {
     public static void main(String[] args) {
         AdminApi apiInstance = new AdminApi();
         String collection = collection_example; // String | collection
+        String collectionReference = collectionReference_example; // String | collectionReference
         try {
-            apiInstance.put(collection);
+            apiInstance.put(collection, collectionReference);
         } catch (ApiException e) {
             System.err.println("Exception when calling AdminApi#put");
             e.printStackTrace();
@@ -1360,11 +1374,13 @@ public class AdminApiExample {
   </div> -->
                             <div class="tab-pane" id="examples-Admin-put-0-objc">
                               <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
+String *collectionReference = collectionReference_example; // collectionReference
 
 AdminApi *apiInstance = [[AdminApi alloc] init];
 
-// ...
+// Add a collection reference
 [apiInstance putWith:collection
+    collectionReference:collectionReference
               completionHandler: ^(NSError* error) {
                             if (error) {
                                 NSLog(@"Error: %@", error);
@@ -1380,6 +1396,8 @@ var api = new ArlasExplorationApi.AdminApi()
 
 var collection = collection_example; // {String} collection
 
+var collectionReference = collectionReference_example; // {String} collectionReference
+
 
 var callback = function(error, data, response) {
   if (error) {
@@ -1388,7 +1406,7 @@ var callback = function(error, data, response) {
     console.log('API called successfully.');
   }
 };
-api.put(collection, callback);
+api.put(collection, collectionReference, callback);
 </code></pre>
                             </div>
 
@@ -1411,11 +1429,12 @@ namespace Example
             
             var apiInstance = new AdminApi();
             var collection = collection_example;  // String | collection
+            var collectionReference = collectionReference_example;  // String | collectionReference
 
             try
             {
-                // ...
-                apiInstance.put(collection);
+                // Add a collection reference
+                apiInstance.put(collection, collectionReference);
             }
             catch (Exception e)
             {
@@ -1432,9 +1451,10 @@ require_once(__DIR__ . '/vendor/autoload.php');
 
 $api_instance = new Swagger\Client\Api\AdminApi();
 $collection = collection_example; // String | collection
+$collectionReference = collectionReference_example; // String | collectionReference
 
 try {
-    $api_instance->put($collection);
+    $api_instance->put($collection, $collectionReference);
 } catch (Exception $e) {
     echo 'Exception when calling AdminApi->put: ', $e->getMessage(), PHP_EOL;
 }
@@ -1448,9 +1468,10 @@ use WWW::SwaggerClient::AdminApi;
 
 my $api_instance = WWW::SwaggerClient::AdminApi->new();
 my $collection = collection_example; # String | collection
+my $collectionReference = collectionReference_example; # String | collectionReference
 
 eval { 
-    $api_instance->put(collection => $collection);
+    $api_instance->put(collection => $collection, collectionReference => $collectionReference);
 };
 if ($@) {
     warn "Exception when calling AdminApi->put: $@\n";
@@ -1467,10 +1488,11 @@ from pprint import pprint
 # create an instance of the API class
 api_instance = swagger_client.AdminApi()
 collection = collection_example # String | collection
+collectionReference = collectionReference_example # String | collectionReference
 
 try: 
-    # ...
-    api_instance.put(collection)
+    # Add a collection reference
+    api_instance.put(collection, collectionReference)
 except ApiException as e:
     print("Exception when calling AdminApi->put: %s\n" % e)</code></pre>
                             </div>
@@ -1522,6 +1544,46 @@ except ApiException as e:
 
 
 
+                            <div class="methodsubtabletitle">Query parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">collectionReference*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collectionReference",
+  "in" : "query",
+  "description" : "collectionReference",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_put_collectionReference');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_put_collectionReference"></div>
+</td>
+</tr>
+
+                            </table>
 
                           <h2>Responses</h2>
                             <h3> Status: 0 - successful operation </h3>
@@ -1538,6 +1600,1081 @@ except ApiException as e:
                   </section>
                 <section id="api-Explore">
                   <h1>Explore</h1>
+                    <div id="api-Explore-aggregate">
+                      <article id="api-Explore-aggregate-0" data-group="User" data-name="aggregate" data-version="0">
+                        <div class="pull-left">
+                          <h1>aggregate</h1>
+                          <p>Aggregate</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/aggregate</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-aggregate-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-aggregate-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-aggregate-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-aggregate-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-aggregate-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-aggregate-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-aggregate-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-aggregate-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-aggregate-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-aggregate-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-aggregate-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-aggregate-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/aggregate?agg=&aggField=&aggInterval=&aggFormat=&f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&pretty=&human=&format=&size=&sort=&maxAgeCache="</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-aggregate-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        String collections = collections_example; // String | collections, comma separated
+        String agg = datehistogram; // String | Type of aggregation
+        array[String] aggInterval = 10day; // array[String] | Size of the intervals. 
+ 
+If aggregation type is 'datehistogram' : Size of a time interval with the given unit (no space between number and unit) {size}(year,quarter,month,week,day,hour,minute,second) 
+ 
+If aggregation type is 'geohash' : The geohash length range is from 1 to 12: lower the length, greater is the surface of aggregation. 
+ 
+If aggregation type is 'numeric' : The interval size of the numeric aggregation
+        array[String] aggField = date; // array[String] | Aggregates on the {field}.
+        array[String] aggFormat = yyyyMMdd; // array[String] | Date format for key aggregation.
+        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+        String q = q_example; // String | A full text search
+        Long before = 789; // Long | Any element having its point in time reference before the given timestamp
+        Long after = 789; // Long | Any element having its point in time reference after the given timestamp
+        String pwithin = pwithin_example; // String | Any element having its centroid contained within the given geometry (WKT)
+        String gwithin = gwithin_example; // String | Any element having its geometry contained within the given geometry (WKT)
+        String gintersect = gintersect_example; // String | Any element having its geometry intersecting the given geometry (WKT)
+        Boolean pretty = true; // Boolean | Pretty print
+        Boolean human = true; // Boolean | Human readable print
+        String format = format_example; // String | JSON or GeoJSON format
+        array[Integer] size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
+        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            apiInstance.aggregate(collections, agg, aggInterval, aggField, aggFormat, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, size, sort, maxAgeCache);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#aggregate");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-aggregate-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        String collections = collections_example; // String | collections, comma separated
+        String agg = datehistogram; // String | Type of aggregation
+        array[String] aggInterval = 10day; // array[String] | Size of the intervals. 
+ 
+If aggregation type is 'datehistogram' : Size of a time interval with the given unit (no space between number and unit) {size}(year,quarter,month,week,day,hour,minute,second) 
+ 
+If aggregation type is 'geohash' : The geohash length range is from 1 to 12: lower the length, greater is the surface of aggregation. 
+ 
+If aggregation type is 'numeric' : The interval size of the numeric aggregation
+        array[String] aggField = date; // array[String] | Aggregates on the {field}.
+        array[String] aggFormat = yyyyMMdd; // array[String] | Date format for key aggregation.
+        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+        String q = q_example; // String | A full text search
+        Long before = 789; // Long | Any element having its point in time reference before the given timestamp
+        Long after = 789; // Long | Any element having its point in time reference after the given timestamp
+        String pwithin = pwithin_example; // String | Any element having its centroid contained within the given geometry (WKT)
+        String gwithin = gwithin_example; // String | Any element having its geometry contained within the given geometry (WKT)
+        String gintersect = gintersect_example; // String | Any element having its geometry intersecting the given geometry (WKT)
+        Boolean pretty = true; // Boolean | Pretty print
+        Boolean human = true; // Boolean | Human readable print
+        String format = format_example; // String | JSON or GeoJSON format
+        array[Integer] size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
+        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            apiInstance.aggregate(collections, agg, aggInterval, aggField, aggFormat, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, size, sort, maxAgeCache);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#aggregate");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-aggregate-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-aggregate-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">String *collections = collections_example; // collections, comma separated
+String *agg = datehistogram; // Type of aggregation
+array[String] *aggInterval = 10day; // Size of the intervals. 
+ 
+If aggregation type is 'datehistogram' : Size of a time interval with the given unit (no space between number and unit) {size}(year,quarter,month,week,day,hour,minute,second) 
+ 
+If aggregation type is 'geohash' : The geohash length range is from 1 to 12: lower the length, greater is the surface of aggregation. 
+ 
+If aggregation type is 'numeric' : The interval size of the numeric aggregation
+array[String] *aggField = date; // Aggregates on the {field}. (optional)
+array[String] *aggFormat = yyyyMMdd; // Date format for key aggregation. (optional)
+array[String] *f = ; // A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
+String *q = q_example; // A full text search (optional)
+Long *before = 789; // Any element having its point in time reference before the given timestamp (optional)
+Long *after = 789; // Any element having its point in time reference after the given timestamp (optional)
+String *pwithin = pwithin_example; // Any element having its centroid contained within the given geometry (WKT) (optional)
+String *gwithin = gwithin_example; // Any element having its geometry contained within the given geometry (WKT) (optional)
+String *gintersect = gintersect_example; // Any element having its geometry intersecting the given geometry (WKT) (optional)
+Boolean *pretty = true; // Pretty print (optional) (default to false)
+Boolean *human = true; // Human readable print (optional) (default to false)
+String *format = format_example; // JSON or GeoJSON format (optional) (default to json)
+array[Integer] *size = ; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)
+array[String] *sort = city:DESC; // Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
+Integer *maxAgeCache = 56; // max-age-cache (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// Aggregate
+[apiInstance aggregateWith:collections
+    agg:agg
+    aggInterval:aggInterval
+    aggField:aggField
+    aggFormat:aggFormat
+    f:f
+    q:q
+    before:before
+    after:after
+    pwithin:pwithin
+    gwithin:gwithin
+    gintersect:gintersect
+    pretty:pretty
+    human:human
+    format:format
+    size:size
+    sort:sort
+    maxAgeCache:maxAgeCache
+              completionHandler: ^(NSError* error) {
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-aggregate-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var collections = collections_example; // {String} collections, comma separated
+
+var agg = datehistogram; // {String} Type of aggregation
+
+var aggInterval = 10day; // {array[String]} Size of the intervals. 
+ 
+If aggregation type is 'datehistogram' : Size of a time interval with the given unit (no space between number and unit) {size}(year,quarter,month,week,day,hour,minute,second) 
+ 
+If aggregation type is 'geohash' : The geohash length range is from 1 to 12: lower the length, greater is the surface of aggregation. 
+ 
+If aggregation type is 'numeric' : The interval size of the numeric aggregation
+
+var opts = { 
+  'aggField': date, // {array[String]} Aggregates on the {field}.
+  'aggFormat': yyyyMMdd, // {array[String]} Date format for key aggregation.
+  'f': , // {array[String]} A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+  'q': q_example, // {String} A full text search
+  'before': 789, // {Long} Any element having its point in time reference before the given timestamp
+  'after': 789, // {Long} Any element having its point in time reference after the given timestamp
+  'pwithin': pwithin_example, // {String} Any element having its centroid contained within the given geometry (WKT)
+  'gwithin': gwithin_example, // {String} Any element having its geometry contained within the given geometry (WKT)
+  'gintersect': gintersect_example, // {String} Any element having its geometry intersecting the given geometry (WKT)
+  'pretty': true, // {Boolean} Pretty print
+  'human': true, // {Boolean} Human readable print
+  'format': format_example, // {String} JSON or GeoJSON format
+  'size': , // {array[Integer]} The maximum number of entries or sub-entries to be returned. The default value is 10
+  'sort': city:DESC, // {array[String]} Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+  'maxAgeCache': 56 // {Integer} max-age-cache
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully.');
+  }
+};
+api.aggregate(collections, agg, aggInterval, opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-aggregate-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-aggregate-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class aggregateExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var collections = collections_example;  // String | collections, comma separated
+            var agg = datehistogram;  // String | Type of aggregation
+            var aggInterval = new array[String](); // array[String] | Size of the intervals. 
+ 
+If aggregation type is 'datehistogram' : Size of a time interval with the given unit (no space between number and unit) {size}(year,quarter,month,week,day,hour,minute,second) 
+ 
+If aggregation type is 'geohash' : The geohash length range is from 1 to 12: lower the length, greater is the surface of aggregation. 
+ 
+If aggregation type is 'numeric' : The interval size of the numeric aggregation
+            var aggField = new array[String](); // array[String] | Aggregates on the {field}. (optional) 
+            var aggFormat = new array[String](); // array[String] | Date format for key aggregation. (optional) 
+            var f = new array[String](); // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional) 
+            var q = q_example;  // String | A full text search (optional) 
+            var before = 789;  // Long | Any element having its point in time reference before the given timestamp (optional) 
+            var after = 789;  // Long | Any element having its point in time reference after the given timestamp (optional) 
+            var pwithin = pwithin_example;  // String | Any element having its centroid contained within the given geometry (WKT) (optional) 
+            var gwithin = gwithin_example;  // String | Any element having its geometry contained within the given geometry (WKT) (optional) 
+            var gintersect = gintersect_example;  // String | Any element having its geometry intersecting the given geometry (WKT) (optional) 
+            var pretty = true;  // Boolean | Pretty print (optional)  (default to false)
+            var human = true;  // Boolean | Human readable print (optional)  (default to false)
+            var format = format_example;  // String | JSON or GeoJSON format (optional)  (default to json)
+            var size = new array[Integer](); // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) 
+            var sort = new array[String](); // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}. (optional) 
+            var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
+
+            try
+            {
+                // Aggregate
+                apiInstance.aggregate(collections, agg, aggInterval, aggField, aggFormat, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, size, sort, maxAgeCache);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.aggregate: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-aggregate-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$collections = collections_example; // String | collections, comma separated
+$agg = datehistogram; // String | Type of aggregation
+$aggInterval = 10day; // array[String] | Size of the intervals. 
+ 
+If aggregation type is 'datehistogram' : Size of a time interval with the given unit (no space between number and unit) {size}(year,quarter,month,week,day,hour,minute,second) 
+ 
+If aggregation type is 'geohash' : The geohash length range is from 1 to 12: lower the length, greater is the surface of aggregation. 
+ 
+If aggregation type is 'numeric' : The interval size of the numeric aggregation
+$aggField = date; // array[String] | Aggregates on the {field}.
+$aggFormat = yyyyMMdd; // array[String] | Date format for key aggregation.
+$f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+$q = q_example; // String | A full text search
+$before = 789; // Long | Any element having its point in time reference before the given timestamp
+$after = 789; // Long | Any element having its point in time reference after the given timestamp
+$pwithin = pwithin_example; // String | Any element having its centroid contained within the given geometry (WKT)
+$gwithin = gwithin_example; // String | Any element having its geometry contained within the given geometry (WKT)
+$gintersect = gintersect_example; // String | Any element having its geometry intersecting the given geometry (WKT)
+$pretty = true; // Boolean | Pretty print
+$human = true; // Boolean | Human readable print
+$format = format_example; // String | JSON or GeoJSON format
+$size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
+$sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+$maxAgeCache = 56; // Integer | max-age-cache
+
+try {
+    $api_instance->aggregate($collections, $agg, $aggInterval, $aggField, $aggFormat, $f, $q, $before, $after, $pwithin, $gwithin, $gintersect, $pretty, $human, $format, $size, $sort, $maxAgeCache);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->aggregate: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-aggregate-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $collections = collections_example; # String | collections, comma separated
+my $agg = datehistogram; # String | Type of aggregation
+my $aggInterval = [10day]; # array[String] | Size of the intervals. 
+ 
+If aggregation type is 'datehistogram' : Size of a time interval with the given unit (no space between number and unit) {size}(year,quarter,month,week,day,hour,minute,second) 
+ 
+If aggregation type is 'geohash' : The geohash length range is from 1 to 12: lower the length, greater is the surface of aggregation. 
+ 
+If aggregation type is 'numeric' : The interval size of the numeric aggregation
+my $aggField = [date]; # array[String] | Aggregates on the {field}.
+my $aggFormat = [yyyyMMdd]; # array[String] | Date format for key aggregation.
+my $f = []; # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+my $q = q_example; # String | A full text search
+my $before = 789; # Long | Any element having its point in time reference before the given timestamp
+my $after = 789; # Long | Any element having its point in time reference after the given timestamp
+my $pwithin = pwithin_example; # String | Any element having its centroid contained within the given geometry (WKT)
+my $gwithin = gwithin_example; # String | Any element having its geometry contained within the given geometry (WKT)
+my $gintersect = gintersect_example; # String | Any element having its geometry intersecting the given geometry (WKT)
+my $pretty = true; # Boolean | Pretty print
+my $human = true; # Boolean | Human readable print
+my $format = format_example; # String | JSON or GeoJSON format
+my $size = []; # array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
+my $sort = [city:DESC]; # array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+my $maxAgeCache = 56; # Integer | max-age-cache
+
+eval { 
+    $api_instance->aggregate(collections => $collections, agg => $agg, aggInterval => $aggInterval, aggField => $aggField, aggFormat => $aggFormat, f => $f, q => $q, before => $before, after => $after, pwithin => $pwithin, gwithin => $gwithin, gintersect => $gintersect, pretty => $pretty, human => $human, format => $format, size => $size, sort => $sort, maxAgeCache => $maxAgeCache);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->aggregate: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-aggregate-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+collections = collections_example # String | collections, comma separated
+agg = datehistogram # String | Type of aggregation
+aggInterval = 10day # array[String] | Size of the intervals. 
+ 
+If aggregation type is 'datehistogram' : Size of a time interval with the given unit (no space between number and unit) {size}(year,quarter,month,week,day,hour,minute,second) 
+ 
+If aggregation type is 'geohash' : The geohash length range is from 1 to 12: lower the length, greater is the surface of aggregation. 
+ 
+If aggregation type is 'numeric' : The interval size of the numeric aggregation
+aggField = date # array[String] | Aggregates on the {field}. (optional)
+aggFormat = yyyyMMdd # array[String] | Date format for key aggregation. (optional)
+f =  # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
+q = q_example # String | A full text search (optional)
+before = 789 # Long | Any element having its point in time reference before the given timestamp (optional)
+after = 789 # Long | Any element having its point in time reference after the given timestamp (optional)
+pwithin = pwithin_example # String | Any element having its centroid contained within the given geometry (WKT) (optional)
+gwithin = gwithin_example # String | Any element having its geometry contained within the given geometry (WKT) (optional)
+gintersect = gintersect_example # String | Any element having its geometry intersecting the given geometry (WKT) (optional)
+pretty = true # Boolean | Pretty print (optional) (default to false)
+human = true # Boolean | Human readable print (optional) (default to false)
+format = format_example # String | JSON or GeoJSON format (optional) (default to json)
+size =  # array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)
+sort = city:DESC # array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
+maxAgeCache = 56 # Integer | max-age-cache (optional)
+
+try: 
+    # Aggregate
+    api_instance.aggregate(collections, agg, aggInterval, aggField=aggField, aggFormat=aggFormat, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, pretty=pretty, human=human, format=format, size=size, sort=sort, maxAgeCache=maxAgeCache)
+except ApiException as e:
+    print("Exception when calling ExploreApi->aggregate: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">collections*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collections",
+  "in" : "path",
+  "description" : "collections, comma separated",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_collections');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_collections"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+
+
+                            <div class="methodsubtabletitle">Query parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">agg*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "agg",
+  "in" : "query",
+  "description" : "Type of aggregation",
+  "required" : true,
+  "type" : "string",
+  "enum" : [ "datehistogram", "geohash", "histogram" ],
+  "x-example" : "datehistogram"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_agg');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_agg"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">agg_field</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "agg_field",
+  "in" : "query",
+  "description" : "Aggregates on the {field}.",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string",
+    "example" : "date"
+  },
+  "collectionFormat" : "multi",
+  "x-example" : "date"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_aggField');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_aggField"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">agg_interval*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "agg_interval",
+  "in" : "query",
+  "description" : "Size of the intervals. \n \nIf aggregation type is 'datehistogram' : Size of a time interval with the given unit (no space between number and unit) {size}(year,quarter,month,week,day,hour,minute,second) \n \nIf aggregation type is 'geohash' : The geohash length range is from 1 to 12: lower the length, greater is the surface of aggregation. \n \nIf aggregation type is 'numeric' : The interval size of the numeric aggregation",
+  "required" : true,
+  "type" : "array",
+  "items" : {
+    "type" : "string",
+    "example" : "10day"
+  },
+  "collectionFormat" : "multi",
+  "x-example" : "10day"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_aggInterval');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_aggInterval"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">agg_format</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "agg_format",
+  "in" : "query",
+  "description" : "Date format for key aggregation.",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string",
+    "example" : "yyyyMMdd"
+  },
+  "collectionFormat" : "multi",
+  "x-example" : "yyyyMMdd"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_aggFormat');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_aggFormat"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">f</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "f",
+  "in" : "query",
+  "description" : "A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_f');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_f"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">q</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "q",
+  "in" : "query",
+  "description" : "A full text search",
+  "required" : false,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_q');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_q"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">before</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "before",
+  "in" : "query",
+  "description" : "Any element having its point in time reference before the given timestamp",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int64"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_before');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_before"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">after</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "after",
+  "in" : "query",
+  "description" : "Any element having its point in time reference after the given timestamp",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int64"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_after');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_after"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">pwithin</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "pwithin",
+  "in" : "query",
+  "description" : "Any element having its centroid contained within the given geometry (WKT)",
+  "required" : false,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_pwithin');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_pwithin"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">gwithin</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "gwithin",
+  "in" : "query",
+  "description" : "Any element having its geometry contained within the given geometry (WKT)",
+  "required" : false,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_gwithin');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_gwithin"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">gintersect</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "gintersect",
+  "in" : "query",
+  "description" : "Any element having its geometry intersecting the given geometry (WKT)",
+  "required" : false,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_gintersect');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_gintersect"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">pretty</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "pretty",
+  "in" : "query",
+  "description" : "Pretty print",
+  "required" : false,
+  "type" : "boolean",
+  "default" : false
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_pretty');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_pretty"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">human</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "human",
+  "in" : "query",
+  "description" : "Human readable print",
+  "required" : false,
+  "type" : "boolean",
+  "default" : false
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_human');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_human"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">format</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "format",
+  "in" : "query",
+  "description" : "JSON or GeoJSON format",
+  "required" : false,
+  "type" : "string",
+  "default" : "json",
+  "enum" : [ "json", "geojson;" ]
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_format');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_format"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">size</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "size",
+  "in" : "query",
+  "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "integer",
+    "format" : "int32",
+    "minimum" : 1,
+    "default" : 10
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_size');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_size"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">sort</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "sort",
+  "in" : "query",
+  "description" : "Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string",
+    "example" : "city:DESC",
+    "default" : "10"
+  },
+  "collectionFormat" : "multi",
+  "x-example" : "city:DESC"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_sort');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_sort"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">max-age-cache</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "max-age-cache",
+  "in" : "query",
+  "description" : "max-age-cache",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int32"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregate_maxAgeCache');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregate_maxAgeCache"></div>
+</td>
+</tr>
+
+                            </table>
+
+                          <h2>Responses</h2>
+                            <h3> Status: 0 - successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
                     <div id="api-Explore-count">
                       <article id="api-Explore-count-0" data-group="User" data-name="count" data-version="0">
                         <div class="pull-left">
@@ -2233,10 +3370,664 @@ except ApiException as e:
                         </article>
                       </div>
                       <hr>
-                    <div id="api-Explore-tile">
-                      <article id="api-Explore-tile-0" data-group="User" data-name="tile" data-version="0">
+                    <div id="api-Explore-describe">
+                      <article id="api-Explore-describe-0" data-group="User" data-name="describe" data-version="0">
                         <div class="pull-left">
-                          <h1>tile</h1>
+                          <h1>describe</h1>
+                          <p>Describe</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">List  the collections configured in ARLAS. </p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/describe</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-describe-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-describe-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-describe-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-describe-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-describe-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-describe-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-describe-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-describe-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-describe-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-describe-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-describe-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-describe-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/describe?maxAgeCache="</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-describe-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            apiInstance.describe(maxAgeCache);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#describe");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-describe-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            apiInstance.describe(maxAgeCache);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#describe");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-describe-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-describe-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">Integer *maxAgeCache = 56; // max-age-cache (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// Describe
+[apiInstance describeWith:maxAgeCache
+              completionHandler: ^(NSError* error) {
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-describe-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var opts = { 
+  'maxAgeCache': 56 // {Integer} max-age-cache
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully.');
+  }
+};
+api.describe(opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-describe-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-describe-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class describeExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
+
+            try
+            {
+                // Describe
+                apiInstance.describe(maxAgeCache);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.describe: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-describe-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$maxAgeCache = 56; // Integer | max-age-cache
+
+try {
+    $api_instance->describe($maxAgeCache);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->describe: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-describe-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $maxAgeCache = 56; # Integer | max-age-cache
+
+eval { 
+    $api_instance->describe(maxAgeCache => $maxAgeCache);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->describe: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-describe-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+maxAgeCache = 56 # Integer | max-age-cache (optional)
+
+try: 
+    # Describe
+    api_instance.describe(maxAgeCache=maxAgeCache)
+except ApiException as e:
+    print("Exception when calling ExploreApi->describe: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+
+
+
+
+                            <div class="methodsubtabletitle">Query parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">max-age-cache</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "max-age-cache",
+  "in" : "query",
+  "description" : "max-age-cache",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int32"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_describe_maxAgeCache');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_describe_maxAgeCache"></div>
+</td>
+</tr>
+
+                            </table>
+
+                          <h2>Responses</h2>
+                            <h3> Status: 0 - successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-Explore-describeCollection">
+                      <article id="api-Explore-describeCollection-0" data-group="User" data-name="describeCollection" data-version="0">
+                        <div class="pull-left">
+                          <h1>describeCollection</h1>
+                          <p>Describe a collection</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Describe the structure and the content of the given collection. </p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collection}/describe</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-describeCollection-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-describeCollection-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-describeCollection-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-describeCollection-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-describeCollection-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-describeCollection-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-describeCollection-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-describeCollection-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-describeCollection-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-describeCollection-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-describeCollection-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-describeCollection-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collection}/describe?pretty=&human=&maxAgeCache="</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-describeCollection-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        Boolean pretty = true; // Boolean | Pretty print
+        Boolean human = true; // Boolean | Human readable print
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            apiInstance.describeCollection(collection, pretty, human, maxAgeCache);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#describeCollection");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-describeCollection-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        Boolean pretty = true; // Boolean | Pretty print
+        Boolean human = true; // Boolean | Human readable print
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            apiInstance.describeCollection(collection, pretty, human, maxAgeCache);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#describeCollection");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-describeCollection-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-describeCollection-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
+Boolean *pretty = true; // Pretty print (optional) (default to false)
+Boolean *human = true; // Human readable print (optional) (default to false)
+Integer *maxAgeCache = 56; // max-age-cache (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// Describe a collection
+[apiInstance describeCollectionWith:collection
+    pretty:pretty
+    human:human
+    maxAgeCache:maxAgeCache
+              completionHandler: ^(NSError* error) {
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-describeCollection-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var collection = collection_example; // {String} collection
+
+var opts = { 
+  'pretty': true, // {Boolean} Pretty print
+  'human': true, // {Boolean} Human readable print
+  'maxAgeCache': 56 // {Integer} max-age-cache
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully.');
+  }
+};
+api.describeCollection(collection, opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-describeCollection-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-describeCollection-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class describeCollectionExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var collection = collection_example;  // String | collection
+            var pretty = true;  // Boolean | Pretty print (optional)  (default to false)
+            var human = true;  // Boolean | Human readable print (optional)  (default to false)
+            var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
+
+            try
+            {
+                // Describe a collection
+                apiInstance.describeCollection(collection, pretty, human, maxAgeCache);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.describeCollection: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-describeCollection-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$collection = collection_example; // String | collection
+$pretty = true; // Boolean | Pretty print
+$human = true; // Boolean | Human readable print
+$maxAgeCache = 56; // Integer | max-age-cache
+
+try {
+    $api_instance->describeCollection($collection, $pretty, $human, $maxAgeCache);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->describeCollection: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-describeCollection-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $collection = collection_example; # String | collection
+my $pretty = true; # Boolean | Pretty print
+my $human = true; # Boolean | Human readable print
+my $maxAgeCache = 56; # Integer | max-age-cache
+
+eval { 
+    $api_instance->describeCollection(collection => $collection, pretty => $pretty, human => $human, maxAgeCache => $maxAgeCache);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->describeCollection: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-describeCollection-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+collection = collection_example # String | collection
+pretty = true # Boolean | Pretty print (optional) (default to false)
+human = true # Boolean | Human readable print (optional) (default to false)
+maxAgeCache = 56 # Integer | max-age-cache (optional)
+
+try: 
+    # Describe a collection
+    api_instance.describeCollection(collection, pretty=pretty, human=human, maxAgeCache=maxAgeCache)
+except ApiException as e:
+    print("Exception when calling ExploreApi->describeCollection: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">collection*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collection",
+  "in" : "path",
+  "description" : "collection",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_describeCollection_collection');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_describeCollection_collection"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+
+
+                            <div class="methodsubtabletitle">Query parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">pretty</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "pretty",
+  "in" : "query",
+  "description" : "Pretty print",
+  "required" : false,
+  "type" : "boolean",
+  "default" : false
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_describeCollection_pretty');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_describeCollection_pretty"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">human</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "human",
+  "in" : "query",
+  "description" : "Human readable print",
+  "required" : false,
+  "type" : "boolean",
+  "default" : false
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_describeCollection_human');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_describeCollection_human"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">max-age-cache</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "max-age-cache",
+  "in" : "query",
+  "description" : "max-age-cache",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int32"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_describeCollection_maxAgeCache');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_describeCollection_maxAgeCache"></div>
+</td>
+</tr>
+
+                            </table>
+
+                          <h2>Responses</h2>
+                            <h3> Status: 0 - successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-Explore-search">
+                      <article id="api-Explore-search-0" data-group="User" data-name="search" data-version="0">
+                        <div class="pull-left">
+                          <h1>search</h1>
                           <p>Search</p>
                         </div>
                         <div class="pull-right"></div>
@@ -2250,24 +4041,24 @@ except ApiException as e:
                           <h3>Usage and SDK Samples</h3>
                         </p>
                         <ul class="nav nav-tabs nav-tabs-examples">
-                          <li class="active"><a href="#examples-Explore-tile-0-curl">Curl</a></li>
-                          <li class=""><a href="#examples-Explore-tile-0-java">Java</a></li>
-                          <li class=""><a href="#examples-Explore-tile-0-android">Android</a></li>
-                          <!--<li class=""><a href="#examples-Explore-tile-0-groovy">Groovy</a></li>-->
-                          <li class=""><a href="#examples-Explore-tile-0-objc">Obj-C</a></li>
-                          <li class=""><a href="#examples-Explore-tile-0-javascript">JavaScript</a></li>
-                          <!--<li class=""><a href="#examples-Explore-tile-0-angular">Angular</a></li>-->
-                          <li class=""><a href="#examples-Explore-tile-0-csharp">C#</a></li>
-                          <li class=""><a href="#examples-Explore-tile-0-php">PHP</a></li>
-                          <li class=""><a href="#examples-Explore-tile-0-perl">Perl</a></li>
-                          <li class=""><a href="#examples-Explore-tile-0-python">Python</a></li>
+                          <li class="active"><a href="#examples-Explore-search-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-search-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-search-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-search-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-search-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-search-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-search-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-search-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-search-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-search-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-search-0-python">Python</a></li>
                         </ul>
 
                         <div class="tab-content">
-                          <div class="tab-pane active" id="examples-Explore-tile-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/search?f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&pretty=&human=&format=&maxAgeCache="</code></pre>
+                          <div class="tab-pane active" id="examples-Explore-search-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/search?f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&pretty=&human=&format=&include=&exclude=&size=&sort=&maxAgeCache="</code></pre>
                           </div>
-                          <div class="tab-pane" id="examples-Explore-tile-0-java">
+                          <div class="tab-pane" id="examples-Explore-search-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
 import io.swagger.client.auth.*;
 import io.swagger.client.model.*;
@@ -2292,18 +4083,22 @@ public class ExploreApiExample {
         Boolean pretty = true; // Boolean | Pretty print
         Boolean human = true; // Boolean | Human readable print
         String format = format_example; // String | JSON or GeoJSON format
+        array[String] include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
+        array[String] exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
+        array[Integer] size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
+        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
-            apiInstance.tile(collections, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, maxAgeCache);
+            apiInstance.search(collections, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, include, exclude, size, sort, maxAgeCache);
         } catch (ApiException e) {
-            System.err.println("Exception when calling ExploreApi#tile");
+            System.err.println("Exception when calling ExploreApi#search");
             e.printStackTrace();
         }
     }
 }</code></pre>
                           </div>
 
-                          <div class="tab-pane" id="examples-Explore-tile-0-android">
+                          <div class="tab-pane" id="examples-Explore-search-0-android">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
 
 public class ExploreApiExample {
@@ -2321,21 +4116,25 @@ public class ExploreApiExample {
         Boolean pretty = true; // Boolean | Pretty print
         Boolean human = true; // Boolean | Human readable print
         String format = format_example; // String | JSON or GeoJSON format
+        array[String] include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
+        array[String] exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
+        array[Integer] size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
+        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
-            apiInstance.tile(collections, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, maxAgeCache);
+            apiInstance.search(collections, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, include, exclude, size, sort, maxAgeCache);
         } catch (ApiException e) {
-            System.err.println("Exception when calling ExploreApi#tile");
+            System.err.println("Exception when calling ExploreApi#search");
             e.printStackTrace();
         }
     }
 }</code></pre>
                           </div>
   <!--
-  <div class="tab-pane" id="examples-Explore-tile-0-groovy">
+  <div class="tab-pane" id="examples-Explore-search-0-groovy">
   <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
   </div> -->
-                            <div class="tab-pane" id="examples-Explore-tile-0-objc">
+                            <div class="tab-pane" id="examples-Explore-search-0-objc">
                               <pre class="prettyprint"><code class="language-cpp">String *collections = collections_example; // collections, comma separated
 array[String] *f = ; // A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
 String *q = q_example; // A full text search (optional)
@@ -2347,12 +4146,16 @@ String *gintersect = gintersect_example; // Any element having its geometry inte
 Boolean *pretty = true; // Pretty print (optional) (default to false)
 Boolean *human = true; // Human readable print (optional) (default to false)
 String *format = format_example; // JSON or GeoJSON format (optional) (default to json)
+array[String] *include = *; // List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional)
+array[String] *exclude = city,state; // List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional)
+array[Integer] *size = ; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)
+array[String] *sort = city:DESC; // Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
 Integer *maxAgeCache = 56; // max-age-cache (optional)
 
 ExploreApi *apiInstance = [[ExploreApi alloc] init];
 
 // Search
-[apiInstance tileWith:collections
+[apiInstance searchWith:collections
     f:f
     q:q
     before:before
@@ -2363,6 +4166,10 @@ ExploreApi *apiInstance = [[ExploreApi alloc] init];
     pretty:pretty
     human:human
     format:format
+    include:include
+    exclude:exclude
+    size:size
+    sort:sort
     maxAgeCache:maxAgeCache
               completionHandler: ^(NSError* error) {
                             if (error) {
@@ -2372,7 +4179,7 @@ ExploreApi *apiInstance = [[ExploreApi alloc] init];
 </code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Explore-tile-0-javascript">
+                            <div class="tab-pane" id="examples-Explore-search-0-javascript">
                               <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
 
 var api = new ArlasExplorationApi.ExploreApi()
@@ -2390,6 +4197,10 @@ var opts = {
   'pretty': true, // {Boolean} Pretty print
   'human': true, // {Boolean} Human readable print
   'format': format_example, // {String} JSON or GeoJSON format
+  'include': *, // {array[String]} List the name patterns of the field to be included in the result. Seperate patterns with a comma.
+  'exclude': city,state, // {array[String]} List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
+  'size': , // {array[Integer]} The maximum number of entries or sub-entries to be returned. The default value is 10
+  'sort': city:DESC, // {array[String]} Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
   'maxAgeCache': 56 // {Integer} max-age-cache
 };
 
@@ -2400,14 +4211,14 @@ var callback = function(error, data, response) {
     console.log('API called successfully.');
   }
 };
-api.tile(collections, opts, callback);
+api.search(collections, opts, callback);
 </code></pre>
                             </div>
 
-                            <!--<div class="tab-pane" id="examples-Explore-tile-0-angular">
+                            <!--<div class="tab-pane" id="examples-Explore-search-0-angular">
               <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
             </div>-->
-                            <div class="tab-pane" id="examples-Explore-tile-0-csharp">
+                            <div class="tab-pane" id="examples-Explore-search-0-csharp">
                               <pre class="prettyprint"><code class="language-cs">using System;
 using System.Diagnostics;
 using IO.Swagger.Api;
@@ -2416,7 +4227,7 @@ using IO.Swagger.Model;
 
 namespace Example
 {
-    public class tileExample
+    public class searchExample
     {
         public void main()
         {
@@ -2433,23 +4244,27 @@ namespace Example
             var pretty = true;  // Boolean | Pretty print (optional)  (default to false)
             var human = true;  // Boolean | Human readable print (optional)  (default to false)
             var format = format_example;  // String | JSON or GeoJSON format (optional)  (default to json)
+            var include = new array[String](); // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional) 
+            var exclude = new array[String](); // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional) 
+            var size = new array[Integer](); // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) 
+            var sort = new array[String](); // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}. (optional) 
             var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
 
             try
             {
                 // Search
-                apiInstance.tile(collections, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, maxAgeCache);
+                apiInstance.search(collections, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, include, exclude, size, sort, maxAgeCache);
             }
             catch (Exception e)
             {
-                Debug.Print("Exception when calling ExploreApi.tile: " + e.Message );
+                Debug.Print("Exception when calling ExploreApi.search: " + e.Message );
             }
         }
     }
 }</code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Explore-tile-0-php">
+                            <div class="tab-pane" id="examples-Explore-search-0-php">
                               <pre class="prettyprint"><code class="language-php"><&#63;php
 require_once(__DIR__ . '/vendor/autoload.php');
 
@@ -2465,17 +4280,21 @@ $gintersect = gintersect_example; // String | Any element having its geometry in
 $pretty = true; // Boolean | Pretty print
 $human = true; // Boolean | Human readable print
 $format = format_example; // String | JSON or GeoJSON format
+$include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
+$exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
+$size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
+$sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
 $maxAgeCache = 56; // Integer | max-age-cache
 
 try {
-    $api_instance->tile($collections, $f, $q, $before, $after, $pwithin, $gwithin, $gintersect, $pretty, $human, $format, $maxAgeCache);
+    $api_instance->search($collections, $f, $q, $before, $after, $pwithin, $gwithin, $gintersect, $pretty, $human, $format, $include, $exclude, $size, $sort, $maxAgeCache);
 } catch (Exception $e) {
-    echo 'Exception when calling ExploreApi->tile: ', $e->getMessage(), PHP_EOL;
+    echo 'Exception when calling ExploreApi->search: ', $e->getMessage(), PHP_EOL;
 }
 ?></code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Explore-tile-0-perl">
+                            <div class="tab-pane" id="examples-Explore-search-0-perl">
                               <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
 use WWW::SwaggerClient::Configuration;
 use WWW::SwaggerClient::ExploreApi;
@@ -2492,17 +4311,21 @@ my $gintersect = gintersect_example; # String | Any element having its geometry 
 my $pretty = true; # Boolean | Pretty print
 my $human = true; # Boolean | Human readable print
 my $format = format_example; # String | JSON or GeoJSON format
+my $include = [*]; # array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
+my $exclude = [city,state]; # array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
+my $size = []; # array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
+my $sort = [city:DESC]; # array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
 my $maxAgeCache = 56; # Integer | max-age-cache
 
 eval { 
-    $api_instance->tile(collections => $collections, f => $f, q => $q, before => $before, after => $after, pwithin => $pwithin, gwithin => $gwithin, gintersect => $gintersect, pretty => $pretty, human => $human, format => $format, maxAgeCache => $maxAgeCache);
+    $api_instance->search(collections => $collections, f => $f, q => $q, before => $before, after => $after, pwithin => $pwithin, gwithin => $gwithin, gintersect => $gintersect, pretty => $pretty, human => $human, format => $format, include => $include, exclude => $exclude, size => $size, sort => $sort, maxAgeCache => $maxAgeCache);
 };
 if ($@) {
-    warn "Exception when calling ExploreApi->tile: $@\n";
+    warn "Exception when calling ExploreApi->search: $@\n";
 }</code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Explore-tile-0-python">
+                            <div class="tab-pane" id="examples-Explore-search-0-python">
                               <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
 import time
 import swagger_client
@@ -2522,13 +4345,17 @@ gintersect = gintersect_example # String | Any element having its geometry inter
 pretty = true # Boolean | Pretty print (optional) (default to false)
 human = true # Boolean | Human readable print (optional) (default to false)
 format = format_example # String | JSON or GeoJSON format (optional) (default to json)
+include = * # array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional)
+exclude = city,state # array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional)
+size =  # array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)
+sort = city:DESC # array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
 maxAgeCache = 56 # Integer | max-age-cache (optional)
 
 try: 
     # Search
-    api_instance.tile(collections, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, pretty=pretty, human=human, format=format, maxAgeCache=maxAgeCache)
+    api_instance.search(collections, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, pretty=pretty, human=human, format=format, include=include, exclude=exclude, size=size, sort=sort, maxAgeCache=maxAgeCache)
 except ApiException as e:
-    print("Exception when calling ExploreApi->tile: %s\n" % e)</code></pre>
+    print("Exception when calling ExploreApi->search: %s\n" % e)</code></pre>
                             </div>
                           </div>
 
@@ -2559,7 +4386,7 @@ except ApiException as e:
 
 
 													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_tile_collections');
+													var result = $('#d2e199_search_collections');
 													result.empty();
 													result.append(view.render());
 
@@ -2569,7 +4396,7 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_tile_collections"></div>
+												<div id="d2e199_search_collections"></div>
 </td>
 </tr>
 
@@ -2607,7 +4434,7 @@ except ApiException as e:
 
 
 													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_tile_f');
+													var result = $('#d2e199_search_f');
 													result.empty();
 													result.append(view.render());
 
@@ -2617,7 +4444,7 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_tile_f"></div>
+												<div id="d2e199_search_f"></div>
 </td>
 </tr>
 
@@ -2640,7 +4467,7 @@ except ApiException as e:
 
 
 													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_tile_q');
+													var result = $('#d2e199_search_q');
 													result.empty();
 													result.append(view.render());
 
@@ -2650,7 +4477,7 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_tile_q"></div>
+												<div id="d2e199_search_q"></div>
 </td>
 </tr>
 
@@ -2674,7 +4501,7 @@ except ApiException as e:
 
 
 													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_tile_before');
+													var result = $('#d2e199_search_before');
 													result.empty();
 													result.append(view.render());
 
@@ -2684,7 +4511,7 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_tile_before"></div>
+												<div id="d2e199_search_before"></div>
 </td>
 </tr>
 
@@ -2708,7 +4535,7 @@ except ApiException as e:
 
 
 													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_tile_after');
+													var result = $('#d2e199_search_after');
 													result.empty();
 													result.append(view.render());
 
@@ -2718,7 +4545,7 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_tile_after"></div>
+												<div id="d2e199_search_after"></div>
 </td>
 </tr>
 
@@ -2741,7 +4568,7 @@ except ApiException as e:
 
 
 													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_tile_pwithin');
+													var result = $('#d2e199_search_pwithin');
 													result.empty();
 													result.append(view.render());
 
@@ -2751,7 +4578,7 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_tile_pwithin"></div>
+												<div id="d2e199_search_pwithin"></div>
 </td>
 </tr>
 
@@ -2774,7 +4601,7 @@ except ApiException as e:
 
 
 													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_tile_gwithin');
+													var result = $('#d2e199_search_gwithin');
 													result.empty();
 													result.append(view.render());
 
@@ -2784,7 +4611,7 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_tile_gwithin"></div>
+												<div id="d2e199_search_gwithin"></div>
 </td>
 </tr>
 
@@ -2807,7 +4634,7 @@ except ApiException as e:
 
 
 													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_tile_gintersect');
+													var result = $('#d2e199_search_gintersect');
 													result.empty();
 													result.append(view.render());
 
@@ -2817,7 +4644,7 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_tile_gintersect"></div>
+												<div id="d2e199_search_gintersect"></div>
 </td>
 </tr>
 
@@ -2841,7 +4668,7 @@ except ApiException as e:
 
 
 													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_tile_pretty');
+													var result = $('#d2e199_search_pretty');
 													result.empty();
 													result.append(view.render());
 
@@ -2851,7 +4678,7 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_tile_pretty"></div>
+												<div id="d2e199_search_pretty"></div>
 </td>
 </tr>
 
@@ -2875,7 +4702,7 @@ except ApiException as e:
 
 
 													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_tile_human');
+													var result = $('#d2e199_search_human');
 													result.empty();
 													result.append(view.render());
 
@@ -2885,7 +4712,7 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_tile_human"></div>
+												<div id="d2e199_search_human"></div>
 </td>
 </tr>
 
@@ -2902,7 +4729,7 @@ except ApiException as e:
   "required" : false,
   "type" : "string",
   "default" : "json",
-  "enum" : [ "json", "geojson" ]
+  "enum" : [ "json", "geojson;" ]
 };
 													var schema = schemaWrapper;
 
@@ -2910,7 +4737,7 @@ except ApiException as e:
 
 
 													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_tile_format');
+													var result = $('#d2e199_search_format');
 													result.empty();
 													result.append(view.render());
 
@@ -2920,7 +4747,167 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_tile_format"></div>
+												<div id="d2e199_search_format"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">include</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "include",
+  "in" : "query",
+  "description" : "List the name patterns of the field to be included in the result. Seperate patterns with a comma.",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string",
+    "example" : "*",
+    "default" : "*"
+  },
+  "collectionFormat" : "multi",
+  "x-example" : "*"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_include');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_include"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">exclude</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "exclude",
+  "in" : "query",
+  "description" : "List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string",
+    "example" : "city,state",
+    "default" : "*"
+  },
+  "collectionFormat" : "multi",
+  "x-example" : "city,state"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_exclude');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_exclude"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">size</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "size",
+  "in" : "query",
+  "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "integer",
+    "format" : "int32",
+    "minimum" : 1,
+    "default" : 10
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_size');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_size"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">sort</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "sort",
+  "in" : "query",
+  "description" : "Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string",
+    "example" : "city:DESC",
+    "default" : "10"
+  },
+  "collectionFormat" : "multi",
+  "x-example" : "city:DESC"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_sort');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_sort"></div>
 </td>
 </tr>
 
@@ -2944,7 +4931,7 @@ except ApiException as e:
 
 
 													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_tile_maxAgeCache');
+													var result = $('#d2e199_search_maxAgeCache');
 													result.empty();
 													result.append(view.render());
 
@@ -2954,7 +4941,795 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_tile_maxAgeCache"></div>
+												<div id="d2e199_search_maxAgeCache"></div>
+</td>
+</tr>
+
+                            </table>
+
+                          <h2>Responses</h2>
+                            <h3> Status: 0 - successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-Explore-suggest">
+                      <article id="api-Explore-suggest-0" data-group="User" data-name="suggest" data-version="0">
+                        <div class="pull-left">
+                          <h1>suggest</h1>
+                          <p>Suggest</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Suggest the the n (n&#x3D;size) most relevant terms given the filters</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/suggest</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-suggest-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-suggest-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-suggest-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-suggest-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-suggest-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-suggest-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-suggest-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-suggest-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-suggest-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-suggest-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-suggest-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-suggest-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/suggest?f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&pretty=&human=&size=&field=&maxAgeCache="</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-suggest-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        String collections = collections_example; // String | collections, comma separated
+        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+        String q = q_example; // String | A full text search
+        Long before = 789; // Long | Any element having its point in time reference before the given timestamp
+        Long after = 789; // Long | Any element having its point in time reference after the given timestamp
+        String pwithin = pwithin_example; // String | Any element having its centroid contained within the given geometry (WKT)
+        String gwithin = gwithin_example; // String | Any element having its geometry contained within the given geometry (WKT)
+        String gintersect = gintersect_example; // String | Any element having its geometry intersecting the given geometry (WKT)
+        Boolean pretty = true; // Boolean | Pretty print
+        Boolean human = true; // Boolean | Human readable print
+        array[Integer] size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
+        String field = recommended; // String | Name of the field to be used for retrieving the most relevant terms
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            apiInstance.suggest(collections, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, size, field, maxAgeCache);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#suggest");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-suggest-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        String collections = collections_example; // String | collections, comma separated
+        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+        String q = q_example; // String | A full text search
+        Long before = 789; // Long | Any element having its point in time reference before the given timestamp
+        Long after = 789; // Long | Any element having its point in time reference after the given timestamp
+        String pwithin = pwithin_example; // String | Any element having its centroid contained within the given geometry (WKT)
+        String gwithin = gwithin_example; // String | Any element having its geometry contained within the given geometry (WKT)
+        String gintersect = gintersect_example; // String | Any element having its geometry intersecting the given geometry (WKT)
+        Boolean pretty = true; // Boolean | Pretty print
+        Boolean human = true; // Boolean | Human readable print
+        array[Integer] size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
+        String field = recommended; // String | Name of the field to be used for retrieving the most relevant terms
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            apiInstance.suggest(collections, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, size, field, maxAgeCache);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#suggest");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-suggest-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-suggest-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">String *collections = collections_example; // collections, comma separated
+array[String] *f = ; // A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
+String *q = q_example; // A full text search (optional)
+Long *before = 789; // Any element having its point in time reference before the given timestamp (optional)
+Long *after = 789; // Any element having its point in time reference after the given timestamp (optional)
+String *pwithin = pwithin_example; // Any element having its centroid contained within the given geometry (WKT) (optional)
+String *gwithin = gwithin_example; // Any element having its geometry contained within the given geometry (WKT) (optional)
+String *gintersect = gintersect_example; // Any element having its geometry intersecting the given geometry (WKT) (optional)
+Boolean *pretty = true; // Pretty print (optional) (default to false)
+Boolean *human = true; // Human readable print (optional) (default to false)
+array[Integer] *size = ; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)
+String *field = recommended; // Name of the field to be used for retrieving the most relevant terms (optional) (default to _all)
+Integer *maxAgeCache = 56; // max-age-cache (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// Suggest
+[apiInstance suggestWith:collections
+    f:f
+    q:q
+    before:before
+    after:after
+    pwithin:pwithin
+    gwithin:gwithin
+    gintersect:gintersect
+    pretty:pretty
+    human:human
+    size:size
+    field:field
+    maxAgeCache:maxAgeCache
+              completionHandler: ^(NSError* error) {
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-suggest-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var collections = collections_example; // {String} collections, comma separated
+
+var opts = { 
+  'f': , // {array[String]} A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+  'q': q_example, // {String} A full text search
+  'before': 789, // {Long} Any element having its point in time reference before the given timestamp
+  'after': 789, // {Long} Any element having its point in time reference after the given timestamp
+  'pwithin': pwithin_example, // {String} Any element having its centroid contained within the given geometry (WKT)
+  'gwithin': gwithin_example, // {String} Any element having its geometry contained within the given geometry (WKT)
+  'gintersect': gintersect_example, // {String} Any element having its geometry intersecting the given geometry (WKT)
+  'pretty': true, // {Boolean} Pretty print
+  'human': true, // {Boolean} Human readable print
+  'size': , // {array[Integer]} The maximum number of entries or sub-entries to be returned. The default value is 10
+  'field': recommended, // {String} Name of the field to be used for retrieving the most relevant terms
+  'maxAgeCache': 56 // {Integer} max-age-cache
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully.');
+  }
+};
+api.suggest(collections, opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-suggest-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-suggest-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class suggestExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var collections = collections_example;  // String | collections, comma separated
+            var f = new array[String](); // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional) 
+            var q = q_example;  // String | A full text search (optional) 
+            var before = 789;  // Long | Any element having its point in time reference before the given timestamp (optional) 
+            var after = 789;  // Long | Any element having its point in time reference after the given timestamp (optional) 
+            var pwithin = pwithin_example;  // String | Any element having its centroid contained within the given geometry (WKT) (optional) 
+            var gwithin = gwithin_example;  // String | Any element having its geometry contained within the given geometry (WKT) (optional) 
+            var gintersect = gintersect_example;  // String | Any element having its geometry intersecting the given geometry (WKT) (optional) 
+            var pretty = true;  // Boolean | Pretty print (optional)  (default to false)
+            var human = true;  // Boolean | Human readable print (optional)  (default to false)
+            var size = new array[Integer](); // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) 
+            var field = recommended;  // String | Name of the field to be used for retrieving the most relevant terms (optional)  (default to _all)
+            var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
+
+            try
+            {
+                // Suggest
+                apiInstance.suggest(collections, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, size, field, maxAgeCache);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.suggest: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-suggest-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$collections = collections_example; // String | collections, comma separated
+$f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+$q = q_example; // String | A full text search
+$before = 789; // Long | Any element having its point in time reference before the given timestamp
+$after = 789; // Long | Any element having its point in time reference after the given timestamp
+$pwithin = pwithin_example; // String | Any element having its centroid contained within the given geometry (WKT)
+$gwithin = gwithin_example; // String | Any element having its geometry contained within the given geometry (WKT)
+$gintersect = gintersect_example; // String | Any element having its geometry intersecting the given geometry (WKT)
+$pretty = true; // Boolean | Pretty print
+$human = true; // Boolean | Human readable print
+$size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
+$field = recommended; // String | Name of the field to be used for retrieving the most relevant terms
+$maxAgeCache = 56; // Integer | max-age-cache
+
+try {
+    $api_instance->suggest($collections, $f, $q, $before, $after, $pwithin, $gwithin, $gintersect, $pretty, $human, $size, $field, $maxAgeCache);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->suggest: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-suggest-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $collections = collections_example; # String | collections, comma separated
+my $f = []; # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+my $q = q_example; # String | A full text search
+my $before = 789; # Long | Any element having its point in time reference before the given timestamp
+my $after = 789; # Long | Any element having its point in time reference after the given timestamp
+my $pwithin = pwithin_example; # String | Any element having its centroid contained within the given geometry (WKT)
+my $gwithin = gwithin_example; # String | Any element having its geometry contained within the given geometry (WKT)
+my $gintersect = gintersect_example; # String | Any element having its geometry intersecting the given geometry (WKT)
+my $pretty = true; # Boolean | Pretty print
+my $human = true; # Boolean | Human readable print
+my $size = []; # array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
+my $field = recommended; # String | Name of the field to be used for retrieving the most relevant terms
+my $maxAgeCache = 56; # Integer | max-age-cache
+
+eval { 
+    $api_instance->suggest(collections => $collections, f => $f, q => $q, before => $before, after => $after, pwithin => $pwithin, gwithin => $gwithin, gintersect => $gintersect, pretty => $pretty, human => $human, size => $size, field => $field, maxAgeCache => $maxAgeCache);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->suggest: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-suggest-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+collections = collections_example # String | collections, comma separated
+f =  # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
+q = q_example # String | A full text search (optional)
+before = 789 # Long | Any element having its point in time reference before the given timestamp (optional)
+after = 789 # Long | Any element having its point in time reference after the given timestamp (optional)
+pwithin = pwithin_example # String | Any element having its centroid contained within the given geometry (WKT) (optional)
+gwithin = gwithin_example # String | Any element having its geometry contained within the given geometry (WKT) (optional)
+gintersect = gintersect_example # String | Any element having its geometry intersecting the given geometry (WKT) (optional)
+pretty = true # Boolean | Pretty print (optional) (default to false)
+human = true # Boolean | Human readable print (optional) (default to false)
+size =  # array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)
+field = recommended # String | Name of the field to be used for retrieving the most relevant terms (optional) (default to _all)
+maxAgeCache = 56 # Integer | max-age-cache (optional)
+
+try: 
+    # Suggest
+    api_instance.suggest(collections, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, pretty=pretty, human=human, size=size, field=field, maxAgeCache=maxAgeCache)
+except ApiException as e:
+    print("Exception when calling ExploreApi->suggest: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">collections*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collections",
+  "in" : "path",
+  "description" : "collections, comma separated",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_collections');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_collections"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+
+
+                            <div class="methodsubtabletitle">Query parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">f</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "f",
+  "in" : "query",
+  "description" : "A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_f');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_f"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">q</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "q",
+  "in" : "query",
+  "description" : "A full text search",
+  "required" : false,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_q');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_q"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">before</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "before",
+  "in" : "query",
+  "description" : "Any element having its point in time reference before the given timestamp",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int64"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_before');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_before"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">after</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "after",
+  "in" : "query",
+  "description" : "Any element having its point in time reference after the given timestamp",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int64"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_after');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_after"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">pwithin</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "pwithin",
+  "in" : "query",
+  "description" : "Any element having its centroid contained within the given geometry (WKT)",
+  "required" : false,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_pwithin');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_pwithin"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">gwithin</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "gwithin",
+  "in" : "query",
+  "description" : "Any element having its geometry contained within the given geometry (WKT)",
+  "required" : false,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_gwithin');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_gwithin"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">gintersect</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "gintersect",
+  "in" : "query",
+  "description" : "Any element having its geometry intersecting the given geometry (WKT)",
+  "required" : false,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_gintersect');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_gintersect"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">pretty</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "pretty",
+  "in" : "query",
+  "description" : "Pretty print",
+  "required" : false,
+  "type" : "boolean",
+  "default" : false
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_pretty');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_pretty"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">human</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "human",
+  "in" : "query",
+  "description" : "Human readable print",
+  "required" : false,
+  "type" : "boolean",
+  "default" : false
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_human');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_human"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">size</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "size",
+  "in" : "query",
+  "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "integer",
+    "format" : "int32",
+    "minimum" : 1,
+    "default" : 10
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_size');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_size"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">field</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "field",
+  "in" : "query",
+  "description" : "Name of the field to be used for retrieving the most relevant terms",
+  "required" : false,
+  "type" : "string",
+  "default" : "_all",
+  "x-example" : "recommended"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_field');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_field"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">max-age-cache</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "max-age-cache",
+  "in" : "query",
+  "description" : "max-age-cache",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int32"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_suggest_maxAgeCache');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_suggest_maxAgeCache"></div>
 </td>
 </tr>
 
@@ -2986,7 +5761,7 @@ except ApiException as e:
           </div>
           <div id="generator">
             <div class="content">
-              Generated 2017-04-07T09:40:44.356+02:00
+              Generated 2017-04-07T09:43:51.921+02:00
             </div>
           </div>
       </div>
