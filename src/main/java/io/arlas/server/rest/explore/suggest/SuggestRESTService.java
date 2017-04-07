@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 
 public class SuggestRESTService extends ExploreServices {
     @Timed
-    @Path("{collections}/suggest")
+    @Path("{collections}/_suggest")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -38,10 +38,28 @@ public class SuggestRESTService extends ExploreServices {
             // --------------------------------------------------------
             @ApiParam(name ="f",
                     value="A triplet for filtering the result. Multiple filter can be provided. " +
-                            "The order does not matter. A triplet is composed of a field name, a comparison operator and a value. " +
+                            "The order does not matter. " +
+                            "\n \n" +
+                            "A triplet is composed of a field name, a comparison operator and a value. " +
+                            "\n \n" +
                             "The AND operator is applied between filters having different fieldNames. " +
+                            "\n \n" +
                             "The OR operator is applied on filters having the same fieldName. " +
-                            "If the fieldName starts with - then a must not filter is used",
+                            "\n \n" +
+                            "If the fieldName starts with - then a must not filter is used" +
+                            "\n \n" +
+                            "Operator   |                   Description                      | value type" +
+                            "\n \n" +
+                            ":          |  {fieldName} equals {value}                        | numeric or strings " +
+                            "\n \n" +
+                            ":>=        |  {fieldName} is greater than or equal to  {value}  | numeric " +
+                            "\n \n" +
+                            ":>         |  {fieldName} is greater than {value}               | numeric " +
+                            "\n \n" +
+                            ":< =       |  {fieldName} is less than or equal to {value}      | numeric " +
+                            "\n \n" +
+                            ":<         |  {fieldName}  is less than {value}                 | numeric "
+                    ,
                     allowMultiple = true,
                     required=false)
             @QueryParam(value="f") String f,

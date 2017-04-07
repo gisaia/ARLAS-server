@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 
 public class DescribeCollectionRESTService extends ExploreServices {
     @Timed
-    @Path("{collection}/describe")
+    @Path("{collection}/_describe")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
