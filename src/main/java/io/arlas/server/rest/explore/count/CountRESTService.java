@@ -8,13 +8,12 @@ import io.swagger.annotations.ApiParam;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class CountRESTService extends ExploreServices {
 
     @Timed
-    @Path("{collections}/count")
+    @Path("{collections}/_count")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -40,10 +39,29 @@ public class CountRESTService extends ExploreServices {
             // --------------------------------------------------------
             @ApiParam(name ="f",
                     value="A triplet for filtering the result. Multiple filter can be provided. " +
-                    "The order does not matter. A triplet is composed of a field name, a comparison operator and a value. " +
-                    "The AND operator is applied between filters having different fieldNames. " +
-                    "The OR operator is applied on filters having the same fieldName. " +
-                    "If the fieldName starts with - then a must not filter is used",
+                            "The order does not matter. " +
+                            "\n \n" +
+                            "A triplet is composed of a field name, a comparison operator and a value. " +
+                            "\n \n" +
+                            "The AND operator is applied between filters having different fieldNames. " +
+                            "\n \n" +
+                            "The OR operator is applied on filters having the same fieldName. " +
+                            "\n \n" +
+                            "If the fieldName starts with - then a must not filter is used" +
+                            "\n \n" +
+                            "Operator   |                   Description                      | value type" +
+                            "\n \n" +
+                            ":          |  {fieldName} equals {value}                        | numeric or strings " +
+                            "\n \n" +
+                            ":gte:      |  {fieldName} is greater than or equal to  {value}  | numeric " +
+                            "\n \n" +
+                            ":gt:       |  {fieldName} is greater than {value}               | numeric " +
+                            "\n \n" +
+                            ":lte:      |  {fieldName} is less than or equal to {value}      | numeric " +
+                            "\n \n" +
+                            ":lt:       |  {fieldName}  is less than {value}                 | numeric "
+                    ,
+
                     allowMultiple = true,
                     required=false)
             @QueryParam(value="f") String f,

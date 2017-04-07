@@ -5,6 +5,7 @@ import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.rest.explore.enumerations.FormatValues;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.geojson.FeatureCollection;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -14,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 public class SearchRESTService extends ExploreServices {
 
     @Timed
-    @Path("{collections}/search")
+    @Path("{collections}/_search")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -22,7 +23,8 @@ public class SearchRESTService extends ExploreServices {
             value="Search",
             produces=UTF8JSON,
             notes = "Search and return the elements found in the collection(s), given the filters",
-            consumes=UTF8JSON
+            consumes=UTF8JSON,
+            response = FeatureCollection.class
     )
     public Response search(
             // --------------------------------------------------------
@@ -39,10 +41,28 @@ public class SearchRESTService extends ExploreServices {
             // --------------------------------------------------------
             @ApiParam(name ="f",
                     value="A triplet for filtering the result. Multiple filter can be provided. " +
-                            "The order does not matter. A triplet is composed of a field name, a comparison operator and a value. " +
+                            "The order does not matter. " +
+                            "\n \n" +
+                            "A triplet is composed of a field name, a comparison operator and a value. " +
+                            "\n \n" +
                             "The AND operator is applied between filters having different fieldNames. " +
+                            "\n \n" +
                             "The OR operator is applied on filters having the same fieldName. " +
-                            "If the fieldName starts with - then a must not filter is used",
+                            "\n \n" +
+                            "If the fieldName starts with - then a must not filter is used" +
+                            "\n \n" +
+                            "Operator   |                   Description                      | value type" +
+                            "\n \n" +
+                            ":          |  {fieldName} equals {value}                        | numeric or strings " +
+                            "\n \n" +
+                            ":gte:      |  {fieldName} is greater than or equal to  {value}  | numeric " +
+                            "\n \n" +
+                            ":gt:       |  {fieldName} is greater than {value}               | numeric " +
+                            "\n \n" +
+                            ":lte:      |  {fieldName} is less than or equal to {value}      | numeric " +
+                            "\n \n" +
+                            ":lt:       |  {fieldName}  is less than {value}                 | numeric "
+                    ,
                     allowMultiple = true,
                     required=false)
             @QueryParam(value="f") String f,
@@ -136,8 +156,10 @@ public class SearchRESTService extends ExploreServices {
             // --------------------------------------------------------
 
             @ApiParam(name ="sort",
-                    value="Sort the result on a given field, ascending or descending (ASC, DESC). " +
+                    value="Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . " +
+                            "\n \n"+
                             "The parameter can be provided several times. The order matters. " +
+                            "\n \n"+
                             "For aggregation, provide the 'agg' keyword as the {fieldName}.",
                     allowMultiple = true,
                     defaultValue = "10",
