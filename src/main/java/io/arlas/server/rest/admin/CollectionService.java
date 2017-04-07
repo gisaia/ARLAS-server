@@ -2,8 +2,7 @@ package io.arlas.server.rest.admin;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.model.CollectionReference;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -25,6 +24,8 @@ public class CollectionService extends AdminServices {
             response = CollectionReference.class
 
     )
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation")})
+
     public Response get(
             @ApiParam(
                     name = "collection",
@@ -48,6 +49,7 @@ public class CollectionService extends AdminServices {
             consumes=UTF8JSON,
             response = CollectionReference.class
     )
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation")})
     public Response put(
             @ApiParam(
                     name = "collection",
@@ -74,11 +76,13 @@ public class CollectionService extends AdminServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="Add a collection reference",
+            value="Delete a collection reference",
             produces=UTF8JSON,
-            notes = "Add a collection reference in ARLAS",
+            notes = "Delete a collection reference in ARLAS",
             consumes=UTF8JSON
     )
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation")})
+
     public Response delete(
             @ApiParam(
                     name = "collection",

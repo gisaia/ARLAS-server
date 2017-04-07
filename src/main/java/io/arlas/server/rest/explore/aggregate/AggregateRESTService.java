@@ -6,6 +6,8 @@ import io.arlas.server.rest.explore.enumerations.AggregationType;
 import io.arlas.server.rest.explore.enumerations.FormatValues;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.geojson.FeatureCollection;
 
 import javax.ws.rs.*;
@@ -28,6 +30,7 @@ public class AggregateRESTService extends ExploreServices {
             response = FeatureCollection.class
 
     )
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation")})
     public Response aggregate(
             // --------------------------------------------------------
             // -----------------------  PATH    -----------------------

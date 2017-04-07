@@ -4,6 +4,8 @@ import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -23,6 +25,7 @@ public class CountRESTService extends ExploreServices {
             notes = "Count the number of elements found in the collection(s), given the filters",
             consumes=UTF8JSON
     )
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation")})
     public Response count(
             // --------------------------------------------------------
             // -----------------------  PATH    -----------------------
