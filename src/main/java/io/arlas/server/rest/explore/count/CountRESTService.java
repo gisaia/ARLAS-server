@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiParam;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class CountRESTService extends ExploreServices {
@@ -54,13 +53,13 @@ public class CountRESTService extends ExploreServices {
                             "\n \n" +
                             ":          |  {fieldName} equals {value}                        | numeric or strings " +
                             "\n \n" +
-                            ":>=        |  {fieldName} is greater than or equal to  {value}  | numeric " +
+                            ":gte:      |  {fieldName} is greater than or equal to  {value}  | numeric " +
                             "\n \n" +
-                            ":>         |  {fieldName} is greater than {value}               | numeric " +
+                            ":gt:       |  {fieldName} is greater than {value}               | numeric " +
                             "\n \n" +
-                            ":< =       |  {fieldName} is less than or equal to {value}      | numeric " +
+                            ":lte:      |  {fieldName} is less than or equal to {value}      | numeric " +
                             "\n \n" +
-                            ":<         |  {fieldName}  is less than {value}                 | numeric "
+                            ":lt:       |  {fieldName}  is less than {value}                 | numeric "
                     ,
 
                     allowMultiple = true,

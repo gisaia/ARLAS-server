@@ -97,13 +97,13 @@ public class AggregateRESTService extends ExploreServices {
                             "\n \n" +
                             ":          |  {fieldName} equals {value}                        | numeric or strings " +
                             "\n \n" +
-                            ":>=        |  {fieldName} is greater than or equal to  {value}  | numeric " +
+                            ":gte:      |  {fieldName} is greater than or equal to  {value}  | numeric " +
                             "\n \n" +
-                            ":>         |  {fieldName} is greater than {value}               | numeric " +
+                            ":gt:       |  {fieldName} is greater than {value}               | numeric " +
                             "\n \n" +
-                            ":< =       |  {fieldName} is less than or equal to {value}      | numeric " +
+                            ":lte:      |  {fieldName} is less than or equal to {value}      | numeric " +
                             "\n \n" +
-                            ":<         |  {fieldName}  is less than {value}                 | numeric "
+                            ":lt:       |  {fieldName}  is less than {value}                 | numeric "
                     ,
                     allowMultiple = true,
                     required=false)
@@ -180,8 +180,10 @@ public class AggregateRESTService extends ExploreServices {
             // --------------------------------------------------------
 
             @ApiParam(name ="sort",
-                    value="Sort the result on a given field, ascending or descending (ASC, DESC). " +
+                    value="Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . " +
+                            "\n \n"+
                             "The parameter can be provided several times. The order matters. " +
+                            "\n \n"+
                             "For aggregation, provide the 'agg' keyword as the {fieldName}.",
                     allowMultiple = true,
                     defaultValue = "10",
