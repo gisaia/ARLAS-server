@@ -714,18 +714,250 @@ margin-bottom: 20px;
   "type" : "object",
   "properties" : {
     "indexName" : {
-      "type" : "string"
+      "type" : "string",
+      "description" : "The collection's index name"
     },
     "idPath" : {
-      "type" : "string"
+      "type" : "string",
+      "example" : "id",
+      "description" : "Path to the collection's id"
     },
-    "geomPath" : {
-      "type" : "string"
+    "geometryPath" : {
+      "type" : "string",
+      "example" : "geometry",
+      "description" : "Path to the collection's geometry"
     },
     "centroidPath" : {
+      "type" : "string",
+      "example" : "centroid",
+      "description" : "Path to the collection's centroid"
+    },
+    "timestampPath" : {
+      "type" : "string",
+      "example" : "timestamp",
+      "description" : "Path to the collection's timestamp"
+    }
+  },
+  "description" : "The description of the elasticsearch index and the way ARLAS API will serve it."
+};
+    defs.Crs = {
+  "type" : "object",
+  "properties" : {
+    "type" : {
+      "type" : "string",
+      "enum" : [ "name", "link" ]
+    },
+    "properties" : {
+      "type" : "object",
+      "additionalProperties" : {
+        "type" : "object",
+        "properties" : { }
+      }
+    }
+  }
+};
+    defs.Feature = {
+  "type" : "object",
+  "properties" : {
+    "crs" : {
+      "$ref" : "#/definitions/Crs"
+    },
+    "bbox" : {
+      "type" : "array",
+      "items" : {
+        "type" : "number",
+        "format" : "double"
+      }
+    },
+    "properties" : {
+      "type" : "object",
+      "additionalProperties" : {
+        "type" : "object",
+        "properties" : { }
+      }
+    },
+    "geometry" : {
+      "$ref" : "#/definitions/GeoJsonObject"
+    },
+    "id" : {
       "type" : "string"
     }
   }
+};
+    defs.FeatureCollection = {
+  "type" : "object",
+  "properties" : {
+    "crs" : {
+      "$ref" : "#/definitions/Crs"
+    },
+    "bbox" : {
+      "type" : "array",
+      "items" : {
+        "type" : "number",
+        "format" : "double"
+      }
+    },
+    "features" : {
+      "type" : "array",
+      "items" : {
+        "$ref" : "#/definitions/Feature"
+      }
+    }
+  }
+};
+    defs.GeoJsonObject = {
+  "type" : "object",
+  "discriminator" : "type",
+  "properties" : {
+    "crs" : {
+      "$ref" : "#/definitions/Crs"
+    },
+    "bbox" : {
+      "type" : "array",
+      "items" : {
+        "type" : "number",
+        "format" : "double"
+      }
+    }
+  }
+};
+    defs.GeometryCollection = {
+  "allOf" : [ {
+    "$ref" : "#/definitions/GeoJsonObject"
+  }, {
+    "type" : "object",
+    "properties" : {
+      "geometries" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/definitions/GeoJsonObject"
+        }
+      }
+    }
+  } ]
+};
+    defs.LineString = {
+  "allOf" : [ {
+    "$ref" : "#/definitions/GeoJsonObject"
+  }, {
+    "type" : "object",
+    "properties" : {
+      "coordinates" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/definitions/LngLatAlt"
+        }
+      }
+    }
+  } ]
+};
+    defs.LngLatAlt = {
+  "type" : "object",
+  "properties" : {
+    "longitude" : {
+      "type" : "number",
+      "format" : "double"
+    },
+    "latitude" : {
+      "type" : "number",
+      "format" : "double"
+    },
+    "altitude" : {
+      "type" : "number",
+      "format" : "double"
+    },
+    "additionalElements" : {
+      "type" : "array",
+      "items" : {
+        "type" : "number",
+        "format" : "double"
+      }
+    }
+  }
+};
+    defs.MultiLineString = {
+  "allOf" : [ {
+    "$ref" : "#/definitions/GeoJsonObject"
+  }, {
+    "type" : "object",
+    "properties" : {
+      "coordinates" : {
+        "type" : "array",
+        "items" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/LngLatAlt"
+          }
+        }
+      }
+    }
+  } ]
+};
+    defs.MultiPoint = {
+  "allOf" : [ {
+    "$ref" : "#/definitions/GeoJsonObject"
+  }, {
+    "type" : "object",
+    "properties" : {
+      "coordinates" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/definitions/LngLatAlt"
+        }
+      }
+    }
+  } ]
+};
+    defs.MultiPolygon = {
+  "allOf" : [ {
+    "$ref" : "#/definitions/GeoJsonObject"
+  }, {
+    "type" : "object",
+    "properties" : {
+      "coordinates" : {
+        "type" : "array",
+        "items" : {
+          "type" : "array",
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/LngLatAlt"
+            }
+          }
+        }
+      }
+    }
+  } ]
+};
+    defs.Point = {
+  "allOf" : [ {
+    "$ref" : "#/definitions/GeoJsonObject"
+  }, {
+    "type" : "object",
+    "properties" : {
+      "coordinates" : {
+        "$ref" : "#/definitions/LngLatAlt"
+      }
+    }
+  } ]
+};
+    defs.Polygon = {
+  "allOf" : [ {
+    "$ref" : "#/definitions/GeoJsonObject"
+  }, {
+    "type" : "object",
+    "properties" : {
+      "coordinates" : {
+        "type" : "array",
+        "items" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/LngLatAlt"
+          }
+        }
+      }
+    }
+  } ]
 };
   </script>
 
@@ -797,12 +1029,12 @@ margin-bottom: 20px;
                       <article id="api-Admin-delete-0" data-group="User" data-name="delete" data-version="0">
                         <div class="pull-left">
                           <h1>delete</h1>
-                          <p>Add a collection reference</p>
+                          <p>Delete a collection reference</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
                         <p></p>
-                        <p class="marked">Add a collection reference in ARLAS</p>
+                        <p class="marked">Delete a collection reference in ARLAS</p>
                         <p></p>
                         <br />
                         <pre class="prettyprint language-html prettyprinted" data-type="delete"><code><span class="pln">/admin/{collection}</span></code></pre>
@@ -878,7 +1110,7 @@ public class AdminApiExample {
 
 AdminApi *apiInstance = [[AdminApi alloc] init];
 
-// Add a collection reference
+// Delete a collection reference
 [apiInstance deleteWith:collection
               completionHandler: ^(NSError* error) {
                             if (error) {
@@ -929,7 +1161,7 @@ namespace Example
 
             try
             {
-                // Add a collection reference
+                // Delete a collection reference
                 apiInstance.delete(collection);
             }
             catch (Exception e)
@@ -984,7 +1216,7 @@ api_instance = swagger_client.AdminApi()
 collection = collection_example # String | collection
 
 try: 
-    # Add a collection reference
+    # Delete a collection reference
     api_instance.delete(collection)
 except ApiException as e:
     print("Exception when calling AdminApi->delete: %s\n" % e)</code></pre>
@@ -1039,7 +1271,7 @@ except ApiException as e:
 
 
                           <h2>Responses</h2>
-                            <h3> Status: 0 - successful operation </h3>
+                            <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                             </ul>
@@ -1296,7 +1528,7 @@ except ApiException as e:
 
 
                           <h2>Responses</h2>
-                            <h3> Status: 0 - successful operation </h3>
+                            <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                             </ul>
@@ -1356,9 +1588,9 @@ public class AdminApiExample {
         
         AdminApi apiInstance = new AdminApi();
         String collection = collection_example; // String | collection
-        CollectionReference body = ; // CollectionReference | collectionReference
+        CollectionReference collectionReference = ; // CollectionReference | collectionReference
         try {
-            apiInstance.put(collection, body);
+            apiInstance.put(collection, collectionReference);
         } catch (ApiException e) {
             System.err.println("Exception when calling AdminApi#put");
             e.printStackTrace();
@@ -1375,9 +1607,9 @@ public class AdminApiExample {
     public static void main(String[] args) {
         AdminApi apiInstance = new AdminApi();
         String collection = collection_example; // String | collection
-        CollectionReference body = ; // CollectionReference | collectionReference
+        CollectionReference collectionReference = ; // CollectionReference | collectionReference
         try {
-            apiInstance.put(collection, body);
+            apiInstance.put(collection, collectionReference);
         } catch (ApiException e) {
             System.err.println("Exception when calling AdminApi#put");
             e.printStackTrace();
@@ -1391,13 +1623,13 @@ public class AdminApiExample {
   </div> -->
                             <div class="tab-pane" id="examples-Admin-put-0-objc">
                               <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
-CollectionReference *body = ; // collectionReference
+CollectionReference *collectionReference = ; // collectionReference
 
 AdminApi *apiInstance = [[AdminApi alloc] init];
 
 // Add a collection reference
 [apiInstance putWith:collection
-    body:body
+    collectionReference:collectionReference
               completionHandler: ^(NSError* error) {
                             if (error) {
                                 NSLog(@"Error: %@", error);
@@ -1413,7 +1645,7 @@ var api = new ArlasExplorationApi.AdminApi()
 
 var collection = collection_example; // {String} collection
 
-var body = ; // {CollectionReference} collectionReference
+var collectionReference = ; // {CollectionReference} collectionReference
 
 
 var callback = function(error, data, response) {
@@ -1423,7 +1655,7 @@ var callback = function(error, data, response) {
     console.log('API called successfully.');
   }
 };
-api.put(collection, body, callback);
+api.put(collection, collectionReference, callback);
 </code></pre>
                             </div>
 
@@ -1446,12 +1678,12 @@ namespace Example
             
             var apiInstance = new AdminApi();
             var collection = collection_example;  // String | collection
-            var body = new CollectionReference(); // CollectionReference | collectionReference
+            var collectionReference = new CollectionReference(); // CollectionReference | collectionReference
 
             try
             {
                 // Add a collection reference
-                apiInstance.put(collection, body);
+                apiInstance.put(collection, collectionReference);
             }
             catch (Exception e)
             {
@@ -1468,10 +1700,10 @@ require_once(__DIR__ . '/vendor/autoload.php');
 
 $api_instance = new Swagger\Client\Api\AdminApi();
 $collection = collection_example; // String | collection
-$body = ; // CollectionReference | collectionReference
+$collectionReference = ; // CollectionReference | collectionReference
 
 try {
-    $api_instance->put($collection, $body);
+    $api_instance->put($collection, $collectionReference);
 } catch (Exception $e) {
     echo 'Exception when calling AdminApi->put: ', $e->getMessage(), PHP_EOL;
 }
@@ -1485,10 +1717,10 @@ use WWW::SwaggerClient::AdminApi;
 
 my $api_instance = WWW::SwaggerClient::AdminApi->new();
 my $collection = collection_example; # String | collection
-my $body = WWW::SwaggerClient::Object::CollectionReference->new(); # CollectionReference | collectionReference
+my $collectionReference = WWW::SwaggerClient::Object::CollectionReference->new(); # CollectionReference | collectionReference
 
 eval { 
-    $api_instance->put(collection => $collection, body => $body);
+    $api_instance->put(collection => $collection, collectionReference => $collectionReference);
 };
 if ($@) {
     warn "Exception when calling AdminApi->put: $@\n";
@@ -1505,11 +1737,11 @@ from pprint import pprint
 # create an instance of the API class
 api_instance = swagger_client.AdminApi()
 collection = collection_example # String | collection
-body =  # CollectionReference | collectionReference
+collectionReference =  # CollectionReference | collectionReference
 
 try: 
     # Add a collection reference
-    api_instance.put(collection, body)
+    api_instance.put(collection, collectionReference)
 except ApiException as e:
     print("Exception when calling AdminApi->put: %s\n" % e)</code></pre>
                             </div>
@@ -1565,7 +1797,7 @@ except ApiException as e:
                                 <th width="150px">Name</th>
                                 <th>Description</th>
                               </tr>
-                                <tr><td style="width:150px;">body <span style="color:red;">*</span></td>
+                                <tr><td style="width:150px;">collectionReference <span style="color:red;">*</span></td>
 <td>
 
 
@@ -1573,7 +1805,7 @@ except ApiException as e:
 												$(document).ready(function() {
 													var schemaWrapper = {
   "in" : "body",
-  "name" : "body",
+  "name" : "collectionReference",
   "description" : "collectionReference",
   "required" : true,
   "schema" : {
@@ -1589,7 +1821,7 @@ except ApiException as e:
 														
 													var view = new JSONSchemaView(resolved.schema,2,{isBodyParam: true});
 													 
-													var result = $('#d2e199_put_body');
+													var result = $('#d2e199_put_collectionReference');
 													result.empty();
 													result.append(view.render());
 													
@@ -1605,7 +1837,7 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_put_body"></div>
+												<div id="d2e199_put_collectionReference"></div>
 </td>
 </tr>
 
@@ -1614,7 +1846,7 @@ except ApiException as e:
 
 
                           <h2>Responses</h2>
-                            <h3> Status: 0 - successful operation </h3>
+                            <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                             </ul>
@@ -1640,7 +1872,7 @@ except ApiException as e:
                         <p class="marked">Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/aggregate</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/_aggregate</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -1660,7 +1892,7 @@ except ApiException as e:
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-Explore-aggregate-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/aggregate?agg=&aggField=&aggInterval=&aggFormat=&f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&pretty=&human=&format=&size=&sort=&maxAgeCache="</code></pre>
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/_aggregate?agg=&aggField=&aggInterval=&aggFormat=&f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&pretty=&human=&format=&size=&sort=&maxAgeCache="</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Explore-aggregate-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -1687,7 +1919,27 @@ If aggregation type is 'geohash' : The geohash length range is from 1 to 12: low
 If aggregation type is 'numeric' : The interval size of the numeric aggregation
         array[String] aggField = date; // array[String] | Aggregates on the {field}.
         array[String] aggFormat = yyyyMMdd; // array[String] | Date format for key aggregation.
-        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
         String q = q_example; // String | A full text search
         Long before = 789; // Long | Any element having its point in time reference before the given timestamp
         Long after = 789; // Long | Any element having its point in time reference after the given timestamp
@@ -1698,7 +1950,11 @@ If aggregation type is 'numeric' : The interval size of the numeric aggregation
         Boolean human = true; // Boolean | Human readable print
         String format = format_example; // String | JSON or GeoJSON format
         array[Integer] size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
-        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
             apiInstance.aggregate(collections, agg, aggInterval, aggField, aggFormat, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, size, sort, maxAgeCache);
@@ -1728,7 +1984,27 @@ If aggregation type is 'geohash' : The geohash length range is from 1 to 12: low
 If aggregation type is 'numeric' : The interval size of the numeric aggregation
         array[String] aggField = date; // array[String] | Aggregates on the {field}.
         array[String] aggFormat = yyyyMMdd; // array[String] | Date format for key aggregation.
-        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
         String q = q_example; // String | A full text search
         Long before = 789; // Long | Any element having its point in time reference before the given timestamp
         Long after = 789; // Long | Any element having its point in time reference after the given timestamp
@@ -1739,7 +2015,11 @@ If aggregation type is 'numeric' : The interval size of the numeric aggregation
         Boolean human = true; // Boolean | Human readable print
         String format = format_example; // String | JSON or GeoJSON format
         array[Integer] size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
-        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
             apiInstance.aggregate(collections, agg, aggInterval, aggField, aggFormat, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, size, sort, maxAgeCache);
@@ -1766,7 +2046,27 @@ If aggregation type is 'geohash' : The geohash length range is from 1 to 12: low
 If aggregation type is 'numeric' : The interval size of the numeric aggregation
 array[String] *aggField = date; // Aggregates on the {field}. (optional)
 array[String] *aggFormat = yyyyMMdd; // Date format for key aggregation. (optional)
-array[String] *f = ; // A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
+array[String] *f = ; // A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric  (optional)
 String *q = q_example; // A full text search (optional)
 Long *before = 789; // Any element having its point in time reference before the given timestamp (optional)
 Long *after = 789; // Any element having its point in time reference after the given timestamp (optional)
@@ -1777,7 +2077,11 @@ Boolean *pretty = true; // Pretty print (optional) (default to false)
 Boolean *human = true; // Human readable print (optional) (default to false)
 String *format = format_example; // JSON or GeoJSON format (optional) (default to json)
 array[Integer] *size = ; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)
-array[String] *sort = city:DESC; // Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
+array[String] *sort = city:DESC; // Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
 Integer *maxAgeCache = 56; // max-age-cache (optional)
 
 ExploreApi *apiInstance = [[ExploreApi alloc] init];
@@ -1829,7 +2133,27 @@ If aggregation type is 'numeric' : The interval size of the numeric aggregation
 var opts = { 
   'aggField': date, // {array[String]} Aggregates on the {field}.
   'aggFormat': yyyyMMdd, // {array[String]} Date format for key aggregation.
-  'f': , // {array[String]} A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+  'f': , // {array[String]} A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
   'q': q_example, // {String} A full text search
   'before': 789, // {Long} Any element having its point in time reference before the given timestamp
   'after': 789, // {Long} Any element having its point in time reference after the given timestamp
@@ -1840,7 +2164,11 @@ var opts = {
   'human': true, // {Boolean} Human readable print
   'format': format_example, // {String} JSON or GeoJSON format
   'size': , // {array[Integer]} The maximum number of entries or sub-entries to be returned. The default value is 10
-  'sort': city:DESC, // {array[String]} Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+  'sort': city:DESC, // {array[String]} Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
   'maxAgeCache': 56 // {Integer} max-age-cache
 };
 
@@ -1884,7 +2212,27 @@ If aggregation type is 'geohash' : The geohash length range is from 1 to 12: low
 If aggregation type is 'numeric' : The interval size of the numeric aggregation
             var aggField = new array[String](); // array[String] | Aggregates on the {field}. (optional) 
             var aggFormat = new array[String](); // array[String] | Date format for key aggregation. (optional) 
-            var f = new array[String](); // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional) 
+            var f = new array[String](); // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric  (optional) 
             var q = q_example;  // String | A full text search (optional) 
             var before = 789;  // Long | Any element having its point in time reference before the given timestamp (optional) 
             var after = 789;  // Long | Any element having its point in time reference after the given timestamp (optional) 
@@ -1895,7 +2243,11 @@ If aggregation type is 'numeric' : The interval size of the numeric aggregation
             var human = true;  // Boolean | Human readable print (optional)  (default to false)
             var format = format_example;  // String | JSON or GeoJSON format (optional)  (default to json)
             var size = new array[Integer](); // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) 
-            var sort = new array[String](); // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}. (optional) 
+            var sort = new array[String](); // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}. (optional) 
             var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
 
             try
@@ -1928,7 +2280,27 @@ If aggregation type is 'geohash' : The geohash length range is from 1 to 12: low
 If aggregation type is 'numeric' : The interval size of the numeric aggregation
 $aggField = date; // array[String] | Aggregates on the {field}.
 $aggFormat = yyyyMMdd; // array[String] | Date format for key aggregation.
-$f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+$f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
 $q = q_example; // String | A full text search
 $before = 789; // Long | Any element having its point in time reference before the given timestamp
 $after = 789; // Long | Any element having its point in time reference after the given timestamp
@@ -1939,7 +2311,11 @@ $pretty = true; // Boolean | Pretty print
 $human = true; // Boolean | Human readable print
 $format = format_example; // String | JSON or GeoJSON format
 $size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
-$sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+$sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
 $maxAgeCache = 56; // Integer | max-age-cache
 
 try {
@@ -1967,7 +2343,27 @@ If aggregation type is 'geohash' : The geohash length range is from 1 to 12: low
 If aggregation type is 'numeric' : The interval size of the numeric aggregation
 my $aggField = [date]; # array[String] | Aggregates on the {field}.
 my $aggFormat = [yyyyMMdd]; # array[String] | Date format for key aggregation.
-my $f = []; # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+my $f = []; # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
 my $q = q_example; # String | A full text search
 my $before = 789; # Long | Any element having its point in time reference before the given timestamp
 my $after = 789; # Long | Any element having its point in time reference after the given timestamp
@@ -1978,7 +2374,11 @@ my $pretty = true; # Boolean | Pretty print
 my $human = true; # Boolean | Human readable print
 my $format = format_example; # String | JSON or GeoJSON format
 my $size = []; # array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
-my $sort = [city:DESC]; # array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+my $sort = [city:DESC]; # array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
 my $maxAgeCache = 56; # Integer | max-age-cache
 
 eval { 
@@ -2009,7 +2409,27 @@ If aggregation type is 'geohash' : The geohash length range is from 1 to 12: low
 If aggregation type is 'numeric' : The interval size of the numeric aggregation
 aggField = date # array[String] | Aggregates on the {field}. (optional)
 aggFormat = yyyyMMdd # array[String] | Date format for key aggregation. (optional)
-f =  # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
+f =  # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric  (optional)
 q = q_example # String | A full text search (optional)
 before = 789 # Long | Any element having its point in time reference before the given timestamp (optional)
 after = 789 # Long | Any element having its point in time reference after the given timestamp (optional)
@@ -2020,7 +2440,11 @@ pretty = true # Boolean | Pretty print (optional) (default to false)
 human = true # Boolean | Human readable print (optional) (default to false)
 format = format_example # String | JSON or GeoJSON format (optional) (default to json)
 size =  # array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)
-sort = city:DESC # array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
+sort = city:DESC # array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
 maxAgeCache = 56 # Integer | max-age-cache (optional)
 
 try: 
@@ -2244,7 +2668,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "f",
   "in" : "query",
-  "description" : "A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used",
+  "description" : "A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \nA triplet is composed of a field name, a comparison operator and a value. \n \nThe AND operator is applied between filters having different fieldNames. \n \nThe OR operator is applied on filters having the same fieldName. \n \nIf the fieldName starts with - then a must not filter is used\n \nOperator   |                   Description                      | value type\n \n:          |  {fieldName} equals {value}                        | numeric or strings \n \n:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric \n \n:gt:       |  {fieldName} is greater than {value}               | numeric \n \n:lte:      |  {fieldName} is less than or equal to {value}      | numeric \n \n:lt:       |  {fieldName}  is less than {value}                 | numeric ",
   "required" : false,
   "type" : "array",
   "items" : {
@@ -2624,7 +3048,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "sort",
   "in" : "query",
-  "description" : "Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.",
+  "description" : "Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . \n \nThe parameter can be provided several times. The order matters. \n \nFor aggregation, provide the 'agg' keyword as the {fieldName}.",
   "required" : false,
   "type" : "array",
   "items" : {
@@ -2692,7 +3116,7 @@ except ApiException as e:
                             </table>
 
                           <h2>Responses</h2>
-                            <h3> Status: 0 - successful operation </h3>
+                            <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                             </ul>
@@ -2715,7 +3139,7 @@ except ApiException as e:
                         <p class="marked">Count the number of elements found in the collection(s), given the filters</p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/count</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/_count</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -2735,7 +3159,7 @@ except ApiException as e:
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-Explore-count-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/count?f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&pretty=&human=&maxAgeCache="</code></pre>
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/_count?f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&pretty=&human=&maxAgeCache="</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Explore-count-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -2752,7 +3176,27 @@ public class ExploreApiExample {
         
         ExploreApi apiInstance = new ExploreApi();
         String collections = collections_example; // String | collections, comma separated
-        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
         String q = q_example; // String | A full text search
         Long before = 789; // Long | Any element having its point in time reference before the given timestamp
         Long after = 789; // Long | Any element having its point in time reference after the given timestamp
@@ -2780,7 +3224,27 @@ public class ExploreApiExample {
     public static void main(String[] args) {
         ExploreApi apiInstance = new ExploreApi();
         String collections = collections_example; // String | collections, comma separated
-        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
         String q = q_example; // String | A full text search
         Long before = 789; // Long | Any element having its point in time reference before the given timestamp
         Long after = 789; // Long | Any element having its point in time reference after the given timestamp
@@ -2805,7 +3269,27 @@ public class ExploreApiExample {
   </div> -->
                             <div class="tab-pane" id="examples-Explore-count-0-objc">
                               <pre class="prettyprint"><code class="language-cpp">String *collections = collections_example; // collections, comma separated
-array[String] *f = ; // A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
+array[String] *f = ; // A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric  (optional)
 String *q = q_example; // A full text search (optional)
 Long *before = 789; // Any element having its point in time reference before the given timestamp (optional)
 Long *after = 789; // Any element having its point in time reference after the given timestamp (optional)
@@ -2846,7 +3330,27 @@ var api = new ArlasExplorationApi.ExploreApi()
 var collections = collections_example; // {String} collections, comma separated
 
 var opts = { 
-  'f': , // {array[String]} A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+  'f': , // {array[String]} A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
   'q': q_example, // {String} A full text search
   'before': 789, // {Long} Any element having its point in time reference before the given timestamp
   'after': 789, // {Long} Any element having its point in time reference after the given timestamp
@@ -2888,7 +3392,27 @@ namespace Example
             
             var apiInstance = new ExploreApi();
             var collections = collections_example;  // String | collections, comma separated
-            var f = new array[String](); // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional) 
+            var f = new array[String](); // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric  (optional) 
             var q = q_example;  // String | A full text search (optional) 
             var before = 789;  // Long | Any element having its point in time reference before the given timestamp (optional) 
             var after = 789;  // Long | Any element having its point in time reference after the given timestamp (optional) 
@@ -2919,7 +3443,27 @@ require_once(__DIR__ . '/vendor/autoload.php');
 
 $api_instance = new Swagger\Client\Api\ExploreApi();
 $collections = collections_example; // String | collections, comma separated
-$f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+$f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
 $q = q_example; // String | A full text search
 $before = 789; // Long | Any element having its point in time reference before the given timestamp
 $after = 789; // Long | Any element having its point in time reference after the given timestamp
@@ -2945,7 +3489,27 @@ use WWW::SwaggerClient::ExploreApi;
 
 my $api_instance = WWW::SwaggerClient::ExploreApi->new();
 my $collections = collections_example; # String | collections, comma separated
-my $f = []; # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+my $f = []; # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
 my $q = q_example; # String | A full text search
 my $before = 789; # Long | Any element having its point in time reference before the given timestamp
 my $after = 789; # Long | Any element having its point in time reference after the given timestamp
@@ -2974,7 +3538,27 @@ from pprint import pprint
 # create an instance of the API class
 api_instance = swagger_client.ExploreApi()
 collections = collections_example # String | collections, comma separated
-f =  # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
+f =  # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric  (optional)
 q = q_example # String | A full text search (optional)
 before = 789 # Long | Any element having its point in time reference before the given timestamp (optional)
 after = 789 # Long | Any element having its point in time reference after the given timestamp (optional)
@@ -3054,7 +3638,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "f",
   "in" : "query",
-  "description" : "A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used",
+  "description" : "A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \nA triplet is composed of a field name, a comparison operator and a value. \n \nThe AND operator is applied between filters having different fieldNames. \n \nThe OR operator is applied on filters having the same fieldName. \n \nIf the fieldName starts with - then a must not filter is used\n \nOperator   |                   Description                      | value type\n \n:          |  {fieldName} equals {value}                        | numeric or strings \n \n:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric \n \n:gt:       |  {fieldName} is greater than {value}               | numeric \n \n:lte:      |  {fieldName} is less than or equal to {value}      | numeric \n \n:lt:       |  {fieldName}  is less than {value}                 | numeric ",
   "required" : false,
   "type" : "array",
   "items" : {
@@ -3387,7 +3971,7 @@ except ApiException as e:
                             </table>
 
                           <h2>Responses</h2>
-                            <h3> Status: 0 - successful operation </h3>
+                            <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                             </ul>
@@ -3410,7 +3994,7 @@ except ApiException as e:
                         <p class="marked">List  the collections configured in ARLAS. </p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/describe</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/_describe</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -3430,7 +4014,7 @@ except ApiException as e:
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-Explore-describe-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/describe?maxAgeCache="</code></pre>
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/_describe?maxAgeCache="</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Explore-describe-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -3646,7 +4230,7 @@ except ApiException as e:
                             </table>
 
                           <h2>Responses</h2>
-                            <h3> Status: 0 - successful operation </h3>
+                            <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                             </ul>
@@ -3669,7 +4253,7 @@ except ApiException as e:
                         <p class="marked">Describe the structure and the content of the given collection. </p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collection}/describe</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collection}/_describe</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -3689,7 +4273,7 @@ except ApiException as e:
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-Explore-describeCollection-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collection}/describe?pretty=&human=&maxAgeCache="</code></pre>
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collection}/_describe?pretty=&human=&maxAgeCache="</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Explore-describeCollection-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -4041,7 +4625,7 @@ except ApiException as e:
                             </table>
 
                           <h2>Responses</h2>
-                            <h3> Status: 0 - successful operation </h3>
+                            <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                             </ul>
@@ -4064,7 +4648,7 @@ except ApiException as e:
                         <p class="marked">Search and return the elements found in the collection(s), given the filters</p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/search</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/_search</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -4084,7 +4668,7 @@ except ApiException as e:
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-Explore-search-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/search?f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&pretty=&human=&format=&include=&exclude=&size=&sort=&maxAgeCache="</code></pre>
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/_search?f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&pretty=&human=&format=&include=&exclude=&size=&sort=&maxAgeCache="</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Explore-search-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -4101,7 +4685,27 @@ public class ExploreApiExample {
         
         ExploreApi apiInstance = new ExploreApi();
         String collections = collections_example; // String | collections, comma separated
-        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
         String q = q_example; // String | A full text search
         Long before = 789; // Long | Any element having its point in time reference before the given timestamp
         Long after = 789; // Long | Any element having its point in time reference after the given timestamp
@@ -4114,7 +4718,11 @@ public class ExploreApiExample {
         array[String] include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
         array[String] exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
         array[Integer] size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
-        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
             apiInstance.search(collections, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, include, exclude, size, sort, maxAgeCache);
@@ -4134,7 +4742,27 @@ public class ExploreApiExample {
     public static void main(String[] args) {
         ExploreApi apiInstance = new ExploreApi();
         String collections = collections_example; // String | collections, comma separated
-        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
         String q = q_example; // String | A full text search
         Long before = 789; // Long | Any element having its point in time reference before the given timestamp
         Long after = 789; // Long | Any element having its point in time reference after the given timestamp
@@ -4147,7 +4775,11 @@ public class ExploreApiExample {
         array[String] include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
         array[String] exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
         array[Integer] size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
-        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
             apiInstance.search(collections, f, q, before, after, pwithin, gwithin, gintersect, pretty, human, format, include, exclude, size, sort, maxAgeCache);
@@ -4164,7 +4796,27 @@ public class ExploreApiExample {
   </div> -->
                             <div class="tab-pane" id="examples-Explore-search-0-objc">
                               <pre class="prettyprint"><code class="language-cpp">String *collections = collections_example; // collections, comma separated
-array[String] *f = ; // A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
+array[String] *f = ; // A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric  (optional)
 String *q = q_example; // A full text search (optional)
 Long *before = 789; // Any element having its point in time reference before the given timestamp (optional)
 Long *after = 789; // Any element having its point in time reference after the given timestamp (optional)
@@ -4177,7 +4829,11 @@ String *format = format_example; // JSON or GeoJSON format (optional) (default t
 array[String] *include = *; // List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional)
 array[String] *exclude = city,state; // List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional)
 array[Integer] *size = ; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)
-array[String] *sort = city:DESC; // Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
+array[String] *sort = city:DESC; // Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
 Integer *maxAgeCache = 56; // max-age-cache (optional)
 
 ExploreApi *apiInstance = [[ExploreApi alloc] init];
@@ -4215,7 +4871,27 @@ var api = new ArlasExplorationApi.ExploreApi()
 var collections = collections_example; // {String} collections, comma separated
 
 var opts = { 
-  'f': , // {array[String]} A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+  'f': , // {array[String]} A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
   'q': q_example, // {String} A full text search
   'before': 789, // {Long} Any element having its point in time reference before the given timestamp
   'after': 789, // {Long} Any element having its point in time reference after the given timestamp
@@ -4228,7 +4904,11 @@ var opts = {
   'include': *, // {array[String]} List the name patterns of the field to be included in the result. Seperate patterns with a comma.
   'exclude': city,state, // {array[String]} List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
   'size': , // {array[Integer]} The maximum number of entries or sub-entries to be returned. The default value is 10
-  'sort': city:DESC, // {array[String]} Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+  'sort': city:DESC, // {array[String]} Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
   'maxAgeCache': 56 // {Integer} max-age-cache
 };
 
@@ -4262,7 +4942,27 @@ namespace Example
             
             var apiInstance = new ExploreApi();
             var collections = collections_example;  // String | collections, comma separated
-            var f = new array[String](); // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional) 
+            var f = new array[String](); // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric  (optional) 
             var q = q_example;  // String | A full text search (optional) 
             var before = 789;  // Long | Any element having its point in time reference before the given timestamp (optional) 
             var after = 789;  // Long | Any element having its point in time reference after the given timestamp (optional) 
@@ -4275,7 +4975,11 @@ namespace Example
             var include = new array[String](); // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional) 
             var exclude = new array[String](); // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional) 
             var size = new array[Integer](); // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) 
-            var sort = new array[String](); // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}. (optional) 
+            var sort = new array[String](); // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}. (optional) 
             var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
 
             try
@@ -4298,7 +5002,27 @@ require_once(__DIR__ . '/vendor/autoload.php');
 
 $api_instance = new Swagger\Client\Api\ExploreApi();
 $collections = collections_example; // String | collections, comma separated
-$f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+$f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
 $q = q_example; // String | A full text search
 $before = 789; // Long | Any element having its point in time reference before the given timestamp
 $after = 789; // Long | Any element having its point in time reference after the given timestamp
@@ -4311,7 +5035,11 @@ $format = format_example; // String | JSON or GeoJSON format
 $include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
 $exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
 $size = ; // array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
-$sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+$sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
 $maxAgeCache = 56; // Integer | max-age-cache
 
 try {
@@ -4329,7 +5057,27 @@ use WWW::SwaggerClient::ExploreApi;
 
 my $api_instance = WWW::SwaggerClient::ExploreApi->new();
 my $collections = collections_example; # String | collections, comma separated
-my $f = []; # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+my $f = []; # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
 my $q = q_example; # String | A full text search
 my $before = 789; # Long | Any element having its point in time reference before the given timestamp
 my $after = 789; # Long | Any element having its point in time reference after the given timestamp
@@ -4342,7 +5090,11 @@ my $format = format_example; # String | JSON or GeoJSON format
 my $include = [*]; # array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
 my $exclude = [city,state]; # array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
 my $size = []; # array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10
-my $sort = [city:DESC]; # array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.
+my $sort = [city:DESC]; # array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
 my $maxAgeCache = 56; # Integer | max-age-cache
 
 eval { 
@@ -4363,7 +5115,27 @@ from pprint import pprint
 # create an instance of the API class
 api_instance = swagger_client.ExploreApi()
 collections = collections_example # String | collections, comma separated
-f =  # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
+f =  # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric  (optional)
 q = q_example # String | A full text search (optional)
 before = 789 # Long | Any element having its point in time reference before the given timestamp (optional)
 after = 789 # Long | Any element having its point in time reference after the given timestamp (optional)
@@ -4376,7 +5148,11 @@ format = format_example # String | JSON or GeoJSON format (optional) (default to
 include = * # array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional)
 exclude = city,state # array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional)
 size =  # array[Integer] | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)
-sort = city:DESC # array[String] | Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
+sort = city:DESC # array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
 maxAgeCache = 56 # Integer | max-age-cache (optional)
 
 try: 
@@ -4448,7 +5224,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "f",
   "in" : "query",
-  "description" : "A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used",
+  "description" : "A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \nA triplet is composed of a field name, a comparison operator and a value. \n \nThe AND operator is applied between filters having different fieldNames. \n \nThe OR operator is applied on filters having the same fieldName. \n \nIf the fieldName starts with - then a must not filter is used\n \nOperator   |                   Description                      | value type\n \n:          |  {fieldName} equals {value}                        | numeric or strings \n \n:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric \n \n:gt:       |  {fieldName} is greater than {value}               | numeric \n \n:lte:      |  {fieldName} is less than or equal to {value}      | numeric \n \n:lt:       |  {fieldName}  is less than {value}                 | numeric ",
   "required" : false,
   "type" : "array",
   "items" : {
@@ -4908,7 +5684,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "sort",
   "in" : "query",
-  "description" : "Sort the result on a given field, ascending or descending (ASC, DESC). The parameter can be provided several times. The order matters. For aggregation, provide the 'agg' keyword as the {fieldName}.",
+  "description" : "Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . \n \nThe parameter can be provided several times. The order matters. \n \nFor aggregation, provide the 'agg' keyword as the {fieldName}.",
   "required" : false,
   "type" : "array",
   "items" : {
@@ -4976,7 +5752,7 @@ except ApiException as e:
                             </table>
 
                           <h2>Responses</h2>
-                            <h3> Status: 0 - successful operation </h3>
+                            <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                             </ul>
@@ -4999,7 +5775,7 @@ except ApiException as e:
                         <p class="marked">Suggest the the n (n&#x3D;size) most relevant terms given the filters</p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/suggest</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/_suggest</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -5019,7 +5795,7 @@ except ApiException as e:
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-Explore-suggest-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/suggest?f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&pretty=&human=&size=&field=&maxAgeCache="</code></pre>
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/_suggest?f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&pretty=&human=&size=&field=&maxAgeCache="</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Explore-suggest-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -5036,7 +5812,27 @@ public class ExploreApiExample {
         
         ExploreApi apiInstance = new ExploreApi();
         String collections = collections_example; // String | collections, comma separated
-        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
         String q = q_example; // String | A full text search
         Long before = 789; // Long | Any element having its point in time reference before the given timestamp
         Long after = 789; // Long | Any element having its point in time reference after the given timestamp
@@ -5066,7 +5862,27 @@ public class ExploreApiExample {
     public static void main(String[] args) {
         ExploreApi apiInstance = new ExploreApi();
         String collections = collections_example; // String | collections, comma separated
-        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+        array[String] f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
         String q = q_example; // String | A full text search
         Long before = 789; // Long | Any element having its point in time reference before the given timestamp
         Long after = 789; // Long | Any element having its point in time reference after the given timestamp
@@ -5093,7 +5909,27 @@ public class ExploreApiExample {
   </div> -->
                             <div class="tab-pane" id="examples-Explore-suggest-0-objc">
                               <pre class="prettyprint"><code class="language-cpp">String *collections = collections_example; // collections, comma separated
-array[String] *f = ; // A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
+array[String] *f = ; // A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric  (optional)
 String *q = q_example; // A full text search (optional)
 Long *before = 789; // Any element having its point in time reference before the given timestamp (optional)
 Long *after = 789; // Any element having its point in time reference after the given timestamp (optional)
@@ -5138,7 +5974,27 @@ var api = new ArlasExplorationApi.ExploreApi()
 var collections = collections_example; // {String} collections, comma separated
 
 var opts = { 
-  'f': , // {array[String]} A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+  'f': , // {array[String]} A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
   'q': q_example, // {String} A full text search
   'before': 789, // {Long} Any element having its point in time reference before the given timestamp
   'after': 789, // {Long} Any element having its point in time reference after the given timestamp
@@ -5182,7 +6038,27 @@ namespace Example
             
             var apiInstance = new ExploreApi();
             var collections = collections_example;  // String | collections, comma separated
-            var f = new array[String](); // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional) 
+            var f = new array[String](); // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric  (optional) 
             var q = q_example;  // String | A full text search (optional) 
             var before = 789;  // Long | Any element having its point in time reference before the given timestamp (optional) 
             var after = 789;  // Long | Any element having its point in time reference after the given timestamp (optional) 
@@ -5215,7 +6091,27 @@ require_once(__DIR__ . '/vendor/autoload.php');
 
 $api_instance = new Swagger\Client\Api\ExploreApi();
 $collections = collections_example; // String | collections, comma separated
-$f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+$f = ; // array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
 $q = q_example; // String | A full text search
 $before = 789; // Long | Any element having its point in time reference before the given timestamp
 $after = 789; // Long | Any element having its point in time reference after the given timestamp
@@ -5243,7 +6139,27 @@ use WWW::SwaggerClient::ExploreApi;
 
 my $api_instance = WWW::SwaggerClient::ExploreApi->new();
 my $collections = collections_example; # String | collections, comma separated
-my $f = []; # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used
+my $f = []; # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric 
 my $q = q_example; # String | A full text search
 my $before = 789; # Long | Any element having its point in time reference before the given timestamp
 my $after = 789; # Long | Any element having its point in time reference after the given timestamp
@@ -5274,7 +6190,27 @@ from pprint import pprint
 # create an instance of the API class
 api_instance = swagger_client.ExploreApi()
 collections = collections_example # String | collections, comma separated
-f =  # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used (optional)
+f =  # array[String] | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+A triplet is composed of a field name, a comparison operator and a value. 
+ 
+The AND operator is applied between filters having different fieldNames. 
+ 
+The OR operator is applied on filters having the same fieldName. 
+ 
+If the fieldName starts with - then a must not filter is used
+ 
+Operator   |                   Description                      | value type
+ 
+:          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+:gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+:lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+:lt:       |  {fieldName}  is less than {value}                 | numeric  (optional)
 q = q_example # String | A full text search (optional)
 before = 789 # Long | Any element having its point in time reference before the given timestamp (optional)
 after = 789 # Long | Any element having its point in time reference after the given timestamp (optional)
@@ -5356,7 +6292,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "f",
   "in" : "query",
-  "description" : "A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The AND operator is applied between filters having different fieldNames. The OR operator is applied on filters having the same fieldName. If the fieldName starts with - then a must not filter is used",
+  "description" : "A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \nA triplet is composed of a field name, a comparison operator and a value. \n \nThe AND operator is applied between filters having different fieldNames. \n \nThe OR operator is applied on filters having the same fieldName. \n \nIf the fieldName starts with - then a must not filter is used\n \nOperator   |                   Description                      | value type\n \n:          |  {fieldName} equals {value}                        | numeric or strings \n \n:gte:      |  {fieldName} is greater than or equal to  {value}  | numeric \n \n:gt:       |  {fieldName} is greater than {value}               | numeric \n \n:lte:      |  {fieldName} is less than or equal to {value}      | numeric \n \n:lt:       |  {fieldName}  is less than {value}                 | numeric ",
   "required" : false,
   "type" : "array",
   "items" : {
@@ -5764,7 +6700,7 @@ except ApiException as e:
                             </table>
 
                           <h2>Responses</h2>
-                            <h3> Status: 0 - successful operation </h3>
+                            <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                             </ul>
@@ -5789,7 +6725,7 @@ except ApiException as e:
           </div>
           <div id="generator">
             <div class="content">
-              Generated 2017-04-07T15:29:08.563+02:00
+              Generated 2017-04-07T16:00:58.779+02:00
             </div>
           </div>
       </div>
