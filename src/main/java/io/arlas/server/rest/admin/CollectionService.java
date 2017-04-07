@@ -1,6 +1,7 @@
 package io.arlas.server.rest.admin;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.collectionsModel.CollectionReference;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -13,56 +14,75 @@ import java.util.concurrent.ExecutionException;
 public class CollectionService extends AdminServices {
 
     @Timed
-    @Path("{collection}") // TODO : fill it
+    @Path("{collection}")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="...", // TODO : fill it
+            value="Get a collection reference",
             produces=UTF8JSON,
-            notes = "...", // TODO : fill it
+            notes = "Get a collection reference in ARLAS",
             consumes=UTF8JSON
     )
     public Response get(
-            @ApiParam(value="collection", required=true) // TODO : fill it
-            @PathParam(value = "collection") String collections // TODO : fill it
+            @ApiParam(
+                    name = "collection",
+                    value = "collection",
+                    allowMultiple = false,
+                    required=true)
+            @PathParam(value = "collection") String collection
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("count").build();
+        return Response.ok("count").build();// TODO : right reponse
     }
 
     @Timed
-    @Path("{collection}") // TODO : fill it
+    @Path("{collection}") //
     @PUT
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="...", // TODO : fill it
+            value="Add a collection reference",
             produces=UTF8JSON,
-            notes = "...", // TODO : fill it
+            notes = "Add a collection reference in ARLAS",
             consumes=UTF8JSON
     )
     public Response put(
-            @ApiParam(value="collection", required=true) // TODO : fill it
-            @PathParam(value = "collection") String collections // TODO : fill it
+            @ApiParam(
+                    name = "collection",
+                    value = "collection",
+                    allowMultiple = false,
+                    required=true)
+            @PathParam(value = "collection") String collection,
+
+            // --------------------------------------------------------
+            // -----------------------  COLLECTION REFERENCE    -----------------------
+            // --------------------------------------------------------
+            @ApiParam(value="collectionReference", required=true)
+            @QueryParam(value = "collectionReference") String collectionReference
+
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("count").build();
+        return Response.ok("count").build();// TODO : right response
     }
 
     @Timed
-    @Path("{collection}") // TODO : fill it
+    @Path("{collection}")
     @DELETE
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="...", // TODO : fill it
+            value="Add a collection reference",
             produces=UTF8JSON,
-            notes = "...", // TODO : fill it
+            notes = "Add a collection reference in ARLAS",
             consumes=UTF8JSON
     )
     public Response delete(
-            @ApiParam(value="collection", required=true) // TODO : fill it
-            @PathParam(value = "collection") String collections // TODO : fill it
+            @ApiParam(
+                    name = "collection",
+                    value = "collection",
+                    allowMultiple = false,
+                    required=true)
+            @PathParam(value = "collection") String collection
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("count").build();
+        return Response.ok("count").build();//TODO : right response
     }
 }
