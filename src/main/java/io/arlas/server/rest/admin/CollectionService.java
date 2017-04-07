@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.model.CollectionReference;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.geojson.FeatureCollection;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;

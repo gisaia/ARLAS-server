@@ -6,13 +6,13 @@ import io.swagger.annotations.ApiModelProperty;
 import org.geojson.FeatureCollection;
 
 @ApiModel(value="CollectionReference", description="The description of the elasticsearch index and the way ARLAS API will serve it.")
-public class CollectionReference extends FeatureCollection{
+public class CollectionReference{
 
     private String indexName;
-    private String idPath;
-    private String geometryPath;
-    private String centroidPath;
-    private String timestampPath;
+    private String idPath = "id";
+    private String geometryPath = "geometry";
+    private String centroidPath = "centroid";
+    private String timestampPath = "timestamp";
 
     public CollectionReference() {
     }
@@ -37,7 +37,7 @@ public class CollectionReference extends FeatureCollection{
     public void setIndexName(String indexName) {
         this.indexName = indexName;
     }
-    @ApiModelProperty(value = "Path to the collection's id")
+    @ApiModelProperty(value = "Path to the collection's id", example = "id")
     public String getIdPath() {
         return idPath;
     }
@@ -46,7 +46,7 @@ public class CollectionReference extends FeatureCollection{
         this.idPath = idPath;
     }
 
-    @ApiModelProperty(value = "Path to the collection's geometry")
+    @ApiModelProperty(value = "Path to the collection's geometry", example = "geometry")
     public String getGeometryPath() {
         return geometryPath;
     }
@@ -55,7 +55,7 @@ public class CollectionReference extends FeatureCollection{
         this.geometryPath = geometryPath;
     }
 
-    @ApiModelProperty(value = "Path to the collection's centroid")
+    @ApiModelProperty(value = "Path to the collection's centroid", example = "centroid")
     public String getCentroidPath() {
         return centroidPath;
     }
@@ -64,7 +64,7 @@ public class CollectionReference extends FeatureCollection{
         this.centroidPath = centroidPath;
     }
 
-    @ApiModelProperty(value = "Path to the collection's timestamp")
+    @ApiModelProperty(value = "Path to the collection's timestamp", example = "timestamp")
     public String getTimestampPath() {
         return timestampPath;
     }
