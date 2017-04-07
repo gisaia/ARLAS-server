@@ -710,6 +710,23 @@ margin-bottom: 20px;
   <script>
     // Script section to load models into a JS Var
     var defs = {}
+    defs.CollectionReference = {
+  "type" : "object",
+  "properties" : {
+    "indexName" : {
+      "type" : "string"
+    },
+    "idPath" : {
+      "type" : "string"
+    },
+    "geomPath" : {
+      "type" : "string"
+    },
+    "centroidPath" : {
+      "type" : "string"
+    }
+  }
+};
   </script>
 
   <div class="container-fluid">
@@ -1322,7 +1339,7 @@ except ApiException as e:
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-Admin-put-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">put</span> "http://localhost/arlas/admin/{collection}?collectionReference="</code></pre>
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">put</span> "http://localhost/arlas/admin/{collection}"</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Admin-put-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -1339,9 +1356,9 @@ public class AdminApiExample {
         
         AdminApi apiInstance = new AdminApi();
         String collection = collection_example; // String | collection
-        String collectionReference = collectionReference_example; // String | collectionReference
+        CollectionReference body = ; // CollectionReference | collectionReference
         try {
-            apiInstance.put(collection, collectionReference);
+            apiInstance.put(collection, body);
         } catch (ApiException e) {
             System.err.println("Exception when calling AdminApi#put");
             e.printStackTrace();
@@ -1358,9 +1375,9 @@ public class AdminApiExample {
     public static void main(String[] args) {
         AdminApi apiInstance = new AdminApi();
         String collection = collection_example; // String | collection
-        String collectionReference = collectionReference_example; // String | collectionReference
+        CollectionReference body = ; // CollectionReference | collectionReference
         try {
-            apiInstance.put(collection, collectionReference);
+            apiInstance.put(collection, body);
         } catch (ApiException e) {
             System.err.println("Exception when calling AdminApi#put");
             e.printStackTrace();
@@ -1374,13 +1391,13 @@ public class AdminApiExample {
   </div> -->
                             <div class="tab-pane" id="examples-Admin-put-0-objc">
                               <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
-String *collectionReference = collectionReference_example; // collectionReference
+CollectionReference *body = ; // collectionReference
 
 AdminApi *apiInstance = [[AdminApi alloc] init];
 
 // Add a collection reference
 [apiInstance putWith:collection
-    collectionReference:collectionReference
+    body:body
               completionHandler: ^(NSError* error) {
                             if (error) {
                                 NSLog(@"Error: %@", error);
@@ -1396,7 +1413,7 @@ var api = new ArlasExplorationApi.AdminApi()
 
 var collection = collection_example; // {String} collection
 
-var collectionReference = collectionReference_example; // {String} collectionReference
+var body = ; // {CollectionReference} collectionReference
 
 
 var callback = function(error, data, response) {
@@ -1406,7 +1423,7 @@ var callback = function(error, data, response) {
     console.log('API called successfully.');
   }
 };
-api.put(collection, collectionReference, callback);
+api.put(collection, body, callback);
 </code></pre>
                             </div>
 
@@ -1429,12 +1446,12 @@ namespace Example
             
             var apiInstance = new AdminApi();
             var collection = collection_example;  // String | collection
-            var collectionReference = collectionReference_example;  // String | collectionReference
+            var body = new CollectionReference(); // CollectionReference | collectionReference
 
             try
             {
                 // Add a collection reference
-                apiInstance.put(collection, collectionReference);
+                apiInstance.put(collection, body);
             }
             catch (Exception e)
             {
@@ -1451,10 +1468,10 @@ require_once(__DIR__ . '/vendor/autoload.php');
 
 $api_instance = new Swagger\Client\Api\AdminApi();
 $collection = collection_example; // String | collection
-$collectionReference = collectionReference_example; // String | collectionReference
+$body = ; // CollectionReference | collectionReference
 
 try {
-    $api_instance->put($collection, $collectionReference);
+    $api_instance->put($collection, $body);
 } catch (Exception $e) {
     echo 'Exception when calling AdminApi->put: ', $e->getMessage(), PHP_EOL;
 }
@@ -1468,10 +1485,10 @@ use WWW::SwaggerClient::AdminApi;
 
 my $api_instance = WWW::SwaggerClient::AdminApi->new();
 my $collection = collection_example; # String | collection
-my $collectionReference = collectionReference_example; # String | collectionReference
+my $body = WWW::SwaggerClient::Object::CollectionReference->new(); # CollectionReference | collectionReference
 
 eval { 
-    $api_instance->put(collection => $collection, collectionReference => $collectionReference);
+    $api_instance->put(collection => $collection, body => $body);
 };
 if ($@) {
     warn "Exception when calling AdminApi->put: $@\n";
@@ -1488,11 +1505,11 @@ from pprint import pprint
 # create an instance of the API class
 api_instance = swagger_client.AdminApi()
 collection = collection_example # String | collection
-collectionReference = collectionReference_example # String | collectionReference
+body =  # CollectionReference | collectionReference
 
 try: 
     # Add a collection reference
-    api_instance.put(collection, collectionReference)
+    api_instance.put(collection, body)
 except ApiException as e:
     print("Exception when calling AdminApi->put: %s\n" % e)</code></pre>
                             </div>
@@ -1542,48 +1559,59 @@ except ApiException as e:
                             </table>
 
 
-
-
-                            <div class="methodsubtabletitle">Query parameters</div>
+                            <div class="methodsubtabletitle">Body parameters</div>
                             <table id="methodsubtable">
                               <tr>
                                 <th width="150px">Name</th>
                                 <th>Description</th>
                               </tr>
-                                <tr><td style="width:150px;">collectionReference*</td>
+                                <tr><td style="width:150px;">body <span style="color:red;">*</span></td>
 <td>
 
 
 <script>
 												$(document).ready(function() {
 													var schemaWrapper = {
-  "name" : "collectionReference",
-  "in" : "query",
+  "in" : "body",
+  "name" : "body",
   "description" : "collectionReference",
   "required" : true,
-  "type" : "string"
+  "schema" : {
+    "$ref" : "#/definitions/CollectionReference"
+  }
 };
-													var schema = schemaWrapper;
+													
+														var schema = schemaWrapper.schema;
+														schemaWrapper.definitions = defs;
+														JsonRefs.resolveRefs(schemaWrapper, {"depth":3, "resolveRemoteRefs":false,"resolveFileRefs":false },function (err, resolved, metadata) {
+														
 
-
-
-
-													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_put_collectionReference');
+														
+													var view = new JSONSchemaView(resolved.schema,2,{isBodyParam: true});
+													 
+													var result = $('#d2e199_put_body');
 													result.empty();
 													result.append(view.render());
+													
+
+													
+    											
+													
 
 
+												});
 
 
 
 												});
 												</script>
-												<div id="d2e199_put_collectionReference"></div>
+												<div id="d2e199_put_body"></div>
 </td>
 </tr>
 
                             </table>
+
+
 
                           <h2>Responses</h2>
                             <h3> Status: 0 - successful operation </h3>
@@ -5761,7 +5789,7 @@ except ApiException as e:
           </div>
           <div id="generator">
             <div class="content">
-              Generated 2017-04-07T09:43:51.921+02:00
+              Generated 2017-04-07T15:29:08.563+02:00
             </div>
           </div>
       </div>
