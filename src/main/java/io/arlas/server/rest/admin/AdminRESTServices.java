@@ -20,7 +20,7 @@ import javax.ws.rs.core.MediaType;
 				)
 		)
 
-public abstract class AdminServices {
-	Logger LOGGER = LoggerFactory.getLogger(AdminServices.class);
+public abstract class AdminRESTServices {
+	Logger LOGGER = LoggerFactory.getLogger(AdminRESTServices.class);
 	public static final String UTF8JSON=MediaType.APPLICATION_JSON+";charset=utf-8";
 }

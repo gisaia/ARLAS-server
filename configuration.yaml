@@ -16,12 +16,12 @@ server:
   #      archivedLogFilenamePattern: ${ACCESS_LOG_DIR:-log}/our-app/accedd-%d.log.gz
   registerDefaultExceptionMappers: false
   type: simple
-  applicationContextPath: /arlas/
+  applicationContextPath: ${ARLAS_PREFIX:-/arlas/}
   connector:
     type: http
-    port: 9999
+    port: ${ARLAS_PORT:-9999}
 logging:
   level: INFO
-elastic-host: localhost
-elastic-port: 9300
-arlas-index: .arlas
+elastic-host: ${ARLAS_ELASTIC-HOST:-localhost}
+elastic-port: ${ARLAS_ELASTIC-PORT:-9300}
+arlas-index:  ${ARLAS_ELASTIC-INDEX:-.arlas}

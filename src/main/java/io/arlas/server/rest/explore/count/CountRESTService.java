@@ -1,6 +1,7 @@
 package io.arlas.server.rest.explore.count;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -12,7 +13,11 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-public class CountRESTService extends ExploreServices {
+public class CountRESTService extends ExploreRESTServices {
+
+    public CountRESTService(ExploreServices exploreServices) {
+        super(exploreServices);
+    }
 
     @Timed
     @Path("{collections}/_count")
