@@ -9,7 +9,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-public class CollectionService extends AdminServices {
+public class CollectionService extends AdminRESTServices {
 
     @Timed
     @Path("{collection}")

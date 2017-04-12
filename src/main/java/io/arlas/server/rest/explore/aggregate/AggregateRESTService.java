@@ -1,6 +1,7 @@
 package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.rest.explore.enumerations.AggregationType;
 import io.arlas.server.rest.explore.enumerations.FormatValues;
@@ -15,7 +16,11 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-public class AggregateRESTService extends ExploreServices {
+public class AggregateRESTService extends ExploreRESTServices {
+
+    public AggregateRESTService(ExploreServices exploreServices) {
+        super(exploreServices);
+    }
 
     @Timed
     @Path("{collections}/_aggregate")

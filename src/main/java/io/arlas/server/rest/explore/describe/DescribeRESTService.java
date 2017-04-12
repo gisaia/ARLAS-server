@@ -1,6 +1,7 @@
 package io.arlas.server.rest.explore.describe;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -12,7 +13,11 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-public class DescribeRESTService extends ExploreServices {
+public class DescribeRESTService extends ExploreRESTServices {
+    public DescribeRESTService(ExploreServices exploreServices) {
+        super(exploreServices);
+    }
+
     @Timed
     @Path("_describe")
     @GET

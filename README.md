@@ -42,4 +42,3 @@ Generate the documentation:
 ```sh
 swagger-codegen generate  -i http://localhost:9999/arlas/swagger.json  -l html2 -o doc/api/html/
 ```
-

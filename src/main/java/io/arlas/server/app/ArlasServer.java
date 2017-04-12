@@ -5,6 +5,7 @@ import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.rest.ExceptionHandlerMapper;
 import io.arlas.server.rest.admin.CollectionService;
+import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
 import io.arlas.server.rest.explore.count.CountRESTService;
 import io.arlas.server.rest.explore.describe.DescribeCollectionRESTService;
@@ -75,15 +76,17 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 			Optional<Brave> brave = configuration.zipkinConfiguration.build(environment);
 		}
 
+		ExploreServices exploration = new ExploreServices(client);
+
 		environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
 		environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
 		environment.jersey().register(new ExceptionHandlerMapper());
-		environment.jersey().register(new CountRESTService());
-		environment.jersey().register(new SearchRESTService());
-		environment.jersey().register(new AggregateRESTService());
-		environment.jersey().register(new SuggestRESTService());
-		environment.jersey().register(new DescribeRESTService());
-		environment.jersey().register(new DescribeCollectionRESTService());
+		environment.jersey().register(new CountRESTService(exploration));
+		environment.jersey().register(new SearchRESTService(exploration));
+		environment.jersey().register(new AggregateRESTService(exploration));
+		environment.jersey().register(new SuggestRESTService(exploration));
+		environment.jersey().register(new DescribeRESTService(exploration));
+		environment.jersey().register(new DescribeCollectionRESTService(exploration));
 		environment.jersey().register(new CollectionService());
 	}
 }
