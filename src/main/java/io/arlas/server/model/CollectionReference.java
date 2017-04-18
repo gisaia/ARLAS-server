@@ -1,75 +1,72 @@
 package io.arlas.server.model;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.geojson.FeatureCollection;
 
-@ApiModel(value="CollectionReference", description="The description of the elasticsearch index and the way ARLAS API will serve it.")
+@ApiModel(value="CollectionReference", description="The reference to ARLAS collection that embed elasticsearch index description.")
 public class CollectionReference{
+    
+    public static final String COLLECTION_NAME = "collectionName";
+    public static final String INDEX_NAME = "indexName";
+    public static final String TYPE_NAME = "typeName";
+    public static final String ID_PATH = "idPath";
+    public static final String GEOMETRY_PATH = "geometryPath";
+    public static final String CENTROID_PATH = "centroidPath";
+    public static final String TIMESTAMP_PATH = "timestampPath";
+    
+    private String collectionName;
+    private CollectionReferenceParameters params;
 
-    private String indexName;
-    private String idPath = "id";
-    private String geometryPath = "geometry";
-    private String centroidPath = "centroid";
-    private String timestampPath = "timestamp";
 
     public CollectionReference() {
     }
 
-    public CollectionReference(String indexName) {
-        this.indexName = indexName;
+    public CollectionReference(String collectionName) {
+        this.collectionName = collectionName;
+    }
+    
+    @ApiModelProperty(value = "The collection name")
+    public String getCollectionName() {
+        return collectionName;
     }
 
-    public CollectionReference(String indexName, String idPath, String geometryPath, String centroidPath, String timestampPath) {
-        this.indexName = indexName;
-        this.idPath = idPath;
-        this.geometryPath = geometryPath;
-        this.centroidPath = centroidPath;
-        this.timestampPath = timestampPath;
+    public void setCollectionName(String collectionName) {
+        this.collectionName = collectionName;
+    }
+    
+    @ApiModelProperty(value = "The collection parameters")
+    public CollectionReferenceParameters getParams() {
+        return params;
     }
 
-    @ApiModelProperty(value = "The collection's index name")
-    public String getIndexName() {
-        return indexName;
+    public void setParams(CollectionReferenceParameters params) {
+        this.params = params;
     }
 
-    public void setIndexName(String indexName) {
-        this.indexName = indexName;
+    /**
+     * @return JSON representation
+     */
+    public ObjectNode toJson() {	
+	ObjectMapper mapper = new ObjectMapper();
+	ObjectNode json = mapper.createObjectNode();
+	json.put(COLLECTION_NAME, this.getCollectionName());
+	json.put(INDEX_NAME, this.getParams().getIndexName());
+	json.put(TYPE_NAME, this.getParams().getTypeName());
+	json.put(ID_PATH, this.getParams().getIdPath());
+	json.put(GEOMETRY_PATH, this.getParams().getGeometryPath());
+	json.put(CENTROID_PATH, this.getParams().getCentroidPath());
+	json.put(TIMESTAMP_PATH, this.getParams().getTimestampPath());
+	return json;
     }
-    @ApiModelProperty(value = "Path to the collection's id", example = "id")
-    public String getIdPath() {
-        return idPath;
-    }
-
-    public void setIdPath(String idPath) {
-        this.idPath = idPath;
-    }
-
-    @ApiModelProperty(value = "Path to the collection's geometry", example = "geometry")
-    public String getGeometryPath() {
-        return geometryPath;
-    }
-
-    public void setGeometryPath(String geometryPath) {
-        this.geometryPath = geometryPath;
-    }
-
-    @ApiModelProperty(value = "Path to the collection's centroid", example = "centroid")
-    public String getCentroidPath() {
-        return centroidPath;
-    }
-
-    public void setCentroidPath(String centroidPath) {
-        this.centroidPath = centroidPath;
-    }
-
-    @ApiModelProperty(value = "Path to the collection's timestamp", example = "timestamp")
-    public String getTimestampPath() {
-        return timestampPath;
-    }
-
-    public void setTimestampPath(String timestampPath) {
-        this.timestampPath = timestampPath;
+    
+    /**
+     * @return JSON String representation
+     */
+    public String toJsonString() {	
+	return toJson().toString();
     }
 }
