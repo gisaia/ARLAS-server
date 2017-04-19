@@ -1,8 +1,8 @@
-package io.arlas.server.rest.admin;
+package io.arlas.server.rest.collections;
 
 import org.elasticsearch.client.transport.TransportClient;
 
-import io.arlas.server.model.dao.ElasticCollectionReferenceDaoImpl;
+import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 
 public class ElasticCollectionService extends CollectionService {
     

@@ -1,18 +1,18 @@
 # ARLAS
 
-The ARLAS Admin API let you change the collection references of the ARLAS catalog.
+The ARLAS Collection API let you change the collection references of the ARLAS catalog.
 
 # URL Schema
 The table below lists the URL endpoints.
 
-| PATH Template               | Description                              |
-| --------------------------- | ---------------------------------------- |
-| /arlas/admin/               | List  the collections configured in ARLAS with the technical details |
-| /arlas/admin/`{collection}` | Get, add or delete a collection reference in ARLAS |
+| PATH Template                     | Description                              |
+| --------------------------------- | ---------------------------------------- |
+| /arlas/collections/               | List  the collections configured in ARLAS with the technical details |
+| /arlas/collections/`{collection}` | Get, add or delete a collection reference in ARLAS |
 
 # Managing collections
 
-## /arlas/admin/`{collection}`
+## /arlas/collections/`{collection}`
 
 The following methods let you get, add and delete **collection references** from elasticsearch into the ARLAS catalog. 
 A **collection reference** is the description of the elasticsearch index and the way ARLAS API will serve it.
