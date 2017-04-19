@@ -1,7 +1,6 @@
 package io.arlas.server.rest.explore.search;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.model.ArlasCollection;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.rest.explore.enumerations.FormatValues;
@@ -9,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.geojson.FeatureCollection;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -16,14 +16,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class SearchRESTService extends ExploreRESTServices {
+public class GeoSearchRESTService extends ExploreRESTServices {
 
-    public SearchRESTService(ExploreServices exploreServices) {
+    public GeoSearchRESTService(ExploreServices exploreServices) {
         super(exploreServices);
     }
 
     @Timed
-    @Path("{collections}/_search")
+    @Path("{collections}/_geosearch")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -32,7 +32,7 @@ public class SearchRESTService extends ExploreRESTServices {
             produces=UTF8JSON,
             notes = "Search and return the elements found in the collection(s), given the filters",
             consumes=UTF8JSON,
-            response = ArlasCollection.class
+            response = FeatureCollection.class
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation")})
     public Response search(
