@@ -15,7 +15,7 @@ import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 
 import io.arlas.server.rest.ExceptionHandlerMapper;
-import io.arlas.server.rest.admin.ElasticCollectionService;
+import io.arlas.server.rest.collections.ElasticCollectionService;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
 import io.arlas.server.rest.explore.count.CountRESTService;

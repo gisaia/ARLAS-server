@@ -1,4 +1,4 @@
-package io.arlas.server.rest.admin;
+package io.arlas.server.rest.collections;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,15 +19,15 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
-import io.arlas.server.model.dao.CollectionReferenceDao;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-public abstract class CollectionService extends AdminRESTServices {
+public abstract class CollectionService extends CollectionRESTServices {
 
     protected CollectionReferenceDao dao = null;
     

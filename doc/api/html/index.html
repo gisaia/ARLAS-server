@@ -713,9 +713,27 @@ margin-bottom: 20px;
     defs.CollectionReference = {
   "type" : "object",
   "properties" : {
+    "collectionName" : {
+      "type" : "string",
+      "description" : "The collection name"
+    },
+    "params" : {
+      "description" : "The collection parameters",
+      "$ref" : "#/definitions/CollectionReferenceParameters"
+    }
+  },
+  "description" : "The reference to ARLAS collection that embed elasticsearch index description."
+};
+    defs.CollectionReferenceParameters = {
+  "type" : "object",
+  "properties" : {
     "indexName" : {
       "type" : "string",
       "description" : "The collection's index name"
+    },
+    "typeName" : {
+      "type" : "string",
+      "description" : "The collection's type name"
     },
     "idPath" : {
       "type" : "string",
@@ -975,15 +993,18 @@ margin-bottom: 20px;
             -->
             <li class="nav-fixed nav-header active" data-group="_"><a href="#api-_">API Summary</a></li>
 
-                  <li class="nav-header" data-group="Admin"><a href="#api-Admin">API Methods - Admin</a></li>
-                    <li data-group="Admin" data-name="delete" class="">
-                      <a href="#api-Admin-delete">delete</a>
+                  <li class="nav-header" data-group="Collections"><a href="#api-Collections">API Methods - Collections</a></li>
+                    <li data-group="Collections" data-name="delete" class="">
+                      <a href="#api-Collections-delete">delete</a>
                     </li>
-                    <li data-group="Admin" data-name="get" class="">
-                      <a href="#api-Admin-get">get</a>
+                    <li data-group="Collections" data-name="get" class="">
+                      <a href="#api-Collections-get">get</a>
                     </li>
-                    <li data-group="Admin" data-name="put" class="">
-                      <a href="#api-Admin-put">put</a>
+                    <li data-group="Collections" data-name="getAll" class="">
+                      <a href="#api-Collections-getAll">getAll</a>
+                    </li>
+                    <li data-group="Collections" data-name="put" class="">
+                      <a href="#api-Collections-put">put</a>
                     </li>
                   <li class="nav-header" data-group="Explore"><a href="#api-Explore">API Methods - Explore</a></li>
                     <li data-group="Explore" data-name="aggregate" class="">
@@ -1023,10 +1044,10 @@ margin-bottom: 20px;
           </div>
         </div>
         <div id="sections">
-                <section id="api-Admin">
-                  <h1>Admin</h1>
-                    <div id="api-Admin-delete">
-                      <article id="api-Admin-delete-0" data-group="User" data-name="delete" data-version="0">
+                <section id="api-Collections">
+                  <h1>Collections</h1>
+                    <div id="api-Collections-delete">
+                      <article id="api-Collections-delete-0" data-group="User" data-name="delete" data-version="0">
                         <div class="pull-left">
                           <h1>delete</h1>
                           <p>Delete a collection reference</p>
@@ -1037,78 +1058,78 @@ margin-bottom: 20px;
                         <p class="marked">Delete a collection reference in ARLAS</p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="delete"><code><span class="pln">/admin/{collection}</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="delete"><code><span class="pln">/collections/{collection}</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
                         <ul class="nav nav-tabs nav-tabs-examples">
-                          <li class="active"><a href="#examples-Admin-delete-0-curl">Curl</a></li>
-                          <li class=""><a href="#examples-Admin-delete-0-java">Java</a></li>
-                          <li class=""><a href="#examples-Admin-delete-0-android">Android</a></li>
-                          <!--<li class=""><a href="#examples-Admin-delete-0-groovy">Groovy</a></li>-->
-                          <li class=""><a href="#examples-Admin-delete-0-objc">Obj-C</a></li>
-                          <li class=""><a href="#examples-Admin-delete-0-javascript">JavaScript</a></li>
-                          <!--<li class=""><a href="#examples-Admin-delete-0-angular">Angular</a></li>-->
-                          <li class=""><a href="#examples-Admin-delete-0-csharp">C#</a></li>
-                          <li class=""><a href="#examples-Admin-delete-0-php">PHP</a></li>
-                          <li class=""><a href="#examples-Admin-delete-0-perl">Perl</a></li>
-                          <li class=""><a href="#examples-Admin-delete-0-python">Python</a></li>
+                          <li class="active"><a href="#examples-Collections-delete-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Collections-delete-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Collections-delete-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Collections-delete-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Collections-delete-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Collections-delete-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Collections-delete-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Collections-delete-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Collections-delete-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Collections-delete-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Collections-delete-0-python">Python</a></li>
                         </ul>
 
                         <div class="tab-content">
-                          <div class="tab-pane active" id="examples-Admin-delete-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">delete</span> "http://localhost/arlas/admin/{collection}"</code></pre>
+                          <div class="tab-pane active" id="examples-Collections-delete-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">delete</span> "http://localhost/arlas/collections/{collection}"</code></pre>
                           </div>
-                          <div class="tab-pane" id="examples-Admin-delete-0-java">
+                          <div class="tab-pane" id="examples-Collections-delete-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
 import io.swagger.client.auth.*;
 import io.swagger.client.model.*;
-import io.swagger.client.api.AdminApi;
+import io.swagger.client.api.CollectionsApi;
 
 import java.io.File;
 import java.util.*;
 
-public class AdminApiExample {
+public class CollectionsApiExample {
 
     public static void main(String[] args) {
         
-        AdminApi apiInstance = new AdminApi();
+        CollectionsApi apiInstance = new CollectionsApi();
         String collection = collection_example; // String | collection
         try {
             apiInstance.delete(collection);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AdminApi#delete");
+            System.err.println("Exception when calling CollectionsApi#delete");
             e.printStackTrace();
         }
     }
 }</code></pre>
                           </div>
 
-                          <div class="tab-pane" id="examples-Admin-delete-0-android">
-                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.AdminApi;
+                          <div class="tab-pane" id="examples-Collections-delete-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.CollectionsApi;
 
-public class AdminApiExample {
+public class CollectionsApiExample {
 
     public static void main(String[] args) {
-        AdminApi apiInstance = new AdminApi();
+        CollectionsApi apiInstance = new CollectionsApi();
         String collection = collection_example; // String | collection
         try {
             apiInstance.delete(collection);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AdminApi#delete");
+            System.err.println("Exception when calling CollectionsApi#delete");
             e.printStackTrace();
         }
     }
 }</code></pre>
                           </div>
   <!--
-  <div class="tab-pane" id="examples-Admin-delete-0-groovy">
+  <div class="tab-pane" id="examples-Collections-delete-0-groovy">
   <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
   </div> -->
-                            <div class="tab-pane" id="examples-Admin-delete-0-objc">
+                            <div class="tab-pane" id="examples-Collections-delete-0-objc">
                               <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
 
-AdminApi *apiInstance = [[AdminApi alloc] init];
+CollectionsApi *apiInstance = [[CollectionsApi alloc] init];
 
 // Delete a collection reference
 [apiInstance deleteWith:collection
@@ -1120,10 +1141,10 @@ AdminApi *apiInstance = [[AdminApi alloc] init];
 </code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Admin-delete-0-javascript">
+                            <div class="tab-pane" id="examples-Collections-delete-0-javascript">
                               <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
 
-var api = new ArlasExplorationApi.AdminApi()
+var api = new ArlasExplorationApi.CollectionsApi()
 
 var collection = collection_example; // {String} collection
 
@@ -1139,10 +1160,10 @@ api.delete(collection, callback);
 </code></pre>
                             </div>
 
-                            <!--<div class="tab-pane" id="examples-Admin-delete-0-angular">
+                            <!--<div class="tab-pane" id="examples-Collections-delete-0-angular">
               <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
             </div>-->
-                            <div class="tab-pane" id="examples-Admin-delete-0-csharp">
+                            <div class="tab-pane" id="examples-Collections-delete-0-csharp">
                               <pre class="prettyprint"><code class="language-cs">using System;
 using System.Diagnostics;
 using IO.Swagger.Api;
@@ -1156,7 +1177,7 @@ namespace Example
         public void main()
         {
             
-            var apiInstance = new AdminApi();
+            var apiInstance = new CollectionsApi();
             var collection = collection_example;  // String | collection
 
             try
@@ -1166,45 +1187,45 @@ namespace Example
             }
             catch (Exception e)
             {
-                Debug.Print("Exception when calling AdminApi.delete: " + e.Message );
+                Debug.Print("Exception when calling CollectionsApi.delete: " + e.Message );
             }
         }
     }
 }</code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Admin-delete-0-php">
+                            <div class="tab-pane" id="examples-Collections-delete-0-php">
                               <pre class="prettyprint"><code class="language-php"><&#63;php
 require_once(__DIR__ . '/vendor/autoload.php');
 
-$api_instance = new Swagger\Client\Api\AdminApi();
+$api_instance = new Swagger\Client\Api\CollectionsApi();
 $collection = collection_example; // String | collection
 
 try {
     $api_instance->delete($collection);
 } catch (Exception $e) {
-    echo 'Exception when calling AdminApi->delete: ', $e->getMessage(), PHP_EOL;
+    echo 'Exception when calling CollectionsApi->delete: ', $e->getMessage(), PHP_EOL;
 }
 ?></code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Admin-delete-0-perl">
+                            <div class="tab-pane" id="examples-Collections-delete-0-perl">
                               <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
 use WWW::SwaggerClient::Configuration;
-use WWW::SwaggerClient::AdminApi;
+use WWW::SwaggerClient::CollectionsApi;
 
-my $api_instance = WWW::SwaggerClient::AdminApi->new();
+my $api_instance = WWW::SwaggerClient::CollectionsApi->new();
 my $collection = collection_example; # String | collection
 
 eval { 
     $api_instance->delete(collection => $collection);
 };
 if ($@) {
-    warn "Exception when calling AdminApi->delete: $@\n";
+    warn "Exception when calling CollectionsApi->delete: $@\n";
 }</code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Admin-delete-0-python">
+                            <div class="tab-pane" id="examples-Collections-delete-0-python">
                               <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
 import time
 import swagger_client
@@ -1212,14 +1233,14 @@ from swagger_client.rest import ApiException
 from pprint import pprint
 
 # create an instance of the API class
-api_instance = swagger_client.AdminApi()
+api_instance = swagger_client.CollectionsApi()
 collection = collection_example # String | collection
 
 try: 
     # Delete a collection reference
     api_instance.delete(collection)
 except ApiException as e:
-    print("Exception when calling AdminApi->delete: %s\n" % e)</code></pre>
+    print("Exception when calling CollectionsApi->delete: %s\n" % e)</code></pre>
                             </div>
                           </div>
 
@@ -1282,8 +1303,8 @@ except ApiException as e:
                         </article>
                       </div>
                       <hr>
-                    <div id="api-Admin-get">
-                      <article id="api-Admin-get-0" data-group="User" data-name="get" data-version="0">
+                    <div id="api-Collections-get">
+                      <article id="api-Collections-get-0" data-group="User" data-name="get" data-version="0">
                         <div class="pull-left">
                           <h1>get</h1>
                           <p>Get a collection reference</p>
@@ -1294,78 +1315,78 @@ except ApiException as e:
                         <p class="marked">Get a collection reference in ARLAS</p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/admin/{collection}</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/collections/{collection}</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
                         <ul class="nav nav-tabs nav-tabs-examples">
-                          <li class="active"><a href="#examples-Admin-get-0-curl">Curl</a></li>
-                          <li class=""><a href="#examples-Admin-get-0-java">Java</a></li>
-                          <li class=""><a href="#examples-Admin-get-0-android">Android</a></li>
-                          <!--<li class=""><a href="#examples-Admin-get-0-groovy">Groovy</a></li>-->
-                          <li class=""><a href="#examples-Admin-get-0-objc">Obj-C</a></li>
-                          <li class=""><a href="#examples-Admin-get-0-javascript">JavaScript</a></li>
-                          <!--<li class=""><a href="#examples-Admin-get-0-angular">Angular</a></li>-->
-                          <li class=""><a href="#examples-Admin-get-0-csharp">C#</a></li>
-                          <li class=""><a href="#examples-Admin-get-0-php">PHP</a></li>
-                          <li class=""><a href="#examples-Admin-get-0-perl">Perl</a></li>
-                          <li class=""><a href="#examples-Admin-get-0-python">Python</a></li>
+                          <li class="active"><a href="#examples-Collections-get-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Collections-get-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Collections-get-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Collections-get-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Collections-get-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Collections-get-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Collections-get-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Collections-get-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Collections-get-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Collections-get-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Collections-get-0-python">Python</a></li>
                         </ul>
 
                         <div class="tab-content">
-                          <div class="tab-pane active" id="examples-Admin-get-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/admin/{collection}"</code></pre>
+                          <div class="tab-pane active" id="examples-Collections-get-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/collections/{collection}"</code></pre>
                           </div>
-                          <div class="tab-pane" id="examples-Admin-get-0-java">
+                          <div class="tab-pane" id="examples-Collections-get-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
 import io.swagger.client.auth.*;
 import io.swagger.client.model.*;
-import io.swagger.client.api.AdminApi;
+import io.swagger.client.api.CollectionsApi;
 
 import java.io.File;
 import java.util.*;
 
-public class AdminApiExample {
+public class CollectionsApiExample {
 
     public static void main(String[] args) {
         
-        AdminApi apiInstance = new AdminApi();
+        CollectionsApi apiInstance = new CollectionsApi();
         String collection = collection_example; // String | collection
         try {
             apiInstance.get(collection);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AdminApi#get");
+            System.err.println("Exception when calling CollectionsApi#get");
             e.printStackTrace();
         }
     }
 }</code></pre>
                           </div>
 
-                          <div class="tab-pane" id="examples-Admin-get-0-android">
-                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.AdminApi;
+                          <div class="tab-pane" id="examples-Collections-get-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.CollectionsApi;
 
-public class AdminApiExample {
+public class CollectionsApiExample {
 
     public static void main(String[] args) {
-        AdminApi apiInstance = new AdminApi();
+        CollectionsApi apiInstance = new CollectionsApi();
         String collection = collection_example; // String | collection
         try {
             apiInstance.get(collection);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AdminApi#get");
+            System.err.println("Exception when calling CollectionsApi#get");
             e.printStackTrace();
         }
     }
 }</code></pre>
                           </div>
   <!--
-  <div class="tab-pane" id="examples-Admin-get-0-groovy">
+  <div class="tab-pane" id="examples-Collections-get-0-groovy">
   <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
   </div> -->
-                            <div class="tab-pane" id="examples-Admin-get-0-objc">
+                            <div class="tab-pane" id="examples-Collections-get-0-objc">
                               <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
 
-AdminApi *apiInstance = [[AdminApi alloc] init];
+CollectionsApi *apiInstance = [[CollectionsApi alloc] init];
 
 // Get a collection reference
 [apiInstance getWith:collection
@@ -1377,10 +1398,10 @@ AdminApi *apiInstance = [[AdminApi alloc] init];
 </code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Admin-get-0-javascript">
+                            <div class="tab-pane" id="examples-Collections-get-0-javascript">
                               <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
 
-var api = new ArlasExplorationApi.AdminApi()
+var api = new ArlasExplorationApi.CollectionsApi()
 
 var collection = collection_example; // {String} collection
 
@@ -1396,10 +1417,10 @@ api.get(collection, callback);
 </code></pre>
                             </div>
 
-                            <!--<div class="tab-pane" id="examples-Admin-get-0-angular">
+                            <!--<div class="tab-pane" id="examples-Collections-get-0-angular">
               <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
             </div>-->
-                            <div class="tab-pane" id="examples-Admin-get-0-csharp">
+                            <div class="tab-pane" id="examples-Collections-get-0-csharp">
                               <pre class="prettyprint"><code class="language-cs">using System;
 using System.Diagnostics;
 using IO.Swagger.Api;
@@ -1413,7 +1434,7 @@ namespace Example
         public void main()
         {
             
-            var apiInstance = new AdminApi();
+            var apiInstance = new CollectionsApi();
             var collection = collection_example;  // String | collection
 
             try
@@ -1423,45 +1444,45 @@ namespace Example
             }
             catch (Exception e)
             {
-                Debug.Print("Exception when calling AdminApi.get: " + e.Message );
+                Debug.Print("Exception when calling CollectionsApi.get: " + e.Message );
             }
         }
     }
 }</code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Admin-get-0-php">
+                            <div class="tab-pane" id="examples-Collections-get-0-php">
                               <pre class="prettyprint"><code class="language-php"><&#63;php
 require_once(__DIR__ . '/vendor/autoload.php');
 
-$api_instance = new Swagger\Client\Api\AdminApi();
+$api_instance = new Swagger\Client\Api\CollectionsApi();
 $collection = collection_example; // String | collection
 
 try {
     $api_instance->get($collection);
 } catch (Exception $e) {
-    echo 'Exception when calling AdminApi->get: ', $e->getMessage(), PHP_EOL;
+    echo 'Exception when calling CollectionsApi->get: ', $e->getMessage(), PHP_EOL;
 }
 ?></code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Admin-get-0-perl">
+                            <div class="tab-pane" id="examples-Collections-get-0-perl">
                               <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
 use WWW::SwaggerClient::Configuration;
-use WWW::SwaggerClient::AdminApi;
+use WWW::SwaggerClient::CollectionsApi;
 
-my $api_instance = WWW::SwaggerClient::AdminApi->new();
+my $api_instance = WWW::SwaggerClient::CollectionsApi->new();
 my $collection = collection_example; # String | collection
 
 eval { 
     $api_instance->get(collection => $collection);
 };
 if ($@) {
-    warn "Exception when calling AdminApi->get: $@\n";
+    warn "Exception when calling CollectionsApi->get: $@\n";
 }</code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Admin-get-0-python">
+                            <div class="tab-pane" id="examples-Collections-get-0-python">
                               <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
 import time
 import swagger_client
@@ -1469,14 +1490,14 @@ from swagger_client.rest import ApiException
 from pprint import pprint
 
 # create an instance of the API class
-api_instance = swagger_client.AdminApi()
+api_instance = swagger_client.CollectionsApi()
 collection = collection_example # String | collection
 
 try: 
     # Get a collection reference
     api_instance.get(collection)
 except ApiException as e:
-    print("Exception when calling AdminApi->get: %s\n" % e)</code></pre>
+    print("Exception when calling CollectionsApi->get: %s\n" % e)</code></pre>
                             </div>
                           </div>
 
@@ -1539,8 +1560,215 @@ except ApiException as e:
                         </article>
                       </div>
                       <hr>
-                    <div id="api-Admin-put">
-                      <article id="api-Admin-put-0" data-group="User" data-name="put" data-version="0">
+                    <div id="api-Collections-getAll">
+                      <article id="api-Collections-getAll-0" data-group="User" data-name="getAll" data-version="0">
+                        <div class="pull-left">
+                          <h1>getAll</h1>
+                          <p>Get all collection references</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Get all collection references in ARLAS</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/collections</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Collections-getAll-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Collections-getAll-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Collections-getAll-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Collections-getAll-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Collections-getAll-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Collections-getAll-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Collections-getAll-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Collections-getAll-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Collections-getAll-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Collections-getAll-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Collections-getAll-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Collections-getAll-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/collections"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Collections-getAll-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.CollectionsApi;
+
+import java.io.File;
+import java.util.*;
+
+public class CollectionsApiExample {
+
+    public static void main(String[] args) {
+        
+        CollectionsApi apiInstance = new CollectionsApi();
+        try {
+            apiInstance.getAll();
+        } catch (ApiException e) {
+            System.err.println("Exception when calling CollectionsApi#getAll");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Collections-getAll-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.CollectionsApi;
+
+public class CollectionsApiExample {
+
+    public static void main(String[] args) {
+        CollectionsApi apiInstance = new CollectionsApi();
+        try {
+            apiInstance.getAll();
+        } catch (ApiException e) {
+            System.err.println("Exception when calling CollectionsApi#getAll");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Collections-getAll-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Collections-getAll-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">
+CollectionsApi *apiInstance = [[CollectionsApi alloc] init];
+
+// Get all collection references
+[apiInstance getAllWithCompletionHandler: 
+              ^(NSError* error) {
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Collections-getAll-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.CollectionsApi()
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully.');
+  }
+};
+api.getAll(callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Collections-getAll-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Collections-getAll-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class getAllExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new CollectionsApi();
+
+            try
+            {
+                // Get all collection references
+                apiInstance.getAll();
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling CollectionsApi.getAll: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Collections-getAll-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\CollectionsApi();
+
+try {
+    $api_instance->getAll();
+} catch (Exception $e) {
+    echo 'Exception when calling CollectionsApi->getAll: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Collections-getAll-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::CollectionsApi;
+
+my $api_instance = WWW::SwaggerClient::CollectionsApi->new();
+
+eval { 
+    $api_instance->getAll();
+};
+if ($@) {
+    warn "Exception when calling CollectionsApi->getAll: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Collections-getAll-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.CollectionsApi()
+
+try: 
+    # Get all collection references
+    api_instance.getAll()
+except ApiException as e:
+    print("Exception when calling CollectionsApi->getAll: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+
+
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - Successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-Collections-put">
+                      <article id="api-Collections-put-0" data-group="User" data-name="put" data-version="0">
                         <div class="pull-left">
                           <h1>put</h1>
                           <p>Add a collection reference</p>
@@ -1551,85 +1779,85 @@ except ApiException as e:
                         <p class="marked">Add a collection reference in ARLAS</p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="put"><code><span class="pln">/admin/{collection}</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="put"><code><span class="pln">/collections/{collection}</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
                         <ul class="nav nav-tabs nav-tabs-examples">
-                          <li class="active"><a href="#examples-Admin-put-0-curl">Curl</a></li>
-                          <li class=""><a href="#examples-Admin-put-0-java">Java</a></li>
-                          <li class=""><a href="#examples-Admin-put-0-android">Android</a></li>
-                          <!--<li class=""><a href="#examples-Admin-put-0-groovy">Groovy</a></li>-->
-                          <li class=""><a href="#examples-Admin-put-0-objc">Obj-C</a></li>
-                          <li class=""><a href="#examples-Admin-put-0-javascript">JavaScript</a></li>
-                          <!--<li class=""><a href="#examples-Admin-put-0-angular">Angular</a></li>-->
-                          <li class=""><a href="#examples-Admin-put-0-csharp">C#</a></li>
-                          <li class=""><a href="#examples-Admin-put-0-php">PHP</a></li>
-                          <li class=""><a href="#examples-Admin-put-0-perl">Perl</a></li>
-                          <li class=""><a href="#examples-Admin-put-0-python">Python</a></li>
+                          <li class="active"><a href="#examples-Collections-put-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Collections-put-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Collections-put-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Collections-put-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Collections-put-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Collections-put-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Collections-put-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Collections-put-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Collections-put-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Collections-put-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Collections-put-0-python">Python</a></li>
                         </ul>
 
                         <div class="tab-content">
-                          <div class="tab-pane active" id="examples-Admin-put-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">put</span> "http://localhost/arlas/admin/{collection}"</code></pre>
+                          <div class="tab-pane active" id="examples-Collections-put-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">put</span> "http://localhost/arlas/collections/{collection}"</code></pre>
                           </div>
-                          <div class="tab-pane" id="examples-Admin-put-0-java">
+                          <div class="tab-pane" id="examples-Collections-put-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
 import io.swagger.client.auth.*;
 import io.swagger.client.model.*;
-import io.swagger.client.api.AdminApi;
+import io.swagger.client.api.CollectionsApi;
 
 import java.io.File;
 import java.util.*;
 
-public class AdminApiExample {
+public class CollectionsApiExample {
 
     public static void main(String[] args) {
         
-        AdminApi apiInstance = new AdminApi();
+        CollectionsApi apiInstance = new CollectionsApi();
         String collection = collection_example; // String | collection
-        CollectionReference collectionReference = ; // CollectionReference | collectionReference
+        CollectionReferenceParameters collectionParams = ; // CollectionReferenceParameters | collectionParams
         try {
-            apiInstance.put(collection, collectionReference);
+            apiInstance.put(collection, collectionParams);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AdminApi#put");
+            System.err.println("Exception when calling CollectionsApi#put");
             e.printStackTrace();
         }
     }
 }</code></pre>
                           </div>
 
-                          <div class="tab-pane" id="examples-Admin-put-0-android">
-                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.AdminApi;
+                          <div class="tab-pane" id="examples-Collections-put-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.CollectionsApi;
 
-public class AdminApiExample {
+public class CollectionsApiExample {
 
     public static void main(String[] args) {
-        AdminApi apiInstance = new AdminApi();
+        CollectionsApi apiInstance = new CollectionsApi();
         String collection = collection_example; // String | collection
-        CollectionReference collectionReference = ; // CollectionReference | collectionReference
+        CollectionReferenceParameters collectionParams = ; // CollectionReferenceParameters | collectionParams
         try {
-            apiInstance.put(collection, collectionReference);
+            apiInstance.put(collection, collectionParams);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AdminApi#put");
+            System.err.println("Exception when calling CollectionsApi#put");
             e.printStackTrace();
         }
     }
 }</code></pre>
                           </div>
   <!--
-  <div class="tab-pane" id="examples-Admin-put-0-groovy">
+  <div class="tab-pane" id="examples-Collections-put-0-groovy">
   <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
   </div> -->
-                            <div class="tab-pane" id="examples-Admin-put-0-objc">
+                            <div class="tab-pane" id="examples-Collections-put-0-objc">
                               <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
-CollectionReference *collectionReference = ; // collectionReference
+CollectionReferenceParameters *collectionParams = ; // collectionParams
 
-AdminApi *apiInstance = [[AdminApi alloc] init];
+CollectionsApi *apiInstance = [[CollectionsApi alloc] init];
 
 // Add a collection reference
 [apiInstance putWith:collection
-    collectionReference:collectionReference
+    collectionParams:collectionParams
               completionHandler: ^(NSError* error) {
                             if (error) {
                                 NSLog(@"Error: %@", error);
@@ -1638,14 +1866,14 @@ AdminApi *apiInstance = [[AdminApi alloc] init];
 </code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Admin-put-0-javascript">
+                            <div class="tab-pane" id="examples-Collections-put-0-javascript">
                               <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
 
-var api = new ArlasExplorationApi.AdminApi()
+var api = new ArlasExplorationApi.CollectionsApi()
 
 var collection = collection_example; // {String} collection
 
-var collectionReference = ; // {CollectionReference} collectionReference
+var collectionParams = ; // {CollectionReferenceParameters} collectionParams
 
 
 var callback = function(error, data, response) {
@@ -1655,14 +1883,14 @@ var callback = function(error, data, response) {
     console.log('API called successfully.');
   }
 };
-api.put(collection, collectionReference, callback);
+api.put(collection, collectionParams, callback);
 </code></pre>
                             </div>
 
-                            <!--<div class="tab-pane" id="examples-Admin-put-0-angular">
+                            <!--<div class="tab-pane" id="examples-Collections-put-0-angular">
               <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
             </div>-->
-                            <div class="tab-pane" id="examples-Admin-put-0-csharp">
+                            <div class="tab-pane" id="examples-Collections-put-0-csharp">
                               <pre class="prettyprint"><code class="language-cs">using System;
 using System.Diagnostics;
 using IO.Swagger.Api;
@@ -1676,58 +1904,58 @@ namespace Example
         public void main()
         {
             
-            var apiInstance = new AdminApi();
+            var apiInstance = new CollectionsApi();
             var collection = collection_example;  // String | collection
-            var collectionReference = new CollectionReference(); // CollectionReference | collectionReference
+            var collectionParams = new CollectionReferenceParameters(); // CollectionReferenceParameters | collectionParams
 
             try
             {
                 // Add a collection reference
-                apiInstance.put(collection, collectionReference);
+                apiInstance.put(collection, collectionParams);
             }
             catch (Exception e)
             {
-                Debug.Print("Exception when calling AdminApi.put: " + e.Message );
+                Debug.Print("Exception when calling CollectionsApi.put: " + e.Message );
             }
         }
     }
 }</code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Admin-put-0-php">
+                            <div class="tab-pane" id="examples-Collections-put-0-php">
                               <pre class="prettyprint"><code class="language-php"><&#63;php
 require_once(__DIR__ . '/vendor/autoload.php');
 
-$api_instance = new Swagger\Client\Api\AdminApi();
+$api_instance = new Swagger\Client\Api\CollectionsApi();
 $collection = collection_example; // String | collection
-$collectionReference = ; // CollectionReference | collectionReference
+$collectionParams = ; // CollectionReferenceParameters | collectionParams
 
 try {
-    $api_instance->put($collection, $collectionReference);
+    $api_instance->put($collection, $collectionParams);
 } catch (Exception $e) {
-    echo 'Exception when calling AdminApi->put: ', $e->getMessage(), PHP_EOL;
+    echo 'Exception when calling CollectionsApi->put: ', $e->getMessage(), PHP_EOL;
 }
 ?></code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Admin-put-0-perl">
+                            <div class="tab-pane" id="examples-Collections-put-0-perl">
                               <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
 use WWW::SwaggerClient::Configuration;
-use WWW::SwaggerClient::AdminApi;
+use WWW::SwaggerClient::CollectionsApi;
 
-my $api_instance = WWW::SwaggerClient::AdminApi->new();
+my $api_instance = WWW::SwaggerClient::CollectionsApi->new();
 my $collection = collection_example; # String | collection
-my $collectionReference = WWW::SwaggerClient::Object::CollectionReference->new(); # CollectionReference | collectionReference
+my $collectionParams = WWW::SwaggerClient::Object::CollectionReferenceParameters->new(); # CollectionReferenceParameters | collectionParams
 
 eval { 
-    $api_instance->put(collection => $collection, collectionReference => $collectionReference);
+    $api_instance->put(collection => $collection, collectionParams => $collectionParams);
 };
 if ($@) {
-    warn "Exception when calling AdminApi->put: $@\n";
+    warn "Exception when calling CollectionsApi->put: $@\n";
 }</code></pre>
                             </div>
 
-                            <div class="tab-pane" id="examples-Admin-put-0-python">
+                            <div class="tab-pane" id="examples-Collections-put-0-python">
                               <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
 import time
 import swagger_client
@@ -1735,15 +1963,15 @@ from swagger_client.rest import ApiException
 from pprint import pprint
 
 # create an instance of the API class
-api_instance = swagger_client.AdminApi()
+api_instance = swagger_client.CollectionsApi()
 collection = collection_example # String | collection
-collectionReference =  # CollectionReference | collectionReference
+collectionParams =  # CollectionReferenceParameters | collectionParams
 
 try: 
     # Add a collection reference
-    api_instance.put(collection, collectionReference)
+    api_instance.put(collection, collectionParams)
 except ApiException as e:
-    print("Exception when calling AdminApi->put: %s\n" % e)</code></pre>
+    print("Exception when calling CollectionsApi->put: %s\n" % e)</code></pre>
                             </div>
                           </div>
 
@@ -1797,7 +2025,7 @@ except ApiException as e:
                                 <th width="150px">Name</th>
                                 <th>Description</th>
                               </tr>
-                                <tr><td style="width:150px;">collectionReference <span style="color:red;">*</span></td>
+                                <tr><td style="width:150px;">collectionParams <span style="color:red;">*</span></td>
 <td>
 
 
@@ -1805,11 +2033,11 @@ except ApiException as e:
 												$(document).ready(function() {
 													var schemaWrapper = {
   "in" : "body",
-  "name" : "collectionReference",
-  "description" : "collectionReference",
+  "name" : "collectionParams",
+  "description" : "collectionParams",
   "required" : true,
   "schema" : {
-    "$ref" : "#/definitions/CollectionReference"
+    "$ref" : "#/definitions/CollectionReferenceParameters"
   }
 };
 													
@@ -1821,7 +2049,7 @@ except ApiException as e:
 														
 													var view = new JSONSchemaView(resolved.schema,2,{isBodyParam: true});
 													 
-													var result = $('#d2e199_put_collectionReference');
+													var result = $('#d2e199_put_collectionParams');
 													result.empty();
 													result.append(view.render());
 													
@@ -1837,7 +2065,7 @@ except ApiException as e:
 
 												});
 												</script>
-												<div id="d2e199_put_collectionReference"></div>
+												<div id="d2e199_put_collectionParams"></div>
 </td>
 </tr>
 
@@ -6725,7 +6953,7 @@ except ApiException as e:
           </div>
           <div id="generator">
             <div class="content">
-              Generated 2017-04-07T16:00:58.779+02:00
+              Generated 2017-04-19T11:17:58.018+02:00
             </div>
           </div>
       </div>

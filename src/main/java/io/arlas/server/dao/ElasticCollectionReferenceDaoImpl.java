@@ -1,4 +1,4 @@
-package io.arlas.server.model.dao;
+package io.arlas.server.dao;
 
 import java.util.ArrayList;
 import java.util.List;
