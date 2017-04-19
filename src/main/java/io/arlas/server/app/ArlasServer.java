@@ -1,10 +1,21 @@
 package io.arlas.server.app;
 
+import java.net.InetAddress;
+import java.util.Optional;
+
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.kristofa.brave.Brave;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
+
 import io.arlas.server.rest.ExceptionHandlerMapper;
-import io.arlas.server.rest.admin.CollectionService;
+import io.arlas.server.rest.admin.ElasticCollectionService;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
 import io.arlas.server.rest.explore.count.CountRESTService;
@@ -19,17 +30,6 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.search.suggest.Suggest;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
-
-import java.net.InetAddress;
-import java.util.Optional;
 
 public class ArlasServer extends Application<ArlasServerConfiguration> {
 	public static void main(String...args) throws Exception {
@@ -87,6 +87,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 		environment.jersey().register(new SuggestRESTService(exploration));
 		environment.jersey().register(new DescribeRESTService(exploration));
 		environment.jersey().register(new DescribeCollectionRESTService(exploration));
-		environment.jersey().register(new CollectionService());
+		environment.jersey().register(new ElasticCollectionService(client));
 	}
 }
