@@ -8,7 +8,7 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 
 | PATH Template                            | Description                              |
 | ---------------------------------------- | ---------------------------------------- |
-| /arlas/explore/**_describe**                     | List  the collections configured in ARLAS |
+| /arlas/explore/**_list**                     | List  the collections configured in ARLAS |
 | /arlas/explore/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
 | /arlas/explore/`{collections}`/**_count**?`filter` & `form` | Count the number of elements found in the collection(s), given the filters |
 | /arlas/explore/`{collections}`/**_search**?`filter` & `form` & `format` & `projection` & `size` & `sort` | Search and return the elements found in the collection(s), given the filters |
@@ -31,20 +31,36 @@ When multiple collections are permited ({collections}), the comma is used for se
 
 The [`aggregation`] url part allows the following parameters to be specified:
 
-| Parameter        | Default value | Values                                   | Description                  | Multiple |
-| ---------------- | ------------- | ---------------------------------------- | ---------------------------- | -------- |
-| **agg**          | `None`        | `datehistogram,geohash,histogram`        | Type of aggregation          | false    |
-| **agg_field**    | `None`        | `{field}`                                | Aggregates on the `{field}`. | true     |
-| **agg_interval** | `None`        | interval                                 | Size of the intervals.       | true     |
-| **agg_format**   | `None`        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.       | true     |
+| Parameter        | Default value | Description                  | Multiple |
+| ---------------- | ------------- | ---------------------------- | -------- |
+| **agg**          | `None`        | Gathers a set of sub-parameters indicating the type of aggregation, the field used as the aggregation key and possibly the interval for numeric values          | true    |
 
-Each aggregation has its own type of interval. The table below lists the semantic of the interval.
+The agg parameter should be given in the following format :
+
+- {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}
+
+Where the `{type}:{field}` part is mandatory AND `interval`, `format`, `collect_field`, `collect_fct`, `order` AND `on` are optional sub-parameters
+
+> Example: `agg=datehistogram:date:interval-20day:format-yyyyMMdd`&`agg=term:sexe:collect_field-age:collect_fct-avg:order-asc:on-count`
+
+The sub-parameters properties are:
+
+| Parameter           | Values                                   | Description                  |
+| ------------------- | ---------------------------------------- | ---------------------------------------- |
+| **interval**        | interval                                 | Size of the intervals.       |
+| **format**          | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.       |
+| **collect_field**   | `{field}`                                 | The field used to aggregate collections.       |
+| **collect_fct**     | `avg,cardinality,max,min,sum`                                 | The aggregation function to apply to collections on the specified **collect_field**.       |
+| **order**     | `asc,desc`                                 | Sort the aggregation result on the field name or on the result itself, ascending or descending.       |
+| **on**     | `field,result`                                 | {on} is set to specify whether the **order** is on the field name or the result.        |
+
+Each aggregation type has its own type of interval. The table below lists the semantic of the interval sub-parameter.
 
 | Aggregation         | Interval                                 | Description                              |
 | ------------------- | ---------------------------------------- | ---------------------------------------- |
 | ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit) |
 | ***geohash***       | `{length}`                               | The geohash length: lower the length, greater is the surface of aggregation. See table below. |
-| ***numeric***       | `{size}`                                 | The interval size of the numeric aggregation |
+| ***hisogram***       | `{size}`                                 | The interval size of the numeric aggregation |
 
 The table below shows the metric dimensions for cells covered by various string lengths of geohash. Cell dimensions vary with latitude and so the table is for the worst-case scenario at the equator.
 
@@ -63,7 +79,7 @@ The table below shows the metric dimensions for cells covered by various string 
 | 11             | 14.9cm x 14.9cm       |
 | 12             | 3.7cm x 1.9cm         |
 
-> Example: `agg=datehistogram&agg_field=date&agg_interval=10day&agg_format=yyyyMMdd`
+agg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : the order matters.
 
 ---
 ## Part: `filter`
@@ -145,7 +161,8 @@ The `size` url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description                              | Multiple |
 | --------- | ------------- | ------ | ---------------------------------------- | -------- |
-| **size**  | 10            | >0     | The maximum number of entries or sub-entries to be returned. | true     |
+| **size**  | 10            | >0     | The maximum number of entries or sub-entries to be returned. | false     |
+| **from**  | 0            | >0     | From index to start the search from. Defaults to 0. | false     |
 
 > Example: `size=1000`
 

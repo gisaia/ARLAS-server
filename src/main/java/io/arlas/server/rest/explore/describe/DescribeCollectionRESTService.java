@@ -24,13 +24,13 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="Describe a collection",
+            value="Describe",
             produces=UTF8JSON,
             notes = "Describe the structure and the content of the given collection. ",
             consumes=UTF8JSON
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation")})
-    public Response describeCollection(
+    public Response describe(
             // --------------------------------------------------------
             // -----------------------  PATH    -----------------------
             // --------------------------------------------------------

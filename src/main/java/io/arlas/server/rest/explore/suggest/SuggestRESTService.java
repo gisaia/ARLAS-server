@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiResponses;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class SuggestRESTService extends ExploreRESTServices {
@@ -45,32 +46,40 @@ public class SuggestRESTService extends ExploreRESTServices {
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
             @ApiParam(name ="f",
-                    value="A triplet for filtering the result. Multiple filter can be provided. " +
+                    value="- A triplet for filtering the result. Multiple filter can be provided. " +
                             "The order does not matter. " +
                             "\n \n" +
-                            "A triplet is composed of a field name, a comparison operator and a value. " +
+                            "- A triplet is composed of a field name, a comparison operator and a value. " +
                             "\n \n" +
-                            "The AND operator is applied between filters having different fieldNames. " +
+                            "  The possible values of the comparison operator are : " +
                             "\n \n" +
-                            "The OR operator is applied on filters having the same fieldName. " +
+                            "       Operator   |                   Description                      | value type" +
                             "\n \n" +
-                            "If the fieldName starts with - then a must not filter is used" +
+                            "       :          |  {fieldName} equals {value}                        | numeric or strings " +
                             "\n \n" +
-                            "Operator   |                   Description                      | value type" +
+                            "       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric " +
                             "\n \n" +
-                            ":          |  {fieldName} equals {value}                        | numeric or strings " +
+                            "       :gt:       |  {fieldName} is greater than {value}               | numeric " +
                             "\n \n" +
-                            ":gte:      |  {fieldName} is greater than or equal to  {value}  | numeric " +
+                            "       :lte:      |  {fieldName} is less than or equal to {value}      | numeric " +
                             "\n \n" +
-                            ":gt:       |  {fieldName} is greater than {value}               | numeric " +
+                            "       :lt:       |  {fieldName}  is less than {value}                 | numeric " +
                             "\n \n" +
-                            ":lte:      |  {fieldName} is less than or equal to {value}      | numeric " +
                             "\n \n" +
-                            ":lt:       |  {fieldName}  is less than {value}                 | numeric "
+                            "- The AND operator is applied between filters having different fieldNames. " +
+                            "\n \n" +
+                            "- The OR operator is applied on filters having the same fieldName. " +
+                            "\n \n" +
+                            "- If the fieldName starts with - then a must not filter is used" +
+                            "\n \n" +
+                            "- If the fieldName starts with - then a must not filter is used" +
+                            "\n \n" +
+                            "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
                     ,
+
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="f") String f,
+            @QueryParam(value="f") List<String> f,
 
             @ApiParam(name ="q", value="A full text search",
                     allowMultiple = false,
@@ -88,19 +97,34 @@ public class SuggestRESTService extends ExploreRESTServices {
             @QueryParam(value="after") Long after,
 
             @ApiParam(name ="pwithin", value="Any element having its centroid contained within the given geometry (WKT)",
-                    allowMultiple = false,
+                    allowMultiple = true,
                     required=false)
-            @QueryParam(value="pwithin") String pwithin,
+            @QueryParam(value="pwithin") List<String> pwithin,
 
             @ApiParam(name ="gwithin", value="Any element having its geometry contained within the given geometry (WKT)",
-                    allowMultiple = false,
+                    allowMultiple = true,
                     required=false)
-            @QueryParam(value="gwithin") String gwithin,
+            @QueryParam(value="gwithin") List<String> gwithin,
 
             @ApiParam(name ="gintersect", value="Any element having its geometry intersecting the given geometry (WKT)",
-                    allowMultiple = false,
+                    allowMultiple = true,
                     required=false)
-            @QueryParam(value="gintersect") String gintersect,
+            @QueryParam(value="gintersect") List<String> gintersect,
+
+            @ApiParam(name ="notpwithin", value="Any element having its centroid outside the given geometry (WKT)",
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="notpwithin") List<String> notpwithin,
+
+            @ApiParam(name ="notgwithin", value="Any element having its geometry outside the given geometry (WKT)",
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="notgwithin") List<String> notgwithin,
+
+            @ApiParam(name ="notgintersect", value="Any element having its geometry not intersecting the given geometry (WKT)",
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="notgintersect") List<String> notgintersect,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -122,11 +146,18 @@ public class SuggestRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(name ="size", value="The maximum number of entries or sub-entries to be returned. The default value is 10",
-                    allowMultiple = true,
                     defaultValue = "10",
                     allowableValues = "range[1, infinity]",
                     required=false)
+            @DefaultValue("10")
             @QueryParam(value="size") Integer size,
+
+            @ApiParam(name ="from", value="From index to start the search from. Defaults to 0.",
+                    defaultValue = "0",
+                    allowableValues = "range[1, infinity]",
+                    required=false)
+            @DefaultValue("0")
+            @QueryParam(value="size") Integer from,
 
             // --------------------------------------------------------
             // -----------------------  SUGGEST   -----------------------

@@ -14,6 +14,7 @@ import org.geojson.FeatureCollection;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class AggregateRESTService extends ExploreRESTServices {
@@ -51,71 +52,87 @@ public class AggregateRESTService extends ExploreRESTServices {
             // -----------------------  AGGREGATION  -----------------------
             // --------------------------------------------------------
             @ApiParam(name ="agg",
-                    value="Type of aggregation",
+                    value="- The agg parameter should be given in the following formats:  " +
+                            "\n \n" +
+                            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} " +
+                            "\n \n" +
+                            "Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct," +
+                            " order AND on are optional sub-parameters. " +
+                            "\n \n" +
+                            "- {type} possible values are : " +
+                            "\n \n" +
+                            "       datehistogram, geohash, histogram, term. " +
+                            "\n \n" +
+                            "- {interval} possible values depends on {type}. " +
+                            "\n \n" +
+                            "       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). " +
+                            "\n \n" +
+                            "       If {type} = geohash, then {interval} = {length}. " +
+                            "\n \n" +
+                            "       If {type} = histogram, then {interval} = {size}. " +
+                            "\n \n" +
+                            "       If {type} = term, then interval-{interval} is not needed. " +
+                            "\n \n" +
+                            "- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. " +
+                            "\n \n" +
+                            "- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. " +
+                            "\n \n" +
+                            "  {collect_fct} possible values are : "+
+                            "\n \n" +
+                            "       avg,cardinality,max,min,sum" +
+                            "\n \n" +
+                            "- {order} is set to sort the aggregation result on the field name or on the result itself. " +
+                            "It's values are 'asc' or 'desc'. " +
+                            "\n \n" +
+                            "- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. " +
+                            "\n \n" +
+                            "agg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. "+
+                            "\n \n" +
+                            "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
+
+                    ,
                     allowMultiple = false,
-                    allowableValues = AggregationType.allowableAggregationTypes,
-                    example = "datehistogram",
                     required=true)
-            @QueryParam(value="agg") String agg,
-
-            @ApiParam(name ="agg_field", value="Aggregates on the {field}.",
-                    allowMultiple = true,
-                    example = "date",
-                    required=false)
-            @QueryParam(value="agg_field") String agg_field,
-
-            @ApiParam(name ="agg_interval",
-                    value="Size of the intervals. " +
-                            "\n \n" +
-                            "If aggregation type is 'datehistogram' : Size of a time interval with the given unit " +
-                            "(no space between number and unit) " +
-                            "{size}(year,quarter,month,week,day,hour,minute,second) " +
-                            "\n \n" +
-                            "If aggregation type is 'geohash' : The geohash length range is from 1 to 12: " +
-                            "lower the length, greater is the surface of aggregation. " +
-                            "\n \n" +
-                            "If aggregation type is 'numeric' : The interval size of the numeric aggregation",
-                    allowMultiple = true,
-                    example = "10day",
-                    required=true)
-            @QueryParam(value="agg_interval") String agg_interval,
-
-            @ApiParam(name ="agg_format", value="Date format for key aggregation.",
-                    allowMultiple = true,
-                    example = "yyyyMMdd",
-                    required=false)
-            @QueryParam(value="agg_format") String agg_format,
+            @QueryParam(value="agg") List<String> agg,
 
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
             @ApiParam(name ="f",
-                    value="A triplet for filtering the result. Multiple filter can be provided. " +
+                    value="- A triplet for filtering the result. Multiple filter can be provided. " +
                             "The order does not matter. " +
                             "\n \n" +
-                            "A triplet is composed of a field name, a comparison operator and a value. " +
+                            "- A triplet is composed of a field name, a comparison operator and a value. " +
                             "\n \n" +
-                            "The AND operator is applied between filters having different fieldNames. " +
+                            "  The possible values of the comparison operator are : " +
                             "\n \n" +
-                            "The OR operator is applied on filters having the same fieldName. " +
+                            "       Operator   |                   Description                      | value type" +
                             "\n \n" +
-                            "If the fieldName starts with - then a must not filter is used" +
+                            "       :          |  {fieldName} equals {value}                        | numeric or strings " +
                             "\n \n" +
-                            "Operator   |                   Description                      | value type" +
+                            "       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric " +
                             "\n \n" +
-                            ":          |  {fieldName} equals {value}                        | numeric or strings " +
+                            "       :gt:       |  {fieldName} is greater than {value}               | numeric " +
                             "\n \n" +
-                            ":gte:      |  {fieldName} is greater than or equal to  {value}  | numeric " +
+                            "       :lte:      |  {fieldName} is less than or equal to {value}      | numeric " +
                             "\n \n" +
-                            ":gt:       |  {fieldName} is greater than {value}               | numeric " +
+                            "       :lt:       |  {fieldName}  is less than {value}                 | numeric " +
                             "\n \n" +
-                            ":lte:      |  {fieldName} is less than or equal to {value}      | numeric " +
                             "\n \n" +
-                            ":lt:       |  {fieldName}  is less than {value}                 | numeric "
+                            "- The AND operator is applied between filters having different fieldNames. " +
+                            "\n \n" +
+                            "- The OR operator is applied on filters having the same fieldName. " +
+                            "\n \n" +
+                            "- If the fieldName starts with - then a must not filter is used" +
+                            "\n \n" +
+                            "- If the fieldName starts with - then a must not filter is used" +
+                            "\n \n" +
+                            "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
                     ,
+
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="f") String f,
+            @QueryParam(value="f") List<String> f,
 
             @ApiParam(name ="q", value="A full text search",
                     allowMultiple = false,
@@ -133,19 +150,34 @@ public class AggregateRESTService extends ExploreRESTServices {
             @QueryParam(value="after") Long after,
 
             @ApiParam(name ="pwithin", value="Any element having its centroid contained within the given geometry (WKT)",
-                    allowMultiple = false,
+                    allowMultiple = true,
                     required=false)
-            @QueryParam(value="pwithin") String pwithin,
+            @QueryParam(value="pwithin") List<String> pwithin,
 
             @ApiParam(name ="gwithin", value="Any element having its geometry contained within the given geometry (WKT)",
-                    allowMultiple = false,
+                    allowMultiple = true,
                     required=false)
-            @QueryParam(value="gwithin") String gwithin,
+            @QueryParam(value="gwithin") List<String> gwithin,
 
             @ApiParam(name ="gintersect", value="Any element having its geometry intersecting the given geometry (WKT)",
-                    allowMultiple = false,
+                    allowMultiple = true,
                     required=false)
-            @QueryParam(value="gintersect") String gintersect,
+            @QueryParam(value="gintersect") List<String> gintersect,
+
+            @ApiParam(name ="notpwithin", value="Any element having its centroid outside the given geometry (WKT)",
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="notpwithin") List<String> notpwithin,
+
+            @ApiParam(name ="notgwithin", value="Any element having its geometry outside the given geometry (WKT)",
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="notgwithin") List<String> notgwithin,
+
+            @ApiParam(name ="notgintersect", value="Any element having its geometry not intersecting the given geometry (WKT)",
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="notgintersect") List<String> notgintersect,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -177,11 +209,18 @@ public class AggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(name ="size", value="The maximum number of entries or sub-entries to be returned. The default value is 10",
-                    allowMultiple = true,
                     defaultValue = "10",
                     allowableValues = "range[1, infinity]",
                     required=false)
+            @DefaultValue("10")
             @QueryParam(value="size") Integer size,
+
+            @ApiParam(name ="from", value="From index to start the search from. Defaults to 0.",
+                    defaultValue = "0",
+                    allowableValues = "range[1, infinity]",
+                    required=false)
+            @DefaultValue("0")
+            @QueryParam(value="size") Integer from,
 
             // --------------------------------------------------------
             // -----------------------  SORT   -----------------------
@@ -194,10 +233,9 @@ public class AggregateRESTService extends ExploreRESTServices {
                             "\n \n"+
                             "For aggregation, provide the 'agg' keyword as the {fieldName}.",
                     allowMultiple = true,
-                    defaultValue = "10",
                     example = "city:DESC",
                     required=false)
-            @QueryParam(value="sort") String sort,
+            @QueryParam(value="sort") List<String> sort,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
