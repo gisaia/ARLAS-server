@@ -41,6 +41,6 @@ brew install swagger-codegen
 Generate the documentation:
 ```sh
 markdown-pdf doc/api/API-definition.md -o doc/api/API-definition.pdf -r landscape -z doc/api/markdown2pdf.css
-markdown-pdf doc/api/API-Admin-definition.md -o doc/api/API-Admin-definition.pdf -r landscape -z doc/api/markdown2pdf.css
+markdown-pdf doc/api/API-Collection-definition.md -o doc/api/API-Collection-definition.pdf -r landscape -z doc/api/markdown2pdf.css
 swagger-codegen generate  -i http://localhost:9999/arlas/swagger.json  -l html2 -o doc/api/html/
 ```
