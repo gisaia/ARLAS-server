@@ -19,18 +19,18 @@ public class DescribeRESTService extends ExploreRESTServices {
     }
 
     @Timed
-    @Path("_describe")
+    @Path("_list")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="Describe",
+            value="List",
             produces=UTF8JSON,
-            notes = "List  the collections configured in ARLAS. ",
+            notes = "List the collections configured in ARLAS. ",
             consumes=UTF8JSON
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation")})
-    public Response describe(
+    public Response list(
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------

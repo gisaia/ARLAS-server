@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 		)
 
 public abstract class ExploreRESTServices {
-	ExploreServices exploreServices;
+	protected ExploreServices exploreServices;
 	Logger LOGGER = LoggerFactory.getLogger(ExploreRESTServices.class);
 	public static final String UTF8JSON=MediaType.APPLICATION_JSON+";charset=utf-8";
 
