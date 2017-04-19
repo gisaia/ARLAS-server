@@ -1,0 +1,25 @@
+body {
+    font-size: 0.625em;
+}
+table {
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 24px;
+    border-spacing: 0;
+}
+table th {
+    padding: 3px 10px;
+    background-color: #01A9DB;
+    color: white;
+    border-top: none;
+    border-left: 1px solid #E6E6E6;
+    border-right: 1px solid #E6E6E6;
+    border-bottom: 1px solid #E6E6E6;
+}
+table td {
+    padding: 3px 10px;
+    border-top: none;
+    border-left: 1px solid #E6E6E6;
+    border-bottom: none;
+    border-right: 1px solid #E6E6E6;
+}
