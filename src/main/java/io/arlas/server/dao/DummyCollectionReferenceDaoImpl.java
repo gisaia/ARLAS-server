@@ -33,12 +33,13 @@ public class DummyCollectionReferenceDaoImpl implements CollectionReferenceDao {
     }
 
     @Override
-    public void putCollectionReference(String ref, CollectionReferenceParameters desc) {
+    public CollectionReference putCollectionReference(String ref, CollectionReferenceParameters desc) {
 	index.put(ref, desc);
+	return new CollectionReference(ref,desc);
     }
 
     @Override
-    public void deleteCollectionReference(String ref) throws NotFoundException {
+    public void deleteCollectionReference(String ref) {
 	if(index.remove(ref)==null)
 	    throw new NotFoundException("collection " + ref + " not found");
     }

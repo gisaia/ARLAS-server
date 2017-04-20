@@ -1,6 +1,8 @@
 package io.arlas.server.model;
 
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -10,8 +12,8 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(value="CollectionReferenceParameters", description="The description of the elasticsearch index and the way ARLAS API will serve it.")
 public class CollectionReferenceParameters{
 
-    private String indexName;
-    private String typeName;
+    @NotEmpty private String indexName;
+    @NotEmpty private String typeName;
     private String idPath = "id";
     private String geometryPath = "geometry";
     private String centroidPath = "centroid";

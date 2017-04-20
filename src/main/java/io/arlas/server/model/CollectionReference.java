@@ -24,6 +24,11 @@ public class CollectionReference{
 
     public CollectionReference() {
     }
+    
+    public CollectionReference(String collectionName, CollectionReferenceParameters params) {
+	this.collectionName = collectionName;
+	this.params = params;
+    }
 
     public CollectionReference(String collectionName) {
         this.collectionName = collectionName;

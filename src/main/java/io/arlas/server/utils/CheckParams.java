@@ -3,8 +3,9 @@ package io.arlas.server.utils;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
-import io.arlas.server.core.ArlasException;
-import io.arlas.server.core.InvalidParameter;
+
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.rest.explore.enumerations.AggregationType;
 import io.arlas.server.rest.explore.enumerations.DateInterval;
 import org.elasticsearch.search.sort.SortOrder;
@@ -54,9 +55,9 @@ public class CheckParams {
             if(sortOperands[2].equals(SortOrder.ASC) || sortOperands[2].equals(SortOrder.DESC)){
                 return sortOperands;
             }
-            else throw new InvalidParameter(INVALID_SORT_PARAMETER);
+            else throw new InvalidParameterException(INVALID_SORT_PARAMETER);
         }
-        else throw new InvalidParameter(INVALID_SORT_PARAMETER);
+        else throw new InvalidParameterException(INVALID_SORT_PARAMETER);
     }
 
     // Verify if agg parameter contains at least type:field and verify that type matches : datehistogram, geohash, histogram or terms
@@ -64,9 +65,9 @@ public class CheckParams {
         String[] aggParts = agg.split(":");
         if (aggParts.length>1) {
             if ( AggregationType.aggregationTypes().contains(aggParts[0])) return true;
-            else throw new InvalidParameter(INVALID_AGGREGATION_TYPE);
+            else throw new InvalidParameterException(INVALID_AGGREGATION_TYPE);
         }
-        else throw new InvalidParameter(INVALID_AGGREGATION_PARAMETER);
+        else throw new InvalidParameterException(INVALID_AGGREGATION_PARAMETER);
     }
     // TODO: finish param check validation
     // Verify that interval-{interval} is set and that {interval} respects {size}(unit) format.
@@ -88,11 +89,11 @@ public class CheckParams {
                         map.put(size,unit);
                         return map;
                     }
-                    else throw new InvalidParameter(INVALID_DATE_UNIT);
+                    else throw new InvalidParameterException(INVALID_DATE_UNIT);
                 }
-                else throw new InvalidParameter(INVALID_DATE_SIZE);
+                else throw new InvalidParameterException(INVALID_DATE_SIZE);
             }
-            else throw new InvalidParameter(INVALID_DATE_INTERVAL);
+            else throw new InvalidParameterException(INVALID_DATE_INTERVAL);
         }
         return null;
     }
@@ -103,8 +104,8 @@ public class CheckParams {
             if (precision != null && precision<13){
                 return precision;
             }
-            else if (precision>12) throw new InvalidParameter(OUTRANGE_GEOHASH_PRECISION);
-            else if (precision == null) throw new InvalidParameter(INVALID_PRECISION_TYPE);
+            else if (precision>12) throw new InvalidParameterException(OUTRANGE_GEOHASH_PRECISION);
+            else if (precision == null) throw new InvalidParameterException(INVALID_PRECISION_TYPE);
         }
         return null;
     }
@@ -115,7 +116,7 @@ public class CheckParams {
             if (interval != null){
                 return interval;
             }
-            else throw new InvalidParameter(INVALID_INTERVAL_TYPE);
+            else throw new InvalidParameterException(INVALID_INTERVAL_TYPE);
         }
         return null;
     }

@@ -4,6 +4,9 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
+
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.rest.explore.enumerations.AggregationType;
 import io.arlas.server.rest.explore.enumerations.DateInterval;
@@ -75,7 +78,7 @@ public class FluidSearch {
             String operands[] = f.get(i).split(":");
             int operandsNumber = operands.length;
             if (operandsNumber<2 || operandsNumber>3){
-                throw new InvalidParameter(INVALID_PARAMETER_F);
+                throw new InvalidParameterException(INVALID_PARAMETER_F);
             }
             else if (operandsNumber == 2) {
                 boolQueryBuilder = boolQueryBuilder.filter(
@@ -105,9 +108,9 @@ public class FluidSearch {
                                 QueryBuilders.rangeQuery(operands[0])
                                         .lt(fieldValue)
                         );
-                    } else throw new InvalidParameter(INVALID_OPERATOR);
+                    } else throw new InvalidParameterException(INVALID_OPERATOR);
                 }
-                else throw new InvalidParameter(INVALID_VALUE_TYPE);
+                else throw new InvalidParameterException(INVALID_VALUE_TYPE);
             }
         }
         return this;
@@ -148,7 +151,7 @@ public class FluidSearch {
                     );
                 }
                 else {
-                    throw new InvalidParameter(INVALID_POLYGON_TYPE);
+                    throw new InvalidParameterException(INVALID_POLYGON_TYPE);
                 }
             }
         }
@@ -167,7 +170,7 @@ public class FluidSearch {
                     );
                 }
                 else {
-                    throw new InvalidParameter(INVALID_POLYGON_TYPE);
+                    throw new InvalidParameterException(INVALID_POLYGON_TYPE);
                 }
             }
         }
@@ -184,7 +187,7 @@ public class FluidSearch {
                             QueryBuilders.geoWithinQuery(collectionReference.getParams().getGeometryPath(), polygonBuilder)
                     );
                 } else {
-                    throw new InvalidParameter(INVALID_POLYGON_TYPE);
+                    throw new InvalidParameterException(INVALID_POLYGON_TYPE);
                 }
             }
         }
@@ -201,7 +204,7 @@ public class FluidSearch {
                             QueryBuilders.geoWithinQuery(collectionReference.getParams().getGeometryPath(), polygonBuilder)
                     );
                 } else {
-                    throw new InvalidParameter(INVALID_POLYGON_TYPE);
+                    throw new InvalidParameterException(INVALID_POLYGON_TYPE);
                 }
             }
         }
@@ -219,7 +222,7 @@ public class FluidSearch {
                     );
                 }
                 else {
-                    throw new InvalidParameter(INVALID_POLYGON_TYPE);
+                    throw new InvalidParameterException(INVALID_POLYGON_TYPE);
                 }
             }
         }
@@ -237,7 +240,7 @@ public class FluidSearch {
                     );
                 }
                 else {
-                    throw new InvalidParameter(INVALID_POLYGON_TYPE);
+                    throw new InvalidParameterException(INVALID_POLYGON_TYPE);
                 }
             }
         }
@@ -459,7 +462,7 @@ public class FluidSearch {
         try {
             polygon = wkt.read(geometry);
         }catch (ParseException ex){
-            throw new InvalidParameter(INVALID_WKT);
+            throw new InvalidParameterException(INVALID_WKT);
         }
         return polygon;
     }

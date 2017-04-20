@@ -2,8 +2,8 @@ package io.arlas.server.dao;
 
 import java.util.List;
 
-import javax.ws.rs.NotFoundException;
-
+import io.arlas.server.exceptions.InternalServerErrorException;
+import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 
@@ -14,9 +14,9 @@ import io.arlas.server.model.CollectionReferenceParameters;
  *
  */
 public interface CollectionReferenceDao {
-    public CollectionReference getCollectionReference(String ref);
-    public List<CollectionReference> getAllCollectionReferences();
+    public CollectionReference getCollectionReference(String ref) throws NotFoundException;
+    public List<CollectionReference> getAllCollectionReferences() throws NotFoundException;
     
-    public void putCollectionReference(String ref, CollectionReferenceParameters desc);
-    public void deleteCollectionReference(String ref) throws NotFoundException;    
+    public CollectionReference putCollectionReference(String ref, CollectionReferenceParameters desc) throws InternalServerErrorException;
+    public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException;    
 }

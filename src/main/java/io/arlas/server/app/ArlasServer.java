@@ -14,7 +14,9 @@ import com.github.kristofa.brave.Brave;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 
-import io.arlas.server.rest.ExceptionHandlerMapper;
+import io.arlas.server.rest.ArlasExceptionMapper;
+import io.arlas.server.rest.ConstraintViolationExceptionMapper;
+import io.arlas.server.rest.JsonProcessingExceptionMapper;
 import io.arlas.server.rest.collections.ElasticCollectionService;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
@@ -80,7 +82,9 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
 		environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
 		environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
-		environment.jersey().register(new ExceptionHandlerMapper());
+		environment.jersey().register(new ArlasExceptionMapper());
+		environment.jersey().register(new JsonProcessingExceptionMapper());
+		environment.jersey().register(new ConstraintViolationExceptionMapper());
 		environment.jersey().register(new CountRESTService(exploration));
 		environment.jersey().register(new SearchRESTService(exploration));
 		environment.jersey().register(new AggregateRESTService(exploration));
