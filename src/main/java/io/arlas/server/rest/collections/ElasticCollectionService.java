@@ -6,9 +6,9 @@ import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 
 public class ElasticCollectionService extends CollectionService {
     
-    public ElasticCollectionService(TransportClient client) {
+    public ElasticCollectionService(TransportClient client, String arlasIndex) {
 	super();
-	this.dao = new ElasticCollectionReferenceDaoImpl(client);
+	this.dao = new ElasticCollectionReferenceDaoImpl(client, arlasIndex);
     }
     
 }

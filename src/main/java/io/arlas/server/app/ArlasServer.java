@@ -87,6 +87,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 		environment.jersey().register(new SuggestRESTService(exploration));
 		environment.jersey().register(new DescribeRESTService(exploration));
 		environment.jersey().register(new DescribeCollectionRESTService(exploration));
-		environment.jersey().register(new ElasticCollectionService(client));
+		environment.jersey().register(new ElasticCollectionService(client,configuration.arlasindex));
 	}
 }
