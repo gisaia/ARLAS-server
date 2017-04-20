@@ -26,10 +26,12 @@ import io.arlas.server.model.CollectionReferenceParameters;
 public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao {
     
     TransportClient client = null;
+    String arlasIndex = null;
     
-    public ElasticCollectionReferenceDaoImpl(TransportClient client) {
+    public ElasticCollectionReferenceDaoImpl(TransportClient client, String arlasIndex) {
 	super();
 	this.client = client;
+	this.arlasIndex = arlasIndex;
     }
     
     private CollectionReferenceParameters getCollectionReferenceParameters(Map<String,Object> source) {
@@ -62,7 +64,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     @Override
     public CollectionReference getCollectionReference(String ref) {
 	CollectionReference collection = null;
-	GetResponse response = client.prepareGet("arlas_collections", "collection", ref).get();
+	GetResponse response = client.prepareGet(arlasIndex, "collection", ref).get();
 	Map<String,Object> source = response.getSource();
 	if(source != null) {
 	    collection = new CollectionReference(ref);
@@ -76,7 +78,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 	List<CollectionReference> collections = new ArrayList<CollectionReference>();
 	
 	QueryBuilder qb = QueryBuilders.matchAllQuery();
-	SearchResponse scrollResp = client.prepareSearch("arlas_collections")
+	SearchResponse scrollResp = client.prepareSearch(arlasIndex)
 	        .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
 	        .setScroll(new TimeValue(60000))
 	        .setQuery(qb)
@@ -98,7 +100,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     @Override
     public void putCollectionReference(String ref, CollectionReferenceParameters desc) {
-	IndexResponse response = client.prepareIndex("arlas_collections", "collection", ref)
+	IndexResponse response = client.prepareIndex(arlasIndex, "collection", ref)
 	        .setSource(desc.toJsonString())
 	        .get();
 	if(response.status().getStatus() != RestStatus.OK.getStatus()
@@ -108,7 +110,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     @Override
     public void deleteCollectionReference(String ref) throws NotFoundException {
-	DeleteResponse response = client.prepareDelete("arlas_collections", "collection", ref).get();
+	DeleteResponse response = client.prepareDelete(arlasIndex, "collection", ref).get();
 	if(response.status().equals(RestStatus.NOT_FOUND))
 	    throw new NotFoundException("collection " + ref + " not found");
 	else if(!response.status().equals(RestStatus.OK))
