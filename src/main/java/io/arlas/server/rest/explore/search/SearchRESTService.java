@@ -1,16 +1,21 @@
 package io.arlas.server.rest.explore.search;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.core.ArlasException;
+import io.arlas.server.core.FluidSearch;
 import io.arlas.server.model.ArlasCollection;
+import io.arlas.server.model.CollectionReference;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
-import io.arlas.server.rest.explore.enumerations.FormatValues;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
@@ -136,12 +141,14 @@ public class SearchRESTService extends ExploreRESTServices {
                     allowMultiple = false,
                     defaultValue = "false",
                     required=false)
+            @DefaultValue("false")
             @QueryParam(value="pretty") Boolean pretty,
 
             @ApiParam(name ="human", value="Human readable print",
                     allowMultiple = false,
                     defaultValue = "false",
                     required=false)
+            @DefaultValue("false")
             @QueryParam(value="human") Boolean human,
 
             // --------------------------------------------------------
@@ -175,10 +182,10 @@ public class SearchRESTService extends ExploreRESTServices {
 
             @ApiParam(name ="from", value="From index to start the search from. Defaults to 0.",
                     defaultValue = "0",
-                    allowableValues = "range[1, infinity]",
+                    allowableValues = "range[0, infinity]",
                     required=false)
             @DefaultValue("0")
-            @QueryParam(value="size") Integer from,
+            @QueryParam(value="from") Integer from,
 
             // --------------------------------------------------------
             // -----------------------  SORT   -----------------------
@@ -195,14 +202,82 @@ public class SearchRESTService extends ExploreRESTServices {
                     allowMultiple = false,
                     example = "-country,city",
                     required=false)
-            @QueryParam(value="sort") List<String> sort,
+            @QueryParam(value="sort") String sort,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("search").build();
+    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+        String[] collectionsList = collections.split(",");
+        FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
+        for(int i=0; i<collectionsList.length; i++){
+            CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collectionsList[i]);
+            fluidSearch.setCollectionReference(collectionReference);
+
+            if (f != null && !f.isEmpty()){
+                fluidSearch = fluidSearch.filter(f);
+            }
+            if (q != null){
+                fluidSearch = fluidSearch.filterQ(q);
+            }
+            if (after != null){
+                fluidSearch = fluidSearch.filterAfter(after);
+            }
+            if (before != null){
+                fluidSearch = fluidSearch.filterBefore(before);
+            }
+            if (pwithin != null && !pwithin.isEmpty()){
+                fluidSearch = fluidSearch.filterPWithin(pwithin);
+            }
+            if (gwithin != null && !gwithin.isEmpty()){
+                fluidSearch = fluidSearch.filterGWithin(gwithin);
+            }
+            if (gintersect != null && !gintersect.isEmpty()){
+                fluidSearch = fluidSearch.filterGIntersect(gintersect);
+            }
+            if (notpwithin != null && !notpwithin.isEmpty()){
+                fluidSearch = fluidSearch.filterNotPWithin(notpwithin);
+            }
+            if (notgwithin != null && !notgwithin.isEmpty()){
+                fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
+            }
+            if (notgintersect != null && !notgintersect.isEmpty()){
+                fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
+            }
+            if (include != null){
+                fluidSearch = fluidSearch.include(include);
+            }
+            if (exclude != null){
+                fluidSearch = fluidSearch.exclude(exclude);
+            }
+            if (size != null){
+                if (from != null){
+                    fluidSearch = fluidSearch.filterSize(size,from);
+                }
+                else fluidSearch = fluidSearch.filterSize(size,0);
+            }
+            if (sort != null){
+                fluidSearch = fluidSearch.sort(sort);
+            }
+        }
+
+        SearchHits searchHits = fluidSearch.exec().getHits();
+        Long sizeHits = searchHits.totalHits();
+        SearchHit[] results = searchHits.getHits();
+        String json = "";
+        for(SearchHit hit : results){
+            json += hit.getSourceAsString()+ "\n ---------------- \n";
+        }
+
+        Response resp = null;
+        if(results!=null) {
+            resp = Response.ok(results).build();
+        } else {
+            resp = Response.status(Response.Status.NOT_FOUND).entity("NO RESULTS").type(MediaType.TEXT_PLAIN).build();
+        }
+        return resp;
+        //return Response.ok("search").build();
     }
 }

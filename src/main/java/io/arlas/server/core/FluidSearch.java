@@ -31,6 +31,7 @@ import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregati
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -268,20 +269,25 @@ public class FluidSearch {
         return this;
     }
 
-    public FluidSearch sort (String[] sort) throws ArlasException{
-        if(sort.length>0){
-            for (int i=0; i<sort.length; i++){
-                String[] sortOperands = CheckParams.checkSortParam(sort[i]);
-                if (sortOperands[2].equals(SortOrder.ASC)){
-                    searchRequestBuilder = searchRequestBuilder.addSort(sortOperands[0],SortOrder.ASC);
+    public FluidSearch sort (String sort) throws ArlasException{
+        List<String> fieldList = Arrays.asList(sort.split(","));
+        String field;
+        SortOrder sortOrder;
+        for (String signedField : fieldList){
+            if (!signedField.equals("") ) {
+                if (signedField.substring(0, 1).equals("-")) {
+                    field = signedField.substring(1);
+                    sortOrder = SortOrder.DESC;
+                } else {
+                    field = signedField;
+                    sortOrder = SortOrder.ASC;
                 }
-                else if (sortOperands[2].equals(SortOrder.DESC)){
-                    searchRequestBuilder = searchRequestBuilder.addSort(sortOperands[0],SortOrder.DESC);
-                }
+                searchRequestBuilder = searchRequestBuilder.addSort(field, sortOrder);
             }
         }
         return this;
     }
+
     //TODO: finish aggregation implementation
     /*public FluidSearch aggregate(List<String> aggregations) throws ArlasException{
         GlobalAggregationBuilder globalAggregationBuilder = AggregationBuilders.global("agg");
@@ -479,5 +485,6 @@ public class FluidSearch {
 
     public void setCollectionReference(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
+        searchRequestBuilder = client.prepareSearch(collectionReference.getParams().getIndexName());
     }
 }

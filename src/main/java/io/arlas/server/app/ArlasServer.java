@@ -3,6 +3,8 @@ package io.arlas.server.app;
 import java.net.InetAddress;
 import java.util.Optional;
 
+import io.arlas.server.rest.explore.aggregate.GeoAggregateRESTService;
+import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -88,6 +90,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 		environment.jersey().register(new CountRESTService(exploration));
 		environment.jersey().register(new SearchRESTService(exploration));
 		environment.jersey().register(new AggregateRESTService(exploration));
+		environment.jersey().register(new GeoSearchRESTService(exploration));
+		environment.jersey().register(new GeoAggregateRESTService(exploration));
 		environment.jersey().register(new SuggestRESTService(exploration));
 		environment.jersey().register(new DescribeRESTService(exploration));
 		environment.jersey().register(new DescribeCollectionRESTService(exploration));
