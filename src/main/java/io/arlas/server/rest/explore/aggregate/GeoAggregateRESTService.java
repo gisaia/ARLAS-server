@@ -1,7 +1,6 @@
-package io.arlas.server.rest.explore.search;
+package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.model.ArlasCollection;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.rest.explore.enumerations.FormatValues;
@@ -9,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.geojson.FeatureCollection;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -16,26 +16,27 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class SearchRESTService extends ExploreRESTServices {
+public class GeoAggregateRESTService extends ExploreRESTServices {
 
-    public SearchRESTService(ExploreServices exploreServices) {
+    public GeoAggregateRESTService(ExploreServices exploreServices) {
         super(exploreServices);
     }
 
     @Timed
-    @Path("{collections}/_search")
+    @Path("{collections}/_geoaggregate")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="Search",
+            value="Aggregate",
             produces=UTF8JSON,
-            notes = "Search and return the elements found in the collection(s), given the filters",
+            notes = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters",
             consumes=UTF8JSON,
-            response = ArlasCollection.class
+            response = FeatureCollection.class
+
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation")})
-    public Response search(
+    public Response geoaggregate(
             // --------------------------------------------------------
             // -----------------------  PATH    -----------------------
             // --------------------------------------------------------
@@ -45,6 +46,44 @@ public class SearchRESTService extends ExploreRESTServices {
                     allowMultiple = false,
                     required=true)
             @PathParam(value = "collections") String collections,
+
+            // --------------------------------------------------------
+            // -----------------------  AGGREGATION  -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name ="agg",
+                    value="- The agg parameter should be given in the following formats:  " +
+                            "\n \n" +
+                            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} " +
+                            "\n \n" +
+                            "Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct," +
+                            " order AND on are optional sub-parameters. " +
+                            "\n \n" +
+                            "- {type} possible value is : geohash. " +
+                            "\n \n" +
+                            "- {interval} must be a numeric value. "+
+                            "\n \n" +
+                            "- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. " +
+                            "\n \n" +
+                            "- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. " +
+                            "\n \n" +
+                            "  {collect_fct} possible values are : "+
+                            "\n \n" +
+                            "       avg,cardinality,max,min,sum" +
+                            "\n \n" +
+                            "- {order} is set to sort the aggregation result on the field name or on the result itself. " +
+                            "It's values are 'asc' or 'desc'. " +
+                            "\n \n" +
+                            "- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. " +
+                            "\n \n" +
+                            "agg parameter in this case is not multiple. "+
+                            "\n \n" +
+                            "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
+
+                    ,
+                    allowMultiple = false,
+                    required=true)
+            @QueryParam(value="agg") List<String> agg,
+
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
@@ -145,24 +184,6 @@ public class SearchRESTService extends ExploreRESTServices {
             @QueryParam(value="human") Boolean human,
 
             // --------------------------------------------------------
-            // -----------------------  PROJECTION   -----------------------
-            // --------------------------------------------------------
-
-            @ApiParam(name ="include", value="List the name patterns of the field to be included in the result. Seperate patterns with a comma.",
-                    allowMultiple = true,
-                    defaultValue = "*",
-                    example = "*",
-                    required=false)
-            @QueryParam(value="include") String include,
-
-            @ApiParam(name ="exclude", value="List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.",
-                    allowMultiple = true,
-                    defaultValue = "*",
-                    example = "city,state",
-                    required=false)
-            @QueryParam(value="exclude") String exclude,
-
-            // --------------------------------------------------------
             // -----------------------  SIZE   -----------------------
             // --------------------------------------------------------
 
@@ -201,6 +222,6 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("search").build();
+        return Response.ok("aggregate").build();//TODO : right response
     }
 }

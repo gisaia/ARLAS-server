@@ -1,15 +1,14 @@
 package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.model.ArlasAggregation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
-import io.arlas.server.rest.explore.enumerations.AggregationType;
 import io.arlas.server.rest.explore.enumerations.FormatValues;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.geojson.FeatureCollection;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -33,7 +32,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             produces=UTF8JSON,
             notes = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters",
             consumes=UTF8JSON,
-            response = FeatureCollection.class
+            response = ArlasAggregation.class
 
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation")})
@@ -61,13 +60,11 @@ public class AggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "- {type} possible values are : " +
                             "\n \n" +
-                            "       datehistogram, geohash, histogram, term. " +
+                            "       datehistogram, histogram, term. " +
                             "\n \n" +
                             "- {interval} possible values depends on {type}. " +
                             "\n \n" +
                             "       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). " +
-                            "\n \n" +
-                            "       If {type} = geohash, then {interval} = {length}. " +
                             "\n \n" +
                             "       If {type} = histogram, then {interval} = {size}. " +
                             "\n \n" +
@@ -193,16 +190,6 @@ public class AggregateRESTService extends ExploreRESTServices {
                     defaultValue = "false",
                     required=false)
             @QueryParam(value="human") Boolean human,
-
-            // --------------------------------------------------------
-            // -----------------------  FORMAT   -----------------------
-            // --------------------------------------------------------
-            @ApiParam(name ="format", value="JSON or GeoJSON format",
-                    allowMultiple = false,
-                    defaultValue = "json",
-                    allowableValues = FormatValues.allowableFormatValues,
-                    required=false)
-            @QueryParam(value="format") String format,
 
             // --------------------------------------------------------
             // -----------------------  SIZE   -----------------------

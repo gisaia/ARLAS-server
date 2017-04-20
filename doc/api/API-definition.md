@@ -11,11 +11,13 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/explore/**_list**                     | List  the collections configured in ARLAS |
 | /arlas/explore/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
 | /arlas/explore/`{collections}`/**_count**?`filter` & `form` | Count the number of elements found in the collection(s), given the filters |
-| /arlas/explore/`{collections}`/**_search**?`filter` & `form` & `format` & `projection` & `size` & `sort` | Search and return the elements found in the collection(s), given the filters |
-| /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` & `format` & `size` & `sort` | Aggregate the elements in the collection(s), given the filters and the aggregation parameters |
+| /arlas/explore/`{collections}`/**_search**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection(s), given the filters |
+| /arlas/explore/`{collections}`/**_geosearch**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection(s) as features, given the filters |
+| /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` & `size` & `sort` | Aggregate the elements in the collection(s), given the filters and the aggregation parameters |
+| /arlas/explore/`{collections}`/**_geoaggregate**?`aggregation` &`filter` & `form` & `size` & `sort` | Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_suggest**?`filter` & `form` & `size` & `suggest` | Suggest the the n (n=`size`) most relevant terms given the filters |
 
-When multiple collections are permited ({collections}), the comma is used for seperating the collection names.
+When multiple collections are permitted ({collections}), the comma is used for separating the collection names.
 
 | Examples                                 |
 | ---------------------------------------- |
@@ -33,7 +35,7 @@ The [`aggregation`] url part allows the following parameters to be specified:
 
 | Parameter        | Default value | Description                  | Multiple |
 | ---------------- | ------------- | ---------------------------- | -------- |
-| **agg**          | `None`        | Gathers a set of sub-parameters indicating the type of aggregation, the field used as the aggregation key and possibly the interval for numeric values          | true    |
+| **agg**          | `None`        | Gathers a set of sub-parameters indicating the type of aggregation, the field used as the aggregation key and possibly the interval for numeric values          | true for _aggregate only   |
 
 The agg parameter should be given in the following format :
 
@@ -49,18 +51,21 @@ The sub-parameters properties are:
 | ------------------- | ---------------------------------------- | ---------------------------------------- |
 | **interval**        | interval                                 | Size of the intervals.       |
 | **format**          | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.       |
-| **collect_field**   | `{field}`                                 | The field used to aggregate collections.       |
+| **collect_field**   | `{collect_field}`                                 | The field used to aggregate collections.       |
 | **collect_fct**     | `avg,cardinality,max,min,sum`                                 | The aggregation function to apply to collections on the specified **collect_field**.       |
 | **order**     | `asc,desc`                                 | Sort the aggregation result on the field name or on the result itself, ascending or descending.       |
 | **on**     | `field,result`                                 | {on} is set to specify whether the **order** is on the field name or the result.        |
 
-Each aggregation type has its own type of interval. The table below lists the semantic of the interval sub-parameter.
+In the case of using _geoaggregate service, {field} must be a geometry and preferably a geo-point.
 
-| Aggregation         | Interval                                 | Description                              |
-| ------------------- | ---------------------------------------- | ---------------------------------------- |
-| ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit) |
-| ***geohash***       | `{length}`                               | The geohash length: lower the length, greater is the surface of aggregation. See table below. |
-| ***hisogram***       | `{size}`                                 | The interval size of the numeric aggregation |
+Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
+
+| Service             | Aggregation type    | Interval                                 | Description                              |
+| ------------------- | ------------------- | ---------------------------------------- | ---------------------------------------- |
+| ***_aggregate***    | ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit) |
+| ***_geoaggregate*** | ***geohash***       | `{length}`                               | The geohash length: lower the length, greater is the surface of aggregation. See table below. |
+| ***_aggregate***    | ***histogram***      | `{size}`                                 | The interval size of the numeric aggregation |
+| ***_aggregate***    | ***term***          | None                                     | None |
 
 The table below shows the metric dimensions for cells covered by various string lengths of geohash. Cell dimensions vary with latitude and so the table is for the worst-case scenario at the equator.
 
@@ -79,7 +84,7 @@ The table below shows the metric dimensions for cells covered by various string 
 | 11             | 14.9cm x 14.9cm       |
 | 12             | 3.7cm x 1.9cm         |
 
-agg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : the order matters.
+For _aggregate only, agg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : the order matters.
 
 ---
 ## Part: `filter`
