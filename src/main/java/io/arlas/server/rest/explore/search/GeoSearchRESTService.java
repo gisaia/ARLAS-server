@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 
 import javax.ws.rs.*;
@@ -190,13 +191,15 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(name ="sort",
-                    value="Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . " +
+                    value="- Sort the result on the given fields ascending or descending. " +
                             "\n \n"+
-                            "The parameter can be provided several times. The order matters. " +
+                            "- Fields can be provided several times by separating them with a comma. The order matters. " +
                             "\n \n"+
-                            "For aggregation, provide the 'agg' keyword as the {fieldName}.",
+                            "- For a descending sort, precede the field with '-'. The sort will be ascending otherwise."+
+                            "\n \n"+
+                            "- For aggregation, provide the `agg` keyword as the `{field}`.",
                     allowMultiple = true,
-                    example = "city:DESC",
+                    example = "-country,city",
                     required=false)
             @QueryParam(value="sort") String sort,
 
@@ -258,18 +261,23 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                 fluidSearch = fluidSearch.sort(sort);
             }
         }
-
+        FeatureCollection fc = new FeatureCollection();
         SearchHits searchHits = fluidSearch.exec().getHits();
         Long sizeHits = searchHits.totalHits();
         SearchHit[] results = searchHits.getHits();
         String json = "";
+        //TODO: feature.setGeometry
         for(SearchHit hit : results){
+            Feature feature = new Feature();
+            //feature.setGeometry(actualObj);
+            feature.setProperties(hit.getSource());
+            fc.add(feature);
+
             json += hit.getSourceAsString()+ "\n ---------------- \n";
         }
-
         Response resp = null;
         if(results!=null) {
-            resp = Response.ok(results).build();
+            resp = Response.ok(fc).build();
         } else {
             resp = Response.status(Response.Status.NOT_FOUND).entity("NO RESULTS").type(MediaType.TEXT_PLAIN).build();
         }

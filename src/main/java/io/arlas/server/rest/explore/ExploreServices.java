@@ -10,9 +10,9 @@ public class ExploreServices {
     private TransportClient client;
     private CollectionReferenceDao daoCollectionReference;
 
-    public ExploreServices(TransportClient client) {
+    public ExploreServices(TransportClient client, String arlasIndex) {
         this.client = client;
-        this.daoCollectionReference =  new ElasticCollectionReferenceDaoImpl(client);
+        this.daoCollectionReference =  new ElasticCollectionReferenceDaoImpl(client, arlasIndex );
     }
     public TransportClient getClient() {
         return client;

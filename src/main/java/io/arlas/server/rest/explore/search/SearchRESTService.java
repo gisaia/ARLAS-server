@@ -270,7 +270,7 @@ public class SearchRESTService extends ExploreRESTServices {
         for(SearchHit hit : results){
             json += hit.getSourceAsString()+ "\n ---------------- \n";
         }
-
+        //TODO:Return ArlasCollection
         Response resp = null;
         if(results!=null) {
             resp = Response.ok(results).build();

@@ -80,7 +80,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 			Optional<Brave> brave = configuration.zipkinConfiguration.build(environment);
 		}
 
-		ExploreServices exploration = new ExploreServices(client);
+		ExploreServices exploration = new ExploreServices(client, configuration.arlasindex);
 
 		environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
 		environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
