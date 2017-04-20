@@ -178,6 +178,6 @@ The `sort` url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values                       | Description                              | Multiple |
 | --------- | ------------- | ---------------------------- | ---------------------------------------- | -------- |
-| **sort**  | None          | `{fieldName}`:(`ASC`,`DESC`) | Sort the result on a given field, ascending or descending. The parameter can be provided several times. The order matters. For aggregation, provide the `agg` keyword as the `{fieldName}`. | true     |
+| **sort**  | None          | `((-?){field})(,(-?){field})*` | Sort the result on the given fields ascending or descending. Fields can be provided several times by separating them with a comma. The order matters. For a descending sort, precede the field with '-'. The sort will be ascending otherwise. For aggregation, provide the `agg` keyword as the `{field}`. | false (separate fields with comma in the same parameter)     |
 
-> Example: `sort=country:ASC&sort=city:ASC`
+> Example: `sort=-country,city`

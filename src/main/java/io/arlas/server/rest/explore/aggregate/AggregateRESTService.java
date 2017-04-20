@@ -214,13 +214,15 @@ public class AggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(name ="sort",
-                    value="Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . " +
+                    value="- Sort the result on the given fields ascending or descending. " +
                             "\n \n"+
-                            "The parameter can be provided several times. The order matters. " +
+                            "- Fields can be provided several times by separating them with a comma. The order matters. " +
                             "\n \n"+
-                            "For aggregation, provide the 'agg' keyword as the {fieldName}.",
-                    allowMultiple = true,
-                    example = "city:DESC",
+                            "- For a descending sort, precede the field with '-'. The sort will be ascending otherwise."+
+                            "\n \n"+
+                            "- For aggregation, provide the `agg` keyword as the `{field}`.",
+                    allowMultiple = false,
+                    example = "-country,city",
                     required=false)
             @QueryParam(value="sort") List<String> sort,
 
