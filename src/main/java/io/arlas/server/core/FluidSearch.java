@@ -62,7 +62,7 @@ public class FluidSearch {
         //TODO: initialize collectionReference
         this.client = client;
         this.collectionReference = collectionReference;
-        searchRequestBuilder = client.prepareSearch(collectionReference.getParams().getIndexName());
+        searchRequestBuilder = client.prepareSearch(collectionReference.params.indexName);
         boolQueryBuilder = QueryBuilders.boolQuery();
 
     }
@@ -125,7 +125,7 @@ public class FluidSearch {
 
     public FluidSearch filterAfter (Long after){
         boolQueryBuilder = boolQueryBuilder.filter(
-                QueryBuilders.rangeQuery(collectionReference.getParams().getTimestampPath())
+                QueryBuilders.rangeQuery(collectionReference.params.timestampPath)
                         .gte(after)
         );
         return this;
@@ -133,7 +133,7 @@ public class FluidSearch {
 
     public FluidSearch filterBefore (Long before){
         boolQueryBuilder = boolQueryBuilder.filter(
-                QueryBuilders.rangeQuery(collectionReference.getParams().getTimestampPath())
+                QueryBuilders.rangeQuery(collectionReference.params.timestampPath)
                         .lte(before)
         );
         return this;
@@ -147,7 +147,7 @@ public class FluidSearch {
                     PointBuilder pointBuilder = new PointBuilder();
                     pointBuilder.coordinate(((Polygon)polygon).getCentroid().getCoordinate());
                     boolQueryBuilder = boolQueryBuilder.filter(
-                            QueryBuilders.geoWithinQuery(collectionReference.getParams().getGeometryPath(), pointBuilder)
+                            QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, pointBuilder)
                     );
                 }
                 else {
@@ -166,7 +166,7 @@ public class FluidSearch {
                     PointBuilder pointBuilder = new PointBuilder();
                     pointBuilder.coordinate(((Polygon)polygon).getCentroid().getCoordinate());
                     boolQueryBuilder = boolQueryBuilder.mustNot(
-                            QueryBuilders.geoWithinQuery(collectionReference.getParams().getGeometryPath(), pointBuilder)
+                            QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, pointBuilder)
                     );
                 }
                 else {
@@ -184,7 +184,7 @@ public class FluidSearch {
                 if (CheckParams.isSimplePolygon(polygon)) {
                     PolygonBuilder polygonBuilder = createPolygonBuilder((Polygon) polygon);
                     boolQueryBuilder = boolQueryBuilder.filter(
-                            QueryBuilders.geoWithinQuery(collectionReference.getParams().getGeometryPath(), polygonBuilder)
+                            QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, polygonBuilder)
                     );
                 } else {
                     throw new InvalidParameterException(INVALID_POLYGON_TYPE);
@@ -201,7 +201,7 @@ public class FluidSearch {
                 if (CheckParams.isSimplePolygon(polygon)) {
                     PolygonBuilder polygonBuilder = createPolygonBuilder((Polygon) polygon);
                     boolQueryBuilder = boolQueryBuilder.mustNot(
-                            QueryBuilders.geoWithinQuery(collectionReference.getParams().getGeometryPath(), polygonBuilder)
+                            QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, polygonBuilder)
                     );
                 } else {
                     throw new InvalidParameterException(INVALID_POLYGON_TYPE);
@@ -218,7 +218,7 @@ public class FluidSearch {
                 if (CheckParams.isSimplePolygon(polygon)){
                     PolygonBuilder polygonBuilder = createPolygonBuilder((Polygon)polygon);
                     boolQueryBuilder = boolQueryBuilder.filter(
-                            QueryBuilders.geoIntersectionQuery(collectionReference.getParams().getGeometryPath(), polygonBuilder)
+                            QueryBuilders.geoIntersectionQuery(collectionReference.params.geometryPath, polygonBuilder)
                     );
                 }
                 else {
@@ -236,7 +236,7 @@ public class FluidSearch {
                 if (CheckParams.isSimplePolygon(polygon)){
                     PolygonBuilder polygonBuilder = createPolygonBuilder((Polygon)polygon);
                     boolQueryBuilder = boolQueryBuilder.filter(
-                            QueryBuilders.geoDisjointQuery(collectionReference.getParams().getGeometryPath(), polygonBuilder)
+                            QueryBuilders.geoDisjointQuery(collectionReference.params.geometryPath, polygonBuilder)
                     );
                 }
                 else {

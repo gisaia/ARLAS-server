@@ -22,12 +22,12 @@ public class CollectionServiceIT {
     @Test
     public void testLifecycle() throws Exception {
 	Map<String, Object> jsonAsMap = new HashMap<String, Object>();
-	jsonAsMap.put("indexName", "bar");
-	jsonAsMap.put("typeName", "type");
-	jsonAsMap.put("idPath","path");
-	jsonAsMap.put("geometryPath","geopath");
-	jsonAsMap.put("centroidPath","centroidpath");
-	jsonAsMap.put("timestampPath","tspath");
+	jsonAsMap.put("index_name", "bar");
+	jsonAsMap.put("type_name", "type");
+	jsonAsMap.put("id_path","path");
+	jsonAsMap.put("geometry_path","geopath");
+	jsonAsMap.put("centroid_path","centroidpath");
+	jsonAsMap.put("timestamp_path","tspath");
         
 	//PUT new collection
 	given()
@@ -43,13 +43,13 @@ public class CollectionServiceIT {
 	  .get("/collections/foo")
 	.then()
 	  .statusCode(200)
-	  .body("collectionName", equalTo("foo"))
-	  .body("indexName", equalTo("bar"))
-	  .body("typeName", equalTo("type"))
-	  .body("idPath", equalTo("path"))
-	  .body("geometryPath", equalTo("geopath"))
-	  .body("centroidPath", equalTo("centroidpath"))
-	  .body("timestampPath", equalTo("tspath"));
+	  .body("collection_name", equalTo("foo"))
+	  .body("params.index_name", equalTo("bar"))
+	  .body("params.type_name", equalTo("type"))
+	  .body("params.id_path", equalTo("path"))
+	  .body("params.geometry_path", equalTo("geopath"))
+	  .body("params.centroid_path", equalTo("centroidpath"))
+	  .body("params.timestamp_path", equalTo("tspath"));
 	
 	//DELETE collection
 	when()

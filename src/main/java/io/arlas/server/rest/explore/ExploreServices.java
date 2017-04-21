@@ -31,6 +31,6 @@ public class ExploreServices {
     }
 
     public SearchRequestBuilder init(CollectionReference collection){
-        return client.prepareSearch(collection.getParams().getIndexName());
+        return client.prepareSearch(collection.params.indexName);
     }
 }

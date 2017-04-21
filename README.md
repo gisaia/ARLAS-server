@@ -19,14 +19,29 @@ java -jar target/arlas-server-x.x.jar server configuration.yaml
 
 Then, go to `http://localhost:9999/arlas/swagger` for exploring and testing the API.
 
+To manage collections :
 
-# Test
+```sh
+curl -X PUT --header 'Content-Type: application/json;charset=utf-8' --header 'Accept: application/json' -d '{ \ 
+   "indexName": "myindex", \ 
+   "typeName": "mytype", \ 
+   "idPath": "mydoc.id", \ 
+   "geometryPath": "mydoc.geometry", \ 
+   "centroidPath": "mydoc.centroid", \ 
+   "timestampPath": "mydoc.timestamp" \ 
+ }' 'http://localhost:9999/arlas/collections/mycollection'
+curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/collections'
+curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/collections/mycollection'
+curl -X DELETE --header 'Accept: application/json' 'http://localhost:9999/arlas/collections/mycollection'
+```
+
+# Integration Tests
 
 ```sh
 ./test-integration.sh && echo "INTEGRATION TESTS ARE OK"
 ```
 
-Make sure to have docker and docker-machine installed and running on your system.
+Make sure to have docker installed and running on your system.
 
 
 # Optional
