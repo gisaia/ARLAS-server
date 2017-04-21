@@ -45,14 +45,18 @@ public class DataSetTool {
     }
 
     private DataSetTool(String host, int port) throws UnknownHostException {
-        client = new PreBuiltTransportClient(Settings.EMPTY)
+	Settings settings = Settings.builder().put("cluster.name", "docker-cluster").build();
+        client = new PreBuiltTransportClient(settings)
                 .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
         adminClient = client.admin();
     }
 
     public void loadDataSet() throws IOException {
         String mapping = IOUtils.toString(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("dataset.mapping.json")));
-        adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
+        try {
+	    adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
+	} catch (Exception e) {
+	}
         adminClient.indices().prepareCreate(DATASET_INDEX_NAME).addMapping(DATASET_TYPE_NAME, mapping).get();
         Data data;
         ObjectMapper mapper = new ObjectMapper();
