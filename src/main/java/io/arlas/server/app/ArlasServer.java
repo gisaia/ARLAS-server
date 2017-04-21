@@ -81,7 +81,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 		}
 
 		ExploreServices exploration = new ExploreServices(client, configuration.arlasindex);
-
 		environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
 		environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
 		environment.jersey().register(new ArlasExceptionMapper());
