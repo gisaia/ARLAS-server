@@ -1,0 +1,30 @@
+{
+  "_all": {
+    "enabled": true
+  },
+  "_source": {
+    "enabled": true
+  },
+  "dynamic": true,
+  "properties": {
+    "id": {
+      "type": "keyword"
+    },
+    "fullname": {
+      "type": "text"
+    },
+    "job": {
+      "type": "keyword"
+    },
+    "startdate": {
+      "type": "date",
+      "format": "epoch_millis"
+    },
+    "geometry": {
+      "type": "geo_shape"
+    },
+    "centroid": {
+      "type": "geo_point"
+    }
+  }
+}
