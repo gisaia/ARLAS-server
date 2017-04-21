@@ -19,8 +19,8 @@ public class ArlasExceptionMapper implements ExceptionMapper<ArlasException> {
 	public Response toResponse(ArlasException e) {
 		logger.error("Error occurred", e);
 		if(e instanceof NotFoundException)
-		    return ResponseFormatter.getErrorResponse(e, Response.Status.NOT_FOUND);
+		    return ResponseFormatter.getErrorResponse(e, Response.Status.NOT_FOUND, e.getMessage());
 		else
-		    return ResponseFormatter.getErrorResponse(e, Response.Status.INTERNAL_SERVER_ERROR);
+		    return ResponseFormatter.getErrorResponse(e, Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
 	}
 }

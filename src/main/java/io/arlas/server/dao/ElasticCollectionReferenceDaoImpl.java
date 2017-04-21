@@ -18,6 +18,10 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
@@ -39,22 +43,22 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 	for(String field : source.keySet()) {
 	    switch(field) {
 	    	case CollectionReference.INDEX_NAME:
-	    	    params.setIndexName(source.get(field)!=null?source.get(field).toString():"");
+	    	    params.indexName = source.get(field)!=null?source.get(field).toString():"";
 	    	    break;
 	    	case CollectionReference.TYPE_NAME:
-	    	    params.setTypeName(source.get(field)!=null?source.get(field).toString():"");
+	    	    params.typeName = source.get(field)!=null?source.get(field).toString():"";
 	    	    break;
 	    	case CollectionReference.ID_PATH:
-	    	    params.setIdPath(source.get(field)!=null?source.get(field).toString():"");
+	    	    params.idPath = source.get(field)!=null?source.get(field).toString():"";
 	    	    break;
 	    	case CollectionReference.GEOMETRY_PATH:
-	    	    params.setGeometryPath(source.get(field)!=null?source.get(field).toString():"");
+	    	    params.geometryPath = source.get(field)!=null?source.get(field).toString():"";
 	    	    break;
 	    	case CollectionReference.CENTROID_PATH:
-	    	    params.setCentroidPath(source.get(field)!=null?source.get(field).toString():"");
+	    	    params.centroidPath = source.get(field)!=null?source.get(field).toString():"";
 	    	    break;
 	    	case CollectionReference.TIMESTAMP_PATH:
-	    	    params.setTimestampPath(source.get(field)!=null?source.get(field).toString():"");
+	    	    params.timestampPath = source.get(field)!=null?source.get(field).toString():"";
 	    	    break;
 	    }
 	}
@@ -68,7 +72,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 	Map<String,Object> source = response.getSource();
 	if(source != null) {
 	    collection = new CollectionReference(ref);
-	    collection.setParams(getCollectionReferenceParameters(source));
+	    collection.params = getCollectionReferenceParameters(source);
 	} else {
 	    throw new NotFoundException("Collection " + ref + " not found.");
 	}
@@ -76,7 +80,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     @Override
-    public List<CollectionReference> getAllCollectionReferences() throws NotFoundException {
+    public List<CollectionReference> getAllCollectionReferences() throws InternalServerErrorException {
 	List<CollectionReference> collections = new ArrayList<CollectionReference>();
 	
 	try {
@@ -92,22 +96,24 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 		for (SearchHit hit : scrollResp.getHits().getHits()) {
 		    System.out.println(hit + " = " + hit.getSource());
     			CollectionReference collection = new CollectionReference(hit.getId());
-    			collection.setParams(getCollectionReferenceParameters(hit.getSource()));
+    			collection.params = getCollectionReferenceParameters(hit.getSource());
     			collections.add(collection);
 		}
 		scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
 	    } while(scrollResp.getHits().getHits().length != 0); // Zero hits mark the end of the scroll and the while loop.
 	} catch (IndexNotFoundException e) {
-	    throw new NotFoundException("Collections not found.");
+	    throw new InternalServerErrorException("Collections not found.");
 	}
 	
 	return collections;
     }
 
     @Override
-    public CollectionReference putCollectionReference(String ref, CollectionReferenceParameters desc) throws InternalServerErrorException {
+    public CollectionReference putCollectionReference(String ref, CollectionReferenceParameters desc) throws InternalServerErrorException, JsonProcessingException {
+	ObjectMapper om = new ObjectMapper();
+	om.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
 	IndexResponse response = client.prepareIndex(arlasIndex, "collection", ref)
-	        .setSource(desc.toJsonString())
+	        .setSource(om.writeValueAsString(desc))
 	        .get();
 	if(response.status().getStatus() != RestStatus.OK.getStatus()
 		&& response.status().getStatus() != RestStatus.CREATED.getStatus())

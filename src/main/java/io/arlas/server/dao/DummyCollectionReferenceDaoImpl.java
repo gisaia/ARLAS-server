@@ -17,7 +17,7 @@ public class DummyCollectionReferenceDaoImpl implements CollectionReferenceDao {
     @Override
     public CollectionReference getCollectionReference(String ref) {
 	CollectionReference collection = new CollectionReference(ref);
-	collection.setParams(index.get(ref));
+	collection.params = index.get(ref);
 	return collection;
     }
 
@@ -26,7 +26,7 @@ public class DummyCollectionReferenceDaoImpl implements CollectionReferenceDao {
 	List<CollectionReference> collections = new ArrayList<CollectionReference>();
 	for(String ref : index.keySet()) {
 	    CollectionReference collection = new CollectionReference(ref);
-	    collection.setParams(index.get(ref));
+	    collection.params = index.get(ref);
 	    collections.add(collection);
 	}	    
 	return collections;

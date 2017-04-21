@@ -16,11 +16,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.model.ArlasError;
+import io.arlas.server.model.ArlasSuccess;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.rest.ResponseFormatter;
@@ -42,22 +42,14 @@ public abstract class CollectionService extends CollectionRESTServices {
             value="Get all collection references",
             produces=UTF8JSON,
             notes = "Get all collection references in ARLAS",
-            consumes=UTF8JSON,
-            response = CollectionReference.class
-
+            consumes=UTF8JSON
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation"),
-	    @ApiResponse(code = 404, message = "Collections not found."),
-	    @ApiResponse(code = 500, message = "Arlas Server Error.")})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class, responseContainer = "List" ),
+	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class)})
 
     public Response getAll() throws InterruptedException, ExecutionException, IOException, ArlasException {	
 	List<CollectionReference> collections = dao.getAllCollectionReferences();
-	
-	ObjectMapper mapper = new ObjectMapper();
-	ArrayNode json = mapper.createArrayNode();
-	for(CollectionReference collection : collections)
-	    json.add(collection.toJson());
-	return ResponseFormatter.getResultResponse(json.toString());
+	return ResponseFormatter.getResultResponse(collections);
     }
 
     @Timed
@@ -73,9 +65,9 @@ public abstract class CollectionService extends CollectionRESTServices {
             response = CollectionReference.class
 
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation"),
-	    @ApiResponse(code = 404, message = "Collection not found."),
-	    @ApiResponse(code = 500, message = "Arlas Server Error.")})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
+	    @ApiResponse(code = 404, message = "Collection not found.", response = ArlasError.class),
+	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class)})
 
     public Response get(
             @ApiParam(
@@ -86,7 +78,7 @@ public abstract class CollectionService extends CollectionRESTServices {
             @PathParam(value = "collection") String collection
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
 	CollectionReference cr = dao.getCollectionReference(collection);
-	return ResponseFormatter.getResultResponse(cr.toJsonString());
+	return ResponseFormatter.getResultResponse(cr);
     }
 
     @Timed
@@ -101,9 +93,9 @@ public abstract class CollectionService extends CollectionRESTServices {
             consumes=UTF8JSON,
             response = CollectionReference.class
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation"),
-	    @ApiResponse(code = 400, message = "JSON parameter malformed."),
-	    @ApiResponse(code = 500, message = "Arlas Server Error.")})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
+	    @ApiResponse(code = 400, message = "JSON parameter malformed.", response = ArlasError.class),
+	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class)})
     public Response put(
             @ApiParam(
                     name = "collection",
@@ -118,7 +110,7 @@ public abstract class CollectionService extends CollectionRESTServices {
 
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
 	CollectionReference cr = dao.putCollectionReference(collection, collectionReferenceParameters);
-	return ResponseFormatter.getResultResponse(cr.toJsonString());
+	return ResponseFormatter.getResultResponse(cr);
     }
 
     @Timed
@@ -132,9 +124,9 @@ public abstract class CollectionService extends CollectionRESTServices {
             notes = "Delete a collection reference in ARLAS",
             consumes=UTF8JSON
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation"),
-	    @ApiResponse(code = 404, message = "Collection not found."),
-	    @ApiResponse(code = 500, message = "Arlas Server Error.")})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasSuccess.class),
+	    @ApiResponse(code = 404, message = "Collection not found.", response = ArlasError.class),
+	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class)})
 
     public Response delete(
             @ApiParam(
