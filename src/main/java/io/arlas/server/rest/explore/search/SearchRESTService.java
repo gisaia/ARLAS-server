@@ -15,12 +15,15 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.geojson.Point;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class SearchRESTService extends ExploreRESTServices {
@@ -47,7 +50,7 @@ public class SearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(
                     name = "collection",
-                    value = "collection, comma separated",
+                    value = "collection",
                     allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
@@ -272,17 +275,25 @@ public class SearchRESTService extends ExploreRESTServices {
             ArlasHit arlasHit = new ArlasHit();
             arlasHit.data = hit.fields();
             arlasHit.md = new ArlasMD();
-            if(hit.field(collectionReference.params.idPath)!=null){
-                arlasHit.md.id = hit.field(collectionReference.params.idPath).getValue();
+            Map<String, Object > hitsSources = hit.getSource();
+            if(collectionReference.params.idPath!=null && hitsSources.get(collectionReference.params.idPath)!=null){
+                arlasHit.md.id = (String)hitsSources.get(collectionReference.params.idPath);
             }
-            if(hit.field(collectionReference.params.centroidPath)!=null){
-                arlasHit.md.centroid = hit.field(collectionReference.params.centroidPath).getValue();
+            if(collectionReference.params.centroidPath!=null && hitsSources.get(collectionReference.params.centroidPath)!=null){
+                String pointString = (String)hitsSources.get(collectionReference.params.centroidPath);
+                String[] tokens = pointString.split(",");
+                Double latitude = Double.parseDouble(tokens[0]);
+                Double longitude = Double.parseDouble(tokens[1]);
+                Point point = new Point(latitude,longitude);
+                arlasHit.md.centroid = point;
             }
-            if(hit.field(collectionReference.params.geometryPath)!=null){
-                arlasHit.md.geometry = hit.field(collectionReference.params.geometryPath).getValue();
+            if(collectionReference.params.geometryPath!=null && hitsSources.get(collectionReference.params.geometryPath)!=null){
+                HashMap m = (HashMap)hitsSources.get(collectionReference.params.geometryPath);
+                arlasHit.md.geometry = m;
             }
-            if(hit.field(collectionReference.params.timestampPath)!=null){
-                arlasHit.md.timestamp = hit.field(collectionReference.params.timestampPath).getValue();
+            if(collectionReference.params.timestampPath!=null && hitsSources.get(collectionReference.params.timestampPath)!=null){
+                //TODO: parse timestamp
+                //arlasHit.md.timestamp = (String)hitsSources.get(collectionReference.params.timestampPath);
             }
             arlasHits.hits.add(arlasHit);
         }

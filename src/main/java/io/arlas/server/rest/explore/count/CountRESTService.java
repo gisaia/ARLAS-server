@@ -24,7 +24,7 @@ public class CountRESTService extends ExploreRESTServices {
     }
 
     @Timed
-    @Path("{collections}/_count")
+    @Path("{collection}/_count")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -40,11 +40,11 @@ public class CountRESTService extends ExploreRESTServices {
             // -----------------------  PATH    -----------------------
             // --------------------------------------------------------
             @ApiParam(
-                    name = "collections",
-                    value="collections, comma separated",
+                    name = "collection",
+                    value="collections",
                     allowMultiple = false,
                     required=true)
-            @PathParam(value = "collections") String collections,
+            @PathParam(value = "collections") String collection,
 
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------
@@ -152,43 +152,44 @@ public class CountRESTService extends ExploreRESTServices {
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         //TODO: checkParams
-        String[] collectionsList = collections.split(",");
         FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
-        for(int i=0; i<collectionsList.length; i++){
-            CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collectionsList[i]);
-            fluidSearch.setCollectionReference(collectionReference);
-
-            if (f != null && !f.isEmpty()){
-                fluidSearch = fluidSearch.filter(f);
-            }
-            if (q != null){
-                fluidSearch = fluidSearch.filterQ(q);
-            }
-            if (after != null){
-                fluidSearch = fluidSearch.filterAfter(after);
-            }
-            if (before != null){
-                fluidSearch = fluidSearch.filterBefore(before);
-            }
-            if (pwithin != null && !pwithin.isEmpty()){
-                fluidSearch = fluidSearch.filterPWithin(pwithin);
-            }
-            if (gwithin != null && !gwithin.isEmpty()){
-                fluidSearch = fluidSearch.filterGWithin(gwithin);
-            }
-            if (gintersect != null && !gintersect.isEmpty()){
-                fluidSearch = fluidSearch.filterGIntersect(gintersect);
-            }
-            if (notpwithin != null && !notpwithin.isEmpty()){
-                fluidSearch = fluidSearch.filterNotPWithin(notpwithin);
-            }
-            if (notgwithin != null && !notgwithin.isEmpty()){
-                fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
-            }
-            if (notgintersect != null && !notgintersect.isEmpty()){
-                fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
-            }
+        CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
+        if(collectionReference==null){
+            throw new NotFoundException(collection);
         }
+        fluidSearch.setCollectionReference(collectionReference);
+
+        if (f != null && !f.isEmpty()){
+            fluidSearch = fluidSearch.filter(f);
+        }
+        if (q != null){
+            fluidSearch = fluidSearch.filterQ(q);
+        }
+        if (after != null){
+            fluidSearch = fluidSearch.filterAfter(after);
+        }
+        if (before != null){
+            fluidSearch = fluidSearch.filterBefore(before);
+        }
+        if (pwithin != null && !pwithin.isEmpty()){
+            fluidSearch = fluidSearch.filterPWithin(pwithin);
+        }
+        if (gwithin != null && !gwithin.isEmpty()){
+            fluidSearch = fluidSearch.filterGWithin(gwithin);
+        }
+        if (gintersect != null && !gintersect.isEmpty()){
+            fluidSearch = fluidSearch.filterGIntersect(gintersect);
+        }
+        if (notpwithin != null && !notpwithin.isEmpty()){
+            fluidSearch = fluidSearch.filterNotPWithin(notpwithin);
+        }
+        if (notgwithin != null && !notgwithin.isEmpty()){
+            fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
+        }
+        if (notgintersect != null && !notgintersect.isEmpty()){
+            fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
+        }
+
         return fluidSearch.exec().getHits().totalHits();
 
         //return Response.ok("count").build();

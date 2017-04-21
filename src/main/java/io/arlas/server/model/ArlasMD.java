@@ -14,7 +14,7 @@ public class ArlasMD {
     public Long timestamp;
 
     @ApiModelProperty(name = "geometry", value = "The geometry of the hit")
-    public Geometry geometry;
+    public Object geometry;
 
     @ApiModelProperty(name = "centroid", value = "The centroid of the hit")
     public Point centroid;

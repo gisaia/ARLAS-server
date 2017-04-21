@@ -1,8 +1,10 @@
 package io.arlas.server.rest.explore.search;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.exceptions.ArlasException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import io.arlas.server.core.FluidSearch;
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -14,12 +16,14 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
+import org.geojson.GeoJsonObject;
+import org.geojson.Point;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class GeoSearchRESTService extends ExploreRESTServices {
@@ -29,7 +33,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
     }
 
     @Timed
-    @Path("{collections}/_geosearch")
+    @Path("{collection}/_geosearch")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -46,11 +50,11 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             // -----------------------  PATH    -----------------------
             // --------------------------------------------------------
             @ApiParam(
-                    name = "collections",
-                    value="collections, comma separated",
+                    name = "collection",
+                    value="collection",
                     allowMultiple = false,
                     required=true)
-            @PathParam(value = "collections") String collections,
+            @PathParam(value = "collections") String collection,
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
@@ -209,80 +213,104 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
-        String[] collectionsList = collections.split(",");
         FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
-        for(int i=0; i<collectionsList.length; i++){
-            CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collectionsList[i]);
-            fluidSearch.setCollectionReference(collectionReference);
-
-            if (f != null && !f.isEmpty()){
-                fluidSearch = fluidSearch.filter(f);
-            }
-            if (q != null){
-                fluidSearch = fluidSearch.filterQ(q);
-            }
-            if (after != null){
-                fluidSearch = fluidSearch.filterAfter(after);
-            }
-            if (before != null){
-                fluidSearch = fluidSearch.filterBefore(before);
-            }
-            if (pwithin != null && !pwithin.isEmpty()){
-                fluidSearch = fluidSearch.filterPWithin(pwithin);
-            }
-            if (gwithin != null && !gwithin.isEmpty()){
-                fluidSearch = fluidSearch.filterGWithin(gwithin);
-            }
-            if (gintersect != null && !gintersect.isEmpty()){
-                fluidSearch = fluidSearch.filterGIntersect(gintersect);
-            }
-            if (notpwithin != null && !notpwithin.isEmpty()){
-                fluidSearch = fluidSearch.filterNotPWithin(notpwithin);
-            }
-            if (notgwithin != null && !notgwithin.isEmpty()){
-                fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
-            }
-            if (notgintersect != null && !notgintersect.isEmpty()){
-                fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
-            }
-            if (include != null){
-                fluidSearch = fluidSearch.include(include);
-            }
-            if (exclude != null){
-                fluidSearch = fluidSearch.exclude(exclude);
-            }
-            if (size != null){
-                if (from != null){
-                    fluidSearch = fluidSearch.filterSize(size,from);
-                }
-                else fluidSearch = fluidSearch.filterSize(size,0);
-            }
-            if (sort != null){
-                fluidSearch = fluidSearch.sort(sort);
-            }
+        CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
+        if(collectionReference==null){
+            throw new NotFoundException(collection);
         }
+        fluidSearch.setCollectionReference(collectionReference);
+
+        if (f != null && !f.isEmpty()){
+            fluidSearch = fluidSearch.filter(f);
+        }
+        if (q != null){
+            fluidSearch = fluidSearch.filterQ(q);
+        }
+        if (after != null){
+            fluidSearch = fluidSearch.filterAfter(after);
+        }
+        if (before != null){
+            fluidSearch = fluidSearch.filterBefore(before);
+        }
+        if (pwithin != null && !pwithin.isEmpty()){
+            fluidSearch = fluidSearch.filterPWithin(pwithin);
+        }
+        if (gwithin != null && !gwithin.isEmpty()){
+            fluidSearch = fluidSearch.filterGWithin(gwithin);
+        }
+        if (gintersect != null && !gintersect.isEmpty()){
+            fluidSearch = fluidSearch.filterGIntersect(gintersect);
+        }
+        if (notpwithin != null && !notpwithin.isEmpty()){
+            fluidSearch = fluidSearch.filterNotPWithin(notpwithin);
+        }
+        if (notgwithin != null && !notgwithin.isEmpty()){
+            fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
+        }
+        if (notgintersect != null && !notgintersect.isEmpty()){
+            fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
+        }
+        if (include != null){
+            fluidSearch = fluidSearch.include(include);
+        }
+        if (exclude != null){
+            fluidSearch = fluidSearch.exclude(exclude);
+        }
+        if (size != null){
+            if (from != null){
+                fluidSearch = fluidSearch.filterSize(size,from);
+            }
+            else fluidSearch = fluidSearch.filterSize(size,0);
+        }
+        if (sort != null){
+            fluidSearch = fluidSearch.sort(sort);
+        }
+
         FeatureCollection fc = new FeatureCollection();
         SearchHits searchHits = fluidSearch.exec().getHits();
-        Long sizeHits = searchHits.totalHits();
+        int sizeHits = (int)searchHits.totalHits();
         SearchHit[] results = searchHits.getHits();
-        String json = "";
         //TODO: feature.setGeometry
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectReader reader = mapper.readerFor(GeoJsonObject.class);
+
         for(SearchHit hit : results){
             Feature feature = new Feature();
-            //feature.setGeometry(actualObj);
-            feature.setProperties(hit.getSource());
+            Map<String, Object > hitsSources = hit.getSource();
+            if(collectionReference.getParams().getGeometryPath()!=null ){
+                if( hitsSources.keySet().contains(collectionReference.getParams().getGeometryPath())) {
+                    String geometryPath = collectionReference.getParams().getGeometryPath();
+                    Object m = hitsSources.get(geometryPath);
+                    GeoJsonObject g = reader.readValue(mapper.writer().writeValueAsString(m));
+                    feature.setGeometry(g);
+                    hitsSources.remove(geometryPath);
+                    feature.setProperties(hit.getSource());
+                }
+                else {
+                    feature.setProperties(hit.getSource());
+                }
+            }
+            else if(collectionReference.getParams().getCentroidPath()!=null ){
+                    if (hitsSources.keySet().contains(collectionReference.getParams().getCentroidPath())) {
+                        String centroidPath = collectionReference.getParams().getCentroidPath();
+                        String pointString = (String)hitsSources.get(centroidPath);
+                        String[] tokens = pointString.split(",");
+                        Double latitude = Double.parseDouble(tokens[0]);
+                        Double longitude = Double.parseDouble(tokens[1]);
+                        GeoJsonObject g = new Point(latitude,longitude);
+                        feature.setGeometry(g);
+                        hitsSources.remove(centroidPath);
+                        feature.setProperties(hit.getSource());
+                    }
+                    else {
+                        feature.setProperties(hit.getSource());
+                    }
+            }
             fc.add(feature);
 
-            json += hit.getSourceAsString()+ "\n ---------------- \n";
         }
-        Response resp = null;
-        if(results!=null) {
-            resp = Response.ok(fc).build();
-        } else {
-            resp = Response.status(Response.Status.NOT_FOUND).entity("NO RESULTS").type(MediaType.TEXT_PLAIN).build();
-        }
-        return resp;
-        //return Response.ok("search").build();
-        //return Response.ok("search").build();
+        return Response.ok(fc).build();
+
     }
 }
