@@ -710,6 +710,12 @@ margin-bottom: 20px;
   <script>
     // Script section to load models into a JS Var
     var defs = {}
+    defs.ArlasAggregation = {
+  "type" : "object"
+};
+    defs.ArlasCollection = {
+  "type" : "object"
+};
     defs.CollectionReference = {
   "type" : "object",
   "properties" : {
@@ -1016,11 +1022,17 @@ margin-bottom: 20px;
                     <li data-group="Explore" data-name="describe" class="">
                       <a href="#api-Explore-describe">describe</a>
                     </li>
+                    <li data-group="Explore" data-name="geoaggregate" class="">
+                      <a href="#api-Explore-geoaggregate">geoaggregate</a>
+                    </li>
                     <li data-group="Explore" data-name="list" class="">
                       <a href="#api-Explore-list">list</a>
                     </li>
                     <li data-group="Explore" data-name="search" class="">
                       <a href="#api-Explore-search">search</a>
+                    </li>
+                    <li data-group="Explore" data-name="search_1" class="">
+                      <a href="#api-Explore-search_1">search_1</a>
                     </li>
                     <li data-group="Explore" data-name="suggest" class="">
                       <a href="#api-Explore-suggest">suggest</a>
@@ -1300,6 +1312,22 @@ except ApiException as e:
                             <div class="tab-content" style='margin-bottom: 10px;'>
                             </div>
 
+                            <h3> Status: 404 - Collection not found. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
                         </article>
                       </div>
                       <hr>
@@ -1557,6 +1585,22 @@ except ApiException as e:
                             <div class="tab-content" style='margin-bottom: 10px;'>
                             </div>
 
+                            <h3> Status: 404 - Collection not found. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
                         </article>
                       </div>
                       <hr>
@@ -1757,6 +1801,22 @@ except ApiException as e:
 
                           <h2>Responses</h2>
                             <h3> Status: 200 - Successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 404 - Collections not found. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
                             </ul>
@@ -2082,6 +2142,22 @@ except ApiException as e:
                             <div class="tab-content" style='margin-bottom: 10px;'>
                             </div>
 
+                            <h3> Status: 400 - JSON parameter malformed. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
                         </article>
                       </div>
                       <hr>
@@ -2120,7 +2196,7 @@ except ApiException as e:
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-Explore-aggregate-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/_aggregate?agg=&f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&notpwithin=&notgwithin=&notgintersect=&pretty=&human=&format=&size=&from=&sort=&maxAgeCache="</code></pre>
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/_aggregate?agg=&f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&notpwithin=&notgwithin=&notgintersect=&pretty=&human=&size=&from=&sort=&maxAgeCache="</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Explore-aggregate-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -2145,13 +2221,11 @@ Where the {type}:{field} part is mandatory AND interval, format, collect_field, 
  
 - {type} possible values are : 
  
-       datehistogram, geohash, histogram, term. 
+       datehistogram, histogram, term. 
  
 - {interval} possible values depends on {type}. 
  
        If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). 
- 
-       If {type} = geohash, then {interval} = {length}. 
  
        If {type} = histogram, then {interval} = {size}. 
  
@@ -2212,17 +2286,18 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
         array[String] notgintersect = ; // array[String] | Any element having its geometry not intersecting the given geometry (WKT)
         Boolean pretty = true; // Boolean | Pretty print
         Boolean human = true; // Boolean | Human readable print
-        String format = format_example; // String | JSON or GeoJSON format
         Integer size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
         Integer from = 56; // Integer | From index to start the search from. Defaults to 0.
-        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+        array[String] sort = -country,city; // array[String] | - Sort the result on the given fields ascending or descending. 
  
-The parameter can be provided several times. The order matters. 
+- Fields can be provided several times by separating them with a comma. The order matters. 
  
-For aggregation, provide the 'agg' keyword as the {fieldName}.
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`.
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
-            apiInstance.aggregate(collections, agg, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, format, size, from, sort, maxAgeCache);
+            apiInstance.aggregate(collections, agg, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, size, from, sort, maxAgeCache);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExploreApi#aggregate");
             e.printStackTrace();
@@ -2247,13 +2322,11 @@ Where the {type}:{field} part is mandatory AND interval, format, collect_field, 
  
 - {type} possible values are : 
  
-       datehistogram, geohash, histogram, term. 
+       datehistogram, histogram, term. 
  
 - {interval} possible values depends on {type}. 
  
        If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). 
- 
-       If {type} = geohash, then {interval} = {length}. 
  
        If {type} = histogram, then {interval} = {size}. 
  
@@ -2314,17 +2387,18 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
         array[String] notgintersect = ; // array[String] | Any element having its geometry not intersecting the given geometry (WKT)
         Boolean pretty = true; // Boolean | Pretty print
         Boolean human = true; // Boolean | Human readable print
-        String format = format_example; // String | JSON or GeoJSON format
         Integer size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
         Integer from = 56; // Integer | From index to start the search from. Defaults to 0.
-        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+        array[String] sort = -country,city; // array[String] | - Sort the result on the given fields ascending or descending. 
  
-The parameter can be provided several times. The order matters. 
+- Fields can be provided several times by separating them with a comma. The order matters. 
  
-For aggregation, provide the 'agg' keyword as the {fieldName}.
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`.
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
-            apiInstance.aggregate(collections, agg, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, format, size, from, sort, maxAgeCache);
+            apiInstance.aggregate(collections, agg, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, size, from, sort, maxAgeCache);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExploreApi#aggregate");
             e.printStackTrace();
@@ -2346,13 +2420,11 @@ Where the {type}:{field} part is mandatory AND interval, format, collect_field, 
  
 - {type} possible values are : 
  
-       datehistogram, geohash, histogram, term. 
+       datehistogram, histogram, term. 
  
 - {interval} possible values depends on {type}. 
  
        If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). 
- 
-       If {type} = geohash, then {interval} = {length}. 
  
        If {type} = histogram, then {interval} = {size}. 
  
@@ -2413,14 +2485,15 @@ array[String] *notgwithin = ; // Any element having its geometry outside the giv
 array[String] *notgintersect = ; // Any element having its geometry not intersecting the given geometry (WKT) (optional)
 Boolean *pretty = true; // Pretty print (optional) (default to false)
 Boolean *human = true; // Human readable print (optional) (default to false)
-String *format = format_example; // JSON or GeoJSON format (optional) (default to json)
 Integer *size = 56; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
 Integer *from = 56; // From index to start the search from. Defaults to 0. (optional) (default to 0)
-array[String] *sort = city:DESC; // Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+array[String] *sort = -country,city; // - Sort the result on the given fields ascending or descending. 
  
-The parameter can be provided several times. The order matters. 
+- Fields can be provided several times by separating them with a comma. The order matters. 
  
-For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`. (optional)
 Integer *maxAgeCache = 56; // max-age-cache (optional)
 
 ExploreApi *apiInstance = [[ExploreApi alloc] init];
@@ -2440,7 +2513,6 @@ ExploreApi *apiInstance = [[ExploreApi alloc] init];
     notgintersect:notgintersect
     pretty:pretty
     human:human
-    format:format
     size:size
     from:from
     sort:sort
@@ -2468,13 +2540,11 @@ Where the {type}:{field} part is mandatory AND interval, format, collect_field, 
  
 - {type} possible values are : 
  
-       datehistogram, geohash, histogram, term. 
+       datehistogram, histogram, term. 
  
 - {interval} possible values depends on {type}. 
  
        If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). 
- 
-       If {type} = geohash, then {interval} = {length}. 
  
        If {type} = histogram, then {interval} = {size}. 
  
@@ -2537,14 +2607,15 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
   'notgintersect': , // {array[String]} Any element having its geometry not intersecting the given geometry (WKT)
   'pretty': true, // {Boolean} Pretty print
   'human': true, // {Boolean} Human readable print
-  'format': format_example, // {String} JSON or GeoJSON format
   'size': 56, // {Integer} The maximum number of entries or sub-entries to be returned. The default value is 10
   'from': 56, // {Integer} From index to start the search from. Defaults to 0.
-  'sort': city:DESC, // {array[String]} Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+  'sort': -country,city, // {array[String]} - Sort the result on the given fields ascending or descending. 
  
-The parameter can be provided several times. The order matters. 
+- Fields can be provided several times by separating them with a comma. The order matters. 
  
-For aggregation, provide the 'agg' keyword as the {fieldName}.
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`.
   'maxAgeCache': 56 // {Integer} max-age-cache
 };
 
@@ -2586,13 +2657,11 @@ Where the {type}:{field} part is mandatory AND interval, format, collect_field, 
  
 - {type} possible values are : 
  
-       datehistogram, geohash, histogram, term. 
+       datehistogram, histogram, term. 
  
 - {interval} possible values depends on {type}. 
  
        If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). 
- 
-       If {type} = geohash, then {interval} = {length}. 
  
        If {type} = histogram, then {interval} = {size}. 
  
@@ -2653,20 +2722,21 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
             var notgintersect = new array[String](); // array[String] | Any element having its geometry not intersecting the given geometry (WKT) (optional) 
             var pretty = true;  // Boolean | Pretty print (optional)  (default to false)
             var human = true;  // Boolean | Human readable print (optional)  (default to false)
-            var format = format_example;  // String | JSON or GeoJSON format (optional)  (default to json)
             var size = 56;  // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)  (default to 10)
             var from = 56;  // Integer | From index to start the search from. Defaults to 0. (optional)  (default to 0)
-            var sort = new array[String](); // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+            var sort = new array[String](); // array[String] | - Sort the result on the given fields ascending or descending. 
  
-The parameter can be provided several times. The order matters. 
+- Fields can be provided several times by separating them with a comma. The order matters. 
  
-For aggregation, provide the 'agg' keyword as the {fieldName}. (optional) 
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`. (optional) 
             var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
 
             try
             {
                 // Aggregate
-                apiInstance.aggregate(collections, agg, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, format, size, from, sort, maxAgeCache);
+                apiInstance.aggregate(collections, agg, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, size, from, sort, maxAgeCache);
             }
             catch (Exception e)
             {
@@ -2691,13 +2761,11 @@ Where the {type}:{field} part is mandatory AND interval, format, collect_field, 
  
 - {type} possible values are : 
  
-       datehistogram, geohash, histogram, term. 
+       datehistogram, histogram, term. 
  
 - {interval} possible values depends on {type}. 
  
        If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). 
- 
-       If {type} = geohash, then {interval} = {length}. 
  
        If {type} = histogram, then {interval} = {size}. 
  
@@ -2758,18 +2826,19 @@ $notgwithin = ; // array[String] | Any element having its geometry outside the g
 $notgintersect = ; // array[String] | Any element having its geometry not intersecting the given geometry (WKT)
 $pretty = true; // Boolean | Pretty print
 $human = true; // Boolean | Human readable print
-$format = format_example; // String | JSON or GeoJSON format
 $size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
 $from = 56; // Integer | From index to start the search from. Defaults to 0.
-$sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+$sort = -country,city; // array[String] | - Sort the result on the given fields ascending or descending. 
  
-The parameter can be provided several times. The order matters. 
+- Fields can be provided several times by separating them with a comma. The order matters. 
  
-For aggregation, provide the 'agg' keyword as the {fieldName}.
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`.
 $maxAgeCache = 56; // Integer | max-age-cache
 
 try {
-    $api_instance->aggregate($collections, $agg, $f, $q, $before, $after, $pwithin, $gwithin, $gintersect, $notpwithin, $notgwithin, $notgintersect, $pretty, $human, $format, $size, $from, $sort, $maxAgeCache);
+    $api_instance->aggregate($collections, $agg, $f, $q, $before, $after, $pwithin, $gwithin, $gintersect, $notpwithin, $notgwithin, $notgintersect, $pretty, $human, $size, $from, $sort, $maxAgeCache);
 } catch (Exception $e) {
     echo 'Exception when calling ExploreApi->aggregate: ', $e->getMessage(), PHP_EOL;
 }
@@ -2791,13 +2860,11 @@ Where the {type}:{field} part is mandatory AND interval, format, collect_field, 
  
 - {type} possible values are : 
  
-       datehistogram, geohash, histogram, term. 
+       datehistogram, histogram, term. 
  
 - {interval} possible values depends on {type}. 
  
        If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). 
- 
-       If {type} = geohash, then {interval} = {length}. 
  
        If {type} = histogram, then {interval} = {size}. 
  
@@ -2858,18 +2925,19 @@ my $notgwithin = []; # array[String] | Any element having its geometry outside t
 my $notgintersect = []; # array[String] | Any element having its geometry not intersecting the given geometry (WKT)
 my $pretty = true; # Boolean | Pretty print
 my $human = true; # Boolean | Human readable print
-my $format = format_example; # String | JSON or GeoJSON format
 my $size = 56; # Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
 my $from = 56; # Integer | From index to start the search from. Defaults to 0.
-my $sort = [city:DESC]; # array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+my $sort = [-country,city]; # array[String] | - Sort the result on the given fields ascending or descending. 
  
-The parameter can be provided several times. The order matters. 
+- Fields can be provided several times by separating them with a comma. The order matters. 
  
-For aggregation, provide the 'agg' keyword as the {fieldName}.
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`.
 my $maxAgeCache = 56; # Integer | max-age-cache
 
 eval { 
-    $api_instance->aggregate(collections => $collections, agg => $agg, f => $f, q => $q, before => $before, after => $after, pwithin => $pwithin, gwithin => $gwithin, gintersect => $gintersect, notpwithin => $notpwithin, notgwithin => $notgwithin, notgintersect => $notgintersect, pretty => $pretty, human => $human, format => $format, size => $size, from => $from, sort => $sort, maxAgeCache => $maxAgeCache);
+    $api_instance->aggregate(collections => $collections, agg => $agg, f => $f, q => $q, before => $before, after => $after, pwithin => $pwithin, gwithin => $gwithin, gintersect => $gintersect, notpwithin => $notpwithin, notgwithin => $notgwithin, notgintersect => $notgintersect, pretty => $pretty, human => $human, size => $size, from => $from, sort => $sort, maxAgeCache => $maxAgeCache);
 };
 if ($@) {
     warn "Exception when calling ExploreApi->aggregate: $@\n";
@@ -2894,13 +2962,11 @@ Where the {type}:{field} part is mandatory AND interval, format, collect_field, 
  
 - {type} possible values are : 
  
-       datehistogram, geohash, histogram, term. 
+       datehistogram, histogram, term. 
  
 - {interval} possible values depends on {type}. 
  
        If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). 
- 
-       If {type} = geohash, then {interval} = {length}. 
  
        If {type} = histogram, then {interval} = {size}. 
  
@@ -2961,19 +3027,20 @@ notgwithin =  # array[String] | Any element having its geometry outside the give
 notgintersect =  # array[String] | Any element having its geometry not intersecting the given geometry (WKT) (optional)
 pretty = true # Boolean | Pretty print (optional) (default to false)
 human = true # Boolean | Human readable print (optional) (default to false)
-format = format_example # String | JSON or GeoJSON format (optional) (default to json)
 size = 56 # Integer | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
 from = 56 # Integer | From index to start the search from. Defaults to 0. (optional) (default to 0)
-sort = city:DESC # array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+sort = -country,city # array[String] | - Sort the result on the given fields ascending or descending. 
  
-The parameter can be provided several times. The order matters. 
+- Fields can be provided several times by separating them with a comma. The order matters. 
  
-For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`. (optional)
 maxAgeCache = 56 # Integer | max-age-cache (optional)
 
 try: 
     # Aggregate
-    api_instance.aggregate(collections, agg, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, notpwithin=notpwithin, notgwithin=notgwithin, notgintersect=notgintersect, pretty=pretty, human=human, format=format, size=size, from=from, sort=sort, maxAgeCache=maxAgeCache)
+    api_instance.aggregate(collections, agg, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, notpwithin=notpwithin, notgwithin=notgwithin, notgintersect=notgintersect, pretty=pretty, human=human, size=size, from=from, sort=sort, maxAgeCache=maxAgeCache)
 except ApiException as e:
     print("Exception when calling ExploreApi->aggregate: %s\n" % e)</code></pre>
                             </div>
@@ -3040,7 +3107,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "agg",
   "in" : "query",
-  "description" : "- The agg parameter should be given in the following formats:  \n \n       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} \n \nWhere the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. \n \n- {type} possible values are : \n \n       datehistogram, geohash, histogram, term. \n \n- {interval} possible values depends on {type}. \n \n       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). \n \n       If {type} = geohash, then {interval} = {length}. \n \n       If {type} = histogram, then {interval} = {size}. \n \n       If {type} = term, then interval-{interval} is not needed. \n \n- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. \n \n- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. \n \n  {collect_fct} possible values are : \n \n       avg,cardinality,max,min,sum\n \n- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. \n \n- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. \n \nagg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. \n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+  "description" : "- The agg parameter should be given in the following formats:  \n \n       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} \n \nWhere the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. \n \n- {type} possible values are : \n \n       datehistogram, histogram, term. \n \n- {interval} possible values depends on {type}. \n \n       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). \n \n       If {type} = histogram, then {interval} = {size}. \n \n       If {type} = term, then interval-{interval} is not needed. \n \n- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. \n \n- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. \n \n  {collect_fct} possible values are : \n \n       avg,cardinality,max,min,sum\n \n- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. \n \n- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. \n \nagg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. \n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
   "required" : true,
   "type" : "array",
   "items" : {
@@ -3496,41 +3563,6 @@ except ApiException as e:
 </td>
 </tr>
 
-                                <tr><td style="width:150px;">format</td>
-<td>
-
-
-<script>
-												$(document).ready(function() {
-													var schemaWrapper = {
-  "name" : "format",
-  "in" : "query",
-  "description" : "JSON or GeoJSON format",
-  "required" : false,
-  "type" : "string",
-  "default" : "json",
-  "enum" : [ "json", "geojson;" ]
-};
-													var schema = schemaWrapper;
-
-
-
-
-													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_aggregate_format');
-													result.empty();
-													result.append(view.render());
-
-
-
-
-
-												});
-												</script>
-												<div id="d2e199_aggregate_format"></div>
-</td>
-</tr>
-
                                 <tr><td style="width:150px;">size</td>
 <td>
 
@@ -3612,14 +3644,14 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "sort",
   "in" : "query",
-  "description" : "Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . \n \nThe parameter can be provided several times. The order matters. \n \nFor aggregation, provide the 'agg' keyword as the {fieldName}.",
+  "description" : "- Sort the result on the given fields ascending or descending. \n \n- Fields can be provided several times by separating them with a comma. The order matters. \n \n- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.\n \n- For aggregation, provide the `agg` keyword as the `{field}`.",
   "required" : false,
   "type" : "array",
   "items" : {
     "type" : "string"
   },
   "collectionFormat" : "multi",
-  "x-example" : "city:DESC"
+  "x-example" : "-country,city"
 };
 													var schema = schemaWrapper;
 
@@ -5153,6 +5185,1483 @@ except ApiException as e:
                         </article>
                       </div>
                       <hr>
+                    <div id="api-Explore-geoaggregate">
+                      <article id="api-Explore-geoaggregate-0" data-group="User" data-name="geoaggregate" data-version="0">
+                        <div class="pull-left">
+                          <h1>geoaggregate</h1>
+                          <p>Aggregate</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/_geoaggregate</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-geoaggregate-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-geoaggregate-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-geoaggregate-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-geoaggregate-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-geoaggregate-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-geoaggregate-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-geoaggregate-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-geoaggregate-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-geoaggregate-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-geoaggregate-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-geoaggregate-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-geoaggregate-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/_geoaggregate?agg=&f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&notpwithin=&notgwithin=&notgintersect=&pretty=&human=&size=&from=&sort=&maxAgeCache="</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-geoaggregate-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        String collections = collections_example; // String | collections, comma separated
+        array[String] agg = ; // array[String] | - The agg parameter should be given in the following formats:  
+ 
+       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} 
+ 
+Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. 
+ 
+- {type} possible value is : geohash. 
+ 
+- {interval} must be a numeric value. 
+ 
+- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. 
+ 
+- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. 
+ 
+  {collect_fct} possible values are : 
+ 
+       avg,cardinality,max,min,sum
+ 
+- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. 
+ 
+- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. 
+ 
+agg parameter in this case is not multiple. 
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+        array[String] f = ; // array[String] | - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+        String q = q_example; // String | A full text search
+        Long before = 789; // Long | Any element having its point in time reference before the given timestamp
+        Long after = 789; // Long | Any element having its point in time reference after the given timestamp
+        array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
+        array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
+        array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
+        array[String] notpwithin = ; // array[String] | Any element having its centroid outside the given geometry (WKT)
+        array[String] notgwithin = ; // array[String] | Any element having its geometry outside the given geometry (WKT)
+        array[String] notgintersect = ; // array[String] | Any element having its geometry not intersecting the given geometry (WKT)
+        Boolean pretty = true; // Boolean | Pretty print
+        Boolean human = true; // Boolean | Human readable print
+        Integer size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+        Integer from = 56; // Integer | From index to start the search from. Defaults to 0.
+        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            apiInstance.geoaggregate(collections, agg, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, size, from, sort, maxAgeCache);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#geoaggregate");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-geoaggregate-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        String collections = collections_example; // String | collections, comma separated
+        array[String] agg = ; // array[String] | - The agg parameter should be given in the following formats:  
+ 
+       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} 
+ 
+Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. 
+ 
+- {type} possible value is : geohash. 
+ 
+- {interval} must be a numeric value. 
+ 
+- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. 
+ 
+- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. 
+ 
+  {collect_fct} possible values are : 
+ 
+       avg,cardinality,max,min,sum
+ 
+- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. 
+ 
+- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. 
+ 
+agg parameter in this case is not multiple. 
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+        array[String] f = ; // array[String] | - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+        String q = q_example; // String | A full text search
+        Long before = 789; // Long | Any element having its point in time reference before the given timestamp
+        Long after = 789; // Long | Any element having its point in time reference after the given timestamp
+        array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
+        array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
+        array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
+        array[String] notpwithin = ; // array[String] | Any element having its centroid outside the given geometry (WKT)
+        array[String] notgwithin = ; // array[String] | Any element having its geometry outside the given geometry (WKT)
+        array[String] notgintersect = ; // array[String] | Any element having its geometry not intersecting the given geometry (WKT)
+        Boolean pretty = true; // Boolean | Pretty print
+        Boolean human = true; // Boolean | Human readable print
+        Integer size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+        Integer from = 56; // Integer | From index to start the search from. Defaults to 0.
+        array[String] sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            apiInstance.geoaggregate(collections, agg, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, size, from, sort, maxAgeCache);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#geoaggregate");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-geoaggregate-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-geoaggregate-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">String *collections = collections_example; // collections, comma separated
+array[String] *agg = ; // - The agg parameter should be given in the following formats:  
+ 
+       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} 
+ 
+Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. 
+ 
+- {type} possible value is : geohash. 
+ 
+- {interval} must be a numeric value. 
+ 
+- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. 
+ 
+- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. 
+ 
+  {collect_fct} possible values are : 
+ 
+       avg,cardinality,max,min,sum
+ 
+- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. 
+ 
+- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. 
+ 
+agg parameter in this case is not multiple. 
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+array[String] *f = ; // - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
+String *q = q_example; // A full text search (optional)
+Long *before = 789; // Any element having its point in time reference before the given timestamp (optional)
+Long *after = 789; // Any element having its point in time reference after the given timestamp (optional)
+array[String] *pwithin = ; // Any element having its centroid contained within the given geometry (WKT) (optional)
+array[String] *gwithin = ; // Any element having its geometry contained within the given geometry (WKT) (optional)
+array[String] *gintersect = ; // Any element having its geometry intersecting the given geometry (WKT) (optional)
+array[String] *notpwithin = ; // Any element having its centroid outside the given geometry (WKT) (optional)
+array[String] *notgwithin = ; // Any element having its geometry outside the given geometry (WKT) (optional)
+array[String] *notgintersect = ; // Any element having its geometry not intersecting the given geometry (WKT) (optional)
+Boolean *pretty = true; // Pretty print (optional) (default to false)
+Boolean *human = true; // Human readable print (optional) (default to false)
+Integer *size = 56; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
+Integer *from = 56; // From index to start the search from. Defaults to 0. (optional) (default to 0)
+array[String] *sort = city:DESC; // Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
+Integer *maxAgeCache = 56; // max-age-cache (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// Aggregate
+[apiInstance geoaggregateWith:collections
+    agg:agg
+    f:f
+    q:q
+    before:before
+    after:after
+    pwithin:pwithin
+    gwithin:gwithin
+    gintersect:gintersect
+    notpwithin:notpwithin
+    notgwithin:notgwithin
+    notgintersect:notgintersect
+    pretty:pretty
+    human:human
+    size:size
+    from:from
+    sort:sort
+    maxAgeCache:maxAgeCache
+              completionHandler: ^(NSError* error) {
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-geoaggregate-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var collections = collections_example; // {String} collections, comma separated
+
+var agg = ; // {array[String]} - The agg parameter should be given in the following formats:  
+ 
+       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} 
+ 
+Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. 
+ 
+- {type} possible value is : geohash. 
+ 
+- {interval} must be a numeric value. 
+ 
+- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. 
+ 
+- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. 
+ 
+  {collect_fct} possible values are : 
+ 
+       avg,cardinality,max,min,sum
+ 
+- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. 
+ 
+- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. 
+ 
+agg parameter in this case is not multiple. 
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+
+var opts = { 
+  'f': , // {array[String]} - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+  'q': q_example, // {String} A full text search
+  'before': 789, // {Long} Any element having its point in time reference before the given timestamp
+  'after': 789, // {Long} Any element having its point in time reference after the given timestamp
+  'pwithin': , // {array[String]} Any element having its centroid contained within the given geometry (WKT)
+  'gwithin': , // {array[String]} Any element having its geometry contained within the given geometry (WKT)
+  'gintersect': , // {array[String]} Any element having its geometry intersecting the given geometry (WKT)
+  'notpwithin': , // {array[String]} Any element having its centroid outside the given geometry (WKT)
+  'notgwithin': , // {array[String]} Any element having its geometry outside the given geometry (WKT)
+  'notgintersect': , // {array[String]} Any element having its geometry not intersecting the given geometry (WKT)
+  'pretty': true, // {Boolean} Pretty print
+  'human': true, // {Boolean} Human readable print
+  'size': 56, // {Integer} The maximum number of entries or sub-entries to be returned. The default value is 10
+  'from': 56, // {Integer} From index to start the search from. Defaults to 0.
+  'sort': city:DESC, // {array[String]} Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
+  'maxAgeCache': 56 // {Integer} max-age-cache
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully.');
+  }
+};
+api.geoaggregate(collections, agg, opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-geoaggregate-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-geoaggregate-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class geoaggregateExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var collections = collections_example;  // String | collections, comma separated
+            var agg = new array[String](); // array[String] | - The agg parameter should be given in the following formats:  
+ 
+       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} 
+ 
+Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. 
+ 
+- {type} possible value is : geohash. 
+ 
+- {interval} must be a numeric value. 
+ 
+- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. 
+ 
+- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. 
+ 
+  {collect_fct} possible values are : 
+ 
+       avg,cardinality,max,min,sum
+ 
+- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. 
+ 
+- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. 
+ 
+agg parameter in this case is not multiple. 
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+            var f = new array[String](); // array[String] | - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional) 
+            var q = q_example;  // String | A full text search (optional) 
+            var before = 789;  // Long | Any element having its point in time reference before the given timestamp (optional) 
+            var after = 789;  // Long | Any element having its point in time reference after the given timestamp (optional) 
+            var pwithin = new array[String](); // array[String] | Any element having its centroid contained within the given geometry (WKT) (optional) 
+            var gwithin = new array[String](); // array[String] | Any element having its geometry contained within the given geometry (WKT) (optional) 
+            var gintersect = new array[String](); // array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional) 
+            var notpwithin = new array[String](); // array[String] | Any element having its centroid outside the given geometry (WKT) (optional) 
+            var notgwithin = new array[String](); // array[String] | Any element having its geometry outside the given geometry (WKT) (optional) 
+            var notgintersect = new array[String](); // array[String] | Any element having its geometry not intersecting the given geometry (WKT) (optional) 
+            var pretty = true;  // Boolean | Pretty print (optional)  (default to false)
+            var human = true;  // Boolean | Human readable print (optional)  (default to false)
+            var size = 56;  // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)  (default to 10)
+            var from = 56;  // Integer | From index to start the search from. Defaults to 0. (optional)  (default to 0)
+            var sort = new array[String](); // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}. (optional) 
+            var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
+
+            try
+            {
+                // Aggregate
+                apiInstance.geoaggregate(collections, agg, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, size, from, sort, maxAgeCache);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.geoaggregate: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-geoaggregate-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$collections = collections_example; // String | collections, comma separated
+$agg = ; // array[String] | - The agg parameter should be given in the following formats:  
+ 
+       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} 
+ 
+Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. 
+ 
+- {type} possible value is : geohash. 
+ 
+- {interval} must be a numeric value. 
+ 
+- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. 
+ 
+- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. 
+ 
+  {collect_fct} possible values are : 
+ 
+       avg,cardinality,max,min,sum
+ 
+- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. 
+ 
+- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. 
+ 
+agg parameter in this case is not multiple. 
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+$f = ; // array[String] | - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+$q = q_example; // String | A full text search
+$before = 789; // Long | Any element having its point in time reference before the given timestamp
+$after = 789; // Long | Any element having its point in time reference after the given timestamp
+$pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
+$gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
+$gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
+$notpwithin = ; // array[String] | Any element having its centroid outside the given geometry (WKT)
+$notgwithin = ; // array[String] | Any element having its geometry outside the given geometry (WKT)
+$notgintersect = ; // array[String] | Any element having its geometry not intersecting the given geometry (WKT)
+$pretty = true; // Boolean | Pretty print
+$human = true; // Boolean | Human readable print
+$size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+$from = 56; // Integer | From index to start the search from. Defaults to 0.
+$sort = city:DESC; // array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
+$maxAgeCache = 56; // Integer | max-age-cache
+
+try {
+    $api_instance->geoaggregate($collections, $agg, $f, $q, $before, $after, $pwithin, $gwithin, $gintersect, $notpwithin, $notgwithin, $notgintersect, $pretty, $human, $size, $from, $sort, $maxAgeCache);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->geoaggregate: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-geoaggregate-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $collections = collections_example; # String | collections, comma separated
+my $agg = []; # array[String] | - The agg parameter should be given in the following formats:  
+ 
+       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} 
+ 
+Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. 
+ 
+- {type} possible value is : geohash. 
+ 
+- {interval} must be a numeric value. 
+ 
+- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. 
+ 
+- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. 
+ 
+  {collect_fct} possible values are : 
+ 
+       avg,cardinality,max,min,sum
+ 
+- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. 
+ 
+- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. 
+ 
+agg parameter in this case is not multiple. 
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+my $f = []; # array[String] | - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+my $q = q_example; # String | A full text search
+my $before = 789; # Long | Any element having its point in time reference before the given timestamp
+my $after = 789; # Long | Any element having its point in time reference after the given timestamp
+my $pwithin = []; # array[String] | Any element having its centroid contained within the given geometry (WKT)
+my $gwithin = []; # array[String] | Any element having its geometry contained within the given geometry (WKT)
+my $gintersect = []; # array[String] | Any element having its geometry intersecting the given geometry (WKT)
+my $notpwithin = []; # array[String] | Any element having its centroid outside the given geometry (WKT)
+my $notgwithin = []; # array[String] | Any element having its geometry outside the given geometry (WKT)
+my $notgintersect = []; # array[String] | Any element having its geometry not intersecting the given geometry (WKT)
+my $pretty = true; # Boolean | Pretty print
+my $human = true; # Boolean | Human readable print
+my $size = 56; # Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+my $from = 56; # Integer | From index to start the search from. Defaults to 0.
+my $sort = [city:DESC]; # array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}.
+my $maxAgeCache = 56; # Integer | max-age-cache
+
+eval { 
+    $api_instance->geoaggregate(collections => $collections, agg => $agg, f => $f, q => $q, before => $before, after => $after, pwithin => $pwithin, gwithin => $gwithin, gintersect => $gintersect, notpwithin => $notpwithin, notgwithin => $notgwithin, notgintersect => $notgintersect, pretty => $pretty, human => $human, size => $size, from => $from, sort => $sort, maxAgeCache => $maxAgeCache);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->geoaggregate: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-geoaggregate-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+collections = collections_example # String | collections, comma separated
+agg =  # array[String] | - The agg parameter should be given in the following formats:  
+ 
+       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} 
+ 
+Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. 
+ 
+- {type} possible value is : geohash. 
+ 
+- {interval} must be a numeric value. 
+ 
+- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. 
+ 
+- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. 
+ 
+  {collect_fct} possible values are : 
+ 
+       avg,cardinality,max,min,sum
+ 
+- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. 
+ 
+- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. 
+ 
+agg parameter in this case is not multiple. 
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+f =  # array[String] | - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
+q = q_example # String | A full text search (optional)
+before = 789 # Long | Any element having its point in time reference before the given timestamp (optional)
+after = 789 # Long | Any element having its point in time reference after the given timestamp (optional)
+pwithin =  # array[String] | Any element having its centroid contained within the given geometry (WKT) (optional)
+gwithin =  # array[String] | Any element having its geometry contained within the given geometry (WKT) (optional)
+gintersect =  # array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional)
+notpwithin =  # array[String] | Any element having its centroid outside the given geometry (WKT) (optional)
+notgwithin =  # array[String] | Any element having its geometry outside the given geometry (WKT) (optional)
+notgintersect =  # array[String] | Any element having its geometry not intersecting the given geometry (WKT) (optional)
+pretty = true # Boolean | Pretty print (optional) (default to false)
+human = true # Boolean | Human readable print (optional) (default to false)
+size = 56 # Integer | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
+from = 56 # Integer | From index to start the search from. Defaults to 0. (optional) (default to 0)
+sort = city:DESC # array[String] | Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . 
+ 
+The parameter can be provided several times. The order matters. 
+ 
+For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
+maxAgeCache = 56 # Integer | max-age-cache (optional)
+
+try: 
+    # Aggregate
+    api_instance.geoaggregate(collections, agg, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, notpwithin=notpwithin, notgwithin=notgwithin, notgintersect=notgintersect, pretty=pretty, human=human, size=size, from=from, sort=sort, maxAgeCache=maxAgeCache)
+except ApiException as e:
+    print("Exception when calling ExploreApi->geoaggregate: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">collections*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collections",
+  "in" : "path",
+  "description" : "collections, comma separated",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_collections');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_collections"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+
+
+                            <div class="methodsubtabletitle">Query parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">agg*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "agg",
+  "in" : "query",
+  "description" : "- The agg parameter should be given in the following formats:  \n \n       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} \n \nWhere the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. \n \n- {type} possible value is : geohash. \n \n- {interval} must be a numeric value. \n \n- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. \n \n- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. \n \n  {collect_fct} possible values are : \n \n       avg,cardinality,max,min,sum\n \n- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. \n \n- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. \n \nagg parameter in this case is not multiple. \n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+  "required" : true,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_agg');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_agg"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">f</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "f",
+  "in" : "query",
+  "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator   |                   Description                      | value type\n \n       :          |  {fieldName} equals {value}                        | numeric or strings \n \n       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric \n \n       :gt:       |  {fieldName} is greater than {value}               | numeric \n \n       :lte:      |  {fieldName} is less than or equal to {value}      | numeric \n \n       :lt:       |  {fieldName}  is less than {value}                 | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_f');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_f"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">q</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "q",
+  "in" : "query",
+  "description" : "A full text search",
+  "required" : false,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_q');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_q"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">before</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "before",
+  "in" : "query",
+  "description" : "Any element having its point in time reference before the given timestamp",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int64"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_before');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_before"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">after</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "after",
+  "in" : "query",
+  "description" : "Any element having its point in time reference after the given timestamp",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int64"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_after');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_after"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">pwithin</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "pwithin",
+  "in" : "query",
+  "description" : "Any element having its centroid contained within the given geometry (WKT)",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_pwithin');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_pwithin"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">gwithin</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "gwithin",
+  "in" : "query",
+  "description" : "Any element having its geometry contained within the given geometry (WKT)",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_gwithin');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_gwithin"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">gintersect</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "gintersect",
+  "in" : "query",
+  "description" : "Any element having its geometry intersecting the given geometry (WKT)",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_gintersect');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_gintersect"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">notpwithin</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "notpwithin",
+  "in" : "query",
+  "description" : "Any element having its centroid outside the given geometry (WKT)",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_notpwithin');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_notpwithin"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">notgwithin</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "notgwithin",
+  "in" : "query",
+  "description" : "Any element having its geometry outside the given geometry (WKT)",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_notgwithin');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_notgwithin"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">notgintersect</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "notgintersect",
+  "in" : "query",
+  "description" : "Any element having its geometry not intersecting the given geometry (WKT)",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_notgintersect');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_notgintersect"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">pretty</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "pretty",
+  "in" : "query",
+  "description" : "Pretty print",
+  "required" : false,
+  "type" : "boolean",
+  "default" : false
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_pretty');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_pretty"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">human</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "human",
+  "in" : "query",
+  "description" : "Human readable print",
+  "required" : false,
+  "type" : "boolean",
+  "default" : false
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_human');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_human"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">size</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "size",
+  "in" : "query",
+  "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
+  "required" : false,
+  "type" : "integer",
+  "default" : 10,
+  "minimum" : 1,
+  "format" : "int32"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_size');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_size"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">from</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "from",
+  "in" : "query",
+  "description" : "From index to start the search from. Defaults to 0.",
+  "required" : false,
+  "type" : "integer",
+  "default" : 0,
+  "minimum" : 1,
+  "format" : "int32"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_from');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_from"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">sort</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "sort",
+  "in" : "query",
+  "description" : "Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . \n \nThe parameter can be provided several times. The order matters. \n \nFor aggregation, provide the 'agg' keyword as the {fieldName}.",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi",
+  "x-example" : "city:DESC"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_sort');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_sort"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">max-age-cache</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "max-age-cache",
+  "in" : "query",
+  "description" : "max-age-cache",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int32"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregate_maxAgeCache');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregate_maxAgeCache"></div>
+</td>
+</tr>
+
+                            </table>
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - Successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
                     <div id="api-Explore-list">
                       <article id="api-Explore-list-0" data-group="User" data-name="list" data-version="0">
                         <div class="pull-left">
@@ -5424,7 +6933,7 @@ except ApiException as e:
                         <p class="marked">Search and return the elements found in the collection(s), given the filters</p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/_search</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/_geosearch</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -5444,7 +6953,7 @@ except ApiException as e:
 
                         <div class="tab-content">
                           <div class="tab-pane active" id="examples-Explore-search-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/_search?f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&notpwithin=&notgwithin=&notgintersect=&pretty=&human=&format=&include=&exclude=&size=&from=&sort=&maxAgeCache="</code></pre>
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/_geosearch?f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&notpwithin=&notgwithin=&notgintersect=&pretty=&human=&include=&exclude=&size=&from=&sort=&maxAgeCache="</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Explore-search-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -5501,7 +7010,6 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
         array[String] notgintersect = ; // array[String] | Any element having its geometry not intersecting the given geometry (WKT)
         Boolean pretty = true; // Boolean | Pretty print
         Boolean human = true; // Boolean | Human readable print
-        String format = format_example; // String | JSON or GeoJSON format
         array[String] include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
         array[String] exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
         Integer size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
@@ -5513,7 +7021,7 @@ The parameter can be provided several times. The order matters.
 For aggregation, provide the 'agg' keyword as the {fieldName}.
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
-            apiInstance.search(collections, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, format, include, exclude, size, from, sort, maxAgeCache);
+            apiInstance.search(collections, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExploreApi#search");
             e.printStackTrace();
@@ -5570,7 +7078,6 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
         array[String] notgintersect = ; // array[String] | Any element having its geometry not intersecting the given geometry (WKT)
         Boolean pretty = true; // Boolean | Pretty print
         Boolean human = true; // Boolean | Human readable print
-        String format = format_example; // String | JSON or GeoJSON format
         array[String] include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
         array[String] exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
         Integer size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
@@ -5582,7 +7089,7 @@ The parameter can be provided several times. The order matters.
 For aggregation, provide the 'agg' keyword as the {fieldName}.
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
-            apiInstance.search(collections, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, format, include, exclude, size, from, sort, maxAgeCache);
+            apiInstance.search(collections, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExploreApi#search");
             e.printStackTrace();
@@ -5636,7 +7143,6 @@ array[String] *notgwithin = ; // Any element having its geometry outside the giv
 array[String] *notgintersect = ; // Any element having its geometry not intersecting the given geometry (WKT) (optional)
 Boolean *pretty = true; // Pretty print (optional) (default to false)
 Boolean *human = true; // Human readable print (optional) (default to false)
-String *format = format_example; // JSON or GeoJSON format (optional) (default to json)
 array[String] *include = *; // List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional)
 array[String] *exclude = city,state; // List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional)
 Integer *size = 56; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
@@ -5664,7 +7170,6 @@ ExploreApi *apiInstance = [[ExploreApi alloc] init];
     notgintersect:notgintersect
     pretty:pretty
     human:human
-    format:format
     include:include
     exclude:exclude
     size:size
@@ -5727,7 +7232,6 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
   'notgintersect': , // {array[String]} Any element having its geometry not intersecting the given geometry (WKT)
   'pretty': true, // {Boolean} Pretty print
   'human': true, // {Boolean} Human readable print
-  'format': format_example, // {String} JSON or GeoJSON format
   'include': *, // {array[String]} List the name patterns of the field to be included in the result. Seperate patterns with a comma.
   'exclude': city,state, // {array[String]} List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
   'size': 56, // {Integer} The maximum number of entries or sub-entries to be returned. The default value is 10
@@ -5810,7 +7314,6 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
             var notgintersect = new array[String](); // array[String] | Any element having its geometry not intersecting the given geometry (WKT) (optional) 
             var pretty = true;  // Boolean | Pretty print (optional)  (default to false)
             var human = true;  // Boolean | Human readable print (optional)  (default to false)
-            var format = format_example;  // String | JSON or GeoJSON format (optional)  (default to json)
             var include = new array[String](); // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional) 
             var exclude = new array[String](); // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional) 
             var size = 56;  // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)  (default to 10)
@@ -5825,7 +7328,7 @@ For aggregation, provide the 'agg' keyword as the {fieldName}. (optional)
             try
             {
                 // Search
-                apiInstance.search(collections, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, format, include, exclude, size, from, sort, maxAgeCache);
+                apiInstance.search(collections, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
             }
             catch (Exception e)
             {
@@ -5882,7 +7385,6 @@ $notgwithin = ; // array[String] | Any element having its geometry outside the g
 $notgintersect = ; // array[String] | Any element having its geometry not intersecting the given geometry (WKT)
 $pretty = true; // Boolean | Pretty print
 $human = true; // Boolean | Human readable print
-$format = format_example; // String | JSON or GeoJSON format
 $include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
 $exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
 $size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
@@ -5895,7 +7397,7 @@ For aggregation, provide the 'agg' keyword as the {fieldName}.
 $maxAgeCache = 56; // Integer | max-age-cache
 
 try {
-    $api_instance->search($collections, $f, $q, $before, $after, $pwithin, $gwithin, $gintersect, $notpwithin, $notgwithin, $notgintersect, $pretty, $human, $format, $include, $exclude, $size, $from, $sort, $maxAgeCache);
+    $api_instance->search($collections, $f, $q, $before, $after, $pwithin, $gwithin, $gintersect, $notpwithin, $notgwithin, $notgintersect, $pretty, $human, $include, $exclude, $size, $from, $sort, $maxAgeCache);
 } catch (Exception $e) {
     echo 'Exception when calling ExploreApi->search: ', $e->getMessage(), PHP_EOL;
 }
@@ -5949,7 +7451,6 @@ my $notgwithin = []; # array[String] | Any element having its geometry outside t
 my $notgintersect = []; # array[String] | Any element having its geometry not intersecting the given geometry (WKT)
 my $pretty = true; # Boolean | Pretty print
 my $human = true; # Boolean | Human readable print
-my $format = format_example; # String | JSON or GeoJSON format
 my $include = [*]; # array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
 my $exclude = [city,state]; # array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
 my $size = 56; # Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
@@ -5962,7 +7463,7 @@ For aggregation, provide the 'agg' keyword as the {fieldName}.
 my $maxAgeCache = 56; # Integer | max-age-cache
 
 eval { 
-    $api_instance->search(collections => $collections, f => $f, q => $q, before => $before, after => $after, pwithin => $pwithin, gwithin => $gwithin, gintersect => $gintersect, notpwithin => $notpwithin, notgwithin => $notgwithin, notgintersect => $notgintersect, pretty => $pretty, human => $human, format => $format, include => $include, exclude => $exclude, size => $size, from => $from, sort => $sort, maxAgeCache => $maxAgeCache);
+    $api_instance->search(collections => $collections, f => $f, q => $q, before => $before, after => $after, pwithin => $pwithin, gwithin => $gwithin, gintersect => $gintersect, notpwithin => $notpwithin, notgwithin => $notgwithin, notgintersect => $notgintersect, pretty => $pretty, human => $human, include => $include, exclude => $exclude, size => $size, from => $from, sort => $sort, maxAgeCache => $maxAgeCache);
 };
 if ($@) {
     warn "Exception when calling ExploreApi->search: $@\n";
@@ -6019,7 +7520,6 @@ notgwithin =  # array[String] | Any element having its geometry outside the give
 notgintersect =  # array[String] | Any element having its geometry not intersecting the given geometry (WKT) (optional)
 pretty = true # Boolean | Pretty print (optional) (default to false)
 human = true # Boolean | Human readable print (optional) (default to false)
-format = format_example # String | JSON or GeoJSON format (optional) (default to json)
 include = * # array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional)
 exclude = city,state # array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional)
 size = 56 # Integer | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
@@ -6033,7 +7533,7 @@ maxAgeCache = 56 # Integer | max-age-cache (optional)
 
 try: 
     # Search
-    api_instance.search(collections, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, notpwithin=notpwithin, notgwithin=notgwithin, notgintersect=notgintersect, pretty=pretty, human=human, format=format, include=include, exclude=exclude, size=size, from=from, sort=sort, maxAgeCache=maxAgeCache)
+    api_instance.search(collections, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, notpwithin=notpwithin, notgwithin=notgwithin, notgintersect=notgintersect, pretty=pretty, human=human, include=include, exclude=exclude, size=size, from=from, sort=sort, maxAgeCache=maxAgeCache)
 except ApiException as e:
     print("Exception when calling ExploreApi->search: %s\n" % e)</code></pre>
                             </div>
@@ -6519,41 +8019,6 @@ except ApiException as e:
 </td>
 </tr>
 
-                                <tr><td style="width:150px;">format</td>
-<td>
-
-
-<script>
-												$(document).ready(function() {
-													var schemaWrapper = {
-  "name" : "format",
-  "in" : "query",
-  "description" : "JSON or GeoJSON format",
-  "required" : false,
-  "type" : "string",
-  "default" : "json",
-  "enum" : [ "json", "geojson;" ]
-};
-													var schema = schemaWrapper;
-
-
-
-
-													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_search_format');
-													result.empty();
-													result.append(view.render());
-
-
-
-
-
-												});
-												</script>
-												<div id="d2e199_search_format"></div>
-</td>
-</tr>
-
                                 <tr><td style="width:150px;">include</td>
 <td>
 
@@ -6775,6 +8240,1358 @@ except ApiException as e:
 												});
 												</script>
 												<div id="d2e199_search_maxAgeCache"></div>
+</td>
+</tr>
+
+                            </table>
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - Successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-Explore-search_1">
+                      <article id="api-Explore-search_1-0" data-group="User" data-name="search_1" data-version="0">
+                        <div class="pull-left">
+                          <h1>search_1</h1>
+                          <p>Search</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Search and return the elements found in the collection(s), given the filters</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collections}/_search</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-search_1-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-search_1-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-search_1-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-search_1-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-search_1-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-search_1-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-search_1-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-search_1-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-search_1-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-search_1-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-search_1-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-search_1-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collections}/_search?f=&q=&before=&after=&pwithin=&gwithin=&gintersect=&notpwithin=&notgwithin=&notgintersect=&pretty=&human=&include=&exclude=&size=&from=&sort=&maxAgeCache="</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-search_1-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        String collections = collections_example; // String | collections, comma separated
+        array[String] f = ; // array[String] | - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+        String q = q_example; // String | A full text search
+        Long before = 789; // Long | Any element having its point in time reference before the given timestamp
+        Long after = 789; // Long | Any element having its point in time reference after the given timestamp
+        array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
+        array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
+        array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
+        array[String] notpwithin = ; // array[String] | Any element having its centroid outside the given geometry (WKT)
+        array[String] notgwithin = ; // array[String] | Any element having its geometry outside the given geometry (WKT)
+        array[String] notgintersect = ; // array[String] | Any element having its geometry not intersecting the given geometry (WKT)
+        Boolean pretty = true; // Boolean | Pretty print
+        Boolean human = true; // Boolean | Human readable print
+        array[String] include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
+        array[String] exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
+        Integer size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+        Integer from = 56; // Integer | From index to start the search from. Defaults to 0.
+        array[String] sort = -country,city; // array[String] | - Sort the result on the given fields ascending or descending. 
+ 
+- Fields can be provided several times by separating them with a comma. The order matters. 
+ 
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`.
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            apiInstance.search_0(collections, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#search_0");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-search_1-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        String collections = collections_example; // String | collections, comma separated
+        array[String] f = ; // array[String] | - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+        String q = q_example; // String | A full text search
+        Long before = 789; // Long | Any element having its point in time reference before the given timestamp
+        Long after = 789; // Long | Any element having its point in time reference after the given timestamp
+        array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
+        array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
+        array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
+        array[String] notpwithin = ; // array[String] | Any element having its centroid outside the given geometry (WKT)
+        array[String] notgwithin = ; // array[String] | Any element having its geometry outside the given geometry (WKT)
+        array[String] notgintersect = ; // array[String] | Any element having its geometry not intersecting the given geometry (WKT)
+        Boolean pretty = true; // Boolean | Pretty print
+        Boolean human = true; // Boolean | Human readable print
+        array[String] include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
+        array[String] exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
+        Integer size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+        Integer from = 56; // Integer | From index to start the search from. Defaults to 0.
+        array[String] sort = -country,city; // array[String] | - Sort the result on the given fields ascending or descending. 
+ 
+- Fields can be provided several times by separating them with a comma. The order matters. 
+ 
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`.
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            apiInstance.search_0(collections, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#search_0");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-search_1-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-search_1-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">String *collections = collections_example; // collections, comma separated
+array[String] *f = ; // - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
+String *q = q_example; // A full text search (optional)
+Long *before = 789; // Any element having its point in time reference before the given timestamp (optional)
+Long *after = 789; // Any element having its point in time reference after the given timestamp (optional)
+array[String] *pwithin = ; // Any element having its centroid contained within the given geometry (WKT) (optional)
+array[String] *gwithin = ; // Any element having its geometry contained within the given geometry (WKT) (optional)
+array[String] *gintersect = ; // Any element having its geometry intersecting the given geometry (WKT) (optional)
+array[String] *notpwithin = ; // Any element having its centroid outside the given geometry (WKT) (optional)
+array[String] *notgwithin = ; // Any element having its geometry outside the given geometry (WKT) (optional)
+array[String] *notgintersect = ; // Any element having its geometry not intersecting the given geometry (WKT) (optional)
+Boolean *pretty = true; // Pretty print (optional) (default to false)
+Boolean *human = true; // Human readable print (optional) (default to false)
+array[String] *include = *; // List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional)
+array[String] *exclude = city,state; // List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional)
+Integer *size = 56; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
+Integer *from = 56; // From index to start the search from. Defaults to 0. (optional) (default to 0)
+array[String] *sort = -country,city; // - Sort the result on the given fields ascending or descending. 
+ 
+- Fields can be provided several times by separating them with a comma. The order matters. 
+ 
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`. (optional)
+Integer *maxAgeCache = 56; // max-age-cache (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// Search
+[apiInstance search_1With:collections
+    f:f
+    q:q
+    before:before
+    after:after
+    pwithin:pwithin
+    gwithin:gwithin
+    gintersect:gintersect
+    notpwithin:notpwithin
+    notgwithin:notgwithin
+    notgintersect:notgintersect
+    pretty:pretty
+    human:human
+    include:include
+    exclude:exclude
+    size:size
+    from:from
+    sort:sort
+    maxAgeCache:maxAgeCache
+              completionHandler: ^(NSError* error) {
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-search_1-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var collections = collections_example; // {String} collections, comma separated
+
+var opts = { 
+  'f': , // {array[String]} - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+  'q': q_example, // {String} A full text search
+  'before': 789, // {Long} Any element having its point in time reference before the given timestamp
+  'after': 789, // {Long} Any element having its point in time reference after the given timestamp
+  'pwithin': , // {array[String]} Any element having its centroid contained within the given geometry (WKT)
+  'gwithin': , // {array[String]} Any element having its geometry contained within the given geometry (WKT)
+  'gintersect': , // {array[String]} Any element having its geometry intersecting the given geometry (WKT)
+  'notpwithin': , // {array[String]} Any element having its centroid outside the given geometry (WKT)
+  'notgwithin': , // {array[String]} Any element having its geometry outside the given geometry (WKT)
+  'notgintersect': , // {array[String]} Any element having its geometry not intersecting the given geometry (WKT)
+  'pretty': true, // {Boolean} Pretty print
+  'human': true, // {Boolean} Human readable print
+  'include': *, // {array[String]} List the name patterns of the field to be included in the result. Seperate patterns with a comma.
+  'exclude': city,state, // {array[String]} List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
+  'size': 56, // {Integer} The maximum number of entries or sub-entries to be returned. The default value is 10
+  'from': 56, // {Integer} From index to start the search from. Defaults to 0.
+  'sort': -country,city, // {array[String]} - Sort the result on the given fields ascending or descending. 
+ 
+- Fields can be provided several times by separating them with a comma. The order matters. 
+ 
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`.
+  'maxAgeCache': 56 // {Integer} max-age-cache
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully.');
+  }
+};
+api.search_0(collections, opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-search_1-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-search_1-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class search_0Example
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var collections = collections_example;  // String | collections, comma separated
+            var f = new array[String](); // array[String] | - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional) 
+            var q = q_example;  // String | A full text search (optional) 
+            var before = 789;  // Long | Any element having its point in time reference before the given timestamp (optional) 
+            var after = 789;  // Long | Any element having its point in time reference after the given timestamp (optional) 
+            var pwithin = new array[String](); // array[String] | Any element having its centroid contained within the given geometry (WKT) (optional) 
+            var gwithin = new array[String](); // array[String] | Any element having its geometry contained within the given geometry (WKT) (optional) 
+            var gintersect = new array[String](); // array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional) 
+            var notpwithin = new array[String](); // array[String] | Any element having its centroid outside the given geometry (WKT) (optional) 
+            var notgwithin = new array[String](); // array[String] | Any element having its geometry outside the given geometry (WKT) (optional) 
+            var notgintersect = new array[String](); // array[String] | Any element having its geometry not intersecting the given geometry (WKT) (optional) 
+            var pretty = true;  // Boolean | Pretty print (optional)  (default to false)
+            var human = true;  // Boolean | Human readable print (optional)  (default to false)
+            var include = new array[String](); // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional) 
+            var exclude = new array[String](); // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional) 
+            var size = 56;  // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)  (default to 10)
+            var from = 56;  // Integer | From index to start the search from. Defaults to 0. (optional)  (default to 0)
+            var sort = new array[String](); // array[String] | - Sort the result on the given fields ascending or descending. 
+ 
+- Fields can be provided several times by separating them with a comma. The order matters. 
+ 
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`. (optional) 
+            var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
+
+            try
+            {
+                // Search
+                apiInstance.search_0(collections, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.search_0: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-search_1-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$collections = collections_example; // String | collections, comma separated
+$f = ; // array[String] | - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+$q = q_example; // String | A full text search
+$before = 789; // Long | Any element having its point in time reference before the given timestamp
+$after = 789; // Long | Any element having its point in time reference after the given timestamp
+$pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
+$gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
+$gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
+$notpwithin = ; // array[String] | Any element having its centroid outside the given geometry (WKT)
+$notgwithin = ; // array[String] | Any element having its geometry outside the given geometry (WKT)
+$notgintersect = ; // array[String] | Any element having its geometry not intersecting the given geometry (WKT)
+$pretty = true; // Boolean | Pretty print
+$human = true; // Boolean | Human readable print
+$include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
+$exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
+$size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+$from = 56; // Integer | From index to start the search from. Defaults to 0.
+$sort = -country,city; // array[String] | - Sort the result on the given fields ascending or descending. 
+ 
+- Fields can be provided several times by separating them with a comma. The order matters. 
+ 
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`.
+$maxAgeCache = 56; // Integer | max-age-cache
+
+try {
+    $api_instance->search_0($collections, $f, $q, $before, $after, $pwithin, $gwithin, $gintersect, $notpwithin, $notgwithin, $notgintersect, $pretty, $human, $include, $exclude, $size, $from, $sort, $maxAgeCache);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->search_0: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-search_1-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $collections = collections_example; # String | collections, comma separated
+my $f = []; # array[String] | - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
+my $q = q_example; # String | A full text search
+my $before = 789; # Long | Any element having its point in time reference before the given timestamp
+my $after = 789; # Long | Any element having its point in time reference after the given timestamp
+my $pwithin = []; # array[String] | Any element having its centroid contained within the given geometry (WKT)
+my $gwithin = []; # array[String] | Any element having its geometry contained within the given geometry (WKT)
+my $gintersect = []; # array[String] | Any element having its geometry intersecting the given geometry (WKT)
+my $notpwithin = []; # array[String] | Any element having its centroid outside the given geometry (WKT)
+my $notgwithin = []; # array[String] | Any element having its geometry outside the given geometry (WKT)
+my $notgintersect = []; # array[String] | Any element having its geometry not intersecting the given geometry (WKT)
+my $pretty = true; # Boolean | Pretty print
+my $human = true; # Boolean | Human readable print
+my $include = [*]; # array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
+my $exclude = [city,state]; # array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
+my $size = 56; # Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+my $from = 56; # Integer | From index to start the search from. Defaults to 0.
+my $sort = [-country,city]; # array[String] | - Sort the result on the given fields ascending or descending. 
+ 
+- Fields can be provided several times by separating them with a comma. The order matters. 
+ 
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`.
+my $maxAgeCache = 56; # Integer | max-age-cache
+
+eval { 
+    $api_instance->search_0(collections => $collections, f => $f, q => $q, before => $before, after => $after, pwithin => $pwithin, gwithin => $gwithin, gintersect => $gintersect, notpwithin => $notpwithin, notgwithin => $notgwithin, notgintersect => $notgintersect, pretty => $pretty, human => $human, include => $include, exclude => $exclude, size => $size, from => $from, sort => $sort, maxAgeCache => $maxAgeCache);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->search_0: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-search_1-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+collections = collections_example # String | collections, comma separated
+f =  # array[String] | - A triplet for filtering the result. Multiple filter can be provided. The order does not matter. 
+ 
+- A triplet is composed of a field name, a comparison operator and a value. 
+ 
+  The possible values of the comparison operator are : 
+ 
+       Operator   |                   Description                      | value type
+ 
+       :          |  {fieldName} equals {value}                        | numeric or strings 
+ 
+       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric 
+ 
+       :gt:       |  {fieldName} is greater than {value}               | numeric 
+ 
+       :lte:      |  {fieldName} is less than or equal to {value}      | numeric 
+ 
+       :lt:       |  {fieldName}  is less than {value}                 | numeric 
+ 
+
+ 
+- The AND operator is applied between filters having different fieldNames. 
+ 
+- The OR operator is applied on filters having the same fieldName. 
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+- If the fieldName starts with - then a must not filter is used
+ 
+For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
+q = q_example # String | A full text search (optional)
+before = 789 # Long | Any element having its point in time reference before the given timestamp (optional)
+after = 789 # Long | Any element having its point in time reference after the given timestamp (optional)
+pwithin =  # array[String] | Any element having its centroid contained within the given geometry (WKT) (optional)
+gwithin =  # array[String] | Any element having its geometry contained within the given geometry (WKT) (optional)
+gintersect =  # array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional)
+notpwithin =  # array[String] | Any element having its centroid outside the given geometry (WKT) (optional)
+notgwithin =  # array[String] | Any element having its geometry outside the given geometry (WKT) (optional)
+notgintersect =  # array[String] | Any element having its geometry not intersecting the given geometry (WKT) (optional)
+pretty = true # Boolean | Pretty print (optional) (default to false)
+human = true # Boolean | Human readable print (optional) (default to false)
+include = * # array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional)
+exclude = city,state # array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional)
+size = 56 # Integer | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
+from = 56 # Integer | From index to start the search from. Defaults to 0. (optional) (default to 0)
+sort = -country,city # array[String] | - Sort the result on the given fields ascending or descending. 
+ 
+- Fields can be provided several times by separating them with a comma. The order matters. 
+ 
+- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
+ 
+- For aggregation, provide the `agg` keyword as the `{field}`. (optional)
+maxAgeCache = 56 # Integer | max-age-cache (optional)
+
+try: 
+    # Search
+    api_instance.search_0(collections, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, notpwithin=notpwithin, notgwithin=notgwithin, notgintersect=notgintersect, pretty=pretty, human=human, include=include, exclude=exclude, size=size, from=from, sort=sort, maxAgeCache=maxAgeCache)
+except ApiException as e:
+    print("Exception when calling ExploreApi->search_0: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">collections*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collections",
+  "in" : "path",
+  "description" : "collections, comma separated",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_collections');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_collections"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+
+
+                            <div class="methodsubtabletitle">Query parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">f</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "f",
+  "in" : "query",
+  "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator   |                   Description                      | value type\n \n       :          |  {fieldName} equals {value}                        | numeric or strings \n \n       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric \n \n       :gt:       |  {fieldName} is greater than {value}               | numeric \n \n       :lte:      |  {fieldName} is less than or equal to {value}      | numeric \n \n       :lt:       |  {fieldName}  is less than {value}                 | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_f');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_f"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">q</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "q",
+  "in" : "query",
+  "description" : "A full text search",
+  "required" : false,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_q');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_q"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">before</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "before",
+  "in" : "query",
+  "description" : "Any element having its point in time reference before the given timestamp",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int64"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_before');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_before"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">after</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "after",
+  "in" : "query",
+  "description" : "Any element having its point in time reference after the given timestamp",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int64"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_after');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_after"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">pwithin</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "pwithin",
+  "in" : "query",
+  "description" : "Any element having its centroid contained within the given geometry (WKT)",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_pwithin');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_pwithin"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">gwithin</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "gwithin",
+  "in" : "query",
+  "description" : "Any element having its geometry contained within the given geometry (WKT)",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_gwithin');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_gwithin"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">gintersect</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "gintersect",
+  "in" : "query",
+  "description" : "Any element having its geometry intersecting the given geometry (WKT)",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_gintersect');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_gintersect"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">notpwithin</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "notpwithin",
+  "in" : "query",
+  "description" : "Any element having its centroid outside the given geometry (WKT)",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_notpwithin');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_notpwithin"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">notgwithin</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "notgwithin",
+  "in" : "query",
+  "description" : "Any element having its geometry outside the given geometry (WKT)",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_notgwithin');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_notgwithin"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">notgintersect</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "notgintersect",
+  "in" : "query",
+  "description" : "Any element having its geometry not intersecting the given geometry (WKT)",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_notgintersect');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_notgintersect"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">pretty</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "pretty",
+  "in" : "query",
+  "description" : "Pretty print",
+  "required" : false,
+  "type" : "boolean",
+  "default" : false
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_pretty');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_pretty"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">human</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "human",
+  "in" : "query",
+  "description" : "Human readable print",
+  "required" : false,
+  "type" : "boolean",
+  "default" : false
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_human');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_human"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">include</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "include",
+  "in" : "query",
+  "description" : "List the name patterns of the field to be included in the result. Seperate patterns with a comma.",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string",
+    "example" : "*",
+    "default" : "*"
+  },
+  "collectionFormat" : "multi",
+  "x-example" : "*"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_include');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_include"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">exclude</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "exclude",
+  "in" : "query",
+  "description" : "List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string",
+    "example" : "city,state",
+    "default" : "*"
+  },
+  "collectionFormat" : "multi",
+  "x-example" : "city,state"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_exclude');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_exclude"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">size</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "size",
+  "in" : "query",
+  "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
+  "required" : false,
+  "type" : "integer",
+  "default" : 10,
+  "minimum" : 1,
+  "format" : "int32"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_size');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_size"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">from</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "from",
+  "in" : "query",
+  "description" : "From index to start the search from. Defaults to 0.",
+  "required" : false,
+  "type" : "integer",
+  "default" : 0,
+  "minimum" : 1,
+  "format" : "int32"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_from');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_from"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">sort</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "sort",
+  "in" : "query",
+  "description" : "- Sort the result on the given fields ascending or descending. \n \n- Fields can be provided several times by separating them with a comma. The order matters. \n \n- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.\n \n- For aggregation, provide the `agg` keyword as the `{field}`.",
+  "required" : false,
+  "type" : "array",
+  "items" : {
+    "type" : "string"
+  },
+  "collectionFormat" : "multi",
+  "x-example" : "-country,city"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_sort');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_sort"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">max-age-cache</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "max-age-cache",
+  "in" : "query",
+  "description" : "max-age-cache",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int32"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_search_1_maxAgeCache');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_search_1_maxAgeCache"></div>
 </td>
 </tr>
 
@@ -8009,7 +10826,7 @@ except ApiException as e:
           </div>
           <div id="generator">
             <div class="content">
-              Generated 2017-04-21T08:33:55.667+02:00
+              Generated 2017-04-21T09:08:45.606+02:00
             </div>
           </div>
       </div>

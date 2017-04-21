@@ -1,4 +1,4 @@
-package io.arlas.server.core;
+package io.arlas.server.exceptions;
 
 /**
  * Created by hamou on 12/04/17.
