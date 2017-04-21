@@ -1,10 +1,8 @@
 package io.arlas.server.core;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
-
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.CollectionReference;
@@ -14,17 +12,12 @@ import io.arlas.server.utils.CheckParams;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
-import org.elasticsearch.common.geo.builders.PointBuilder;
-import org.elasticsearch.common.geo.builders.PolygonBuilder;
-import org.elasticsearch.common.geo.builders.ShapeBuilder;
+import org.elasticsearch.common.geo.builders.*;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoGridAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.global.GlobalAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
@@ -41,12 +34,6 @@ public class FluidSearch {
     private static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'gte', 'gt', 'lte' or 'lt'. ";
     private static final String INVALID_VALUE_TYPE = "Operand must be a numeric value. ";
     private static final String INVALID_WKT = "Invalid WKT geometry. ";
-    private static final String INVALID_POLYGON_TYPE = "The geometry type is not a simple polygon. ";
-    private static final String DATEHISTOGRAM_AGGREGATION_NAME = "Datehistogram";
-    private static final String HISTOGRAM_AGGREGATION_NAME = "Histogram";
-    private static final String GEOHASH_AGGREGATION_NAME = "Geohash";
-    private static final String TERM_AGGREGATION_NAME = "Term";
-
 
     private TransportClient client;
     private SearchRequestBuilder searchRequestBuilder;
@@ -54,20 +41,9 @@ public class FluidSearch {
     private CollectionReference collectionReference;
 
     public FluidSearch(TransportClient client) {
-        //TODO: initialize collectionReference
         this.client = client;
         boolQueryBuilder = QueryBuilders.boolQuery();
     }
-
-    public FluidSearch(TransportClient client, CollectionReference collectionReference) {
-        //TODO: initialize collectionReference
-        this.client = client;
-        this.collectionReference = collectionReference;
-        searchRequestBuilder = client.prepareSearch(collectionReference.params.indexName);
-        boolQueryBuilder = QueryBuilders.boolQuery();
-
-    }
-
 
     public SearchResponse exec() {
         SearchResponse result = searchRequestBuilder.setQuery(boolQueryBuilder).get();
@@ -139,112 +115,52 @@ public class FluidSearch {
         );
         return this;
     }
-
-    public FluidSearch filterPWithin(List<String> geometry) throws ArlasException, IOException {
-        for (int i=0; i<geometry.size(); i++){
-            Geometry polygon = readWKT(geometry.get(i));
-            if(polygon != null){
-                if (CheckParams.isSimplePolygon(polygon)){
-                    PointBuilder pointBuilder = new PointBuilder();
-                    pointBuilder.coordinate(((Polygon)polygon).getCentroid().getCoordinate());
-                    boolQueryBuilder = boolQueryBuilder.filter(
-                            QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, pointBuilder)
-                    );
-                }
-                else {
-                    throw new InvalidParameterException(INVALID_POLYGON_TYPE);
-                }
-            }
-        }
+    
+    public FluidSearch filterPWithin(String geometry) throws ArlasException, IOException {
+        ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+        boolQueryBuilder = boolQueryBuilder.filter(
+                QueryBuilders.geoWithinQuery(collectionReference.params.centroidPath, shapeBuilder)
+        );
         return this;
     }
 
-    public FluidSearch filterNotPWithin(List<String> geometry) throws ArlasException, IOException {
-        for (int i=0; i<geometry.size(); i++){
-            Geometry polygon = readWKT(geometry.get(i));
-            if(polygon != null){
-                if (CheckParams.isSimplePolygon(polygon)){
-                    PointBuilder pointBuilder = new PointBuilder();
-                    pointBuilder.coordinate(((Polygon)polygon).getCentroid().getCoordinate());
-                    boolQueryBuilder = boolQueryBuilder.mustNot(
-                            QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, pointBuilder)
-                    );
-                }
-                else {
-                    throw new InvalidParameterException(INVALID_POLYGON_TYPE);
-                }
-            }
-        }
+    public FluidSearch filterNotPWithin(String geometry) throws ArlasException, IOException {
+        ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+        boolQueryBuilder = boolQueryBuilder.mustNot(
+                QueryBuilders.geoWithinQuery(collectionReference.params.centroidPath, shapeBuilder)
+        );
         return this;
     }
 
-    public FluidSearch filterGWithin(List<String> geometry) throws ArlasException, IOException {
-        for (int i=0; i<geometry.size(); i++){
-            Geometry polygon = readWKT(geometry.get(i));
-            if (polygon != null) {
-                if (CheckParams.isSimplePolygon(polygon)) {
-                    PolygonBuilder polygonBuilder = createPolygonBuilder((Polygon) polygon);
-                    boolQueryBuilder = boolQueryBuilder.filter(
-                            QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, polygonBuilder)
-                    );
-                } else {
-                    throw new InvalidParameterException(INVALID_POLYGON_TYPE);
-                }
-            }
-        }
+    public FluidSearch filterGWithin(String geometry) throws ArlasException, IOException {
+        ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+        boolQueryBuilder = boolQueryBuilder.filter(
+                QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, shapeBuilder)
+        );
         return this;
     }
 
-    public FluidSearch filterNotGWithin(List<String> geometry) throws ArlasException, IOException {
-        for (int i=0; i<geometry.size(); i++){
-            Geometry polygon = readWKT(geometry.get(i));
-            if (polygon != null) {
-                if (CheckParams.isSimplePolygon(polygon)) {
-                    PolygonBuilder polygonBuilder = createPolygonBuilder((Polygon) polygon);
-                    boolQueryBuilder = boolQueryBuilder.mustNot(
-                            QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, polygonBuilder)
-                    );
-                } else {
-                    throw new InvalidParameterException(INVALID_POLYGON_TYPE);
-                }
-            }
-        }
+    public FluidSearch filterNotGWithin(String geometry) throws ArlasException, IOException {
+        ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+        boolQueryBuilder = boolQueryBuilder.mustNot(
+                QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, shapeBuilder)
+        );
         return this;
     }
 
-    public FluidSearch filterGIntersect(List<String> geometry) throws ArlasException, IOException {
-        for (int i=0; i<geometry.size(); i++){
-            Geometry polygon = readWKT(geometry.get(i));
-            if(polygon != null){
-                if (CheckParams.isSimplePolygon(polygon)){
-                    PolygonBuilder polygonBuilder = createPolygonBuilder((Polygon)polygon);
-                    boolQueryBuilder = boolQueryBuilder.filter(
-                            QueryBuilders.geoIntersectionQuery(collectionReference.params.geometryPath, polygonBuilder)
-                    );
-                }
-                else {
-                    throw new InvalidParameterException(INVALID_POLYGON_TYPE);
-                }
-            }
-        }
+    public FluidSearch filterGIntersect(String geometry) throws ArlasException, IOException {
+        ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+        boolQueryBuilder = boolQueryBuilder.filter(
+                QueryBuilders.geoIntersectionQuery(collectionReference.params.geometryPath, shapeBuilder)
+        );
         return this;
     }
 
-    public FluidSearch filterNotGIntersect(List<String> geometry) throws ArlasException, IOException {
-        for (int i=0; i<geometry.size(); i++){
-            Geometry polygon = readWKT(geometry.get(i));
-            if(polygon != null){
-                if (CheckParams.isSimplePolygon(polygon)){
-                    PolygonBuilder polygonBuilder = createPolygonBuilder((Polygon)polygon);
-                    boolQueryBuilder = boolQueryBuilder.filter(
-                            QueryBuilders.geoDisjointQuery(collectionReference.params.geometryPath, polygonBuilder)
-                    );
-                }
-                else {
-                    throw new InvalidParameterException(INVALID_POLYGON_TYPE);
-                }
-            }
-        }
+    public FluidSearch filterNotGIntersect(String geometry) throws ArlasException, IOException {
+        ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+        boolQueryBuilder = boolQueryBuilder.filter(
+                QueryBuilders.geoDisjointQuery(collectionReference.params.geometryPath, shapeBuilder)
+        );
         return this;
     }
 
@@ -288,34 +204,6 @@ public class FluidSearch {
         return this;
     }
 
-    //TODO: finish aggregation implementation
-    /*public FluidSearch aggregate(List<String> aggregations) throws ArlasException{
-        GlobalAggregationBuilder globalAggregationBuilder = AggregationBuilders.global("agg");
-
-        for (String agg : aggregations){
-            //check the agg syntax is correct
-            if (CheckParams.isAggregationParamValid(agg)){
-                String[] aggParts = agg.split(":");
-                AggregationBuilder aggregationBuilder;
-                switch (aggParts[0]){
-                    case AggregationType.DATEHISTOGRAM : aggregationBuilder = buildDateHistogramAggregation(aggParts);
-                        ;
-                    case AggregationType.GEOHASH : ;
-                    case AggregationType.HISTOGRAM : ;
-                    case AggregationType.TERM : ;
-                }
-                
-
-            };
-           // DateHistogramAggregationBuilder dateHistogramAggregationBuilder = constructDateHistogramAggregation(aggField,aggInterval,aggFormat);
-           // globalAggregationBuilder = globalAggregationBuilder.subAggregation(dateHistogramAggregationBuilder
-
-            //);
-        }
-        searchRequestBuilder =searchRequestBuilder.addAggregation(globalAggregationBuilder);
-
-        return this;
-    }*/
     public FluidSearch aggregate(String agg, String[] aggField, String[] aggInterval, String aggFormat) throws ArlasException{
         if (agg.equals(AggregationType.datehistogram.toString())){
             DateHistogramAggregationBuilder dateHistogramAggregationBuilder = constructDateHistogramAggregation(aggField,aggInterval,aggFormat);
@@ -332,46 +220,6 @@ public class FluidSearch {
         return this;
     }
 
-
-   /* private DateHistogramAggregationBuilder buildDateHistogramAggregation(String[] aggParts) throws ArlasException{
-        DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram(DATEHISTOGRAM_AGGREGATION_NAME);
-
-        if(aggInterval.length != 0){
-            for(int i=0; i<aggInterval.length; i++){
-                Map<Integer,String> intervalDateMap = CheckParams.getValidAggDateInterval(aggInterval[i]);
-                if(intervalDateMap != null) {
-                    Integer size = (intervalDateMap.keySet()).iterator().next();
-                    if (intervalDateMap.get(size).equals(DateInterval.year.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(DateHistogramInterval.YEAR);
-                    } else if (intervalDateMap.get(size).equals(DateInterval.quarter.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(DateHistogramInterval.QUARTER);
-                    } else if (intervalDateMap.get(size).equals(DateInterval.month.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(DateHistogramInterval.MONTH);
-                    } else if (intervalDateMap.get(size).equals(DateInterval.week.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(DateHistogramInterval.weeks(size));
-                    } else if (intervalDateMap.get(size).equals(DateInterval.day.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(DateHistogramInterval.days(size));
-                    } else if (intervalDateMap.get(size).equals(DateInterval.hour.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(DateHistogramInterval.hours(size));
-                    } else if (intervalDateMap.get(size).equals(DateInterval.minute.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(DateHistogramInterval.minutes(size));
-                    } else if (intervalDateMap.get(size).equals(DateInterval.second.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(DateHistogramInterval.seconds(size));
-                    }
-                }
-            }
-        }
-        if (aggField.length != 0){
-            for ( int i=0; i<aggField.length; i++){
-                dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.field(aggField[i]);
-            }
-        }
-        //TODO: checkParams Format
-        if (!aggFormat.equals("")){
-            dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.format(aggFormat);
-        }
-        return dateHistogramAggregationBuilder;
-    }*/
     // construct and returns the dateHistogram aggregation builder
     private DateHistogramAggregationBuilder constructDateHistogramAggregation(String[] aggField, String[] aggInterval, String aggFormat) throws ArlasException{
         DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram("Agg");
@@ -474,17 +322,51 @@ public class FluidSearch {
     }
 
     private PolygonBuilder createPolygonBuilder( Polygon polygon){
+        //TODO: add interior holes
         CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
         coordinatesBuilder.coordinates(polygon.getCoordinates());
         return new PolygonBuilder( coordinatesBuilder, ShapeBuilder.Orientation.LEFT);
     }
 
-    public CollectionReference getCollectionReference() {
-        return collectionReference;
+    private MultiPolygonBuilder createMultiPolygonBuilder( MultiPolygon multiPolygon){
+        MultiPolygonBuilder multiPolygonBuilder = new MultiPolygonBuilder(ShapeBuilder.Orientation.LEFT);
+        for (int i = 0; i<multiPolygon.getNumGeometries(); i++){
+            multiPolygonBuilder.polygon(createPolygonBuilder((Polygon)multiPolygon.getGeometryN(i)));
+        }
+        return multiPolygonBuilder;
+    }
+
+    private LineStringBuilder createLineStringBuilder(LineString lineString){
+        CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
+        coordinatesBuilder.coordinates(lineString.getCoordinates());
+        return new LineStringBuilder( coordinatesBuilder);
+    }
+
+    private PointBuilder createPointBuilder(Point point){
+        PointBuilder pointBuilder = new PointBuilder();
+        pointBuilder.coordinate(point.getCoordinate());
+        return pointBuilder;
+    }
+
+
+    private ShapeBuilder getShapeBuilder(String geometry) throws ArlasException{
+        //TODO: multilinestring
+        Geometry wktGeometry = readWKT(geometry);
+        if ( wktGeometry != null){
+            String geometryType = wktGeometry.getGeometryType().toUpperCase();
+            switch (geometryType){
+                case "POLYGON" : return createPolygonBuilder((Polygon)wktGeometry);
+                case "MULTIPOLYGON" : return createMultiPolygonBuilder((MultiPolygon) wktGeometry);
+                case "LINESTRING" : return createLineStringBuilder((LineString)wktGeometry);
+                case "POINT" : return createPointBuilder((Point)wktGeometry);
+                default : throw new InvalidParameterException("The given geometry is not handled.");
+            }
+        }
+        throw new InvalidParameterException("The given geometry is invalid.");
     }
 
     public void setCollectionReference(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
-        searchRequestBuilder = client.prepareSearch(collectionReference.getParams().getIndexName());
+        searchRequestBuilder = client.prepareSearch(collectionReference.params.indexName);
     }
 }

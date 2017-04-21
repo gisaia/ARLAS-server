@@ -1,8 +1,8 @@
 package io.arlas.server.rest.explore.search;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.core.FluidSearch;
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.ArlasHit;
 import io.arlas.server.model.ArlasHits;
 import io.arlas.server.model.ArlasMD;
@@ -17,7 +17,6 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -108,33 +107,33 @@ public class SearchRESTService extends ExploreRESTServices {
 
             @ApiParam(name = "pwithin", value = "Any element having its centroid contained within the given geometry (WKT)",
                     allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "pwithin") List<String> pwithin,
+                    required=false)
+            @QueryParam(value="pwithin") String pwithin,
 
             @ApiParam(name = "gwithin", value = "Any element having its geometry contained within the given geometry (WKT)",
                     allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gwithin") List<String> gwithin,
+                    required=false)
+            @QueryParam(value="gwithin") String gwithin,
 
             @ApiParam(name = "gintersect", value = "Any element having its geometry intersecting the given geometry (WKT)",
                     allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gintersect") List<String> gintersect,
-
+                    required=false)
+            @QueryParam(value="gintersect") String gintersect,
+            
             @ApiParam(name = "notpwithin", value = "Any element having its centroid outside the given geometry (WKT)",
                     allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notpwithin") List<String> notpwithin,
+                    required=false)
+            @QueryParam(value="notpwithin") String notpwithin,
 
             @ApiParam(name = "notgwithin", value = "Any element having its geometry outside the given geometry (WKT)",
                     allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgwithin") List<String> notgwithin,
+                    required=false)
+            @QueryParam(value="notgwithin") String notgwithin,
 
             @ApiParam(name = "notgintersect", value = "Any element having its geometry not intersecting the given geometry (WKT)",
                     allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgintersect") List<String> notgintersect,
+                    required=false)
+            @QueryParam(value="notgintersect") String notgintersect,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -273,17 +272,17 @@ public class SearchRESTService extends ExploreRESTServices {
             ArlasHit arlasHit = new ArlasHit();
             arlasHit.data = hit.fields();
             arlasHit.md = new ArlasMD();
-            if(hit.field(collectionReference.getParams().getIdPath())!=null){
-                arlasHit.md.id = hit.field(collectionReference.getParams().getIdPath()).getValue();
+            if(hit.field(collectionReference.params.idPath)!=null){
+                arlasHit.md.id = hit.field(collectionReference.params.idPath).getValue();
             }
-            if(hit.field(collectionReference.getParams().getCentroidPath())!=null){
-                arlasHit.md.centroid = hit.field(collectionReference.getParams().getCentroidPath()).getValue();
+            if(hit.field(collectionReference.params.centroidPath)!=null){
+                arlasHit.md.centroid = hit.field(collectionReference.params.centroidPath).getValue();
             }
-            if(hit.field(collectionReference.getParams().getGeometryPath())!=null){
-                arlasHit.md.geometry = hit.field(collectionReference.getParams().getGeometryPath()).getValue();
+            if(hit.field(collectionReference.params.geometryPath)!=null){
+                arlasHit.md.geometry = hit.field(collectionReference.params.geometryPath).getValue();
             }
-            if(hit.field(collectionReference.getParams().getTimestampPath())!=null){
-                arlasHit.md.timestamp = hit.field(collectionReference.getParams().getTimestampPath()).getValue();
+            if(hit.field(collectionReference.params.timestampPath)!=null){
+                arlasHit.md.timestamp = hit.field(collectionReference.params.timestampPath).getValue();
             }
             arlasHits.hits.add(arlasHit);
         }
