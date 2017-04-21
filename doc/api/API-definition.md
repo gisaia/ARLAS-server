@@ -10,9 +10,9 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | ---------------------------------------- | ---------------------------------------- |
 | /arlas/explore/**_list**                     | List  the collections configured in ARLAS |
 | /arlas/explore/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
-| /arlas/explore/`{collections}`/**_count**?`filter` & `form` | Count the number of elements found in the collection(s), given the filters |
-| /arlas/explore/`{collections}`/**_search**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection(s), given the filters |
-| /arlas/explore/`{collections}`/**_geosearch**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection(s) as features, given the filters |
+| /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Count the number of elements found in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection as features, given the filters |
 | /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` & `size` & `sort` | Aggregate the elements in the collection(s), given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_geoaggregate**?`aggregation` &`filter` & `form` & `size` & `sort` | Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_suggest**?`filter` & `form` & `size` & `suggest` | Suggest the the n (n=`size`) most relevant terms given the filters |
