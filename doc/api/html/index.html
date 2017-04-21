@@ -716,10 +716,37 @@ margin-bottom: 20px;
     defs.ArlasCollection = {
   "type" : "object"
 };
+    defs.ArlasError = {
+  "type" : "object",
+  "properties" : {
+    "status" : {
+      "type" : "integer",
+      "format" : "int32"
+    },
+    "message" : {
+      "type" : "string"
+    },
+    "error" : {
+      "type" : "string"
+    }
+  }
+};
+    defs.ArlasSuccess = {
+  "type" : "object",
+  "properties" : {
+    "status" : {
+      "type" : "integer",
+      "format" : "int32"
+    },
+    "message" : {
+      "type" : "string"
+    }
+  }
+};
     defs.CollectionReference = {
   "type" : "object",
   "properties" : {
-    "collectionName" : {
+    "collection_name" : {
       "type" : "string",
       "description" : "The collection name"
     },
@@ -733,30 +760,30 @@ margin-bottom: 20px;
     defs.CollectionReferenceParameters = {
   "type" : "object",
   "properties" : {
-    "indexName" : {
+    "index_name" : {
       "type" : "string",
       "description" : "The collection's index name"
     },
-    "typeName" : {
+    "type_name" : {
       "type" : "string",
       "description" : "The collection's type name"
     },
-    "idPath" : {
+    "id_path" : {
       "type" : "string",
       "example" : "id",
       "description" : "Path to the collection's id"
     },
-    "geometryPath" : {
+    "geometry_path" : {
       "type" : "string",
       "example" : "geometry",
       "description" : "Path to the collection's geometry"
     },
-    "centroidPath" : {
+    "centroid_path" : {
       "type" : "string",
       "example" : "centroid",
       "description" : "Path to the collection's centroid"
     },
-    "timestampPath" : {
+    "timestamp_path" : {
       "type" : "string",
       "example" : "timestamp",
       "description" : "Path to the collection's timestamp"
@@ -1108,7 +1135,8 @@ public class CollectionsApiExample {
         CollectionsApi apiInstance = new CollectionsApi();
         String collection = collection_example; // String | collection
         try {
-            apiInstance.delete(collection);
+            ArlasSuccess result = apiInstance.delete(collection);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling CollectionsApi#delete");
             e.printStackTrace();
@@ -1126,7 +1154,8 @@ public class CollectionsApiExample {
         CollectionsApi apiInstance = new CollectionsApi();
         String collection = collection_example; // String | collection
         try {
-            apiInstance.delete(collection);
+            ArlasSuccess result = apiInstance.delete(collection);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling CollectionsApi#delete");
             e.printStackTrace();
@@ -1145,7 +1174,10 @@ CollectionsApi *apiInstance = [[CollectionsApi alloc] init];
 
 // Delete a collection reference
 [apiInstance deleteWith:collection
-              completionHandler: ^(NSError* error) {
+              completionHandler: ^(ArlasSuccess output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
                             if (error) {
                                 NSLog(@"Error: %@", error);
                             }
@@ -1165,7 +1197,7 @@ var callback = function(error, data, response) {
   if (error) {
     console.error(error);
   } else {
-    console.log('API called successfully.');
+    console.log('API called successfully. Returned data: ' + data);
   }
 };
 api.delete(collection, callback);
@@ -1195,7 +1227,8 @@ namespace Example
             try
             {
                 // Delete a collection reference
-                apiInstance.delete(collection);
+                ArlasSuccess result = apiInstance.delete(collection);
+                Debug.WriteLine(result);
             }
             catch (Exception e)
             {
@@ -1214,7 +1247,8 @@ $api_instance = new Swagger\Client\Api\CollectionsApi();
 $collection = collection_example; // String | collection
 
 try {
-    $api_instance->delete($collection);
+    $result = $api_instance->delete($collection);
+    print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling CollectionsApi->delete: ', $e->getMessage(), PHP_EOL;
 }
@@ -1230,7 +1264,8 @@ my $api_instance = WWW::SwaggerClient::CollectionsApi->new();
 my $collection = collection_example; # String | collection
 
 eval { 
-    $api_instance->delete(collection => $collection);
+    my $result = $api_instance->delete(collection => $collection);
+    print Dumper($result);
 };
 if ($@) {
     warn "Exception when calling CollectionsApi->delete: $@\n";
@@ -1250,7 +1285,8 @@ collection = collection_example # String | collection
 
 try: 
     # Delete a collection reference
-    api_instance.delete(collection)
+    api_response = api_instance.delete(collection)
+    pprint(api_response)
 except ApiException as e:
     print("Exception when calling CollectionsApi->delete: %s\n" % e)</code></pre>
                             </div>
@@ -1307,25 +1343,127 @@ except ApiException as e:
                             <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-delete-200-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-delete-200-schema">
+                                  <div id='responses-delete-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasSuccess"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-delete-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-delete-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-delete-200-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                             <h3> Status: 404 - Collection not found. </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-delete-404-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-delete-404-schema">
+                                  <div id='responses-delete-404-schema-404' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Collection not found.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-delete-404-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-delete-404-schema-404');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-delete-404-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                             <h3> Status: 500 - Arlas Server Error. </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-delete-500-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-delete-500-schema">
+                                  <div id='responses-delete-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-delete-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-delete-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-delete-500-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                         </article>
@@ -1381,7 +1519,8 @@ public class CollectionsApiExample {
         CollectionsApi apiInstance = new CollectionsApi();
         String collection = collection_example; // String | collection
         try {
-            apiInstance.get(collection);
+            CollectionReference result = apiInstance.get(collection);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling CollectionsApi#get");
             e.printStackTrace();
@@ -1399,7 +1538,8 @@ public class CollectionsApiExample {
         CollectionsApi apiInstance = new CollectionsApi();
         String collection = collection_example; // String | collection
         try {
-            apiInstance.get(collection);
+            CollectionReference result = apiInstance.get(collection);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling CollectionsApi#get");
             e.printStackTrace();
@@ -1418,7 +1558,10 @@ CollectionsApi *apiInstance = [[CollectionsApi alloc] init];
 
 // Get a collection reference
 [apiInstance getWith:collection
-              completionHandler: ^(NSError* error) {
+              completionHandler: ^(CollectionReference output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
                             if (error) {
                                 NSLog(@"Error: %@", error);
                             }
@@ -1438,7 +1581,7 @@ var callback = function(error, data, response) {
   if (error) {
     console.error(error);
   } else {
-    console.log('API called successfully.');
+    console.log('API called successfully. Returned data: ' + data);
   }
 };
 api.get(collection, callback);
@@ -1468,7 +1611,8 @@ namespace Example
             try
             {
                 // Get a collection reference
-                apiInstance.get(collection);
+                CollectionReference result = apiInstance.get(collection);
+                Debug.WriteLine(result);
             }
             catch (Exception e)
             {
@@ -1487,7 +1631,8 @@ $api_instance = new Swagger\Client\Api\CollectionsApi();
 $collection = collection_example; // String | collection
 
 try {
-    $api_instance->get($collection);
+    $result = $api_instance->get($collection);
+    print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling CollectionsApi->get: ', $e->getMessage(), PHP_EOL;
 }
@@ -1503,7 +1648,8 @@ my $api_instance = WWW::SwaggerClient::CollectionsApi->new();
 my $collection = collection_example; # String | collection
 
 eval { 
-    $api_instance->get(collection => $collection);
+    my $result = $api_instance->get(collection => $collection);
+    print Dumper($result);
 };
 if ($@) {
     warn "Exception when calling CollectionsApi->get: $@\n";
@@ -1523,7 +1669,8 @@ collection = collection_example # String | collection
 
 try: 
     # Get a collection reference
-    api_instance.get(collection)
+    api_response = api_instance.get(collection)
+    pprint(api_response)
 except ApiException as e:
     print("Exception when calling CollectionsApi->get: %s\n" % e)</code></pre>
                             </div>
@@ -1580,25 +1727,127 @@ except ApiException as e:
                             <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-get-200-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-get-200-schema">
+                                  <div id='responses-get-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/CollectionReference"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-get-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-get-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-get-200-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                             <h3> Status: 404 - Collection not found. </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-get-404-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-get-404-schema">
+                                  <div id='responses-get-404-schema-404' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Collection not found.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-get-404-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-get-404-schema-404');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-get-404-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                             <h3> Status: 500 - Arlas Server Error. </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-get-500-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-get-500-schema">
+                                  <div id='responses-get-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-get-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-get-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-get-500-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                         </article>
@@ -1653,7 +1902,8 @@ public class CollectionsApiExample {
         
         CollectionsApi apiInstance = new CollectionsApi();
         try {
-            apiInstance.getAll();
+            array[CollectionReference] result = apiInstance.getAll();
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling CollectionsApi#getAll");
             e.printStackTrace();
@@ -1670,7 +1920,8 @@ public class CollectionsApiExample {
     public static void main(String[] args) {
         CollectionsApi apiInstance = new CollectionsApi();
         try {
-            apiInstance.getAll();
+            array[CollectionReference] result = apiInstance.getAll();
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling CollectionsApi#getAll");
             e.printStackTrace();
@@ -1688,7 +1939,10 @@ CollectionsApi *apiInstance = [[CollectionsApi alloc] init];
 
 // Get all collection references
 [apiInstance getAllWithCompletionHandler: 
-              ^(NSError* error) {
+              ^(array[CollectionReference] output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
                             if (error) {
                                 NSLog(@"Error: %@", error);
                             }
@@ -1705,7 +1959,7 @@ var callback = function(error, data, response) {
   if (error) {
     console.error(error);
   } else {
-    console.log('API called successfully.');
+    console.log('API called successfully. Returned data: ' + data);
   }
 };
 api.getAll(callback);
@@ -1734,7 +1988,8 @@ namespace Example
             try
             {
                 // Get all collection references
-                apiInstance.getAll();
+                array[CollectionReference] result = apiInstance.getAll();
+                Debug.WriteLine(result);
             }
             catch (Exception e)
             {
@@ -1752,7 +2007,8 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $api_instance = new Swagger\Client\Api\CollectionsApi();
 
 try {
-    $api_instance->getAll();
+    $result = $api_instance->getAll();
+    print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling CollectionsApi->getAll: ', $e->getMessage(), PHP_EOL;
 }
@@ -1767,7 +2023,8 @@ use WWW::SwaggerClient::CollectionsApi;
 my $api_instance = WWW::SwaggerClient::CollectionsApi->new();
 
 eval { 
-    $api_instance->getAll();
+    my $result = $api_instance->getAll();
+    print Dumper($result);
 };
 if ($@) {
     warn "Exception when calling CollectionsApi->getAll: $@\n";
@@ -1786,7 +2043,8 @@ api_instance = swagger_client.CollectionsApi()
 
 try: 
     # Get all collection references
-    api_instance.getAll()
+    api_response = api_instance.getAll()
+    pprint(api_response)
 except ApiException as e:
     print("Exception when calling CollectionsApi->getAll: %s\n" % e)</code></pre>
                             </div>
@@ -1803,25 +2061,88 @@ except ApiException as e:
                             <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-getAll-200-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
-                            </div>
-
-                            <h3> Status: 404 - Collections not found. </h3>
-
-                            <ul class="nav nav-tabs nav-tabs-examples" >
-                            </ul>
-
-                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-getAll-200-schema">
+                                  <div id='responses-getAll-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "type" : "array",
+    "items" : {
+      "$ref" : "#/definitions/CollectionReference"
+    }
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-getAll-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-getAll-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-getAll-200-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                             <h3> Status: 500 - Arlas Server Error. </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-getAll-500-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-getAll-500-schema">
+                                  <div id='responses-getAll-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-getAll-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-getAll-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-getAll-500-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                         </article>
@@ -1878,7 +2199,8 @@ public class CollectionsApiExample {
         String collection = collection_example; // String | collection
         CollectionReferenceParameters collectionParams = ; // CollectionReferenceParameters | collectionParams
         try {
-            apiInstance.put(collection, collectionParams);
+            CollectionReference result = apiInstance.put(collection, collectionParams);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling CollectionsApi#put");
             e.printStackTrace();
@@ -1897,7 +2219,8 @@ public class CollectionsApiExample {
         String collection = collection_example; // String | collection
         CollectionReferenceParameters collectionParams = ; // CollectionReferenceParameters | collectionParams
         try {
-            apiInstance.put(collection, collectionParams);
+            CollectionReference result = apiInstance.put(collection, collectionParams);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling CollectionsApi#put");
             e.printStackTrace();
@@ -1918,7 +2241,10 @@ CollectionsApi *apiInstance = [[CollectionsApi alloc] init];
 // Add a collection reference
 [apiInstance putWith:collection
     collectionParams:collectionParams
-              completionHandler: ^(NSError* error) {
+              completionHandler: ^(CollectionReference output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
                             if (error) {
                                 NSLog(@"Error: %@", error);
                             }
@@ -1940,7 +2266,7 @@ var callback = function(error, data, response) {
   if (error) {
     console.error(error);
   } else {
-    console.log('API called successfully.');
+    console.log('API called successfully. Returned data: ' + data);
   }
 };
 api.put(collection, collectionParams, callback);
@@ -1971,7 +2297,8 @@ namespace Example
             try
             {
                 // Add a collection reference
-                apiInstance.put(collection, collectionParams);
+                CollectionReference result = apiInstance.put(collection, collectionParams);
+                Debug.WriteLine(result);
             }
             catch (Exception e)
             {
@@ -1991,7 +2318,8 @@ $collection = collection_example; // String | collection
 $collectionParams = ; // CollectionReferenceParameters | collectionParams
 
 try {
-    $api_instance->put($collection, $collectionParams);
+    $result = $api_instance->put($collection, $collectionParams);
+    print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling CollectionsApi->put: ', $e->getMessage(), PHP_EOL;
 }
@@ -2008,7 +2336,8 @@ my $collection = collection_example; # String | collection
 my $collectionParams = WWW::SwaggerClient::Object::CollectionReferenceParameters->new(); # CollectionReferenceParameters | collectionParams
 
 eval { 
-    $api_instance->put(collection => $collection, collectionParams => $collectionParams);
+    my $result = $api_instance->put(collection => $collection, collectionParams => $collectionParams);
+    print Dumper($result);
 };
 if ($@) {
     warn "Exception when calling CollectionsApi->put: $@\n";
@@ -2029,7 +2358,8 @@ collectionParams =  # CollectionReferenceParameters | collectionParams
 
 try: 
     # Add a collection reference
-    api_instance.put(collection, collectionParams)
+    api_response = api_instance.put(collection, collectionParams)
+    pprint(api_response)
 except ApiException as e:
     print("Exception when calling CollectionsApi->put: %s\n" % e)</code></pre>
                             </div>
@@ -2137,25 +2467,127 @@ except ApiException as e:
                             <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-put-200-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-put-200-schema">
+                                  <div id='responses-put-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/CollectionReference"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-put-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-put-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-put-200-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                             <h3> Status: 400 - JSON parameter malformed. </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-put-400-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-put-400-schema">
+                                  <div id='responses-put-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "JSON parameter malformed.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-put-400-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-put-400-schema-400');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-put-400-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                             <h3> Status: 500 - Arlas Server Error. </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-put-500-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-put-500-schema">
+                                  <div id='responses-put-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-put-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-put-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-put-500-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                         </article>
@@ -10826,7 +11258,7 @@ except ApiException as e:
           </div>
           <div id="generator">
             <div class="content">
-              Generated 2017-04-21T09:08:45.606+02:00
+              Generated 2017-04-21T14:51:26.177+02:00
             </div>
           </div>
       </div>
