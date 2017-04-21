@@ -1,7 +1,7 @@
 package io.arlas.server.rest.explore.search;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.core.ArlasException;
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.model.ArlasCollection;
 import io.arlas.server.model.CollectionReference;
@@ -209,7 +209,7 @@ public class SearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         String[] collectionsList = collections.split(",");
         FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
         for(int i=0; i<collectionsList.length; i++){

@@ -150,7 +150,7 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         //TODO: checkParams
         String[] collectionsList = collections.split(",");
         FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
