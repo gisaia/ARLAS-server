@@ -60,7 +60,7 @@ public class DataSetTool {
         adminClient.indices().prepareCreate(DATASET_INDEX_NAME).addMapping(DATASET_TYPE_NAME, mapping).get();
         Data data;
         ObjectMapper mapper = new ObjectMapper();
-
+        String[] jobs= {"Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter"};
         for(int i=-80; i<80;i+=10){
             for(int j=-170; j<170;j+=10){
                 data=new Data();
@@ -68,6 +68,7 @@ public class DataSetTool {
                 data.fullname="My name is "+data.id;
                 data.startdate=System.currentTimeMillis();
                 data.centroid=i+","+j;
+                data.job=jobs[i%(jobs.length-1)];
                 List<LngLatAlt> coords = new ArrayList<>();
                 coords.add(new LngLatAlt(i,j));
                 coords.add(new LngLatAlt(i,j-1));
