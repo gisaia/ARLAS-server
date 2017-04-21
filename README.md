@@ -8,7 +8,7 @@ The exploration API is described [here](doc/api/API-definition.md) while the  Co
 # Build
 
 ```sh
-mvn clean install
+mvn clean package
 ```
 
 
@@ -18,6 +18,16 @@ java -jar target/arlas-server-x.x.jar server configuration.yaml
 ```
 
 Then, go to `http://localhost:9999/arlas/swagger` for exploring and testing the API.
+
+
+# Test
+
+```sh
+./test-integration.sh && echo "INTEGRATION TESTS ARE OK"
+```
+
+Make sure to have docker and docker-machine installed and running on your system.
+
 
 # Optional
 
