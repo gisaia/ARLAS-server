@@ -44,7 +44,7 @@ public class CountRESTService extends ExploreRESTServices {
                     value="collections",
                     allowMultiple = false,
                     required=true)
-            @PathParam(value = "collections") String collection,
+            @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------

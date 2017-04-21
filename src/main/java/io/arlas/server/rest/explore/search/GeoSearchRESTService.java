@@ -54,7 +54,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     value="collection",
                     allowMultiple = false,
                     required=true)
-            @PathParam(value = "collections") String collection,
+            @PathParam(value = "collection") String collection,
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
@@ -278,9 +278,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         for(SearchHit hit : results){
             Feature feature = new Feature();
             Map<String, Object > hitsSources = hit.getSource();
-            if(collectionReference.getParams().getGeometryPath()!=null ){
-                if( hitsSources.keySet().contains(collectionReference.getParams().getGeometryPath())) {
-                    String geometryPath = collectionReference.getParams().getGeometryPath();
+            if(collectionReference.params.geometryPath!=null ){
+                if( hitsSources.keySet().contains(collectionReference.params.geometryPath)) {
+                    String geometryPath = collectionReference.params.geometryPath;
                     Object m = hitsSources.get(geometryPath);
                     GeoJsonObject g = reader.readValue(mapper.writer().writeValueAsString(m));
                     feature.setGeometry(g);
@@ -291,9 +291,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     feature.setProperties(hit.getSource());
                 }
             }
-            else if(collectionReference.getParams().getCentroidPath()!=null ){
-                    if (hitsSources.keySet().contains(collectionReference.getParams().getCentroidPath())) {
-                        String centroidPath = collectionReference.getParams().getCentroidPath();
+            else if(collectionReference.params.centroidPath!=null ){
+                    if (hitsSources.keySet().contains(collectionReference.params.centroidPath)) {
+                        String centroidPath = collectionReference.params.centroidPath;
                         String pointString = (String)hitsSources.get(centroidPath);
                         String[] tokens = pointString.split(",");
                         Double latitude = Double.parseDouble(tokens[0]);
