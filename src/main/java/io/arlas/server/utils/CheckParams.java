@@ -10,6 +10,7 @@ import io.arlas.server.rest.explore.enumerations.AggregationType;
 import io.arlas.server.rest.explore.enumerations.DateInterval;
 import org.elasticsearch.search.sort.SortOrder;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -137,5 +138,7 @@ public class CheckParams {
         }
     }
 
-
+    public static double[] toDoubles(String doubles){
+          return Arrays.stream(doubles.split(",")).mapToDouble(Double::parseDouble).toArray();
+    }
 }

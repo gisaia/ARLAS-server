@@ -12,4 +12,7 @@ public class ArlasHits {
 
     @ApiModelProperty(name = "nbhits", value = "Number of hits contained in hits")
     public long nbhits;
+
+    @ApiModelProperty(name = "totalnb", value = "Total number of hits matching the query")
+    public long totalnb;
 }

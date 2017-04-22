@@ -71,9 +71,9 @@ public class DataSetTool {
                 data=new Data();
                 data.id= UUID.randomUUID().toString();
                 data.fullname="My name is "+data.id;
-                data.startdate=System.currentTimeMillis();
+                data.startdate=1l*(i+1000)*(j+1000);
                 data.centroid=i+","+j;
-                data.job=jobs[i%(jobs.length-1)];
+                data.job=jobs[((Math.abs(i)+Math.abs(j))/10)%(jobs.length-1)];
                 List<LngLatAlt> coords = new ArrayList<>();
                 coords.add(new LngLatAlt(i,j));
                 coords.add(new LngLatAlt(i,j-1));

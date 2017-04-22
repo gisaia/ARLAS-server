@@ -30,10 +30,11 @@ import java.util.Map;
 
 public class FluidSearch {
 
-    private static final String INVALID_PARAMETER_F = "Parameter f does not respect operation expression. ";
-    private static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'gte', 'gt', 'lte' or 'lt'. ";
-    private static final String INVALID_VALUE_TYPE = "Operand must be a numeric value. ";
-    private static final String INVALID_WKT = "Invalid WKT geometry. ";
+    public static final String INVALID_PARAMETER_F = "Parameter f does not respect operation expression. ";
+    public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'gte', 'gt', 'lte' or 'lt'. ";
+    public static final String INVALID_VALUE_TYPE = "Operand must be a numeric value. ";
+    public static final String INVALID_WKT = "Invalid WKT geometry. ";
+    public static final String INVALID_BBOX = "Invalid BBOX";
 
     private TransportClient client;
     private SearchRequestBuilder searchRequestBuilder;
@@ -46,7 +47,9 @@ public class FluidSearch {
     }
 
     public SearchResponse exec() {
-        SearchResponse result = searchRequestBuilder.setQuery(boolQueryBuilder).get();
+        searchRequestBuilder.setQuery(boolQueryBuilder);
+        //System.out.println("QUERY:"+searchRequestBuilder.toString()); // TODO : mettre des logs en debug pour les queries
+        SearchResponse result = searchRequestBuilder.get();
         return result;
     }
 
@@ -116,18 +119,16 @@ public class FluidSearch {
         return this;
     }
     
-    public FluidSearch filterPWithin(String geometry) throws ArlasException, IOException {
-        ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+    public FluidSearch filterPWithin(double top, double left, double bottom, double right) throws ArlasException, IOException {
         boolQueryBuilder = boolQueryBuilder.filter(
-                QueryBuilders.geoWithinQuery(collectionReference.params.centroidPath, shapeBuilder)
+                QueryBuilders.geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(top, left, bottom, right)
         );
         return this;
     }
 
-    public FluidSearch filterNotPWithin(String geometry) throws ArlasException, IOException {
-        ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+    public FluidSearch filterNotPWithin(double top, double left, double bottom, double right) throws ArlasException, IOException {
         boolQueryBuilder = boolQueryBuilder.mustNot(
-                QueryBuilders.geoWithinQuery(collectionReference.params.centroidPath, shapeBuilder)
+                QueryBuilders.geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(top, left, bottom, right)
         );
         return this;
     }
