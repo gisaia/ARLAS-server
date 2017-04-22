@@ -3,12 +3,14 @@ package io.arlas.server.rest.explore.search;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.ArlasHit;
 import io.arlas.server.model.ArlasHits;
 import io.arlas.server.model.ArlasMD;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.utils.CheckParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -108,35 +110,35 @@ public class SearchRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "after") Long after,
 
-            @ApiParam(name = "pwithin", value = "Any element having its centroid contained within the given geometry (WKT)",
+            @ApiParam(name = "pwithin", value = "Any element having its centroid contained within the given BBOX (top,left,bottom,right)",
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="pwithin") String pwithin,
+                    required = false)
+            @QueryParam(value = "pwithin") String pwithin,
 
             @ApiParam(name = "gwithin", value = "Any element having its geometry contained within the given geometry (WKT)",
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="gwithin") String gwithin,
+                    required = false)
+            @QueryParam(value = "gwithin") String gwithin,
 
             @ApiParam(name = "gintersect", value = "Any element having its geometry intersecting the given geometry (WKT)",
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="gintersect") String gintersect,
-            
-            @ApiParam(name = "notpwithin", value = "Any element having its centroid outside the given geometry (WKT)",
+                    required = false)
+            @QueryParam(value = "gintersect") String gintersect,
+
+            @ApiParam(name = "notpwithin", value = "Any element having its centroid outside the given BBOX (top,left,bottom,right)",
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="notpwithin") String notpwithin,
+                    required = false)
+            @QueryParam(value = "notpwithin") String notpwithin,
 
             @ApiParam(name = "notgwithin", value = "Any element having its geometry outside the given geometry (WKT)",
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="notgwithin") String notgwithin,
+                    required = false)
+            @QueryParam(value = "notgwithin") String notgwithin,
 
             @ApiParam(name = "notgintersect", value = "Any element having its geometry not intersecting the given geometry (WKT)",
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="notgintersect") String notgintersect,
+                    required = false)
+            @QueryParam(value = "notgintersect") String notgintersect,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -216,7 +218,7 @@ public class SearchRESTService extends ExploreRESTServices {
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
-        if(collectionReference==null){
+        if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
         fluidSearch.setCollectionReference(collectionReference);
@@ -234,7 +236,12 @@ public class SearchRESTService extends ExploreRESTServices {
             fluidSearch = fluidSearch.filterBefore(before);
         }
         if (pwithin != null && !pwithin.isEmpty()) {
-            fluidSearch = fluidSearch.filterPWithin(pwithin);
+            double[] tlbr = CheckParams.toDoubles(pwithin);
+            if (tlbr.length == 4) {
+                fluidSearch = fluidSearch.filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+            } else {
+                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            }
         }
         if (gwithin != null && !gwithin.isEmpty()) {
             fluidSearch = fluidSearch.filterGWithin(gwithin);
@@ -243,7 +250,12 @@ public class SearchRESTService extends ExploreRESTServices {
             fluidSearch = fluidSearch.filterGIntersect(gintersect);
         }
         if (notpwithin != null && !notpwithin.isEmpty()) {
-            fluidSearch = fluidSearch.filterNotPWithin(notpwithin);
+            double[] tlbr = CheckParams.toDoubles(notpwithin);
+            if (tlbr.length == 4) {
+                fluidSearch = fluidSearch.filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+            } else {
+                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            }
         }
         if (notgwithin != null && !notgwithin.isEmpty()) {
             fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
@@ -260,7 +272,9 @@ public class SearchRESTService extends ExploreRESTServices {
         if (size != null) {
             if (from != null) {
                 fluidSearch = fluidSearch.filterSize(size, from);
-            } else fluidSearch = fluidSearch.filterSize(size, 0);
+            } else {
+                fluidSearch = fluidSearch.filterSize(size, 0);
+            }
         }
         if (sort != null) {
             fluidSearch = fluidSearch.sort(sort);
@@ -269,29 +283,30 @@ public class SearchRESTService extends ExploreRESTServices {
         SearchHits searchHits = fluidSearch.exec().getHits();
 
         ArlasHits arlasHits = new ArlasHits();
-        arlasHits.nbhits = searchHits.totalHits();
-        arlasHits.hits = new ArrayList<>((int)arlasHits.nbhits);
+        arlasHits.totalnb = searchHits.totalHits();
+        arlasHits.nbhits = searchHits.getHits().length;
+        arlasHits.hits = new ArrayList<>((int) arlasHits.nbhits);
         for (SearchHit hit : searchHits.getHits()) {
             ArlasHit arlasHit = new ArlasHit();
             arlasHit.data = hit.getSource();
             arlasHit.md = new ArlasMD();
-            Map<String, Object > hitsSources = hit.getSource();
-            if(collectionReference.params.idPath!=null && hitsSources.get(collectionReference.params.idPath)!=null){
-                arlasHit.md.id = String.valueOf((Integer)hitsSources.get(collectionReference.params.idPath));
+            Map<String, Object> hitsSources = hit.getSource();
+            if (collectionReference.params.idPath != null && hitsSources.get(collectionReference.params.idPath) != null) {
+                arlasHit.md.id = "" + hitsSources.get(collectionReference.params.idPath);
             }
-            if(collectionReference.params.centroidPath!=null && hitsSources.get(collectionReference.params.centroidPath)!=null){
-                String pointString = (String)hitsSources.get(collectionReference.params.centroidPath);
+            if (collectionReference.params.centroidPath != null && hitsSources.get(collectionReference.params.centroidPath) != null) {
+                String pointString = (String) hitsSources.get(collectionReference.params.centroidPath);
                 String[] tokens = pointString.split(",");
                 Double latitude = Double.parseDouble(tokens[0]);
                 Double longitude = Double.parseDouble(tokens[1]);
-                Point point = new Point(latitude,longitude);
+                Point point = new Point(latitude, longitude);
                 arlasHit.md.centroid = point;
             }
-            if(collectionReference.params.geometryPath!=null && hitsSources.get(collectionReference.params.geometryPath)!=null){
-                HashMap m = (HashMap)hitsSources.get(collectionReference.params.geometryPath);
+            if (collectionReference.params.geometryPath != null && hitsSources.get(collectionReference.params.geometryPath) != null) {
+                HashMap m = (HashMap) hitsSources.get(collectionReference.params.geometryPath);
                 arlasHit.md.geometry = m;
             }
-            if(collectionReference.params.timestampPath!=null && hitsSources.get(collectionReference.params.timestampPath)!=null){
+            if (collectionReference.params.timestampPath != null && hitsSources.get(collectionReference.params.timestampPath) != null) {
                 //TODO: parse timestamp
                 //arlasHit.md.timestamp = (String)hitsSources.get(collectionReference.params.timestampPath);
             }

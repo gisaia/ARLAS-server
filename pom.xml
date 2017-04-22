@@ -65,6 +65,12 @@
             <version>1.13</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.locationtech.spatial4j</groupId>
+            <artifactId>spatial4j</artifactId>
+            <version>0.6</version>
+        </dependency>
+
 
         <!-- ____________________________________________________ -->
         <!-- Tests -->
@@ -74,7 +80,7 @@
       		<artifactId>rest-assured</artifactId>
       		<version>${io.rest-assured.version}</version>
       		<scope>test</scope>
-		</dependency>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -162,7 +168,7 @@
         <dropwizard.swagger.version>1.0.6-1</dropwizard.swagger.version>
         <com.wordnik.version>1.5.3-M1</com.wordnik.version>
         <zipkin.dropwizard.version>1.0.6-1</zipkin.dropwizard.version>
-        <junit.version>4.9</junit.version>
+        <junit.version>4.11</junit.version>
         <org.hamcrest.version>1.3</org.hamcrest.version>
         <io.rest-assured.version>3.0.2</io.rest-assured.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

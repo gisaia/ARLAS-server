@@ -52,6 +52,7 @@ docker run -it --rm \
 	-v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	--link arlas-server:arlas-server \
+	--link elasticsearch:elasticsearch \
 	maven:3.5.0-jdk-8 \
 	mvn verify
 	

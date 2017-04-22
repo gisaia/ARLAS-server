@@ -4,9 +4,11 @@ import com.codahale.metrics.annotation.Timed;
 
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.utils.CheckParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -100,7 +102,7 @@ public class CountRESTService extends ExploreRESTServices {
                     required=false)
             @QueryParam(value="after") Long after,
 
-            @ApiParam(name ="pwithin", value="Any element having its centroid contained within the given geometry (WKT)",
+            @ApiParam(name ="pwithin", value="Any element having its centroid contained within the given BBOX (top,left,bottom,right)",
                     allowMultiple = true,
                     required=false)
             @QueryParam(value="pwithin") String pwithin,
@@ -115,7 +117,7 @@ public class CountRESTService extends ExploreRESTServices {
                     required=false)
             @QueryParam(value="gintersect") String gintersect,
 
-            @ApiParam(name ="notpwithin", value="Any element having its centroid outside the given geometry (WKT)",
+            @ApiParam(name ="notpwithin", value="Any element having its centroid outside the given BBOX (top,left,bottom,right)",
                     allowMultiple = true,
                     required=false)
             @QueryParam(value="notpwithin") String notpwithin,
@@ -171,8 +173,13 @@ public class CountRESTService extends ExploreRESTServices {
         if (before != null){
             fluidSearch = fluidSearch.filterBefore(before);
         }
-        if (pwithin != null && !pwithin.isEmpty()){
-            fluidSearch = fluidSearch.filterPWithin(pwithin);
+        if (pwithin != null && !pwithin.isEmpty()) {
+            double[] tlbr = CheckParams.toDoubles(pwithin);
+            if (tlbr.length == 4) {
+                fluidSearch = fluidSearch.filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+            } else {
+                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            }
         }
         if (gwithin != null && !gwithin.isEmpty()){
             fluidSearch = fluidSearch.filterGWithin(gwithin);
@@ -180,8 +187,13 @@ public class CountRESTService extends ExploreRESTServices {
         if (gintersect != null && !gintersect.isEmpty()){
             fluidSearch = fluidSearch.filterGIntersect(gintersect);
         }
-        if (notpwithin != null && !notpwithin.isEmpty()){
-            fluidSearch = fluidSearch.filterNotPWithin(notpwithin);
+        if (notpwithin != null && !notpwithin.isEmpty()) {
+            double[] tlbr = CheckParams.toDoubles(notpwithin);
+            if (tlbr.length == 4) {
+                fluidSearch = fluidSearch.filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+            } else {
+                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            }
         }
         if (notgwithin != null && !notgwithin.isEmpty()){
             fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
@@ -191,7 +203,5 @@ public class CountRESTService extends ExploreRESTServices {
         }
 
         return fluidSearch.exec().getHits().totalHits();
-
-        //return Response.ok("count").build();
     }
 }

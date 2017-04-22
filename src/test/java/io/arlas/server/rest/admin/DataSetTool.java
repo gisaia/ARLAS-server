@@ -26,6 +26,7 @@ public class DataSetTool {
     public final static String DATASET_GEOMETRY_PATH="geometry";
     public final static String DATASET_CENTROID_PATH="centroid";
     public final static String DATASET_TIMESTAMP_PATH="startdate";
+    public static final String[] jobs= {"Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter"};
 
 
     AdminClient adminClient;
@@ -45,25 +46,34 @@ public class DataSetTool {
     }
 
     private DataSetTool(String host, int port) throws UnknownHostException {
-        client = new PreBuiltTransportClient(Settings.EMPTY)
+	Settings settings = null;
+        if("localhost".equals(host)){
+            settings=Settings.EMPTY;
+        }else{
+            settings=Settings.builder().put("cluster.name", "docker-cluster").build();
+        }
+        client = new PreBuiltTransportClient(settings)
                 .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
         adminClient = client.admin();
     }
 
     public void loadDataSet() throws IOException {
         String mapping = IOUtils.toString(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("dataset.mapping.json")));
-        adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
+        try {
+	    adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
+	} catch (Exception e) {
+	}
         adminClient.indices().prepareCreate(DATASET_INDEX_NAME).addMapping(DATASET_TYPE_NAME, mapping).get();
         Data data;
         ObjectMapper mapper = new ObjectMapper();
-
         for(int i=-80; i<80;i+=10){
             for(int j=-170; j<170;j+=10){
                 data=new Data();
                 data.id= UUID.randomUUID().toString();
                 data.fullname="My name is "+data.id;
-                data.startdate=System.currentTimeMillis();
+                data.startdate=1l*(i+1000)*(j+1000);
                 data.centroid=i+","+j;
+                data.job=jobs[((Math.abs(i)+Math.abs(j))/10)%(jobs.length-1)];
                 List<LngLatAlt> coords = new ArrayList<>();
                 coords.add(new LngLatAlt(i,j));
                 coords.add(new LngLatAlt(i,j-1));

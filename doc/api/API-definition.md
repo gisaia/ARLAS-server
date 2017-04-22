@@ -8,7 +8,7 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 
 | PATH Template                            | Description                              |
 | ---------------------------------------- | ---------------------------------------- |
-| /arlas/explore/**_list**                     | List  the collections configured in ARLAS |
+| /arlas/explore/**_list**                 | List  the collections configured in ARLAS |
 | /arlas/explore/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
 | /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Count the number of elements found in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection, given the filters |
@@ -33,9 +33,9 @@ When multiple collections are permitted ({collections}), the comma is used for s
 
 The [`aggregation`] url part allows the following parameters to be specified:
 
-| Parameter        | Default value | Description                  | Multiple |
-| ---------------- | ------------- | ---------------------------- | -------- |
-| **agg**          | `None`        | Gathers a set of sub-parameters indicating the type of aggregation, the field used as the aggregation key and possibly the interval for numeric values          | true for _aggregate only   |
+| Parameter | Default value | Description                              | Multiple                 |
+| --------- | ------------- | ---------------------------------------- | ------------------------ |
+| **agg**   | `None`        | Gathers a set of sub-parameters indicating the type of aggregation, the field used as the aggregation key and possibly the interval for numeric values | true for _aggregate only |
 
 The agg parameter should be given in the following format :
 
@@ -47,14 +47,14 @@ Where the `{type}:{field}` part is mandatory AND `interval`, `format`, `collect_
 
 The sub-parameters properties are:
 
-| Parameter           | Values                                   | Description                  |
-| ------------------- | ---------------------------------------- | ---------------------------------------- |
-| **interval**        | interval                                 | Size of the intervals.       |
-| **format**          | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.       |
-| **collect_field**   | `{collect_field}`                                 | The field used to aggregate collections.       |
-| **collect_fct**     | `avg,cardinality,max,min,sum`                                 | The aggregation function to apply to collections on the specified **collect_field**.       |
-| **order**     | `asc,desc`                                 | Sort the aggregation result on the field name or on the result itself, ascending or descending.       |
-| **on**     | `field,result`                                 | {on} is set to specify whether the **order** is on the field name or the result.        |
+| Parameter         | Values                                   | Description                              |
+| ----------------- | ---------------------------------------- | ---------------------------------------- |
+| **interval**      | interval                                 | Size of the intervals.                   |
+| **format**        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.         |
+| **collect_field** | `{collect_field}`                        | The field used to aggregate collections. |
+| **collect_fct**   | `avg,cardinality,max,min,sum`            | The aggregation function to apply to collections on the specified **collect_field**. |
+| **order**         | `asc,desc`                               | Sort the aggregation result on the field name or on the result itself, ascending or descending. |
+| **on**            | `field,result`                           | {on} is set to specify whether the **order** is on the field name or the result. |
 
 In the case of using _geoaggregate service, {field} must be a geometry and preferably a geo-point.
 
@@ -64,8 +64,8 @@ Each aggregation type ({type}) has its own type of interval. The table below lis
 | ------------------- | ------------------- | ---------------------------------------- | ---------------------------------------- |
 | ***_aggregate***    | ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit) |
 | ***_geoaggregate*** | ***geohash***       | `{length}`                               | The geohash length: lower the length, greater is the surface of aggregation. See table below. |
-| ***_aggregate***    | ***histogram***      | `{size}`                                 | The interval size of the numeric aggregation |
-| ***_aggregate***    | ***term***          | None                                     | None |
+| ***_aggregate***    | ***histogram***     | `{size}`                                 | The interval size of the numeric aggregation |
+| ***_aggregate***    | ***term***          | None                                     | None                                     |
 
 The table below shows the metric dimensions for cells covered by various string lengths of geohash. Cell dimensions vary with latitude and so the table is for the worst-case scenario at the equator.
 
@@ -97,19 +97,19 @@ The `filter` url part allows the following parameters to be specified:
 | **q**          | None          | text                           | A full text search                       | false    |
 | **before**     | None          | timestamp                      | Any element having its point in time reference before the given timestamp | false    |
 | **after**      | None          | timestamp                      | Any element having its point in time reference after the given timestamp | false    |
-| **pwithin**    | None          | geometry                       | Any element having its centroid contained within the given geometry | false    |
+| **pwithin**    | None          | geometry                       | Any element having its centroid contained within the given BBOX | false    |
 | **gwithin**    | None          | geometry                       | Any element having its geometry contained within the given geometry | false    |
 | **gintersect** | None          | geometry                       | Any element having its geometry intersecting the given geometry (WKT) | false    |
 
 
 
-| Operator | Description                              | Value type         |
-| -------- | ---------------------------------------- | ------------------ |
-| **`:`**    | `{fieldName}` equals `{value}`           | numeric or strings |
-| **`:gte:`**  | `{fieldName}` is greater than or equal to `{value}` | numeric            |
-| **`:gt:`**   | `{fieldName}` is greater than `{value}`  | numeric            |
-| **`:lte:`**  | `{fieldName}` is less than or equal to `{value}` | numeric            |
-| **`:lt:`**   | `{fieldName}` is less than `{value}`     | numeric            |
+| Operator    | Description                              | Value type         |
+| ----------- | ---------------------------------------- | ------------------ |
+| **`:`**     | `{fieldName}` equals `{value}`           | numeric or strings |
+| **`:gte:`** | `{fieldName}` is greater than or equal to `{value}` | numeric            |
+| **`:gt:`**  | `{fieldName}` is greater than `{value}`  | numeric            |
+| **`:lte:`** | `{fieldName}` is less than or equal to `{value}` | numeric            |
+| **`:lt:`**  | `{fieldName}` is less than `{value}`     | numeric            |
 
 > Example: `f=city:Toulouse`&`f=city:Bordeaux&after=1490613808&`
 
@@ -166,8 +166,8 @@ The `size` url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description                              | Multiple |
 | --------- | ------------- | ------ | ---------------------------------------- | -------- |
-| **size**  | 10            | >0     | The maximum number of entries or sub-entries to be returned. | false     |
-| **from**  | 0            | >0     | From index to start the search from. Defaults to 0. | false     |
+| **size**  | 10            | >0     | The maximum number of entries or sub-entries to be returned. | false    |
+| **from**  | 0             | >0     | From index to start the search from. Defaults to 0. | false    |
 
 > Example: `size=1000`
 
@@ -176,8 +176,8 @@ The `size` url part allows the following parameters to be specified:
 
 The `sort` url part allows the following parameters to be specified:
 
-| Parameter | Default value | Values                       | Description                              | Multiple |
-| --------- | ------------- | ---------------------------- | ---------------------------------------- | -------- |
-| **sort**  | None          | `((-?){field})(,(-?){field})*` | Sort the result on the given fields ascending or descending. Fields can be provided several times by separating them with a comma. The order matters. For a descending sort, precede the field with '-'. The sort will be ascending otherwise. For aggregation, provide the `agg` keyword as the `{field}`. | false (separate fields with comma in the same parameter)     |
+| Parameter | Default value | Values                         | Description                              | Multiple                                 |
+| --------- | ------------- | ------------------------------ | ---------------------------------------- | ---------------------------------------- |
+| **sort**  | None          | `((-?){field})(,(-?){field})*` | Sort the result on the given fields ascending or descending. Fields can be provided several times by separating them with a comma. The order matters. For a descending sort, precede the field with '-'. The sort will be ascending otherwise. For aggregation, provide the `agg` keyword as the `{field}`. | false (separate fields with comma in the same parameter) |
 
 > Example: `sort=-country,city`
