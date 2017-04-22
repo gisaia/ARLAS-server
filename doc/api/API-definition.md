@@ -1,6 +1,6 @@
 # ARLAS
 
-The ARLAS API makes the ARLAS catalog available for exploration and browsing. The catalog contains collections of geo-referenced products. Every product has a geometry, a centroid, a timestamp and a set of fields specific to the collection.
+The ARLAS API makes the ARLAS catalog available for exploration and browsing. The catalog contains collections of geo-referenced elements. Every element has a geometry, a centroid, a timestamp and a set of fields specific to the collection.
 
 # URL Schema
 
@@ -8,22 +8,24 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 
 | PATH Template                            | Description                              |
 | ---------------------------------------- | ---------------------------------------- |
-| /arlas/**_describe**                     | List  the collections configured in ARLAS |
-| /arlas/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
-| /arlas/`{collections}`/**_count**?`filter` & `form` | Count the number of products found in the collection(s), given the filters |
-| /arlas/`{collections}`/**_search**?`filter` & `form` & `format` & `projection` & `size` & `sort` | Search and return the products found in the collection(s), given the filters |
-| /arlas/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` & `format` & `size` & `sort` | Aggregate the products in the collection(s), given the filters and the aggregation parameters |
-| /arlas/`{collections}`/**_suggest**?`filter` & `form` & `size` & `suggest` | Suggest the the n (n=`size`) most relevant terms given the filters |
+| /arlas/explore/**_list**                 | List  the collections configured in ARLAS |
+| /arlas/explore/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
+| /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Count the number of elements found in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection as features, given the filters |
+| /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` & `size` & `sort` | Aggregate the elements in the collection(s), given the filters and the aggregation parameters |
+| /arlas/explore/`{collections}`/**_geoaggregate**?`aggregation` &`filter` & `form` & `size` & `sort` | Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters |
+| /arlas/explore/`{collections}`/**_suggest**?`filter` & `form` & `size` & `suggest` | Suggest the the n (n=`size`) most relevant terms given the filters |
 
-When multiple collections are permited ({collections}), the comma is used for seperating the collection names.
+When multiple collections are permitted ({collections}), the comma is used for separating the collection names.
 
 | Examples                                 |
 | ---------------------------------------- |
-| https://api.gisaia.com/demo/arlas/`_describe` |
-| https://api.gisaia.com/demo/arlas/`city,state,country`/`_describe` |
-| https://api.gisaia.com/demo/arlas/`city,state,country`/`_count`?`q=bord*`&`f=country:France`&`pretty=true`&`human=true` |
-| https://api.gisaia.com/demo/arlas/`election`/`_search`?`f=country:France`&`after=1490613808`&`format=geojson`& `pretty=true`&`human=true`&`size=1000`&`include=id,name` |
-| https://api.gisaia.com/demo/arlas/`election`/`_aggregate`?`f=country:France`&`after=1490613808`&`format=geojson`& `pretty=true`&`human=true`&`size=1000`&`include=id,name`&`agg=geohash`&`agg_interval=4` |
+| https://api.gisaia.com/demo/arlas/explore/`_describe` |
+| https://api.gisaia.com/demo/arlas/explore/`city,state,country`/`_describe` |
+| https://api.gisaia.com/demo/arlas/explore/`city,state,country`/`_count`?`q=bord*`&`f=country:France`&`pretty=true`&`human=true` |
+| https://api.gisaia.com/demo/arlas/explore/`election`/`_search`?`f=country:France`&`after=1490613808`&`format=geojson`& `pretty=true`&`human=true`&`size=1000`&`include=id,name` |
+| https://api.gisaia.com/demo/arlas/explore/`election`/`_aggregate`?`f=country:France`&`after=1490613808`&`format=geojson`& `pretty=true`&`human=true`&`size=1000`&`include=id,name`&`agg=geohash`&`agg_interval=4` |
 
 # URL Parts
 
@@ -31,20 +33,39 @@ When multiple collections are permited ({collections}), the comma is used for se
 
 The [`aggregation`] url part allows the following parameters to be specified:
 
-| Parameter        | Default value | Values                                   | Description                  | Multiple |
-| ---------------- | ------------- | ---------------------------------------- | ---------------------------- | -------- |
-| **agg**          | `None`        | `datehistogram,geohash,histogram`        | Type of aggregation          | false    |
-| **agg_field**    | `None`        | `{field}`                                | Aggregates on the `{field}`. | true     |
-| **agg_interval** | `None`        | interval                                 | Size of the intervals.       | true     |
-| **agg_format**   | `None`        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Size of the intervals.       | true     |
+| Parameter | Default value | Description                              | Multiple                 |
+| --------- | ------------- | ---------------------------------------- | ------------------------ |
+| **agg**   | `None`        | Gathers a set of sub-parameters indicating the type of aggregation, the field used as the aggregation key and possibly the interval for numeric values | true for _aggregate only |
 
-Each aggregation has its own type of interval. The table below lists the semantic of the interval.
+The agg parameter should be given in the following format :
 
-| Aggregation         | Interval                                 | Description                              |
-| ------------------- | ---------------------------------------- | ---------------------------------------- |
-| ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit) |
-| ***geohash***       | `{length}`                               | The geohash length: lower the length, greater is the surface of aggregation. See table below. |
-| ***numeric***       | `{size}`                                 | The interval size of the numeric aggregation |
+- {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}
+
+Where the `{type}:{field}` part is mandatory AND `interval`, `format`, `collect_field`, `collect_fct`, `order` AND `on` are optional sub-parameters
+
+> Example: `agg=datehistogram:date:interval-20day:format-yyyyMMdd`&`agg=term:sexe:collect_field-age:collect_fct-avg:order-asc:on-count`
+
+The sub-parameters properties are:
+
+| Parameter         | Values                                   | Description                              |
+| ----------------- | ---------------------------------------- | ---------------------------------------- |
+| **interval**      | interval                                 | Size of the intervals.                   |
+| **format**        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.         |
+| **collect_field** | `{collect_field}`                        | The field used to aggregate collections. |
+| **collect_fct**   | `avg,cardinality,max,min,sum`            | The aggregation function to apply to collections on the specified **collect_field**. |
+| **order**         | `asc,desc`                               | Sort the aggregation result on the field name or on the result itself, ascending or descending. |
+| **on**            | `field,result`                           | {on} is set to specify whether the **order** is on the field name or the result. |
+
+In the case of using _geoaggregate service, {field} must be a geometry and preferably a geo-point.
+
+Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
+
+| Service             | Aggregation type    | Interval                                 | Description                              |
+| ------------------- | ------------------- | ---------------------------------------- | ---------------------------------------- |
+| ***_aggregate***    | ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit) |
+| ***_geoaggregate*** | ***geohash***       | `{length}`                               | The geohash length: lower the length, greater is the surface of aggregation. See table below. |
+| ***_aggregate***    | ***histogram***     | `{size}`                                 | The interval size of the numeric aggregation |
+| ***_aggregate***    | ***term***          | None                                     | None                                     |
 
 The table below shows the metric dimensions for cells covered by various string lengths of geohash. Cell dimensions vary with latitude and so the table is for the worst-case scenario at the equator.
 
@@ -63,7 +84,7 @@ The table below shows the metric dimensions for cells covered by various string 
 | 11             | 14.9cm x 14.9cm       |
 | 12             | 3.7cm x 1.9cm         |
 
-> Example: `agg=datehistogram&agg_field=date&agg_interval=10d&agg_format=yyyyMMdd`
+For _aggregate only, agg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : the order matters.
 
 ---
 ## Part: `filter`
@@ -76,19 +97,19 @@ The `filter` url part allows the following parameters to be specified:
 | **q**          | None          | text                           | A full text search                       | false    |
 | **before**     | None          | timestamp                      | Any element having its point in time reference before the given timestamp | false    |
 | **after**      | None          | timestamp                      | Any element having its point in time reference after the given timestamp | false    |
-| **pwithin**    | None          | geometry                       | Any element having its centroid contained within the given geometry | false    |
+| **pwithin**    | None          | geometry                       | Any element having its centroid contained within the given BBOX | false    |
 | **gwithin**    | None          | geometry                       | Any element having its geometry contained within the given geometry | false    |
 | **gintersect** | None          | geometry                       | Any element having its geometry intersecting the given geometry (WKT) | false    |
 
 
 
-| Operator | Description                              | Value type         |
-| -------- | ---------------------------------------- | ------------------ |
-| **:**    | `{fieldName}` equals `{value}`           | numeric or strings |
-| **:>=**  | `{fieldName}` is greater than or equal to `{value}` | numeric            |
-| **:>**   | `{fieldName}` is greater than `{value}`  | numeric            |
-| **:<=**  | `{fieldName}` is less than or equal to `{value}` | numeric            |
-| **:<**   | `{fieldName}` is less than `{value}`     | numeric            |
+| Operator    | Description                              | Value type         |
+| ----------- | ---------------------------------------- | ------------------ |
+| **`:`**     | `{fieldName}` equals `{value}`           | numeric or strings |
+| **`:gte:`** | `{fieldName}` is greater than or equal to `{value}` | numeric            |
+| **`:gt:`**  | `{fieldName}` is greater than `{value}`  | numeric            |
+| **`:lte:`** | `{fieldName}` is less than or equal to `{value}` | numeric            |
+| **`:lt:`**  | `{fieldName}` is less than `{value}`     | numeric            |
 
 > Example: `f=city:Toulouse`&`f=city:Bordeaux&after=1490613808&`
 
@@ -145,7 +166,8 @@ The `size` url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values | Description                              | Multiple |
 | --------- | ------------- | ------ | ---------------------------------------- | -------- |
-| **size**  | 10            | >0     | The maximum number of entries or sub-entries to be returned. | true     |
+| **size**  | 10            | >0     | The maximum number of entries or sub-entries to be returned. | false    |
+| **from**  | 0             | >0     | From index to start the search from. Defaults to 0. | false    |
 
 > Example: `size=1000`
 
@@ -154,8 +176,8 @@ The `size` url part allows the following parameters to be specified:
 
 The `sort` url part allows the following parameters to be specified:
 
-| Parameter | Default value | Values                       | Description                              | Multiple |
-| --------- | ------------- | ---------------------------- | ---------------------------------------- | -------- |
-| **sort**  | None          | `{fieldName}`:(`ASC`,`DESC`) | Sort the result on a given field, ascending or descending. The parameter can be provided several times. The order matters. For aggregation, provide the `agg` keyword as the `{fieldName}`. | true     |
+| Parameter | Default value | Values                         | Description                              | Multiple                                 |
+| --------- | ------------- | ------------------------------ | ---------------------------------------- | ---------------------------------------- |
+| **sort**  | None          | `((-?){field})(,(-?){field})*` | Sort the result on the given fields ascending or descending. Fields can be provided several times by separating them with a comma. The order matters. For a descending sort, precede the field with '-'. The sort will be ascending otherwise. For aggregation, provide the `agg` keyword as the `{field}`. | false (separate fields with comma in the same parameter) |
 
-> Example: `sort=country:ASC&sort=city:ASC`
+> Example: `sort=-country,city`
