@@ -21,6 +21,7 @@ public class AbstractTest {
 
     static {
         RestAssured.baseURI = "http://arlas-server";
+//        RestAssured.baseURI = "http://localhost"; //TODO : USE env variable here
         RestAssured.port = 9999;
         RestAssured.basePath = "/arlas";
     }

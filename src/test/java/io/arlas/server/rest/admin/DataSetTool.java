@@ -26,6 +26,7 @@ public class DataSetTool {
     public final static String DATASET_GEOMETRY_PATH="geometry";
     public final static String DATASET_CENTROID_PATH="centroid";
     public final static String DATASET_TIMESTAMP_PATH="startdate";
+    public static final String[] jobs= {"Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter"};
 
 
     AdminClient adminClient;
@@ -45,7 +46,12 @@ public class DataSetTool {
     }
 
     private DataSetTool(String host, int port) throws UnknownHostException {
-	Settings settings = Settings.builder().put("cluster.name", "docker-cluster").build();
+	Settings settings = null;
+        if("localhost".equals(host)){
+            settings=Settings.EMPTY;
+        }else{
+            settings=Settings.builder().put("cluster.name", "docker-cluster").build();
+        }
         client = new PreBuiltTransportClient(settings)
                 .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
         adminClient = client.admin();
@@ -60,7 +66,6 @@ public class DataSetTool {
         adminClient.indices().prepareCreate(DATASET_INDEX_NAME).addMapping(DATASET_TYPE_NAME, mapping).get();
         Data data;
         ObjectMapper mapper = new ObjectMapper();
-        String[] jobs= {"Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter"};
         for(int i=-80; i<80;i+=10){
             for(int j=-170; j<170;j+=10){
                 data=new Data();

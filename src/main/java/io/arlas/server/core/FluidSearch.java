@@ -52,43 +52,43 @@ public class FluidSearch {
 
     public FluidSearch filter(List<String> f) throws ArlasException {
          for (int i = 0; i < f.size(); i++) {
-            String operands[] = f.get(i).split(":");
-            int operandsNumber = operands.length;
-            if (operandsNumber<2 || operandsNumber>3){
-                throw new InvalidParameterException(INVALID_PARAMETER_F);
-            }
-            else if (operandsNumber == 2) {
-                boolQueryBuilder = boolQueryBuilder.filter(
-                        QueryBuilders.matchQuery(operands[0], operands[1])
-                );
-            } else if (operandsNumber == 3) {
-                //TODO: test if operands[2] is null
-                Integer fieldValue = tryParse(operands[2]);
-                if (fieldValue != null) {
-                    if (operands[1].equals("gte")) {
-                        boolQueryBuilder = boolQueryBuilder.filter(
-                                QueryBuilders.rangeQuery(operands[0])
-                                        .gte(fieldValue)
-                        );
-                    } else if (operands[1].equals("gt")) {
-                        boolQueryBuilder = boolQueryBuilder.filter(
-                                QueryBuilders.rangeQuery(operands[0])
-                                        .gt(fieldValue)
-                        );
-                    } else if (operands[1].equals("lte")) {
-                        boolQueryBuilder = boolQueryBuilder.filter(
-                                QueryBuilders.rangeQuery(operands[0])
-                                        .lte(fieldValue)
-                        );
-                    } else if (operands[1].equals("lt")) {
-                        boolQueryBuilder = boolQueryBuilder.filter(
-                                QueryBuilders.rangeQuery(operands[0])
-                                        .lt(fieldValue)
-                        );
-                    } else throw new InvalidParameterException(INVALID_OPERATOR);
-                }
-                else throw new InvalidParameterException(INVALID_VALUE_TYPE);
-            }
+             if(f.get(i)!=null && !f.get(i).isEmpty()) {
+                 String operands[] = f.get(i).split(":");
+                 int operandsNumber = operands.length;
+                 if (operandsNumber < 2 || operandsNumber > 3) {
+                     throw new InvalidParameterException(INVALID_PARAMETER_F);
+                 } else if (operandsNumber == 2) {
+                     boolQueryBuilder = boolQueryBuilder.filter(
+                             QueryBuilders.matchQuery(operands[0], operands[1])
+                     );
+                 } else if (operandsNumber == 3) {
+                     //TODO: test if operands[2] is null
+                     Integer fieldValue = tryParse(operands[2]);
+                     if (fieldValue != null) {
+                         if (operands[1].equals("gte")) {
+                             boolQueryBuilder = boolQueryBuilder.filter(
+                                     QueryBuilders.rangeQuery(operands[0])
+                                             .gte(fieldValue)
+                             );
+                         } else if (operands[1].equals("gt")) {
+                             boolQueryBuilder = boolQueryBuilder.filter(
+                                     QueryBuilders.rangeQuery(operands[0])
+                                             .gt(fieldValue)
+                             );
+                         } else if (operands[1].equals("lte")) {
+                             boolQueryBuilder = boolQueryBuilder.filter(
+                                     QueryBuilders.rangeQuery(operands[0])
+                                             .lte(fieldValue)
+                             );
+                         } else if (operands[1].equals("lt")) {
+                             boolQueryBuilder = boolQueryBuilder.filter(
+                                     QueryBuilders.rangeQuery(operands[0])
+                                             .lt(fieldValue)
+                             );
+                         } else throw new InvalidParameterException(INVALID_OPERATOR);
+                     } else throw new InvalidParameterException(INVALID_VALUE_TYPE);
+                 }
+             }
         }
         return this;
     }

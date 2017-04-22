@@ -277,7 +277,7 @@ public class SearchRESTService extends ExploreRESTServices {
             arlasHit.md = new ArlasMD();
             Map<String, Object > hitsSources = hit.getSource();
             if(collectionReference.params.idPath!=null && hitsSources.get(collectionReference.params.idPath)!=null){
-                arlasHit.md.id = String.valueOf((Integer)hitsSources.get(collectionReference.params.idPath));
+                arlasHit.md.id = ""+hitsSources.get(collectionReference.params.idPath);
             }
             if(collectionReference.params.centroidPath!=null && hitsSources.get(collectionReference.params.centroidPath)!=null){
                 String pointString = (String)hitsSources.get(collectionReference.params.centroidPath);

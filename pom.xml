@@ -65,6 +65,12 @@
             <version>1.13</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.locationtech.spatial4j</groupId>
+            <artifactId>spatial4j</artifactId>
+            <version>0.6</version>
+        </dependency>
+
 
         <!-- ____________________________________________________ -->
         <!-- Tests -->
