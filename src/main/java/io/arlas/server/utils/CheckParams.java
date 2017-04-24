@@ -1,19 +1,18 @@
 package io.arlas.server.utils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.elasticsearch.search.sort.SortOrder;
-
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
-
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.rest.explore.enumerations.AggregationType;
 import io.arlas.server.rest.explore.enumerations.DateInterval;
+import org.elasticsearch.search.sort.SortOrder;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by hamou on 13/04/17.
@@ -84,28 +83,6 @@ public class CheckParams {
         return false;
     }
 
-    // verify if the aggregation interval suits the date type aggregation.
-    // Retruns the interval (size+unit) if it is ok.
-    public static Map<Integer, String> getValidAggDateInterval(String aggInterval) throws ArlasException {
-        if (aggInterval != null) {
-            String[] interval = aggInterval.split("(?<=[a-zA-Z])(?=\\d)|(?<=\\d)(?=[a-zA-Z])");
-            if (interval.length == 2) {
-                Integer size = tryParseInteger(interval[0]);
-                String unit = interval[1].toLowerCase();
-                if (size != null) {
-                    if (DateInterval.contains(unit)) {
-                        Map<Integer, String> map = new HashMap<Integer, String>();
-                        map.put(size, unit);
-                        return map;
-                    } else
-                        throw new InvalidParameterException(INVALID_DATE_UNIT);
-                } else
-                    throw new InvalidParameterException(INVALID_DATE_SIZE);
-            } else
-                throw new InvalidParameterException(INVALID_DATE_INTERVAL);
-        }
-        return null;
-    }
 
     public static Integer getValidGeoHashPrecision(String aggInterval) throws ArlasException {
         if (aggInterval != null) {
