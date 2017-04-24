@@ -5,10 +5,10 @@ import static org.hamcrest.Matchers.equalTo;
 
 import org.junit.Test;
 
-import io.arlas.server.rest.AbstractTest;
-import io.arlas.server.rest.admin.DataSetTool;
+import io.arlas.server.rest.AbstractTestWithDataSet;
+import io.arlas.server.rest.DataSetTool;
 
-public class CountServiceIT extends AbstractTest {
+public class CountServiceIT extends AbstractTestWithDataSet {
 
     @Test
     public void testBasicCount() throws Exception {

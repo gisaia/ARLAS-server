@@ -1,4 +1,4 @@
-package io.arlas.server.rest.admin;
+package io.arlas.server.rest;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -39,7 +39,7 @@ public class DataSetTool {
     }
 
     static public DataSetTool init() throws UnknownHostException {
-        return new DataSetTool(System.getenv("ELASTICSEARCH_PORT_9300_TCP_ADDR"), Integer.parseInt(System.getenv("ELASTICSEARCH_PORT_9300_TCP_PORT")));
+        return new DataSetTool(System.getenv("ARLAS_ELASTIC_HOST"), Integer.parseInt(System.getenv("ARLAS_ELASTIC_PORT")));
     }
 
     static public DataSetTool init(String host, int port) throws UnknownHostException {

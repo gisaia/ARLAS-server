@@ -14,7 +14,7 @@ mvn clean package
 
 # Run
 ```sh
-java -jar target/arlas-server-x.x.jar server configuration.yaml
+java -jar target/arlas-server-x.x.jar server conf/configuration.yaml
 ```
 
 Then, go to `http://localhost:9999/arlas/swagger` for exploring and testing the API.
@@ -37,11 +37,23 @@ curl -X DELETE --header 'Accept: application/json' 'http://localhost:9999/arlas/
 
 # Integration Tests
 
+## with docker containers
+
 ```sh
-./test-integration.sh && echo "INTEGRATION TESTS ARE OK"
+./tests-integration/tests-integration.sh
 ```
 
 Make sure to have docker installed and running on your system.
+
+## whith running elasticsearch and arlas-server
+
+```sh
+export ARLAS_HOST="localhost"; export ARLAS_PORT="9999"; export ARLAS_PREFIX="/arlas/";
+export ARLAS_ELASTIC_HOST="localhost"; export ARLAS_ELASTIC_PORT=9300;
+mvn clean install -DskipTests=false
+```
+
+
 
 
 # Optional

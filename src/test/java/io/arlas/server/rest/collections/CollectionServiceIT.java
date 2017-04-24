@@ -1,4 +1,4 @@
-package io.arlas.server.rest.admin;
+package io.arlas.server.rest.collections;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
@@ -9,15 +9,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import io.restassured.RestAssured;
+import io.arlas.server.rest.AbstractTest;
 
-public class CollectionServiceIT {
-
-    static {
-        RestAssured.baseURI = "http://arlas-server";
-        RestAssured.port = 9999;
-        RestAssured.basePath = "/arlas";
-    }
+public class CollectionServiceIT extends AbstractTest {
 
     @Test
     public void testLifecycle() throws Exception {

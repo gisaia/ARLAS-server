@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# GO TO PROJECT PATH
+SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
+cd ${SCRIPT_PATH}/..
+
 # CLEAN
 echo "===> kill/rm old containers if needed"
 function clean {
@@ -14,6 +18,7 @@ clean
 echo "===> package arlas-server"
 mvn clean package
 VERSION=`echo -e 'setns x=http://maven.apache.org/POM/4.0.0\ncat /x:project/x:version/text()' | xmllint --shell pom.xml | grep -v /`
+echo "arlas-server:${VERSION}"
 mv target/arlas-server-${VERSION}.jar target/arlas-server.jar
 
 # BUILD
@@ -34,16 +39,17 @@ docker run -d \
 	-e xpack.watcher.enabled=false \
 	docker.elastic.co/elasticsearch/elasticsearch:5.3.0
 echo "===> wait for elasticsearch"
-docker run --link elasticsearch:elasticsearch --rm busybox sh -c 'until nc -w 2 elasticsearch 9200; do sleep 1; done'
+docker run --link elasticsearch:elasticsearch --rm busybox sh -c 'i=1; until nc -w 2 elasticsearch 9200; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'	
 
 echo "===> start arlas-server"
 docker run -ti -d \
 	--name arlas-server \
 	-p 19999:9999 \
 	--link elasticsearch:elasticsearch \
-	arlas-server:0.1
+	arlas-server:${VERSION}
 echo "===> wait for arlas-server"
-docker run --link arlas-server:arlas-server --rm busybox sh -c 'until nc -w 2 arlas-server 9999; do sleep 1; done'
+docker run --link arlas-server:arlas-server --rm busybox sh -c 'i=1; until nc -w 2 arlas-server 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
+	
 
 # TEST
 echo "===> run integration tests"
@@ -51,6 +57,11 @@ docker run -it --rm \
 	-w /opt/maven \
 	-v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
+	-e ARLAS_HOST="arlas-server" \
+	-e ARLAS_PORT="9999" \
+	-e ARLAS_PREFIX="/arlas/" \
+	-e ARLAS_ELASTIC_HOST="elasticsearch" \
+	-e ARLAS_ELASTIC_PORT="9300" \
 	--link arlas-server:arlas-server \
 	--link elasticsearch:elasticsearch \
 	maven:3.5.0-jdk-8 \

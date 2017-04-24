@@ -5,7 +5,7 @@ FROM maven:3.5.0-jdk-8
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
 ADD target/arlas-server.jar /opt/app/arlas-server.jar
-ADD test-integration-configuration.yaml /opt/app/configuration.yaml
+ADD test/tests-integration-configuration.yaml /opt/app/configuration.yaml
 
 # local application port
 EXPOSE 9999
