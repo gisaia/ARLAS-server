@@ -1,27 +1,28 @@
 package io.arlas.server.rest;
 
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.rest.admin.DataSetTool;
-import io.restassured.RestAssured;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.rest.admin.DataSetTool;
+import io.restassured.RestAssured;
 
 public class AbstractTest {
     static DataSetTool dataset = null;
 
     static {
         RestAssured.baseURI = "http://arlas-server";
-//        RestAssured.baseURI = "http://localhost"; //TODO : USE env variable here
+        // RestAssured.baseURI = "http://localhost"; //TODO : USE env variable here
         RestAssured.port = 9999;
         RestAssured.basePath = "/arlas";
     }
@@ -38,7 +39,6 @@ public class AbstractTest {
         }
     }
 
-
     @Before
     public void before() {
         Map<String, Object> jsonAsMap = new HashMap<String, Object>();
@@ -50,16 +50,13 @@ public class AbstractTest {
         jsonAsMap.put(CollectionReference.TIMESTAMP_PATH, DataSetTool.DATASET_TIMESTAMP_PATH);
 
         // PUT new collection
-        given().contentType("application/json").body(jsonAsMap)
-                .when().put("/collections/foo")
-                .then().statusCode(200);
+        given().contentType("application/json").body(jsonAsMap).when().put("/collections/foo").then().statusCode(200);
     }
 
     @After
     public void after() {
         // DELETE collection
-        when().delete("/collections/foo")
-                .then().statusCode(200);
+        when().delete("/collections/foo").then().statusCode(200);
     }
 
     @AfterClass

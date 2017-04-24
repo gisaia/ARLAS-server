@@ -1,11 +1,11 @@
 package io.arlas.server.model;
 
+import java.util.List;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.List;
-
-@ApiModel(value="ArlasHits", description="A collection of hits retrieved from ARLAS Collections")
+@ApiModel(value = "ArlasHits", description = "A collection of hits retrieved from ARLAS Collections")
 public class ArlasHits {
     @ApiModelProperty(name = "hits", value = "ARLAS hits")
     public List<ArlasHit> hits;

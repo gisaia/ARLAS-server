@@ -1,5 +1,17 @@
 package io.arlas.server.rest.explore.count;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+
 import com.codahale.metrics.annotation.Timed;
 
 import io.arlas.server.core.FluidSearch;
@@ -14,11 +26,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-import javax.ws.rs.*;
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 public class CountRESTService extends ExploreRESTServices {
 
     public CountRESTService(ExploreServices exploreServices) {
@@ -30,16 +37,11 @@ public class CountRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value="Count",
-            produces=UTF8JSON,
-            notes = "Count the number of elements found in the collection(s), given the filters",
-            consumes=UTF8JSON
-    )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation")})
+    @ApiOperation(value = "Count", produces = UTF8JSON, notes = "Count the number of elements found in the collection(s), given the filters", consumes = UTF8JSON)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation") })
     public Long count(
             // --------------------------------------------------------
-            // -----------------------  PATH    -----------------------
+            // ----------------------- PATH -----------------------
             // --------------------------------------------------------
             @ApiParam(
                     name = "collection",
@@ -153,24 +155,25 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
-        //TODO: checkParams
+        // TODO: checkParams
         FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
-        if(collectionReference==null){
+        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+                .getCollectionReference(collection);
+        if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
         fluidSearch.setCollectionReference(collectionReference);
 
-        if (f != null && !f.isEmpty()){
+        if (f != null && !f.isEmpty()) {
             fluidSearch = fluidSearch.filter(f);
         }
-        if (q != null){
+        if (q != null) {
             fluidSearch = fluidSearch.filterQ(q);
         }
-        if (after != null){
+        if (after != null) {
             fluidSearch = fluidSearch.filterAfter(after);
         }
-        if (before != null){
+        if (before != null) {
             fluidSearch = fluidSearch.filterBefore(before);
         }
         if (pwithin != null && !pwithin.isEmpty()) {
@@ -181,10 +184,10 @@ public class CountRESTService extends ExploreRESTServices {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
             }
         }
-        if (gwithin != null && !gwithin.isEmpty()){
+        if (gwithin != null && !gwithin.isEmpty()) {
             fluidSearch = fluidSearch.filterGWithin(gwithin);
         }
-        if (gintersect != null && !gintersect.isEmpty()){
+        if (gintersect != null && !gintersect.isEmpty()) {
             fluidSearch = fluidSearch.filterGIntersect(gintersect);
         }
         if (notpwithin != null && !notpwithin.isEmpty()) {
@@ -195,10 +198,10 @@ public class CountRESTService extends ExploreRESTServices {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
             }
         }
-        if (notgwithin != null && !notgwithin.isEmpty()){
+        if (notgwithin != null && !notgwithin.isEmpty()) {
             fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
         }
-        if (notgintersect != null && !notgintersect.isEmpty()){
+        if (notgintersect != null && !notgintersect.isEmpty()) {
             fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
         }
 

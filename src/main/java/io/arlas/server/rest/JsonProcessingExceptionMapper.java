@@ -13,7 +13,7 @@ public class JsonProcessingExceptionMapper implements ExceptionMapper<JsonProces
 
     @Override
     public Response toResponse(JsonProcessingException e) {
-	logger.error("Error occurred", e);
-	return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST, "Malformed JSON parameter.");
+        logger.error("Error occurred", e);
+        return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST, "Malformed JSON parameter.");
     }
 }

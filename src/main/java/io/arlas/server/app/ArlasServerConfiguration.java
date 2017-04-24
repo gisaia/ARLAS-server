@@ -1,16 +1,16 @@
 package io.arlas.server.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
+
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
-public class ArlasServerConfiguration extends Configuration{
+public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("zipkin")
     public ZipkinFactory zipkinConfiguration;
 
-	@JsonProperty("swagger")
+    @JsonProperty("swagger")
     public SwaggerBundleConfiguration swaggerBundleConfiguration;
 
     @JsonProperty("elastic-host")

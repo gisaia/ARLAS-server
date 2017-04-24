@@ -5,8 +5,11 @@ package io.arlas.server.exceptions;
  */
 public class ArlasException extends Exception {
     private static final long serialVersionUID = 1L;
-    public ArlasException(){}
-    public ArlasException(String message){
+
+    public ArlasException() {
+    }
+
+    public ArlasException(String message) {
         super(message);
     }
 }
