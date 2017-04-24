@@ -4,24 +4,26 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 import com.codahale.metrics.annotation.Timed;
 
+import io.arlas.server.core.FluidSearch;
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.ArlasAggregation;
+import io.arlas.server.model.CollectionReference;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AggregateRESTService extends ExploreRESTServices {
 
@@ -30,7 +32,7 @@ public class AggregateRESTService extends ExploreRESTServices {
     }
 
     @Timed
-    @Path("{collections}/_aggregate")
+    @Path("{collection}/_aggregate")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -43,11 +45,11 @@ public class AggregateRESTService extends ExploreRESTServices {
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
             @ApiParam(
-                    name = "collections",
-                    value="collections, comma separated",
+                    name = "collection",
+                    value="collection",
                     allowMultiple = false,
                     required=true)
-            @PathParam(value = "collections") String collections,
+            @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // ----------------------- AGGREGATION -----------------------
@@ -233,7 +235,25 @@ public class AggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("aggregate").build();// TODO : right response
+    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+        FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
+        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+                .getCollectionReference(collection);
+        if (collectionReference == null) {
+            throw new NotFoundException(collection);
+        }
+        fluidSearch.setCollectionReference(collectionReference);
+        fluidSearch.aggregate(agg);
+
+        String i = fluidSearch.exec().getAggregations().asList().get(0).getName();
+        Histogram histogram = fluidSearch.exec().getAggregations().get("Histogram Aggregation");
+        int j = histogram.getBuckets().get(0).getAggregations().asList().size();
+        Logger LOGGER = LoggerFactory.getLogger(AggregateRESTService.class);
+        LOGGER.info("============== " + i + " ============== " + j + " ============");
+
+        SearchHits searchHits = fluidSearch.exec().getHits();
+
+
+        return Response.ok(i).build();// TODO : right response
     }
 }

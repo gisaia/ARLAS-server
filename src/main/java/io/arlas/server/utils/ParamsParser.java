@@ -2,12 +2,9 @@ package io.arlas.server.utils;
 
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.model.Aggregation;
-import io.arlas.server.rest.explore.enumerations.DateInterval;
+import io.arlas.server.model.AggregationModel;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by hamou on 24/04/17.
@@ -17,36 +14,36 @@ public class ParamsParser {
     private static final String AGG_FORMAT_PARAM = "format-";
     private static final String AGG_COLLECT_FIELD_PARAM = "collect_field-";
     private static final String AGG_COLLECT_FCT_PARAM = "collect_fct-";
-    private static final String AGG_ORDER_PARAM = "collect_fct-";
-    private static final String AGG_ON_PARAM = "collect_fct-";
+    private static final String AGG_ORDER_PARAM = "order-";
+    private static final String AGG_ON_PARAM = "on-";
 
 
-    public static Aggregation getAggregation(List<String> aggParameters){
-        Aggregation aggregation = new Aggregation();
-        aggregation.aggType = aggParameters.get(0);
-        aggregation.aggField = aggParameters.get(1);
+    public static AggregationModel getAggregation(List<String> aggParameters){
+        AggregationModel aggregationModel = new AggregationModel();
+        aggregationModel.aggType = aggParameters.get(0);
+        aggregationModel.aggField = aggParameters.get(1);
 
         for (String parameter : aggParameters){
             if (parameter.contains(AGG_INTERVAL_PARAM)){
-                aggregation.aggInterval = parameter.substring(AGG_INTERVAL_PARAM.length());
+                aggregationModel.aggInterval = parameter.substring(AGG_INTERVAL_PARAM.length());
             }
             if (parameter.contains(AGG_FORMAT_PARAM)){
-                aggregation.aggFormat = parameter.substring(AGG_FORMAT_PARAM.length());
+                aggregationModel.aggFormat = parameter.substring(AGG_FORMAT_PARAM.length());
             }
             if (parameter.contains(AGG_COLLECT_FIELD_PARAM)){
-                aggregation.aggCollectField = parameter.substring(AGG_COLLECT_FIELD_PARAM.length());
+                aggregationModel.aggCollectField = parameter.substring(AGG_COLLECT_FIELD_PARAM.length());
             }
             if (parameter.contains(AGG_COLLECT_FCT_PARAM)){
-                aggregation.aggCollectFct = parameter.substring(AGG_COLLECT_FCT_PARAM.length());
+                aggregationModel.aggCollectFct = parameter.substring(AGG_COLLECT_FCT_PARAM.length());
             }
             if (parameter.contains(AGG_ORDER_PARAM)){
-                aggregation.aggOrder = parameter.substring(AGG_ORDER_PARAM.length());
+                aggregationModel.aggOrder = parameter.substring(AGG_ORDER_PARAM.length());
             }
             if (parameter.contains(AGG_ON_PARAM)){
-                aggregation.aggOn = parameter.substring(AGG_ON_PARAM.length());
+                aggregationModel.aggOn = parameter.substring(AGG_ON_PARAM.length());
             }
         }
-        return aggregation;
+        return aggregationModel;
     }
 
     public static String getAggregationParam (List<String> aggParameters, String param){
@@ -79,6 +76,14 @@ public class ParamsParser {
             return precision;
         }
         else throw new InvalidParameterException(aggInterval + " must be an integer.");
+    }
+
+    public static Double getAggregationHistogramLength(String aggInterval) throws ArlasException{
+        Double length = tryParseDouble(aggInterval);
+        if (length != null){
+            return length;
+        }
+        else throw new InvalidParameterException(aggInterval + " must be a numeric.");
     }
 
     public static String getValidAggregationFormat(String aggFormat){

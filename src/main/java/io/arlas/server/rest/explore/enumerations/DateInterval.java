@@ -16,7 +16,7 @@ public enum DateInterval {
     public static final String DAY = "day";
     public static final String HOUR = "hour";
     public static final String MINUTE = "minute";
-    public static final String SECOND = "seconde";
+    public static final String SECOND = "second";
 
     public static List<String> aggregationTypes() {
         List<String> aggregationTypes = new ArrayList<>();

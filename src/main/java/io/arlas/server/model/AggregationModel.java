@@ -5,7 +5,7 @@ import org.joda.time.format.DateTimeFormat;
 /**
  * Created by hamou on 24/04/17.
  */
-public class Aggregation {
+public class AggregationModel {
     public String aggType;
     public String aggField;
     public String aggInterval;
@@ -15,6 +15,6 @@ public class Aggregation {
     public String aggOrder;
     public String aggOn;
 
-    public Aggregation() {
+    public AggregationModel() {
     }
 }
