@@ -1,20 +1,28 @@
 package io.arlas.server.rest.explore.aggregate;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
+import org.geojson.FeatureCollection;
+
 import com.codahale.metrics.annotation.Timed;
+
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
-import io.arlas.server.rest.explore.enumerations.FormatValues;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.geojson.FeatureCollection;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
 
@@ -27,18 +35,13 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value="Aggregate",
-            produces=UTF8JSON,
-            notes = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters",
-            consumes=UTF8JSON,
-            response = FeatureCollection.class
+    @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters", consumes = UTF8JSON, response = FeatureCollection.class
 
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation")})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation") })
     public Response geoaggregate(
             // --------------------------------------------------------
-            // -----------------------  PATH    -----------------------
+            // ----------------------- PATH -----------------------
             // --------------------------------------------------------
             @ApiParam(
                     name = "collections",
@@ -48,7 +51,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @PathParam(value = "collections") String collections,
 
             // --------------------------------------------------------
-            // -----------------------  AGGREGATION  -----------------------
+            // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
             @ApiParam(name ="agg",
                     value="- The agg parameter should be given in the following formats:  " +
@@ -58,9 +61,17 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                             "Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct," +
                             " order AND on are optional sub-parameters. " +
                             "\n \n" +
-                            "- {type} possible value is : geohash. " +
+                            "- {type} possible values are : " +
                             "\n \n" +
-                            "- {interval} must be a numeric value. "+
+                            "       datehistogram, histogram, term. " +
+                            "\n \n" +
+                            "- {interval} possible values depends on {type}. " +
+                            "\n \n" +
+                            "       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). " +
+                            "\n \n" +
+                            "       If {type} = histogram, then {interval} = {size}. " +
+                            "\n \n" +
+                            "       If {type} = term, then interval-{interval} is not needed. " +
                             "\n \n" +
                             "- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. " +
                             "\n \n" +
@@ -75,7 +86,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. " +
                             "\n \n" +
-                            "agg parameter in this case is not multiple. "+
+                            "agg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. "+
                             "\n \n" +
                             "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
 
@@ -85,7 +96,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value="agg") List<String> agg,
 
             // --------------------------------------------------------
-            // -----------------------  FILTER  -----------------------
+            // ----------------------- FILTER -----------------------
             // --------------------------------------------------------
             @ApiParam(name ="f",
                     value="- A triplet for filtering the result. Multiple filter can be provided. " +
@@ -169,7 +180,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value="notgintersect") String notgintersect,
 
             // --------------------------------------------------------
-            // -----------------------  FORM    -----------------------
+            // ----------------------- FORM -----------------------
             // --------------------------------------------------------
             @ApiParam(name ="pretty", value="Pretty print",
                     allowMultiple = false,
@@ -184,7 +195,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value="human") Boolean human,
 
             // --------------------------------------------------------
-            // -----------------------  SIZE   -----------------------
+            // ----------------------- SIZE -----------------------
             // --------------------------------------------------------
 
             @ApiParam(name ="size", value="The maximum number of entries or sub-entries to be returned. The default value is 10",
@@ -202,26 +213,28 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value="size") Integer from,
 
             // --------------------------------------------------------
-            // -----------------------  SORT   -----------------------
+            // ----------------------- SORT -----------------------
             // --------------------------------------------------------
 
             @ApiParam(name ="sort",
-                    value="Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . " +
+                    value="- Sort the result on the given fields ascending or descending. " +
                             "\n \n"+
-                            "The parameter can be provided several times. The order matters. " +
+                            "- Fields can be provided several times by separating them with a comma. The order matters. " +
                             "\n \n"+
-                            "For aggregation, provide the 'agg' keyword as the {fieldName}.",
-                    allowMultiple = true,
-                    example = "city:DESC",
+                            "- For a descending sort, precede the field with '-'. The sort will be ascending otherwise."+
+                            "\n \n"+
+                            "- For aggregation, provide the `agg` keyword as the `{field}`.",
+                    allowMultiple = false,
+                    example = "-country,city",
                     required=false)
             @QueryParam(value="sort") List<String> sort,
 
             // --------------------------------------------------------
-            // -----------------------  EXTRA   -----------------------
+            // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value="max-age-cache", required=false)
-            @QueryParam(value="max-age-cache") Integer maxagecache
+            @ApiParam(value = "max-age-cache", required = false)
+            @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("aggregate").build();//TODO : right response
+        return Response.ok("aggregate").build();// TODO : right response
     }
 }

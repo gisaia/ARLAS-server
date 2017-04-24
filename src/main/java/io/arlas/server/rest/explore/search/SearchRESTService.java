@@ -1,6 +1,28 @@
 package io.arlas.server.rest.explore.search;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.geojson.Point;
+
 import com.codahale.metrics.annotation.Timed;
+
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
@@ -15,18 +37,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.geojson.Point;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class SearchRESTService extends ExploreRESTServices {
 
@@ -39,16 +49,11 @@ public class SearchRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = "Search",
-            produces = UTF8JSON,
-            notes = "Search and return the elements found in the collection, given the filters",
-            consumes = UTF8JSON
-    )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = ArlasHits.class)})
+    @ApiOperation(value = "Search", produces = UTF8JSON, notes = "Search and return the elements found in the collection, given the filters", consumes = UTF8JSON)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasHits.class) })
     public Response search(
             // --------------------------------------------------------
-            // -----------------------  PATH    -----------------------
+            // ----------------------- PATH -----------------------
             // --------------------------------------------------------
             @ApiParam(
                     name = "collection",
@@ -217,7 +222,8 @@ public class SearchRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
+        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+                .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
@@ -291,10 +297,12 @@ public class SearchRESTService extends ExploreRESTServices {
             arlasHit.data = hit.getSource();
             arlasHit.md = new ArlasMD();
             Map<String, Object> hitsSources = hit.getSource();
-            if (collectionReference.params.idPath != null && hitsSources.get(collectionReference.params.idPath) != null) {
+            if (collectionReference.params.idPath != null
+                    && hitsSources.get(collectionReference.params.idPath) != null) {
                 arlasHit.md.id = "" + hitsSources.get(collectionReference.params.idPath);
             }
-            if (collectionReference.params.centroidPath != null && hitsSources.get(collectionReference.params.centroidPath) != null) {
+            if (collectionReference.params.centroidPath != null
+                    && hitsSources.get(collectionReference.params.centroidPath) != null) {
                 String pointString = (String) hitsSources.get(collectionReference.params.centroidPath);
                 String[] tokens = pointString.split(",");
                 Double latitude = Double.parseDouble(tokens[0]);
@@ -302,13 +310,16 @@ public class SearchRESTService extends ExploreRESTServices {
                 Point point = new Point(latitude, longitude);
                 arlasHit.md.centroid = point;
             }
-            if (collectionReference.params.geometryPath != null && hitsSources.get(collectionReference.params.geometryPath) != null) {
+            if (collectionReference.params.geometryPath != null
+                    && hitsSources.get(collectionReference.params.geometryPath) != null) {
                 HashMap m = (HashMap) hitsSources.get(collectionReference.params.geometryPath);
                 arlasHit.md.geometry = m;
             }
-            if (collectionReference.params.timestampPath != null && hitsSources.get(collectionReference.params.timestampPath) != null) {
-                //TODO: parse timestamp
-                //arlasHit.md.timestamp = (String)hitsSources.get(collectionReference.params.timestampPath);
+            if (collectionReference.params.timestampPath != null
+                    && hitsSources.get(collectionReference.params.timestampPath) != null) {
+                // TODO: parse timestamp
+                // arlasHit.md.timestamp =
+                // (String)hitsSources.get(collectionReference.params.timestampPath);
             }
             arlasHits.hits.add(arlasHit);
         }

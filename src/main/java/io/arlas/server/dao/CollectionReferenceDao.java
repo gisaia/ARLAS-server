@@ -17,8 +17,11 @@ import io.arlas.server.model.CollectionReferenceParameters;
  */
 public interface CollectionReferenceDao {
     public CollectionReference getCollectionReference(String ref) throws NotFoundException;
+
     public List<CollectionReference> getAllCollectionReferences() throws InternalServerErrorException;
-    
-    public CollectionReference putCollectionReference(String ref, CollectionReferenceParameters desc) throws InternalServerErrorException, JsonProcessingException;
-    public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException;    
+
+    public CollectionReference putCollectionReference(String ref, CollectionReferenceParameters desc)
+            throws InternalServerErrorException, JsonProcessingException;
+
+    public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException;
 }

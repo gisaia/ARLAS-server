@@ -12,7 +12,8 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
     @Override
     public Response toResponse(ConstraintViolationException e) {
-	logger.error("Error occurred", e);
-	return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST,"Invalid JSON parameter. Fields indexName and typeName are mandatory.");
+        logger.error("Error occurred", e);
+        return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST,
+                "Invalid JSON parameter. Fields indexName and typeName are mandatory.");
     }
 }

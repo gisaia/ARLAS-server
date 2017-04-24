@@ -1,11 +1,11 @@
 package io.arlas.server.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import org.geojson.Geometry;
 import org.geojson.Point;
 
-@ApiModel(value="ArlasMD", description="Metadata of the ARLAS hit")
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel(value = "ArlasMD", description = "Metadata of the ARLAS hit")
 public class ArlasMD {
     @ApiModelProperty(name = "id", value = "The unique identifier of the hit")
     public String id;

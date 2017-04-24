@@ -1,6 +1,13 @@
 package io.arlas.server.rest.admin;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.AdminClient;
@@ -11,13 +18,7 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class DataSetTool {
     public final static String DATASET_INDEX_NAME="dataset";
@@ -47,7 +48,7 @@ public class DataSetTool {
 
     private DataSetTool(String host, int port) throws UnknownHostException {
 	Settings settings = null;
-        if("localhost".equals(host)){
+        if ("localhost".equals(host)){
             settings=Settings.EMPTY;
         }else{
             settings=Settings.builder().put("cluster.name", "docker-cluster").build();
