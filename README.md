@@ -50,7 +50,7 @@ Make sure to have docker installed and running on your system.
 ```sh
 export ARLAS_HOST="localhost"; export ARLAS_PORT="9999"; export ARLAS_PREFIX="/arlas/";
 export ARLAS_ELASTIC_HOST="localhost"; export ARLAS_ELASTIC_PORT=9300;
-mvn verify
+mvn clean install -DskipTests=false
 ```
 
 
