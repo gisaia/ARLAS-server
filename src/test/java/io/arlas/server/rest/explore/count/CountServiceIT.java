@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.equalTo;
 import org.junit.Test;
 
 import io.arlas.server.rest.AbstractTest;
-import io.arlas.server.rest.admin.DataSetTool;
+import io.arlas.server.rest.DataSetTool;
 
 public class CountServiceIT extends AbstractTest {
 

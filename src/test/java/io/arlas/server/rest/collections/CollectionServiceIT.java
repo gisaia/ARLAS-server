@@ -1,4 +1,4 @@
-package io.arlas.server.rest.admin;
+package io.arlas.server.rest.collections;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;

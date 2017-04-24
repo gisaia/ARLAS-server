@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.rest.admin.DataSetTool;
 import io.restassured.RestAssured;
 
 public class AbstractTest {

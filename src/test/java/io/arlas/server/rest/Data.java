@@ -1,4 +1,4 @@
-package io.arlas.server.rest.admin;
+package io.arlas.server.rest;
 
 import org.geojson.Polygon;
 

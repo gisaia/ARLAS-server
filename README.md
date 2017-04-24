@@ -14,7 +14,7 @@ mvn clean package
 
 # Run
 ```sh
-java -jar target/arlas-server-x.x.jar server configuration.yaml
+java -jar target/arlas-server-x.x.jar server conf/configuration.yaml
 ```
 
 Then, go to `http://localhost:9999/arlas/swagger` for exploring and testing the API.
@@ -38,7 +38,7 @@ curl -X DELETE --header 'Accept: application/json' 'http://localhost:9999/arlas/
 # Integration Tests
 
 ```sh
-./test-integration.sh && echo "INTEGRATION TESTS ARE OK"
+./tests-integration/tests-integration.sh
 ```
 
 Make sure to have docker installed and running on your system.

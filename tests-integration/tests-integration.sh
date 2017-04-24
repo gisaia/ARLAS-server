@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# GO TO PROJECT PATH
+SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
+cd ${SCRIPT_PATH}/..
+
 # CLEAN
 echo "===> kill/rm old containers if needed"
 function clean {
@@ -14,6 +18,7 @@ clean
 echo "===> package arlas-server"
 mvn clean package
 VERSION=`echo -e 'setns x=http://maven.apache.org/POM/4.0.0\ncat /x:project/x:version/text()' | xmllint --shell pom.xml | grep -v /`
+echo "arlas-server:${VERSION}"
 mv target/arlas-server-${VERSION}.jar target/arlas-server.jar
 
 # BUILD
@@ -41,7 +46,7 @@ docker run -ti -d \
 	--name arlas-server \
 	-p 19999:9999 \
 	--link elasticsearch:elasticsearch \
-	arlas-server:0.1
+	arlas-server:${VERSION}
 echo "===> wait for arlas-server"
 docker run --link arlas-server:arlas-server --rm busybox sh -c 'until nc -w 2 arlas-server 9999; do sleep 1; done'
 
