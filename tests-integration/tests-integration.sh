@@ -39,7 +39,7 @@ docker run -d \
 	-e xpack.watcher.enabled=false \
 	docker.elastic.co/elasticsearch/elasticsearch:5.3.0
 echo "===> wait for elasticsearch"
-docker run --link elasticsearch:elasticsearch --rm busybox sh -c 'until nc -w 2 elasticsearch 9200; do sleep 1; done'
+docker run --link elasticsearch:elasticsearch --rm busybox sh -c 'i=1; until nc -w 2 elasticsearch 9200; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'	
 
 echo "===> start arlas-server"
 docker run -ti -d \
@@ -48,7 +48,8 @@ docker run -ti -d \
 	--link elasticsearch:elasticsearch \
 	arlas-server:${VERSION}
 echo "===> wait for arlas-server"
-docker run --link arlas-server:arlas-server --rm busybox sh -c 'until nc -w 2 arlas-server 9999; do sleep 1; done'
+docker run --link arlas-server:arlas-server --rm busybox sh -c 'i=1; until nc -w 2 arlas-server 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
+	
 
 # TEST
 echo "===> run integration tests"
