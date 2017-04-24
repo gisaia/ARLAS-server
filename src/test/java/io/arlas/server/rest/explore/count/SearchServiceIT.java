@@ -4,9 +4,9 @@ import static io.restassured.RestAssured.given;
 
 import org.junit.Test;
 
-import io.arlas.server.rest.AbstractTest;
+import io.arlas.server.rest.AbstractTestWithDataSet;
 
-public class SearchServiceIT extends AbstractTest {
+public class SearchServiceIT extends AbstractTestWithDataSet {
 
     @Test
     public void testBasicSearch() throws Exception {

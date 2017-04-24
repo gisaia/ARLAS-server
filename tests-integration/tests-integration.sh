@@ -56,6 +56,11 @@ docker run -it --rm \
 	-w /opt/maven \
 	-v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
+	-e ARLAS_HOST="arlas-server" \
+	-e ARLAS_PORT="9999" \
+	-e ARLAS_PREFIX="/arlas/" \
+	-e ARLAS_ELASTIC_HOST="elasticsearch" \
+	-e ARLAS_ELASTIC_PORT="9300" \
 	--link arlas-server:arlas-server \
 	--link elasticsearch:elasticsearch \
 	maven:3.5.0-jdk-8 \
