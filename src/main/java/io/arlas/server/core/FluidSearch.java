@@ -8,6 +8,7 @@ import java.util.Map;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
 import org.elasticsearch.common.geo.builders.LineStringBuilder;
 import org.elasticsearch.common.geo.builders.MultiPolygonBuilder;
@@ -120,15 +121,19 @@ public class FluidSearch {
 
     public FluidSearch filterPWithin(double top, double left, double bottom, double right)
             throws ArlasException, IOException {
+        GeoPoint topLeft = new GeoPoint(top,left);
+        GeoPoint bottomRight = new GeoPoint(bottom,right);
         boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders
-                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(top, left, bottom, right));
+                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft,bottomRight));
         return this;
     }
 
     public FluidSearch filterNotPWithin(double top, double left, double bottom, double right)
             throws ArlasException, IOException {
+        GeoPoint topLeft = new GeoPoint(top,left);
+        GeoPoint bottomRight = new GeoPoint(bottom,right);
         boolQueryBuilder = boolQueryBuilder.mustNot(QueryBuilders
-                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(top, left, bottom, right));
+                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft,bottomRight));
         return this;
     }
 
