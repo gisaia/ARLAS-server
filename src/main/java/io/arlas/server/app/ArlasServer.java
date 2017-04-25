@@ -16,6 +16,7 @@ import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 
 import io.arlas.server.rest.ArlasExceptionMapper;
 import io.arlas.server.rest.ConstraintViolationExceptionMapper;
+import io.arlas.server.rest.IllegalArgumentExceptionMapper;
 import io.arlas.server.rest.JsonProcessingExceptionMapper;
 import io.arlas.server.rest.collections.ElasticCollectionService;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -81,6 +82,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
         environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         environment.jersey().register(new ArlasExceptionMapper());
+        environment.jersey().register(new IllegalArgumentExceptionMapper());
         environment.jersey().register(new JsonProcessingExceptionMapper());
         environment.jersey().register(new ConstraintViolationExceptionMapper());
         environment.jersey().register(new CountRESTService(exploration));

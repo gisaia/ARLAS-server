@@ -41,9 +41,14 @@ public abstract class AbstractSizedTest extends AbstractFilteredTest {
     }
     
     protected void handleSizeParameter(ValidatableResponse then, int size) throws Exception {
-        then.statusCode(200)
-            .body("nbhits", equalTo(size))
-            .body("hits.size()", equalTo(size));
+        if(size > 0) {
+            then.statusCode(200)
+                .body("nbhits", equalTo(size))
+                .body("hits.size()", equalTo(size));
+        } else {
+            then.statusCode(200)
+            .body("nbhits", equalTo(size));
+        }
     }
     
     //----------------------------------------------------------------
