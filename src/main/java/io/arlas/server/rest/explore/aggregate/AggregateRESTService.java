@@ -1,14 +1,6 @@
 package io.arlas.server.rest.explore.aggregate;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-
 import com.codahale.metrics.annotation.Timed;
-
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.ArlasAggregation;
@@ -19,13 +11,20 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
 public class AggregateRESTService extends ExploreRESTServices {
+
+    static Logger LOGGER = LoggerFactory.getLogger(AggregateRESTService.class);
 
     public AggregateRESTService(ExploreServices exploreServices) {
         super(exploreServices);
@@ -236,24 +235,26 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+        Long startArlasTime = System.nanoTime();
         FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
+        ArlasAggregation arlasAggregation = new ArlasAggregation();
+        MultiBucketsAggregation aggregation = null;
         fluidSearch.setCollectionReference(collectionReference);
-        fluidSearch.aggregate(agg);
+        if (agg != null && agg.size()>0){
+            Long startQuery = System.nanoTime();
+            fluidSearch.aggregate(agg);
+            aggregation = (MultiBucketsAggregation)fluidSearch.exec().getAggregations().asList().get(0);
+            arlasAggregation.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
+        }
+        arlasAggregation = fluidSearch.formatAggregationResult(aggregation,arlasAggregation);
+        arlasAggregation.arlasTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
 
-        String i = fluidSearch.exec().getAggregations().asList().get(0).getName();
-        Histogram histogram = fluidSearch.exec().getAggregations().get("Histogram Aggregation");
-        int j = histogram.getBuckets().get(0).getAggregations().asList().size();
-        Logger LOGGER = LoggerFactory.getLogger(AggregateRESTService.class);
-        LOGGER.info("============== " + i + " ============== " + j + " ============");
-
-        SearchHits searchHits = fluidSearch.exec().getHits();
-
-
-        return Response.ok(i).build();// TODO : right response
+        //SearchResponse result = fluidSearch.execute();
+        return Response.ok(arlasAggregation).build();
     }
 }

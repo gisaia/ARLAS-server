@@ -6,6 +6,8 @@ import com.vividsolutions.jts.io.WKTReader;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.AggregationModel;
+import io.arlas.server.model.ArlasAggregation;
+import io.arlas.server.model.ArlasMetric;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.rest.explore.enumerations.AggregationOrder;
 import io.arlas.server.rest.explore.enumerations.AggregationType;
@@ -24,6 +26,7 @@ import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoGridAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
@@ -37,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -71,6 +75,48 @@ public class FluidSearch {
         // : mettre des logs en debug pour les queries
         SearchResponse result = searchRequestBuilder.get();
         return result;
+    }
+
+    public SearchResponse execute() {
+        searchRequestBuilder.setQuery(boolQueryBuilder);
+        // System.out.println("QUERY:"+searchRequestBuilder.toString()); // TODO
+        // : mettre des logs en debug pour les queries
+        SearchResponse result = searchRequestBuilder.execute().actionGet();
+        return result;
+    }
+
+    public ArlasAggregation formatAggregationResult(MultiBucketsAggregation aggregation, ArlasAggregation arlasAggregation){
+        arlasAggregation.name = aggregation.getName();
+        arlasAggregation.elements = new ArrayList<ArlasAggregation>();
+        List<MultiBucketsAggregation.Bucket> buckets = (List<MultiBucketsAggregation.Bucket>)aggregation.getBuckets();
+        buckets.forEach(bucket -> {
+            ArlasAggregation element = new ArlasAggregation();
+            element.key = bucket.getKey();
+            element.count = bucket.getDocCount();
+            element.elements = new ArrayList<ArlasAggregation>();
+            if (bucket.getAggregations().asList().size() == 0){
+                element.elements = null;
+                arlasAggregation.elements.add(element);
+            }
+            else {
+                bucket.getAggregations().forEach(subAggregation -> {
+                    ArlasAggregation subArlasAggregation = new ArlasAggregation();
+                    subArlasAggregation.name = subAggregation.getName();
+                    if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) ||subAggregation.getName().equals(FluidSearch.TERM_AGG)){
+                        subArlasAggregation = formatAggregationResult(((MultiBucketsAggregation)subAggregation), subArlasAggregation);
+                    } else{
+                        subArlasAggregation.elements = null;
+                        ArlasMetric arlasMetric = new ArlasMetric();
+                        arlasMetric.type = subAggregation.getName();
+                        arlasMetric.value = (Double)subAggregation.getProperty("value");
+                        subArlasAggregation.metric = arlasMetric;
+                    }
+                    element.elements.add(subArlasAggregation);
+                });
+                arlasAggregation.elements.add(element);
+            }
+        });
+        return arlasAggregation;
     }
 
     public FluidSearch filter(List<String> f) throws ArlasException {
@@ -235,8 +281,8 @@ public class FluidSearch {
                         break;
                 }
                 aggregations.remove(0);
-                if (aggregationBuilder instanceof DateHistogramAggregationBuilder && aggregations.size()>0){
-                    throw new InvalidParameterException("DateHistogram doesn't support sub-aggregations");
+                if (aggregationBuilder instanceof GeoGridAggregationBuilder && aggregations.size()>0){
+                    throw new InvalidParameterException("This operation is not supported. ");
                 }
                 if (aggregations.size() == 0){
                     LOGGER.info("============ Nested aggregations done ============");
