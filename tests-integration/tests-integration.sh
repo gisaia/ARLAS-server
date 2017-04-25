@@ -16,7 +16,7 @@ clean
 
 # PACKAGE
 echo "===> package arlas-server"
-mvn clean package
+mvn clean install
 VERSION=`echo -e 'setns x=http://maven.apache.org/POM/4.0.0\ncat /x:project/x:version/text()' | xmllint --shell pom.xml | grep -v /`
 echo "arlas-server:${VERSION}"
 mv target/arlas-server-${VERSION}.jar target/arlas-server.jar
@@ -65,7 +65,7 @@ docker run -it --rm \
 	--link arlas-server:arlas-server \
 	--link elasticsearch:elasticsearch \
 	maven:3.5.0-jdk-8 \
-	mvn verify
+	mvn clean install -DskipTests=false
 	
 # CLEAN
 clean
