@@ -11,6 +11,7 @@ import io.arlas.server.model.TimedFeatureCollection;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.utils.CheckParams;
+import io.dropwizard.jersey.params.IntParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -212,14 +213,14 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     allowableValues = "range[1, infinity]",
                     required=false)
             @DefaultValue("10")
-            @QueryParam(value="size") Integer size,
+            @QueryParam(value="size") IntParam size,
 
             @ApiParam(name ="from", value="From index to start the search from. Defaults to 0.",
                     defaultValue = "0",
                     allowableValues = "range[1, infinity]",
                     required=false)
             @DefaultValue("0")
-            @QueryParam(value="size") Integer from,
+            @QueryParam(value="size") IntParam from,
 
             // --------------------------------------------------------
             // ----------------------- SORT -----------------------
@@ -236,7 +237,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     allowMultiple = false,
                     example = "-country,city",
                     required=false)
-            @QueryParam(value="sort") List<String> sort,
+            @QueryParam(value="sort") String sort,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
@@ -251,10 +252,20 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        FeatureCollection fc;
-        MultiBucketsAggregation aggregation = null;
         fluidSearch.setCollectionReference(collectionReference);
-        ArlasAggregation arlasAggregation = new ArlasAggregation();
+        
+        if (f != null && !f.isEmpty()) {
+            fluidSearch = fluidSearch.filter(f);
+        }
+        if (q != null) {
+            fluidSearch = fluidSearch.filterQ(q);
+        }
+        if (after != null) {
+            fluidSearch = fluidSearch.filterAfter(after);
+        }
+        if (before != null) {
+            fluidSearch = fluidSearch.filterBefore(before);
+        }
         if (pwithin != null && !pwithin.isEmpty()) {
             double[] tlbr = CheckParams.toDoubles(pwithin);
             if (tlbr.length == 4) {
@@ -263,6 +274,46 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
             }
         }
+        if (gwithin != null && !gwithin.isEmpty()) {
+            fluidSearch = fluidSearch.filterGWithin(gwithin);
+        }
+        if (gintersect != null && !gintersect.isEmpty()) {
+            fluidSearch = fluidSearch.filterGIntersect(gintersect);
+        }
+        if (notpwithin != null && !notpwithin.isEmpty()) {
+            double[] tlbr = CheckParams.toDoubles(notpwithin);
+            if (tlbr.length == 4) {
+                fluidSearch = fluidSearch.filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+            } else {
+                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            }
+        }
+        if (notgwithin != null && !notgwithin.isEmpty()) {
+            fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
+        }
+        if (notgintersect != null && !notgintersect.isEmpty()) {
+            fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
+        }
+        if (size != null && size.get() > 0) {
+            if (from != null) {
+                if(from.get() < 0) {
+                    throw new InvalidParameterException(FluidSearch.INVALID_FROM);
+                } else {
+                    fluidSearch = fluidSearch.filterSize(size.get(), from.get());
+                }
+            } else {
+                fluidSearch = fluidSearch.filterSize(size.get(), 0);
+            }
+        } else {
+            throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
+        }
+        if (sort != null) {
+            fluidSearch = fluidSearch.sort(sort);
+        }
+
+        FeatureCollection fc;
+        MultiBucketsAggregation aggregation = null;
+        ArlasAggregation arlasAggregation = new ArlasAggregation();
         if (agg != null && agg.size()>0){
             Long startQuery = System.nanoTime();
             fluidSearch.aggregate(agg);

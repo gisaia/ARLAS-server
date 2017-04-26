@@ -3,10 +3,13 @@ package io.arlas.server.rest.explore.aggregate;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.ArlasAggregation;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.utils.CheckParams;
+import io.dropwizard.jersey.params.IntParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -203,14 +206,14 @@ public class AggregateRESTService extends ExploreRESTServices {
                     allowableValues = "range[1, infinity]",
                     required=false)
             @DefaultValue("10")
-            @QueryParam(value="size") Integer size,
+            @QueryParam(value="size") IntParam size,
 
             @ApiParam(name ="from", value="From index to start the search from. Defaults to 0.",
                     defaultValue = "0",
                     allowableValues = "range[1, infinity]",
                     required=false)
             @DefaultValue("0")
-            @QueryParam(value="size") Integer from,
+            @QueryParam(value="size") IntParam from,
 
             // --------------------------------------------------------
             // ----------------------- SORT -----------------------
@@ -227,7 +230,7 @@ public class AggregateRESTService extends ExploreRESTServices {
                     allowMultiple = false,
                     example = "-country,city",
                     required=false)
-            @QueryParam(value="sort") List<String> sort,
+            @QueryParam(value="sort") String sort,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
@@ -242,9 +245,67 @@ public class AggregateRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
+        fluidSearch.setCollectionReference(collectionReference);
+
+        if (f != null && !f.isEmpty()) {
+            fluidSearch = fluidSearch.filter(f);
+        }
+        if (q != null) {
+            fluidSearch = fluidSearch.filterQ(q);
+        }
+        if (after != null) {
+            fluidSearch = fluidSearch.filterAfter(after);
+        }
+        if (before != null) {
+            fluidSearch = fluidSearch.filterBefore(before);
+        }
+        if (pwithin != null && !pwithin.isEmpty()) {
+            double[] tlbr = CheckParams.toDoubles(pwithin);
+            if (tlbr.length == 4) {
+                fluidSearch = fluidSearch.filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+            } else {
+                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            }
+        }
+        if (gwithin != null && !gwithin.isEmpty()) {
+            fluidSearch = fluidSearch.filterGWithin(gwithin);
+        }
+        if (gintersect != null && !gintersect.isEmpty()) {
+            fluidSearch = fluidSearch.filterGIntersect(gintersect);
+        }
+        if (notpwithin != null && !notpwithin.isEmpty()) {
+            double[] tlbr = CheckParams.toDoubles(notpwithin);
+            if (tlbr.length == 4) {
+                fluidSearch = fluidSearch.filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+            } else {
+                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            }
+        }
+        if (notgwithin != null && !notgwithin.isEmpty()) {
+            fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
+        }
+        if (notgintersect != null && !notgintersect.isEmpty()) {
+            fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
+        }
+        if (size != null && size.get() > 0) {
+            if (from != null) {
+                if(from.get() < 0) {
+                    throw new InvalidParameterException(FluidSearch.INVALID_FROM);
+                } else {
+                    fluidSearch = fluidSearch.filterSize(size.get(), from.get());
+                }
+            } else {
+                fluidSearch = fluidSearch.filterSize(size.get(), 0);
+            }
+        } else {
+            throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
+        }
+        if (sort != null) {
+            fluidSearch = fluidSearch.sort(sort);
+        }
+
         ArlasAggregation arlasAggregation = new ArlasAggregation();
         MultiBucketsAggregation aggregation = null;
-        fluidSearch.setCollectionReference(collectionReference);
         if (agg != null && agg.size()>0){
             Long startQuery = System.nanoTime();
             fluidSearch.aggregate(agg);
