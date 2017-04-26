@@ -21,6 +21,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.utils.CheckParams;
+import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -97,12 +98,12 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(name ="before", value="Any element having its point in time reference before the given timestamp",
                     allowMultiple = false,
                     required=false)
-            @QueryParam(value="before") Long before,
+            @QueryParam(value="before") LongParam before,
 
             @ApiParam(name ="after", value="Any element having its point in time reference after the given timestamp",
                     allowMultiple = false,
                     required=false)
-            @QueryParam(value="after") Long after,
+            @QueryParam(value="after") LongParam after,
 
             @ApiParam(name ="pwithin", value="Any element having its centroid contained within the given BBOX (top,left,bottom,right)",
                     allowMultiple = true,
@@ -170,15 +171,20 @@ public class CountRESTService extends ExploreRESTServices {
         if (q != null) {
             fluidSearch = fluidSearch.filterQ(q);
         }
+        if(before != null || after != null) {
+            if((before!=null && before.get()<0) || (after != null && after.get()<0)
+                    || (before != null && after != null && before.get() < after.get()))
+                throw new InvalidParameterException(FluidSearch.INVALID_BEFORE_AFTER);
+        }
         if (after != null) {
-            fluidSearch = fluidSearch.filterAfter(after);
+            fluidSearch = fluidSearch.filterAfter(after.get());
         }
         if (before != null) {
-            fluidSearch = fluidSearch.filterBefore(before);
+            fluidSearch = fluidSearch.filterBefore(before.get());
         }
         if (pwithin != null && !pwithin.isEmpty()) {
             double[] tlbr = CheckParams.toDoubles(pwithin);
-            if (tlbr.length == 4) {
+            if (tlbr.length == 4 && tlbr[0]>tlbr[2] && tlbr[2]<tlbr[3]) {
                 fluidSearch = fluidSearch.filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
             } else {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
@@ -192,7 +198,7 @@ public class CountRESTService extends ExploreRESTServices {
         }
         if (notpwithin != null && !notpwithin.isEmpty()) {
             double[] tlbr = CheckParams.toDoubles(notpwithin);
-            if (tlbr.length == 4) {
+            if (tlbr.length == 4 && tlbr[0]>tlbr[2] && tlbr[2]<tlbr[3]) {
                 fluidSearch = fluidSearch.filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
             } else {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);

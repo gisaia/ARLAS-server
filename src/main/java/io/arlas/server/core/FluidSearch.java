@@ -47,6 +47,9 @@ public class FluidSearch {
     public static final String INVALID_VALUE_TYPE = "Operand must be a numeric value. ";
     public static final String INVALID_WKT = "Invalid WKT geometry. ";
     public static final String INVALID_BBOX = "Invalid BBOX";
+    public static final String INVALID_BEFORE_AFTER = "Invalid date parameters : before and after must be positive and before must be greater than after.";
+    public static final String INVALID_SIZE = "Invalid size parameter.";
+    public static final String INVALID_FROM = "Invalid from parameter.";
 
     private TransportClient client;
     private SearchRequestBuilder searchRequestBuilder;

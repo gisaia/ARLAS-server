@@ -9,6 +9,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 
+import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.rest.explore.enumerations.AggregationType;
@@ -146,7 +147,11 @@ public class CheckParams {
         }
     }
 
-    public static double[] toDoubles(String doubles) {
-        return Arrays.stream(doubles.split(",")).mapToDouble(Double::parseDouble).toArray();
+    public static double[] toDoubles(String doubles) throws InvalidParameterException {
+        try {
+            return Arrays.stream(doubles.split(",")).mapToDouble(Double::parseDouble).toArray();
+        } catch (Exception e) {
+            throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+        }
     }
 }

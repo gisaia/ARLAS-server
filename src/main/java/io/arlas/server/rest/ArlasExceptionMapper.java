@@ -8,7 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.NotFoundException;
+import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.exceptions.NotFoundException;;
 
 @Provider
 public class ArlasExceptionMapper implements ExceptionMapper<ArlasException> {
@@ -19,6 +20,8 @@ public class ArlasExceptionMapper implements ExceptionMapper<ArlasException> {
         logger.error("Error occurred", e);
         if (e instanceof NotFoundException)
             return ResponseFormatter.getErrorResponse(e, Response.Status.NOT_FOUND, e.getMessage());
+        else if (e instanceof InvalidParameterException)
+            return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST, e.getMessage());
         else
             return ResponseFormatter.getErrorResponse(e, Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
     }
