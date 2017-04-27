@@ -1,9 +1,25 @@
 package io.arlas.server.model;
 
-/**
- * Created by hamou on 19/04/17.
- */
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.util.List;
+
 // TODO: Write ArlasAggregation properties
-public class ArlasAggregation {
+@ApiModel(value = "ArlasAggregation", description = "Aggregation result")
+public class ArlasAggregation extends Timed{
+    @ApiModelProperty(name = "name", value = "Name")
+    public String name;
+    @ApiModelProperty(name = "count", value = "Count")
+    public Long count;
+    @ApiModelProperty(name = "key", value = "Key")
+    public Object key;
+    @ApiModelProperty(name = "key_as_string", value = "Key as string")
+    public Object keyAsString;
+    @ApiModelProperty(name = "elements", value = "Sub-aggregations")
+    public List<ArlasAggregation> elements;
+    @ApiModelProperty(name = "metric aggregation", value = "Metric aggregation")
+    public ArlasMetric metric = null;
+
 
 }

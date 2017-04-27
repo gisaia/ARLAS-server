@@ -1,37 +1,47 @@
 package io.arlas.server.rest.explore.aggregate;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-
-import org.geojson.FeatureCollection;
-
 import com.codahale.metrics.annotation.Timed;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.arlas.server.core.FluidSearch;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.model.ArlasAggregation;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.TimedFeatureCollection;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.utils.CheckParams;
+import io.dropwizard.jersey.params.IntParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.elasticsearch.common.geo.GeoPoint;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
+import org.geojson.*;
+import org.geojson.jackson.CrsType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
+
+    static Logger LOGGER = LoggerFactory.getLogger(GeoAggregateRESTService.class);
 
     public GeoAggregateRESTService(ExploreServices exploreServices) {
         super(exploreServices);
     }
 
     @Timed
-    @Path("{collections}/_geoaggregate")
+    @Path("{collection}/_geoaggregate")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
@@ -44,11 +54,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
             @ApiParam(
-                    name = "collections",
-                    value="collections, comma separated",
+                    name = "collection",
+                    value="collection",
                     allowMultiple = false,
                     required=true)
-            @PathParam(value = "collections") String collections,
+            @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // ----------------------- AGGREGATION -----------------------
@@ -203,14 +213,14 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     allowableValues = "range[1, infinity]",
                     required=false)
             @DefaultValue("10")
-            @QueryParam(value="size") Integer size,
+            @QueryParam(value="size") IntParam size,
 
             @ApiParam(name ="from", value="From index to start the search from. Defaults to 0.",
                     defaultValue = "0",
                     allowableValues = "range[1, infinity]",
                     required=false)
             @DefaultValue("0")
-            @QueryParam(value="size") Integer from,
+            @QueryParam(value="size") IntParam from,
 
             // --------------------------------------------------------
             // ----------------------- SORT -----------------------
@@ -227,14 +237,114 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     allowMultiple = false,
                     example = "-country,city",
                     required=false)
-            @QueryParam(value="sort") List<String> sort,
+            @QueryParam(value="sort") String sort,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException {
-        return Response.ok("aggregate").build();// TODO : right response
+    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException, JsonProcessingException {
+        Long startArlasTime = System.nanoTime();
+        FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
+        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+                .getCollectionReference(collection);
+        if (collectionReference == null) {
+            throw new NotFoundException(collection);
+        }
+        fluidSearch.setCollectionReference(collectionReference);
+
+        if (f != null && !f.isEmpty()) {
+            fluidSearch = fluidSearch.filter(f);
+        }
+        if (q != null) {
+            fluidSearch = fluidSearch.filterQ(q);
+        }
+        if (after != null) {
+            fluidSearch = fluidSearch.filterAfter(after);
+        }
+        if (before != null) {
+            fluidSearch = fluidSearch.filterBefore(before);
+        }
+        if (pwithin != null && !pwithin.isEmpty()) {
+            double[] tlbr = CheckParams.toDoubles(pwithin);
+            if (tlbr.length == 4) {
+                fluidSearch = fluidSearch.filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+            } else {
+                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            }
+        }
+        if (gwithin != null && !gwithin.isEmpty()) {
+            fluidSearch = fluidSearch.filterGWithin(gwithin);
+        }
+        if (gintersect != null && !gintersect.isEmpty()) {
+            fluidSearch = fluidSearch.filterGIntersect(gintersect);
+        }
+        if (notpwithin != null && !notpwithin.isEmpty()) {
+            double[] tlbr = CheckParams.toDoubles(notpwithin);
+            if (tlbr.length == 4) {
+                fluidSearch = fluidSearch.filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+            } else {
+                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            }
+        }
+        if (notgwithin != null && !notgwithin.isEmpty()) {
+            fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
+        }
+        if (notgintersect != null && !notgintersect.isEmpty()) {
+            fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
+        }
+        if (size != null && size.get() > 0) {
+            if (from != null) {
+                if(from.get() < 0) {
+                    throw new InvalidParameterException(FluidSearch.INVALID_FROM);
+                } else {
+                    fluidSearch = fluidSearch.filterSize(size.get(), from.get());
+                }
+            } else {
+                fluidSearch = fluidSearch.filterSize(size.get(), 0);
+            }
+        } else {
+            throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
+        }
+        if (sort != null) {
+            fluidSearch = fluidSearch.sort(sort);
+        }
+
+        FeatureCollection fc;
+        MultiBucketsAggregation aggregation = null;
+        ArlasAggregation arlasAggregation = new ArlasAggregation();
+        if (agg != null && agg.size()>0){
+            Long startQuery = System.nanoTime();
+            fluidSearch.aggregate(agg, true);
+            aggregation = (MultiBucketsAggregation)fluidSearch.exec().getAggregations().asList().get(0);
+            arlasAggregation.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
+
+        }
+        arlasAggregation = fluidSearch.formatAggregationResult(aggregation,arlasAggregation);
+        fc = toGeoJson(arlasAggregation);
+        //fc.queryTime = arlasAggregation.queryTime;
+        //fc.arlasTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
+        return Response.ok(fc).build();
+    }
+
+    private FeatureCollection toGeoJson(ArlasAggregation arlasAggregation) throws IOException{
+        FeatureCollection fc = new FeatureCollection();
+        List<ArlasAggregation> elements = arlasAggregation.elements;
+        if (elements != null && elements.size()>0){
+            for (ArlasAggregation element : elements){
+                Feature feature = new Feature();
+                Map<String,Object> properties = new HashMap<>();
+                GeoPoint geoPoint = (GeoPoint)element.key;
+                properties.put("count", element.count);
+                properties.put("geohash", geoPoint.getGeohash());
+                properties.put("elements", element.elements);
+                feature.setProperties(properties);
+                GeoJsonObject g = new Point(geoPoint.getLon(),geoPoint.getLat());
+                feature.setGeometry(g);
+                fc.add(feature);
+            }
+        }
+        return fc;
     }
 }

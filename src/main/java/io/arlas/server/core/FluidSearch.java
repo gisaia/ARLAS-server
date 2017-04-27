@@ -1,55 +1,74 @@
 package io.arlas.server.core;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.BadRequestException;
+import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.exceptions.NotAllowedException;
+import io.arlas.server.model.AggregationModel;
+import io.arlas.server.model.ArlasAggregation;
+import io.arlas.server.model.ArlasMetric;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.rest.explore.enumerations.AggregationOrder;
+import io.arlas.server.rest.explore.enumerations.AggregationType;
+import io.arlas.server.rest.explore.enumerations.DateInterval;
+import io.arlas.server.rest.explore.enumerations.MetricAggregationType;
+import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.DateAggregationInterval;
+import io.arlas.server.utils.ParamsParser;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
-import org.elasticsearch.common.geo.builders.LineStringBuilder;
-import org.elasticsearch.common.geo.builders.MultiPolygonBuilder;
-import org.elasticsearch.common.geo.builders.PointBuilder;
-import org.elasticsearch.common.geo.builders.PolygonBuilder;
-import org.elasticsearch.common.geo.builders.ShapeBuilder;
+import org.elasticsearch.common.geo.builders.*;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoGridAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
-
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.rest.explore.enumerations.AggregationType;
-import io.arlas.server.rest.explore.enumerations.DateInterval;
-import io.arlas.server.utils.CheckParams;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class FluidSearch {
 
     public static final String INVALID_PARAMETER_F = "Parameter f does not respect operation expression. ";
     public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'gte', 'gt', 'lte' or 'lt'. ";
-    public static final String INVALID_VALUE_TYPE = "Operand must be a numeric value. ";
-    public static final String INVALID_WKT = "Invalid WKT geometry. ";
+    public static final String INVALID_VALUE_TYPE = "Operand must be a numeric value.";
+    public static final String INVALID_WKT = "Invalid WKT geometry.";
     public static final String INVALID_BBOX = "Invalid BBOX";
     public static final String INVALID_BEFORE_AFTER = "Invalid date parameters : before and after must be positive and before must be greater than after.";
     public static final String INVALID_SIZE = "Invalid size parameter.";
     public static final String INVALID_FROM = "Invalid from parameter.";
+    public static final String INVALID_DATE_UNIT = "Invalid date unit.";
+    public static final String DATEHISTOGRAM_AGG = "Datehistogram aggregation";
+    public static final String HISTOGRAM_AGG = "Histogram aggregation";
+    public static final String TERM_AGG = "Term aggregation";
+    public static final String GEOHASH_AGG = "Geohash aggregation";
+    public static final String NOT_ALLOWED_AGGREGATION_TYPE = " aggregation type is not allowed.";
+    public static final String INTREVAL_NOT_SPECIFIED = "Interval parameter 'interval-' is not specified.";
+    public static final String NO_TERM_INTERVAL = "'interval-' should not be specified for term aggregation.";
+    public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
+    public static final String SUBAGGREGATION_NOT_ALLOWED = "Geogrid doesn't support sub-aggregation.";
+
+
+    private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
 
     private TransportClient client;
     private SearchRequestBuilder searchRequestBuilder;
@@ -63,10 +82,44 @@ public class FluidSearch {
 
     public SearchResponse exec() {
         searchRequestBuilder.setQuery(boolQueryBuilder);
-        // System.out.println("QUERY:"+searchRequestBuilder.toString()); // TODO
-        // : mettre des logs en debug pour les queries
+        LOGGER.debug("QUERY : "+searchRequestBuilder.toString());
         SearchResponse result = searchRequestBuilder.get();
         return result;
+    }
+
+    public ArlasAggregation formatAggregationResult(MultiBucketsAggregation aggregation, ArlasAggregation arlasAggregation){
+        arlasAggregation.name = aggregation.getName();
+        arlasAggregation.elements = new ArrayList<ArlasAggregation>();
+        List<MultiBucketsAggregation.Bucket> buckets = (List<MultiBucketsAggregation.Bucket>)aggregation.getBuckets();
+        buckets.forEach(bucket -> {
+            ArlasAggregation element = new ArlasAggregation();
+            element.key = bucket.getKey();
+            element.keyAsString = bucket.getKeyAsString();
+            element.count = bucket.getDocCount();
+            element.elements = new ArrayList<ArlasAggregation>();
+            if (bucket.getAggregations().asList().size() == 0){
+                element.elements = null;
+                arlasAggregation.elements.add(element);
+            }
+            else {
+                bucket.getAggregations().forEach(subAggregation -> {
+                    ArlasAggregation subArlasAggregation = new ArlasAggregation();
+                    subArlasAggregation.name = subAggregation.getName();
+                    if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) ||subAggregation.getName().equals(FluidSearch.TERM_AGG)){
+                        subArlasAggregation = formatAggregationResult(((MultiBucketsAggregation)subAggregation), subArlasAggregation);
+                    } else{
+                        subArlasAggregation.elements = null;
+                        ArlasMetric arlasMetric = new ArlasMetric();
+                        arlasMetric.type = subAggregation.getName();
+                        arlasMetric.value = (Double)subAggregation.getProperty("value");
+                        subArlasAggregation.metric = arlasMetric;
+                    }
+                    element.elements.add(subArlasAggregation);
+                });
+                arlasAggregation.elements.add(element);
+            }
+        });
+        return arlasAggregation;
     }
 
     public FluidSearch filter(List<String> f) throws ArlasException {
@@ -79,7 +132,6 @@ public class FluidSearch {
                 } else if (operandsNumber == 2) {
                     boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.matchQuery(operands[0], operands[1]));
                 } else if (operandsNumber == 3) {
-                    // TODO: test if operands[2] is null
                     Integer fieldValue = tryParse(operands[2]);
                     if (fieldValue != null) {
                         if (operands[1].equals("gte")) {
@@ -208,114 +260,183 @@ public class FluidSearch {
         return this;
     }
 
-    public FluidSearch aggregate(String agg, String[] aggField, String[] aggInterval, String aggFormat)
-            throws ArlasException {
-        if (agg.equals(AggregationType.datehistogram.toString())) {
-            DateHistogramAggregationBuilder dateHistogramAggregationBuilder = constructDateHistogramAggregation(
-                    aggField, aggInterval, aggFormat);
-            searchRequestBuilder = searchRequestBuilder.addAggregation(dateHistogramAggregationBuilder);
-        } else if (agg.equals(AggregationType.geohash.toString())) {
-            GeoGridAggregationBuilder geoHashAggregationBuilder = constructGeoHashAggregation(aggField, aggInterval);
-            searchRequestBuilder = searchRequestBuilder.addAggregation(geoHashAggregationBuilder);
-        } else if (agg.equals(AggregationType.histogram.toString())) {
-            HistogramAggregationBuilder histogramAggregationBuilder = construcHistogramAggregation(aggField,
-                    aggInterval);
-            searchRequestBuilder = searchRequestBuilder.addAggregation(histogramAggregationBuilder);
+    private AggregationBuilder aggregateRecursive (List<String> aggregations, AggregationBuilder aggregationBuilder, Boolean isGeoAggregate) throws ArlasException{
+        //check the agg syntax is correct
+        if (aggregations.size()>0) {
+            String agg = aggregations.get(0);
+            if (CheckParams.isAggregationParamValid(agg)) {
+                List<String> aggParameters = Arrays.asList(agg.split(":"));
+                AggregationModel aggregationModel = ParamsParser.getAggregation(aggParameters);
+                if (isGeoAggregate){
+                    if (aggregationModel.aggType.equals(AggregationType.geohash.name())){
+                        aggregationBuilder = buildGeohashAggregation(aggregationModel);
+                    }
+                    else throw new NotAllowedException(aggregationModel.aggType + NOT_ALLOWED_AGGREGATION_TYPE + "Please use '_aggregate' instead. ");
+                }
+                else {
+                    switch (aggregationModel.aggType) {
+                        case AggregationType.DATEHISTOGRAM:
+                            aggregationBuilder = buildDateHistogramAggregation(aggregationModel);
+                            break;
+                        case AggregationType.GEOHASH:
+                            throw new NotAllowedException(aggregationModel.aggType + NOT_ALLOWED_AGGREGATION_TYPE + "Please use '_geoaggregate' instead. ");
+                        case AggregationType.HISTOGRAM:
+                            aggregationBuilder = buildHistogramAggregation(aggregationModel);
+                            break;
+                        case AggregationType.TERM:
+                            aggregationBuilder = buildTermsAggregation(aggregationModel);
+                            break;
+                    }
+                }
+                aggregations.remove(0);
+                if (aggregationBuilder instanceof GeoGridAggregationBuilder && aggregations.size()>0){
+                    throw new NotAllowedException(SUBAGGREGATION_NOT_ALLOWED);
+                }
+                if (aggregations.size() == 0){
+                    return aggregationBuilder;
+                }
+                return aggregationBuilder.subAggregation(aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate));
+            }
         }
+        return aggregationBuilder;
+    }
+    public FluidSearch aggregate(List<String> aggregations, Boolean isGeoAggregate) throws ArlasException{
+        AggregationBuilder aggregationBuilder = null;
+        aggregationBuilder = aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate);
+        searchRequestBuilder =searchRequestBuilder.setSize(0).addAggregation(aggregationBuilder);
         return this;
     }
 
-    // construct and returns the dateHistogram aggregation builder
-    private DateHistogramAggregationBuilder constructDateHistogramAggregation(String[] aggField, String[] aggInterval,
-            String aggFormat) throws ArlasException {
-        DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram("Agg");
-        if (aggInterval.length != 0) {
-            for (int i = 0; i < aggInterval.length; i++) {
-                Map<Integer, String> intervalDateMap = CheckParams.getValidAggDateInterval(aggInterval[i]);
-                if (intervalDateMap != null) {
-                    Integer size = (intervalDateMap.keySet()).iterator().next();
-                    if (intervalDateMap.get(size).equals(DateInterval.year.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder
-                                .dateHistogramInterval(DateHistogramInterval.YEAR);
-                    } else if (intervalDateMap.get(size).equals(DateInterval.quarter.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder
-                                .dateHistogramInterval(DateHistogramInterval.QUARTER);
-                    } else if (intervalDateMap.get(size).equals(DateInterval.month.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder
-                                .dateHistogramInterval(DateHistogramInterval.MONTH);
-                    } else if (intervalDateMap.get(size).equals(DateInterval.week.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder
-                                .dateHistogramInterval(DateHistogramInterval.weeks(size));
-                    } else if (intervalDateMap.get(size).equals(DateInterval.day.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder
-                                .dateHistogramInterval(DateHistogramInterval.days(size));
-                    } else if (intervalDateMap.get(size).equals(DateInterval.hour.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder
-                                .dateHistogramInterval(DateHistogramInterval.hours(size));
-                    } else if (intervalDateMap.get(size).equals(DateInterval.minute.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder
-                                .dateHistogramInterval(DateHistogramInterval.minutes(size));
-                    } else if (intervalDateMap.get(size).equals(DateInterval.second.toString())) {
-                        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder
-                                .dateHistogramInterval(DateHistogramInterval.seconds(size));
-                    }
-                }
-            }
+    private DateHistogramAggregationBuilder buildDateHistogramAggregation(AggregationModel aggregationModel) throws ArlasException{
+        DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram(DATEHISTOGRAM_AGG);
+        // Get the interval
+        DateAggregationInterval dateAggregationInterval = ParamsParser.getAggregationDateInterval(aggregationModel.aggInterval);
+        DateHistogramInterval dateHistogramInterval = null;
+        Integer aggsize = dateAggregationInterval.aggsize;
+        if(dateAggregationInterval.aggunit.equals(DateInterval.YEAR) || dateAggregationInterval.aggunit.equals(DateInterval.QUARTER) ||dateAggregationInterval.aggunit.equals(DateInterval.DAY) ){
+            if(aggsize>1) throw new NotAllowedException("The size must be equal to 1 for the unit " + dateAggregationInterval.aggunit + ".");
         }
-        if (aggField.length != 0) {
-            for (int i = 0; i < aggField.length; i++) {
-                dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.field(aggField[i]);
-            }
+        switch (dateAggregationInterval.aggunit){
+            case DateInterval.YEAR : dateHistogramInterval = DateHistogramInterval.YEAR; break;
+            case DateInterval.QUARTER : dateHistogramInterval = DateHistogramInterval.QUARTER; break;
+            case DateInterval.MONTH : dateHistogramInterval = DateHistogramInterval.MONTH; break;
+            case DateInterval.WEEK : dateHistogramInterval = DateHistogramInterval.weeks(aggsize); break;
+            case DateInterval.DAY : dateHistogramInterval = DateHistogramInterval.days(aggsize); break;
+            case DateInterval.HOUR : dateHistogramInterval = DateHistogramInterval.hours(aggsize); break;
+            case DateInterval.MINUTE : dateHistogramInterval = DateHistogramInterval.minutes(aggsize); break;
+            case DateInterval.SECOND : dateHistogramInterval = DateHistogramInterval.seconds(aggsize); break;
+            default : throw new InvalidParameterException(INVALID_DATE_UNIT);
         }
-        // TODO: checkParams Format
-        if (!aggFormat.equals("")) {
-            dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.format(aggFormat);
-        }
+        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(dateHistogramInterval);
+        //get the field, format, collect_field, collect_fct, order, on
+        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder)setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
         return dateHistogramAggregationBuilder;
     }
 
-    // construct and returns the geohash aggregation builder
-    private GeoGridAggregationBuilder constructGeoHashAggregation(String[] aggField, String[] aggInterval)
-            throws ArlasException {
-        GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid("Aggregation");
-        // TODO: interval (precision in this cas) not multiple in this case ?
-        if (aggInterval.length != 0) {
-            for (int i = 0; i < aggInterval.length; i++) {
-                Integer precision = CheckParams.getValidGeoHashPrecision(aggInterval[i]);
-                if (precision != null) {
-                    geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
-                }
-            }
-        }
-        // TODO: field not multiple in this case ? only one geom ?
-        if (aggField.length != 0) {
-            for (int i = 0; i < aggField.length; i++) {
-                geoHashAggregationBuilder = geoHashAggregationBuilder.field(aggField[i]);
-            }
-        }
+    // construct and returns the geohash aggregationModel builder
+    private GeoGridAggregationBuilder buildGeohashAggregation(AggregationModel aggregationModel) throws ArlasException{
+        GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(GEOHASH_AGG);
+        //get the precision
+        Integer precision = ParamsParser.getAggregationGeohasPrecision(aggregationModel.aggInterval);
+        geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
+        //get the field, format, collect_field, collect_fct, order, on
+        geoHashAggregationBuilder = (GeoGridAggregationBuilder)setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
         return geoHashAggregationBuilder;
     }
 
-    // construct and returns the histogram aggregation builder
-    private HistogramAggregationBuilder construcHistogramAggregation(String[] aggField, String[] aggInterval)
-            throws ArlasException {
-        HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram("Aggregation");
-        // TODO: interval (precision in this cas) not multiple in this case ?
-        if (aggInterval.length != 0) {
-            for (int i = 0; i < aggInterval.length; i++) {
-                Double interval = CheckParams.getValidHistogramInterval(aggInterval[i]);
-                if (interval != null) {
-                    histogramAggregationBuilder = histogramAggregationBuilder.interval(interval);
-                }
-            }
-        }
-        // TODO: field not multiple in this case ? only one geom ?
-        if (aggField.length != 0) {
-            for (int i = 0; i < aggField.length; i++) {
-                histogramAggregationBuilder = histogramAggregationBuilder.field(aggField[i]);
-            }
-        }
+    // construct and returns the histogram aggregationModel builder
+    private HistogramAggregationBuilder buildHistogramAggregation(AggregationModel aggregationModel) throws ArlasException {
+        HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram(HISTOGRAM_AGG);
+        // get the length
+        Double length = ParamsParser.getAggregationHistogramLength(aggregationModel.aggInterval);
+        histogramAggregationBuilder = histogramAggregationBuilder.interval(length);
+        //get the field, format, collect_field, collect_fct, order, on
+        histogramAggregationBuilder = (HistogramAggregationBuilder)setAggregationParameters(aggregationModel, histogramAggregationBuilder);
         return histogramAggregationBuilder;
+    }
+
+    // construct and returns the terms aggregationModel builder
+    private TermsAggregationBuilder buildTermsAggregation(AggregationModel aggregationModel) throws ArlasException {
+        TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(TERM_AGG);
+        //get the field, format, collect_field, collect_fct, order, on
+        if(aggregationModel.aggInterval != null){
+            throw new BadRequestException(NO_TERM_INTERVAL);
+        }
+        termsAggregationBuilder = (TermsAggregationBuilder)setAggregationParameters(aggregationModel, termsAggregationBuilder);
+        return termsAggregationBuilder;
+    }
+
+    private ValuesSourceAggregationBuilder setAggregationParameters (AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException{
+        String aggField = aggregationModel.aggField;
+        aggregationBuilder = aggregationBuilder.field(aggField);
+        //Get the format
+        String format = ParamsParser.getValidAggregationFormat(aggregationModel.aggFormat);
+        if (aggregationBuilder instanceof DateHistogramAggregationBuilder){
+            aggregationBuilder = aggregationBuilder.format(format);
+        }
+        else if (aggregationModel.aggFormat != null) {
+            throw new BadRequestException(NO_FORMAT_TO_SPECIFY);
+        }
+        // sub aggregate with a metric aggregationModel
+        ValuesSourceAggregationBuilder.LeafOnly metricAggregation = null;
+        if(aggregationModel.aggCollectField != null && aggregationModel.aggCollectFct!= null) {
+            switch (aggregationModel.aggCollectFct) {
+                case MetricAggregationType.AVG:
+                    metricAggregation = AggregationBuilders.avg("avg").field(aggregationModel.aggCollectField);
+                    break;
+                case MetricAggregationType.CARDINALITY:
+                    metricAggregation = AggregationBuilders.cardinality("cardinality").field(aggregationModel.aggCollectField);
+                    break;
+                case MetricAggregationType.MAX:
+                    metricAggregation = AggregationBuilders.max("max").field(aggregationModel.aggCollectField);
+                    break;
+                case MetricAggregationType.MIN:
+                    metricAggregation = AggregationBuilders.min("min").field(aggregationModel.aggCollectField);
+                    break;
+                case MetricAggregationType.SUM:
+                    metricAggregation = AggregationBuilders.avg("sum").field(aggregationModel.aggCollectField);
+                    break;
+                default: throw new InvalidParameterException(aggregationModel.aggCollectFct + " function is invalid.");
+            }
+            if (metricAggregation != null){
+                aggregationBuilder.subAggregation(metricAggregation);
+                //TODO : order and on for later
+                //aggregationBuilder = orderCollectField(aggregationModel,aggregationBuilder, metricAggregation.getName());
+            }
+        }
+        return aggregationBuilder;
+    }
+
+    private ValuesSourceAggregationBuilder orderCollectField(AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, String metricAggregationName) throws ArlasException{
+        String order = aggregationModel.aggOrder;
+        //TODO: count or term not possible, see with sylvain
+        if (order != null) {
+            Boolean asc;
+            if (order.equals(AggregationOrder.asc.toString())){
+                asc = true;
+            }
+            else if (order.equals(AggregationOrder.desc.toString())){
+                asc = false;
+            }else{
+                throw new InvalidParameterException(order + " is invalid.");
+            }
+            switch (aggregationBuilder.getName()) {
+                case DATEHISTOGRAM_AGG:
+                    ((DateHistogramAggregationBuilder)aggregationBuilder).order(Histogram.Order.aggregation(metricAggregationName,asc));
+                    break;
+                case HISTOGRAM_AGG:
+                    ((HistogramAggregationBuilder)aggregationBuilder).order(Histogram.Order.aggregation(metricAggregationName,asc));
+                    break;
+                case TERM_AGG:
+                    ((TermsAggregationBuilder)aggregationBuilder).order(Terms.Order.aggregation(metricAggregationName,asc));
+                    break;
+                default: throw new InvalidParameterException("The order is not supported for geohash aggregationModel");
+            }
+        }
+        else {
+            // no order specified
+        }
+        return aggregationBuilder;
     }
 
     private Integer tryParse(String text) {
