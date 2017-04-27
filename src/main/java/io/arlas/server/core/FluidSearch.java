@@ -260,7 +260,7 @@ public class FluidSearch {
         return this;
     }
 
-    private AggregationBuilder aggregateRecusrive (List<String> aggregations, AggregationBuilder aggregationBuilder, Boolean isGeoAggregate) throws ArlasException{
+    private AggregationBuilder aggregateRecursive (List<String> aggregations, AggregationBuilder aggregationBuilder, Boolean isGeoAggregate) throws ArlasException{
         //check the agg syntax is correct
         if (aggregations.size()>0) {
             String agg = aggregations.get(0);
@@ -295,14 +295,14 @@ public class FluidSearch {
                 if (aggregations.size() == 0){
                     return aggregationBuilder;
                 }
-                return aggregationBuilder.subAggregation(aggregateRecusrive(aggregations, aggregationBuilder, isGeoAggregate));
+                return aggregationBuilder.subAggregation(aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate));
             }
         }
         return aggregationBuilder;
     }
     public FluidSearch aggregate(List<String> aggregations, Boolean isGeoAggregate) throws ArlasException{
         AggregationBuilder aggregationBuilder = null;
-        aggregationBuilder = aggregateRecusrive(aggregations, aggregationBuilder, isGeoAggregate);
+        aggregationBuilder = aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate);
         searchRequestBuilder =searchRequestBuilder.setSize(0).addAggregation(aggregationBuilder);
         return this;
     }
