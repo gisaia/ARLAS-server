@@ -58,7 +58,9 @@ public class FluidSearch {
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
     public static final String GEOHASH_AGG = "Geohash aggregation";
-    
+
+    private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
+
     private TransportClient client;
     private SearchRequestBuilder searchRequestBuilder;
     private BoolQueryBuilder boolQueryBuilder;
@@ -71,17 +73,8 @@ public class FluidSearch {
 
     public SearchResponse exec() {
         searchRequestBuilder.setQuery(boolQueryBuilder);
-        // System.out.println("QUERY:"+searchRequestBuilder.toString()); // TODO
-        // : mettre des logs en debug pour les queries
+        LOGGER.debug("QUERY : "+searchRequestBuilder.toString());
         SearchResponse result = searchRequestBuilder.get();
-        return result;
-    }
-
-    public SearchResponse execute() {
-        searchRequestBuilder.setQuery(boolQueryBuilder);
-        // System.out.println("QUERY:"+searchRequestBuilder.toString()); // TODO
-        // : mettre des logs en debug pour les queries
-        SearchResponse result = searchRequestBuilder.execute().actionGet();
         return result;
     }
 
@@ -129,7 +122,6 @@ public class FluidSearch {
                 } else if (operandsNumber == 2) {
                     boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.matchQuery(operands[0], operands[1]));
                 } else if (operandsNumber == 3) {
-                    // TODO: test if operands[2] is null
                     Integer fieldValue = tryParse(operands[2]);
                     if (fieldValue != null) {
                         if (operands[1].equals("gte")) {
@@ -260,7 +252,6 @@ public class FluidSearch {
 
     private AggregationBuilder aggregateRecusrive (List<String> aggregations, AggregationBuilder aggregationBuilder) throws ArlasException{
         //check the agg syntax is correct
-        Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
         if (aggregations.size()>0) {
             String agg = aggregations.get(0);
             if (CheckParams.isAggregationParamValid(agg)) {
@@ -285,7 +276,6 @@ public class FluidSearch {
                     throw new InvalidParameterException("This operation is not supported. ");
                 }
                 if (aggregations.size() == 0){
-                    LOGGER.info("============ Nested aggregations done ============");
                     return aggregationBuilder;
                 }
                 return aggregationBuilder.subAggregation(aggregateRecusrive(aggregations, aggregationBuilder));
@@ -301,7 +291,6 @@ public class FluidSearch {
     }
 
     private DateHistogramAggregationBuilder buildDateHistogramAggregation(AggregationModel aggregationModel) throws ArlasException{
-        Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
         DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram(DATEHISTOGRAM_AGG);
         // Get the interval
         DateAggregationInterval dateAggregationInterval = ParamsParser.getAggregationDateInterval(aggregationModel.aggInterval);
@@ -320,89 +309,41 @@ public class FluidSearch {
         }
         dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(dateHistogramInterval);
         //get the field, format, collect_field, collect_fct, order, on
-        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder)buildCommonAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
-        LOGGER.debug("============ DateHistogram aggregationModel done ============");
+        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder)setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
         return dateHistogramAggregationBuilder;
     }
 
     // construct and returns the geohash aggregationModel builder
     private GeoGridAggregationBuilder buildGeohashAggregation(AggregationModel aggregationModel) throws ArlasException{
-        Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
         GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(GEOHASH_AGG);
         //get the precision
         Integer precision = ParamsParser.getAggregationGeohasPrecision(aggregationModel.aggInterval);
         geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
         //get the field, format, collect_field, collect_fct, order, on
-        geoHashAggregationBuilder = (GeoGridAggregationBuilder)buildCommonAggregationParameters(aggregationModel, geoHashAggregationBuilder);
-        LOGGER.debug("============ GeoGrid aggregationModel done ============");
+        geoHashAggregationBuilder = (GeoGridAggregationBuilder)setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
         return geoHashAggregationBuilder;
     }
 
     // construct and returns the histogram aggregationModel builder
     private HistogramAggregationBuilder buildHistogramAggregation(AggregationModel aggregationModel) throws ArlasException {
-        Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
         HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram(HISTOGRAM_AGG);
         // get the length
         Double length = ParamsParser.getAggregationHistogramLength(aggregationModel.aggInterval);
         histogramAggregationBuilder = histogramAggregationBuilder.interval(length);
         //get the field, format, collect_field, collect_fct, order, on
-        histogramAggregationBuilder = (HistogramAggregationBuilder)buildCommonAggregationParameters(aggregationModel, histogramAggregationBuilder);
-        LOGGER.debug("============ Histogram aggregationModel done ============");
+        histogramAggregationBuilder = (HistogramAggregationBuilder)setAggregationParameters(aggregationModel, histogramAggregationBuilder);
         return histogramAggregationBuilder;
     }
 
     // construct and returns the terms aggregationModel builder
     private TermsAggregationBuilder buildTermsAggregation(AggregationModel aggregationModel) throws ArlasException {
-        Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
         TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(TERM_AGG);
         //get the field, format, collect_field, collect_fct, order, on
-        termsAggregationBuilder = (TermsAggregationBuilder)buildCommonAggregationParameters(aggregationModel, termsAggregationBuilder);
-        LOGGER.debug("============ Terms aggregationModel done ============");
+        termsAggregationBuilder = (TermsAggregationBuilder)setAggregationParameters(aggregationModel, termsAggregationBuilder);
         return termsAggregationBuilder;
     }
 
     private ValuesSourceAggregationBuilder setAggregationParameters (AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException{
-        String aggField = aggregationModel.aggField;
-        if (aggField != null){
-            aggregationBuilder = aggregationBuilder.field(aggField);
-        }
-        else throw new InvalidParameterException("Date field is not specified");
-        //Get the format
-        String format = ParamsParser.getValidAggregationFormat(aggregationModel.aggFormat);
-        if (aggregationBuilder instanceof DateHistogramAggregationBuilder)
-            aggregationBuilder = aggregationBuilder.format(format);
-        // sub aggregate with a metric aggregationModel
-        ValuesSourceAggregationBuilder.LeafOnly metricAggregation = null;
-        if(aggregationModel.aggCollectField != null && aggregationModel.aggCollectFct!= null) {
-            switch (aggregationModel.aggCollectFct) {
-                case MetricAggregationType.AVG:
-                    metricAggregation = AggregationBuilders.avg("avg").field(aggregationModel.aggCollectField);
-                    break;
-                case MetricAggregationType.CARDINALITY:
-                    metricAggregation = AggregationBuilders.cardinality("cardinality").field(aggregationModel.aggCollectField);
-                    break;
-                case MetricAggregationType.MAX:
-                    metricAggregation = AggregationBuilders.max("max").field(aggregationModel.aggCollectField);
-                    break;
-                case MetricAggregationType.MIN:
-                    metricAggregation = AggregationBuilders.min("min").field(aggregationModel.aggCollectField);
-                    break;
-                case MetricAggregationType.SUM:
-                    metricAggregation = AggregationBuilders.avg("sum").field(aggregationModel.aggCollectField);
-                    break;
-                default: throw new InvalidParameterException(aggregationModel.aggCollectFct + " function is invalid.");
-            }
-            if (metricAggregation != null){
-                aggregationBuilder.subAggregation(metricAggregation);
-                aggregationBuilder = orderCollectField(aggregationModel,aggregationBuilder, metricAggregation.getName());
-            }
-        }
-        //TODO : order and on for later
-
-        return aggregationBuilder;
-    }
-
-    private ValuesSourceAggregationBuilder buildCommonAggregationParameters (AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException{
         String aggField = aggregationModel.aggField;
         if (aggField != null){
             aggregationBuilder = aggregationBuilder.field(aggField);
@@ -435,11 +376,10 @@ public class FluidSearch {
             }
             if (metricAggregation != null){
                 aggregationBuilder.subAggregation(metricAggregation);
-                aggregationBuilder = orderCollectField(aggregationModel,aggregationBuilder, metricAggregation.getName());
+                //TODO : order and on for later
+                //aggregationBuilder = orderCollectField(aggregationModel,aggregationBuilder, metricAggregation.getName());
             }
         }
-        //TODO : order and on for later
-
         return aggregationBuilder;
     }
 
