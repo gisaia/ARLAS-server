@@ -66,8 +66,17 @@ public class AggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} " +
                             "\n \n" +
-                            "Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct," +
-                            " order AND on are optional sub-parameters. " +
+                            "Where :" +
+                            "\n \n" +
+                            "   - **{type}:{field}** part is mandatory. " +
+                            "\n \n" +
+                            "   - **interval** must be specified only when aggregation type is datehistogram, histogram." +
+                            "\n \n" +
+                            "   - **format** is optional for datehistogram, and must not be specified for the other types." +
+                            "\n \n" +
+                            "   - (**collect_field**,**collect_fct**) couple is optional for all aggregation types." +
+                            "\n \n" +
+                            "   - (**order**,**on**) couple is optional for all aggregation types." +
                             "\n \n" +
                             "- {type} possible values are : " +
                             "\n \n" +
@@ -81,7 +90,7 @@ public class AggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "       If {type} = term, then interval-{interval} is not needed. " +
                             "\n \n" +
-                            "- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. " +
+                            "- format-{format} is the date format for key aggregation. The default value is yyyy-MM-dd-hh:mm:ss." +
                             "\n \n" +
                             "- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. " +
                             "\n \n" +
@@ -94,7 +103,7 @@ public class AggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. " +
                             "\n \n" +
-                            "agg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. "+
+                            "**agg** parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. "+
                             "\n \n" +
                             "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
 

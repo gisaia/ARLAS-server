@@ -69,24 +69,19 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(name ="agg",
                     value="- The agg parameter should be given in the following formats:  " +
                             "\n \n" +
-                            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} " +
+                            "       {type}:{field}:interval-{interval}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} " +
                             "\n \n" +
-                            "Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct," +
-                            " order AND on are optional sub-parameters. " +
+                            "Where :" +
                             "\n \n" +
-                            "- {type} possible values are : " +
+                            "   - **{type}:{field}:interval-{interval}** part is mandatory. " +
                             "\n \n" +
-                            "       datehistogram, histogram, term. " +
+                            "   - (**collect_field**,**collect_fct**) is optional for all aggregation types." +
                             "\n \n" +
-                            "- {interval} possible values depends on {type}. " +
+                            "   - (**order**,**on**) is optional for all aggregation types." +
                             "\n \n" +
-                            "       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). " +
+                            "- {type} possible value is **geohash**. " +
                             "\n \n" +
-                            "       If {type} = histogram, then {interval} = {size}. " +
-                            "\n \n" +
-                            "       If {type} = term, then interval-{interval} is not needed. " +
-                            "\n \n" +
-                            "- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. " +
+                            "- {interval} is the geohash length. It's an integer between 1 and 12. Lower the length, greater is the surface of aggregation." +
                             "\n \n" +
                             "- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. " +
                             "\n \n" +
@@ -99,10 +94,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. " +
                             "\n \n" +
-                            "agg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. "+
+                            "agg parameter is not multiple. Subaggregations are not allowed. "+
                             "\n \n" +
                             "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
-
                     ,
                     allowMultiple = false,
                     required=true)
