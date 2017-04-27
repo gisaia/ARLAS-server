@@ -66,6 +66,8 @@ public class FluidSearch {
     public static final String NO_TERM_INTERVAL = "'interval-' should not be specified for term aggregation.";
     public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
     public static final String SUBAGGREGATION_NOT_ALLOWED = "Geogrid doesn't support sub-aggregation.";
+    public static final String COLLECT_FCT_NOT_SPECIFIED = "The aggregation function 'collect_fct' is not specified.";
+    public static final String COLLECT_FIELD_NOT_SPECIFIED = "The aggregation field 'collect_field' is not specified.";
 
 
     private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
@@ -379,7 +381,7 @@ public class FluidSearch {
         }
         // sub aggregate with a metric aggregationModel
         ValuesSourceAggregationBuilder.LeafOnly metricAggregation = null;
-        if(aggregationModel.aggCollectField != null && aggregationModel.aggCollectFct!= null) {
+        if(aggregationModel.aggCollectField != null && aggregationModel.aggCollectFct != null) {
             switch (aggregationModel.aggCollectFct) {
                 case MetricAggregationType.AVG:
                     metricAggregation = AggregationBuilders.avg("avg").field(aggregationModel.aggCollectField);
@@ -403,6 +405,12 @@ public class FluidSearch {
                 //TODO : order and on for later
                 //aggregationBuilder = orderCollectField(aggregationModel,aggregationBuilder, metricAggregation.getName());
             }
+        }
+        else if (aggregationModel.aggCollectField != null && aggregationModel.aggCollectFct == null){
+            throw new BadRequestException(COLLECT_FCT_NOT_SPECIFIED);
+        }
+        else if (aggregationModel.aggCollectField == null && aggregationModel.aggCollectFct != null){
+            throw new BadRequestException(COLLECT_FIELD_NOT_SPECIFIED);
         }
         return aggregationBuilder;
     }
