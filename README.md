@@ -23,12 +23,12 @@ To manage collections :
 
 ```sh
 curl -X PUT --header 'Content-Type: application/json;charset=utf-8' --header 'Accept: application/json' -d '{ \ 
-   "indexName": "myindex", \ 
-   "typeName": "mytype", \ 
-   "idPath": "mydoc.id", \ 
-   "geometryPath": "mydoc.geometry", \ 
-   "centroidPath": "mydoc.centroid", \ 
-   "timestampPath": "mydoc.timestamp" \ 
+   "index_name": "myindex", \ 
+   "type_name": "mytype", \ 
+   "id_path": "mydoc.id", \ 
+   "geometry_path": "mydoc.geometry", \ 
+   "centroid_path": "mydoc.centroid", \ 
+   "timestamp_path": "mydoc.timestamp" \ 
  }' 'http://localhost:9999/arlas/collections/mycollection'
 curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/collections'
 curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/collections/mycollection'
