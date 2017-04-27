@@ -1,7 +1,5 @@
 package io.arlas.server.rest.explore;
 
-import static org.hamcrest.Matchers.equalTo;
-
 import org.junit.Test;
 
 import io.restassured.response.ValidatableResponse;
@@ -22,6 +20,14 @@ public abstract class AbstractSizedTest extends AbstractFilteredTest {
                 givenBigSizedRequestParams().param("size", "40")
                 .when().get(getUrlFilterPath("geodata"))
                 .then(), 40);
+        handleSizeParameter(
+                givenBigSizedRequestParams().param("size", Integer.valueOf(getBigSizedResponseSize()))
+                .when().get(getUrlFilterPath("geodata"))
+                .then(), getBigSizedResponseSize());
+        handleSizeParameter(
+                givenBigSizedRequestParams().param("size", Integer.valueOf(getBigSizedResponseSize()+5))
+                .when().get(getUrlFilterPath("geodata"))
+                .then(), getBigSizedResponseSize());
     }
     
     @Test
@@ -38,17 +44,6 @@ public abstract class AbstractSizedTest extends AbstractFilteredTest {
                 givenBigSizedRequestParams().param("from", Integer.toString(getBigSizedResponseSize()+5))
                 .when().get(getUrlFilterPath("geodata"))
                 .then(), 0);
-    }
-    
-    protected void handleSizeParameter(ValidatableResponse then, int size) throws Exception {
-        if(size > 0) {
-            then.statusCode(200)
-                .body("nbhits", equalTo(size))
-                .body("hits.size()", equalTo(size));
-        } else {
-            then.statusCode(200)
-            .body("nbhits", equalTo(size));
-        }
     }
     
     //----------------------------------------------------------------
@@ -84,4 +79,5 @@ public abstract class AbstractSizedTest extends AbstractFilteredTest {
 
     protected abstract RequestSpecification givenBigSizedRequestParams();
     protected abstract int getBigSizedResponseSize();
+    protected abstract void handleSizeParameter(ValidatableResponse then, int size) throws Exception;
 }
