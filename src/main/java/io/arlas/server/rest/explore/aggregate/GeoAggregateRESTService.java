@@ -253,7 +253,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         fluidSearch.setCollectionReference(collectionReference);
-        
+
         if (f != null && !f.isEmpty()) {
             fluidSearch = fluidSearch.filter(f);
         }
@@ -316,7 +316,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         ArlasAggregation arlasAggregation = new ArlasAggregation();
         if (agg != null && agg.size()>0){
             Long startQuery = System.nanoTime();
-            fluidSearch.aggregate(agg);
+            fluidSearch.aggregate(agg, true);
             aggregation = (MultiBucketsAggregation)fluidSearch.exec().getAggregations().asList().get(0);
             arlasAggregation.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
 

@@ -4,7 +4,9 @@ import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.model.AggregationModel;
 import io.arlas.server.model.ArlasAggregation;
 import io.arlas.server.model.ArlasMetric;
@@ -48,16 +50,23 @@ public class FluidSearch {
 
     public static final String INVALID_PARAMETER_F = "Parameter f does not respect operation expression. ";
     public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'gte', 'gt', 'lte' or 'lt'. ";
-    public static final String INVALID_VALUE_TYPE = "Operand must be a numeric value. ";
-    public static final String INVALID_WKT = "Invalid WKT geometry. ";
+    public static final String INVALID_VALUE_TYPE = "Operand must be a numeric value.";
+    public static final String INVALID_WKT = "Invalid WKT geometry.";
     public static final String INVALID_BBOX = "Invalid BBOX";
     public static final String INVALID_BEFORE_AFTER = "Invalid date parameters : before and after must be positive and before must be greater than after.";
     public static final String INVALID_SIZE = "Invalid size parameter.";
     public static final String INVALID_FROM = "Invalid from parameter.";
+    public static final String INVALID_DATE_UNIT = "Invalid date unit.";
     public static final String DATEHISTOGRAM_AGG = "Datehistogram aggregation";
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
     public static final String GEOHASH_AGG = "Geohash aggregation";
+    public static final String NOT_ALLOWED_AGGREGATION_TYPE = " aggregation type is not allowed.";
+    public static final String INTREVAL_NOT_SPECIFIED = "Interval parameter 'interval-' is not specified.";
+    public static final String NO_TERM_INTERVAL = "'interval-' should not be specified for term aggregation.";
+    public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
+    public static final String SUBAGGREGATION_NOT_ALLOWED = "Geogrid doesn't support sub-aggregation.";
+
 
     private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
 
@@ -250,43 +259,50 @@ public class FluidSearch {
         return this;
     }
 
-    private AggregationBuilder aggregateRecusrive (List<String> aggregations, AggregationBuilder aggregationBuilder) throws ArlasException{
+    private AggregationBuilder aggregateRecusrive (List<String> aggregations, AggregationBuilder aggregationBuilder, Boolean isGeoAggregate) throws ArlasException{
         //check the agg syntax is correct
         if (aggregations.size()>0) {
             String agg = aggregations.get(0);
             if (CheckParams.isAggregationParamValid(agg)) {
                 List<String> aggParameters = Arrays.asList(agg.split(":"));
                 AggregationModel aggregationModel = ParamsParser.getAggregation(aggParameters);
-                switch (aggregationModel.aggType) {
-                    case AggregationType.DATEHISTOGRAM:
-                        aggregationBuilder = buildDateHistogramAggregation(aggregationModel);
-                        break;
-                    case AggregationType.GEOHASH:
+                if (isGeoAggregate){
+                    if (aggregationModel.aggType.equals(AggregationType.geohash.name())){
                         aggregationBuilder = buildGeohashAggregation(aggregationModel);
-                        break;
-                    case AggregationType.HISTOGRAM:
-                        aggregationBuilder = buildHistogramAggregation(aggregationModel);
-                        break;
-                    case AggregationType.TERM:
-                        aggregationBuilder = buildTermsAggregation(aggregationModel);
-                        break;
+                    }
+                    else throw new NotAllowedException(aggregationModel.aggType + NOT_ALLOWED_AGGREGATION_TYPE + "Please use '_aggregate' instead. ");
+                }
+                else {
+                    switch (aggregationModel.aggType) {
+                        case AggregationType.DATEHISTOGRAM:
+                            aggregationBuilder = buildDateHistogramAggregation(aggregationModel);
+                            break;
+                        case AggregationType.GEOHASH:
+                            throw new NotAllowedException(aggregationModel.aggType + NOT_ALLOWED_AGGREGATION_TYPE + "Please use '_geoaggregate' instead. ");
+                        case AggregationType.HISTOGRAM:
+                            aggregationBuilder = buildHistogramAggregation(aggregationModel);
+                            break;
+                        case AggregationType.TERM:
+                            aggregationBuilder = buildTermsAggregation(aggregationModel);
+                            break;
+                    }
                 }
                 aggregations.remove(0);
                 if (aggregationBuilder instanceof GeoGridAggregationBuilder && aggregations.size()>0){
-                    throw new InvalidParameterException("This operation is not supported. ");
+                    throw new NotAllowedException(SUBAGGREGATION_NOT_ALLOWED);
                 }
                 if (aggregations.size() == 0){
                     return aggregationBuilder;
                 }
-                return aggregationBuilder.subAggregation(aggregateRecusrive(aggregations, aggregationBuilder));
+                return aggregationBuilder.subAggregation(aggregateRecusrive(aggregations, aggregationBuilder, isGeoAggregate));
             }
         }
         return aggregationBuilder;
     }
-    public FluidSearch aggregate(List<String> aggregations) throws ArlasException{
+    public FluidSearch aggregate(List<String> aggregations, Boolean isGeoAggregate) throws ArlasException{
         AggregationBuilder aggregationBuilder = null;
-        aggregationBuilder = aggregateRecusrive(aggregations, aggregationBuilder);
-        searchRequestBuilder =searchRequestBuilder.addAggregation(aggregationBuilder);
+        aggregationBuilder = aggregateRecusrive(aggregations, aggregationBuilder, isGeoAggregate);
+        searchRequestBuilder =searchRequestBuilder.setSize(0).addAggregation(aggregationBuilder);
         return this;
     }
 
@@ -296,6 +312,9 @@ public class FluidSearch {
         DateAggregationInterval dateAggregationInterval = ParamsParser.getAggregationDateInterval(aggregationModel.aggInterval);
         DateHistogramInterval dateHistogramInterval = null;
         Integer aggsize = dateAggregationInterval.aggsize;
+        if(dateAggregationInterval.aggunit.equals(DateInterval.YEAR) || dateAggregationInterval.aggunit.equals(DateInterval.QUARTER) ||dateAggregationInterval.aggunit.equals(DateInterval.DAY) ){
+            if(aggsize>1) throw new NotAllowedException("The size must be equal to 1 for the unit " + dateAggregationInterval.aggunit + ".");
+        }
         switch (dateAggregationInterval.aggunit){
             case DateInterval.YEAR : dateHistogramInterval = DateHistogramInterval.YEAR; break;
             case DateInterval.QUARTER : dateHistogramInterval = DateHistogramInterval.QUARTER; break;
@@ -305,7 +324,7 @@ public class FluidSearch {
             case DateInterval.HOUR : dateHistogramInterval = DateHistogramInterval.hours(aggsize); break;
             case DateInterval.MINUTE : dateHistogramInterval = DateHistogramInterval.minutes(aggsize); break;
             case DateInterval.SECOND : dateHistogramInterval = DateHistogramInterval.seconds(aggsize); break;
-            default : throw new InvalidParameterException("Invalid date unit");
+            default : throw new InvalidParameterException(INVALID_DATE_UNIT);
         }
         dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(dateHistogramInterval);
         //get the field, format, collect_field, collect_fct, order, on
@@ -339,20 +358,24 @@ public class FluidSearch {
     private TermsAggregationBuilder buildTermsAggregation(AggregationModel aggregationModel) throws ArlasException {
         TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(TERM_AGG);
         //get the field, format, collect_field, collect_fct, order, on
+        if(aggregationModel.aggInterval != null){
+            throw new BadRequestException(NO_TERM_INTERVAL);
+        }
         termsAggregationBuilder = (TermsAggregationBuilder)setAggregationParameters(aggregationModel, termsAggregationBuilder);
         return termsAggregationBuilder;
     }
 
     private ValuesSourceAggregationBuilder setAggregationParameters (AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException{
         String aggField = aggregationModel.aggField;
-        if (aggField != null){
-            aggregationBuilder = aggregationBuilder.field(aggField);
-        }
-        else throw new InvalidParameterException("Date field is not specified");
+        aggregationBuilder = aggregationBuilder.field(aggField);
         //Get the format
         String format = ParamsParser.getValidAggregationFormat(aggregationModel.aggFormat);
-        if (aggregationBuilder instanceof DateHistogramAggregationBuilder)
-        aggregationBuilder = aggregationBuilder.format(format);
+        if (aggregationBuilder instanceof DateHistogramAggregationBuilder){
+            aggregationBuilder = aggregationBuilder.format(format);
+        }
+        else if (aggregationModel.aggFormat != null) {
+            throw new BadRequestException(NO_FORMAT_TO_SPECIFY);
+        }
         // sub aggregate with a metric aggregationModel
         ValuesSourceAggregationBuilder.LeafOnly metricAggregation = null;
         if(aggregationModel.aggCollectField != null && aggregationModel.aggCollectFct!= null) {

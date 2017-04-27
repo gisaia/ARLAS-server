@@ -308,7 +308,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         MultiBucketsAggregation aggregation = null;
         if (agg != null && agg.size()>0){
             Long startQuery = System.nanoTime();
-            fluidSearch.aggregate(agg);
+            fluidSearch.aggregate(agg, false);
             aggregation = (MultiBucketsAggregation)fluidSearch.exec().getAggregations().asList().get(0);
             arlasAggregation.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
         }

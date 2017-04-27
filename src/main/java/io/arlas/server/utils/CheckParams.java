@@ -26,7 +26,7 @@ public class CheckParams {
     private static final String OUTRANGE_GEOHASH_PRECISION = "Precision must be between 1 and 12. ";
     private static final String INVALID_PRECISION_TYPE = "Precision must be an integer between 1 and 12. ";
     private static final String INVALID_INTERVAL_TYPE = "Interval must be numeric. ";
-    private static final String INVALID_AGGREGATION_PARAMETER = "Invalid aggregation syntax. Must at least contain {type}:{field}";
+    private static final String INVALID_AGGREGATION_PARAMETER = "Invalid aggregation syntax. Must start with {type}:{field}:...";
     private static final String INVALID_AGGREGATION_TYPE = "Invalid aggregation TYPE. Must be datehistogram, geohash, histogram or terms ";
 
     public CheckParams() {

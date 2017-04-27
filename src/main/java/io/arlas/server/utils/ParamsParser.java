@@ -1,6 +1,8 @@
 package io.arlas.server.utils;
 
+import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.AggregationModel;
 
@@ -57,33 +59,44 @@ public class ParamsParser {
 
     public static DateAggregationInterval getAggregationDateInterval(String aggInterval) throws ArlasException{
         DateAggregationInterval dateAggregationInterval = null;
-        if (!aggInterval.equals("")){
+        if (aggInterval != null && !aggInterval.equals("")){
             String[] sizeAndUnit = aggInterval.split("(?<=[a-zA-Z])(?=\\d)|(?<=\\d)(?=[a-zA-Z])");
             if (sizeAndUnit.length == 2) {
                 dateAggregationInterval = new DateAggregationInterval();
                 dateAggregationInterval.aggsize = tryParseInteger(sizeAndUnit[0]);
+                if(dateAggregationInterval.aggsize == null){
+                    throw new InvalidParameterException(FluidSearch.INVALID_SIZE + sizeAndUnit[0]);
+                }
                 dateAggregationInterval.aggunit = sizeAndUnit[1].toLowerCase();
                 return dateAggregationInterval;
             }
             else throw new InvalidParameterException("The date interval " + aggInterval + "is not valid");
         }
-        else throw new InvalidParameterException("No date interval specified");
+        else throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
     }
 
     public static Integer getAggregationGeohasPrecision(String aggInterval) throws ArlasException{
-        Integer precision = tryParseInteger(aggInterval);
-        if (precision != null){
-            return precision;
+        if(aggInterval != null){
+            Integer precision = tryParseInteger(aggInterval);
+            if (precision != null){
+                if( precision >12 || precision<1)
+                    throw new InvalidParameterException("Invalid geohash aggregation precision of " + precision + ". Must be between 1 and 12.");
+                else return precision;
+            }
+            else throw new InvalidParameterException("Invalid geohash aggregation precision of  '" + aggInterval + "'. Must be an integer.");
         }
-        else throw new InvalidParameterException(aggInterval + " must be an integer.");
+        else throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
     }
 
     public static Double getAggregationHistogramLength(String aggInterval) throws ArlasException{
-        Double length = tryParseDouble(aggInterval);
-        if (length != null){
-            return length;
+        if(aggInterval != null){
+            Double length = tryParseDouble(aggInterval);
+            if (length != null){
+                return length;
+            }
+            else throw new InvalidParameterException("Invalid histogram aggregation precision of '" + aggInterval + "'. Must be a numeric value.");
         }
-        else throw new InvalidParameterException(aggInterval + " must be a numeric.");
+        else throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
     }
 
     public static String getValidAggregationFormat(String aggFormat){
