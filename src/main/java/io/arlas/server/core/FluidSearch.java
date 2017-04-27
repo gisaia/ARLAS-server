@@ -94,6 +94,7 @@ public class FluidSearch {
         buckets.forEach(bucket -> {
             ArlasAggregation element = new ArlasAggregation();
             element.key = bucket.getKey();
+            element.keyAsString = bucket.getKeyAsString();
             element.count = bucket.getDocCount();
             element.elements = new ArrayList<ArlasAggregation>();
             if (bucket.getAggregations().asList().size() == 0){

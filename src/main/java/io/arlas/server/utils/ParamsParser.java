@@ -105,7 +105,7 @@ public class ParamsParser {
             return aggFormat;
         }
         else {
-            return "yyyyMMdd";
+            return "yyyy-MM-dd-HH:mm:ss";
         }
     }
 
