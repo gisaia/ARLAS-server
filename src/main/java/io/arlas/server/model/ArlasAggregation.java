@@ -7,7 +7,7 @@ import java.util.List;
 
 // TODO: Write ArlasAggregation properties
 @ApiModel(value = "ArlasAggregation", description = "Aggregation result")
-public class ArlasAggregation extends Timed{
+public class ArlasAggregation extends AggregationMD {
     @ApiModelProperty(name = "name", value = "Name")
     public String name;
     @ApiModelProperty(name = "count", value = "Count")

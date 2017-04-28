@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -311,11 +312,13 @@ public class AggregateRESTService extends ExploreRESTServices {
         }
 
         ArlasAggregation arlasAggregation = new ArlasAggregation();
+        SearchResponse response = fluidSearch.exec();
         MultiBucketsAggregation aggregation = null;
         if (agg != null && agg.size()>0){
             Long startQuery = System.nanoTime();
             fluidSearch.aggregate(agg, false);
             aggregation = (MultiBucketsAggregation)fluidSearch.exec().getAggregations().asList().get(0);
+            arlasAggregation.totalnb = response.getHits().totalHits();
             arlasAggregation.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
         }
         arlasAggregation = fluidSearch.formatAggregationResult(aggregation,arlasAggregation);
