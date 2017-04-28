@@ -71,12 +71,21 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} " +
                             "\n \n" +
-                            "Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct," +
-                            " order AND on are optional sub-parameters. " +
+                            "Where :" +
+                            "\n \n" +
+                            "   - **{type}:{field}** part is mandatory. " +
+                            "\n \n" +
+                            "   - **interval** must be specified only when aggregation type is datehistogram, histogram and geohash." +
+                            "\n \n" +
+                            "   - **format** is optional for datehistogram, and must not be specified for the other types." +
+                            "\n \n" +
+                            "   - (**collect_field**,**collect_fct**) couple is optional for all aggregation types." +
+                            "\n \n" +
+                            "   - (**order**,**on**) couple is optional for all aggregation types." +
                             "\n \n" +
                             "- {type} possible values are : " +
                             "\n \n" +
-                            "       datehistogram, histogram, term. " +
+                            "       datehistogram, histogram, geohash and term. " +
                             "\n \n" +
                             "- {interval} possible values depends on {type}. " +
                             "\n \n" +
@@ -84,9 +93,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "       If {type} = histogram, then {interval} = {size}. " +
                             "\n \n" +
+                            "       If {type} = geohash, then {interval} = {size}. It's an integer between 1 and 12. Lower the length, greater is the surface of aggregation. " +
+                            "\n \n" +
                             "       If {type} = term, then interval-{interval} is not needed. " +
                             "\n \n" +
-                            "- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. " +
+                            "- format-{format} is the date format for key aggregation. The default value is yyyy-MM-dd-hh:mm:ss." +
                             "\n \n" +
                             "- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. " +
                             "\n \n" +
@@ -99,10 +110,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. " +
                             "\n \n" +
-                            "agg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. "+
+                            "**agg** parameter is multiple. The first (main) aggregation must be geohash. Every agg parameter specified is a subaggregation of the previous one : order matters. "+
                             "\n \n" +
                             "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
-
                     ,
                     allowMultiple = false,
                     required=true)
@@ -208,41 +218,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value="human") Boolean human,
 
             // --------------------------------------------------------
-            // ----------------------- SIZE -----------------------
-            // --------------------------------------------------------
-
-            @ApiParam(name ="size", value="The maximum number of entries or sub-entries to be returned. The default value is 10",
-                    defaultValue = "10",
-                    allowableValues = "range[1, infinity]",
-                    required=false)
-            @DefaultValue("10")
-            @QueryParam(value="size") IntParam size,
-
-            @ApiParam(name ="from", value="From index to start the search from. Defaults to 0.",
-                    defaultValue = "0",
-                    allowableValues = "range[1, infinity]",
-                    required=false)
-            @DefaultValue("0")
-            @QueryParam(value="size") IntParam from,
-
-            // --------------------------------------------------------
-            // ----------------------- SORT -----------------------
-            // --------------------------------------------------------
-
-            @ApiParam(name ="sort",
-                    value="- Sort the result on the given fields ascending or descending. " +
-                            "\n \n"+
-                            "- Fields can be provided several times by separating them with a comma. The order matters. " +
-                            "\n \n"+
-                            "- For a descending sort, precede the field with '-'. The sort will be ascending otherwise."+
-                            "\n \n"+
-                            "- For aggregation, provide the `agg` keyword as the `{field}`.",
-                    allowMultiple = false,
-                    example = "-country,city",
-                    required=false)
-            @QueryParam(value="sort") String sort,
-
-            // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
@@ -301,22 +276,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
         if (notgintersect != null && !notgintersect.isEmpty()) {
             fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
-        }
-        if (size != null && size.get() > 0) {
-            if (from != null) {
-                if(from.get() < 0) {
-                    throw new InvalidParameterException(FluidSearch.INVALID_FROM);
-                } else {
-                    fluidSearch = fluidSearch.filterSize(size.get(), from.get());
-                }
-            } else {
-                fluidSearch = fluidSearch.filterSize(size.get(), 0);
-            }
-        } else {
-            throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
-        }
-        if (sort != null) {
-            fluidSearch = fluidSearch.sort(sort);
         }
 
         FeatureCollection fc;
