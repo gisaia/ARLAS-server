@@ -12,7 +12,8 @@ public class CountServiceIT extends AbstractFilteredTest {
     }
     
     private void handleMatchingFilter(ValidatableResponse then, int nbResults) {
-        then.statusCode(200).body(equalTo(Integer.toString(nbResults)));
+        then.statusCode(200)
+                .body("totalnb", equalTo(nbResults));
     }
 
     @Override
