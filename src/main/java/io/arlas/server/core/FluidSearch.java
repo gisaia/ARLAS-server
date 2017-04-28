@@ -18,6 +18,7 @@ import io.arlas.server.rest.explore.enumerations.MetricAggregationType;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.DateAggregationInterval;
 import io.arlas.server.utils.ParamsParser;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
@@ -44,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 public class FluidSearch {
@@ -82,10 +84,16 @@ public class FluidSearch {
         boolQueryBuilder = QueryBuilders.boolQuery();
     }
 
-    public SearchResponse exec() {
+    public SearchResponse exec() throws ArlasException {
         searchRequestBuilder.setQuery(boolQueryBuilder);
         LOGGER.debug("QUERY : "+searchRequestBuilder.toString());
-        SearchResponse result = searchRequestBuilder.get();
+        SearchResponse result = null;
+
+        try {
+            result = searchRequestBuilder.get();
+        }catch (ElasticsearchException e ){
+            throw new InvalidParameterException(e.getRootCause().getMessage() );
+        }
         return result;
     }
 
@@ -257,6 +265,7 @@ public class FluidSearch {
                     sortOrder = SortOrder.ASC;
                 }
                 searchRequestBuilder = searchRequestBuilder.addSort(field, sortOrder);
+
             }
         }
         return this;
