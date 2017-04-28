@@ -14,6 +14,7 @@ public class AggregationModel {
     public String aggCollectFct;
     public String aggOrder;
     public String aggOn;
+    public String aggSize;
 
     public AggregationModel() {
     }

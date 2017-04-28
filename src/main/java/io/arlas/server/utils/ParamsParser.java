@@ -18,6 +18,7 @@ public class ParamsParser {
     private static final String AGG_COLLECT_FCT_PARAM = "collect_fct-";
     private static final String AGG_ORDER_PARAM = "order-";
     private static final String AGG_ON_PARAM = "on-";
+    private static final String AGG_SIZE_PARAM = "size-";
 
 
     public static AggregationModel getAggregation(List<String> aggParameters){
@@ -43,6 +44,9 @@ public class ParamsParser {
             }
             if (parameter.contains(AGG_ON_PARAM)){
                 aggregationModel.aggOn = parameter.substring(AGG_ON_PARAM.length());
+            }
+            if (parameter.contains(AGG_SIZE_PARAM)){
+                aggregationModel.aggSize = parameter.substring(AGG_SIZE_PARAM.length());
             }
         }
         return aggregationModel;
@@ -109,7 +113,14 @@ public class ParamsParser {
         }
     }
 
-
+    public static Integer getValidAggregationSize(String size) throws ArlasException{
+        Integer s  = tryParseInteger(size);
+        if (s != null){
+            return s;
+        }
+        else throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
+    }
+    
     private static Integer tryParseInteger(String text) {
         try {
             return Integer.parseInt(text);
