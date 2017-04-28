@@ -212,41 +212,6 @@ public class AggregateRESTService extends ExploreRESTServices {
             @QueryParam(value="human") Boolean human,
 
             // --------------------------------------------------------
-            // ----------------------- SIZE -----------------------
-            // --------------------------------------------------------
-
-            @ApiParam(name ="size", value="The maximum number of entries or sub-entries to be returned. The default value is 10",
-                    defaultValue = "10",
-                    allowableValues = "range[1, infinity]",
-                    required=false)
-            @DefaultValue("10")
-            @QueryParam(value="size") IntParam size,
-
-            @ApiParam(name ="from", value="From index to start the search from. Defaults to 0.",
-                    defaultValue = "0",
-                    allowableValues = "range[1, infinity]",
-                    required=false)
-            @DefaultValue("0")
-            @QueryParam(value="size") IntParam from,
-
-            // --------------------------------------------------------
-            // ----------------------- SORT -----------------------
-            // --------------------------------------------------------
-
-            @ApiParam(name ="sort",
-                    value="- Sort the result on the given fields ascending or descending. " +
-                            "\n \n"+
-                            "- Fields can be provided several times by separating them with a comma. The order matters. " +
-                            "\n \n"+
-                            "- For a descending sort, precede the field with '-'. The sort will be ascending otherwise."+
-                            "\n \n"+
-                            "- For aggregation, provide the `agg` keyword as the `{field}`.",
-                    allowMultiple = false,
-                    example = "-country,city",
-                    required=false)
-            @QueryParam(value="sort") String sort,
-
-            // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
@@ -306,23 +271,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         if (notgintersect != null && !notgintersect.isEmpty()) {
             fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
         }
-        if (size != null && size.get() > 0) {
-            if (from != null) {
-                if(from.get() < 0) {
-                    throw new InvalidParameterException(FluidSearch.INVALID_FROM);
-                } else {
-                    fluidSearch = fluidSearch.filterSize(size.get(), from.get());
-                }
-            } else {
-                fluidSearch = fluidSearch.filterSize(size.get(), 0);
-            }
-        } else {
-            throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
-        }
-        if (sort != null) {
-            fluidSearch = fluidSearch.sort(sort);
-        }
-
+       
         ArlasAggregation arlasAggregation = new ArlasAggregation();
         SearchResponse response = fluidSearch.exec();
         MultiBucketsAggregation aggregation = null;
