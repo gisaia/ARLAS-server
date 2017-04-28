@@ -6,6 +6,7 @@ import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.ArlasAggregation;
+import io.arlas.server.model.ArlasError;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.TimedFeatureCollection;
 import io.arlas.server.rest.explore.ExploreRESTServices;
@@ -49,7 +50,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters", consumes = UTF8JSON, response = FeatureCollection.class
 
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection" ),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
     public Response geoaggregate(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
