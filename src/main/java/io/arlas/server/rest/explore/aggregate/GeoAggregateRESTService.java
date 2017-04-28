@@ -69,19 +69,35 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(name ="agg",
                     value="- The agg parameter should be given in the following formats:  " +
                             "\n \n" +
-                            "       {type}:{field}:interval-{interval}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} " +
+                            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} " +
                             "\n \n" +
                             "Where :" +
                             "\n \n" +
-                            "   - **{type}:{field}:interval-{interval}** part is mandatory. " +
+                            "   - **{type}:{field}** part is mandatory. " +
                             "\n \n" +
-                            "   - (**collect_field**,**collect_fct**) is optional for all aggregation types." +
+                            "   - **interval** must be specified only when aggregation type is datehistogram, histogram and geohash." +
                             "\n \n" +
-                            "   - (**order**,**on**) is optional for all aggregation types." +
+                            "   - **format** is optional for datehistogram, and must not be specified for the other types." +
                             "\n \n" +
-                            "- {type} possible value is **geohash**. " +
+                            "   - (**collect_field**,**collect_fct**) couple is optional for all aggregation types." +
                             "\n \n" +
-                            "- {interval} is the geohash length. It's an integer between 1 and 12. Lower the length, greater is the surface of aggregation." +
+                            "   - (**order**,**on**) couple is optional for all aggregation types." +
+                            "\n \n" +
+                            "- {type} possible values are : " +
+                            "\n \n" +
+                            "       datehistogram, histogram, geohash and term. " +
+                            "\n \n" +
+                            "- {interval} possible values depends on {type}. " +
+                            "\n \n" +
+                            "       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). " +
+                            "\n \n" +
+                            "       If {type} = histogram, then {interval} = {size}. " +
+                            "\n \n" +
+                            "       If {type} = geohash, then {interval} = {size}. It's an integer between 1 and 12. Lower the length, greater is the surface of aggregation. " +
+                            "\n \n" +
+                            "       If {type} = term, then interval-{interval} is not needed. " +
+                            "\n \n" +
+                            "- format-{format} is the date format for key aggregation. The default value is yyyy-MM-dd-hh:mm:ss." +
                             "\n \n" +
                             "- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. " +
                             "\n \n" +
@@ -94,7 +110,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. " +
                             "\n \n" +
-                            "agg parameter is not multiple. Subaggregations are not allowed. "+
+                            "**agg** parameter is multiple. The first (main) aggregation must be geohash. Every agg parameter specified is a subaggregation of the previous one : order matters. "+
                             "\n \n" +
                             "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
                     ,

@@ -70,7 +70,7 @@ public class AggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "   - **{type}:{field}** part is mandatory. " +
                             "\n \n" +
-                            "   - **interval** must be specified only when aggregation type is datehistogram, histogram." +
+                            "   - **interval** must be specified only when aggregation type is datehistogram, histogram and geohash." +
                             "\n \n" +
                             "   - **format** is optional for datehistogram, and must not be specified for the other types." +
                             "\n \n" +
@@ -80,13 +80,15 @@ public class AggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "- {type} possible values are : " +
                             "\n \n" +
-                            "       datehistogram, histogram, term. " +
+                            "       datehistogram, histogram, geohash and term. " +
                             "\n \n" +
                             "- {interval} possible values depends on {type}. " +
                             "\n \n" +
                             "       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). " +
                             "\n \n" +
                             "       If {type} = histogram, then {interval} = {size}. " +
+                            "\n \n" +
+                            "       If {type} = geohash, then {interval} = {size}. It's an integer between 1 and 12. Lower the length, greater is the surface of aggregation. " +
                             "\n \n" +
                             "       If {type} = term, then interval-{interval} is not needed. " +
                             "\n \n" +
@@ -105,8 +107,7 @@ public class AggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "**agg** parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. "+
                             "\n \n" +
-                            "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
-
+                            "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md."
                     ,
                     allowMultiple = false,
                     required=true)

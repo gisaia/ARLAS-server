@@ -43,7 +43,7 @@ The agg parameter should be given in the following format :
 
 Where the `{type}:{field}` part is mandatory
 
-The other parts must be specified or not depending on the aggregation type. All the cases are sum up int following table.
+The other parts must be specified or not depending on the aggregation type. All the cases are sum up in the following table.
 
 | Parameter                 | Aggregation type          | Description                 |
 | ---------                 | -------------                       | ---------------------------------------- |
@@ -59,7 +59,7 @@ The sub-parameters possible values are:
 | Parameter         | Values                                          | Description                              |
 | ----------------- | ----------------------------------------------  | ---------------------------------------- |
 | **{type}**        | `datehistogram`, `histogram`, `geohash`, `term` | Type of aggregation |
-| **{field}**       | {field} ({field} must be a geo-point in _geoaggregate service) | Aggregates on {field} |
+| **{field}**       | {field}  | Aggregates on {field} |
 | **interval**      | {interval}                                      | Size of the intervals.(1)                   |
 | **format**        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.         |
 | **collect_field** | `{collect_field}`                               | The field used to aggregate collections. |
@@ -71,7 +71,7 @@ The sub-parameters possible values are:
 
 | Service             | Aggregation type    | Interval                                 | Description                              |
 | ------------------- | ------------------- | ---------------------------------------- | ---------------------------------------- |
-| ***_aggregate***    | ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit) |
+| ***_aggregate***    | ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit). Size must be equal to 1 for year, quarter and month |
 | ***_geoaggregate*** | ***geohash***       | `{length}`                               | The geohash length: lower the length, greater is the surface of aggregation. See table below. |
 | ***_aggregate***    | ***histogram***     | `{size}`                                 | The interval size of the numeric aggregation |
 | ***_aggregate***    | ***term***          | None                                     | None                                     |
@@ -93,7 +93,9 @@ The table below shows the metric dimensions for cells covered by various string 
 | 11             | 14.9cm x 14.9cm       |
 | 12             | 3.7cm x 1.9cm         |
 
-For _aggregate only, **agg** parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : the order matters.
+**agg** parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : the order matters.
+
+For **_geoaggregate** service, the first (main) aggregation must be geohash.
 
 ---
 ## Part: `filter`
