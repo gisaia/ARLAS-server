@@ -5,15 +5,19 @@ import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.ArlasAggregation;
+import io.arlas.server.model.ArlasError;
+import io.arlas.server.model.ArlasHits;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.utils.CheckParams;
 import io.dropwizard.jersey.params.IntParam;
+import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +45,8 @@ public class AggregateRESTService extends ExploreRESTServices {
     @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters", consumes = UTF8JSON, response = ArlasAggregation.class
 
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasAggregation.class, responseContainer = "ArlasAggregation" ),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
     public Response aggregate(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -145,12 +150,12 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(name ="before", value="Any element having its point in time reference before the given timestamp",
                     allowMultiple = false,
                     required=false)
-            @QueryParam(value="before") Long before,
+            @QueryParam(value="before") LongParam before,
 
             @ApiParam(name ="after", value="Any element having its point in time reference after the given timestamp",
                     allowMultiple = false,
                     required=false)
-            @QueryParam(value="after") Long after,
+            @QueryParam(value="after") LongParam after,
 
             @ApiParam(name ="pwithin", value="Any element having its centroid contained within the given geometry (WKT)",
                     allowMultiple = true,
@@ -253,15 +258,20 @@ public class AggregateRESTService extends ExploreRESTServices {
         if (q != null) {
             fluidSearch = fluidSearch.filterQ(q);
         }
+        if(before != null || after != null) {
+            if((before!=null && before.get()<0) || (after != null && after.get()<0)
+                    || (before != null && after != null && before.get() < after.get()))
+                throw new InvalidParameterException(FluidSearch.INVALID_BEFORE_AFTER);
+        }
         if (after != null) {
-            fluidSearch = fluidSearch.filterAfter(after);
+            fluidSearch = fluidSearch.filterAfter(after.get());
         }
         if (before != null) {
-            fluidSearch = fluidSearch.filterBefore(before);
+            fluidSearch = fluidSearch.filterBefore(before.get());
         }
         if (pwithin != null && !pwithin.isEmpty()) {
             double[] tlbr = CheckParams.toDoubles(pwithin);
-            if (tlbr.length == 4) {
+            if (tlbr.length == 4 && tlbr[0]>tlbr[2] && tlbr[2]<tlbr[3]) {
                 fluidSearch = fluidSearch.filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
             } else {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
@@ -275,7 +285,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         }
         if (notpwithin != null && !notpwithin.isEmpty()) {
             double[] tlbr = CheckParams.toDoubles(notpwithin);
-            if (tlbr.length == 4) {
+            if (tlbr.length == 4 && tlbr[0]>tlbr[2] && tlbr[2]<tlbr[3]) {
                 fluidSearch = fluidSearch.filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
             } else {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
@@ -305,11 +315,13 @@ public class AggregateRESTService extends ExploreRESTServices {
         }
 
         ArlasAggregation arlasAggregation = new ArlasAggregation();
+        SearchResponse response = fluidSearch.exec();
         MultiBucketsAggregation aggregation = null;
         if (agg != null && agg.size()>0){
             Long startQuery = System.nanoTime();
             fluidSearch.aggregate(agg, false);
             aggregation = (MultiBucketsAggregation)fluidSearch.exec().getAggregations().asList().get(0);
+            arlasAggregation.totalnb = response.getHits().totalHits();
             arlasAggregation.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
         }
         arlasAggregation = fluidSearch.formatAggregationResult(aggregation,arlasAggregation);

@@ -18,6 +18,7 @@ import io.arlas.server.rest.explore.enumerations.MetricAggregationType;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.DateAggregationInterval;
 import io.arlas.server.utils.ParamsParser;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
@@ -61,11 +62,11 @@ public class FluidSearch {
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
     public static final String GEOHASH_AGG = "Geohash aggregation";
-    public static final String NOT_ALLOWED_AGGREGATION_TYPE = " aggregation type is not allowed.";
+    public static final String NOT_ALLOWED_AGGREGATION_TYPE = " aggregation type is not allowed. Please use '_geoaggregate' service instead.";
+    public static final String NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE = " aggregation type is not allowed as main aggregation. Please make sure that geohash is the main aggregation or use '_aggregate' service instead.";
     public static final String INTREVAL_NOT_SPECIFIED = "Interval parameter 'interval-' is not specified.";
     public static final String NO_TERM_INTERVAL = "'interval-' should not be specified for term aggregation.";
     public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
-    public static final String SUBAGGREGATION_NOT_ALLOWED = "Geogrid doesn't support sub-aggregation.";
     public static final String COLLECT_FCT_NOT_SPECIFIED = "The aggregation function 'collect_fct' is not specified.";
     public static final String COLLECT_FIELD_NOT_SPECIFIED = "The aggregation field 'collect_field' is not specified.";
 
@@ -82,10 +83,16 @@ public class FluidSearch {
         boolQueryBuilder = QueryBuilders.boolQuery();
     }
 
-    public SearchResponse exec() {
+    public SearchResponse exec() throws ArlasException {
         searchRequestBuilder.setQuery(boolQueryBuilder);
         LOGGER.debug("QUERY : "+searchRequestBuilder.toString());
-        SearchResponse result = searchRequestBuilder.get();
+        SearchResponse result = null;
+
+        try {
+            result = searchRequestBuilder.get();
+        }catch (ElasticsearchException e ){
+            throw new InvalidParameterException(e.getRootCause().getMessage() );
+        }
         return result;
     }
 
@@ -257,23 +264,24 @@ public class FluidSearch {
                     sortOrder = SortOrder.ASC;
                 }
                 searchRequestBuilder = searchRequestBuilder.addSort(field, sortOrder);
+
             }
         }
         return this;
     }
 
-    private AggregationBuilder aggregateRecursive (List<String> aggregations, AggregationBuilder aggregationBuilder, Boolean isGeoAggregate) throws ArlasException{
+    private AggregationBuilder aggregateRecursive (List<String> aggregations, AggregationBuilder aggregationBuilder, Boolean isGeoAggregate, Integer counter) throws ArlasException{
         //check the agg syntax is correct
         if (aggregations.size()>0) {
             String agg = aggregations.get(0);
             if (CheckParams.isAggregationParamValid(agg)) {
                 List<String> aggParameters = Arrays.asList(agg.split(":"));
                 AggregationModel aggregationModel = ParamsParser.getAggregation(aggParameters);
-                if (isGeoAggregate){
+                if (isGeoAggregate && counter == 0){
                     if (aggregationModel.aggType.equals(AggregationType.geohash.name())){
                         aggregationBuilder = buildGeohashAggregation(aggregationModel);
                     }
-                    else throw new NotAllowedException(aggregationModel.aggType + NOT_ALLOWED_AGGREGATION_TYPE + "Please use '_aggregate' instead. ");
+                    else throw new NotAllowedException(aggregationModel.aggType + NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE);
                 }
                 else {
                     switch (aggregationModel.aggType) {
@@ -281,7 +289,8 @@ public class FluidSearch {
                             aggregationBuilder = buildDateHistogramAggregation(aggregationModel);
                             break;
                         case AggregationType.GEOHASH:
-                            throw new NotAllowedException(aggregationModel.aggType + NOT_ALLOWED_AGGREGATION_TYPE + "Please use '_geoaggregate' instead. ");
+                            aggregationBuilder = buildGeohashAggregation(aggregationModel);
+                            break;
                         case AggregationType.HISTOGRAM:
                             aggregationBuilder = buildHistogramAggregation(aggregationModel);
                             break;
@@ -291,20 +300,18 @@ public class FluidSearch {
                     }
                 }
                 aggregations.remove(0);
-                if (aggregationBuilder instanceof GeoGridAggregationBuilder && aggregations.size()>0){
-                    throw new NotAllowedException(SUBAGGREGATION_NOT_ALLOWED);
-                }
                 if (aggregations.size() == 0){
                     return aggregationBuilder;
                 }
-                return aggregationBuilder.subAggregation(aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate));
+                counter++;
+                return aggregationBuilder.subAggregation(aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate, counter));
             }
         }
         return aggregationBuilder;
     }
     public FluidSearch aggregate(List<String> aggregations, Boolean isGeoAggregate) throws ArlasException{
         AggregationBuilder aggregationBuilder = null;
-        aggregationBuilder = aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate);
+        aggregationBuilder = aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate, 0);
         searchRequestBuilder =searchRequestBuilder.setSize(0).addAggregation(aggregationBuilder);
         return this;
     }
