@@ -11,10 +11,7 @@ import io.arlas.server.model.AggregationModel;
 import io.arlas.server.model.ArlasAggregation;
 import io.arlas.server.model.ArlasMetric;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.rest.explore.enumerations.AggregationOrder;
-import io.arlas.server.rest.explore.enumerations.AggregationType;
-import io.arlas.server.rest.explore.enumerations.DateInterval;
-import io.arlas.server.rest.explore.enumerations.MetricAggregationType;
+import io.arlas.server.rest.explore.enumerations.*;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.DateAggregationInterval;
 import io.arlas.server.utils.ParamsParser;
@@ -58,6 +55,8 @@ public class FluidSearch {
     public static final String INVALID_SIZE = "Invalid size parameter.";
     public static final String INVALID_FROM = "Invalid from parameter.";
     public static final String INVALID_DATE_UNIT = "Invalid date unit.";
+    public static final String INVALID_ON_VALUE = "Invalid 'on-' value ";
+    public static final String INVALID_ORDER_VALUE = "Invalid 'on-' value ";
     public static final String DATEHISTOGRAM_AGG = "Datehistogram aggregation";
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
@@ -68,8 +67,14 @@ public class FluidSearch {
     public static final String NO_TERM_INTERVAL = "'interval-' should not be specified for term aggregation.";
     public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
     public static final String NO_SIZE_TO_SPECIFY = "'size-' should not be specified for this aggregation.";
+    public static final String NO_ORDER_ON_TO_SPECIFY = "'order-' and 'on-' should not be specified for this aggregation.";
     public static final String COLLECT_FCT_NOT_SPECIFIED = "The aggregation function 'collect_fct' is not specified.";
     public static final String COLLECT_FIELD_NOT_SPECIFIED = "The aggregation field 'collect_field' is not specified.";
+    public static final String ORDER_NOT_SPECIFIED = "'order-' is not specified.";
+    public static final String ON_NOT_SPECIFIED = "'on-' is not specified.";
+    public static final String ON_PARAM_NOT_ALLOWED = " is not allowd for histogram and datehistogram aggregations.";
+    public static final String ORDER_ON_RESULT_NOT_ALLOWED = "'on-result' sorts 'collect_field' and 'collect_fct' results. Please specify 'collect_field' and 'collect_fct'.";
+
 
 
     private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
@@ -410,8 +415,6 @@ public class FluidSearch {
             }
             if (metricAggregation != null){
                 aggregationBuilder.subAggregation(metricAggregation);
-                //TODO : order and on for later
-                //aggregationBuilder = orderCollectField(aggregationModel,aggregationBuilder, metricAggregation.getName());
             }
         }
         else if (aggregationModel.aggCollectField != null && aggregationModel.aggCollectFct == null){
@@ -429,37 +432,73 @@ public class FluidSearch {
             else
                 throw new BadRequestException(NO_SIZE_TO_SPECIFY);
         }
+        aggregationBuilder = setOrder(aggregationModel,aggregationBuilder, metricAggregation);
         return aggregationBuilder;
     }
 
-    private ValuesSourceAggregationBuilder orderCollectField(AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, String metricAggregationName) throws ArlasException{
+    private ValuesSourceAggregationBuilder setOrder(AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, ValuesSourceAggregationBuilder.LeafOnly metricAggregation) throws ArlasException{
         String order = aggregationModel.aggOrder;
-        //TODO: count or term not possible, see with sylvain
-        if (order != null) {
+        String on = aggregationModel.aggOn;
+        if (order != null && on != null) {
             Boolean asc;
-            if (order.equals(AggregationOrder.asc.toString())){
+            Histogram.Order histogramOrder = null;
+            Terms.Order termsOrder = null;
+            if (order.equals(AggregationOrder.asc.name()))
                 asc = true;
-            }
-            else if (order.equals(AggregationOrder.desc.toString())){
+            else if (order.equals(AggregationOrder.desc.name()))
                 asc = false;
-            }else{
-                throw new InvalidParameterException(order + " is invalid.");
+            else
+                throw new InvalidParameterException(INVALID_ORDER_VALUE + order);
+
+            if (on.equals(AggregationOn.field.name())){
+                if (aggregationBuilder instanceof TermsAggregationBuilder)
+                    termsOrder = Terms.Order.term(asc);
+                else
+                    throw new NotAllowedException(on + ON_PARAM_NOT_ALLOWED);
+            }
+            else if (on.equals(AggregationOn.count.name())){
+                if (aggregationBuilder instanceof TermsAggregationBuilder)
+                    termsOrder = Terms.Order.count(asc);
+                else
+                    throw new NotAllowedException(on + ON_PARAM_NOT_ALLOWED);
+            }
+            else if (on.equals(AggregationOn.result.name())){
+                if (metricAggregation != null){
+                    termsOrder = Terms.Order.aggregation(metricAggregation.getName(),asc);
+                    histogramOrder = Histogram.Order.aggregation(metricAggregation.getName(),asc);
+                }
+                else{
+                    throw new BadRequestException(ORDER_ON_RESULT_NOT_ALLOWED);
+                }
+            }
+            else {
+                throw new InvalidParameterException(INVALID_ON_VALUE + on);
             }
             switch (aggregationBuilder.getName()) {
                 case DATEHISTOGRAM_AGG:
-                    ((DateHistogramAggregationBuilder)aggregationBuilder).order(Histogram.Order.aggregation(metricAggregationName,asc));
+                    aggregationBuilder = ((DateHistogramAggregationBuilder)aggregationBuilder).order(histogramOrder);
                     break;
                 case HISTOGRAM_AGG:
-                    ((HistogramAggregationBuilder)aggregationBuilder).order(Histogram.Order.aggregation(metricAggregationName,asc));
+                    aggregationBuilder = ((HistogramAggregationBuilder)aggregationBuilder).order(histogramOrder);
                     break;
                 case TERM_AGG:
-                    ((TermsAggregationBuilder)aggregationBuilder).order(Terms.Order.aggregation(metricAggregationName,asc));
+                    aggregationBuilder = ((TermsAggregationBuilder)aggregationBuilder).order(termsOrder);
                     break;
-                default: throw new InvalidParameterException("The order is not supported for geohash aggregationModel");
+                default:
+                    throw new NotAllowedException(NO_ORDER_ON_TO_SPECIFY);
             }
         }
-        else {
-            // no order specified
+        else if (order != null && on == null){
+            if (aggregationBuilder instanceof GeoGridAggregationBuilder)
+                throw new NotAllowedException(NO_ORDER_ON_TO_SPECIFY);
+            else
+                throw new BadRequestException(ON_NOT_SPECIFIED);
+        }
+        else if (order == null && on != null){
+            if (aggregationBuilder instanceof GeoGridAggregationBuilder)
+                throw new NotAllowedException(NO_ORDER_ON_TO_SPECIFY);
+            else
+                throw new BadRequestException(ORDER_NOT_SPECIFIED);
         }
         return aggregationBuilder;
     }

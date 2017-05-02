@@ -107,10 +107,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                             "\n \n" +
                             "       avg,cardinality,max,min,sum" +
                             "\n \n" +
-                            "- {order} is set to sort the aggregation result on the field name or on the result itself. " +
-                            "It's values are 'asc' or 'desc'. " +
+                            "- {order} is set to sort the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation. " +
+                            "Its values are 'asc' or 'desc'. " +
                             "\n \n" +
-                            "- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. " +
+                            "- {on} is set to specify whether the {order} is on the field name, on the count of the aggregation or on the result of a metric sub-aggregation. Its values are 'field', 'count' or 'result'. " +
                             "\n \n" +
                             "- {size} Defines how many buckets should be returned. " +
                             "\n \n" +

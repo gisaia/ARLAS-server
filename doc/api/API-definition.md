@@ -66,11 +66,13 @@ The sub-parameters possible values are:
 | **format**        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.         |
 | **collect_field** | `{collect_field}`                               | The field used to aggregate collections. |
 | **collect_fct**   | `avg,cardinality,max,min,sum`                   | The aggregation function to apply to collections on the specified **collect_field**. |
-| **order**         | `asc,desc`                                      | Sorts the aggregation result on the field name or on the result itself, ascending or descending. |
-| **on**            | `field,result`                                  | {on} is set to specify whether the **order** is on the field name or the result. |
+| **order**         | `asc,desc`                                      | Sorts the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation, ascending or descending. |
+| **on**            | `field,count,result` (2)                        | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
 | **size**          | {size}                                          | Defines how many buckets should be returned. |
 
 (1) Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
+
+(2) When **on** is `result`, then (**collect_field**,**collect_fct**) should be specified
 
 | Service             | Aggregation type    | Interval                                 | Description                              |
 | ------------------- | ------------------- | ---------------------------------------- | ---------------------------------------- |
