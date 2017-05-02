@@ -39,7 +39,7 @@ The [`aggregation`] url part allows the following parameters to be specified:
 
 The agg parameter should be given in the following format :
 
-- {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}
+- {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}
 
 Where the `{type}:{field}` part is mandatory
 
@@ -51,21 +51,24 @@ The other parts must be specified or not depending on the aggregation type. All 
 | **format**                | `datehistogram`                     | optional (default value : `yyyy-MM-dd-HH:mm:ss`) |
 | (**collect_field**,**collect_fct**) | All types                 | optional |
 | (**order**,**on**)        | All types                           | optional |
+| **size**                  | `term, geohash`                     | optional |
 
-> Example: `agg=datehistogram:date:interval-20day:format-dd.MM.yyyy`&`agg=term:sexe:collect_field-age:collect_fct-avg:order-asc:on-result`
+
+> Example: `agg=datehistogram:date:interval-20day:format-dd.MM.yyyy`&`agg=term:sexe:collect_field-age:collect_fct-avg:order-asc:on-result:size-5`
 
 The sub-parameters possible values are:
 
 | Parameter         | Values                                          | Description                              |
 | ----------------- | ----------------------------------------------  | ---------------------------------------- |
 | **{type}**        | `datehistogram`, `histogram`, `geohash`, `term` | Type of aggregation |
-| **{field}**       | {field}  | Aggregates on {field} |
+| **{field}**       | {field}                                         | Aggregates on {field} |
 | **interval**      | {interval}                                      | Size of the intervals.(1)                   |
 | **format**        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.         |
 | **collect_field** | `{collect_field}`                               | The field used to aggregate collections. |
 | **collect_fct**   | `avg,cardinality,max,min,sum`                   | The aggregation function to apply to collections on the specified **collect_field**. |
-| **order**         | `asc,desc`                                      | Sort the aggregation result on the field name or on the result itself, ascending or descending. |
+| **order**         | `asc,desc`                                      | Sorts the aggregation result on the field name or on the result itself, ascending or descending. |
 | **on**            | `field,result`                                  | {on} is set to specify whether the **order** is on the field name or the result. |
+| **size**          | {size}                                          | Defines how many buckets should be returned. |
 
 (1) Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
 

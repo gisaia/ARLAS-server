@@ -64,7 +64,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(name ="agg",
                     value="- The agg parameter should be given in the following formats:  " +
                             "\n \n" +
-                            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} " +
+                            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size} " +
                             "\n \n" +
                             "Where :" +
                             "\n \n" +
@@ -77,6 +77,8 @@ public class AggregateRESTService extends ExploreRESTServices {
                             "   - (**collect_field**,**collect_fct**) couple is optional for all aggregation types." +
                             "\n \n" +
                             "   - (**order**,**on**) couple is optional for all aggregation types." +
+                            "\n \n" +
+                            "   - **size** is optional for term and geohash, and must not be specified for the other types." +
                             "\n \n" +
                             "- {type} possible values are : " +
                             "\n \n" +
@@ -104,6 +106,8 @@ public class AggregateRESTService extends ExploreRESTServices {
                             "It's values are 'asc' or 'desc'. " +
                             "\n \n" +
                             "- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. " +
+                            "\n \n" +
+                            "- {size} Defines how many buckets should be returned. " +
                             "\n \n" +
                             "**agg** parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. "+
                             "\n \n" +
