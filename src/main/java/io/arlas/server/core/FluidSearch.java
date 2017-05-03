@@ -72,7 +72,7 @@ public class FluidSearch {
     public static final String COLLECT_FIELD_NOT_SPECIFIED = "The aggregation field 'collect_field' is not specified.";
     public static final String ORDER_NOT_SPECIFIED = "'order-' is not specified.";
     public static final String ON_NOT_SPECIFIED = "'on-' is not specified.";
-    public static final String ON_PARAM_NOT_ALLOWED = " is not allowd for histogram and datehistogram aggregations.";
+    public static final String ORDER_PARAM_NOT_ALLOWED = "Order is not allowd for geohash aggregation.";
     public static final String ORDER_ON_RESULT_NOT_ALLOWED = "'on-result' sorts 'collect_field' and 'collect_fct' results. Please specify 'collect_field' and 'collect_fct'.";
 
 
@@ -409,7 +409,7 @@ public class FluidSearch {
                     metricAggregation = AggregationBuilders.min("min").field(aggregationModel.aggCollectField);
                     break;
                 case MetricAggregationType.SUM:
-                    metricAggregation = AggregationBuilders.avg("sum").field(aggregationModel.aggCollectField);
+                    metricAggregation = AggregationBuilders.sum("sum").field(aggregationModel.aggCollectField);
                     break;
                 default: throw new InvalidParameterException(aggregationModel.aggCollectFct + " function is invalid.");
             }
@@ -432,75 +432,76 @@ public class FluidSearch {
             else
                 throw new BadRequestException(NO_SIZE_TO_SPECIFY);
         }
-        aggregationBuilder = setOrder(aggregationModel,aggregationBuilder, metricAggregation);
+        setOrder(aggregationModel,aggregationBuilder, metricAggregation);
         return aggregationBuilder;
     }
 
-    private ValuesSourceAggregationBuilder setOrder(AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, ValuesSourceAggregationBuilder.LeafOnly metricAggregation) throws ArlasException{
+    private void setOrder(AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, ValuesSourceAggregationBuilder.LeafOnly metricAggregation) throws ArlasException{
         String order = aggregationModel.aggOrder;
         String on = aggregationModel.aggOn;
         if (order != null && on != null) {
-            Boolean asc;
-            Histogram.Order histogramOrder = null;
-            Terms.Order termsOrder = null;
-            if (order.equals(AggregationOrder.asc.name()))
-                asc = true;
-            else if (order.equals(AggregationOrder.desc.name()))
-                asc = false;
-            else
-                throw new InvalidParameterException(INVALID_ORDER_VALUE + order);
+            if (!(aggregationBuilder instanceof GeoGridAggregationBuilder)){
+                Boolean asc;
+                Histogram.Order histogramOrder = null;
+                Terms.Order termsOrder = null;
+                if (order.equals(AggregationOrder.asc.name()))
+                    asc = true;
+                else if (order.equals(AggregationOrder.desc.name()))
+                    asc = false;
+                else
+                    throw new InvalidParameterException(INVALID_ORDER_VALUE + order);
 
-            if (on.equals(AggregationOn.field.name())){
-                if (aggregationBuilder instanceof TermsAggregationBuilder)
+                if (on.equals(AggregationOn.field.name())) {
                     termsOrder = Terms.Order.term(asc);
-                else
-                    throw new NotAllowedException(on + ON_PARAM_NOT_ALLOWED);
-            }
-            else if (on.equals(AggregationOn.count.name())){
-                if (aggregationBuilder instanceof TermsAggregationBuilder)
+                    if (asc)
+                        histogramOrder = Histogram.Order.KEY_ASC;
+                    else
+                        histogramOrder = Histogram.Order.KEY_DESC;
+                } else if (on.equals(AggregationOn.count.name())) {
                     termsOrder = Terms.Order.count(asc);
-                else
-                    throw new NotAllowedException(on + ON_PARAM_NOT_ALLOWED);
-            }
-            else if (on.equals(AggregationOn.result.name())){
-                if (metricAggregation != null){
-                    termsOrder = Terms.Order.aggregation(metricAggregation.getName(),asc);
-                    histogramOrder = Histogram.Order.aggregation(metricAggregation.getName(),asc);
+                    if (asc)
+                        histogramOrder = Histogram.Order.COUNT_ASC;
+                    else
+                        histogramOrder = Histogram.Order.COUNT_DESC;
+                } else if (on.equals(AggregationOn.result.name())) {
+                    if (metricAggregation != null) {
+                        termsOrder = Terms.Order.aggregation(metricAggregation.getName(), asc);
+                        histogramOrder = Histogram.Order.aggregation(metricAggregation.getName(), asc);
+                    } else {
+                        throw new BadRequestException(ORDER_ON_RESULT_NOT_ALLOWED);
+                    }
+                } else {
+                    throw new InvalidParameterException(INVALID_ON_VALUE + on);
                 }
-                else{
-                    throw new BadRequestException(ORDER_ON_RESULT_NOT_ALLOWED);
+                switch (aggregationBuilder.getName()) {
+                    case DATEHISTOGRAM_AGG:
+                        aggregationBuilder = ((DateHistogramAggregationBuilder) aggregationBuilder).order(histogramOrder);
+                        break;
+                    case HISTOGRAM_AGG:
+                        aggregationBuilder = ((HistogramAggregationBuilder) aggregationBuilder).order(histogramOrder);
+                        break;
+                    case TERM_AGG:
+                        aggregationBuilder = ((TermsAggregationBuilder) aggregationBuilder).order(termsOrder);
+                        break;
+                    default:
+                        throw new NotAllowedException(NO_ORDER_ON_TO_SPECIFY);
                 }
-            }
-            else {
-                throw new InvalidParameterException(INVALID_ON_VALUE + on);
-            }
-            switch (aggregationBuilder.getName()) {
-                case DATEHISTOGRAM_AGG:
-                    aggregationBuilder = ((DateHistogramAggregationBuilder)aggregationBuilder).order(histogramOrder);
-                    break;
-                case HISTOGRAM_AGG:
-                    aggregationBuilder = ((HistogramAggregationBuilder)aggregationBuilder).order(histogramOrder);
-                    break;
-                case TERM_AGG:
-                    aggregationBuilder = ((TermsAggregationBuilder)aggregationBuilder).order(termsOrder);
-                    break;
-                default:
-                    throw new NotAllowedException(NO_ORDER_ON_TO_SPECIFY);
+            }else {
+                throw new NotAllowedException(ORDER_PARAM_NOT_ALLOWED);
             }
         }
         else if (order != null && on == null){
             if (aggregationBuilder instanceof GeoGridAggregationBuilder)
-                throw new NotAllowedException(NO_ORDER_ON_TO_SPECIFY);
+                throw new NotAllowedException(ORDER_PARAM_NOT_ALLOWED);
             else
                 throw new BadRequestException(ON_NOT_SPECIFIED);
         }
         else if (order == null && on != null){
             if (aggregationBuilder instanceof GeoGridAggregationBuilder)
-                throw new NotAllowedException(NO_ORDER_ON_TO_SPECIFY);
+                throw new NotAllowedException(ORDER_PARAM_NOT_ALLOWED);
             else
                 throw new BadRequestException(ORDER_NOT_SPECIFIED);
         }
-        return aggregationBuilder;
     }
 
     private Integer tryParse(String text) {
