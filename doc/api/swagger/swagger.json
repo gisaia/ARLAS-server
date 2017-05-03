@@ -1,0 +1,1610 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Explore the content of ARLAS collections",
+    "version" : "V0.1.0",
+    "title" : "ARLAS Exploration API",
+    "contact" : {
+      "name" : "Gisaia",
+      "url" : "http://www.gisaia.com/",
+      "email" : "contact@gisaia.com"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "basePath" : "/arlas",
+  "tags" : [ {
+    "name" : "collections"
+  }, {
+    "name" : "explore"
+  } ],
+  "schemes" : [ "http" ],
+  "paths" : {
+    "/collections/{collection}" : {
+      "get" : {
+        "tags" : [ "collections" ],
+        "summary" : "Get a collection reference",
+        "description" : "Get a collection reference in ARLAS",
+        "operationId" : "get",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/CollectionReference"
+            }
+          },
+          "404" : {
+            "description" : "Collection not found.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "collections" ],
+        "summary" : "Add a collection reference",
+        "description" : "Add a collection reference in ARLAS",
+        "operationId" : "put",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "collectionParams",
+          "description" : "collectionParams",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/CollectionReferenceParameters"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/CollectionReference"
+            }
+          },
+          "400" : {
+            "description" : "JSON parameter malformed.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "collections" ],
+        "summary" : "Delete a collection reference",
+        "description" : "Delete a collection reference in ARLAS",
+        "operationId" : "delete",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasSuccess"
+            }
+          },
+          "404" : {
+            "description" : "Collection not found.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          }
+        }
+      }
+    },
+    "/collections" : {
+      "get" : {
+        "tags" : [ "collections" ],
+        "summary" : "Get all collection references",
+        "description" : "Get all collection references in ARLAS",
+        "operationId" : "getAll",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/CollectionReference"
+              }
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          }
+        }
+      }
+    },
+    "/explore/{collections}/_aggregate" : {
+      "get" : {
+        "tags" : [ "explore" ],
+        "summary" : "Aggregate",
+        "description" : "Aggregate the elements in the collection(s), given the filters and the aggregation parameters",
+        "operationId" : "aggregate",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collections",
+          "in" : "path",
+          "description" : "collections, comma separated",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "agg",
+          "in" : "query",
+          "description" : "- The agg parameter should be given in the following formats:  \n \n       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} \n \nWhere the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. \n \n- {type} possible values are : \n \n       datehistogram, histogram, term. \n \n- {interval} possible values depends on {type}. \n \n       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). \n \n       If {type} = histogram, then {interval} = {size}. \n \n       If {type} = term, then interval-{interval} is not needed. \n \n- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. \n \n- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. \n \n  {collect_fct} possible values are : \n \n       avg,cardinality,max,min,sum\n \n- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. \n \n- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. \n \nagg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. \n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+          "required" : true,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "f",
+          "in" : "query",
+          "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator   |                   Description                      | value type\n \n       :          |  {fieldName} equals {value}                        | numeric or strings \n \n       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric \n \n       :gt:       |  {fieldName} is greater than {value}               | numeric \n \n       :lte:      |  {fieldName} is less than or equal to {value}      | numeric \n \n       :lt:       |  {fieldName}  is less than {value}                 | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "A full text search",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "before",
+          "in" : "query",
+          "description" : "Any element having its point in time reference before the given timestamp",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "after",
+          "in" : "query",
+          "description" : "Any element having its point in time reference after the given timestamp",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "pwithin",
+          "in" : "query",
+          "description" : "Any element having its centroid contained within the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "gwithin",
+          "in" : "query",
+          "description" : "Any element having its geometry contained within the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "gintersect",
+          "in" : "query",
+          "description" : "Any element having its geometry intersecting the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notpwithin",
+          "in" : "query",
+          "description" : "Any element having its centroid outside the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notgwithin",
+          "in" : "query",
+          "description" : "Any element having its geometry outside the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notgintersect",
+          "in" : "query",
+          "description" : "Any element having its geometry not intersecting the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "human",
+          "in" : "query",
+          "description" : "Human readable print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
+          "required" : false,
+          "type" : "integer",
+          "default" : 10,
+          "minimum" : 1,
+          "format" : "int32"
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "From index to start the search from. Defaults to 0.",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "minimum" : 1,
+          "format" : "int32"
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "- Sort the result on the given fields ascending or descending. \n \n- Fields can be provided several times by separating them with a comma. The order matters. \n \n- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.\n \n- For aggregation, provide the `agg` keyword as the `{field}`.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi",
+          "x-example" : "-country,city"
+        }, {
+          "name" : "max-age-cache",
+          "in" : "query",
+          "description" : "max-age-cache",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation"
+          }
+        }
+      }
+    },
+    "/explore/{collections}/_geoaggregate" : {
+      "get" : {
+        "tags" : [ "explore" ],
+        "summary" : "Aggregate",
+        "description" : "Aggregate the elements in the collection(s), given the filters and the aggregation parameters",
+        "operationId" : "geoaggregate",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collections",
+          "in" : "path",
+          "description" : "collections, comma separated",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "agg",
+          "in" : "query",
+          "description" : "- The agg parameter should be given in the following formats:  \n \n       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on} \n \nWhere the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters. \n \n- {type} possible value is : geohash. \n \n- {interval} must be a numeric value. \n \n- format-{format} is to be specified when {type} = datehistogram. It's the date format for key aggregation. \n \n- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. \n \n  {collect_fct} possible values are : \n \n       avg,cardinality,max,min,sum\n \n- {order} is set to sort the aggregation result on the field name or on the result itself. It's values are 'asc' or 'desc'. \n \n- {on} is set to specify whether the {order} is on the field name or the result. It's values are 'field' or 'result'. \n \nagg parameter in this case is not multiple. \n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+          "required" : true,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "f",
+          "in" : "query",
+          "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator   |                   Description                      | value type\n \n       :          |  {fieldName} equals {value}                        | numeric or strings \n \n       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric \n \n       :gt:       |  {fieldName} is greater than {value}               | numeric \n \n       :lte:      |  {fieldName} is less than or equal to {value}      | numeric \n \n       :lt:       |  {fieldName}  is less than {value}                 | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "A full text search",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "before",
+          "in" : "query",
+          "description" : "Any element having its point in time reference before the given timestamp",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "after",
+          "in" : "query",
+          "description" : "Any element having its point in time reference after the given timestamp",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "pwithin",
+          "in" : "query",
+          "description" : "Any element having its centroid contained within the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "gwithin",
+          "in" : "query",
+          "description" : "Any element having its geometry contained within the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "gintersect",
+          "in" : "query",
+          "description" : "Any element having its geometry intersecting the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notpwithin",
+          "in" : "query",
+          "description" : "Any element having its centroid outside the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notgwithin",
+          "in" : "query",
+          "description" : "Any element having its geometry outside the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notgintersect",
+          "in" : "query",
+          "description" : "Any element having its geometry not intersecting the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "human",
+          "in" : "query",
+          "description" : "Human readable print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
+          "required" : false,
+          "type" : "integer",
+          "default" : 10,
+          "minimum" : 1,
+          "format" : "int32"
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "From index to start the search from. Defaults to 0.",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "minimum" : 1,
+          "format" : "int32"
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sort the result on a given field, ascending or descending :  '{fieldName}:(ASC, DESC)' . \n \nThe parameter can be provided several times. The order matters. \n \nFor aggregation, provide the 'agg' keyword as the {fieldName}.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi",
+          "x-example" : "city:DESC"
+        }, {
+          "name" : "max-age-cache",
+          "in" : "query",
+          "description" : "max-age-cache",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation"
+          }
+        }
+      }
+    },
+    "/explore/{collection}/_count" : {
+      "get" : {
+        "tags" : [ "explore" ],
+        "summary" : "Count",
+        "description" : "Count the number of elements found in the collection(s), given the filters",
+        "operationId" : "count",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collections",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "f",
+          "in" : "query",
+          "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator   |                   Description                      | value type\n \n       :          |  {fieldName} equals {value}                        | numeric or strings \n \n       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric \n \n       :gt:       |  {fieldName} is greater than {value}               | numeric \n \n       :lte:      |  {fieldName} is less than or equal to {value}      | numeric \n \n       :lt:       |  {fieldName}  is less than {value}                 | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "A full text search",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "before",
+          "in" : "query",
+          "description" : "Any element having its point in time reference before the given timestamp",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "after",
+          "in" : "query",
+          "description" : "Any element having its point in time reference after the given timestamp",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "pwithin",
+          "in" : "query",
+          "description" : "Any element having its centroid contained within the given BBOX (top,left,bottom,right)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "gwithin",
+          "in" : "query",
+          "description" : "Any element having its geometry contained within the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "gintersect",
+          "in" : "query",
+          "description" : "Any element having its geometry intersecting the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notpwithin",
+          "in" : "query",
+          "description" : "Any element having its centroid outside the given BBOX (top,left,bottom,right)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notgwithin",
+          "in" : "query",
+          "description" : "Any element having its geometry outside the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notgintersect",
+          "in" : "query",
+          "description" : "Any element having its geometry not intersecting the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "human",
+          "in" : "query",
+          "description" : "Human readable print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "max-age-cache",
+          "in" : "query",
+          "description" : "max-age-cache",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation"
+          }
+        }
+      }
+    },
+    "/explore/{collection}/_describe" : {
+      "get" : {
+        "tags" : [ "explore" ],
+        "summary" : "Describe",
+        "description" : "Describe the structure and the content of the given collection. ",
+        "operationId" : "describe",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "human",
+          "in" : "query",
+          "description" : "Human readable print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "max-age-cache",
+          "in" : "query",
+          "description" : "max-age-cache",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation"
+          }
+        }
+      }
+    },
+    "/explore/_list" : {
+      "get" : {
+        "tags" : [ "explore" ],
+        "summary" : "List",
+        "description" : "List the collections configured in ARLAS. ",
+        "operationId" : "list",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "max-age-cache",
+          "in" : "query",
+          "description" : "max-age-cache",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation"
+          }
+        }
+      }
+    },
+    "/explore/{collection}/_geosearch" : {
+      "get" : {
+        "tags" : [ "explore" ],
+        "summary" : "Geoearch",
+        "description" : "Search and return the elements found in the collection(s) as features, given the filters",
+        "operationId" : "geosearch",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "f",
+          "in" : "query",
+          "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator   |                   Description                      | value type\n \n       :          |  {fieldName} equals {value}                        | numeric or strings \n \n       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric \n \n       :gt:       |  {fieldName} is greater than {value}               | numeric \n \n       :lte:      |  {fieldName} is less than or equal to {value}      | numeric \n \n       :lt:       |  {fieldName}  is less than {value}                 | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "A full text search",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "before",
+          "in" : "query",
+          "description" : "Any element having its point in time reference before the given timestamp",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "after",
+          "in" : "query",
+          "description" : "Any element having its point in time reference after the given timestamp",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "pwithin",
+          "in" : "query",
+          "description" : "Any element having its centroid contained within the given BBOX (top,left,bottom,right)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "gwithin",
+          "in" : "query",
+          "description" : "Any element having its geometry contained within the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "gintersect",
+          "in" : "query",
+          "description" : "Any element having its geometry intersecting the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notpwithin",
+          "in" : "query",
+          "description" : "Any element having its centroid outside the given BBOX (top,left,bottom,right)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notgwithin",
+          "in" : "query",
+          "description" : "Any element having its geometry outside the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notgintersect",
+          "in" : "query",
+          "description" : "Any element having its geometry not intersecting the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "human",
+          "in" : "query",
+          "description" : "Human readable print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "include",
+          "in" : "query",
+          "description" : "List the name patterns of the field to be included in the result. Seperate patterns with a comma.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "example" : "*",
+            "default" : "*"
+          },
+          "collectionFormat" : "multi",
+          "x-example" : "*"
+        }, {
+          "name" : "exclude",
+          "in" : "query",
+          "description" : "List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "example" : "city,state",
+            "default" : "*"
+          },
+          "collectionFormat" : "multi",
+          "x-example" : "city,state"
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
+          "required" : false,
+          "type" : "integer",
+          "default" : 10,
+          "minimum" : 1,
+          "format" : "int32"
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "From index to start the search from. Defaults to 0.",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "minimum" : 0,
+          "format" : "int32"
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "- Sort the result on the given fields ascending or descending. \n \n- Fields can be provided several times by separating them with a comma. The order matters. \n \n- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.\n \n- For aggregation, provide the `agg` keyword as the `{field}`.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "example" : "-country,city"
+          },
+          "collectionFormat" : "multi",
+          "x-example" : "-country,city"
+        }, {
+          "name" : "max-age-cache",
+          "in" : "query",
+          "description" : "max-age-cache",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation"
+          }
+        }
+      }
+    },
+    "/explore/{collection}/_search" : {
+      "get" : {
+        "tags" : [ "explore" ],
+        "summary" : "Search",
+        "description" : "Search and return the elements found in the collection, given the filters",
+        "operationId" : "search",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "f",
+          "in" : "query",
+          "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator   |                   Description                      | value type\n \n       :          |  {fieldName} equals {value}                        | numeric or strings \n \n       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric \n \n       :gt:       |  {fieldName} is greater than {value}               | numeric \n \n       :lte:      |  {fieldName} is less than or equal to {value}      | numeric \n \n       :lt:       |  {fieldName}  is less than {value}                 | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "A full text search",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "before",
+          "in" : "query",
+          "description" : "Any element having its point in time reference before the given timestamp",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "after",
+          "in" : "query",
+          "description" : "Any element having its point in time reference after the given timestamp",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "pwithin",
+          "in" : "query",
+          "description" : "Any element having its centroid contained within the given BBOX (top,left,bottom,right)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "gwithin",
+          "in" : "query",
+          "description" : "Any element having its geometry contained within the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "gintersect",
+          "in" : "query",
+          "description" : "Any element having its geometry intersecting the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notpwithin",
+          "in" : "query",
+          "description" : "Any element having its centroid outside the given BBOX (top,left,bottom,right)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notgwithin",
+          "in" : "query",
+          "description" : "Any element having its geometry outside the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notgintersect",
+          "in" : "query",
+          "description" : "Any element having its geometry not intersecting the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "human",
+          "in" : "query",
+          "description" : "Human readable print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "include",
+          "in" : "query",
+          "description" : "List the name patterns of the field to be included in the result. Seperate patterns with a comma.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "example" : "*",
+            "default" : "*"
+          },
+          "collectionFormat" : "multi",
+          "x-example" : "*"
+        }, {
+          "name" : "exclude",
+          "in" : "query",
+          "description" : "List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "example" : "city,state",
+            "default" : "*"
+          },
+          "collectionFormat" : "multi",
+          "x-example" : "city,state"
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
+          "required" : false,
+          "type" : "integer",
+          "default" : 10,
+          "minimum" : 1,
+          "format" : "int32"
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "From index to start the search from. Defaults to 0.",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "minimum" : 0,
+          "format" : "int32"
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "- Sort the result on the given fields ascending or descending. \n \n- Fields can be provided several times by separating them with a comma. The order matters. \n \n- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.\n \n- For aggregation, provide the `agg` keyword as the `{field}`.",
+          "required" : false,
+          "type" : "string",
+          "x-example" : "-country,city"
+        }, {
+          "name" : "max-age-cache",
+          "in" : "query",
+          "description" : "max-age-cache",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasHits"
+            }
+          }
+        }
+      }
+    },
+    "/explore/{collections}/_suggest" : {
+      "get" : {
+        "tags" : [ "explore" ],
+        "summary" : "Suggest",
+        "description" : "Suggest the the n (n=size) most relevant terms given the filters",
+        "operationId" : "suggest",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collections",
+          "in" : "path",
+          "description" : "collections, comma separated",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "f",
+          "in" : "query",
+          "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator   |                   Description                      | value type\n \n       :          |  {fieldName} equals {value}                        | numeric or strings \n \n       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric \n \n       :gt:       |  {fieldName} is greater than {value}               | numeric \n \n       :lte:      |  {fieldName} is less than or equal to {value}      | numeric \n \n       :lt:       |  {fieldName}  is less than {value}                 | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "A full text search",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "before",
+          "in" : "query",
+          "description" : "Any element having its point in time reference before the given timestamp",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "after",
+          "in" : "query",
+          "description" : "Any element having its point in time reference after the given timestamp",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "pwithin",
+          "in" : "query",
+          "description" : "Any element having its centroid contained within the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "gwithin",
+          "in" : "query",
+          "description" : "Any element having its geometry contained within the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "gintersect",
+          "in" : "query",
+          "description" : "Any element having its geometry intersecting the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notpwithin",
+          "in" : "query",
+          "description" : "Any element having its centroid outside the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notgwithin",
+          "in" : "query",
+          "description" : "Any element having its geometry outside the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "notgintersect",
+          "in" : "query",
+          "description" : "Any element having its geometry not intersecting the given geometry (WKT)",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "human",
+          "in" : "query",
+          "description" : "Human readable print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
+          "required" : false,
+          "type" : "integer",
+          "default" : 10,
+          "minimum" : 1,
+          "format" : "int32"
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "From index to start the search from. Defaults to 0.",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "minimum" : 1,
+          "format" : "int32"
+        }, {
+          "name" : "field",
+          "in" : "query",
+          "description" : "Name of the field to be used for retrieving the most relevant terms",
+          "required" : false,
+          "type" : "string",
+          "default" : "_all",
+          "x-example" : "recommended"
+        }, {
+          "name" : "max-age-cache",
+          "in" : "query",
+          "description" : "max-age-cache",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "CollectionReference" : {
+      "type" : "object",
+      "properties" : {
+        "collection_name" : {
+          "type" : "string",
+          "description" : "The collection name"
+        },
+        "params" : {
+          "description" : "The collection parameters",
+          "$ref" : "#/definitions/CollectionReferenceParameters"
+        }
+      },
+      "description" : "The reference to ARLAS collection that embed elasticsearch index description."
+    },
+    "CollectionReferenceParameters" : {
+      "type" : "object",
+      "properties" : {
+        "index_name" : {
+          "type" : "string",
+          "description" : "The collection's index name"
+        },
+        "type_name" : {
+          "type" : "string",
+          "description" : "The collection's type name"
+        },
+        "id_path" : {
+          "type" : "string",
+          "example" : "id",
+          "description" : "Path to the collection's id"
+        },
+        "geometry_path" : {
+          "type" : "string",
+          "example" : "geometry",
+          "description" : "Path to the collection's geometry"
+        },
+        "centroid_path" : {
+          "type" : "string",
+          "example" : "centroid",
+          "description" : "Path to the collection's centroid"
+        },
+        "timestamp_path" : {
+          "type" : "string",
+          "example" : "timestamp",
+          "description" : "Path to the collection's timestamp"
+        }
+      },
+      "description" : "The description of the elasticsearch index and the way ARLAS API will serve it."
+    },
+    "ArlasError" : {
+      "type" : "object",
+      "properties" : {
+        "status" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "message" : {
+          "type" : "string"
+        },
+        "error" : {
+          "type" : "string"
+        }
+      }
+    },
+    "ArlasSuccess" : {
+      "type" : "object",
+      "properties" : {
+        "status" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "message" : {
+          "type" : "string"
+        }
+      }
+    },
+    "ArlasAggregation" : {
+      "type" : "object"
+    },
+    "Crs" : {
+      "type" : "object",
+      "properties" : {
+        "type" : {
+          "type" : "string",
+          "enum" : [ "name", "link" ]
+        },
+        "properties" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "object"
+          }
+        }
+      }
+    },
+    "Feature" : {
+      "type" : "object",
+      "properties" : {
+        "crs" : {
+          "$ref" : "#/definitions/Crs"
+        },
+        "bbox" : {
+          "type" : "array",
+          "items" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "properties" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "object"
+          }
+        },
+        "geometry" : {
+          "$ref" : "#/definitions/GeoJsonObject"
+        },
+        "id" : {
+          "type" : "string"
+        }
+      }
+    },
+    "FeatureCollection" : {
+      "type" : "object",
+      "properties" : {
+        "crs" : {
+          "$ref" : "#/definitions/Crs"
+        },
+        "bbox" : {
+          "type" : "array",
+          "items" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "features" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Feature"
+          }
+        }
+      }
+    },
+    "GeoJsonObject" : {
+      "type" : "object",
+      "discriminator" : "type",
+      "properties" : {
+        "crs" : {
+          "$ref" : "#/definitions/Crs"
+        },
+        "bbox" : {
+          "type" : "array",
+          "items" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }
+      }
+    },
+    "GeometryCollection" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/GeoJsonObject"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "geometries" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/GeoJsonObject"
+            }
+          }
+        }
+      } ]
+    },
+    "LineString" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/GeoJsonObject"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "coordinates" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/LngLatAlt"
+            }
+          }
+        }
+      } ]
+    },
+    "LngLatAlt" : {
+      "type" : "object",
+      "properties" : {
+        "longitude" : {
+          "type" : "number",
+          "format" : "double"
+        },
+        "latitude" : {
+          "type" : "number",
+          "format" : "double"
+        },
+        "altitude" : {
+          "type" : "number",
+          "format" : "double"
+        },
+        "additionalElements" : {
+          "type" : "array",
+          "items" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }
+      }
+    },
+    "MultiLineString" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/GeoJsonObject"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "coordinates" : {
+            "type" : "array",
+            "items" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/LngLatAlt"
+              }
+            }
+          }
+        }
+      } ]
+    },
+    "MultiPoint" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/GeoJsonObject"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "coordinates" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/LngLatAlt"
+            }
+          }
+        }
+      } ]
+    },
+    "MultiPolygon" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/GeoJsonObject"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "coordinates" : {
+            "type" : "array",
+            "items" : {
+              "type" : "array",
+              "items" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/definitions/LngLatAlt"
+                }
+              }
+            }
+          }
+        }
+      } ]
+    },
+    "Point" : {
+      "type" : "object",
+      "properties" : {
+        "crs" : {
+          "$ref" : "#/definitions/Crs"
+        },
+        "bbox" : {
+          "type" : "array",
+          "items" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "coordinates" : {
+          "$ref" : "#/definitions/LngLatAlt"
+        }
+      }
+    },
+    "Polygon" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/GeoJsonObject"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "coordinates" : {
+            "type" : "array",
+            "items" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/LngLatAlt"
+              }
+            }
+          }
+        }
+      } ]
+    },
+    "ArlasHit" : {
+      "type" : "object",
+      "properties" : {
+        "md" : {
+          "description" : "The hit's metadata",
+          "$ref" : "#/definitions/ArlasMD"
+        },
+        "data" : {
+          "type" : "object",
+          "description" : "The hit's data"
+        }
+      },
+      "description" : "A hit retrieved from an ARLAS Collection"
+    },
+    "ArlasHits" : {
+      "type" : "object",
+      "properties" : {
+        "hits" : {
+          "type" : "array",
+          "description" : "ARLAS hits",
+          "items" : {
+            "$ref" : "#/definitions/ArlasHit"
+          }
+        },
+        "nbhits" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "Number of hits contained in hits"
+        },
+        "totalnb" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "Total number of hits matching the query"
+        }
+      },
+      "description" : "A collection of hits retrieved from ARLAS Collections"
+    },
+    "ArlasMD" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "description" : "The unique identifier of the hit"
+        },
+        "timestamp" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "The timestamp of the hit"
+        },
+        "geometry" : {
+          "type" : "object",
+          "description" : "The geometry of the hit"
+        },
+        "centroid" : {
+          "description" : "The centroid of the hit",
+          "$ref" : "#/definitions/Point"
+        }
+      },
+      "description" : "Metadata of the ARLAS hit"
+    }
+  }
+}
