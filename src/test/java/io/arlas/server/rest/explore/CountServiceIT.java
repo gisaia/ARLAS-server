@@ -1,14 +1,21 @@
 package io.arlas.server.rest.explore;
 
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 import io.restassured.response.ValidatableResponse;
+import io.restassured.specification.RequestSpecification;
 
 public class CountServiceIT extends AbstractFilteredTest {
     
     @Override
-    public String getUrlFilterPath(String collection) {
+    public String getUrlPath(String collection) {
         return "/explore/"+collection+"/_count";
+    }
+    
+    @Override
+    protected RequestSpecification givenFilterableRequestParams() {
+        return given();
     }
     
     private void handleMatchingFilter(ValidatableResponse then, int nbResults) {

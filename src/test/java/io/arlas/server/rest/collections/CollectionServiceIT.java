@@ -47,4 +47,9 @@ public class CollectionServiceIT extends AbstractTest {
         when().get("/collections/foo")
         .then().statusCode(404);
     }
+
+    @Override
+    protected String getUrlPath(String collection) {
+        return "/collections/"+collection;
+    }
 }

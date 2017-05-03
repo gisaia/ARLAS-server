@@ -14,19 +14,19 @@ public abstract class AbstractSizedTest extends AbstractFilteredTest {
     public void testSizeFilter() throws Exception {
         handleSizeParameter(
                 givenBigSizedRequestParams()
-                .when().get(getUrlFilterPath("geodata"))
+                .when().get(getUrlPath("geodata"))
                 .then(), 10);
         handleSizeParameter(
                 givenBigSizedRequestParams().param("size", "40")
-                .when().get(getUrlFilterPath("geodata"))
+                .when().get(getUrlPath("geodata"))
                 .then(), 40);
         handleSizeParameter(
                 givenBigSizedRequestParams().param("size", Integer.valueOf(getBigSizedResponseSize()))
-                .when().get(getUrlFilterPath("geodata"))
+                .when().get(getUrlPath("geodata"))
                 .then(), getBigSizedResponseSize());
         handleSizeParameter(
                 givenBigSizedRequestParams().param("size", Integer.valueOf(getBigSizedResponseSize()+5))
-                .when().get(getUrlFilterPath("geodata"))
+                .when().get(getUrlPath("geodata"))
                 .then(), getBigSizedResponseSize());
     }
     
@@ -34,15 +34,15 @@ public abstract class AbstractSizedTest extends AbstractFilteredTest {
     public void testFromFilter() throws Exception {
         handleSizeParameter(
                 givenBigSizedRequestParams()
-                .when().get(getUrlFilterPath("geodata"))
+                .when().get(getUrlPath("geodata"))
                 .then(), 10);
         handleSizeParameter(
                 givenBigSizedRequestParams().param("from", Integer.toString(getBigSizedResponseSize()-5))
-                .when().get(getUrlFilterPath("geodata"))
+                .when().get(getUrlPath("geodata"))
                 .then(), 5);
         handleSizeParameter(
                 givenBigSizedRequestParams().param("from", Integer.toString(getBigSizedResponseSize()+5))
-                .when().get(getUrlFilterPath("geodata"))
+                .when().get(getUrlPath("geodata"))
                 .then(), 0);
     }
     
@@ -55,25 +55,25 @@ public abstract class AbstractSizedTest extends AbstractFilteredTest {
         //SIZE
         handleInvalidParameters(
                 givenBigSizedRequestParams().param("size", "0")
-                .when().get(getUrlFilterPath("geodata"))
+                .when().get(getUrlPath("geodata"))
                 .then());
         handleInvalidParameters(
                 givenBigSizedRequestParams().param("size", "-10")
-                .when().get(getUrlFilterPath("geodata"))
+                .when().get(getUrlPath("geodata"))
                 .then());
         handleInvalidParameters(
                 givenBigSizedRequestParams().param("size", "foo")
-                .when().get(getUrlFilterPath("geodata"))
+                .when().get(getUrlPath("geodata"))
                 .then());
         
         //FROM
         handleInvalidParameters(
                 givenBigSizedRequestParams().param("from", "-10")
-                .when().get(getUrlFilterPath("geodata"))
+                .when().get(getUrlPath("geodata"))
                 .then());
         handleInvalidParameters(
                 givenBigSizedRequestParams().param("from", "foo")
-                .when().get(getUrlFilterPath("geodata"))
+                .when().get(getUrlPath("geodata"))
                 .then());
     }
 
