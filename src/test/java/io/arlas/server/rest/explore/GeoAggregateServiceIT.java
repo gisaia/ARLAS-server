@@ -1,39 +1,55 @@
 package io.arlas.server.rest.explore;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 
-public class GeoSearchServiceIT extends AbstractSizedTest {
+public class GeoAggregateServiceIT extends AbstractAggregatedTest {
     
     @Override
-    public String getUrlPath(String collection) {
-        return "/explore/"+collection+"/_geosearch";
+    protected String getUrlPath(String collection) {
+        return "/explore/"+collection+"/_geoaggregate";
     }
     
     @Override
     protected RequestSpecification givenFilterableRequestParams() {
-        return given();
+        return given().param("agg", "geohash:centroid:interval-3");
     }
     
     @Override
-    protected RequestSpecification givenBigSizedRequestParams() {
-        return given().param("q", "My name is");
+    protected void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCount) throws Exception {
+        handleMatchingGeohashAggregate(then, featuresSize, featureCount, featureCount);
     }
     
     @Override
-    protected int getBigSizedResponseSize() {
-        return 595;
+    protected void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception {
+        then.statusCode(200)
+        .body("features.size()", equalTo(featuresSize))
+        .body("features.properties.count", everyItem(greaterThanOrEqualTo(featureCountMin)))
+        .body("features.properties.count", everyItem(lessThanOrEqualTo(featureCountMax)));
     }
+    
+    @Override
+    protected void handleMatchingGeohashAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin,
+            float featureCollectMax) throws Exception {
+        handleMatchingGeohashAggregate(then,featuresSize,featureCountMin,featureCountMax);
+        then
+        .body("features.properties.elements[0].metric.value", everyItem(greaterThanOrEqualTo(featureCollectMin)))
+        .body("features.properties.elements[0].metric.value", everyItem(lessThanOrEqualTo(featureCollectMax)))
+        .body("features.properties.elements[0].name", everyItem(equalTo(collectFct)))
+        .body("features.properties.elements[0].metric.type", everyItem(equalTo(collectFct)));
+    }
+
+    //----------------------------------------------------------------
+    //----------------------- FILTER PART ----------------------------
+    //----------------------------------------------------------------
     
     private void handleNotMatchingFilter(ValidatableResponse then) {
         then.statusCode(200)
@@ -44,9 +60,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     public void handleComplexFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features[0].properties.job", equalTo("Architect"))
-        .body("features[0].properties.startdate", equalTo(1009800))
-        .body("features[0].properties.centroid", equalTo("20,-10"));      
+        .body("features.size()", equalTo(1));     
     }
     
     //----------------------------------------------------------------
@@ -56,7 +70,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleKnownFieldFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.properties.job", everyItem(equalTo("Actor")));
+        .body("features.size()", equalTo(59));
     }
 
     @Override
@@ -71,7 +85,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingQueryFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(10));//get only default sized result array
+        .body("features.size()", equalTo(595));
     }
 
     @Override
@@ -86,8 +100,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingBeforeFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(3))
-        .body("features.properties.startdate", everyItem(lessThan(775000)));
+        .body("features.size()", equalTo(3));
     }
 
     @Override
@@ -98,8 +111,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingAfterFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(3))
-        .body("features.properties.startdate", everyItem(greaterThan(1250000)));
+        .body("features.size()", equalTo(3));
     }
 
     @Override
@@ -110,9 +122,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(2))
-        .body("features.properties.startdate", everyItem(greaterThan(770000)))
-        .body("features.properties.startdate", everyItem(lessThan(775000)));
+        .body("features.size()", equalTo(2));
     }
 
     @Override
@@ -127,8 +137,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingPwithinFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(1))
-        .body("features.properties.centroid", everyItem(equalTo("0,0")));
+        .body("features.size()", equalTo(1));
     }
 
     @Override
@@ -139,8 +148,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingNotPwithinFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(10))//get only default sized result array
-        .body("features.properties.centroid", everyItem(endsWith("170")));
+        .body("features.size()", equalTo(17));
     }
 
     @Override
@@ -151,8 +159,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingPwithinComboFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(8))
-        .body("features.properties.centroid", hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
+        .body("features.size()", equalTo(8));
     }
 
     @Override
@@ -167,8 +174,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingGwithinFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(1))
-        .body("features.properties.centroid", everyItem(equalTo("0,0")));
+        .body("features.size()", equalTo(1));
     }
 
     @Override
@@ -179,8 +185,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingNotGwithinFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(4))
-        .body("features.properties.centroid", hasItems("-70,170","-80,170","-70,160","-80,160"));
+        .body("features.size()", equalTo(4));
     }
 
     @Override
@@ -191,8 +196,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingGwithinComboFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(8))
-        .body("features.properties.centroid", hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
+        .body("features.size()", equalTo(8));
     }
 
     @Override
@@ -207,8 +211,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingGintersectFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(1))
-        .body("features.properties.centroid", everyItem(equalTo("0,0")));
+        .body("features.size()", equalTo(1));
     }
 
     @Override
@@ -219,8 +222,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingNotGintersectFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(1))
-        .body("features.properties.centroid", everyItem(equalTo("-80,170")));
+        .body("features.size()", equalTo(1));
     }
 
     @Override
@@ -231,26 +233,11 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected void handleMatchingGintersectComboFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(3))
-        .body("features.properties.centroid", hasItems("10,-10","0,-10","-10,-10"));
+        .body("features.size()", equalTo(3));
     }
 
     @Override
     protected void handleNotMatchingGintersectComboFilter(ValidatableResponse then) throws Exception {
         handleNotMatchingFilter(then);
-    }
-
-    //----------------------------------------------------------------
-    //----------------------- SIZE -----------------------------------
-    //----------------------------------------------------------------
-    @Override
-    protected void handleSizeParameter(ValidatableResponse then, int size) {
-        if(size > 0) {
-            then.statusCode(200)
-                .body("features.size()", equalTo(size));
-        } else {
-            then.statusCode(200)
-            .body("$", not(hasKey("features")));
-        }
     }
 }

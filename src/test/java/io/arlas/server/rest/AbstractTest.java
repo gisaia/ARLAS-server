@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import io.restassured.RestAssured;
 
-public class AbstractTest {
+public abstract class AbstractTest {
     static DataSetTool dataset = null;
     static Logger LOGGER = LoggerFactory.getLogger(AbstractTest.class);
 
@@ -18,4 +18,6 @@ public class AbstractTest {
         RestAssured.basePath = arlasPrefix;
         LOGGER.info(arlasHost+":"+arlasPort+arlasPrefix);
     }
+    
+    protected abstract String getUrlPath(String collection);
 }

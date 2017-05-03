@@ -14,13 +14,18 @@ import io.restassured.specification.RequestSpecification;
 public class SearchServiceIT extends AbstractSizedTest {
     
     @Override
-    public String getUrlFilterPath(String collection) {
+    public String getUrlPath(String collection) {
         return "/explore/"+collection+"/_search";
     }
     
     @Override
     protected RequestSpecification givenBigSizedRequestParams() {
         return given().param("q", "My name is");
+    }
+    
+    @Override
+    protected RequestSpecification givenFilterableRequestParams() {
+        return given();
     }
     
     @Override
