@@ -109,7 +109,7 @@ The `filter` url part allows the following parameters to be specified:
 
 | Parameter      | Default value | Values                         | Description                              | Multiple |
 | -------------- | ------------- | ------------------------------ | ---------------------------------------- | -------- |
-| **f**          | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters having different fieldNames. The **OR** operator is applied on filters having the same fieldName. If the fieldName starts with **-** then a **must not** filter is used | true     |
+| **f**          | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **:** (equal) filter, values can be comma separated ({field}`:`{v1},{v2}) which stands for an **OR**. For the **:ne:** (not equal) filter, values can be comma separated ({field}`:ne:`{v1},{v2}) which stands for an **AND** | true     |
 | **q**          | None          | text                           | A full text search                       | false    |
 | **before**     | None          | timestamp                      | Any element having its point in time reference before the given timestamp | false    |
 | **after**      | None          | timestamp                      | Any element having its point in time reference after the given timestamp | false    |
@@ -121,7 +121,9 @@ The `filter` url part allows the following parameters to be specified:
 
 | Operator    | Description                              | Value type         |
 | ----------- | ---------------------------------------- | ------------------ |
-| **`:`**     | `{fieldName}` equals `{value}`           | numeric or strings |
+| **`:`**     | `{fieldName}` equals `{value}`. Values can be comma separated ({field}`:`{v1},{v2}) which stands for an **OR**          | numeric or strings |
+| **`:ne:`**     | `{fieldName}` doesn't equal `{value}`           | numeric or strings |
+| **`:like:`**     | `{fieldName}` is like `{value}`. Values can be comma separated ({field}`:ne:`{v1},{v2}) which stands for an **AND**           | numeric or strings |
 | **`:gte:`** | `{fieldName}` is greater than or equal to `{value}` | numeric            |
 | **`:gt:`**  | `{fieldName}` is greater than `{value}`  | numeric            |
 | **`:lte:`** | `{fieldName}` is less than or equal to `{value}` | numeric            |
