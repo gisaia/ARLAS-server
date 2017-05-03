@@ -48,7 +48,7 @@ public class FluidSearch {
 
     public static final String INVALID_PARAMETER_F = "Parameter f does not respect operation expression. ";
     public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'gte', 'gt', 'lte' or 'lt'. ";
-    public static final String INVALID_VALUE_TYPE = "Operand must be a numeric value.";
+    public static final String INVALID_VALUE_TYPE = "Invalid value type.";
     public static final String INVALID_WKT = "Invalid WKT geometry.";
     public static final String INVALID_BBOX = "Invalid BBOX";
     public static final String INVALID_BEFORE_AFTER = "Invalid date parameters : before and after must be positive and before must be greater than after.";
@@ -145,8 +145,10 @@ public class FluidSearch {
                 if (operandsNumber < 2 || operandsNumber > 3) {
                     throw new InvalidParameterException(INVALID_PARAMETER_F);
                 } else if (operandsNumber == 2) {
+                    //Means it's an EQUAL operation
                     boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.matchQuery(operands[0], operands[1]));
                 } else if (operandsNumber == 3) {
+                    //Means it's an gte, lte, like, ... operation
                     Integer fieldValue = tryParse(operands[2]);
                     if (fieldValue != null) {
                         if (operands[1].equals("gte")) {
@@ -163,8 +165,19 @@ public class FluidSearch {
                                     .filter(QueryBuilders.rangeQuery(operands[0]).lt(fieldValue));
                         } else
                             throw new InvalidParameterException(INVALID_OPERATOR);
-                    } else
-                        throw new InvalidParameterException(INVALID_VALUE_TYPE);
+                    } else {
+                        if (operands[1].equals("like")) {
+                            boolQueryBuilder = boolQueryBuilder
+                                    .filter(QueryBuilders.regexpQuery(operands[0], ".*" + operands[2] + ".*"));
+                        }
+                        else if (operands[1].equals("ne")) {
+                            boolQueryBuilder = boolQueryBuilder
+                                    .mustNot(QueryBuilders.matchQuery(operands[0], operands[2]));
+                        }
+                        else {
+                            throw new InvalidParameterException(INVALID_VALUE_TYPE);
+                        }
+                    }
                 }
             }
         }
