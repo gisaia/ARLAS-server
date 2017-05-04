@@ -39,11 +39,10 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
                 given().param("agg", "geohash:centroid:interval-1:collect_field-startdate:collect_fct-min")
                 .when().get(getUrlPath("geodata"))
                 .then(),32, 16, 25, "min", 763600F, 1197000F);
-        //TODO fix sum function
-        /*handleMatchingGeohashAggregateWithCollect(
+        handleMatchingGeohashAggregateWithCollect(
                 given().param("agg", "geohash:centroid:interval-1:collect_field-startdate:collect_fct-sum")
                 .when().get(getUrlPath("geodata"))
-                .then(),32, 16, 25, "sum", 790075, 1230075);*/
+                .then(),32, 16, 25, "sum", 12641200, 28305000);
     }
     
     @Test

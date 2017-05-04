@@ -50,7 +50,7 @@ The other parts must be specified or not depending on the aggregation type. All 
 | **interval**              | `datehistogram, histogram, geohash` | mandatory |
 | **format**                | `datehistogram`                     | optional (default value : `yyyy-MM-dd-HH:mm:ss`) |
 | (**collect_field**,**collect_fct**) | All types                 | optional |
-| (**order**,**on**)        | All types                           | optional |
+| (**order**,**on**)        | `term, histogram, datehistogram`    | optional |
 | **size**                  | `term, geohash`                     | optional |
 
 
