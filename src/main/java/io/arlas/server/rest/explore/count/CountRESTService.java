@@ -21,6 +21,7 @@ import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.ArlasError;
 import io.arlas.server.model.ArlasHits;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.utils.CheckParams;
@@ -60,82 +61,52 @@ public class CountRESTService extends ExploreRESTServices {
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
             @ApiParam(name ="f",
-                    value="- A triplet for filtering the result. Multiple filter can be provided. " +
-                            "The order does not matter. " +
-                            "\n \n" +
-                            "- A triplet is composed of a field name, a comparison operator and a value. " +
-                            "\n \n" +
-                            "  The possible values of the comparison operator are : " +
-                            "\n \n" +
-                            "       Operator   |                   Description                      | value type" +
-                            "\n \n" +
-                            "       :          |  {fieldName} equals {value}                        | numeric or strings " +
-                            "\n \n" +
-                            "       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric " +
-                            "\n \n" +
-                            "       :gt:       |  {fieldName} is greater than {value}               | numeric " +
-                            "\n \n" +
-                            "       :lte:      |  {fieldName} is less than or equal to {value}      | numeric " +
-                            "\n \n" +
-                            "       :lt:       |  {fieldName}  is less than {value}                 | numeric " +
-                            "\n \n" +
-                            "\n \n" +
-                            "- The AND operator is applied between filters having different fieldNames. " +
-                            "\n \n" +
-                            "- The OR operator is applied on filters having the same fieldName. " +
-                            "\n \n" +
-                            "- If the fieldName starts with - then a must not filter is used" +
-                            "\n \n" +
-                            "- If the fieldName starts with - then a must not filter is used" +
-                            "\n \n" +
-                            "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
-                    ,
-
+                    value= Documentation.FILTER_PARAM_F,
                     allowMultiple = true,
                     required=false)
             @QueryParam(value="f") List<String> f,
 
-            @ApiParam(name ="q", value="A full text search",
+            @ApiParam(name ="q", value=Documentation.FILTER_PARAM_Q,
                     allowMultiple = false,
                     required=false)
             @QueryParam(value="q") String q,
 
-            @ApiParam(name ="before", value="Any element having its point in time reference before the given timestamp",
+            @ApiParam(name ="before", value=Documentation.FILTER_PARAM_BEFORE,
                     allowMultiple = false,
                     required=false)
             @QueryParam(value="before") LongParam before,
 
-            @ApiParam(name ="after", value="Any element having its point in time reference after the given timestamp",
+            @ApiParam(name ="after", value=Documentation.FILTER_PARAM_AFTER,
                     allowMultiple = false,
                     required=false)
             @QueryParam(value="after") LongParam after,
 
-            @ApiParam(name ="pwithin", value="Any element having its centroid contained within the given BBOX (top,left,bottom,right)",
+            @ApiParam(name ="pwithin", value=Documentation.FILTER_PARAM_PWITHIN,
                     allowMultiple = true,
                     required=false)
             @QueryParam(value="pwithin") String pwithin,
 
-            @ApiParam(name ="gwithin", value="Any element having its geometry contained within the given geometry (WKT)",
+            @ApiParam(name ="gwithin", value=Documentation.FILTER_PARAM_GWITHIN,
                     allowMultiple = true,
                     required=false)
             @QueryParam(value="gwithin") String gwithin,
 
-            @ApiParam(name ="gintersect", value="Any element having its geometry intersecting the given geometry (WKT)",
+            @ApiParam(name ="gintersect", value=Documentation.FILTER_PARAM_GINTERSECT,
                     allowMultiple = true,
                     required=false)
             @QueryParam(value="gintersect") String gintersect,
 
-            @ApiParam(name ="notpwithin", value="Any element having its centroid outside the given BBOX (top,left,bottom,right)",
+            @ApiParam(name ="notpwithin", value=Documentation.FILTER_PARAM_NOTPWITHIN,
                     allowMultiple = true,
                     required=false)
             @QueryParam(value="notpwithin") String notpwithin,
 
-            @ApiParam(name ="notgwithin", value="Any element having its geometry outside the given geometry (WKT)",
+            @ApiParam(name ="notgwithin", value=Documentation.FILTER_PARAM_NOTGWITHIN,
                     allowMultiple = true,
                     required=false)
             @QueryParam(value="notgwithin") String notgwithin,
 
-            @ApiParam(name ="notgintersect", value="Any element having its geometry not intersecting the given geometry (WKT)",
+            @ApiParam(name ="notgintersect", value=Documentation.FILTER_PARAM_NOTGINTERSECT,
                     allowMultiple = true,
                     required=false)
             @QueryParam(value="notgintersect") String notgintersect,
@@ -143,13 +114,13 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value="Pretty print",
+            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
                     required=false)
             @QueryParam(value="pretty") Boolean pretty,
 
-            @ApiParam(name ="human", value="Human readable print",
+            @ApiParam(name ="human", value=Documentation.FORM_HUMAN,
                     allowMultiple = false,
                     defaultValue = "false",
                     required=false)
