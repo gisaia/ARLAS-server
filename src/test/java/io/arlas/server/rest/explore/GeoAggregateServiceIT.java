@@ -19,10 +19,15 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
     }
     
     @Override
-    protected RequestSpecification givenFilterableRequestParams() {
-        return given().param("agg", "geohash:centroid:interval-3");
+    protected void handleNotMatchingRequest(ValidatableResponse then) {
+        then.statusCode(200)
+        .body("type", equalTo("FeatureCollection"))
+        .body("$", not(hasKey("features")));
     }
     
+    //----------------------------------------------------------------
+    //----------------------- AGGREGATE PART -------------------------
+    //----------------------------------------------------------------
     @Override
     protected void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCount) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCount, featureCount);
@@ -50,11 +55,9 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
     //----------------------------------------------------------------
     //----------------------- FILTER PART ----------------------------
     //----------------------------------------------------------------
-    
-    private void handleNotMatchingFilter(ValidatableResponse then) {
-        then.statusCode(200)
-        .body("type", equalTo("FeatureCollection"))
-        .body("$", not(hasKey("features")));
+    @Override
+    protected RequestSpecification givenFilterableRequestParams() {
+        return given().param("agg", "geohash:centroid:interval-3");
     }
 
     @Override
@@ -63,10 +66,6 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
         .body("features.size()", equalTo(1));     
     }
     
-    //----------------------------------------------------------------
-    //----------------------- FIELD ----------------------------------
-    //----------------------------------------------------------------
-
     @Override
     protected void handleKnownFieldFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
@@ -97,40 +96,17 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
         then.statusCode(200)
         .body("features.size()", equalTo(478));
     }
-
-    @Override
-    protected void handleUnknownFieldFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
     
-    //----------------------------------------------------------------
-    //----------------------- TEXT QUERY -----------------------------
-    //----------------------------------------------------------------
-
     @Override
     protected void handleMatchingQueryFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(595));
     }
-
-    @Override
-    protected void handleNotMatchingQueryFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
     
-    //----------------------------------------------------------------
-    //----------------------- BEFORE/AFTER ---------------------------
-    //----------------------------------------------------------------
-
     @Override
     protected void handleMatchingBeforeFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(3));
-    }
-
-    @Override
-    protected void handleNotMatchingBeforeFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
     }
 
     @Override
@@ -140,34 +116,15 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
-    protected void handleNotMatchingAfterFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-
-    @Override
     protected void handleMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(2));
     }
-
-    @Override
-    protected void handleNotMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
     
-    //----------------------------------------------------------------
-    //----------------------- PWITHIN --------------------------------
-    //----------------------------------------------------------------
-
     @Override
     protected void handleMatchingPwithinFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(1));
-    }
-
-    @Override
-    protected void handleNotMatchingPwithinFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
     }
 
     @Override
@@ -177,34 +134,15 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
-    protected void handleNotMatchingNotPwithinFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-
-    @Override
     protected void handleMatchingPwithinComboFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(8));
     }
-
-    @Override
-    protected void handleNotMatchingPwithinComboFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-    
-    //----------------------------------------------------------------
-    //----------------------- GIWTHIN --------------------------------
-    //----------------------------------------------------------------
     
     @Override
     protected void handleMatchingGwithinFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(1));
-    }
-
-    @Override
-    protected void handleNotMatchingGwithinFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
     }
 
     @Override
@@ -214,34 +152,15 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
-    protected void handleNotMatchingNotGwithinFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-
-    @Override
     protected void handleMatchingGwithinComboFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(8));
     }
-
-    @Override
-    protected void handleNotMatchingGwithinComboFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-    
-    //----------------------------------------------------------------
-    //----------------------- GINTERSECT -----------------------------
-    //----------------------------------------------------------------
     
     @Override
     protected void handleMatchingGintersectFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(1));
-    }
-
-    @Override
-    protected void handleNotMatchingGintersectFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
     }
 
     @Override
@@ -251,18 +170,8 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
-    protected void handleNotMatchingNotGintersectFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-
-    @Override
     protected void handleMatchingGintersectComboFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(3));
-    }
-
-    @Override
-    protected void handleNotMatchingGintersectComboFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
     }
 }
