@@ -3,10 +3,7 @@ package io.arlas.server.core;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.BadRequestException;
-import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.exceptions.NotAllowedException;
+import io.arlas.server.exceptions.*;
 import io.arlas.server.model.AggregationModel;
 import io.arlas.server.model.ArlasAggregation;
 import io.arlas.server.model.ArlasMetric;
@@ -73,8 +70,7 @@ public class FluidSearch {
     public static final String ON_NOT_SPECIFIED = "'on-' is not specified.";
     public static final String ORDER_PARAM_NOT_ALLOWED = "Order is not allowed for geohash aggregation.";
     public static final String ORDER_ON_RESULT_NOT_ALLOWED = "'on-result' sorts 'collect_field' and 'collect_fct' results. Please specify 'collect_field' and 'collect_fct'.";
-
-
+    public static final String SIZE_NOT_IMPLEMENTED = "Size is not implemented for geohash.";
 
     private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
 
@@ -449,7 +445,7 @@ public class FluidSearch {
             if (aggregationBuilder instanceof TermsAggregationBuilder)
                 aggregationBuilder = ((TermsAggregationBuilder) aggregationBuilder).size(s);
             else if (aggregationBuilder instanceof GeoGridAggregationBuilder)
-                aggregationBuilder = ((GeoGridAggregationBuilder) aggregationBuilder).size(s);
+                throw new NotImplementedException(SIZE_NOT_IMPLEMENTED);
             else
                 throw new BadRequestException(NO_SIZE_TO_SPECIFY);
         }
