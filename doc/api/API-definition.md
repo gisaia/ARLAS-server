@@ -119,15 +119,15 @@ The `filter` url part allows the following parameters to be specified:
 
 
 
-| Operator    | Description                              | Value type         |
-| ----------- | ---------------------------------------- | ------------------ |
-| **`:`**     | `{fieldName}` equals `{value}`. Values can be comma separated ({field}`:`{v1},{v2}) which stands for an **OR**          | numeric or strings |
-| **`:ne:`**     | `{fieldName}` doesn't equal `{value}`           | numeric or strings |
-| **`:like:`**     | `{fieldName}` is like `{value}`. Values can be comma separated ({field}`:ne:`{v1},{v2}) which stands for an **AND**           | numeric or strings |
-| **`:gte:`** | `{fieldName}` is greater than or equal to `{value}` | numeric            |
-| **`:gt:`**  | `{fieldName}` is greater than `{value}`  | numeric            |
-| **`:lte:`** | `{fieldName}` is less than or equal to `{value}` | numeric            |
-| **`:lt:`**  | `{fieldName}` is less than `{value}`     | numeric            |
+| Operator     | Description                                         | Value type         |
+| -----------  | --------------------------------------------------- | ------------------ |
+| **`:`**      | `{fieldName}` equals `{comma separated values}`. **OR** operation is applied for the specified values | numeric or strings |
+| **`:ne:`**   | `{fieldName}` must not equal `{comma separated values }`. **AND** operation is applied for the specified values | numeric or strings |
+| **`:like:`** | `{fieldName}` is like `{value}`.                    | numeric or strings |
+| **`:gte:`**  | `{fieldName}` is greater than or equal to `{value}` | numeric            |
+| **`:gt:`**   | `{fieldName}` is greater than `{value}`             | numeric            |
+| **`:lte:`**  | `{fieldName}` is less than or equal to `{value}`    | numeric            |
+| **`:lt:`**   | `{fieldName}` is less than `{value}`                | numeric            |
 
 > Example: `f=city:Toulouse`&`f=city:Bordeaux&after=1490613808&`
 
