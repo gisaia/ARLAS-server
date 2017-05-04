@@ -74,6 +74,31 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
+    protected void handleKnownFieldFilterWithOr(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+        .body("features.size()", equalTo(117));
+    }
+
+    @Override
+    protected void handleKnownFieldLikeFilter(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+        .body("features.size()", equalTo(59));
+    }
+
+    //TODO : fix the case where the field is full text
+    /*@Override
+    protected void handleKnownFullTextFieldLikeFilter(ValidatableResponse then) throws Exception {
+         then.statusCode(200)
+        .body("features.size()", equalTo(595));
+    }*/
+
+    @Override
+    protected void handleKnownFieldFilterNotEqual(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+        .body("features.size()", equalTo(478));
+    }
+
+    @Override
     protected void handleUnknownFieldFilter(ValidatableResponse then) throws Exception {
         handleNotMatchingFilter(then);
     }

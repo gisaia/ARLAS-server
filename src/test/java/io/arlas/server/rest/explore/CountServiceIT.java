@@ -38,6 +38,27 @@ public class CountServiceIT extends AbstractFilteredTest {
     }
 
     @Override
+    protected void handleKnownFieldFilterWithOr(ValidatableResponse then) throws Exception {
+        handleMatchingFilter(then,117);
+    }
+
+    @Override
+    protected void handleKnownFieldLikeFilter(ValidatableResponse then) throws Exception {
+        handleMatchingFilter(then,59);
+    }
+
+    @Override
+    protected void handleKnownFieldFilterNotEqual(ValidatableResponse then) throws Exception {
+        handleMatchingFilter(then,478);
+    }
+
+    //TODO : fix the case where the field is full text
+    /*@Override
+    protected void handleKnownFullTextFieldLikeFilter(ValidatableResponse then) throws Exception {
+        handleMatchingFilter(then,595);
+    }*/
+
+    @Override
     protected void handleUnknownFieldFilter(ValidatableResponse then) throws Exception {
         handleMatchingFilter(then,0);
     }

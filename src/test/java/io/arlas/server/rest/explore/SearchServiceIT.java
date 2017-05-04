@@ -1,12 +1,7 @@
 package io.arlas.server.rest.explore;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.*;
 
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
@@ -57,6 +52,36 @@ public class SearchServiceIT extends AbstractSizedTest {
         .body("totalnb", equalTo(59))
         .body("hits.data.job", everyItem(equalTo("Actor")));
     }
+
+    @Override
+    protected void handleKnownFieldFilterWithOr(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+        .body("totalnb", equalTo(117))
+        .body("hits.data.job",  everyItem(isOneOf("Actor","Announcers")));
+    }
+
+    @Override
+    protected void handleKnownFieldLikeFilter(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+        .body("totalnb", equalTo(59))
+        .body("hits.data.job",  everyItem(equalTo("Actor")));
+    }
+
+    //TODO : fix the case where the field is full text
+    /*@Override
+    protected void handleKnownFullTextFieldLikeFilter(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+        .body("totalnb", equalTo(595))
+        .body("hits.data.job", everyItem(isOneOf("Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter")));
+    }*/
+
+    @Override
+    protected void handleKnownFieldFilterNotEqual(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+        .body("totalnb", equalTo(478))
+        .body("hits.data.job", everyItem(isOneOf("Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter")));
+    }
+
 
     @Override
     protected void handleUnknownFieldFilter(ValidatableResponse then) throws Exception {
