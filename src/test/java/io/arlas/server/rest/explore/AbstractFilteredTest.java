@@ -297,6 +297,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
     protected void handleInvalidParameters(ValidatableResponse then) throws Exception {
         then.statusCode(400);
     }
+
+    protected abstract void handleNotMatchingRequest(ValidatableResponse then);
     
     //----------------------------------------------------------------
     //---------------------- SPECIFIC BEHAVIORS ----------------------
@@ -308,38 +310,85 @@ public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
     protected abstract void handleKnownFieldFilterWithOr(ValidatableResponse then) throws Exception;
     protected abstract void handleKnownFieldLikeFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleKnownFieldFilterNotEqual(ValidatableResponse then) throws Exception;
-    protected abstract void handleUnknownFieldFilter(ValidatableResponse then) throws Exception;
+
     
     protected abstract void handleMatchingQueryFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingQueryFilter(ValidatableResponse then) throws Exception;
     
     protected abstract void handleMatchingBeforeFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingBeforeFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingAfterFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingAfterFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception;
     
     protected abstract void handleMatchingPwithinFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingPwithinFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingNotPwithinFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingNotPwithinFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingPwithinComboFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingPwithinComboFilter(ValidatableResponse then) throws Exception;
     
     protected abstract void handleMatchingGwithinFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingGwithinFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingNotGwithinFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingNotGwithinFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingGwithinComboFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingGwithinComboFilter(ValidatableResponse then) throws Exception;
     
     protected abstract void handleMatchingGintersectFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingGintersectFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingNotGintersectFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingNotGintersectFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingGintersectComboFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleNotMatchingGintersectComboFilter(ValidatableResponse then) throws Exception;
     
     protected abstract void handleComplexFilter(ValidatableResponse then) throws Exception;
+    
+
+    //----------------------------------------------------------------
+    //---------------------- NOT MATCHING RESPONSES ------------------
+    //----------------------------------------------------------------
+    protected void handleUnknownFieldFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+
+    protected void handleNotMatchingQueryFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+    
+    protected void handleNotMatchingBeforeFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+
+    protected void handleNotMatchingAfterFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+
+    protected void handleNotMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+    
+    protected void handleNotMatchingPwithinFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+
+    protected void handleNotMatchingNotPwithinFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+
+    protected void handleNotMatchingPwithinComboFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+
+    protected void handleNotMatchingGwithinFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+
+    protected void handleNotMatchingNotGwithinFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+
+    protected void handleNotMatchingGwithinComboFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+
+    protected void handleNotMatchingGintersectFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+
+    protected void handleNotMatchingNotGintersectFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+
+    protected void handleNotMatchingGintersectComboFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
 }

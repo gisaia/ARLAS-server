@@ -1,7 +1,13 @@
 package io.arlas.server.rest.explore;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.isOneOf;
+import static org.hamcrest.Matchers.lessThan;
 
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
@@ -14,25 +20,20 @@ public class SearchServiceIT extends AbstractSizedTest {
     }
     
     @Override
-    protected RequestSpecification givenBigSizedRequestParams() {
-        return given().param("q", "My name is");
+    protected void handleNotMatchingRequest(ValidatableResponse then) {
+        then.statusCode(200)
+        .body("totalnb", equalTo(0));
     }
+    
+    //----------------------------------------------------------------
+    //----------------------- FILTER PART ----------------------------
+    //----------------------------------------------------------------
     
     @Override
     protected RequestSpecification givenFilterableRequestParams() {
         return given();
     }
     
-    @Override
-    protected int getBigSizedResponseSize() {
-        return 595;
-    }
-    
-    private void handleNotMatchingFilter(ValidatableResponse then) {
-        then.statusCode(200)
-        .body("totalnb", equalTo(0));
-    }
-
     @Override
     public void handleComplexFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
@@ -41,10 +42,6 @@ public class SearchServiceIT extends AbstractSizedTest {
         .body("hits[0].data.startdate", equalTo(1009800))
         .body("hits[0].data.centroid", equalTo("20,-10"));      
     }
-    
-    //----------------------------------------------------------------
-    //----------------------- FIELD ----------------------------------
-    //----------------------------------------------------------------
 
     @Override
     protected void handleKnownFieldFilter(ValidatableResponse then) throws Exception {
@@ -81,12 +78,6 @@ public class SearchServiceIT extends AbstractSizedTest {
         .body("totalnb", equalTo(478))
         .body("hits.data.job", everyItem(isOneOf("Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter")));
     }
-
-
-    @Override
-    protected void handleUnknownFieldFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
     
     //----------------------------------------------------------------
     //----------------------- TEXT QUERY -----------------------------
@@ -99,15 +90,6 @@ public class SearchServiceIT extends AbstractSizedTest {
     }
 
     @Override
-    protected void handleNotMatchingQueryFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-    
-    //----------------------------------------------------------------
-    //----------------------- BEFORE/AFTER ---------------------------
-    //----------------------------------------------------------------
-
-    @Override
     protected void handleMatchingBeforeFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("totalnb", equalTo(3))
@@ -115,20 +97,10 @@ public class SearchServiceIT extends AbstractSizedTest {
     }
 
     @Override
-    protected void handleNotMatchingBeforeFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-
-    @Override
     protected void handleMatchingAfterFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("totalnb", equalTo(3))
         .body("hits.data.startdate", everyItem(greaterThan(1250000)));
-    }
-
-    @Override
-    protected void handleNotMatchingAfterFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
     }
 
     @Override
@@ -140,24 +112,10 @@ public class SearchServiceIT extends AbstractSizedTest {
     }
 
     @Override
-    protected void handleNotMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-    
-    //----------------------------------------------------------------
-    //----------------------- PWITHIN --------------------------------
-    //----------------------------------------------------------------
-
-    @Override
     protected void handleMatchingPwithinFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("totalnb", equalTo(1))
         .body("hits.data.centroid", everyItem(equalTo("0,0")));
-    }
-
-    @Override
-    protected void handleNotMatchingPwithinFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
     }
 
     @Override
@@ -168,11 +126,6 @@ public class SearchServiceIT extends AbstractSizedTest {
     }
 
     @Override
-    protected void handleNotMatchingNotPwithinFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-
-    @Override
     protected void handleMatchingPwithinComboFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("totalnb", equalTo(8))
@@ -180,24 +133,10 @@ public class SearchServiceIT extends AbstractSizedTest {
     }
 
     @Override
-    protected void handleNotMatchingPwithinComboFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-    
-    //----------------------------------------------------------------
-    //----------------------- GIWTHIN --------------------------------
-    //----------------------------------------------------------------
-    
-    @Override
     protected void handleMatchingGwithinFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("totalnb", equalTo(1))
         .body("hits.data.centroid", everyItem(equalTo("0,0")));
-    }
-
-    @Override
-    protected void handleNotMatchingGwithinFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
     }
 
     @Override
@@ -208,11 +147,6 @@ public class SearchServiceIT extends AbstractSizedTest {
     }
 
     @Override
-    protected void handleNotMatchingNotGwithinFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-
-    @Override
     protected void handleMatchingGwithinComboFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("totalnb", equalTo(8))
@@ -220,24 +154,10 @@ public class SearchServiceIT extends AbstractSizedTest {
     }
 
     @Override
-    protected void handleNotMatchingGwithinComboFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-    
-    //----------------------------------------------------------------
-    //----------------------- GINTERSECT -----------------------------
-    //----------------------------------------------------------------
-    
-    @Override
     protected void handleMatchingGintersectFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("totalnb", equalTo(1))
         .body("hits.data.centroid", everyItem(equalTo("0,0")));
-    }
-
-    @Override
-    protected void handleNotMatchingGintersectFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
     }
 
     @Override
@@ -248,25 +168,25 @@ public class SearchServiceIT extends AbstractSizedTest {
     }
 
     @Override
-    protected void handleNotMatchingNotGintersectFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
-
-    @Override
     protected void handleMatchingGintersectComboFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
         .body("totalnb", equalTo(3))
         .body("hits.data.centroid", hasItems("10,-10","0,-10","-10,-10"));
     }
-
-    @Override
-    protected void handleNotMatchingGintersectComboFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingFilter(then);
-    }
     
     //----------------------------------------------------------------
-    //----------------------- SIZE -----------------------------------
+    //----------------------- SIZE PART ------------------------------
     //----------------------------------------------------------------
+    @Override
+    protected RequestSpecification givenBigSizedRequestParams() {
+        return given().param("q", "My name is");
+    }
+    
+    @Override
+    protected int getBigSizedResponseSize() {
+        return 595;
+    }
+    
     @Override
     protected void handleSizeParameter(ValidatableResponse then, int size) throws Exception {
         if(size > 0) {
