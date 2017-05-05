@@ -26,17 +26,23 @@ public class Documentation {
             "\n \n" +
             "  The possible values of the comparison operator are : " +
             "\n \n" +
-            "       Operator   |                   Description                      | value type" +
+            "       Operator |                   Description                    | value type" +
             "\n \n" +
-            "       :          |  {fieldName} equals {value}                        | numeric or strings " +
+            "       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings " +
             "\n \n" +
-            "       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric " +
+            "       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings " +
             "\n \n" +
-            "       :gt:       |  {fieldName} is greater than {value}               | numeric " +
+            "       :like:   | {fieldName}  is like {value}                     | numeric or strings " +
             "\n \n" +
-            "       :lte:      |  {fieldName} is less than or equal to {value}      | numeric " +
+            "       :gte:    | {fieldName} is greater than or equal to  {value} | numeric " +
             "\n \n" +
-            "       :lt:       |  {fieldName}  is less than {value}                 | numeric " +
+            "       :gt:     | {fieldName} is greater than {value}              | numeric " +
+            "\n \n" +
+            "       :lte:    | {fieldName} is less than or equal to {value}     | numeric " +
+            "\n \n" +
+            "       :lt:     | {fieldName}  is less than {value}                | numeric " +
+            "\n \n" +
+            "       :lt:     | {fieldName}  is less than {value}                | numeric " +
             "\n \n" +
             "\n \n" +
             "- The AND operator is applied between filters having different fieldNames. " +
@@ -133,7 +139,7 @@ public class Documentation {
             "\n \n" +
             "- {type} possible values are : " +
             "\n \n" +
-            "       datehistogram, histogram, geohash and term. " +
+            "       geohash, datehistogram, histogram and term. geohash must be the main aggregation." +
             "\n \n" +
             "- {interval} possible values depends on {type}. " +
             "\n \n" +

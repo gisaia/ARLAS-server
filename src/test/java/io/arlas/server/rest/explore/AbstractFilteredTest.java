@@ -18,6 +18,23 @@ public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
                 givenFilterableRequestParams().param("f", "job:" + DataSetTool.jobs[0])
                 .when().get(getUrlPath("geodata"))
                 .then());
+        handleKnownFieldFilterWithOr(
+                givenFilterableRequestParams().param("f", "job:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1])
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+        handleKnownFieldLikeFilter(
+                givenFilterableRequestParams().param("f", "job:like:" + "cto")
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+        handleKnownFieldFilterNotEqual(
+                givenFilterableRequestParams().param("f", "job:ne:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1])
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+        //TODO : fix the case where the field is full text
+        /*handleKnownFullTextFieldLikeFilter(
+                givenFilterableRequestParams().param("f", "fullname:like:" + "name is")
+                        .when().get(getUrlPath("geodata"))
+                        .then());*/
         handleUnknownFieldFilter(
                 givenFilterableRequestParams().param("f", "job:UnknownJob")
                 .when().get(getUrlPath("geodata"))
@@ -288,6 +305,9 @@ public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
     protected abstract RequestSpecification givenFilterableRequestParams();
     
     protected abstract void handleKnownFieldFilter(ValidatableResponse then) throws Exception;
+    protected abstract void handleKnownFieldFilterWithOr(ValidatableResponse then) throws Exception;
+    protected abstract void handleKnownFieldLikeFilter(ValidatableResponse then) throws Exception;
+    protected abstract void handleKnownFieldFilterNotEqual(ValidatableResponse then) throws Exception;
     protected abstract void handleUnknownFieldFilter(ValidatableResponse then) throws Exception;
     
     protected abstract void handleMatchingQueryFilter(ValidatableResponse then) throws Exception;

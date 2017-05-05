@@ -47,8 +47,7 @@ import java.util.List;
 public class FluidSearch {
 
     public static final String INVALID_PARAMETER_F = "Parameter f does not respect operation expression. ";
-    public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'gte', 'gt', 'lte' or 'lt'. ";
-    public static final String INVALID_VALUE_TYPE = "Operand must be a numeric value.";
+    public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'gte', 'gt', 'lte', 'lt', 'like' or 'ne'. ";
     public static final String INVALID_WKT = "Invalid WKT geometry.";
     public static final String INVALID_BBOX = "Invalid BBOX";
     public static final String INVALID_BEFORE_AFTER = "Invalid date parameters : before and after must be positive and before must be greater than after.";
@@ -91,7 +90,7 @@ public class FluidSearch {
 
     public SearchResponse exec() throws ArlasException {
         searchRequestBuilder.setQuery(boolQueryBuilder);
-        LOGGER.debug("QUERY : "+searchRequestBuilder.toString());
+        LOGGER.info("QUERY : "+searchRequestBuilder.toString());
         SearchResponse result = null;
 
         try {
@@ -145,26 +144,48 @@ public class FluidSearch {
                 if (operandsNumber < 2 || operandsNumber > 3) {
                     throw new InvalidParameterException(INVALID_PARAMETER_F);
                 } else if (operandsNumber == 2) {
-                    boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.matchQuery(operands[0], operands[1]));
+                    //Means it's an EQUAL operation
+                    String fieldValues[] = operands[1].split(",");
+                    if (fieldValues.length>1){
+                        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+                        for (String value : fieldValues){
+                            orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(operands[0], value));
+                        }
+                        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
+                    }
+                    else {
+                        boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.matchQuery(operands[0], operands[1]));
+                    }
                 } else if (operandsNumber == 3) {
-                    Integer fieldValue = tryParse(operands[2]);
-                    if (fieldValue != null) {
+                    //Means it's an gte, lte, like, ... operation
+                    if (operands[2] != null) {
                         if (operands[1].equals("gte")) {
                             boolQueryBuilder = boolQueryBuilder
-                                    .filter(QueryBuilders.rangeQuery(operands[0]).gte(fieldValue));
+                                    .filter(QueryBuilders.rangeQuery(operands[0]).gte(operands[2]));
                         } else if (operands[1].equals("gt")) {
                             boolQueryBuilder = boolQueryBuilder
-                                    .filter(QueryBuilders.rangeQuery(operands[0]).gt(fieldValue));
+                                    .filter(QueryBuilders.rangeQuery(operands[0]).gt(operands[2]));
                         } else if (operands[1].equals("lte")) {
                             boolQueryBuilder = boolQueryBuilder
-                                    .filter(QueryBuilders.rangeQuery(operands[0]).lte(fieldValue));
+                                    .filter(QueryBuilders.rangeQuery(operands[0]).lte(operands[2]));
                         } else if (operands[1].equals("lt")) {
                             boolQueryBuilder = boolQueryBuilder
-                                    .filter(QueryBuilders.rangeQuery(operands[0]).lt(fieldValue));
-                        } else
+                                    .filter(QueryBuilders.rangeQuery(operands[0]).lt(operands[2]));
+                        } else if (operands[1].equals("like")) {
+                            //TODO: if field type is fullText, use matchPhraseQuery instead of regexQuery
+                            boolQueryBuilder = boolQueryBuilder
+                                    .filter(QueryBuilders.regexpQuery(operands[0], ".*" + operands[2] + ".*"));
+                        } else if (operands[1].equals("ne")) {
+                            String fieldValues[] = operands[2].split(",");
+                            for (String value : fieldValues) {
+                                boolQueryBuilder = boolQueryBuilder
+                                        .mustNot(QueryBuilders.matchQuery(operands[0], value));
+                            }
+                        }
+                        else {
                             throw new InvalidParameterException(INVALID_OPERATOR);
-                    } else
-                        throw new InvalidParameterException(INVALID_VALUE_TYPE);
+                        }
+                    }
                 }
             }
         }
