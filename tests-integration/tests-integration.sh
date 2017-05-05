@@ -1,4 +1,20 @@
 #!/bin/bash
+set -e
+
+function clean_docker {
+	docker kill arlas-server || echo "arlas-server already killed"
+	docker rm arlas-server || echo "arlas-server already removed"
+	docker kill elasticsearch || echo "elasticsearch already killed"
+	docker rm elasticsearch || echo "elasticsearch already removed"
+}
+
+function clean_exit {
+    ARG=$?
+    echo "===> integration tests failed"
+    clean_docker
+    exit $ARG
+} 
+trap clean_exit EXIT
 
 # GO TO PROJECT PATH
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
@@ -6,18 +22,12 @@ cd ${SCRIPT_PATH}/..
 
 # CLEAN
 echo "===> kill/rm old containers if needed"
-function clean {
-	docker kill arlas-server
-	docker rm arlas-server
-	docker kill elasticsearch
-	docker rm elasticsearch
-}
-clean
+clean_docker
 
 # PACKAGE
 echo "===> package arlas-server"
 mvn clean install
-VERSION=`echo -e 'setns x=http://maven.apache.org/POM/4.0.0\ncat /x:project/x:version/text()' | xmllint --shell pom.xml | grep -v /`
+VERSION=`xmlstarlet sel -t -v /_:project/_:version pom.xml`
 echo "arlas-server:${VERSION}"
 mv target/arlas-server-${VERSION}.jar target/arlas-server.jar
 
@@ -53,7 +63,7 @@ docker run --link arlas-server:arlas-server --rm busybox sh -c 'i=1; until nc -w
 
 # TEST
 echo "===> run integration tests"
-docker run -it --rm \
+docker run --rm \
 	-w /opt/maven \
 	-v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
@@ -68,4 +78,4 @@ docker run -it --rm \
 	mvn clean install -DskipTests=false
 	
 # CLEAN
-clean
+clean_docker

@@ -1,0 +1,7 @@
+arlas:
+  script:
+    - ./tests-integration/tests-integration.sh
+  only:
+    - branches
+  except:
+    - /^WIP.*$/

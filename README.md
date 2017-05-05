@@ -11,6 +11,13 @@ The exploration API is described [here](doc/api/API-definition.md) while the  Co
 mvn clean package
 ```
 
+Depending on your system, you might need to install some dependencies : 
+
+```sh
+sudo apt-get install libc6-dev
+sudo apt-get install libxml2-utils
+```
+
 
 # Run
 ```sh
@@ -35,6 +42,7 @@ curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/col
 curl -X DELETE --header 'Accept: application/json' 'http://localhost:9999/arlas/collections/mycollection'
 ```
 
+
 # Integration Tests
 
 ## with docker containers
@@ -43,7 +51,13 @@ curl -X DELETE --header 'Accept: application/json' 'http://localhost:9999/arlas/
 ./tests-integration/tests-integration.sh
 ```
 
-Make sure to have docker installed and running on your system.
+Make sure to have docker installed and running on your system and you might need to install some dependencies : 
+
+```sh
+sudo apt-get install xmlstarlet
+```
+
+Have a look to the official [elasticsearch image documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html) if you are in trouble with elasticsearch container.
 
 ## whith running elasticsearch and arlas-server
 
@@ -52,8 +66,6 @@ export ARLAS_HOST="localhost"; export ARLAS_PORT="9999"; export ARLAS_PREFIX="/a
 export ARLAS_ELASTIC_HOST="localhost"; export ARLAS_ELASTIC_PORT=9300;
 mvn clean install -DskipTests=false
 ```
-
-
 
 
 # Optional
@@ -67,6 +79,7 @@ In order to monitor the REST service performances in ZIPKIN:
 wget -O zipkin.jar 'https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec'
 java -jar zipkin.jar &
 ```
+
 
 ## Generate API Documentation
 
