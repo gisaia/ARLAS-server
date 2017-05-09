@@ -251,11 +251,6 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
                 given().param("agg", "geohash:centroid:interval-13")
                 .when().get(getUrlPath("geodata"))
                 .then());
-        //TODO NO SUPPORTED
-        /*handleInvalidParameters(
-                given().param("agg", "geohash:centroid:interval-1:size-1")
-                .when().get(getUrlPath("geodata"))
-                .then());*/
         handleInvalidParameters(
                 given().param("agg", "geohash:centroid:interval-1:order-asc:on-count")
                 .when().get(getUrlPath("geodata"))
@@ -296,6 +291,15 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
                 given().param("agg", "term:job:interval-1")
                 .when().get(getUrlPath("geodata"))
                 .then());
+    }
+
+    @Test
+    public void testNotImplementedAggregateParameters() throws Exception {
+        //NOT IMPLEMENTED PARAMETER
+        handleNotImplementedParameters(
+                given().param("agg", "geohash:centroid:interval-1:size-1")
+                        .when().get(getUrlPath("geodata"))
+                        .then());
     }
     
     //----------------------------------------------------------------
