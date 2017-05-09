@@ -6,6 +6,14 @@ function clean_docker {
 	docker rm arlas-server || echo "arlas-server already removed"
 	docker kill elasticsearch || echo "elasticsearch already killed"
 	docker rm elasticsearch || echo "elasticsearch already removed"
+	
+	echo "===> clean maven repository"
+	docker run --rm \
+		-w /opt/maven \
+		-v $PWD:/opt/maven \
+		-v $HOME/.m2:/root/.m2 \
+		maven:3.5.0-jdk-8 \
+		mvn clean
 }
 
 function clean_exit {
@@ -59,7 +67,6 @@ docker run -ti -d \
 	arlas-server:${VERSION}
 echo "===> wait for arlas-server"
 docker run --link arlas-server:arlas-server --rm busybox sh -c 'i=1; until nc -w 2 arlas-server 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
-	
 
 # TEST
 echo "===> run integration tests"
@@ -75,7 +82,7 @@ docker run --rm \
 	--link arlas-server:arlas-server \
 	--link elasticsearch:elasticsearch \
 	maven:3.5.0-jdk-8 \
-	mvn clean install -DskipTests=false
+	mvn install -DskipTests=false
 	
 # CLEAN
 clean_docker
