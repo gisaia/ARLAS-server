@@ -1,10 +1,11 @@
 package io.arlas.server.rest.explore;
 
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.client.transport.TransportClient;
+
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.model.CollectionReference;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.client.transport.TransportClient;
 
 public class ExploreServices {
     private TransportClient client;
@@ -12,8 +13,9 @@ public class ExploreServices {
 
     public ExploreServices(TransportClient client, String arlasIndex) {
         this.client = client;
-        this.daoCollectionReference =  new ElasticCollectionReferenceDaoImpl(client, arlasIndex );
+        this.daoCollectionReference = new ElasticCollectionReferenceDaoImpl(client, arlasIndex);
     }
+
     public TransportClient getClient() {
         return client;
     }
@@ -30,7 +32,7 @@ public class ExploreServices {
         this.daoCollectionReference = daoCollectionReference;
     }
 
-    public SearchRequestBuilder init(CollectionReference collection){
+    public SearchRequestBuilder init(CollectionReference collection) {
         return client.prepareSearch(collection.params.indexName);
     }
 }

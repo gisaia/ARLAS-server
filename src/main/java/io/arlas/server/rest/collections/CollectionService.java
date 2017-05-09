@@ -77,7 +77,7 @@ public abstract class CollectionService extends CollectionRESTServices {
                     required=true)
             @PathParam(value = "collection") String collection
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
-	CollectionReference cr = dao.getCollectionReference(collection);
+        CollectionReference cr = dao.getCollectionReference(collection);
 	return ResponseFormatter.getResultResponse(cr);
     }
 

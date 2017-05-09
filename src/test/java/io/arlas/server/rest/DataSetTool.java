@@ -1,6 +1,13 @@
-package io.arlas.server.rest.admin;
+package io.arlas.server.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.AdminClient;
@@ -11,13 +18,7 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class DataSetTool {
     public final static String DATASET_INDEX_NAME="dataset";
@@ -34,11 +35,12 @@ public class DataSetTool {
 
     public static void main(String [] args) throws IOException {
         DataSetTool dst = DataSetTool.init(args[0], Integer.parseInt(args[1]));
+        dst.clearDataSet();
         dst.loadDataSet();
     }
 
     static public DataSetTool init() throws UnknownHostException {
-        return new DataSetTool(System.getenv("ELASTICSEARCH_PORT_9300_TCP_ADDR"), Integer.parseInt(System.getenv("ELASTICSEARCH_PORT_9300_TCP_PORT")));
+        return new DataSetTool(System.getenv("ARLAS_ELASTIC_HOST"), Integer.parseInt(System.getenv("ARLAS_ELASTIC_PORT")));
     }
 
     static public DataSetTool init(String host, int port) throws UnknownHostException {
@@ -47,7 +49,7 @@ public class DataSetTool {
 
     private DataSetTool(String host, int port) throws UnknownHostException {
 	Settings settings = null;
-        if("localhost".equals(host)){
+        if ("localhost".equals(host)){
             settings=Settings.EMPTY;
         }else{
             settings=Settings.builder().put("cluster.name", "docker-cluster").build();
@@ -66,20 +68,20 @@ public class DataSetTool {
         adminClient.indices().prepareCreate(DATASET_INDEX_NAME).addMapping(DATASET_TYPE_NAME, mapping).get();
         Data data;
         ObjectMapper mapper = new ObjectMapper();
-        for(int i=-80; i<80;i+=10){
-            for(int j=-170; j<170;j+=10){
+        for(int i=-170; i<=170;i+=10){
+            for(int j=-80; j<=80;j+=10){
                 data=new Data();
                 data.id= UUID.randomUUID().toString();
                 data.fullname="My name is "+data.id;
                 data.startdate=1l*(i+1000)*(j+1000);
-                data.centroid=i+","+j;
+                data.centroid=j+","+i;
                 data.job=jobs[((Math.abs(i)+Math.abs(j))/10)%(jobs.length-1)];
                 List<LngLatAlt> coords = new ArrayList<>();
-                coords.add(new LngLatAlt(i,j));
-                coords.add(new LngLatAlt(i,j-1));
+                coords.add(new LngLatAlt(i-1,j+1));
+                coords.add(new LngLatAlt(i+1,j+1));
                 coords.add(new LngLatAlt(i+1,j-1));
-                coords.add(new LngLatAlt(i+1,j));
-                coords.add(new LngLatAlt(i,j));
+                coords.add(new LngLatAlt(i-1,j-1));
+                coords.add(new LngLatAlt(i-1,j+1));
                 data.geometry=new Polygon(coords);
                 IndexResponse response = client.prepareIndex(DATASET_INDEX_NAME, DATASET_TYPE_NAME, data.id)
                         .setSource(mapper.writer().writeValueAsString(data))
