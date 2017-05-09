@@ -19,8 +19,8 @@ import com.codahale.metrics.annotation.Timed;
 
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.ArlasError;
-import io.arlas.server.model.ArlasSuccess;
+import io.arlas.server.model.response.ArlasError;
+import io.arlas.server.model.response.ArlasSuccess;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.rest.ResponseFormatter;
