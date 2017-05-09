@@ -298,6 +298,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
         then.statusCode(400);
     }
 
+    protected void handleNotImplementedParameters(ValidatableResponse then) throws Exception {
+        then.statusCode(501);
+    }
+
+
     protected abstract void handleNotMatchingRequest(ValidatableResponse then);
     
     //----------------------------------------------------------------
