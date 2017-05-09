@@ -1,9 +1,13 @@
 package io.arlas.server.dao;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -22,6 +26,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
@@ -137,4 +142,49 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             throw new InternalServerErrorException("Unable to delete collection : " + response.status().toString());
     }
 
+    @Override
+    public void checkCollectionReferenceParameters(CollectionReferenceParameters collectionRefParams) throws ArlasException {
+        GetMappingsResponse response;
+        try {
+            //check index
+            response = client.admin().indices().prepareGetMappings(collectionRefParams.indexName).setTypes(collectionRefParams.typeName).get();
+            if(response.getMappings().isEmpty()
+                    || !response.getMappings().get(collectionRefParams.indexName).containsKey(collectionRefParams.typeName)) {
+                throw new NotFoundException("Type "+collectionRefParams.typeName+" does not exist in "+collectionRefParams.indexName+".");
+            }
+            
+            //check type
+            Object properties = response.getMappings().get(collectionRefParams.indexName).get(collectionRefParams.typeName).sourceAsMap().get("properties");
+            if(properties == null) {
+                throw new NotFoundException("Unable to find properties from "+collectionRefParams.typeName+" in "+collectionRefParams.indexName+".");
+            }
+            
+            //check fields
+            List<String> fields = new ArrayList<String>();
+            if(collectionRefParams.idPath != null)
+                fields.add(collectionRefParams.idPath);
+            if(collectionRefParams.idPath != null)
+                fields.add(collectionRefParams.geometryPath);
+            if(collectionRefParams.idPath != null)
+                fields.add(collectionRefParams.centroidPath);
+            if(collectionRefParams.idPath != null)
+                fields.add(collectionRefParams.timestampPath);
+            if(!fields.isEmpty())
+                checkIndexMappingFields(collectionRefParams.indexName, collectionRefParams.typeName, fields.toArray(new String[fields.size()]));
+        } catch (IndexNotFoundException e) {
+            throw new NotFoundException("Index "+collectionRefParams.indexName+" does not exist.");
+        } catch (IOException e) {
+            throw new NotFoundException("Unable to access "+collectionRefParams.typeName+" in "+collectionRefParams.indexName+".");
+        }
+    }
+    
+    private void checkIndexMappingFields(String indexName, String typeName, String... fields) throws ArlasException {
+        GetFieldMappingsResponse response = client.admin().indices().prepareGetFieldMappings(indexName).setTypes(typeName).setFields(fields).get();
+        for(String field : fields) {
+            FieldMappingMetaData data = response.fieldMappings(indexName, typeName, field);
+            if(data == null || data.isNull()) {
+                throw new NotFoundException("Unable to find "+field+" from "+typeName+" in "+indexName+".");
+            }
+        }
+    }
 }
