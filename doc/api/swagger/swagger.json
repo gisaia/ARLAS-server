@@ -22,6 +22,34 @@
   } ],
   "schemes" : [ "http" ],
   "paths" : {
+    "/collections" : {
+      "get" : {
+        "tags" : [ "collections" ],
+        "summary" : "Get all collection references",
+        "description" : "Get all collection references in ARLAS",
+        "operationId" : "getAll",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/CollectionReference"
+              }
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          }
+        }
+      }
+    },
     "/collections/{collection}" : {
       "get" : {
         "tags" : [ "collections" ],
@@ -126,34 +154,6 @@
             "description" : "Collection not found.",
             "schema" : {
               "$ref" : "#/definitions/ArlasError"
-            }
-          },
-          "500" : {
-            "description" : "Arlas Server Error.",
-            "schema" : {
-              "$ref" : "#/definitions/ArlasError"
-            }
-          }
-        }
-      }
-    },
-    "/collections" : {
-      "get" : {
-        "tags" : [ "collections" ],
-        "summary" : "Get all collection references",
-        "description" : "Get all collection references in ARLAS",
-        "operationId" : "getAll",
-        "consumes" : [ "application/json;charset=utf-8" ],
-        "produces" : [ "application/json;charset=utf-8" ],
-        "parameters" : [ ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful operation",
-            "schema" : {
-              "type" : "array",
-              "items" : {
-                "$ref" : "#/definitions/CollectionReference"
-              }
             }
           },
           "500" : {
@@ -621,6 +621,48 @@
             }
           }
         }
+      },
+      "post" : {
+        "tags" : [ "explore" ],
+        "summary" : "Count",
+        "description" : "Count the number of elements found in the collection(s), given the filters",
+        "operationId" : "countPost",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collections",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/Count"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasHits"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          }
+        }
       }
     },
     "/explore/{collection}/_describe" : {
@@ -872,6 +914,33 @@
             "description" : "Successful operation"
           }
         }
+      },
+      "post" : {
+        "tags" : [ "explore" ],
+        "summary" : "Geoearch",
+        "description" : "Search and return the elements found in the collection(s) as features, given the filters",
+        "operationId" : "geosearchPost",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/Search"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation"
+          }
+        }
       }
     },
     "/explore/{collection}/_search" : {
@@ -1046,6 +1115,36 @@
           "required" : false,
           "type" : "integer",
           "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasHits"
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "explore" ],
+        "summary" : "Search",
+        "description" : "Search and return the elements found in the collection, given the filters",
+        "operationId" : "searchPost",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/Search"
+          }
         } ],
         "responses" : {
           "200" : {
@@ -1643,6 +1742,106 @@
         }
       },
       "description" : "Metadata of the ARLAS hit"
+    },
+    "Count" : {
+      "type" : "object",
+      "properties" : {
+        "filter" : {
+          "$ref" : "#/definitions/Filter"
+        },
+        "form" : {
+          "$ref" : "#/definitions/Form"
+        }
+      }
+    },
+    "Filter" : {
+      "type" : "object",
+      "properties" : {
+        "f" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "q" : {
+          "type" : "string"
+        },
+        "before" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "after" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "pwithin" : {
+          "type" : "string"
+        },
+        "gwithin" : {
+          "type" : "string"
+        },
+        "gintersect" : {
+          "type" : "string"
+        },
+        "notpwithin" : {
+          "type" : "string"
+        },
+        "notgwithin" : {
+          "type" : "string"
+        },
+        "notgintersect" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Form" : {
+      "type" : "object",
+      "properties" : {
+        "pretty" : {
+          "type" : "boolean"
+        },
+        "human" : {
+          "type" : "boolean"
+        }
+      }
+    },
+    "Search" : {
+      "type" : "object",
+      "properties" : {
+        "filter" : {
+          "$ref" : "#/definitions/Filter"
+        },
+        "form" : {
+          "$ref" : "#/definitions/Form"
+        },
+        "size" : {
+          "$ref" : "#/definitions/Size"
+        },
+        "sort" : {
+          "$ref" : "#/definitions/Sort"
+        }
+      }
+    },
+    "Size" : {
+      "type" : "object",
+      "properties" : {
+        "size" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "from" : {
+          "type" : "integer",
+          "format" : "int32"
+        }
+      }
+    },
+    "Sort" : {
+      "type" : "object",
+      "properties" : {
+        "sort" : {
+          "type" : "string"
+        }
+      }
     }
   }
 }
