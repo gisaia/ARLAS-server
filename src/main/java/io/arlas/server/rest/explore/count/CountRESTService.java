@@ -1,36 +1,29 @@
 package io.arlas.server.rest.explore.count;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
 
 import com.codahale.metrics.annotation.Timed;
-
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.model.ArlasError;
-import io.arlas.server.model.ArlasHits;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.request.Count;
+import io.arlas.server.model.response.ArlasError;
+import io.arlas.server.model.response.ArlasHits;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
-import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.ParamsParser;
 import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.elasticsearch.search.SearchHits;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class CountRESTService extends ExploreRESTServices {
 
@@ -132,65 +125,59 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
-        // TODO: checkParams
-        FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
-                .getCollectionReference(collection);
+        CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
+
+        FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
         fluidSearch.setCollectionReference(collectionReference);
 
-        if (f != null && !f.isEmpty()) {
-            fluidSearch = fluidSearch.filter(f);
-        }
-        if (q != null) {
-            fluidSearch = fluidSearch.filterQ(q);
-        }
-        if(before != null || after != null) {
-            if((before!=null && before.get()<0) || (after != null && after.get()<0)
-                    || (before != null && after != null && before.get() < after.get()))
-                throw new InvalidParameterException(FluidSearch.INVALID_BEFORE_AFTER);
-        }
-        if (after != null) {
-            fluidSearch = fluidSearch.filterAfter(after.get());
-        }
-        if (before != null) {
-            fluidSearch = fluidSearch.filterBefore(before.get());
-        }
-        if (pwithin != null && !pwithin.isEmpty()) {
-            double[] tlbr = CheckParams.toDoubles(pwithin);
-            if (tlbr.length == 4 && tlbr[0]>tlbr[2] && tlbr[2]<tlbr[3]) {
-                fluidSearch = fluidSearch.filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
-            } else {
-                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
-            }
-        }
-        if (gwithin != null && !gwithin.isEmpty()) {
-            fluidSearch = fluidSearch.filterGWithin(gwithin);
-        }
-        if (gintersect != null && !gintersect.isEmpty()) {
-            fluidSearch = fluidSearch.filterGIntersect(gintersect);
-        }
-        if (notpwithin != null && !notpwithin.isEmpty()) {
-            double[] tlbr = CheckParams.toDoubles(notpwithin);
-            if (tlbr.length == 4 && tlbr[0]>tlbr[2] && tlbr[2]<tlbr[3]) {
-                fluidSearch = fluidSearch.filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
-            } else {
-                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
-            }
-        }
-        if (notgwithin != null && !notgwithin.isEmpty()) {
-            fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
-        }
-        if (notgintersect != null && !notgintersect.isEmpty()) {
-            fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
-        }
-        SearchHits searchHits = fluidSearch.exec().getHits();
+        Count count = new Count();
+        count.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
 
+        ArlasHits arlasHits = getArlasHits(collectionReference, count);
+        return Response.ok(arlasHits).build();
+    }
+
+
+    @Timed
+    @Path("{collection}/_count")
+    @POST
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(value = "Count", produces = UTF8JSON, notes = "Count the number of elements found in the collection(s), given the filters", consumes = UTF8JSON)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasHits.class, responseContainer = "ArlasHits" ),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
+    public Response countPost(
+            // --------------------------------------------------------
+            // ----------------------- PATH -----------------------
+            // --------------------------------------------------------
+            @ApiParam(
+                    name = "collection",
+                    value="collections",
+                    allowMultiple = false,
+                    required=true)
+            @PathParam(value = "collection") String collection,
+
+            // --------------------------------------------------------
+            // -----------------------  SEARCH  -----------------------
+            // --------------------------------------------------------
+            Count count
+    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
+        CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
+        if (collectionReference == null) {
+            throw new NotFoundException(collection);
+        }
+        ArlasHits arlasHits = getArlasHits(collectionReference, count);
+        return Response.ok(arlasHits).build();
+    }
+
+    protected ArlasHits getArlasHits(CollectionReference collectionReference, Count count) throws ArlasException, IOException {
+        SearchHits searchHits = this.getExploreServices().count(count,collectionReference);
         ArlasHits arlasHits = new ArlasHits();
         arlasHits.totalnb = searchHits.totalHits();
         arlasHits.nbhits = searchHits.getHits().length;
-        return Response.ok(arlasHits).build();
+        return arlasHits;
     }
 }
