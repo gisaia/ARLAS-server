@@ -48,22 +48,22 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         for (String field : source.keySet()) {
             switch (field) {
             case CollectionReference.INDEX_NAME:
-                params.indexName = source.get(field) != null ? source.get(field).toString() : "";
+                params.indexName = source.get(field) != null ? source.get(field).toString() : null;
                 break;
             case CollectionReference.TYPE_NAME:
-                params.typeName = source.get(field) != null ? source.get(field).toString() : "";
+                params.typeName = source.get(field) != null ? source.get(field).toString() : null;
                 break;
             case CollectionReference.ID_PATH:
-                params.idPath = source.get(field) != null ? source.get(field).toString() : "";
+                params.idPath = source.get(field) != null ? source.get(field).toString() : null;
                 break;
             case CollectionReference.GEOMETRY_PATH:
-                params.geometryPath = source.get(field) != null ? source.get(field).toString() : "";
+                params.geometryPath = source.get(field) != null ? source.get(field).toString() : null;
                 break;
             case CollectionReference.CENTROID_PATH:
-                params.centroidPath = source.get(field) != null ? source.get(field).toString() : "";
+                params.centroidPath = source.get(field) != null ? source.get(field).toString() : null;
                 break;
             case CollectionReference.TIMESTAMP_PATH:
-                params.timestampPath = source.get(field) != null ? source.get(field).toString() : "";
+                params.timestampPath = source.get(field) != null ? source.get(field).toString() : null;
                 break;
             }
         }
@@ -163,11 +163,11 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             List<String> fields = new ArrayList<String>();
             if(collectionRefParams.idPath != null)
                 fields.add(collectionRefParams.idPath);
-            if(collectionRefParams.idPath != null)
+            if(collectionRefParams.geometryPath != null)
                 fields.add(collectionRefParams.geometryPath);
-            if(collectionRefParams.idPath != null)
+            if(collectionRefParams.centroidPath != null)
                 fields.add(collectionRefParams.centroidPath);
-            if(collectionRefParams.idPath != null)
+            if(collectionRefParams.timestampPath != null)
                 fields.add(collectionRefParams.timestampPath);
             if(!fields.isEmpty())
                 checkIndexMappingFields(collectionRefParams.indexName, collectionRefParams.typeName, fields.toArray(new String[fields.size()]));
