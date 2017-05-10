@@ -30,6 +30,11 @@ public class CountServiceIT extends AbstractFilteredTest {
     protected RequestSpecification givenFilterableRequestParams() {
         return given();
     }
+
+    @Override
+    protected RequestSpecification givenFilterableRequestBody() {
+        return given().contentType("application/json;charset=utf-8");
+    }
     
     @Override
     public void handleComplexFilter(ValidatableResponse then) throws Exception {

@@ -33,6 +33,11 @@ public class SearchServiceIT extends AbstractSizedTest {
     protected RequestSpecification givenFilterableRequestParams() {
         return given();
     }
+
+    @Override
+    protected RequestSpecification givenFilterableRequestBody() {
+        return given().contentType("application/json");
+    }
     
     @Override
     public void handleComplexFilter(ValidatableResponse then) throws Exception {
@@ -181,7 +186,13 @@ public class SearchServiceIT extends AbstractSizedTest {
     protected RequestSpecification givenBigSizedRequestParams() {
         return given().param("q", "My name is");
     }
-    
+
+    @Override
+    protected RequestSpecification givenBigSizedRequestParamsPost() {
+        search.filter.q = "My name is";
+        return given().contentType("application/json");
+    }
+
     @Override
     protected int getBigSizedResponseSize() {
         return 595;

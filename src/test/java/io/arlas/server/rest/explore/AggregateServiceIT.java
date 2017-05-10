@@ -94,6 +94,16 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     protected RequestSpecification givenFilterableRequestParams() {
         return given().param("agg", "geohash:centroid:interval-3");
     }
+
+    @Override
+    protected RequestSpecification givenFilterableRequestBody() {
+        aggregationRequest.aggregations.aggregations.get(0).type = "geohash";
+        aggregationRequest.aggregations.aggregations.get(0).field = "centroid";
+        aggregationRequest.aggregations.aggregations.get(0).interval = "3";
+        request = aggregationRequest;
+        return given().contentType("application/json;charset=utf-8");
+    }
+
     
     @Override
     protected void handleNotMatchingRequest(ValidatableResponse then) {

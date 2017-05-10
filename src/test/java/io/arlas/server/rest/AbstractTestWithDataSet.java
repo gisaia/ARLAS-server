@@ -8,13 +8,19 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.arlas.server.model.request.Filter;
+import io.arlas.server.model.request.Request;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import io.arlas.server.model.CollectionReference;
 
 public abstract class AbstractTestWithDataSet extends AbstractTest {
-    
+    protected static Request request = new Request();
+    static{
+        request.filter = new Filter();
+    }
+
     @BeforeClass
     public static void beforeClass() {
         try {

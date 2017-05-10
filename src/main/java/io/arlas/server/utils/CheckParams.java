@@ -6,9 +6,7 @@ import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.model.request.AggregationRequest;
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Size;
+import io.arlas.server.model.request.*;
 import io.arlas.server.rest.explore.enumerations.AggregationType;
 import io.arlas.server.rest.explore.enumerations.DateInterval;
 import org.elasticsearch.search.sort.SortOrder;
@@ -31,6 +29,7 @@ public class CheckParams {
     private static final String INVALID_PRECISION_TYPE = "Precision must be an integer between 1 and 12. ";
     private static final String INVALID_INTERVAL_TYPE = "Interval must be numeric. ";
     private static final String INVALID_AGGREGATION_PARAMETER = "Invalid aggregation syntax. Must start with {type}:{field}:...";
+    private static final String INVALID_AGGREGATION = "Invalid aggregation parameters. Type and field must be specified";
     private static final String INVALID_AGGREGATION_TYPE = "Invalid aggregation TYPE. Must be datehistogram, geohash, histogram or terms ";
 
     public CheckParams() {
@@ -39,6 +38,9 @@ public class CheckParams {
         if (aggregationRequest == null || (aggregationRequest !=null && aggregationRequest.aggregations == null) ||
                 (aggregationRequest !=null && aggregationRequest.aggregations != null && aggregationRequest.aggregations.aggregations == null))
             throw new BadRequestException("Aggregation should not be null");
+        else if (aggregationRequest !=null){
+            checkAggregation(aggregationRequest.aggregations);
+        }
     }
     public static void checkFilter (Filter filter) throws ArlasException{
         if (filter.before != null || filter.after != null) {
@@ -128,6 +130,21 @@ public class CheckParams {
                 throw new InvalidParameterException(INVALID_AGGREGATION_TYPE);
         } else
             throw new InvalidParameterException(INVALID_AGGREGATION_PARAMETER);
+    }
+
+    private static void checkAggregation(Aggregations aggregations) throws ArlasException{
+        if (aggregations != null && aggregations.aggregations != null && aggregations.aggregations.size()>0){
+            for (AggregationModel aggregationModel : aggregations.aggregations){
+                if ( aggregationModel.type != null && aggregationModel.field != null){
+                    if (!AggregationType.aggregationTypes().contains(aggregationModel.type)){
+                        throw new InvalidParameterException(INVALID_AGGREGATION_TYPE);
+                    }
+                }
+                else {
+                    throw new InvalidParameterException(INVALID_AGGREGATION);
+                }
+            }
+        }
     }
 
     // TODO: finish param check validation
