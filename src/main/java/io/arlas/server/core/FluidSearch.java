@@ -99,6 +99,8 @@ public class FluidSearch {
     public FluidSearch filter(List<String> f) throws ArlasException {
         for (int i = 0; i < f.size(); i++) {
             if (f.get(i) != null && !f.get(i).isEmpty()) {
+                LOGGER.info("==========================================" +f.get(i));
+
                 String operands[] = f.get(i).split(":");
                 int operandsNumber = operands.length;
                 if (operandsNumber < 2 || operandsNumber > 3) {

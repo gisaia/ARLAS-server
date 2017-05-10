@@ -135,78 +135,33 @@ public class ParamsParser {
 
     public static Filter getFilter(List<String> f, String q, LongParam before, LongParam after, String pwithin, String gwithin, String gintersect,String notpwithin, String notgwithin, String notgintersect) throws ArlasException{
         Filter filter = new Filter();
-        if (f != null && !f.isEmpty()) {
-            filter.f  = f;
-        }
-        if (q != null) {
-            filter.q = q;
-        }
-        if(before != null || after != null) {
-            if((before!=null && before.get()<0) || (after != null && after.get()<0)
-                    || (before != null && after != null && before.get() < after.get()))
-                throw new InvalidParameterException(FluidSearch.INVALID_BEFORE_AFTER);
-        }
+        filter.f  = f;
+        filter.q = q;
         if (after != null) {
             filter.after = after.get();
         }
         if (before != null) {
             filter.before = before.get();
         }
-        if (pwithin != null && !pwithin.isEmpty()) {
-            double[] tlbr = CheckParams.toDoubles(pwithin);
-            if (tlbr.length == 4 && tlbr[0]>tlbr[2] && tlbr[2]<tlbr[3]) {
-                filter.pwithin = pwithin;
-            } else {
-                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
-            }
-        }
-        if (gwithin != null && !gwithin.isEmpty()) {
-            filter.gwithin = gwithin;
-        }
-        if (gintersect != null && !gintersect.isEmpty()) {
-            filter.gintersect = gintersect;
-        }
-        if (notpwithin != null && !notpwithin.isEmpty()) {
-            double[] tlbr = CheckParams.toDoubles(notpwithin);
-            if (tlbr.length == 4 && tlbr[0]>tlbr[2] && tlbr[2]<tlbr[3]) {
-                filter.notpwithin =notpwithin;
-            } else {
-                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
-            }
-        }
-        if (notgwithin != null && !notgwithin.isEmpty()) {
-            filter.notgwithin = notgwithin;
-        }
-        if (notgintersect != null && !notgintersect.isEmpty()) {
-            filter.notgintersect = notgintersect;
-        }
+        filter.pwithin = pwithin;
+        filter.gwithin = gwithin;
+        filter.gintersect = gintersect;
+        filter.notpwithin =notpwithin;
+        filter.notgwithin = notgwithin;
+        filter.notgintersect = notgintersect;
         return filter;
     }
 
     public static Size getSize(IntParam size, IntParam from) throws ArlasException{
         Size sizeObject = new Size();
-        if (size != null && size.get() > 0) {
-            if (from != null) {
-                if(from.get() < 0) {
-                    throw new InvalidParameterException(FluidSearch.INVALID_FROM);
-                } else {
-                    sizeObject.size = size.get();
-                    sizeObject.from = from.get();
-                }
-            } else {
-                sizeObject.size = size.get();
-                sizeObject.from = 0;            }
-        } else {
-            throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
-        }
+        sizeObject.size = size.get();
+        sizeObject.from = from.get();
         return sizeObject;
     }
 
     public static Sort getSort(String sort){
         Sort sortObject = new Sort();
-        if (sort != null){
-            sortObject.sort = sort;
-        }
+        sortObject.sort = sort;
         return sortObject;
     }
 
