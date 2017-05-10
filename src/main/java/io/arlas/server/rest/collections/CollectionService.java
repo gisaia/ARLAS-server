@@ -48,8 +48,8 @@ public abstract class CollectionService extends CollectionRESTServices {
 	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class)})
 
     public Response getAll() throws InterruptedException, ExecutionException, IOException, ArlasException {	
-	List<CollectionReference> collections = dao.getAllCollectionReferences();
-	return ResponseFormatter.getResultResponse(collections);
+        List<CollectionReference> collections = dao.getAllCollectionReferences();
+        return ResponseFormatter.getResultResponse(collections);
     }
 
     @Timed
@@ -78,7 +78,7 @@ public abstract class CollectionService extends CollectionRESTServices {
             @PathParam(value = "collection") String collection
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         CollectionReference cr = dao.getCollectionReference(collection);
-	return ResponseFormatter.getResultResponse(cr);
+        return ResponseFormatter.getResultResponse(cr);
     }
 
     @Timed
@@ -95,6 +95,7 @@ public abstract class CollectionService extends CollectionRESTServices {
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
 	    @ApiResponse(code = 400, message = "JSON parameter malformed.", response = ArlasError.class),
+	    @ApiResponse(code = 404, message = "Not Found Error.", response = ArlasError.class),
 	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class)})
     public Response put(
             @ApiParam(
@@ -109,8 +110,9 @@ public abstract class CollectionService extends CollectionRESTServices {
             @NotNull @Valid CollectionReferenceParameters collectionReferenceParameters
 
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
-	CollectionReference cr = dao.putCollectionReference(collection, collectionReferenceParameters);
-	return ResponseFormatter.getResultResponse(cr);
+        dao.checkCollectionReferenceParameters(collectionReferenceParameters);
+        CollectionReference cr = dao.putCollectionReference(collection, collectionReferenceParameters);
+        return ResponseFormatter.getResultResponse(cr);
     }
 
     @Timed
@@ -136,7 +138,7 @@ public abstract class CollectionService extends CollectionRESTServices {
                     required=true)
             @PathParam(value = "collection") String collection
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
-	dao.deleteCollectionReference(collection);
-	return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
+        dao.deleteCollectionReference(collection);
+        return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
     }
 }

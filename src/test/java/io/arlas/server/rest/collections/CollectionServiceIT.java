@@ -9,19 +9,20 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import io.arlas.server.rest.AbstractTest;
+import io.arlas.server.rest.AbstractTestWithDataSet;
+import io.arlas.server.rest.DataSetTool;
 
-public class CollectionServiceIT extends AbstractTest {
+public class CollectionServiceIT extends AbstractTestWithDataSet {
 
     @Test
     public void testLifecycle() throws Exception {
         Map<String, Object> jsonAsMap = new HashMap<String, Object>();
-        jsonAsMap.put("index_name", "bar");
-        jsonAsMap.put("type_name", "type");
-        jsonAsMap.put("id_path", "path");
-        jsonAsMap.put("geometry_path", "geopath");
-        jsonAsMap.put("centroid_path", "centroidpath");
-        jsonAsMap.put("timestamp_path", "tspath");
+        jsonAsMap.put("index_name", DataSetTool.DATASET_INDEX_NAME);
+        jsonAsMap.put("type_name", DataSetTool.DATASET_TYPE_NAME);
+        jsonAsMap.put("id_path", DataSetTool.DATASET_ID_PATH);
+        jsonAsMap.put("geometry_path", DataSetTool.DATASET_GEOMETRY_PATH);
+        jsonAsMap.put("centroid_path", DataSetTool.DATASET_CENTROID_PATH);
+        jsonAsMap.put("timestamp_path", DataSetTool.DATASET_TIMESTAMP_PATH);
 
         // PUT new collection
         given().contentType("application/json").body(jsonAsMap)
@@ -32,12 +33,12 @@ public class CollectionServiceIT extends AbstractTest {
         when().get("/collections/foo")
         .then().statusCode(200)
             .body("collection_name", equalTo("foo"))
-            .body("params.index_name", equalTo("bar"))
-            .body("params.type_name", equalTo("type"))
-            .body("params.id_path", equalTo("path"))
-            .body("params.geometry_path", equalTo("geopath"))
-            .body("params.centroid_path", equalTo("centroidpath"))
-            .body("params.timestamp_path", equalTo("tspath"));
+            .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+            .body("params.type_name", equalTo(DataSetTool.DATASET_TYPE_NAME))
+            .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+            .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+            .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+            .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH));
 
         // DELETE collection
         when().delete("/collections/foo")

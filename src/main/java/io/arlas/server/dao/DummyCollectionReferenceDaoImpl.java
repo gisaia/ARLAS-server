@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.ws.rs.NotFoundException;
 
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 
@@ -42,6 +43,11 @@ public class DummyCollectionReferenceDaoImpl implements CollectionReferenceDao {
     public void deleteCollectionReference(String ref) {
         if (index.remove(ref) == null)
             throw new NotFoundException("collection " + ref + " not found");
+    }
+
+    @Override
+    public void checkCollectionReferenceParameters(CollectionReferenceParameters collectionRefParams) throws ArlasException {
+        // Nothing to do
     }
 
 }
