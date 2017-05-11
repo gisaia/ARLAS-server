@@ -65,6 +65,12 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             case CollectionReference.TIMESTAMP_PATH:
                 params.timestampPath = source.get(field) != null ? source.get(field).toString() : null;
                 break;
+            case CollectionReference.INCLUDE_FIELDS:
+                params.includeFields = source.get(field) != null ? source.get(field).toString() : null;
+                break;
+            case CollectionReference.EXCLUDE_FIELDS:
+                params.excludeFields = source.get(field) != null ? source.get(field).toString() : null;
+                break;
             }
         }
         return params;
