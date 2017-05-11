@@ -1,24 +1,20 @@
 package io.arlas.server.core;
 
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
-import io.arlas.server.exceptions.*;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.BadRequestException;
-import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.exceptions.NotAllowedException;
-import io.arlas.server.model.request.AggregationModel;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.rest.explore.enumerations.*;
-import io.arlas.server.utils.DateAggregationInterval;
-import io.arlas.server.utils.ParamsParser;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.common.geo.builders.*;
+import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
+import org.elasticsearch.common.geo.builders.LineStringBuilder;
+import org.elasticsearch.common.geo.builders.MultiPolygonBuilder;
+import org.elasticsearch.common.geo.builders.PointBuilder;
+import org.elasticsearch.common.geo.builders.PolygonBuilder;
+import org.elasticsearch.common.geo.builders.ShapeBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -36,9 +32,29 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.BadRequestException;
+import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.exceptions.NotAllowedException;
+import io.arlas.server.exceptions.NotImplementedException;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.request.AggregationModel;
+import io.arlas.server.rest.explore.enumerations.AggregationOn;
+import io.arlas.server.rest.explore.enumerations.AggregationOrder;
+import io.arlas.server.rest.explore.enumerations.AggregationType;
+import io.arlas.server.rest.explore.enumerations.DateInterval;
+import io.arlas.server.rest.explore.enumerations.MetricAggregationType;
+import io.arlas.server.utils.DateAggregationInterval;
+import io.arlas.server.utils.ParamsParser;
+
 
 public class FluidSearch {
 
@@ -548,5 +564,11 @@ public class FluidSearch {
     public void setCollectionReference(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
         searchRequestBuilder = client.prepareSearch(collectionReference.params.indexName);
+        if(collectionReference.params.includeFields != null && !collectionReference.params.includeFields.isEmpty()) {
+            include(collectionReference.params.includeFields);
+        }
+        if(collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
+            exclude(collectionReference.params.excludeFields);
+        }
     }
 }

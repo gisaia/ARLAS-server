@@ -29,17 +29,25 @@ public class CollectionReferenceParameters {
 
     @ApiModelProperty(value = "Path to the collection's timestamp", example = "timestamp")
     public String timestampPath;
+    
+    @ApiModelProperty(value = "List the name patterns of the fields to be included in the result. Seperate patterns with a comma.", example = "*")
+    public String includeFields = null;
+    
+    @ApiModelProperty(value = "List the name patterns of the fields to be excluded in the result. Seperate patterns with a comma.", example = "fieldname")
+    public String excludeFields = null;
 
     public CollectionReferenceParameters() {
     }
 
     public CollectionReferenceParameters(String indexName, String typeName, String idPath, String geometryPath,
-            String centroidPath, String timestampPath) {
+            String centroidPath, String timestampPath, String includeFields, String excludeFields) {
         this.indexName = indexName;
         this.typeName = typeName;
         this.idPath = idPath;
         this.geometryPath = geometryPath;
         this.centroidPath = centroidPath;
         this.timestampPath = timestampPath;
+        this.includeFields = includeFields;
+        this.excludeFields = excludeFields;
     }
 }
