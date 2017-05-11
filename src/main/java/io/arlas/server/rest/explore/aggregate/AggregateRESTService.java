@@ -1,18 +1,15 @@
 package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.model.ArlasAggregation;
-import io.arlas.server.model.ArlasError;
-import io.arlas.server.model.ArlasHits;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.request.AggregationRequest;
+import io.arlas.server.model.response.ArlasAggregation;
+import io.arlas.server.model.response.ArlasError;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
-import io.arlas.server.utils.CheckParams;
-import io.dropwizard.jersey.params.IntParam;
+import io.arlas.server.utils.ParamsParser;
 import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -20,8 +17,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -31,8 +26,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class AggregateRESTService extends ExploreRESTServices {
-
-    static Logger LOGGER = LoggerFactory.getLogger(AggregateRESTService.class);
 
     public AggregateRESTService(ExploreServices exploreServices) {
         super(exploreServices);
@@ -145,74 +138,65 @@ public class AggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         Long startArlasTime = System.nanoTime();
-        FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        fluidSearch.setCollectionReference(collectionReference);
-
-        if (f != null && !f.isEmpty()) {
-            fluidSearch = fluidSearch.filter(f);
-        }
-        if (q != null) {
-            fluidSearch = fluidSearch.filterQ(q);
-        }
-        if(before != null || after != null) {
-            if((before!=null && before.get()<0) || (after != null && after.get()<0)
-                    || (before != null && after != null && before.get() < after.get()))
-                throw new InvalidParameterException(FluidSearch.INVALID_BEFORE_AFTER);
-        }
-        if (after != null) {
-            fluidSearch = fluidSearch.filterAfter(after.get());
-        }
-        if (before != null) {
-            fluidSearch = fluidSearch.filterBefore(before.get());
-        }
-        if (pwithin != null && !pwithin.isEmpty()) {
-            double[] tlbr = CheckParams.toDoubles(pwithin);
-            if (tlbr.length == 4 && tlbr[0]>tlbr[2] && tlbr[2]<tlbr[3]) {
-                fluidSearch = fluidSearch.filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
-            } else {
-                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
-            }
-        }
-        if (gwithin != null && !gwithin.isEmpty()) {
-            fluidSearch = fluidSearch.filterGWithin(gwithin);
-        }
-        if (gintersect != null && !gintersect.isEmpty()) {
-            fluidSearch = fluidSearch.filterGIntersect(gintersect);
-        }
-        if (notpwithin != null && !notpwithin.isEmpty()) {
-            double[] tlbr = CheckParams.toDoubles(notpwithin);
-            if (tlbr.length == 4 && tlbr[0]>tlbr[2] && tlbr[2]<tlbr[3]) {
-                fluidSearch = fluidSearch.filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
-            } else {
-                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
-            }
-        }
-        if (notgwithin != null && !notgwithin.isEmpty()) {
-            fluidSearch = fluidSearch.filterNotGWithin(notgwithin);
-        }
-        if (notgintersect != null && !notgintersect.isEmpty()) {
-            fluidSearch = fluidSearch.filterNotGIntersect(notgintersect);
-        }
-       
-        ArlasAggregation arlasAggregation = new ArlasAggregation();
-        SearchResponse response = fluidSearch.exec();
-        MultiBucketsAggregation aggregation = null;
-        if (agg != null && agg.size()>0){
-            Long startQuery = System.nanoTime();
-            fluidSearch.aggregate(agg, false);
-            aggregation = (MultiBucketsAggregation)fluidSearch.exec().getAggregations().asList().get(0);
-            arlasAggregation.totalnb = response.getHits().totalHits();
-            arlasAggregation.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
-        }
-        arlasAggregation = fluidSearch.formatAggregationResult(aggregation,arlasAggregation);
+        AggregationRequest aggregationRequest = new AggregationRequest();
+        aggregationRequest.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
+        aggregationRequest.aggregations = ParamsParser.getAggregations(agg);
+        ArlasAggregation arlasAggregation = getArlasAggregation(aggregationRequest,collectionReference);
         arlasAggregation.arlasTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
-
-        //SearchResponse result = fluidSearch.execute();
         return Response.ok(arlasAggregation).build();
     }
+
+    @Timed
+    @Path("{collection}/_aggregate")
+    @POST
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = Documentation.AGGREGATION_OPERATION, consumes = UTF8JSON, response = ArlasAggregation.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasAggregation.class, responseContainer = "ArlasAggregation" ),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class),
+            @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
+    public Response aggregatePost(
+            // --------------------------------------------------------
+            // ----------------------- PATH -----------------------
+            // --------------------------------------------------------
+            @ApiParam(
+                    name = "collection",
+                    value = "collection",
+                    allowMultiple = false,
+                    required = true)
+            @PathParam(value = "collection") String collection,
+            // --------------------------------------------------------
+            // ----------------------- AGGREGATION -----------------------
+            // --------------------------------------------------------
+            AggregationRequest aggregationRequest
+    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
+        Long startArlasTime = System.nanoTime();
+        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+                .getCollectionReference(collection);
+        if (collectionReference == null) {
+            throw new NotFoundException(collection);
+        }
+        ArlasAggregation arlasAggregation = getArlasAggregation(aggregationRequest,collectionReference);
+        arlasAggregation.arlasTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
+
+        return Response.ok(arlasAggregation).build();
+    }
+
+    public ArlasAggregation getArlasAggregation(AggregationRequest aggregationRequest, CollectionReference collectionReference) throws ArlasException, IOException{
+        ArlasAggregation arlasAggregation = new ArlasAggregation();
+        Long startQuery = System.nanoTime();
+        SearchResponse response = this.getExploreServices().aggregate(aggregationRequest,collectionReference,false);
+        MultiBucketsAggregation aggregation;
+        aggregation = (MultiBucketsAggregation)response.getAggregations().asList().get(0);
+        arlasAggregation.totalnb = response.getHits().totalHits();
+        arlasAggregation.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
+        arlasAggregation = this.getExploreServices().formatAggregationResult(aggregation,arlasAggregation);
+        return arlasAggregation;
+    }
+
 }

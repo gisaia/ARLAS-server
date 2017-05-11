@@ -3,8 +3,8 @@ package io.arlas.server.rest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import io.arlas.server.model.ArlasError;
-import io.arlas.server.model.ArlasSuccess;
+import io.arlas.server.model.response.ArlasError;
+import io.arlas.server.model.response.ArlasSuccess;
 
 public class ResponseFormatter {
 
