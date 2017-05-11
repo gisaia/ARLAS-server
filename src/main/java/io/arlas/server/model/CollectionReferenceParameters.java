@@ -19,16 +19,16 @@ public class CollectionReferenceParameters {
     public String typeName;
 
     @ApiModelProperty(value = "Path to the collection's id", example = "id")
-    public String idPath = "id";
+    public String idPath;
 
     @ApiModelProperty(value = "Path to the collection's geometry", example = "geometry")
-    public String geometryPath = "geometry";
+    public String geometryPath;
 
     @ApiModelProperty(value = "Path to the collection's centroid", example = "centroid")
-    public String centroidPath = "centroid";
+    public String centroidPath;
 
     @ApiModelProperty(value = "Path to the collection's timestamp", example = "timestamp")
-    public String timestampPath = "timestamp";
+    public String timestampPath;
 
     public CollectionReferenceParameters() {
     }

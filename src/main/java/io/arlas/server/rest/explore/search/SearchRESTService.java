@@ -1,6 +1,27 @@
 package io.arlas.server.rest.explore.search;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+
 import com.codahale.metrics.annotation.Timed;
+
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Search;
@@ -10,6 +31,7 @@ import io.arlas.server.model.response.ArlasMD;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.ParamsParser;
 import io.dropwizard.jersey.params.IntParam;
 import io.dropwizard.jersey.params.LongParam;
@@ -17,18 +39,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.geojson.Point;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class SearchRESTService extends ExploreRESTServices {
 
@@ -242,17 +252,13 @@ public class SearchRESTService extends ExploreRESTServices {
             }
             if (collectionReference.params.centroidPath != null
                     && hitsSources.get(collectionReference.params.centroidPath) != null) {
-                String pointString = (String) hitsSources.get(collectionReference.params.centroidPath);
-                String[] tokens = pointString.split(",");
-                Double latitude = Double.parseDouble(tokens[0]);
-                Double longitude = Double.parseDouble(tokens[1]);
-                Point point = new Point(latitude, longitude);
-                arlasHit.md.centroid = point;
+                Object m = hitsSources.get(collectionReference.params.centroidPath);
+                arlasHit.md.centroid = GeoTypeMapper.getGeoJsonObject(m);
             }
             if (collectionReference.params.geometryPath != null
                     && hitsSources.get(collectionReference.params.geometryPath) != null) {
-                HashMap m = (HashMap) hitsSources.get(collectionReference.params.geometryPath);
-                arlasHit.md.geometry = m;
+                Object m = hitsSources.get(collectionReference.params.geometryPath);
+                arlasHit.md.geometry = GeoTypeMapper.getGeoJsonObject(m);
             }
             if (collectionReference.params.timestampPath != null
                     && hitsSources.get(collectionReference.params.timestampPath) != null) {

@@ -1,13 +1,36 @@
 package io.arlas.server.rest.explore.search;
 
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.geojson.Feature;
+import org.geojson.FeatureCollection;
+
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectReader;
+
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.ParamsParser;
 import io.dropwizard.jersey.params.IntParam;
 import io.dropwizard.jersey.params.LongParam;
@@ -15,19 +38,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.geojson.Feature;
-import org.geojson.FeatureCollection;
-import org.geojson.GeoJsonObject;
-import org.geojson.Point;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class GeoSearchRESTService extends ExploreRESTServices {
 
@@ -227,8 +237,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         FeatureCollection fc = new FeatureCollection();
         SearchHit[] results = searchHits.getHits();
 
-        ObjectReader reader = this.mapper.readerFor(GeoJsonObject.class);
-
         for (SearchHit hit : results) {
             Feature feature = new Feature();
             Map<String, Object> hitsSources = hit.getSource();
@@ -236,8 +244,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                 if (hitsSources.keySet().contains(collectionReference.params.geometryPath)) {
                     String geometryPath = collectionReference.params.geometryPath;
                     Object m = hitsSources.get(geometryPath);
-                    GeoJsonObject g = reader.readValue(this.mapper.writer().writeValueAsString(m));
-                    feature.setGeometry(g);
+                    feature.setGeometry(GeoTypeMapper.getGeoJsonObject(m));
                     hitsSources.remove(geometryPath);
                     feature.setProperties(hit.getSource());
                 } else {
@@ -246,12 +253,8 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             } else if (collectionReference.params.centroidPath != null) {
                 if (hitsSources.keySet().contains(collectionReference.params.centroidPath)) {
                     String centroidPath = collectionReference.params.centroidPath;
-                    String pointString = (String) hitsSources.get(centroidPath);
-                    String[] tokens = pointString.split(",");
-                    Double latitude = Double.parseDouble(tokens[0]);
-                    Double longitude = Double.parseDouble(tokens[1]);
-                    GeoJsonObject g = new Point(latitude, longitude);
-                    feature.setGeometry(g);
+                    Object m = hitsSources.get(centroidPath);
+                    feature.setGeometry(GeoTypeMapper.getGeoJsonObject(m));
                     hitsSources.remove(centroidPath);
                     feature.setProperties(hit.getSource());
                 } else {
