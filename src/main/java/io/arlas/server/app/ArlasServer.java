@@ -78,7 +78,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             Optional<Brave> brave = configuration.zipkinConfiguration.build(environment);
         }
 
-        ExploreServices exploration = new ExploreServices(client, configuration.arlasindex);
+        ExploreServices exploration = new ExploreServices(client, configuration);
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
         environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         environment.jersey().register(new ArlasExceptionMapper());
@@ -93,6 +93,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new SuggestRESTService(exploration));
         environment.jersey().register(new DescribeRESTService(exploration));
         environment.jersey().register(new DescribeCollectionRESTService(exploration));
-        environment.jersey().register(new ElasticCollectionService(client, configuration.arlasindex));
+        environment.jersey().register(new ElasticCollectionService(client, configuration));
     }
 }

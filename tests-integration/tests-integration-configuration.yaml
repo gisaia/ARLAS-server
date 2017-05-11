@@ -26,3 +26,5 @@ elastic-host: ${ELASTICSEARCH_PORT_9300_TCP_ADDR}
 elastic-port: ${ELASTICSEARCH_PORT_9300_TCP_PORT}
 elastic-cluster: docker-cluster
 arlas-index:  ${ARLAS_ELASTIC-INDEX:-.arlas}
+arlas-cache-size: 1000
+arlas-cache-timeout: 60

@@ -25,3 +25,5 @@ logging:
 elastic-host: ${ARLAS_ELASTIC_HOST:-localhost}
 elastic-port: ${ARLAS_ELASTIC_PORT:-9300}
 arlas-index:  ${ARLAS_ELASTIC_INDEX:-.arlas}
+arlas-cache-size: 1000
+arlas-cache-timeout: 60

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
@@ -25,6 +27,9 @@ import org.elasticsearch.search.sort.SortOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
@@ -36,11 +41,21 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     TransportClient client = null;
     String arlasIndex = null;
+    private static LoadingCache<String, CollectionReference> collections = null;
 
-    public ElasticCollectionReferenceDaoImpl(TransportClient client, String arlasIndex) {
+    public ElasticCollectionReferenceDaoImpl(TransportClient client, String arlasIndex, int arlasCacheSize, int arlasCacheTimeout) {
         super();
         this.client = client;
         this.arlasIndex = arlasIndex;
+        collections = CacheBuilder.newBuilder()
+        .maximumSize(arlasCacheSize)
+        .expireAfterWrite(arlasCacheTimeout, TimeUnit.SECONDS)
+        .build(
+                new CacheLoader<String, CollectionReference>() {
+                    public CollectionReference load(String ref) throws NotFoundException {
+                        return getCollectionReferenceFromES(ref);
+                    }
+                });
     }
 
     private CollectionReferenceParameters getCollectionReferenceParameters(Map<String, Object> source) {
@@ -76,8 +91,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         return params;
     }
 
-    @Override
-    public CollectionReference getCollectionReference(String ref) throws NotFoundException {
+    private CollectionReference getCollectionReferenceFromES(String ref) throws NotFoundException {
         CollectionReference collection = null;
         GetResponse response = client.prepareGet(arlasIndex, "collection", ref).get();
         Map<String, Object> source = response.getSource();
@@ -89,6 +103,15 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         }
         return collection;
     }
+    
+    @Override
+    public CollectionReference getCollectionReference(String ref) throws NotFoundException {
+        try {
+            return collections.get(ref);
+        } catch (ExecutionException e) {
+            throw new NotFoundException("Collection " + ref + " not found.");
+        }
+    }
 
     @Override
     public List<CollectionReference> getAllCollectionReferences() throws InternalServerErrorException {
@@ -98,9 +121,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             QueryBuilder qb = QueryBuilders.matchAllQuery();
             SearchResponse scrollResp = client.prepareSearch(arlasIndex)
                     .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC).setScroll(new TimeValue(60000))
-                    .setQuery(qb).setSize(100).get(); // max of 100 hits will be
-                                                      // returned for each
-                                                      // scroll
+                    .setQuery(qb).setSize(100).get(); // max of 100 hits will be returned for each scroll
 
             // Scroll until no hits are returned
             do {
@@ -112,12 +133,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 }
                 scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000))
                         .execute().actionGet();
-            } while (scrollResp.getHits().getHits().length != 0); // Zero hits
-                                                                  // mark the
-                                                                  // end of the
-                                                                  // scroll and
-                                                                  // the while
-                                                                  // loop.
+            } while (scrollResp.getHits().getHits().length != 0); // Zero hits mark the end of the scroll and the while loop.
         } catch (IndexNotFoundException e) {
             throw new InternalServerErrorException("Collections not found.");
         }
@@ -133,19 +149,29 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         IndexResponse response = client.prepareIndex(arlasIndex, "collection", ref)
                 .setSource(om.writeValueAsString(desc)).get();
         if (response.status().getStatus() != RestStatus.OK.getStatus()
-                && response.status().getStatus() != RestStatus.CREATED.getStatus())
+                && response.status().getStatus() != RestStatus.CREATED.getStatus()) {
             throw new InternalServerErrorException("Unable to index collection : " + response.status().toString());
-        else
+        } else {
+            //explicit clean-up cache
+            collections.invalidate(ref);
+            collections.cleanUp();
+            
             return new CollectionReference(ref, desc);
+        }
     }
 
     @Override
     public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException {
         DeleteResponse response = client.prepareDelete(arlasIndex, "collection", ref).get();
-        if (response.status().equals(RestStatus.NOT_FOUND))
+        if (response.status().equals(RestStatus.NOT_FOUND)) {
             throw new NotFoundException("collection " + ref + " not found.");
-        else if (!response.status().equals(RestStatus.OK))
+        } else if (!response.status().equals(RestStatus.OK)) {
             throw new InternalServerErrorException("Unable to delete collection : " + response.status().toString());
+        } else {
+            //explicit clean-up cache
+            collections.invalidate(ref);
+            collections.cleanUp();
+        }
     }
 
     @Override
