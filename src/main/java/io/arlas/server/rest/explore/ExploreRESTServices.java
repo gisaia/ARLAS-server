@@ -14,17 +14,13 @@ import javax.ws.rs.core.MediaType;
 
 public abstract class ExploreRESTServices {
 
-    protected static ObjectMapper mapper;
-    static {
-        mapper = new ObjectMapper();
-    }
+    protected static ObjectMapper mapper = new ObjectMapper();
 
     public ExploreServices getExploreServices() {
         return exploreServices;
     }
 
     protected ExploreServices exploreServices;
-    Logger LOGGER = LoggerFactory.getLogger(ExploreRESTServices.class);
 
     public static final String UTF8JSON = MediaType.APPLICATION_JSON + ";charset=utf-8";
 

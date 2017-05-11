@@ -10,15 +10,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 public abstract class AbstractSizedTest extends AbstractFilteredTest {
-    protected static Search search;
-    static {
-        search = new Search();
-        search.size = new Size();
-        search.filter = new Filter();
-    }
+    protected static Search search = new Search();
 
     @Before
-    public void initializeSize(){
+    public void setUpSearch(){
         search.size = new Size();
         search.filter = new Filter();
     }

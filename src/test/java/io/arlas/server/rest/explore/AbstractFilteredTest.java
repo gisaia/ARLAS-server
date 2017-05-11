@@ -16,7 +16,7 @@ import java.util.Arrays;
 public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
 
     @Before
-    public void initializeSize(){
+    public void setUpFilter(){
         request = new Request();
         request.filter = new Filter();
     }

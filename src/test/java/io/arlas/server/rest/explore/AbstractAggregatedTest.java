@@ -14,19 +14,9 @@ import java.util.ArrayList;
 public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
     protected static AggregationRequest aggregationRequest;
     protected static AggregationModel aggregationModel;
-    static {
-
-        aggregationRequest = new AggregationRequest();
-        aggregationRequest.filter = new Filter();
-        aggregationRequest.aggregations = new Aggregations();
-        aggregationRequest.aggregations.aggregations = new ArrayList<>();
-        aggregationModel = new AggregationModel();
-        aggregationRequest.aggregations.aggregations.add(aggregationModel);
-        request = aggregationRequest;
-    }
 
     @Before
-    public void initializeSize(){
+    public void setUpAggregationRequest(){
         aggregationRequest = new AggregationRequest();
         aggregationRequest.filter = new Filter();
         aggregationRequest.aggregations = new Aggregations();
