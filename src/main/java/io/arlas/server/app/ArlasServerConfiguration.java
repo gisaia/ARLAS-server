@@ -21,7 +21,13 @@ public class ArlasServerConfiguration extends Configuration {
 
     @JsonProperty("elastic-cluster")
     public String elasticcluster;
-
+ 
     @JsonProperty("arlas-index")
     public String arlasindex;
+    
+    @JsonProperty("arlas-cache-size")
+    public int arlascachesize;
+    
+    @JsonProperty("arlas-cache-timeout")
+    public int arlascachetimeout;
 }

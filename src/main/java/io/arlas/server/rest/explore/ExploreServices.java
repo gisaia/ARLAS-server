@@ -1,31 +1,39 @@
 package io.arlas.server.rest.explore;
 
-import io.arlas.server.core.FluidSearch;
-import io.arlas.server.dao.CollectionReferenceDao;
-import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.request.*;
-import io.arlas.server.model.response.ArlasAggregation;
-import io.arlas.server.model.response.ArlasMetric;
-import io.arlas.server.utils.CheckParams;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.core.FluidSearch;
+import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.request.AggregationRequest;
+import io.arlas.server.model.request.Aggregations;
+import io.arlas.server.model.request.Count;
+import io.arlas.server.model.request.Filter;
+import io.arlas.server.model.request.Search;
+import io.arlas.server.model.request.Size;
+import io.arlas.server.model.request.Sort;
+import io.arlas.server.model.response.ArlasAggregation;
+import io.arlas.server.model.response.ArlasMetric;
+import io.arlas.server.utils.CheckParams;
 
 public class ExploreServices {
     private TransportClient client;
     private CollectionReferenceDao daoCollectionReference;
 
-    public ExploreServices(TransportClient client, String arlasIndex) {
+    public ExploreServices(TransportClient client, ArlasServerConfiguration configuration) {
         this.client = client;
-        this.daoCollectionReference = new ElasticCollectionReferenceDaoImpl(client, arlasIndex);
+        this.daoCollectionReference = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
     }
 
     public TransportClient getClient() {
