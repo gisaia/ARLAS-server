@@ -710,6 +710,63 @@ margin-bottom: 20px;
   <script>
     // Script section to load models into a JS Var
     var defs = {}
+    defs.AggregationModel = {
+  "type" : "object",
+  "properties" : {
+    "type" : {
+      "type" : "string"
+    },
+    "field" : {
+      "type" : "string"
+    },
+    "interval" : {
+      "type" : "string"
+    },
+    "format" : {
+      "type" : "string"
+    },
+    "collectField" : {
+      "type" : "string"
+    },
+    "collectFct" : {
+      "type" : "string"
+    },
+    "order" : {
+      "type" : "string"
+    },
+    "on" : {
+      "type" : "string"
+    },
+    "size" : {
+      "type" : "string"
+    }
+  }
+};
+    defs.AggregationRequest = {
+  "type" : "object",
+  "properties" : {
+    "filter" : {
+      "$ref" : "#/definitions/Filter"
+    },
+    "form" : {
+      "$ref" : "#/definitions/Form"
+    },
+    "aggregations" : {
+      "$ref" : "#/definitions/Aggregations"
+    }
+  }
+};
+    defs.Aggregations = {
+  "type" : "object",
+  "properties" : {
+    "aggregations" : {
+      "type" : "array",
+      "items" : {
+        "$ref" : "#/definitions/AggregationModel"
+      }
+    }
+  }
+};
     defs.ArlasAggregation = {
   "type" : "object",
   "properties" : {
@@ -832,8 +889,9 @@ margin-bottom: 20px;
       "properties" : { }
     },
     "centroid" : {
+      "type" : "object",
       "description" : "The centroid of the hit",
-      "$ref" : "#/definitions/Point"
+      "properties" : { }
     }
   },
   "description" : "Metadata of the ARLAS hit"
@@ -913,9 +971,30 @@ margin-bottom: 20px;
       "type" : "string",
       "example" : "timestamp",
       "description" : "Path to the collection's timestamp"
+    },
+    "include_fields" : {
+      "type" : "string",
+      "example" : "*",
+      "description" : "List the name patterns of the fields to be included in the result. Seperate patterns with a comma."
+    },
+    "exclude_fields" : {
+      "type" : "string",
+      "example" : "fieldname",
+      "description" : "List the name patterns of the fields to be excluded in the result. Seperate patterns with a comma."
     }
   },
   "description" : "The description of the elasticsearch index and the way ARLAS API will serve it."
+};
+    defs.Count = {
+  "type" : "object",
+  "properties" : {
+    "filter" : {
+      "$ref" : "#/definitions/Filter"
+    },
+    "form" : {
+      "$ref" : "#/definitions/Form"
+    }
+  }
 };
     defs.Crs = {
   "type" : "object",
@@ -979,6 +1058,57 @@ margin-bottom: 20px;
       "items" : {
         "$ref" : "#/definitions/Feature"
       }
+    }
+  }
+};
+    defs.Filter = {
+  "type" : "object",
+  "properties" : {
+    "f" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
+    },
+    "q" : {
+      "type" : "string"
+    },
+    "before" : {
+      "type" : "integer",
+      "format" : "int64"
+    },
+    "after" : {
+      "type" : "integer",
+      "format" : "int64"
+    },
+    "pwithin" : {
+      "type" : "string"
+    },
+    "gwithin" : {
+      "type" : "string"
+    },
+    "gintersect" : {
+      "type" : "string"
+    },
+    "notpwithin" : {
+      "type" : "string"
+    },
+    "notgwithin" : {
+      "type" : "string"
+    },
+    "notgintersect" : {
+      "type" : "string"
+    }
+  }
+};
+    defs.Form = {
+  "type" : "object",
+  "properties" : {
+    "pretty" : {
+      "type" : "boolean"
+    },
+    "human" : {
+      "type" : "boolean"
     }
   }
 };
@@ -1107,22 +1237,16 @@ margin-bottom: 20px;
   } ]
 };
     defs.Point = {
-  "type" : "object",
-  "properties" : {
-    "crs" : {
-      "$ref" : "#/definitions/Crs"
-    },
-    "bbox" : {
-      "type" : "array",
-      "items" : {
-        "type" : "number",
-        "format" : "double"
+  "allOf" : [ {
+    "$ref" : "#/definitions/GeoJsonObject"
+  }, {
+    "type" : "object",
+    "properties" : {
+      "coordinates" : {
+        "$ref" : "#/definitions/LngLatAlt"
       }
-    },
-    "coordinates" : {
-      "$ref" : "#/definitions/LngLatAlt"
     }
-  }
+  } ]
 };
     defs.Polygon = {
   "allOf" : [ {
@@ -1141,6 +1265,44 @@ margin-bottom: 20px;
       }
     }
   } ]
+};
+    defs.Search = {
+  "type" : "object",
+  "properties" : {
+    "filter" : {
+      "$ref" : "#/definitions/Filter"
+    },
+    "form" : {
+      "$ref" : "#/definitions/Form"
+    },
+    "size" : {
+      "$ref" : "#/definitions/Size"
+    },
+    "sort" : {
+      "$ref" : "#/definitions/Sort"
+    }
+  }
+};
+    defs.Size = {
+  "type" : "object",
+  "properties" : {
+    "size" : {
+      "type" : "integer",
+      "format" : "int32"
+    },
+    "from" : {
+      "type" : "integer",
+      "format" : "int32"
+    }
+  }
+};
+    defs.Sort = {
+  "type" : "object",
+  "properties" : {
+    "sort" : {
+      "type" : "string"
+    }
+  }
 };
   </script>
 
@@ -1175,8 +1337,17 @@ margin-bottom: 20px;
                     <li data-group="Explore" data-name="aggregate" class="">
                       <a href="#api-Explore-aggregate">aggregate</a>
                     </li>
+                    <li data-group="Explore" data-name="aggregatePost" class="">
+                      <a href="#api-Explore-aggregatePost">aggregatePost</a>
+                    </li>
+                    <li data-group="Explore" data-name="aggregatePost_1" class="">
+                      <a href="#api-Explore-aggregatePost_1">aggregatePost_1</a>
+                    </li>
                     <li data-group="Explore" data-name="count" class="">
                       <a href="#api-Explore-count">count</a>
+                    </li>
+                    <li data-group="Explore" data-name="countPost" class="">
+                      <a href="#api-Explore-countPost">countPost</a>
                     </li>
                     <li data-group="Explore" data-name="describe" class="">
                       <a href="#api-Explore-describe">describe</a>
@@ -1187,11 +1358,17 @@ margin-bottom: 20px;
                     <li data-group="Explore" data-name="geosearch" class="">
                       <a href="#api-Explore-geosearch">geosearch</a>
                     </li>
+                    <li data-group="Explore" data-name="geosearchPost" class="">
+                      <a href="#api-Explore-geosearchPost">geosearchPost</a>
+                    </li>
                     <li data-group="Explore" data-name="list" class="">
                       <a href="#api-Explore-list">list</a>
                     </li>
                     <li data-group="Explore" data-name="search" class="">
                       <a href="#api-Explore-search">search</a>
+                    </li>
+                    <li data-group="Explore" data-name="searchPost" class="">
+                      <a href="#api-Explore-searchPost">searchPost</a>
                     </li>
                     <li data-group="Explore" data-name="suggest" class="">
                       <a href="#api-Explore-suggest">suggest</a>
@@ -2680,6 +2857,48 @@ except ApiException as e:
                                 </div>
                             </div>
 
+                            <h3> Status: 404 - Not Found Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-put-404-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-put-404-schema">
+                                  <div id='responses-put-404-schema-404' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Not Found Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-put-404-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-put-404-schema-404');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-put-404-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
                             <h3> Status: 500 - Arlas Server Error. </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
@@ -2834,7 +3053,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -2949,7 +3168,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -3061,7 +3280,7 @@ array[String] *f = ; // - A triplet for filtering the result. Multiple filter ca
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -3196,7 +3415,7 @@ var opts = {
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -3324,7 +3543,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -3442,7 +3661,7 @@ $f = ; // array[String] | - A triplet for filtering the result. Multiple filter 
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -3555,7 +3774,7 @@ my $f = []; # array[String] | - A triplet for filtering the result. Multiple fil
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -3671,7 +3890,7 @@ f =  # array[String] | - A triplet for filtering the result. Multiple filter can
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -3818,7 +4037,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "f",
   "in" : "query",
-  "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+  "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
   "required" : false,
   "type" : "array",
   "items" : {
@@ -4401,6 +4620,896 @@ except ApiException as e:
                         </article>
                       </div>
                       <hr>
+                    <div id="api-Explore-aggregatePost">
+                      <article id="api-Explore-aggregatePost-0" data-group="User" data-name="aggregatePost" data-version="0">
+                        <div class="pull-left">
+                          <h1>aggregatePost</h1>
+                          <p>Aggregate</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/explore/{collection}/_aggregate</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-aggregatePost-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-aggregatePost-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-aggregatePost-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-aggregatePost-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-aggregatePost-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-aggregatePost-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-aggregatePost-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-aggregatePost-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-aggregatePost-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-aggregatePost-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-aggregatePost-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-aggregatePost-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">post</span> "http://localhost/arlas/explore/{collection}/_aggregate"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-aggregatePost-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        AggregationRequest body = ; // AggregationRequest | 
+        try {
+            ArlasAggregation result = apiInstance.aggregatePost(collection, body);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#aggregatePost");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-aggregatePost-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        AggregationRequest body = ; // AggregationRequest | 
+        try {
+            ArlasAggregation result = apiInstance.aggregatePost(collection, body);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#aggregatePost");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-aggregatePost-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-aggregatePost-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
+AggregationRequest *body = ; //  (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// Aggregate
+[apiInstance aggregatePostWith:collection
+    body:body
+              completionHandler: ^(ArlasAggregation output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-aggregatePost-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var collection = collection_example; // {String} collection
+
+var opts = { 
+  'body':  // {AggregationRequest} 
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.aggregatePost(collection, opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-aggregatePost-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-aggregatePost-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class aggregatePostExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var collection = collection_example;  // String | collection
+            var body = new AggregationRequest(); // AggregationRequest |  (optional) 
+
+            try
+            {
+                // Aggregate
+                ArlasAggregation result = apiInstance.aggregatePost(collection, body);
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.aggregatePost: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-aggregatePost-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$collection = collection_example; // String | collection
+$body = ; // AggregationRequest | 
+
+try {
+    $result = $api_instance->aggregatePost($collection, $body);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->aggregatePost: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-aggregatePost-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $collection = collection_example; # String | collection
+my $body = WWW::SwaggerClient::Object::AggregationRequest->new(); # AggregationRequest | 
+
+eval { 
+    my $result = $api_instance->aggregatePost(collection => $collection, body => $body);
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->aggregatePost: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-aggregatePost-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+collection = collection_example # String | collection
+body =  # AggregationRequest |  (optional)
+
+try: 
+    # Aggregate
+    api_response = api_instance.aggregatePost(collection, body=body)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling ExploreApi->aggregatePost: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">collection*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collection",
+  "in" : "path",
+  "description" : "collection",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregatePost_collection');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregatePost_collection"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+                            <div class="methodsubtabletitle">Body parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">body </td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "in" : "body",
+  "name" : "body",
+  "required" : false,
+  "schema" : {
+    "$ref" : "#/definitions/AggregationRequest"
+  }
+};
+													
+														var schema = schemaWrapper.schema;
+														schemaWrapper.definitions = defs;
+														JsonRefs.resolveRefs(schemaWrapper, {"depth":3, "resolveRemoteRefs":false,"resolveFileRefs":false },function (err, resolved, metadata) {
+														
+
+														
+													var view = new JSONSchemaView(resolved.schema,2,{isBodyParam: true});
+													 
+													var result = $('#d2e199_aggregatePost_body');
+													result.empty();
+													result.append(view.render());
+													
+
+													
+    											
+													
+
+
+												});
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregatePost_body"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - Successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-aggregatePost-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-aggregatePost-200-schema">
+                                  <div id='responses-aggregatePost-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasAggregation"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-aggregatePost-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-aggregatePost-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-aggregatePost-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 400 - Bad request. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-aggregatePost-400-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-aggregatePost-400-schema">
+                                  <div id='responses-aggregatePost-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Bad request.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-aggregatePost-400-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-aggregatePost-400-schema-400');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-aggregatePost-400-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-aggregatePost-500-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-aggregatePost-500-schema">
+                                  <div id='responses-aggregatePost-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-aggregatePost-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-aggregatePost-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-aggregatePost-500-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-Explore-aggregatePost_1">
+                      <article id="api-Explore-aggregatePost_1-0" data-group="User" data-name="aggregatePost_1" data-version="0">
+                        <div class="pull-left">
+                          <h1>aggregatePost_1</h1>
+                          <p>GeoAggregate</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/explore/{collection}/_geoaggregate</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-aggregatePost_1-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-aggregatePost_1-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-aggregatePost_1-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-aggregatePost_1-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">post</span> "http://localhost/arlas/explore/{collection}/_geoaggregate"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        AggregationRequest body = ; // AggregationRequest | 
+        try {
+            ArlasAggregation result = apiInstance.aggregatePost_0(collection, body);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#aggregatePost_0");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        AggregationRequest body = ; // AggregationRequest | 
+        try {
+            ArlasAggregation result = apiInstance.aggregatePost_0(collection, body);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#aggregatePost_0");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
+AggregationRequest *body = ; //  (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// GeoAggregate
+[apiInstance aggregatePost_1With:collection
+    body:body
+              completionHandler: ^(ArlasAggregation output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var collection = collection_example; // {String} collection
+
+var opts = { 
+  'body':  // {AggregationRequest} 
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.aggregatePost_0(collection, opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-aggregatePost_1-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class aggregatePost_0Example
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var collection = collection_example;  // String | collection
+            var body = new AggregationRequest(); // AggregationRequest |  (optional) 
+
+            try
+            {
+                // GeoAggregate
+                ArlasAggregation result = apiInstance.aggregatePost_0(collection, body);
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.aggregatePost_0: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$collection = collection_example; // String | collection
+$body = ; // AggregationRequest | 
+
+try {
+    $result = $api_instance->aggregatePost_0($collection, $body);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->aggregatePost_0: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $collection = collection_example; # String | collection
+my $body = WWW::SwaggerClient::Object::AggregationRequest->new(); # AggregationRequest | 
+
+eval { 
+    my $result = $api_instance->aggregatePost_0(collection => $collection, body => $body);
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->aggregatePost_0: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+collection = collection_example # String | collection
+body =  # AggregationRequest |  (optional)
+
+try: 
+    # GeoAggregate
+    api_response = api_instance.aggregatePost_0(collection, body=body)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling ExploreApi->aggregatePost_0: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">collection*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collection",
+  "in" : "path",
+  "description" : "collection",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_aggregatePost_1_collection');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregatePost_1_collection"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+                            <div class="methodsubtabletitle">Body parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">body </td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "in" : "body",
+  "name" : "body",
+  "required" : false,
+  "schema" : {
+    "$ref" : "#/definitions/AggregationRequest"
+  }
+};
+													
+														var schema = schemaWrapper.schema;
+														schemaWrapper.definitions = defs;
+														JsonRefs.resolveRefs(schemaWrapper, {"depth":3, "resolveRemoteRefs":false,"resolveFileRefs":false },function (err, resolved, metadata) {
+														
+
+														
+													var view = new JSONSchemaView(resolved.schema,2,{isBodyParam: true});
+													 
+													var result = $('#d2e199_aggregatePost_1_body');
+													result.empty();
+													result.append(view.render());
+													
+
+													
+    											
+													
+
+
+												});
+
+
+
+												});
+												</script>
+												<div id="d2e199_aggregatePost_1_body"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - Successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-aggregatePost_1-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-aggregatePost_1-200-schema">
+                                  <div id='responses-aggregatePost_1-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasAggregation"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-aggregatePost_1-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-aggregatePost_1-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-aggregatePost_1-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 400 - Bad request. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-aggregatePost_1-400-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-aggregatePost_1-400-schema">
+                                  <div id='responses-aggregatePost_1-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Bad request.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-aggregatePost_1-400-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-aggregatePost_1-400-schema-400');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-aggregatePost_1-400-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-aggregatePost_1-500-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-aggregatePost_1-500-schema">
+                                  <div id='responses-aggregatePost_1-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-aggregatePost_1-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-aggregatePost_1-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-aggregatePost_1-500-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
                     <div id="api-Explore-count">
                       <article id="api-Explore-count-0" data-group="User" data-name="count" data-version="0">
                         <div class="pull-left">
@@ -4458,7 +5567,7 @@ public class ExploreApiExample {
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -4524,7 +5633,7 @@ public class ExploreApiExample {
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -4587,7 +5696,7 @@ array[String] *f = ; // - A triplet for filtering the result. Multiple filter ca
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -4671,7 +5780,7 @@ var opts = {
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -4750,7 +5859,7 @@ namespace Example
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -4819,7 +5928,7 @@ $f = ; // array[String] | - A triplet for filtering the result. Multiple filter 
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -4883,7 +5992,7 @@ my $f = []; # array[String] | - A triplet for filtering the result. Multiple fil
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -4950,7 +6059,7 @@ f =  # array[String] | - A triplet for filtering the result. Multiple filter can
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -5060,7 +6169,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "f",
   "in" : "query",
-  "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+  "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
   "required" : false,
   "type" : "array",
   "items" : {
@@ -5643,6 +6752,451 @@ except ApiException as e:
                         </article>
                       </div>
                       <hr>
+                    <div id="api-Explore-countPost">
+                      <article id="api-Explore-countPost-0" data-group="User" data-name="countPost" data-version="0">
+                        <div class="pull-left">
+                          <h1>countPost</h1>
+                          <p>Count</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Count the number of elements found in the collection(s), given the filters</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/explore/{collection}/_count</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-countPost-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-countPost-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-countPost-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-countPost-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-countPost-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-countPost-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-countPost-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-countPost-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-countPost-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-countPost-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-countPost-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-countPost-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">post</span> "http://localhost/arlas/explore/{collection}/_count"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-countPost-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collections
+        Count body = ; // Count | 
+        try {
+            ArlasHits result = apiInstance.countPost(collection, body);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#countPost");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-countPost-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collections
+        Count body = ; // Count | 
+        try {
+            ArlasHits result = apiInstance.countPost(collection, body);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#countPost");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-countPost-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-countPost-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collections
+Count *body = ; //  (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// Count
+[apiInstance countPostWith:collection
+    body:body
+              completionHandler: ^(ArlasHits output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-countPost-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var collection = collection_example; // {String} collections
+
+var opts = { 
+  'body':  // {Count} 
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.countPost(collection, opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-countPost-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-countPost-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class countPostExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var collection = collection_example;  // String | collections
+            var body = new Count(); // Count |  (optional) 
+
+            try
+            {
+                // Count
+                ArlasHits result = apiInstance.countPost(collection, body);
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.countPost: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-countPost-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$collection = collection_example; // String | collections
+$body = ; // Count | 
+
+try {
+    $result = $api_instance->countPost($collection, $body);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->countPost: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-countPost-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $collection = collection_example; # String | collections
+my $body = WWW::SwaggerClient::Object::Count->new(); # Count | 
+
+eval { 
+    my $result = $api_instance->countPost(collection => $collection, body => $body);
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->countPost: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-countPost-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+collection = collection_example # String | collections
+body =  # Count |  (optional)
+
+try: 
+    # Count
+    api_response = api_instance.countPost(collection, body=body)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling ExploreApi->countPost: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">collection*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collection",
+  "in" : "path",
+  "description" : "collections",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_countPost_collection');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_countPost_collection"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+                            <div class="methodsubtabletitle">Body parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">body </td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "in" : "body",
+  "name" : "body",
+  "required" : false,
+  "schema" : {
+    "$ref" : "#/definitions/Count"
+  }
+};
+													
+														var schema = schemaWrapper.schema;
+														schemaWrapper.definitions = defs;
+														JsonRefs.resolveRefs(schemaWrapper, {"depth":3, "resolveRemoteRefs":false,"resolveFileRefs":false },function (err, resolved, metadata) {
+														
+
+														
+													var view = new JSONSchemaView(resolved.schema,2,{isBodyParam: true});
+													 
+													var result = $('#d2e199_countPost_body');
+													result.empty();
+													result.append(view.render());
+													
+
+													
+    											
+													
+
+
+												});
+
+
+
+												});
+												</script>
+												<div id="d2e199_countPost_body"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - Successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-countPost-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-countPost-200-schema">
+                                  <div id='responses-countPost-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasHits"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-countPost-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-countPost-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-countPost-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 400 - Bad request. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-countPost-400-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-countPost-400-schema">
+                                  <div id='responses-countPost-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Bad request.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-countPost-400-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-countPost-400-schema-400');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-countPost-400-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-countPost-500-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-countPost-500-schema">
+                                  <div id='responses-countPost-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-countPost-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-countPost-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-countPost-500-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
                     <div id="api-Explore-describe">
                       <article id="api-Explore-describe-0" data-group="User" data-name="describe" data-version="0">
                         <div class="pull-left">
@@ -6042,7 +7596,7 @@ except ApiException as e:
                       <article id="api-Explore-geoaggregate-0" data-group="User" data-name="geoaggregate" data-version="0">
                         <div class="pull-left">
                           <h1>geoaggregate</h1>
-                          <p>Aggregate</p>
+                          <p>GeoAggregate</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
@@ -6144,7 +7698,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -6259,7 +7813,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -6371,7 +7925,7 @@ array[String] *f = ; // - A triplet for filtering the result. Multiple filter ca
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -6413,7 +7967,7 @@ Integer *maxAgeCache = 56; // max-age-cache (optional)
 
 ExploreApi *apiInstance = [[ExploreApi alloc] init];
 
-// Aggregate
+// GeoAggregate
 [apiInstance geoaggregateWith:collection
     agg:agg
     f:f
@@ -6506,7 +8060,7 @@ var opts = {
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -6634,7 +8188,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -6676,7 +8230,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
 
             try
             {
-                // Aggregate
+                // GeoAggregate
                 FeatureCollection result = apiInstance.geoaggregate(collection, agg, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, maxAgeCache);
                 Debug.WriteLine(result);
             }
@@ -6752,7 +8306,7 @@ $f = ; // array[String] | - A triplet for filtering the result. Multiple filter 
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -6865,7 +8419,7 @@ my $f = []; # array[String] | - A triplet for filtering the result. Multiple fil
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -6981,7 +8535,7 @@ f =  # array[String] | - A triplet for filtering the result. Multiple filter can
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -7022,7 +8576,7 @@ human = true # Boolean | Human readable print (optional) (default to false)
 maxAgeCache = 56 # Integer | max-age-cache (optional)
 
 try: 
-    # Aggregate
+    # GeoAggregate
     api_response = api_instance.geoaggregate(collection, agg, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, notpwithin=notpwithin, notgwithin=notgwithin, notgintersect=notgintersect, pretty=pretty, human=human, maxAgeCache=maxAgeCache)
     pprint(api_response)
 except ApiException as e:
@@ -7128,7 +8682,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "f",
   "in" : "query",
-  "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+  "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
   "required" : false,
   "type" : "array",
   "items" : {
@@ -7715,7 +9269,7 @@ except ApiException as e:
                       <article id="api-Explore-geosearch-0" data-group="User" data-name="geosearch" data-version="0">
                         <div class="pull-left">
                           <h1>geosearch</h1>
-                          <p>Geoearch</p>
+                          <p>GeoSearch</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
@@ -7768,7 +9322,7 @@ public class ExploreApiExample {
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -7816,7 +9370,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`.
+
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
             apiInstance.geosearch(collection, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
@@ -7844,7 +9398,7 @@ public class ExploreApiExample {
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -7892,7 +9446,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`.
+
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
             apiInstance.geosearch(collection, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
@@ -7917,7 +9471,7 @@ array[String] *f = ; // - A triplet for filtering the result. Multiple filter ca
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -7965,12 +9519,12 @@ array[String] *sort = -country,city; // - Sort the result on the given fields as
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`. (optional)
+ (optional)
 Integer *maxAgeCache = 56; // max-age-cache (optional)
 
 ExploreApi *apiInstance = [[ExploreApi alloc] init];
 
-// Geoearch
+// GeoSearch
 [apiInstance geosearchWith:collection
     f:f
     q:q
@@ -8014,7 +9568,7 @@ var opts = {
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -8062,7 +9616,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`.
+
   'maxAgeCache': 56 // {Integer} max-age-cache
 };
 
@@ -8104,7 +9658,7 @@ namespace Example
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -8152,12 +9706,12 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`. (optional) 
+ (optional) 
             var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
 
             try
             {
-                // Geoearch
+                // GeoSearch
                 apiInstance.geosearch(collection, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
             }
             catch (Exception e)
@@ -8183,7 +9737,7 @@ $f = ; // array[String] | - A triplet for filtering the result. Multiple filter 
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -8231,7 +9785,7 @@ $sort = -country,city; // array[String] | - Sort the result on the given fields 
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`.
+
 $maxAgeCache = 56; // Integer | max-age-cache
 
 try {
@@ -8257,7 +9811,7 @@ my $f = []; # array[String] | - A triplet for filtering the result. Multiple fil
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -8305,7 +9859,7 @@ my $sort = [-country,city]; # array[String] | - Sort the result on the given fie
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`.
+
 my $maxAgeCache = 56; # Integer | max-age-cache
 
 eval { 
@@ -8334,7 +9888,7 @@ f =  # array[String] | - A triplet for filtering the result. Multiple filter can
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -8382,11 +9936,11 @@ sort = -country,city # array[String] | - Sort the result on the given fields asc
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`. (optional)
+ (optional)
 maxAgeCache = 56 # Integer | max-age-cache (optional)
 
 try: 
-    # Geoearch
+    # GeoSearch
     api_instance.geosearch(collection, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, notpwithin=notpwithin, notgwithin=notgwithin, notgintersect=notgintersect, pretty=pretty, human=human, include=include, exclude=exclude, size=size, from=from, sort=sort, maxAgeCache=maxAgeCache)
 except ApiException as e:
     print("Exception when calling ExploreApi->geosearch: %s\n" % e)</code></pre>
@@ -8454,7 +10008,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "f",
   "in" : "query",
-  "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+  "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
   "required" : false,
   "type" : "array",
   "items" : {
@@ -9030,7 +10584,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "sort",
   "in" : "query",
-  "description" : "- Sort the result on the given fields ascending or descending. \n \n- Fields can be provided several times by separating them with a comma. The order matters. \n \n- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.\n \n- For aggregation, provide the `agg` keyword as the `{field}`.",
+  "description" : "- Sort the result on the given fields ascending or descending. \n \n- Fields can be provided several times by separating them with a comma. The order matters. \n \n- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.\n \n",
   "required" : false,
   "type" : "array",
   "items" : {
@@ -9095,6 +10649,324 @@ except ApiException as e:
 </tr>
 
                             </table>
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - Successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-Explore-geosearchPost">
+                      <article id="api-Explore-geosearchPost-0" data-group="User" data-name="geosearchPost" data-version="0">
+                        <div class="pull-left">
+                          <h1>geosearchPost</h1>
+                          <p>GeoSearch</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Search and return the elements found in the collection(s) as features, given the filters</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/explore/{collection}/_geosearch</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-geosearchPost-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-geosearchPost-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-geosearchPost-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-geosearchPost-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-geosearchPost-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-geosearchPost-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-geosearchPost-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-geosearchPost-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-geosearchPost-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-geosearchPost-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-geosearchPost-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-geosearchPost-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">post</span> "http://localhost/arlas/explore/{collection}/_geosearch"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-geosearchPost-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        Search body = ; // Search | 
+        try {
+            apiInstance.geosearchPost(collection, body);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#geosearchPost");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-geosearchPost-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        Search body = ; // Search | 
+        try {
+            apiInstance.geosearchPost(collection, body);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#geosearchPost");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-geosearchPost-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-geosearchPost-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
+Search *body = ; //  (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// GeoSearch
+[apiInstance geosearchPostWith:collection
+    body:body
+              completionHandler: ^(NSError* error) {
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-geosearchPost-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var collection = collection_example; // {String} collection
+
+var opts = { 
+  'body':  // {Search} 
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully.');
+  }
+};
+api.geosearchPost(collection, opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-geosearchPost-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-geosearchPost-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class geosearchPostExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var collection = collection_example;  // String | collection
+            var body = new Search(); // Search |  (optional) 
+
+            try
+            {
+                // GeoSearch
+                apiInstance.geosearchPost(collection, body);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.geosearchPost: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-geosearchPost-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$collection = collection_example; // String | collection
+$body = ; // Search | 
+
+try {
+    $api_instance->geosearchPost($collection, $body);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->geosearchPost: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-geosearchPost-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $collection = collection_example; # String | collection
+my $body = WWW::SwaggerClient::Object::Search->new(); # Search | 
+
+eval { 
+    $api_instance->geosearchPost(collection => $collection, body => $body);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->geosearchPost: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-geosearchPost-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+collection = collection_example # String | collection
+body =  # Search |  (optional)
+
+try: 
+    # GeoSearch
+    api_instance.geosearchPost(collection, body=body)
+except ApiException as e:
+    print("Exception when calling ExploreApi->geosearchPost: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">collection*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collection",
+  "in" : "path",
+  "description" : "collection",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geosearchPost_collection');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geosearchPost_collection"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+                            <div class="methodsubtabletitle">Body parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">body </td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "in" : "body",
+  "name" : "body",
+  "required" : false,
+  "schema" : {
+    "$ref" : "#/definitions/Search"
+  }
+};
+													
+														var schema = schemaWrapper.schema;
+														schemaWrapper.definitions = defs;
+														JsonRefs.resolveRefs(schemaWrapper, {"depth":3, "resolveRemoteRefs":false,"resolveFileRefs":false },function (err, resolved, metadata) {
+														
+
+														
+													var view = new JSONSchemaView(resolved.schema,2,{isBodyParam: true});
+													 
+													var result = $('#d2e199_geosearchPost_body');
+													result.empty();
+													result.append(view.render());
+													
+
+													
+    											
+													
+
+
+												});
+
+
+
+												});
+												</script>
+												<div id="d2e199_geosearchPost_body"></div>
+</td>
+</tr>
+
+                            </table>
+
+
 
                           <h2>Responses</h2>
                             <h3> Status: 200 - Successful operation </h3>
@@ -9424,7 +11296,7 @@ public class ExploreApiExample {
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -9472,7 +11344,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`.
+
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
             ArlasHits result = apiInstance.search(collection, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
@@ -9501,7 +11373,7 @@ public class ExploreApiExample {
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -9549,7 +11421,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`.
+
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
             ArlasHits result = apiInstance.search(collection, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
@@ -9575,7 +11447,7 @@ array[String] *f = ; // - A triplet for filtering the result. Multiple filter ca
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -9623,7 +11495,7 @@ String *sort = -country,city; // - Sort the result on the given fields ascending
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`. (optional)
+ (optional)
 Integer *maxAgeCache = 56; // max-age-cache (optional)
 
 ExploreApi *apiInstance = [[ExploreApi alloc] init];
@@ -9675,7 +11547,7 @@ var opts = {
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -9723,7 +11595,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`.
+
   'maxAgeCache': 56 // {Integer} max-age-cache
 };
 
@@ -9765,7 +11637,7 @@ namespace Example
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -9813,7 +11685,7 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`. (optional) 
+ (optional) 
             var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
 
             try
@@ -9845,7 +11717,7 @@ $f = ; // array[String] | - A triplet for filtering the result. Multiple filter 
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -9893,7 +11765,7 @@ $sort = -country,city; // String | - Sort the result on the given fields ascendi
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`.
+
 $maxAgeCache = 56; // Integer | max-age-cache
 
 try {
@@ -9920,7 +11792,7 @@ my $f = []; # array[String] | - A triplet for filtering the result. Multiple fil
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -9968,7 +11840,7 @@ my $sort = -country,city; # String | - Sort the result on the given fields ascen
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`.
+
 my $maxAgeCache = 56; # Integer | max-age-cache
 
 eval { 
@@ -9998,7 +11870,7 @@ f =  # array[String] | - A triplet for filtering the result. Multiple filter can
  
        Operator |                   Description                    | value type
  
-       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
+       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings 
  
        :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings 
  
@@ -10046,7 +11918,7 @@ sort = -country,city # String | - Sort the result on the given fields ascending 
  
 - For a descending sort, precede the field with '-'. The sort will be ascending otherwise.
  
-- For aggregation, provide the `agg` keyword as the `{field}`. (optional)
+ (optional)
 maxAgeCache = 56 # Integer | max-age-cache (optional)
 
 try: 
@@ -10119,7 +11991,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "f",
   "in" : "query",
-  "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
+  "description" : "- A triplet for filtering the result. Multiple filter can be provided. The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n\n \n- The AND operator is applied between filters having different fieldNames. \n \n- The OR operator is applied on filters having the same fieldName. \n \n- If the fieldName starts with - then a must not filter is used\n \n- If the fieldName starts with - then a must not filter is used\n \nFor more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ",
   "required" : false,
   "type" : "array",
   "items" : {
@@ -10695,7 +12567,7 @@ except ApiException as e:
 													var schemaWrapper = {
   "name" : "sort",
   "in" : "query",
-  "description" : "- Sort the result on the given fields ascending or descending. \n \n- Fields can be provided several times by separating them with a comma. The order matters. \n \n- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.\n \n- For aggregation, provide the `agg` keyword as the `{field}`.",
+  "description" : "- Sort the result on the given fields ascending or descending. \n \n- Fields can be provided several times by separating them with a comma. The order matters. \n \n- For a descending sort, precede the field with '-'. The sort will be ascending otherwise.\n \n",
   "required" : false,
   "type" : "string",
   "x-example" : "-country,city"
@@ -10796,6 +12668,367 @@ except ApiException as e:
                                     </script>
                                   </div>
                                   <input id='responses-search-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-Explore-searchPost">
+                      <article id="api-Explore-searchPost-0" data-group="User" data-name="searchPost" data-version="0">
+                        <div class="pull-left">
+                          <h1>searchPost</h1>
+                          <p>Search</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Search and return the elements found in the collection, given the filters</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/explore/{collection}/_search</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-searchPost-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-searchPost-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-searchPost-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-searchPost-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-searchPost-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-searchPost-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-searchPost-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-searchPost-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-searchPost-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-searchPost-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-searchPost-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-searchPost-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">post</span> "http://localhost/arlas/explore/{collection}/_search"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-searchPost-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        Search body = ; // Search | 
+        try {
+            ArlasHits result = apiInstance.searchPost(collection, body);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#searchPost");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-searchPost-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        Search body = ; // Search | 
+        try {
+            ArlasHits result = apiInstance.searchPost(collection, body);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#searchPost");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-searchPost-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-searchPost-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
+Search *body = ; //  (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// Search
+[apiInstance searchPostWith:collection
+    body:body
+              completionHandler: ^(ArlasHits output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-searchPost-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var collection = collection_example; // {String} collection
+
+var opts = { 
+  'body':  // {Search} 
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.searchPost(collection, opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-searchPost-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-searchPost-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class searchPostExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var collection = collection_example;  // String | collection
+            var body = new Search(); // Search |  (optional) 
+
+            try
+            {
+                // Search
+                ArlasHits result = apiInstance.searchPost(collection, body);
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.searchPost: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-searchPost-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$collection = collection_example; // String | collection
+$body = ; // Search | 
+
+try {
+    $result = $api_instance->searchPost($collection, $body);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->searchPost: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-searchPost-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $collection = collection_example; # String | collection
+my $body = WWW::SwaggerClient::Object::Search->new(); # Search | 
+
+eval { 
+    my $result = $api_instance->searchPost(collection => $collection, body => $body);
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->searchPost: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-searchPost-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+collection = collection_example # String | collection
+body =  # Search |  (optional)
+
+try: 
+    # Search
+    api_response = api_instance.searchPost(collection, body=body)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling ExploreApi->searchPost: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">collection*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collection",
+  "in" : "path",
+  "description" : "collection",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_searchPost_collection');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_searchPost_collection"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+                            <div class="methodsubtabletitle">Body parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">body </td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "in" : "body",
+  "name" : "body",
+  "required" : false,
+  "schema" : {
+    "$ref" : "#/definitions/Search"
+  }
+};
+													
+														var schema = schemaWrapper.schema;
+														schemaWrapper.definitions = defs;
+														JsonRefs.resolveRefs(schemaWrapper, {"depth":3, "resolveRemoteRefs":false,"resolveFileRefs":false },function (err, resolved, metadata) {
+														
+
+														
+													var view = new JSONSchemaView(resolved.schema,2,{isBodyParam: true});
+													 
+													var result = $('#d2e199_searchPost_body');
+													result.empty();
+													result.append(view.render());
+													
+
+													
+    											
+													
+
+
+												});
+
+
+
+												});
+												</script>
+												<div id="d2e199_searchPost_body"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - Successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-searchPost-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-searchPost-200-schema">
+                                  <div id='responses-searchPost-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasHits"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-searchPost-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-searchPost-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-searchPost-200-schema-data' type='hidden' value=''></input>
                                 </div>
                             </div>
 
@@ -12019,7 +14252,7 @@ except ApiException as e:
           </div>
           <div id="generator">
             <div class="content">
-              Generated 2017-05-09T13:27:31.104+02:00
+              Generated 2017-05-12T16:31:43.723+02:00
             </div>
           </div>
       </div>

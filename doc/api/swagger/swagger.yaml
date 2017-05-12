@@ -79,6 +79,10 @@ paths:
           description: "JSON parameter malformed."
           schema:
             $ref: "#/definitions/ArlasError"
+        404:
+          description: "Not Found Error."
+          schema:
+            $ref: "#/definitions/ArlasError"
         500:
           description: "Arlas Server Error."
           schema:
@@ -194,7 +198,7 @@ paths:
           \ provided. The order does not matter. \n \n- A triplet is composed of a\
           \ field name, a comparison operator and a value. \n \n  The possible values\
           \ of the comparison operator are : \n \n       Operator |              \
-          \     Description                    | value type\n \n       :        |\
+          \     Description                    | value type\n \n       :eq:     |\
           \ {fieldName} equals {comma separated values}. **OR** operation is applied\
           \ for the specified values | numeric or strings \n \n       :ne:     | {fieldName}\
           \ must not equal {comma separated values }. **AND** operation is applied\
@@ -316,11 +320,46 @@ paths:
           description: "Bad request."
           schema:
             $ref: "#/definitions/ArlasError"
+    post:
+      tags:
+      - "explore"
+      summary: "Aggregate"
+      description: "Aggregate the elements in the collection(s), given the filters\
+        \ and the aggregation parameters"
+      operationId: "aggregatePost"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "collection"
+        in: "path"
+        description: "collection"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        required: false
+        schema:
+          $ref: "#/definitions/AggregationRequest"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ArlasAggregation"
+        500:
+          description: "Arlas Server Error."
+          schema:
+            $ref: "#/definitions/ArlasError"
+        400:
+          description: "Bad request."
+          schema:
+            $ref: "#/definitions/ArlasError"
   /explore/{collection}/_geoaggregate:
     get:
       tags:
       - "explore"
-      summary: "Aggregate"
+      summary: "GeoAggregate"
       description: "Aggregate the elements in the collection(s), given the filters\
         \ and the aggregation parameters"
       operationId: "geoaggregate"
@@ -377,7 +416,7 @@ paths:
           \ provided. The order does not matter. \n \n- A triplet is composed of a\
           \ field name, a comparison operator and a value. \n \n  The possible values\
           \ of the comparison operator are : \n \n       Operator |              \
-          \     Description                    | value type\n \n       :        |\
+          \     Description                    | value type\n \n       :eq:     |\
           \ {fieldName} equals {comma separated values}. **OR** operation is applied\
           \ for the specified values | numeric or strings \n \n       :ne:     | {fieldName}\
           \ must not equal {comma separated values }. **AND** operation is applied\
@@ -499,6 +538,41 @@ paths:
           description: "Bad request."
           schema:
             $ref: "#/definitions/ArlasError"
+    post:
+      tags:
+      - "explore"
+      summary: "GeoAggregate"
+      description: "Aggregate the elements in the collection(s), given the filters\
+        \ and the aggregation parameters"
+      operationId: "aggregatePost"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "collection"
+        in: "path"
+        description: "collection"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        required: false
+        schema:
+          $ref: "#/definitions/AggregationRequest"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ArlasAggregation"
+        500:
+          description: "Arlas Server Error."
+          schema:
+            $ref: "#/definitions/ArlasError"
+        400:
+          description: "Bad request."
+          schema:
+            $ref: "#/definitions/ArlasError"
   /explore/{collection}/_count:
     get:
       tags:
@@ -523,7 +597,7 @@ paths:
           \ provided. The order does not matter. \n \n- A triplet is composed of a\
           \ field name, a comparison operator and a value. \n \n  The possible values\
           \ of the comparison operator are : \n \n       Operator |              \
-          \     Description                    | value type\n \n       :        |\
+          \     Description                    | value type\n \n       :eq:     |\
           \ {fieldName} equals {comma separated values}. **OR** operation is applied\
           \ for the specified values | numeric or strings \n \n       :ne:     | {fieldName}\
           \ must not equal {comma separated values }. **AND** operation is applied\
@@ -645,6 +719,41 @@ paths:
           description: "Bad request."
           schema:
             $ref: "#/definitions/ArlasError"
+    post:
+      tags:
+      - "explore"
+      summary: "Count"
+      description: "Count the number of elements found in the collection(s), given\
+        \ the filters"
+      operationId: "countPost"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "collection"
+        in: "path"
+        description: "collections"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        required: false
+        schema:
+          $ref: "#/definitions/Count"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ArlasHits"
+        500:
+          description: "Arlas Server Error."
+          schema:
+            $ref: "#/definitions/ArlasError"
+        400:
+          description: "Bad request."
+          schema:
+            $ref: "#/definitions/ArlasError"
   /explore/{collection}/_describe:
     get:
       tags:
@@ -708,7 +817,7 @@ paths:
     get:
       tags:
       - "explore"
-      summary: "Geoearch"
+      summary: "GeoSearch"
       description: "Search and return the elements found in the collection(s) as features,\
         \ given the filters"
       operationId: "geosearch"
@@ -728,7 +837,7 @@ paths:
           \ provided. The order does not matter. \n \n- A triplet is composed of a\
           \ field name, a comparison operator and a value. \n \n  The possible values\
           \ of the comparison operator are : \n \n       Operator |              \
-          \     Description                    | value type\n \n       :        |\
+          \     Description                    | value type\n \n       :eq:     |\
           \ {fieldName} equals {comma separated values}. **OR** operation is applied\
           \ for the specified values | numeric or strings \n \n       :ne:     | {fieldName}\
           \ must not equal {comma separated values }. **AND** operation is applied\
@@ -875,8 +984,7 @@ paths:
         description: "- Sort the result on the given fields ascending or descending.\
           \ \n \n- Fields can be provided several times by separating them with a\
           \ comma. The order matters. \n \n- For a descending sort, precede the field\
-          \ with '-'. The sort will be ascending otherwise.\n \n- For aggregation,\
-          \ provide the `agg` keyword as the `{field}`."
+          \ with '-'. The sort will be ascending otherwise.\n \n"
         required: false
         type: "array"
         items:
@@ -890,6 +998,31 @@ paths:
         required: false
         type: "integer"
         format: "int32"
+      responses:
+        200:
+          description: "Successful operation"
+    post:
+      tags:
+      - "explore"
+      summary: "GeoSearch"
+      description: "Search and return the elements found in the collection(s) as features,\
+        \ given the filters"
+      operationId: "geosearchPost"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "collection"
+        in: "path"
+        description: "collection"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        required: false
+        schema:
+          $ref: "#/definitions/Search"
       responses:
         200:
           description: "Successful operation"
@@ -917,7 +1050,7 @@ paths:
           \ provided. The order does not matter. \n \n- A triplet is composed of a\
           \ field name, a comparison operator and a value. \n \n  The possible values\
           \ of the comparison operator are : \n \n       Operator |              \
-          \     Description                    | value type\n \n       :        |\
+          \     Description                    | value type\n \n       :eq:     |\
           \ {fieldName} equals {comma separated values}. **OR** operation is applied\
           \ for the specified values | numeric or strings \n \n       :ne:     | {fieldName}\
           \ must not equal {comma separated values }. **AND** operation is applied\
@@ -1064,8 +1197,7 @@ paths:
         description: "- Sort the result on the given fields ascending or descending.\
           \ \n \n- Fields can be provided several times by separating them with a\
           \ comma. The order matters. \n \n- For a descending sort, precede the field\
-          \ with '-'. The sort will be ascending otherwise.\n \n- For aggregation,\
-          \ provide the `agg` keyword as the `{field}`."
+          \ with '-'. The sort will be ascending otherwise.\n \n"
         required: false
         type: "string"
         x-example: "-country,city"
@@ -1075,6 +1207,33 @@ paths:
         required: false
         type: "integer"
         format: "int32"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ArlasHits"
+    post:
+      tags:
+      - "explore"
+      summary: "Search"
+      description: "Search and return the elements found in the collection, given\
+        \ the filters"
+      operationId: "searchPost"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "collection"
+        in: "path"
+        description: "collection"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        required: false
+        schema:
+          $ref: "#/definitions/Search"
       responses:
         200:
           description: "Successful operation"
@@ -1274,6 +1433,16 @@ definitions:
         type: "string"
         example: "timestamp"
         description: "Path to the collection's timestamp"
+      include_fields:
+        type: "string"
+        example: "*"
+        description: "List the name patterns of the fields to be included in the result.\
+          \ Seperate patterns with a comma."
+      exclude_fields:
+        type: "string"
+        example: "fieldname"
+        description: "List the name patterns of the fields to be excluded in the result.\
+          \ Seperate patterns with a comma."
     description: "The description of the elasticsearch index and the way ARLAS API\
       \ will serve it."
   ArlasError:
@@ -1345,6 +1514,77 @@ definitions:
         format: "double"
         description: "Value of the metric aggregation"
     description: "Metric agg"
+  AggregationModel:
+    type: "object"
+    properties:
+      type:
+        type: "string"
+      field:
+        type: "string"
+      interval:
+        type: "string"
+      format:
+        type: "string"
+      collectField:
+        type: "string"
+      collectFct:
+        type: "string"
+      order:
+        type: "string"
+      on:
+        type: "string"
+      size:
+        type: "string"
+  AggregationRequest:
+    type: "object"
+    properties:
+      filter:
+        $ref: "#/definitions/Filter"
+      form:
+        $ref: "#/definitions/Form"
+      aggregations:
+        $ref: "#/definitions/Aggregations"
+  Aggregations:
+    type: "object"
+    properties:
+      aggregations:
+        type: "array"
+        items:
+          $ref: "#/definitions/AggregationModel"
+  Filter:
+    type: "object"
+    properties:
+      f:
+        type: "array"
+        items:
+          type: "string"
+      q:
+        type: "string"
+      before:
+        type: "integer"
+        format: "int64"
+      after:
+        type: "integer"
+        format: "int64"
+      pwithin:
+        type: "string"
+      gwithin:
+        type: "string"
+      gintersect:
+        type: "string"
+      notpwithin:
+        type: "string"
+      notgwithin:
+        type: "string"
+      notgintersect:
+        type: "string"
+  Form:
+    type: "object"
+    properties:
+      pretty:
+        type: "boolean"
+      human:
+        type: "boolean"
   Crs:
     type: "object"
     properties:
@@ -1469,17 +1709,12 @@ definitions:
               items:
                 $ref: "#/definitions/LngLatAlt"
   Point:
-    type: "object"
-    properties:
-      crs:
-        $ref: "#/definitions/Crs"
-      bbox:
-        type: "array"
-        items:
-          type: "number"
-          format: "double"
-      coordinates:
-        $ref: "#/definitions/LngLatAlt"
+    allOf:
+    - $ref: "#/definitions/GeoJsonObject"
+    - type: "object"
+      properties:
+        coordinates:
+          $ref: "#/definitions/LngLatAlt"
   Polygon:
     allOf:
     - $ref: "#/definitions/GeoJsonObject"
@@ -1532,6 +1767,38 @@ definitions:
         type: "object"
         description: "The geometry of the hit"
       centroid:
+        type: "object"
         description: "The centroid of the hit"
-        $ref: "#/definitions/Point"
     description: "Metadata of the ARLAS hit"
+  Count:
+    type: "object"
+    properties:
+      filter:
+        $ref: "#/definitions/Filter"
+      form:
+        $ref: "#/definitions/Form"
+  Search:
+    type: "object"
+    properties:
+      filter:
+        $ref: "#/definitions/Filter"
+      form:
+        $ref: "#/definitions/Form"
+      size:
+        $ref: "#/definitions/Size"
+      sort:
+        $ref: "#/definitions/Sort"
+  Size:
+    type: "object"
+    properties:
+      size:
+        type: "integer"
+        format: "int32"
+      from:
+        type: "integer"
+        format: "int32"
+  Sort:
+    type: "object"
+    properties:
+      sort:
+        type: "string"
