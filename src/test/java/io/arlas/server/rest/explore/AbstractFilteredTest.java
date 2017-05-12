@@ -26,11 +26,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
     //----------------------------------------------------------------
     @Test
     public void testFieldFilter() throws Exception {
-        request.filter.f = Arrays.asList("job:" + DataSetTool.jobs[0]);
+        request.filter.f = Arrays.asList("job:eq:" + DataSetTool.jobs[0]);
         handleKnownFieldFilter(post(request));
         handleKnownFieldFilter(get("f", request.filter.f.get(0)));
 
-        request.filter.f = Arrays.asList("job:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
+        request.filter.f = Arrays.asList("job:eq:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
         handleKnownFieldFilterWithOr(post(request));
         handleKnownFieldFilterWithOr(get("f", request.filter.f.get(0)));
 
@@ -46,7 +46,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
                 givenFilterableRequestParams().param("f", "fullname:like:" + "name is")
                         .when().get(getUrlPath("geodata"))
                         .then());*/
-        request.filter.f = Arrays.asList("job:UnknownJob");
+        request.filter.f = Arrays.asList("job:eq:UnknownJob");
         handleUnknownFieldFilter(post(request));
         handleUnknownFieldFilter(get("f", request.filter.f.get(0)));
         request.filter.f = null;
@@ -236,7 +236,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
     
     @Test
     public void testComplexFilter() throws Exception {
-        request.filter.f = Arrays.asList("job:Architect");
+        request.filter.f = Arrays.asList("job:eq:Architect");
         request.filter.after = 1009799L;
         request.filter.before = 1009801L;
         request.filter.pwithin = "50,-50,-50,50";
@@ -266,7 +266,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
     //----------------------------------------------------------------
     @Test
     public void testNotFoundCollection() throws Exception {
-        request.filter.f = Arrays.asList("job:" + DataSetTool.jobs[0]);
+        request.filter.f = Arrays.asList("job:eq:" + DataSetTool.jobs[0]);
+        request.filter.f = Arrays.asList("job:eq:" + DataSetTool.jobs[0]);
         request.filter.after = 1000000L;
         request.filter.before = 2000000L;
         request.filter.pwithin = "10,10,-10,-10";

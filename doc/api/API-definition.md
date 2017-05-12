@@ -107,21 +107,24 @@ For **_geoaggregate** service, the first (main) aggregation must be geohash.
 
 The `filter` url part allows the following parameters to be specified:
 
-| Parameter      | Default value | Values                         | Description                              | Multiple |
-| -------------- | ------------- | ------------------------------ | ---------------------------------------- | -------- |
-| **f**          | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **:** (equal) filter, values can be comma separated ({field}`:`{v1},{v2}) which stands for an **OR**. For the **:ne:** (not equal) filter, values can be comma separated ({field}`:ne:`{v1},{v2}) which stands for an **AND** | true     |
-| **q**          | None          | text                           | A full text search                       | false    |
-| **before**     | None          | timestamp                      | Any element having its point in time reference before the given timestamp | false    |
-| **after**      | None          | timestamp                      | Any element having its point in time reference after the given timestamp | false    |
-| **pwithin**    | None          | geometry                       | Any element having its centroid contained within the given BBOX | false    |
-| **gwithin**    | None          | geometry                       | Any element having its geometry contained within the given geometry | false    |
-| **gintersect** | None          | geometry                       | Any element having its geometry intersecting the given geometry (WKT) | false    |
+| Parameter         | Default value | Values                         | Description                              | Multiple |
+| ----------------- | ------------- | ------------------------------ | ---------------------------------------- | -------- |
+| **f**             | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **:** (equal) filter, values can be comma separated ({field}`:`{v1},{v2}) which stands for an **OR**. For the **:ne:** (not equal) filter, values can be comma separated ({field}`:ne:`{v1},{v2}) which stands for an **AND** | true     |
+| **q**             | None          | text                           | A full text search                       | false    |
+| **before**        | None          | timestamp                      | Any element having its point in time reference before the given timestamp | false    |
+| **after**         | None          | timestamp                      | Any element having its point in time reference after the given timestamp | false    |
+| **pwithin**       | None          | geometry                       | Any element having its centroid contained within the given BBOX | false    |
+| **gwithin**       | None          | geometry                       | Any element having its geometry contained within the given geometry | false    |
+| **gintersect**    | None          | geometry                       | Any element having its geometry intersecting the given geometry (WKT) | false    |
+| **notpwithin**    | None          | geometry                       | Any element having its centroid outside the given BBOX | false    |
+| **notgwithin**    | None          | geometry                       | Any element having its geometry not contained within the given geometry | false    |
+| **notgintersect** | None          | geometry                       | Any element having its geometry disjoint from the given geometry (WKT) | false    |
 
 
 
 | Operator     | Description                                         | Value type         |
 | -----------  | --------------------------------------------------- | ------------------ |
-| **`:`**      | `{fieldName}` equals `{comma separated values}`. **OR** operation is applied for the specified values | numeric or strings |
+| **`:eq:`**      | `{fieldName}` equals `{comma separated values}`. **OR** operation is applied for the specified values | numeric or strings |
 | **`:ne:`**   | `{fieldName}` must not equal `{comma separated values }`. **AND** operation is applied for the specified values | numeric or strings |
 | **`:like:`** | `{fieldName}` is like `{value}`.                    | numeric or strings |
 | **`:gte:`**  | `{fieldName}` is greater than or equal to `{value}` | numeric            |
@@ -129,7 +132,7 @@ The `filter` url part allows the following parameters to be specified:
 | **`:lte:`**  | `{fieldName}` is less than or equal to `{value}`    | numeric            |
 | **`:lt:`**   | `{fieldName}` is less than `{value}`                | numeric            |
 
-> Example: `f=city:Toulouse`&`f=city:Bordeaux&after=1490613808&`
+> Example: `f=city:eq:Toulouse`&`f=city:eq:Bordeaux&after=1490613808&`
 
 ---
 ## Part: `form`
