@@ -16,8 +16,7 @@ public class Documentation {
             "- Fields can be provided several times by separating them with a comma. The order matters. " +
             "\n \n" +
             "- For a descending sort, precede the field with '-'. The sort will be ascending otherwise." +
-            "\n \n" +
-            "- For aggregation, provide the `agg` keyword as the `{field}`.";
+            "\n \n";
 
     public static final String FILTER_PARAM_F="- A triplet for filtering the result. Multiple filter can be provided. " +
             "The order does not matter. " +
@@ -28,7 +27,7 @@ public class Documentation {
             "\n \n" +
             "       Operator |                   Description                    | value type" +
             "\n \n" +
-            "       :        | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings " +
+            "       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings " +
             "\n \n" +
             "       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings " +
             "\n \n" +
