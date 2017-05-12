@@ -117,25 +117,24 @@ public class FluidSearch {
             if (f.get(i) != null && !f.get(i).isEmpty()) {
                 String operands[] = f.get(i).split(":");
                 int operandsNumber = operands.length;
-                if (operandsNumber < 2 || operandsNumber > 3) {
+                if (operandsNumber != 3) {
                     throw new InvalidParameterException(INVALID_PARAMETER_F);
-                } else if (operandsNumber == 2) {
-                    //Means it's an EQUAL operation
-                    String fieldValues[] = operands[1].split(",");
-                    if (fieldValues.length>1){
-                        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-                        for (String value : fieldValues){
-                            orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(operands[0], value));
-                        }
-                        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
-                    }
-                    else {
-                        boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.matchQuery(operands[0], operands[1]));
-                    }
-                } else if (operandsNumber == 3) {
+                } else {
                     //Means it's an gte, lte, like, ... operation
                     if (operands[2] != null) {
-                        if (operands[1].equals("gte")) {
+                        if (operands[1].equals("eq")){
+                            String fieldValues[] = operands[2].split(",");
+                            if (fieldValues.length>1){
+                                BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+                                for (String value : fieldValues){
+                                    orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(operands[0], value));
+                                }
+                                boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
+                            }
+                            else {
+                                boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.matchQuery(operands[0], operands[2]));
+                            }
+                        } else if (operands[1].equals("gte")) {
                             boolQueryBuilder = boolQueryBuilder
                                     .filter(QueryBuilders.rangeQuery(operands[0]).gte(operands[2]));
                         } else if (operands[1].equals("gt")) {
