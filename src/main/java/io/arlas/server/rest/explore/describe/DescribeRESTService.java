@@ -1,6 +1,7 @@
 package io.arlas.server.rest.explore.describe;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.ws.rs.Consumes;
@@ -12,6 +13,10 @@ import javax.ws.rs.core.Response;
 
 import com.codahale.metrics.annotation.Timed;
 
+import io.arlas.server.core.ElasticAdmin;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.swagger.annotations.ApiOperation;
@@ -38,8 +43,10 @@ public class DescribeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value="max-age-cache", required=false)
             @QueryParam(value="max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException {
-
-        return Response.ok("describe").build();// TODO : right response
+    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+        List<CollectionReference> collectionReferences = exploreServices.getDaoCollectionReference().getAllCollectionReferences();
+        ElasticAdmin elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
+        List<CollectionReferenceDescription> collectionReferenceDescriptionList = elasticAdmin.describeAllCollections(collectionReferences);
+        return Response.ok(collectionReferenceDescriptionList).build();
     }
 }
