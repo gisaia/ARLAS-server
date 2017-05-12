@@ -18,7 +18,7 @@ function clean_docker {
 
 function clean_exit {
     ARG=$?
-    echo "===> integration tests failed"
+	echo "===> Exit status = ${ARG}"
     clean_docker
     exit $ARG
 } 
@@ -83,6 +83,3 @@ docker run --rm \
 	--link elasticsearch:elasticsearch \
 	maven:3.5.0-jdk-8 \
 	mvn install -DskipTests=false
-	
-# CLEAN
-clean_docker

@@ -25,6 +25,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     protected void handleNotMatchingRequest(ValidatableResponse then) {
         then.statusCode(200)
         .body("type", equalTo("FeatureCollection"))
+
         .body("$", not(hasKey("features")));
     }
 
@@ -36,6 +37,10 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected RequestSpecification givenFilterableRequestParams() {
         return given();
+    }
+    @Override
+    protected RequestSpecification givenFilterableRequestBody() {
+        return given().contentType("application/json");
     }
     
     @Override
@@ -174,6 +179,12 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     @Override
     protected RequestSpecification givenBigSizedRequestParams() {
         return given().param("q", "My name is");
+    }
+
+    @Override
+    protected RequestSpecification givenBigSizedRequestParamsPost() {
+        search.filter.q = "My name is";
+        return given().contentType("application/json");
     }
     
     @Override

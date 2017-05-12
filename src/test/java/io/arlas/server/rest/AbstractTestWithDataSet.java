@@ -8,13 +8,19 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.arlas.server.model.request.Filter;
+import io.arlas.server.model.request.Request;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import io.arlas.server.model.CollectionReference;
 
 public abstract class AbstractTestWithDataSet extends AbstractTest {
-    
+    protected static Request request = new Request();
+    static{
+        request.filter = new Filter();
+    }
+
     @BeforeClass
     public static void beforeClass() {
         try {
@@ -33,6 +39,8 @@ public abstract class AbstractTestWithDataSet extends AbstractTest {
         jsonAsMap.put(CollectionReference.GEOMETRY_PATH, DataSetTool.DATASET_GEOMETRY_PATH);
         jsonAsMap.put(CollectionReference.CENTROID_PATH, DataSetTool.DATASET_CENTROID_PATH);
         jsonAsMap.put(CollectionReference.TIMESTAMP_PATH, DataSetTool.DATASET_TIMESTAMP_PATH);
+        jsonAsMap.put(CollectionReference.INCLUDE_FIELDS, DataSetTool.DATASET_INCLUDE_FIELDS);
+        jsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_EXCLUDE_FIELDS);
 
         // PUT new collection
         given().contentType("application/json").body(jsonAsMap).when().put("/collections/geodata").then().statusCode(200);

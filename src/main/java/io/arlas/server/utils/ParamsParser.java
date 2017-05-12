@@ -4,8 +4,12 @@ import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.model.AggregationModel;
+import io.arlas.server.model.request.*;
+import io.dropwizard.jersey.params.IntParam;
+import io.dropwizard.jersey.params.LongParam;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,32 +25,48 @@ public class ParamsParser {
     private static final String AGG_SIZE_PARAM = "size-";
 
 
-    public static AggregationModel getAggregation(List<String> aggParameters){
-        AggregationModel aggregationModel = new AggregationModel();
-        aggregationModel.aggType = aggParameters.get(0);
-        aggregationModel.aggField = aggParameters.get(1);
+    public static Aggregations getAggregations(List<String> agg) throws ArlasException{
+        Aggregations aggregations = new Aggregations();
+        aggregations.aggregations = new ArrayList<>();
+        if (agg != null && agg.size()>0 ){
+            for (String aggregation : agg){
+                AggregationModel aggregationModel;
+                if (CheckParams.isAggregationParamValid(aggregation)) {
+                    List<String> aggParameters = Arrays.asList(aggregation.split(":"));
+                    aggregationModel = getAggregationModel(aggParameters);
+                    aggregations.aggregations.add(aggregationModel);
+                }
+            }
+        }
+        return aggregations;
+    }
 
-        for (String parameter : aggParameters){
+    public static AggregationModel getAggregationModel(List<String> agg){
+        AggregationModel aggregationModel = new AggregationModel();
+        aggregationModel.type = agg.get(0);
+        aggregationModel.field = agg.get(1);
+
+        for (String parameter : agg){
             if (parameter.contains(AGG_INTERVAL_PARAM)){
-                aggregationModel.aggInterval = parameter.substring(AGG_INTERVAL_PARAM.length());
+                aggregationModel.interval = parameter.substring(AGG_INTERVAL_PARAM.length());
             }
             if (parameter.contains(AGG_FORMAT_PARAM)){
-                aggregationModel.aggFormat = parameter.substring(AGG_FORMAT_PARAM.length());
+                aggregationModel.format = parameter.substring(AGG_FORMAT_PARAM.length());
             }
             if (parameter.contains(AGG_COLLECT_FIELD_PARAM)){
-                aggregationModel.aggCollectField = parameter.substring(AGG_COLLECT_FIELD_PARAM.length());
+                aggregationModel.collectField = parameter.substring(AGG_COLLECT_FIELD_PARAM.length());
             }
             if (parameter.contains(AGG_COLLECT_FCT_PARAM)){
-                aggregationModel.aggCollectFct = parameter.substring(AGG_COLLECT_FCT_PARAM.length());
+                aggregationModel.collectFct = parameter.substring(AGG_COLLECT_FCT_PARAM.length());
             }
             if (parameter.contains(AGG_ORDER_PARAM)){
-                aggregationModel.aggOrder = parameter.substring(AGG_ORDER_PARAM.length());
+                aggregationModel.order = parameter.substring(AGG_ORDER_PARAM.length());
             }
             if (parameter.contains(AGG_ON_PARAM)){
-                aggregationModel.aggOn = parameter.substring(AGG_ON_PARAM.length());
+                aggregationModel.on = parameter.substring(AGG_ON_PARAM.length());
             }
             if (parameter.contains(AGG_SIZE_PARAM)){
-                aggregationModel.aggSize = parameter.substring(AGG_SIZE_PARAM.length());
+                aggregationModel.size = parameter.substring(AGG_SIZE_PARAM.length());
             }
         }
         return aggregationModel;
@@ -111,6 +131,38 @@ public class ParamsParser {
         else {
             return "yyyy-MM-dd-HH:mm:ss";
         }
+    }
+
+    public static Filter getFilter(List<String> f, String q, LongParam before, LongParam after, String pwithin, String gwithin, String gintersect,String notpwithin, String notgwithin, String notgintersect) throws ArlasException{
+        Filter filter = new Filter();
+        filter.f  = f;
+        filter.q = q;
+        if (after != null) {
+            filter.after = after.get();
+        }
+        if (before != null) {
+            filter.before = before.get();
+        }
+        filter.pwithin = pwithin;
+        filter.gwithin = gwithin;
+        filter.gintersect = gintersect;
+        filter.notpwithin =notpwithin;
+        filter.notgwithin = notgwithin;
+        filter.notgintersect = notgintersect;
+        return filter;
+    }
+
+    public static Size getSize(IntParam size, IntParam from) throws ArlasException{
+        Size sizeObject = new Size();
+        sizeObject.size = size.get();
+        sizeObject.from = from.get();
+        return sizeObject;
+    }
+
+    public static Sort getSort(String sort){
+        Sort sortObject = new Sort();
+        sortObject.sort = sort;
+        return sortObject;
     }
 
     public static Integer getValidAggregationSize(String size) throws ArlasException{

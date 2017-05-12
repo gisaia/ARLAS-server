@@ -25,6 +25,8 @@ public class ArlasExceptionMapper implements ExceptionMapper<ArlasException> {
             return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST, e.getMessage());
         else if (e instanceof BadRequestException)
             return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST, e.getMessage());
+        else if (e instanceof NotImplementedException)
+            return ResponseFormatter.getErrorResponse(e, Response.Status.NOT_IMPLEMENTED, e.getMessage());
         else
             return ResponseFormatter.getErrorResponse(e, Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
     }

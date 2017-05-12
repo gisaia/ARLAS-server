@@ -2,7 +2,6 @@ package io.arlas.server.rest.explore.search;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -11,29 +10,29 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import io.arlas.server.rest.explore.Documentation;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.geojson.Point;
 
 import com.codahale.metrics.annotation.Timed;
 
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.model.ArlasHit;
-import io.arlas.server.model.ArlasHits;
-import io.arlas.server.model.ArlasMD;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.request.Search;
+import io.arlas.server.model.response.ArlasHit;
+import io.arlas.server.model.response.ArlasHits;
+import io.arlas.server.model.response.ArlasMD;
+import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
-import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.GeoTypeMapper;
+import io.arlas.server.utils.ParamsParser;
 import io.dropwizard.jersey.params.IntParam;
 import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.ApiOperation;
@@ -194,15 +193,50 @@ public class SearchRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
-        SearchHits searchHits = this.search(
-                collectionReference,
-                f, q,
-                before, after,
-                pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect,
-                pretty, human,
-                include, exclude,
-                size, from, sort
-        );
+        Search search = new Search();
+        search.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
+        search.size = ParamsParser.getSize(size, from);
+        search.sort = ParamsParser.getSort(sort);
+
+        ArlasHits arlasHits = getArlasHits(search, collectionReference);
+        return Response.ok(arlasHits).build();
+    }
+
+
+    @Timed
+    @Path("{collection}/_search")
+    @POST
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(value = "Search", produces = UTF8JSON, notes = Documentation.SEARCH_OPERATION, consumes = UTF8JSON)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasHits.class) })
+    public Response searchPost(
+            // --------------------------------------------------------
+            // ----------------------- PATH -----------------------
+            // --------------------------------------------------------
+            @ApiParam(
+                    name = "collection",
+                    value = "collection",
+                    allowMultiple = false,
+                    required = true)
+            @PathParam(value = "collection") String collection,
+            // --------------------------------------------------------
+            // ----------------------- SEARCH -----------------------
+            // --------------------------------------------------------
+            Search search
+    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
+        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+                .getCollectionReference(collection);
+        if (collectionReference == null) {
+            throw new NotFoundException(collection);
+        }
+        ArlasHits arlasHits = getArlasHits(search, collectionReference);
+        return Response.ok(arlasHits).build();
+    }
+
+    protected ArlasHits getArlasHits(Search search, CollectionReference collectionReference) throws ArlasException, IOException {
+        SearchHits searchHits = this.getExploreServices().search(search,collectionReference);
+
         ArlasHits arlasHits = new ArlasHits();
         arlasHits.totalnb = searchHits.totalHits();
         arlasHits.nbhits = searchHits.getHits().length;
@@ -218,17 +252,13 @@ public class SearchRESTService extends ExploreRESTServices {
             }
             if (collectionReference.params.centroidPath != null
                     && hitsSources.get(collectionReference.params.centroidPath) != null) {
-                String pointString = (String) hitsSources.get(collectionReference.params.centroidPath);
-                String[] tokens = pointString.split(",");
-                Double latitude = Double.parseDouble(tokens[0]);
-                Double longitude = Double.parseDouble(tokens[1]);
-                Point point = new Point(latitude, longitude);
-                arlasHit.md.centroid = point;
+                Object m = hitsSources.get(collectionReference.params.centroidPath);
+                arlasHit.md.centroid = GeoTypeMapper.getGeoJsonObject(m);
             }
             if (collectionReference.params.geometryPath != null
                     && hitsSources.get(collectionReference.params.geometryPath) != null) {
-                HashMap m = (HashMap) hitsSources.get(collectionReference.params.geometryPath);
-                arlasHit.md.geometry = m;
+                Object m = hitsSources.get(collectionReference.params.geometryPath);
+                arlasHit.md.geometry = GeoTypeMapper.getGeoJsonObject(m);
             }
             if (collectionReference.params.timestampPath != null
                     && hitsSources.get(collectionReference.params.timestampPath) != null) {
@@ -238,6 +268,6 @@ public class SearchRESTService extends ExploreRESTServices {
             }
             arlasHits.hits.add(arlasHit);
         }
-        return Response.ok(arlasHits).build();
+        return arlasHits;
     }
 }

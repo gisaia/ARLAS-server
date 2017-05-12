@@ -1,9 +1,15 @@
 package io.arlas.server.dao;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -21,7 +27,11 @@ import org.elasticsearch.search.sort.SortOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
@@ -31,11 +41,21 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     TransportClient client = null;
     String arlasIndex = null;
+    private static LoadingCache<String, CollectionReference> collections = null;
 
-    public ElasticCollectionReferenceDaoImpl(TransportClient client, String arlasIndex) {
+    public ElasticCollectionReferenceDaoImpl(TransportClient client, String arlasIndex, int arlasCacheSize, int arlasCacheTimeout) {
         super();
         this.client = client;
         this.arlasIndex = arlasIndex;
+        collections = CacheBuilder.newBuilder()
+        .maximumSize(arlasCacheSize)
+        .expireAfterWrite(arlasCacheTimeout, TimeUnit.SECONDS)
+        .build(
+                new CacheLoader<String, CollectionReference>() {
+                    public CollectionReference load(String ref) throws NotFoundException {
+                        return getCollectionReferenceFromES(ref);
+                    }
+                });
     }
 
     private CollectionReferenceParameters getCollectionReferenceParameters(Map<String, Object> source) {
@@ -43,30 +63,35 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         for (String field : source.keySet()) {
             switch (field) {
             case CollectionReference.INDEX_NAME:
-                params.indexName = source.get(field) != null ? source.get(field).toString() : "";
+                params.indexName = source.get(field) != null ? source.get(field).toString() : null;
                 break;
             case CollectionReference.TYPE_NAME:
-                params.typeName = source.get(field) != null ? source.get(field).toString() : "";
+                params.typeName = source.get(field) != null ? source.get(field).toString() : null;
                 break;
             case CollectionReference.ID_PATH:
-                params.idPath = source.get(field) != null ? source.get(field).toString() : "";
+                params.idPath = source.get(field) != null ? source.get(field).toString() : null;
                 break;
             case CollectionReference.GEOMETRY_PATH:
-                params.geometryPath = source.get(field) != null ? source.get(field).toString() : "";
+                params.geometryPath = source.get(field) != null ? source.get(field).toString() : null;
                 break;
             case CollectionReference.CENTROID_PATH:
-                params.centroidPath = source.get(field) != null ? source.get(field).toString() : "";
+                params.centroidPath = source.get(field) != null ? source.get(field).toString() : null;
                 break;
             case CollectionReference.TIMESTAMP_PATH:
-                params.timestampPath = source.get(field) != null ? source.get(field).toString() : "";
+                params.timestampPath = source.get(field) != null ? source.get(field).toString() : null;
+                break;
+            case CollectionReference.INCLUDE_FIELDS:
+                params.includeFields = source.get(field) != null ? source.get(field).toString() : null;
+                break;
+            case CollectionReference.EXCLUDE_FIELDS:
+                params.excludeFields = source.get(field) != null ? source.get(field).toString() : null;
                 break;
             }
         }
         return params;
     }
 
-    @Override
-    public CollectionReference getCollectionReference(String ref) throws NotFoundException {
+    private CollectionReference getCollectionReferenceFromES(String ref) throws NotFoundException {
         CollectionReference collection = null;
         GetResponse response = client.prepareGet(arlasIndex, "collection", ref).get();
         Map<String, Object> source = response.getSource();
@@ -78,6 +103,15 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         }
         return collection;
     }
+    
+    @Override
+    public CollectionReference getCollectionReference(String ref) throws NotFoundException {
+        try {
+            return collections.get(ref);
+        } catch (ExecutionException e) {
+            throw new NotFoundException("Collection " + ref + " not found.");
+        }
+    }
 
     @Override
     public List<CollectionReference> getAllCollectionReferences() throws InternalServerErrorException {
@@ -87,9 +121,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             QueryBuilder qb = QueryBuilders.matchAllQuery();
             SearchResponse scrollResp = client.prepareSearch(arlasIndex)
                     .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC).setScroll(new TimeValue(60000))
-                    .setQuery(qb).setSize(100).get(); // max of 100 hits will be
-                                                      // returned for each
-                                                      // scroll
+                    .setQuery(qb).setSize(100).get(); // max of 100 hits will be returned for each scroll
 
             // Scroll until no hits are returned
             do {
@@ -101,12 +133,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 }
                 scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000))
                         .execute().actionGet();
-            } while (scrollResp.getHits().getHits().length != 0); // Zero hits
-                                                                  // mark the
-                                                                  // end of the
-                                                                  // scroll and
-                                                                  // the while
-                                                                  // loop.
+            } while (scrollResp.getHits().getHits().length != 0); // Zero hits mark the end of the scroll and the while loop.
         } catch (IndexNotFoundException e) {
             throw new InternalServerErrorException("Collections not found.");
         }
@@ -122,19 +149,74 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         IndexResponse response = client.prepareIndex(arlasIndex, "collection", ref)
                 .setSource(om.writeValueAsString(desc)).get();
         if (response.status().getStatus() != RestStatus.OK.getStatus()
-                && response.status().getStatus() != RestStatus.CREATED.getStatus())
+                && response.status().getStatus() != RestStatus.CREATED.getStatus()) {
             throw new InternalServerErrorException("Unable to index collection : " + response.status().toString());
-        else
+        } else {
+            //explicit clean-up cache
+            collections.invalidate(ref);
+            collections.cleanUp();
+            
             return new CollectionReference(ref, desc);
+        }
     }
 
     @Override
     public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException {
         DeleteResponse response = client.prepareDelete(arlasIndex, "collection", ref).get();
-        if (response.status().equals(RestStatus.NOT_FOUND))
+        if (response.status().equals(RestStatus.NOT_FOUND)) {
             throw new NotFoundException("collection " + ref + " not found.");
-        else if (!response.status().equals(RestStatus.OK))
+        } else if (!response.status().equals(RestStatus.OK)) {
             throw new InternalServerErrorException("Unable to delete collection : " + response.status().toString());
+        } else {
+            //explicit clean-up cache
+            collections.invalidate(ref);
+            collections.cleanUp();
+        }
     }
 
+    @Override
+    public void checkCollectionReferenceParameters(CollectionReferenceParameters collectionRefParams) throws ArlasException {
+        GetMappingsResponse response;
+        try {
+            //check index
+            response = client.admin().indices().prepareGetMappings(collectionRefParams.indexName).setTypes(collectionRefParams.typeName).get();
+            if(response.getMappings().isEmpty()
+                    || !response.getMappings().get(collectionRefParams.indexName).containsKey(collectionRefParams.typeName)) {
+                throw new NotFoundException("Type "+collectionRefParams.typeName+" does not exist in "+collectionRefParams.indexName+".");
+            }
+            
+            //check type
+            Object properties = response.getMappings().get(collectionRefParams.indexName).get(collectionRefParams.typeName).sourceAsMap().get("properties");
+            if(properties == null) {
+                throw new NotFoundException("Unable to find properties from "+collectionRefParams.typeName+" in "+collectionRefParams.indexName+".");
+            }
+            
+            //check fields
+            List<String> fields = new ArrayList<String>();
+            if(collectionRefParams.idPath != null)
+                fields.add(collectionRefParams.idPath);
+            if(collectionRefParams.geometryPath != null)
+                fields.add(collectionRefParams.geometryPath);
+            if(collectionRefParams.centroidPath != null)
+                fields.add(collectionRefParams.centroidPath);
+            if(collectionRefParams.timestampPath != null)
+                fields.add(collectionRefParams.timestampPath);
+            if(!fields.isEmpty())
+                checkIndexMappingFields(collectionRefParams.indexName, collectionRefParams.typeName, fields.toArray(new String[fields.size()]));
+        } catch (IndexNotFoundException e) {
+            throw new NotFoundException("Index "+collectionRefParams.indexName+" does not exist.");
+        } catch (IOException e) {
+            throw new NotFoundException("Unable to access "+collectionRefParams.typeName+" in "+collectionRefParams.indexName+".");
+        }
+    }
+    
+    private void checkIndexMappingFields(String indexName, String typeName, String... fields) throws ArlasException {
+        GetFieldMappingsResponse response = client.admin().indices().prepareGetFieldMappings(indexName).setTypes(typeName).setFields(fields).get();
+        for(String field : fields) {
+            FieldMappingMetaData data = response.fieldMappings(indexName, typeName, field);
+            if(data == null || data.isNull()) {
+                throw new NotFoundException("Unable to find "+field+" from "+typeName+" in "+indexName+".");
+            }
+        }
+    }
 }

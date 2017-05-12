@@ -1,4 +1,4 @@
-package io.arlas.server.model;
+package io.arlas.server.model.response;
 
 public class ArlasError {
     public int status;

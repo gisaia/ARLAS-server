@@ -27,6 +27,8 @@ public class DataSetTool {
     public final static String DATASET_GEOMETRY_PATH="geometry";
     public final static String DATASET_CENTROID_PATH="centroid";
     public final static String DATASET_TIMESTAMP_PATH="startdate";
+    public final static String DATASET_INCLUDE_FIELDS=null;
+    public final static String DATASET_EXCLUDE_FIELDS=null;
     public static final String[] jobs= {"Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter"};
 
 

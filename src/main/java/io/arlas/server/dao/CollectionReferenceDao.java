@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
@@ -24,4 +25,6 @@ public interface CollectionReferenceDao {
             throws InternalServerErrorException, JsonProcessingException;
 
     public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException;
+    
+    public void checkCollectionReferenceParameters(CollectionReferenceParameters collectionRefParams) throws ArlasException;
 }

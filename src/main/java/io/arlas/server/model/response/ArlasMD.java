@@ -1,6 +1,4 @@
-package io.arlas.server.model;
-
-import org.geojson.Point;
+package io.arlas.server.model.response;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,5 +15,5 @@ public class ArlasMD {
     public Object geometry;
 
     @ApiModelProperty(name = "centroid", value = "The centroid of the hit")
-    public Point centroid;
+    public Object centroid;
 }

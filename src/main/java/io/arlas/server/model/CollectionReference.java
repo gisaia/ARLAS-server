@@ -15,6 +15,8 @@ public class CollectionReference {
     public static final String GEOMETRY_PATH = "geometry_path";
     public static final String CENTROID_PATH = "centroid_path";
     public static final String TIMESTAMP_PATH = "timestamp_path";
+    public static final String INCLUDE_FIELDS = "include_fields";
+    public static final String EXCLUDE_FIELDS = "exclude_fields";
 
     @ApiModelProperty(value = "The collection name")
     public String collectionName;
