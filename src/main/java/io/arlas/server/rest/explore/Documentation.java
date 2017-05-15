@@ -54,7 +54,7 @@ public class Documentation {
             "\n \n" +
             "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ";
 
-    public static final String FILTER_PARAM_Q="A full text search";
+    public static final String FILTER_PARAM_Q="A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}";
     public static final String FILTER_PARAM_BEFORE="Any element having its point in time reference before the given timestamp";
     public static final String FILTER_PARAM_AFTER="Any element having its point in time reference after the given timestamp";
     public static final String FILTER_PARAM_PWITHIN="Any element having its centroid contained within the given geometry (WKT)";
