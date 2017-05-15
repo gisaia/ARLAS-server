@@ -36,7 +36,7 @@ public class CountRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Count", produces = UTF8JSON, notes = "Count the number of elements found in the collection(s), given the filters", consumes = UTF8JSON)
+    @ApiOperation(value = "Count", produces = UTF8JSON, notes = "Count the number of elements found in the collection(s), given the filters", consumes = UTF8JSON, response = ArlasHits.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasHits.class, responseContainer = "ArlasHits" ),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
     public Response count(
@@ -146,7 +146,7 @@ public class CountRESTService extends ExploreRESTServices {
     @POST
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Count", produces = UTF8JSON, notes = "Count the number of elements found in the collection(s), given the filters", consumes = UTF8JSON)
+    @ApiOperation(value = "Count", produces = UTF8JSON, notes = "Count the number of elements found in the collection(s), given the filters", consumes = UTF8JSON, response = ArlasHits.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasHits.class, responseContainer = "ArlasHits" ),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
     public Response countPost(
