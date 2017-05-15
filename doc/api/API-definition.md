@@ -109,8 +109,8 @@ The `filter` url part allows the following parameters to be specified:
 
 | Parameter         | Default value | Values                         | Description                              | Multiple |
 | ----------------- | ------------- | ------------------------------ | ---------------------------------------- | -------- |
-| **f**             | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **:** (equal) filter, values can be comma separated ({field}`:`{v1},{v2}) which stands for an **OR**. For the **:ne:** (not equal) filter, values can be comma separated ({field}`:ne:`{v1},{v2}) which stands for an **AND** | true     |
-| **q**             | None          | text                           | A full text search                       | false    |
+| **f**             | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **`:eq:`** filter, values can be comma separated (field`:eq:`v1,v2) which stands for an **OR**. For the **`:ne:`**  filter, values can be comma separated (field`:ne:`v1,v2) which stands for an **AND** | true     |
+| **q**             | None          | `{text}` or `{fieldname}:{text}` | A full text search. Optionally, it's possible to search the text on a specific field                       | false    |
 | **before**        | None          | timestamp                      | Any element having its point in time reference before the given timestamp | false    |
 | **after**         | None          | timestamp                      | Any element having its point in time reference after the given timestamp | false    |
 | **pwithin**       | None          | geometry                       | Any element having its centroid contained within the given BBOX | false    |
@@ -118,7 +118,7 @@ The `filter` url part allows the following parameters to be specified:
 | **gintersect**    | None          | geometry                       | Any element having its geometry intersecting the given geometry (WKT) | false    |
 | **notpwithin**    | None          | geometry                       | Any element having its centroid outside the given BBOX | false    |
 | **notgwithin**    | None          | geometry                       | Any element having its geometry not contained within the given geometry | false    |
-| **notgintersect** | None          | geometry                       | Any element having its geometry disjoint from the given geometry (WKT) | false    |
+| **notgintersect** | None          | geometry                       | Any element having its geometry not intersecting the given geometry (WKT) | false    |
 
 
 

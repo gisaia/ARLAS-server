@@ -59,7 +59,8 @@ import io.arlas.server.utils.ParamsParser;
 public class FluidSearch {
 
     public static final String INVALID_PARAMETER_F = "Parameter f does not respect operation expression. ";
-    public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'gte', 'gt', 'lte', 'lt', 'like' or 'ne'. ";
+    public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'eq', gte', 'gt', 'lte', 'lt', 'like' or 'ne'. ";
+    public static final String INVALID_Q_FILTER = "Invalid parameter. Please specify the text to search directly or '{fieldname}:{text to search}'. ";
     public static final String INVALID_WKT = "Invalid WKT geometry.";
     public static final String INVALID_BBOX = "Invalid BBOX";
     public static final String INVALID_BEFORE_AFTER = "Invalid date parameters : before and after must be positive and before must be greater than after.";
@@ -101,7 +102,7 @@ public class FluidSearch {
 
     public SearchResponse exec() throws ArlasException {
         searchRequestBuilder.setQuery(boolQueryBuilder);
-        LOGGER.info("QUERY : "+searchRequestBuilder.toString());
+        LOGGER.debug("QUERY : "+searchRequestBuilder.toString());
         SearchResponse result = null;
 
         try {
@@ -167,9 +168,17 @@ public class FluidSearch {
         return this;
     }
 
-    public FluidSearch filterQ(String q) {
-        boolQueryBuilder = boolQueryBuilder
-                .filter(QueryBuilders.simpleQueryStringQuery(q).defaultOperator(Operator.AND));
+    public FluidSearch filterQ(String q) throws ArlasException{
+        String operands[] = q.split(":");
+        if (operands.length == 2){
+            boolQueryBuilder = boolQueryBuilder
+                    .filter(QueryBuilders.simpleQueryStringQuery(operands[1]).defaultOperator(Operator.AND).field(operands[0]));
+        }else if (operands.length == 1){
+            boolQueryBuilder = boolQueryBuilder
+                    .filter(QueryBuilders.simpleQueryStringQuery(operands[0]).defaultOperator(Operator.AND));
+        }else {
+            throw new InvalidParameterException(INVALID_Q_FILTER);
+        }
         return this;
     }
 

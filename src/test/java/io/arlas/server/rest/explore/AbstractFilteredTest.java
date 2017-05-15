@@ -60,6 +60,10 @@ public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
         handleMatchingQueryFilter(post(request));
         handleMatchingQueryFilter(get("q", request.filter.q));
 
+        request.filter.q = "fullname:My name is";
+        handleMatchingQueryFilter(post(request));
+        handleMatchingQueryFilter(get("q", request.filter.q));
+
         request.filter.q = "UnknownQuery";
         handleNotMatchingQueryFilter(post(request));
         handleNotMatchingQueryFilter(get("q", request.filter.q));
@@ -298,6 +302,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("f", request.filter.f.get(0)));
         request.filter.f = null;
+
+        //Q
+        request.filter.q = "fullname:My:name";
+        handleInvalidParameters(post(request));
+        handleInvalidParameters(get("q", request.filter.q));
+        request.filter.q = null;
                 
         // BEFORE/AFTER
         request.filter.after = 1200000l;
