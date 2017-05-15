@@ -941,6 +941,25 @@ margin-bottom: 20px;
   },
   "description" : "The reference to ARLAS collection that embed elasticsearch index description."
 };
+    defs.CollectionReferenceDescription = {
+  "type" : "object",
+  "properties" : {
+    "collection_name" : {
+      "type" : "string",
+      "description" : "The collection name"
+    },
+    "params" : {
+      "description" : "The collection parameters",
+      "$ref" : "#/definitions/CollectionReferenceParameters"
+    },
+    "properties" : {
+      "type" : "object",
+      "description" : "The collection fields",
+      "properties" : { }
+    }
+  },
+  "description" : "Describe the structure and the content of the given collection."
+};
     defs.CollectionReferenceParameters = {
   "type" : "object",
   "properties" : {
@@ -1340,9 +1359,6 @@ margin-bottom: 20px;
                     <li data-group="Explore" data-name="aggregatePost" class="">
                       <a href="#api-Explore-aggregatePost">aggregatePost</a>
                     </li>
-                    <li data-group="Explore" data-name="aggregatePost_1" class="">
-                      <a href="#api-Explore-aggregatePost_1">aggregatePost_1</a>
-                    </li>
                     <li data-group="Explore" data-name="count" class="">
                       <a href="#api-Explore-count">count</a>
                     </li>
@@ -1354,6 +1370,9 @@ margin-bottom: 20px;
                     </li>
                     <li data-group="Explore" data-name="geoaggregate" class="">
                       <a href="#api-Explore-geoaggregate">geoaggregate</a>
+                    </li>
+                    <li data-group="Explore" data-name="geoaggregatePost" class="">
+                      <a href="#api-Explore-geoaggregatePost">geoaggregatePost</a>
                     </li>
                     <li data-group="Explore" data-name="geosearch" class="">
                       <a href="#api-Explore-geosearch">geosearch</a>
@@ -5065,451 +5084,6 @@ except ApiException as e:
                         </article>
                       </div>
                       <hr>
-                    <div id="api-Explore-aggregatePost_1">
-                      <article id="api-Explore-aggregatePost_1-0" data-group="User" data-name="aggregatePost_1" data-version="0">
-                        <div class="pull-left">
-                          <h1>aggregatePost_1</h1>
-                          <p>GeoAggregate</p>
-                        </div>
-                        <div class="pull-right"></div>
-                        <div class="clearfix"></div>
-                        <p></p>
-                        <p class="marked">Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
-                        <p></p>
-                        <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/explore/{collection}/_geoaggregate</span></code></pre>
-                        <p>
-                          <h3>Usage and SDK Samples</h3>
-                        </p>
-                        <ul class="nav nav-tabs nav-tabs-examples">
-                          <li class="active"><a href="#examples-Explore-aggregatePost_1-0-curl">Curl</a></li>
-                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-java">Java</a></li>
-                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-android">Android</a></li>
-                          <!--<li class=""><a href="#examples-Explore-aggregatePost_1-0-groovy">Groovy</a></li>-->
-                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-objc">Obj-C</a></li>
-                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-javascript">JavaScript</a></li>
-                          <!--<li class=""><a href="#examples-Explore-aggregatePost_1-0-angular">Angular</a></li>-->
-                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-csharp">C#</a></li>
-                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-php">PHP</a></li>
-                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-perl">Perl</a></li>
-                          <li class=""><a href="#examples-Explore-aggregatePost_1-0-python">Python</a></li>
-                        </ul>
-
-                        <div class="tab-content">
-                          <div class="tab-pane active" id="examples-Explore-aggregatePost_1-0-curl">
-                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">post</span> "http://localhost/arlas/explore/{collection}/_geoaggregate"</code></pre>
-                          </div>
-                          <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-java">
-                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
-import io.swagger.client.auth.*;
-import io.swagger.client.model.*;
-import io.swagger.client.api.ExploreApi;
-
-import java.io.File;
-import java.util.*;
-
-public class ExploreApiExample {
-
-    public static void main(String[] args) {
-        
-        ExploreApi apiInstance = new ExploreApi();
-        String collection = collection_example; // String | collection
-        AggregationRequest body = ; // AggregationRequest | 
-        try {
-            ArlasAggregation result = apiInstance.aggregatePost_0(collection, body);
-            System.out.println(result);
-        } catch (ApiException e) {
-            System.err.println("Exception when calling ExploreApi#aggregatePost_0");
-            e.printStackTrace();
-        }
-    }
-}</code></pre>
-                          </div>
-
-                          <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-android">
-                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
-
-public class ExploreApiExample {
-
-    public static void main(String[] args) {
-        ExploreApi apiInstance = new ExploreApi();
-        String collection = collection_example; // String | collection
-        AggregationRequest body = ; // AggregationRequest | 
-        try {
-            ArlasAggregation result = apiInstance.aggregatePost_0(collection, body);
-            System.out.println(result);
-        } catch (ApiException e) {
-            System.err.println("Exception when calling ExploreApi#aggregatePost_0");
-            e.printStackTrace();
-        }
-    }
-}</code></pre>
-                          </div>
-  <!--
-  <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-groovy">
-  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
-  </div> -->
-                            <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-objc">
-                              <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
-AggregationRequest *body = ; //  (optional)
-
-ExploreApi *apiInstance = [[ExploreApi alloc] init];
-
-// GeoAggregate
-[apiInstance aggregatePost_1With:collection
-    body:body
-              completionHandler: ^(ArlasAggregation output, NSError* error) {
-                            if (output) {
-                                NSLog(@"%@", output);
-                            }
-                            if (error) {
-                                NSLog(@"Error: %@", error);
-                            }
-                        }];
-</code></pre>
-                            </div>
-
-                            <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-javascript">
-                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
-
-var api = new ArlasExplorationApi.ExploreApi()
-
-var collection = collection_example; // {String} collection
-
-var opts = { 
-  'body':  // {AggregationRequest} 
-};
-
-var callback = function(error, data, response) {
-  if (error) {
-    console.error(error);
-  } else {
-    console.log('API called successfully. Returned data: ' + data);
-  }
-};
-api.aggregatePost_0(collection, opts, callback);
-</code></pre>
-                            </div>
-
-                            <!--<div class="tab-pane" id="examples-Explore-aggregatePost_1-0-angular">
-              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
-            </div>-->
-                            <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-csharp">
-                              <pre class="prettyprint"><code class="language-cs">using System;
-using System.Diagnostics;
-using IO.Swagger.Api;
-using IO.Swagger.Client;
-using IO.Swagger.Model;
-
-namespace Example
-{
-    public class aggregatePost_0Example
-    {
-        public void main()
-        {
-            
-            var apiInstance = new ExploreApi();
-            var collection = collection_example;  // String | collection
-            var body = new AggregationRequest(); // AggregationRequest |  (optional) 
-
-            try
-            {
-                // GeoAggregate
-                ArlasAggregation result = apiInstance.aggregatePost_0(collection, body);
-                Debug.WriteLine(result);
-            }
-            catch (Exception e)
-            {
-                Debug.Print("Exception when calling ExploreApi.aggregatePost_0: " + e.Message );
-            }
-        }
-    }
-}</code></pre>
-                            </div>
-
-                            <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-php">
-                              <pre class="prettyprint"><code class="language-php"><&#63;php
-require_once(__DIR__ . '/vendor/autoload.php');
-
-$api_instance = new Swagger\Client\Api\ExploreApi();
-$collection = collection_example; // String | collection
-$body = ; // AggregationRequest | 
-
-try {
-    $result = $api_instance->aggregatePost_0($collection, $body);
-    print_r($result);
-} catch (Exception $e) {
-    echo 'Exception when calling ExploreApi->aggregatePost_0: ', $e->getMessage(), PHP_EOL;
-}
-?></code></pre>
-                            </div>
-
-                            <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-perl">
-                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
-use WWW::SwaggerClient::Configuration;
-use WWW::SwaggerClient::ExploreApi;
-
-my $api_instance = WWW::SwaggerClient::ExploreApi->new();
-my $collection = collection_example; # String | collection
-my $body = WWW::SwaggerClient::Object::AggregationRequest->new(); # AggregationRequest | 
-
-eval { 
-    my $result = $api_instance->aggregatePost_0(collection => $collection, body => $body);
-    print Dumper($result);
-};
-if ($@) {
-    warn "Exception when calling ExploreApi->aggregatePost_0: $@\n";
-}</code></pre>
-                            </div>
-
-                            <div class="tab-pane" id="examples-Explore-aggregatePost_1-0-python">
-                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
-import time
-import swagger_client
-from swagger_client.rest import ApiException
-from pprint import pprint
-
-# create an instance of the API class
-api_instance = swagger_client.ExploreApi()
-collection = collection_example # String | collection
-body =  # AggregationRequest |  (optional)
-
-try: 
-    # GeoAggregate
-    api_response = api_instance.aggregatePost_0(collection, body=body)
-    pprint(api_response)
-except ApiException as e:
-    print("Exception when calling ExploreApi->aggregatePost_0: %s\n" % e)</code></pre>
-                            </div>
-                          </div>
-
-                          <h2>Parameters</h2>
-
-                            <div class="methodsubtabletitle">Path parameters</div>
-                            <table id="methodsubtable">
-                                <tr>
-                                  <th width="150px">Name</th>
-                                  <th>Description</th>
-                                </tr>
-                                  <tr><td style="width:150px;">collection*</td>
-<td>
-
-
-<script>
-												$(document).ready(function() {
-													var schemaWrapper = {
-  "name" : "collection",
-  "in" : "path",
-  "description" : "collection",
-  "required" : true,
-  "type" : "string"
-};
-													var schema = schemaWrapper;
-
-
-
-
-													var view = new JSONSchemaView(schema,1);
-													var result = $('#d2e199_aggregatePost_1_collection');
-													result.empty();
-													result.append(view.render());
-
-
-
-
-
-												});
-												</script>
-												<div id="d2e199_aggregatePost_1_collection"></div>
-</td>
-</tr>
-
-                            </table>
-
-
-                            <div class="methodsubtabletitle">Body parameters</div>
-                            <table id="methodsubtable">
-                              <tr>
-                                <th width="150px">Name</th>
-                                <th>Description</th>
-                              </tr>
-                                <tr><td style="width:150px;">body </td>
-<td>
-
-
-<script>
-												$(document).ready(function() {
-													var schemaWrapper = {
-  "in" : "body",
-  "name" : "body",
-  "required" : false,
-  "schema" : {
-    "$ref" : "#/definitions/AggregationRequest"
-  }
-};
-													
-														var schema = schemaWrapper.schema;
-														schemaWrapper.definitions = defs;
-														JsonRefs.resolveRefs(schemaWrapper, {"depth":3, "resolveRemoteRefs":false,"resolveFileRefs":false },function (err, resolved, metadata) {
-														
-
-														
-													var view = new JSONSchemaView(resolved.schema,2,{isBodyParam: true});
-													 
-													var result = $('#d2e199_aggregatePost_1_body');
-													result.empty();
-													result.append(view.render());
-													
-
-													
-    											
-													
-
-
-												});
-
-
-
-												});
-												</script>
-												<div id="d2e199_aggregatePost_1_body"></div>
-</td>
-</tr>
-
-                            </table>
-
-
-
-                          <h2>Responses</h2>
-                            <h3> Status: 200 - Successful operation </h3>
-
-                            <ul class="nav nav-tabs nav-tabs-examples" >
-                                <li class="active">
-                                  <a data-toggle="tab" href="#responses-aggregatePost_1-200-schema">Schema</a>
-                                </li>
-
-                            </ul>
-
-                            <div class="tab-content" style='margin-bottom: 10px;'>
-                                <div class="tab-pane active" id="responses-aggregatePost_1-200-schema">
-                                  <div id='responses-aggregatePost_1-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
-                                                               <script>
-                                      $(document).ready(function() {
-                                        var schemaWrapper = {
-  "description" : "Successful operation",
-  "schema" : {
-    "$ref" : "#/definitions/ArlasAggregation"
-  }
-};
-                                        var schema = schemaWrapper.schema;
-                                        schemaWrapper.definitions = defs;
-                                        //console.log(JSON.stringify(schema))
-                                        JsonRefs.resolveRefs(schemaWrapper, {
-                                            "depth": 3,
-                                            "resolveRemoteRefs": false,
-                                            "resolveFileRefs": false
-                                        }, function(err, resolved, metadata) {
-                                          //console.log(JSON.stringify(resolved));
-                                          var view = new JSONSchemaView(resolved.schema, 3);
-                                          $('#responses-aggregatePost_1-200-schema-data').val(JSON.stringify(resolved.schema));
-                                          var result = $('#responses-aggregatePost_1-200-schema-200');
-                                          result.empty();
-                                          result.append(view.render());
-                                        });
-                                      });
-                                    </script>
-                                  </div>
-                                  <input id='responses-aggregatePost_1-200-schema-data' type='hidden' value=''></input>
-                                </div>
-                            </div>
-
-                            <h3> Status: 400 - Bad request. </h3>
-
-                            <ul class="nav nav-tabs nav-tabs-examples" >
-                                <li class="active">
-                                  <a data-toggle="tab" href="#responses-aggregatePost_1-400-schema">Schema</a>
-                                </li>
-
-                            </ul>
-
-                            <div class="tab-content" style='margin-bottom: 10px;'>
-                                <div class="tab-pane active" id="responses-aggregatePost_1-400-schema">
-                                  <div id='responses-aggregatePost_1-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
-                                                               <script>
-                                      $(document).ready(function() {
-                                        var schemaWrapper = {
-  "description" : "Bad request.",
-  "schema" : {
-    "$ref" : "#/definitions/ArlasError"
-  }
-};
-                                        var schema = schemaWrapper.schema;
-                                        schemaWrapper.definitions = defs;
-                                        //console.log(JSON.stringify(schema))
-                                        JsonRefs.resolveRefs(schemaWrapper, {
-                                            "depth": 3,
-                                            "resolveRemoteRefs": false,
-                                            "resolveFileRefs": false
-                                        }, function(err, resolved, metadata) {
-                                          //console.log(JSON.stringify(resolved));
-                                          var view = new JSONSchemaView(resolved.schema, 3);
-                                          $('#responses-aggregatePost_1-400-schema-data').val(JSON.stringify(resolved.schema));
-                                          var result = $('#responses-aggregatePost_1-400-schema-400');
-                                          result.empty();
-                                          result.append(view.render());
-                                        });
-                                      });
-                                    </script>
-                                  </div>
-                                  <input id='responses-aggregatePost_1-400-schema-data' type='hidden' value=''></input>
-                                </div>
-                            </div>
-
-                            <h3> Status: 500 - Arlas Server Error. </h3>
-
-                            <ul class="nav nav-tabs nav-tabs-examples" >
-                                <li class="active">
-                                  <a data-toggle="tab" href="#responses-aggregatePost_1-500-schema">Schema</a>
-                                </li>
-
-                            </ul>
-
-                            <div class="tab-content" style='margin-bottom: 10px;'>
-                                <div class="tab-pane active" id="responses-aggregatePost_1-500-schema">
-                                  <div id='responses-aggregatePost_1-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
-                                                               <script>
-                                      $(document).ready(function() {
-                                        var schemaWrapper = {
-  "description" : "Arlas Server Error.",
-  "schema" : {
-    "$ref" : "#/definitions/ArlasError"
-  }
-};
-                                        var schema = schemaWrapper.schema;
-                                        schemaWrapper.definitions = defs;
-                                        //console.log(JSON.stringify(schema))
-                                        JsonRefs.resolveRefs(schemaWrapper, {
-                                            "depth": 3,
-                                            "resolveRemoteRefs": false,
-                                            "resolveFileRefs": false
-                                        }, function(err, resolved, metadata) {
-                                          //console.log(JSON.stringify(resolved));
-                                          var view = new JSONSchemaView(resolved.schema, 3);
-                                          $('#responses-aggregatePost_1-500-schema-data').val(JSON.stringify(resolved.schema));
-                                          var result = $('#responses-aggregatePost_1-500-schema-500');
-                                          result.empty();
-                                          result.append(view.render());
-                                        });
-                                      });
-                                    </script>
-                                  </div>
-                                  <input id='responses-aggregatePost_1-500-schema-data' type='hidden' value=''></input>
-                                </div>
-                            </div>
-
-                        </article>
-                      </div>
-                      <hr>
                     <div id="api-Explore-count">
                       <article id="api-Explore-count-0" data-group="User" data-name="count" data-version="0">
                         <div class="pull-left">
@@ -7250,7 +6824,8 @@ public class ExploreApiExample {
         Boolean human = true; // Boolean | Human readable print
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
-            apiInstance.describe(collection, pretty, human, maxAgeCache);
+            CollectionReferenceDescription result = apiInstance.describe(collection, pretty, human, maxAgeCache);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExploreApi#describe");
             e.printStackTrace();
@@ -7271,7 +6846,8 @@ public class ExploreApiExample {
         Boolean human = true; // Boolean | Human readable print
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
-            apiInstance.describe(collection, pretty, human, maxAgeCache);
+            CollectionReferenceDescription result = apiInstance.describe(collection, pretty, human, maxAgeCache);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExploreApi#describe");
             e.printStackTrace();
@@ -7296,7 +6872,10 @@ ExploreApi *apiInstance = [[ExploreApi alloc] init];
     pretty:pretty
     human:human
     maxAgeCache:maxAgeCache
-              completionHandler: ^(NSError* error) {
+              completionHandler: ^(CollectionReferenceDescription output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
                             if (error) {
                                 NSLog(@"Error: %@", error);
                             }
@@ -7321,7 +6900,7 @@ var callback = function(error, data, response) {
   if (error) {
     console.error(error);
   } else {
-    console.log('API called successfully.');
+    console.log('API called successfully. Returned data: ' + data);
   }
 };
 api.describe(collection, opts, callback);
@@ -7354,7 +6933,8 @@ namespace Example
             try
             {
                 // Describe
-                apiInstance.describe(collection, pretty, human, maxAgeCache);
+                CollectionReferenceDescription result = apiInstance.describe(collection, pretty, human, maxAgeCache);
+                Debug.WriteLine(result);
             }
             catch (Exception e)
             {
@@ -7376,7 +6956,8 @@ $human = true; // Boolean | Human readable print
 $maxAgeCache = 56; // Integer | max-age-cache
 
 try {
-    $api_instance->describe($collection, $pretty, $human, $maxAgeCache);
+    $result = $api_instance->describe($collection, $pretty, $human, $maxAgeCache);
+    print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling ExploreApi->describe: ', $e->getMessage(), PHP_EOL;
 }
@@ -7395,7 +6976,8 @@ my $human = true; # Boolean | Human readable print
 my $maxAgeCache = 56; # Integer | max-age-cache
 
 eval { 
-    $api_instance->describe(collection => $collection, pretty => $pretty, human => $human, maxAgeCache => $maxAgeCache);
+    my $result = $api_instance->describe(collection => $collection, pretty => $pretty, human => $human, maxAgeCache => $maxAgeCache);
+    print Dumper($result);
 };
 if ($@) {
     warn "Exception when calling ExploreApi->describe: $@\n";
@@ -7418,7 +7000,8 @@ maxAgeCache = 56 # Integer | max-age-cache (optional)
 
 try: 
     # Describe
-    api_instance.describe(collection, pretty=pretty, human=human, maxAgeCache=maxAgeCache)
+    api_response = api_instance.describe(collection, pretty=pretty, human=human, maxAgeCache=maxAgeCache)
+    pprint(api_response)
 except ApiException as e:
     print("Exception when calling ExploreApi->describe: %s\n" % e)</code></pre>
                             </div>
@@ -7584,9 +7167,127 @@ except ApiException as e:
                             <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-describe-200-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-describe-200-schema">
+                                  <div id='responses-describe-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/CollectionReferenceDescription"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-describe-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-describe-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-describe-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 400 - Bad request. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-describe-400-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-describe-400-schema">
+                                  <div id='responses-describe-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Bad request.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-describe-400-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-describe-400-schema-400');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-describe-400-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-describe-500-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-describe-500-schema">
+                                  <div id='responses-describe-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-describe-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-describe-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-describe-500-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                         </article>
@@ -9262,6 +8963,535 @@ except ApiException as e:
                                 </div>
                             </div>
 
+                            <h3> Status: 501 - Not implemented functionality. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-geoaggregate-501-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-geoaggregate-501-schema">
+                                  <div id='responses-geoaggregate-501-schema-501' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Not implemented functionality.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-geoaggregate-501-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-geoaggregate-501-schema-501');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-geoaggregate-501-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
+                    <div id="api-Explore-geoaggregatePost">
+                      <article id="api-Explore-geoaggregatePost-0" data-group="User" data-name="geoaggregatePost" data-version="0">
+                        <div class="pull-left">
+                          <h1>geoaggregatePost</h1>
+                          <p>GeoAggregate</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/explore/{collection}/_geoaggregate</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-geoaggregatePost-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-geoaggregatePost-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-geoaggregatePost-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-geoaggregatePost-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-geoaggregatePost-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-geoaggregatePost-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-geoaggregatePost-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-geoaggregatePost-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-geoaggregatePost-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-geoaggregatePost-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-geoaggregatePost-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-geoaggregatePost-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">post</span> "http://localhost/arlas/explore/{collection}/_geoaggregate"</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-geoaggregatePost-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        AggregationRequest body = ; // AggregationRequest | 
+        try {
+            FeatureCollection result = apiInstance.geoaggregatePost(collection, body);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#geoaggregatePost");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-geoaggregatePost-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        AggregationRequest body = ; // AggregationRequest | 
+        try {
+            FeatureCollection result = apiInstance.geoaggregatePost(collection, body);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#geoaggregatePost");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-geoaggregatePost-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-geoaggregatePost-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
+AggregationRequest *body = ; //  (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// GeoAggregate
+[apiInstance geoaggregatePostWith:collection
+    body:body
+              completionHandler: ^(FeatureCollection output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-geoaggregatePost-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var collection = collection_example; // {String} collection
+
+var opts = { 
+  'body':  // {AggregationRequest} 
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.geoaggregatePost(collection, opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-geoaggregatePost-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-geoaggregatePost-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class geoaggregatePostExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var collection = collection_example;  // String | collection
+            var body = new AggregationRequest(); // AggregationRequest |  (optional) 
+
+            try
+            {
+                // GeoAggregate
+                FeatureCollection result = apiInstance.geoaggregatePost(collection, body);
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.geoaggregatePost: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-geoaggregatePost-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$collection = collection_example; // String | collection
+$body = ; // AggregationRequest | 
+
+try {
+    $result = $api_instance->geoaggregatePost($collection, $body);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->geoaggregatePost: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-geoaggregatePost-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $collection = collection_example; # String | collection
+my $body = WWW::SwaggerClient::Object::AggregationRequest->new(); # AggregationRequest | 
+
+eval { 
+    my $result = $api_instance->geoaggregatePost(collection => $collection, body => $body);
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->geoaggregatePost: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-geoaggregatePost-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+collection = collection_example # String | collection
+body =  # AggregationRequest |  (optional)
+
+try: 
+    # GeoAggregate
+    api_response = api_instance.geoaggregatePost(collection, body=body)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling ExploreApi->geoaggregatePost: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">collection*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collection",
+  "in" : "path",
+  "description" : "collection",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_geoaggregatePost_collection');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregatePost_collection"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+                            <div class="methodsubtabletitle">Body parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">body </td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "in" : "body",
+  "name" : "body",
+  "required" : false,
+  "schema" : {
+    "$ref" : "#/definitions/AggregationRequest"
+  }
+};
+													
+														var schema = schemaWrapper.schema;
+														schemaWrapper.definitions = defs;
+														JsonRefs.resolveRefs(schemaWrapper, {"depth":3, "resolveRemoteRefs":false,"resolveFileRefs":false },function (err, resolved, metadata) {
+														
+
+														
+													var view = new JSONSchemaView(resolved.schema,2,{isBodyParam: true});
+													 
+													var result = $('#d2e199_geoaggregatePost_body');
+													result.empty();
+													result.append(view.render());
+													
+
+													
+    											
+													
+
+
+												});
+
+
+
+												});
+												</script>
+												<div id="d2e199_geoaggregatePost_body"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - Successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-geoaggregatePost-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-geoaggregatePost-200-schema">
+                                  <div id='responses-geoaggregatePost-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/FeatureCollection"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-geoaggregatePost-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-geoaggregatePost-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-geoaggregatePost-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 400 - Bad request. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-geoaggregatePost-400-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-geoaggregatePost-400-schema">
+                                  <div id='responses-geoaggregatePost-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Bad request.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-geoaggregatePost-400-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-geoaggregatePost-400-schema-400');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-geoaggregatePost-400-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-geoaggregatePost-500-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-geoaggregatePost-500-schema">
+                                  <div id='responses-geoaggregatePost-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-geoaggregatePost-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-geoaggregatePost-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-geoaggregatePost-500-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 501 - Not implemented functionality. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-geoaggregatePost-501-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-geoaggregatePost-501-schema">
+                                  <div id='responses-geoaggregatePost-501-schema-501' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Not implemented functionality.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-geoaggregatePost-501-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-geoaggregatePost-501-schema-501');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-geoaggregatePost-501-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
                         </article>
                       </div>
                       <hr>
@@ -9373,7 +9603,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
 
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
-            apiInstance.geosearch(collection, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
+            FeatureCollection result = apiInstance.geosearch(collection, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExploreApi#geosearch");
             e.printStackTrace();
@@ -9449,7 +9680,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
 
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
-            apiInstance.geosearch(collection, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
+            FeatureCollection result = apiInstance.geosearch(collection, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExploreApi#geosearch");
             e.printStackTrace();
@@ -9544,7 +9776,10 @@ ExploreApi *apiInstance = [[ExploreApi alloc] init];
     from:from
     sort:sort
     maxAgeCache:maxAgeCache
-              completionHandler: ^(NSError* error) {
+              completionHandler: ^(FeatureCollection output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
                             if (error) {
                                 NSLog(@"Error: %@", error);
                             }
@@ -9624,7 +9859,7 @@ var callback = function(error, data, response) {
   if (error) {
     console.error(error);
   } else {
-    console.log('API called successfully.');
+    console.log('API called successfully. Returned data: ' + data);
   }
 };
 api.geosearch(collection, opts, callback);
@@ -9712,7 +9947,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
             try
             {
                 // GeoSearch
-                apiInstance.geosearch(collection, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
+                FeatureCollection result = apiInstance.geosearch(collection, f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, pretty, human, include, exclude, size, from, sort, maxAgeCache);
+                Debug.WriteLine(result);
             }
             catch (Exception e)
             {
@@ -9789,7 +10025,8 @@ $sort = -country,city; // array[String] | - Sort the result on the given fields 
 $maxAgeCache = 56; // Integer | max-age-cache
 
 try {
-    $api_instance->geosearch($collection, $f, $q, $before, $after, $pwithin, $gwithin, $gintersect, $notpwithin, $notgwithin, $notgintersect, $pretty, $human, $include, $exclude, $size, $from, $sort, $maxAgeCache);
+    $result = $api_instance->geosearch($collection, $f, $q, $before, $after, $pwithin, $gwithin, $gintersect, $notpwithin, $notgwithin, $notgintersect, $pretty, $human, $include, $exclude, $size, $from, $sort, $maxAgeCache);
+    print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling ExploreApi->geosearch: ', $e->getMessage(), PHP_EOL;
 }
@@ -9863,7 +10100,8 @@ my $sort = [-country,city]; # array[String] | - Sort the result on the given fie
 my $maxAgeCache = 56; # Integer | max-age-cache
 
 eval { 
-    $api_instance->geosearch(collection => $collection, f => $f, q => $q, before => $before, after => $after, pwithin => $pwithin, gwithin => $gwithin, gintersect => $gintersect, notpwithin => $notpwithin, notgwithin => $notgwithin, notgintersect => $notgintersect, pretty => $pretty, human => $human, include => $include, exclude => $exclude, size => $size, from => $from, sort => $sort, maxAgeCache => $maxAgeCache);
+    my $result = $api_instance->geosearch(collection => $collection, f => $f, q => $q, before => $before, after => $after, pwithin => $pwithin, gwithin => $gwithin, gintersect => $gintersect, notpwithin => $notpwithin, notgwithin => $notgwithin, notgintersect => $notgintersect, pretty => $pretty, human => $human, include => $include, exclude => $exclude, size => $size, from => $from, sort => $sort, maxAgeCache => $maxAgeCache);
+    print Dumper($result);
 };
 if ($@) {
     warn "Exception when calling ExploreApi->geosearch: $@\n";
@@ -9941,7 +10179,8 @@ maxAgeCache = 56 # Integer | max-age-cache (optional)
 
 try: 
     # GeoSearch
-    api_instance.geosearch(collection, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, notpwithin=notpwithin, notgwithin=notgwithin, notgintersect=notgintersect, pretty=pretty, human=human, include=include, exclude=exclude, size=size, from=from, sort=sort, maxAgeCache=maxAgeCache)
+    api_response = api_instance.geosearch(collection, f=f, q=q, before=before, after=after, pwithin=pwithin, gwithin=gwithin, gintersect=gintersect, notpwithin=notpwithin, notgwithin=notgwithin, notgintersect=notgintersect, pretty=pretty, human=human, include=include, exclude=exclude, size=size, from=from, sort=sort, maxAgeCache=maxAgeCache)
+    pprint(api_response)
 except ApiException as e:
     print("Exception when calling ExploreApi->geosearch: %s\n" % e)</code></pre>
                             </div>
@@ -10654,9 +10893,127 @@ except ApiException as e:
                             <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-geosearch-200-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-geosearch-200-schema">
+                                  <div id='responses-geosearch-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/FeatureCollection"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-geosearch-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-geosearch-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-geosearch-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 400 - Bad request. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-geosearch-400-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-geosearch-400-schema">
+                                  <div id='responses-geosearch-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Bad request.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-geosearch-400-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-geosearch-400-schema-400');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-geosearch-400-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-geosearch-500-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-geosearch-500-schema">
+                                  <div id='responses-geosearch-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-geosearch-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-geosearch-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-geosearch-500-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                         </article>
@@ -10713,7 +11070,8 @@ public class ExploreApiExample {
         String collection = collection_example; // String | collection
         Search body = ; // Search | 
         try {
-            apiInstance.geosearchPost(collection, body);
+            FeatureCollection result = apiInstance.geosearchPost(collection, body);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExploreApi#geosearchPost");
             e.printStackTrace();
@@ -10732,7 +11090,8 @@ public class ExploreApiExample {
         String collection = collection_example; // String | collection
         Search body = ; // Search | 
         try {
-            apiInstance.geosearchPost(collection, body);
+            FeatureCollection result = apiInstance.geosearchPost(collection, body);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExploreApi#geosearchPost");
             e.printStackTrace();
@@ -10753,7 +11112,10 @@ ExploreApi *apiInstance = [[ExploreApi alloc] init];
 // GeoSearch
 [apiInstance geosearchPostWith:collection
     body:body
-              completionHandler: ^(NSError* error) {
+              completionHandler: ^(FeatureCollection output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
                             if (error) {
                                 NSLog(@"Error: %@", error);
                             }
@@ -10776,7 +11138,7 @@ var callback = function(error, data, response) {
   if (error) {
     console.error(error);
   } else {
-    console.log('API called successfully.');
+    console.log('API called successfully. Returned data: ' + data);
   }
 };
 api.geosearchPost(collection, opts, callback);
@@ -10807,7 +11169,8 @@ namespace Example
             try
             {
                 // GeoSearch
-                apiInstance.geosearchPost(collection, body);
+                FeatureCollection result = apiInstance.geosearchPost(collection, body);
+                Debug.WriteLine(result);
             }
             catch (Exception e)
             {
@@ -10827,7 +11190,8 @@ $collection = collection_example; // String | collection
 $body = ; // Search | 
 
 try {
-    $api_instance->geosearchPost($collection, $body);
+    $result = $api_instance->geosearchPost($collection, $body);
+    print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling ExploreApi->geosearchPost: ', $e->getMessage(), PHP_EOL;
 }
@@ -10844,7 +11208,8 @@ my $collection = collection_example; # String | collection
 my $body = WWW::SwaggerClient::Object::Search->new(); # Search | 
 
 eval { 
-    $api_instance->geosearchPost(collection => $collection, body => $body);
+    my $result = $api_instance->geosearchPost(collection => $collection, body => $body);
+    print Dumper($result);
 };
 if ($@) {
     warn "Exception when calling ExploreApi->geosearchPost: $@\n";
@@ -10865,7 +11230,8 @@ body =  # Search |  (optional)
 
 try: 
     # GeoSearch
-    api_instance.geosearchPost(collection, body=body)
+    api_response = api_instance.geosearchPost(collection, body=body)
+    pprint(api_response)
 except ApiException as e:
     print("Exception when calling ExploreApi->geosearchPost: %s\n" % e)</code></pre>
                             </div>
@@ -10972,9 +11338,127 @@ except ApiException as e:
                             <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-geosearchPost-200-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-geosearchPost-200-schema">
+                                  <div id='responses-geosearchPost-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/FeatureCollection"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-geosearchPost-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-geosearchPost-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-geosearchPost-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 400 - Bad request. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-geosearchPost-400-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-geosearchPost-400-schema">
+                                  <div id='responses-geosearchPost-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Bad request.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-geosearchPost-400-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-geosearchPost-400-schema-400');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-geosearchPost-400-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-geosearchPost-500-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-geosearchPost-500-schema">
+                                  <div id='responses-geosearchPost-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-geosearchPost-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-geosearchPost-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-geosearchPost-500-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                         </article>
@@ -11030,7 +11514,8 @@ public class ExploreApiExample {
         ExploreApi apiInstance = new ExploreApi();
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
-            apiInstance.list(maxAgeCache);
+            CollectionReferenceDescription result = apiInstance.list(maxAgeCache);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExploreApi#list");
             e.printStackTrace();
@@ -11048,7 +11533,8 @@ public class ExploreApiExample {
         ExploreApi apiInstance = new ExploreApi();
         Integer maxAgeCache = 56; // Integer | max-age-cache
         try {
-            apiInstance.list(maxAgeCache);
+            CollectionReferenceDescription result = apiInstance.list(maxAgeCache);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExploreApi#list");
             e.printStackTrace();
@@ -11067,7 +11553,10 @@ ExploreApi *apiInstance = [[ExploreApi alloc] init];
 
 // List
 [apiInstance listWith:maxAgeCache
-              completionHandler: ^(NSError* error) {
+              completionHandler: ^(CollectionReferenceDescription output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
                             if (error) {
                                 NSLog(@"Error: %@", error);
                             }
@@ -11088,7 +11577,7 @@ var callback = function(error, data, response) {
   if (error) {
     console.error(error);
   } else {
-    console.log('API called successfully.');
+    console.log('API called successfully. Returned data: ' + data);
   }
 };
 api.list(opts, callback);
@@ -11118,7 +11607,8 @@ namespace Example
             try
             {
                 // List
-                apiInstance.list(maxAgeCache);
+                CollectionReferenceDescription result = apiInstance.list(maxAgeCache);
+                Debug.WriteLine(result);
             }
             catch (Exception e)
             {
@@ -11137,7 +11627,8 @@ $api_instance = new Swagger\Client\Api\ExploreApi();
 $maxAgeCache = 56; // Integer | max-age-cache
 
 try {
-    $api_instance->list($maxAgeCache);
+    $result = $api_instance->list($maxAgeCache);
+    print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling ExploreApi->list: ', $e->getMessage(), PHP_EOL;
 }
@@ -11153,7 +11644,8 @@ my $api_instance = WWW::SwaggerClient::ExploreApi->new();
 my $maxAgeCache = 56; # Integer | max-age-cache
 
 eval { 
-    $api_instance->list(maxAgeCache => $maxAgeCache);
+    my $result = $api_instance->list(maxAgeCache => $maxAgeCache);
+    print Dumper($result);
 };
 if ($@) {
     warn "Exception when calling ExploreApi->list: $@\n";
@@ -11173,7 +11665,8 @@ maxAgeCache = 56 # Integer | max-age-cache (optional)
 
 try: 
     # List
-    api_instance.list(maxAgeCache=maxAgeCache)
+    api_response = api_instance.list(maxAgeCache=maxAgeCache)
+    pprint(api_response)
 except ApiException as e:
     print("Exception when calling ExploreApi->list: %s\n" % e)</code></pre>
                             </div>
@@ -11231,9 +11724,127 @@ except ApiException as e:
                             <h3> Status: 200 - Successful operation </h3>
 
                             <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-list-200-schema">Schema</a>
+                                </li>
+
                             </ul>
 
                             <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-list-200-schema">
+                                  <div id='responses-list-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/CollectionReferenceDescription"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-list-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-list-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-list-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 400 - Bad request. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-list-400-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-list-400-schema">
+                                  <div id='responses-list-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Bad request.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-list-400-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-list-400-schema-400');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-list-400-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-list-500-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-list-500-schema">
+                                  <div id='responses-list-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-list-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-list-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-list-500-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
 
                         </article>
@@ -12671,6 +13282,90 @@ except ApiException as e:
                                 </div>
                             </div>
 
+                            <h3> Status: 400 - Bad request. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-search-400-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-search-400-schema">
+                                  <div id='responses-search-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Bad request.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-search-400-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-search-400-schema-400');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-search-400-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-search-500-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-search-500-schema">
+                                  <div id='responses-search-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-search-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-search-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-search-500-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
                         </article>
                       </div>
                       <hr>
@@ -13029,6 +13724,90 @@ except ApiException as e:
                                     </script>
                                   </div>
                                   <input id='responses-searchPost-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 400 - Bad request. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-searchPost-400-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-searchPost-400-schema">
+                                  <div id='responses-searchPost-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Bad request.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-searchPost-400-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-searchPost-400-schema-400');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-searchPost-400-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-searchPost-500-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-searchPost-500-schema">
+                                  <div id='responses-searchPost-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-searchPost-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-searchPost-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-searchPost-500-schema-data' type='hidden' value=''></input>
                                 </div>
                             </div>
 
@@ -14252,7 +15031,7 @@ except ApiException as e:
           </div>
           <div id="generator">
             <div class="content">
-              Generated 2017-05-12T16:35:51.191+02:00
+              Generated 2017-05-15T11:55:20.102+02:00
             </div>
           </div>
       </div>

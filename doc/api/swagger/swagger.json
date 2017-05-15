@@ -521,6 +521,12 @@
             "schema" : {
               "$ref" : "#/definitions/ArlasError"
             }
+          },
+          "501" : {
+            "description" : "Not implemented functionality.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
           }
         }
       },
@@ -528,7 +534,7 @@
         "tags" : [ "explore" ],
         "summary" : "GeoAggregate",
         "description" : "Aggregate the elements in the collection(s), given the filters and the aggregation parameters",
-        "operationId" : "aggregatePost",
+        "operationId" : "geoaggregatePost",
         "consumes" : [ "application/json;charset=utf-8" ],
         "produces" : [ "application/json;charset=utf-8" ],
         "parameters" : [ {
@@ -549,7 +555,7 @@
           "200" : {
             "description" : "Successful operation",
             "schema" : {
-              "$ref" : "#/definitions/ArlasAggregation"
+              "$ref" : "#/definitions/FeatureCollection"
             }
           },
           "500" : {
@@ -560,6 +566,12 @@
           },
           "400" : {
             "description" : "Bad request.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          },
+          "501" : {
+            "description" : "Not implemented functionality.",
             "schema" : {
               "$ref" : "#/definitions/ArlasError"
             }
@@ -793,7 +805,22 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Successful operation"
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/CollectionReferenceDescription"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
           }
         }
       }
@@ -816,7 +843,22 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Successful operation"
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/CollectionReferenceDescription"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
           }
         }
       }
@@ -1001,7 +1043,22 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Successful operation"
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/FeatureCollection"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
           }
         }
       },
@@ -1028,7 +1085,22 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Successful operation"
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/FeatureCollection"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
           }
         }
       }
@@ -1212,6 +1284,18 @@
             "schema" : {
               "$ref" : "#/definitions/ArlasHits"
             }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
           }
         }
       },
@@ -1241,6 +1325,18 @@
             "description" : "Successful operation",
             "schema" : {
               "$ref" : "#/definitions/ArlasHits"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
             }
           }
         }
@@ -1955,6 +2051,24 @@
           "$ref" : "#/definitions/Form"
         }
       }
+    },
+    "CollectionReferenceDescription" : {
+      "type" : "object",
+      "properties" : {
+        "collection_name" : {
+          "type" : "string",
+          "description" : "The collection name"
+        },
+        "params" : {
+          "description" : "The collection parameters",
+          "$ref" : "#/definitions/CollectionReferenceParameters"
+        },
+        "properties" : {
+          "type" : "object",
+          "description" : "The collection fields"
+        }
+      },
+      "description" : "Describe the structure and the content of the given collection."
     },
     "Search" : {
       "type" : "object",

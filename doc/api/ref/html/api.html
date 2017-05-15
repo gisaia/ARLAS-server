@@ -451,7 +451,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_countpost">2.2.5. Count</a></li>
 <li><a href="#_count">2.2.6. Count</a></li>
 <li><a href="#_describe">2.2.7. Describe</a></li>
-<li><a href="#_aggregatepost">2.2.8. GeoAggregate</a></li>
+<li><a href="#_geoaggregatepost">2.2.8. GeoAggregate</a></li>
 <li><a href="#_geoaggregate">2.2.9. GeoAggregate</a></li>
 <li><a href="#_geosearchpost">2.2.10. GeoSearch</a></li>
 <li><a href="#_geosearch">2.2.11. GeoSearch</a></li>
@@ -474,25 +474,26 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_arlasmetric">3.9. ArlasMetric</a></li>
 <li><a href="#_arlassuccess">3.10. ArlasSuccess</a></li>
 <li><a href="#_collectionreference">3.11. CollectionReference</a></li>
-<li><a href="#_collectionreferenceparameters">3.12. CollectionReferenceParameters</a></li>
-<li><a href="#_count">3.13. Count</a></li>
-<li><a href="#_crs">3.14. Crs</a></li>
-<li><a href="#_feature">3.15. Feature</a></li>
-<li><a href="#_featurecollection">3.16. FeatureCollection</a></li>
-<li><a href="#_filter">3.17. Filter</a></li>
-<li><a href="#_form">3.18. Form</a></li>
-<li><a href="#_geojsonobject">3.19. GeoJsonObject</a></li>
-<li><a href="#_geometrycollection">3.20. GeometryCollection</a></li>
-<li><a href="#_linestring">3.21. LineString</a></li>
-<li><a href="#_lnglatalt">3.22. LngLatAlt</a></li>
-<li><a href="#_multilinestring">3.23. MultiLineString</a></li>
-<li><a href="#_multipoint">3.24. MultiPoint</a></li>
-<li><a href="#_multipolygon">3.25. MultiPolygon</a></li>
-<li><a href="#_point">3.26. Point</a></li>
-<li><a href="#_polygon">3.27. Polygon</a></li>
-<li><a href="#_search">3.28. Search</a></li>
-<li><a href="#_size">3.29. Size</a></li>
-<li><a href="#_sort">3.30. Sort</a></li>
+<li><a href="#_collectionreferencedescription">3.12. CollectionReferenceDescription</a></li>
+<li><a href="#_collectionreferenceparameters">3.13. CollectionReferenceParameters</a></li>
+<li><a href="#_count">3.14. Count</a></li>
+<li><a href="#_crs">3.15. Crs</a></li>
+<li><a href="#_feature">3.16. Feature</a></li>
+<li><a href="#_featurecollection">3.17. FeatureCollection</a></li>
+<li><a href="#_filter">3.18. Filter</a></li>
+<li><a href="#_form">3.19. Form</a></li>
+<li><a href="#_geojsonobject">3.20. GeoJsonObject</a></li>
+<li><a href="#_geometrycollection">3.21. GeometryCollection</a></li>
+<li><a href="#_linestring">3.22. LineString</a></li>
+<li><a href="#_lnglatalt">3.23. LngLatAlt</a></li>
+<li><a href="#_multilinestring">3.24. MultiLineString</a></li>
+<li><a href="#_multipoint">3.25. MultiPoint</a></li>
+<li><a href="#_multipolygon">3.26. MultiPolygon</a></li>
+<li><a href="#_point">3.27. Point</a></li>
+<li><a href="#_polygon">3.28. Polygon</a></li>
+<li><a href="#_search">3.29. Search</a></li>
+<li><a href="#_size">3.30. Size</a></li>
+<li><a href="#_sort">3.31. Sort</a></li>
 </ul>
 </li>
 </ul>
@@ -979,7 +980,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">No Content</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_collectionreferencedescription">CollectionReferenceDescription</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -2075,7 +2086,17 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">No Content</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_collectionreferencedescription">CollectionReferenceDescription</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -2102,7 +2123,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </div>
 </div>
 <div class="sect3">
-<h4 id="_aggregatepost"><a class="anchor" href="#_aggregatepost"></a>2.2.8. GeoAggregate</h4>
+<h4 id="_geoaggregatepost"><a class="anchor" href="#_geoaggregatepost"></a>2.2.8. GeoAggregate</h4>
 <div class="literalblock">
 <div class="content">
 <pre>POST /explore/{collection}/_geoaggregate</pre>
@@ -2168,7 +2189,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlasaggregation">ArlasAggregation</a></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_featurecollection">FeatureCollection</a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
@@ -2178,6 +2199,11 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>501</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Not implemented functionality.</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
 </tr>
 </tbody>
@@ -2475,6 +2501,11 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>501</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Not implemented functionality.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -2566,7 +2597,17 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">No Content</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_featurecollection">FeatureCollection</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -2837,7 +2878,17 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">No Content</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_featurecollection">FeatureCollection</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -2931,6 +2982,16 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlashits">ArlasHits</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -3202,6 +3263,16 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlashits">ArlasHits</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -3679,7 +3750,47 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_collectionreferenceparameters"><a class="anchor" href="#_collectionreferenceparameters"></a>3.12. CollectionReferenceParameters</h3>
+<h3 id="_collectionreferencedescription"><a class="anchor" href="#_collectionreferencedescription"></a>3.12. CollectionReferenceDescription</h3>
+<div class="paragraph">
+<p>Describe the structure and the content of the given collection.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 61.1111%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collection_name</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">The collection name</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>params</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">The collection parameters</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_collectionreferenceparameters">CollectionReferenceParameters</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>properties</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">The collection fields</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">object</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_collectionreferenceparameters"><a class="anchor" href="#_collectionreferenceparameters"></a>3.13. CollectionReferenceParameters</h3>
 <div class="paragraph">
 <p>The description of the elasticsearch index and the way ARLAS API will serve it.</p>
 </div>
@@ -3755,7 +3866,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_count"><a class="anchor" href="#_count"></a>3.13. Count</h3>
+<h3 id="_count"><a class="anchor" href="#_count"></a>3.14. Count</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3782,7 +3893,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_crs"><a class="anchor" href="#_crs"></a>3.14. Crs</h3>
+<h3 id="_crs"><a class="anchor" href="#_crs"></a>3.15. Crs</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3809,7 +3920,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_feature"><a class="anchor" href="#_feature"></a>3.15. Feature</h3>
+<h3 id="_feature"><a class="anchor" href="#_feature"></a>3.16. Feature</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3851,7 +3962,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_featurecollection"><a class="anchor" href="#_featurecollection"></a>3.16. FeatureCollection</h3>
+<h3 id="_featurecollection"><a class="anchor" href="#_featurecollection"></a>3.17. FeatureCollection</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3883,7 +3994,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_filter"><a class="anchor" href="#_filter"></a>3.17. Filter</h3>
+<h3 id="_filter"><a class="anchor" href="#_filter"></a>3.18. Filter</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3950,7 +4061,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_form"><a class="anchor" href="#_form"></a>3.18. Form</h3>
+<h3 id="_form"><a class="anchor" href="#_form"></a>3.19. Form</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3977,7 +4088,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_geojsonobject"><a class="anchor" href="#_geojsonobject"></a>3.19. GeoJsonObject</h3>
+<h3 id="_geojsonobject"><a class="anchor" href="#_geojsonobject"></a>3.20. GeoJsonObject</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -4004,7 +4115,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_geometrycollection"><a class="anchor" href="#_geometrycollection"></a>3.20. GeometryCollection</h3>
+<h3 id="_geometrycollection"><a class="anchor" href="#_geometrycollection"></a>3.21. GeometryCollection</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4040,7 +4151,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_linestring"><a class="anchor" href="#_linestring"></a>3.21. LineString</h3>
+<h3 id="_linestring"><a class="anchor" href="#_linestring"></a>3.22. LineString</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4076,7 +4187,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_lnglatalt"><a class="anchor" href="#_lnglatalt"></a>3.22. LngLatAlt</h3>
+<h3 id="_lnglatalt"><a class="anchor" href="#_lnglatalt"></a>3.23. LngLatAlt</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -4113,7 +4224,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_multilinestring"><a class="anchor" href="#_multilinestring"></a>3.23. MultiLineString</h3>
+<h3 id="_multilinestring"><a class="anchor" href="#_multilinestring"></a>3.24. MultiLineString</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4149,7 +4260,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_multipoint"><a class="anchor" href="#_multipoint"></a>3.24. MultiPoint</h3>
+<h3 id="_multipoint"><a class="anchor" href="#_multipoint"></a>3.25. MultiPoint</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4185,7 +4296,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_multipolygon"><a class="anchor" href="#_multipolygon"></a>3.25. MultiPolygon</h3>
+<h3 id="_multipolygon"><a class="anchor" href="#_multipolygon"></a>3.26. MultiPolygon</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4221,7 +4332,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_point"><a class="anchor" href="#_point"></a>3.26. Point</h3>
+<h3 id="_point"><a class="anchor" href="#_point"></a>3.27. Point</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4257,7 +4368,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_polygon"><a class="anchor" href="#_polygon"></a>3.27. Polygon</h3>
+<h3 id="_polygon"><a class="anchor" href="#_polygon"></a>3.28. Polygon</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4293,7 +4404,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_search"><a class="anchor" href="#_search"></a>3.28. Search</h3>
+<h3 id="_search"><a class="anchor" href="#_search"></a>3.29. Search</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -4330,7 +4441,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_size"><a class="anchor" href="#_size"></a>3.29. Size</h3>
+<h3 id="_size"><a class="anchor" href="#_size"></a>3.30. Size</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -4357,7 +4468,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_sort"><a class="anchor" href="#_sort"></a>3.30. Sort</h3>
+<h3 id="_sort"><a class="anchor" href="#_sort"></a>3.31. Sort</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
