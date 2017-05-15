@@ -208,7 +208,7 @@
         }, {
           "name" : "q",
           "in" : "query",
-          "description" : "A full text search",
+          "description" : "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}",
           "required" : false,
           "type" : "string"
         }, {
@@ -406,7 +406,7 @@
         }, {
           "name" : "q",
           "in" : "query",
-          "description" : "A full text search",
+          "description" : "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}",
           "required" : false,
           "type" : "string"
         }, {
@@ -606,7 +606,7 @@
         }, {
           "name" : "q",
           "in" : "query",
-          "description" : "A full text search",
+          "description" : "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}",
           "required" : false,
           "type" : "string"
         }, {
@@ -890,7 +890,7 @@
         }, {
           "name" : "q",
           "in" : "query",
-          "description" : "A full text search",
+          "description" : "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}",
           "required" : false,
           "type" : "string"
         }, {
@@ -1132,7 +1132,7 @@
         }, {
           "name" : "q",
           "in" : "query",
-          "description" : "A full text search",
+          "description" : "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}",
           "required" : false,
           "type" : "string"
         }, {
