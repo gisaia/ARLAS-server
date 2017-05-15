@@ -445,39 +445,54 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_explore_resource">2.2. Explore</a>
 <ul class="sectlevel3">
 <li><a href="#_list">2.2.1. List</a></li>
-<li><a href="#_aggregate">2.2.2. Aggregate</a></li>
-<li><a href="#_geoaggregate">2.2.3. Aggregate</a></li>
-<li><a href="#_suggest">2.2.4. Suggest</a></li>
-<li><a href="#_count">2.2.5. Count</a></li>
-<li><a href="#_describe">2.2.6. Describe</a></li>
-<li><a href="#_geosearch">2.2.7. Geoearch</a></li>
-<li><a href="#_search">2.2.8. Search</a></li>
+<li><a href="#_suggest">2.2.2. Suggest</a></li>
+<li><a href="#_aggregatepost">2.2.3. Aggregate</a></li>
+<li><a href="#_aggregate">2.2.4. Aggregate</a></li>
+<li><a href="#_countpost">2.2.5. Count</a></li>
+<li><a href="#_count">2.2.6. Count</a></li>
+<li><a href="#_describe">2.2.7. Describe</a></li>
+<li><a href="#_aggregatepost">2.2.8. GeoAggregate</a></li>
+<li><a href="#_geoaggregate">2.2.9. GeoAggregate</a></li>
+<li><a href="#_geosearchpost">2.2.10. GeoSearch</a></li>
+<li><a href="#_geosearch">2.2.11. GeoSearch</a></li>
+<li><a href="#_searchpost">2.2.12. Search</a></li>
+<li><a href="#_search">2.2.13. Search</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a href="#_definitions">3. Definitions</a>
 <ul class="sectlevel2">
-<li><a href="#_arlasaggregation">3.1. ArlasAggregation</a></li>
-<li><a href="#_arlaserror">3.2. ArlasError</a></li>
-<li><a href="#_arlashit">3.3. ArlasHit</a></li>
-<li><a href="#_arlashits">3.4. ArlasHits</a></li>
-<li><a href="#_arlasmd">3.5. ArlasMD</a></li>
-<li><a href="#_arlassuccess">3.6. ArlasSuccess</a></li>
-<li><a href="#_collectionreference">3.7. CollectionReference</a></li>
-<li><a href="#_collectionreferenceparameters">3.8. CollectionReferenceParameters</a></li>
-<li><a href="#_crs">3.9. Crs</a></li>
-<li><a href="#_feature">3.10. Feature</a></li>
-<li><a href="#_featurecollection">3.11. FeatureCollection</a></li>
-<li><a href="#_geojsonobject">3.12. GeoJsonObject</a></li>
-<li><a href="#_geometrycollection">3.13. GeometryCollection</a></li>
-<li><a href="#_linestring">3.14. LineString</a></li>
-<li><a href="#_lnglatalt">3.15. LngLatAlt</a></li>
-<li><a href="#_multilinestring">3.16. MultiLineString</a></li>
-<li><a href="#_multipoint">3.17. MultiPoint</a></li>
-<li><a href="#_multipolygon">3.18. MultiPolygon</a></li>
-<li><a href="#_point">3.19. Point</a></li>
-<li><a href="#_polygon">3.20. Polygon</a></li>
+<li><a href="#_aggregationmodel">3.1. AggregationModel</a></li>
+<li><a href="#_aggregationrequest">3.2. AggregationRequest</a></li>
+<li><a href="#_aggregations">3.3. Aggregations</a></li>
+<li><a href="#_arlasaggregation">3.4. ArlasAggregation</a></li>
+<li><a href="#_arlaserror">3.5. ArlasError</a></li>
+<li><a href="#_arlashit">3.6. ArlasHit</a></li>
+<li><a href="#_arlashits">3.7. ArlasHits</a></li>
+<li><a href="#_arlasmd">3.8. ArlasMD</a></li>
+<li><a href="#_arlasmetric">3.9. ArlasMetric</a></li>
+<li><a href="#_arlassuccess">3.10. ArlasSuccess</a></li>
+<li><a href="#_collectionreference">3.11. CollectionReference</a></li>
+<li><a href="#_collectionreferenceparameters">3.12. CollectionReferenceParameters</a></li>
+<li><a href="#_count">3.13. Count</a></li>
+<li><a href="#_crs">3.14. Crs</a></li>
+<li><a href="#_feature">3.15. Feature</a></li>
+<li><a href="#_featurecollection">3.16. FeatureCollection</a></li>
+<li><a href="#_filter">3.17. Filter</a></li>
+<li><a href="#_form">3.18. Form</a></li>
+<li><a href="#_geojsonobject">3.19. GeoJsonObject</a></li>
+<li><a href="#_geometrycollection">3.20. GeometryCollection</a></li>
+<li><a href="#_linestring">3.21. LineString</a></li>
+<li><a href="#_lnglatalt">3.22. LngLatAlt</a></li>
+<li><a href="#_multilinestring">3.23. MultiLineString</a></li>
+<li><a href="#_multipoint">3.24. MultiPoint</a></li>
+<li><a href="#_multipolygon">3.25. MultiPolygon</a></li>
+<li><a href="#_point">3.26. Point</a></li>
+<li><a href="#_polygon">3.27. Polygon</a></li>
+<li><a href="#_search">3.28. Search</a></li>
+<li><a href="#_size">3.29. Size</a></li>
+<li><a href="#_sort">3.30. Sort</a></li>
 </ul>
 </li>
 </ul>
@@ -772,6 +787,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>404</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Not Found Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
@@ -986,596 +1006,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect3">
-<h4 id="_aggregate"><a class="anchor" href="#_aggregate"></a>2.2.2. Aggregate</h4>
-<div class="literalblock">
-<div class="content">
-<pre>GET /explore/{collections}/_aggregate</pre>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_description_6"><a class="anchor" href="#_description_6"></a>Description</h5>
-<div class="paragraph">
-<p>Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_parameters_5"><a class="anchor" href="#_parameters_5"></a>Parameters</h5>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 10%;">
-<col style="width: 15%;">
-<col style="width: 45%;">
-<col style="width: 20%;">
-<col style="width: 10%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-middle">Type</th>
-<th class="tableblock halign-left valign-middle">Name</th>
-<th class="tableblock halign-left valign-middle">Description</th>
-<th class="tableblock halign-left valign-middle">Schema</th>
-<th class="tableblock halign-left valign-middle">Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collections</strong><br>
-<em>required</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">collections, comma separated</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>agg</strong><br>
-<em>required</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">* The agg parameter should be given in the following formats:<br>
-<br>
-{type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}<br>
-<br>
-Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters.<br>
-<br>
-* {type} possible values are :<br>
-<br>
-datehistogram, histogram, term.<br>
-<br>
-* {interval} possible values depends on {type}.<br>
-<br>
-If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second).<br>
-<br>
-If {type} = histogram, then {interval} = {size}.<br>
-<br>
-If {type} = term, then interval-{interval} is not needed.<br>
-<br>
-* format-{format} is to be specified when {type} = datehistogram. It&#8217;s the date format for key aggregation.<br>
-<br>
-* {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}.<br>
-<br>
-{collect_fct} possible values are :<br>
-<br>
-----<br>
-   avg,cardinality,max,min,sum<br>
-----<br>
-<br>
-* {order} is set to sort the aggregation result on the field name or on the result itself. It&#8217;s values are 'asc' or 'desc'.<br>
-<br>
-* {on} is set to specify whether the {order} is on the field name or the result. It&#8217;s values are 'field' or 'result'.<br>
-<br>
-agg parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters.<br>
-<br>
-For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md" class="bare">https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md</a></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>f</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">* A triplet for filtering the result. Multiple filter can be provided. The order does not matter.<br>
-<br>
-* A triplet is composed of a field name, a comparison operator and a value.<br>
-<br>
-The possible values of the comparison operator are :<br>
-<br>
-----<br>
-   Operator   |                   Description                      | value type<br>
-<br>
-   :          |  {fieldName} equals {value}                        | numeric or strings<br>
-<br>
-   :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric<br>
-<br>
-   :gt:       |  {fieldName} is greater than {value}               | numeric<br>
-<br>
-   :lte:      |  {fieldName} is less than or equal to {value}      | numeric<br>
-<br>
-   :lt:       |  {fieldName}  is less than {value}                 | numeric<br>
-----<br>
-<br>
-* The AND operator is applied between filters having different fieldNames.<br>
-<br>
-* The OR operator is applied on filters having the same fieldName.<br>
-<br>
-* If the fieldName starts with - then a must not filter is used<br>
-<br>
-* If the fieldName starts with - then a must not filter is used<br>
-<br>
-For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md" class="bare">https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md</a></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>from</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">From index to start the search from. Defaults to 0.</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"0"</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gintersect</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry intersecting the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gwithin</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry contained within the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>human</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Human readable print</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>max-age-cache</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">max-age-cache</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgintersect</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry not intersecting the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgwithin</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry outside the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notpwithin</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid outside the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pretty</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Pretty print</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pwithin</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid contained within the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>q</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">A full text search</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>size</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">The maximum number of entries or sub-entries to be returned. The default value is 10</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"10"</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>sort</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">* Sort the result on the given fields ascending or descending.<br>
-<br>
-* Fields can be provided several times by separating them with a comma. The order matters.<br>
-<br>
-* For a descending sort, precede the field with '-'. The sort will be ascending otherwise.<br>
-<br>
-* For aggregation, provide the <code>agg</code> keyword as the <code>{field}</code>.</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect4">
-<h5 id="_responses_6"><a class="anchor" href="#_responses_6"></a>Responses</h5>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 10%;">
-<col style="width: 70%;">
-<col style="width: 20%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-middle">HTTP Code</th>
-<th class="tableblock halign-left valign-middle">Description</th>
-<th class="tableblock halign-left valign-middle">Schema</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">No Content</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect4">
-<h5 id="_consumes_6"><a class="anchor" href="#_consumes_6"></a>Consumes</h5>
-<div class="ulist">
-<ul>
-<li>
-<p><code>application/json;charset=utf-8</code></p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_produces_6"><a class="anchor" href="#_produces_6"></a>Produces</h5>
-<div class="ulist">
-<ul>
-<li>
-<p><code>application/json;charset=utf-8</code></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_geoaggregate"><a class="anchor" href="#_geoaggregate"></a>2.2.3. Aggregate</h4>
-<div class="literalblock">
-<div class="content">
-<pre>GET /explore/{collections}/_geoaggregate</pre>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_description_7"><a class="anchor" href="#_description_7"></a>Description</h5>
-<div class="paragraph">
-<p>Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_parameters_6"><a class="anchor" href="#_parameters_6"></a>Parameters</h5>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 10%;">
-<col style="width: 15%;">
-<col style="width: 45%;">
-<col style="width: 20%;">
-<col style="width: 10%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-middle">Type</th>
-<th class="tableblock halign-left valign-middle">Name</th>
-<th class="tableblock halign-left valign-middle">Description</th>
-<th class="tableblock halign-left valign-middle">Schema</th>
-<th class="tableblock halign-left valign-middle">Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collections</strong><br>
-<em>required</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">collections, comma separated</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>agg</strong><br>
-<em>required</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">* The agg parameter should be given in the following formats:<br>
-<br>
-{type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}<br>
-<br>
-Where the {type}:{field} part is mandatory AND interval, format, collect_field, collect_fct, order AND on are optional sub-parameters.<br>
-<br>
-* {type} possible value is : geohash.<br>
-<br>
-* {interval} must be a numeric value.<br>
-<br>
-* format-{format} is to be specified when {type} = datehistogram. It&#8217;s the date format for key aggregation.<br>
-<br>
-* {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}.<br>
-<br>
-{collect_fct} possible values are :<br>
-<br>
-----<br>
-   avg,cardinality,max,min,sum<br>
-----<br>
-<br>
-* {order} is set to sort the aggregation result on the field name or on the result itself. It&#8217;s values are 'asc' or 'desc'.<br>
-<br>
-* {on} is set to specify whether the {order} is on the field name or the result. It&#8217;s values are 'field' or 'result'.<br>
-<br>
-agg parameter in this case is not multiple.<br>
-<br>
-For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md" class="bare">https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md</a></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>f</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">* A triplet for filtering the result. Multiple filter can be provided. The order does not matter.<br>
-<br>
-* A triplet is composed of a field name, a comparison operator and a value.<br>
-<br>
-The possible values of the comparison operator are :<br>
-<br>
-----<br>
-   Operator   |                   Description                      | value type<br>
-<br>
-   :          |  {fieldName} equals {value}                        | numeric or strings<br>
-<br>
-   :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric<br>
-<br>
-   :gt:       |  {fieldName} is greater than {value}               | numeric<br>
-<br>
-   :lte:      |  {fieldName} is less than or equal to {value}      | numeric<br>
-<br>
-   :lt:       |  {fieldName}  is less than {value}                 | numeric<br>
-----<br>
-<br>
-* The AND operator is applied between filters having different fieldNames.<br>
-<br>
-* The OR operator is applied on filters having the same fieldName.<br>
-<br>
-* If the fieldName starts with - then a must not filter is used<br>
-<br>
-* If the fieldName starts with - then a must not filter is used<br>
-<br>
-For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md" class="bare">https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md</a></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>from</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">From index to start the search from. Defaults to 0.</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"0"</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gintersect</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry intersecting the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gwithin</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry contained within the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>human</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Human readable print</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>max-age-cache</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">max-age-cache</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgintersect</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry not intersecting the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgwithin</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry outside the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notpwithin</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid outside the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pretty</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Pretty print</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pwithin</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid contained within the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>q</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">A full text search</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>size</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">The maximum number of entries or sub-entries to be returned. The default value is 10</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"10"</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>sort</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Sort the result on a given field, ascending or descending : '{fieldName}:(ASC, DESC)' .<br>
-<br>
-The parameter can be provided several times. The order matters.<br>
-<br>
-For aggregation, provide the 'agg' keyword as the {fieldName}.</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect4">
-<h5 id="_responses_7"><a class="anchor" href="#_responses_7"></a>Responses</h5>
-<table class="tableblock frame-all grid-all spread">
-<colgroup>
-<col style="width: 10%;">
-<col style="width: 70%;">
-<col style="width: 20%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-middle">HTTP Code</th>
-<th class="tableblock halign-left valign-middle">Description</th>
-<th class="tableblock halign-left valign-middle">Schema</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">No Content</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect4">
-<h5 id="_consumes_7"><a class="anchor" href="#_consumes_7"></a>Consumes</h5>
-<div class="ulist">
-<ul>
-<li>
-<p><code>application/json;charset=utf-8</code></p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_produces_7"><a class="anchor" href="#_produces_7"></a>Produces</h5>
-<div class="ulist">
-<ul>
-<li>
-<p><code>application/json;charset=utf-8</code></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_suggest"><a class="anchor" href="#_suggest"></a>2.2.4. Suggest</h4>
+<h4 id="_suggest"><a class="anchor" href="#_suggest"></a>2.2.2. Suggest</h4>
 <div class="literalblock">
 <div class="content">
 <pre>GET /explore/{collections}/_suggest</pre>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_description_8"><a class="anchor" href="#_description_8"></a>Description</h5>
+<h5 id="_description_6"><a class="anchor" href="#_description_6"></a>Description</h5>
 <div class="paragraph">
 <p>Suggest the the n (n=size) most relevant terms given the filters</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_parameters_7"><a class="anchor" href="#_parameters_7"></a>Parameters</h5>
+<h5 id="_parameters_5"><a class="anchor" href="#_parameters_5"></a>Parameters</h5>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 10%;">
@@ -1762,7 +1206,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect4">
-<h5 id="_responses_8"><a class="anchor" href="#_responses_8"></a>Responses</h5>
+<h5 id="_responses_6"><a class="anchor" href="#_responses_6"></a>Responses</h5>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 10%;">
@@ -1786,7 +1230,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect4">
-<h5 id="_consumes_8"><a class="anchor" href="#_consumes_8"></a>Consumes</h5>
+<h5 id="_consumes_6"><a class="anchor" href="#_consumes_6"></a>Consumes</h5>
 <div class="ulist">
 <ul>
 <li>
@@ -1796,7 +1240,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </div>
 </div>
 <div class="sect4">
-<h5 id="_produces_8"><a class="anchor" href="#_produces_8"></a>Produces</h5>
+<h5 id="_produces_6"><a class="anchor" href="#_produces_6"></a>Produces</h5>
 <div class="ulist">
 <ul>
 <li>
@@ -1807,20 +1251,123 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </div>
 </div>
 <div class="sect3">
-<h4 id="_count"><a class="anchor" href="#_count"></a>2.2.5. Count</h4>
+<h4 id="_aggregatepost"><a class="anchor" href="#_aggregatepost"></a>2.2.3. Aggregate</h4>
 <div class="literalblock">
 <div class="content">
-<pre>GET /explore/{collection}/_count</pre>
+<pre>POST /explore/{collection}/_aggregate</pre>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_description_9"><a class="anchor" href="#_description_9"></a>Description</h5>
+<h5 id="_description_7"><a class="anchor" href="#_description_7"></a>Description</h5>
 <div class="paragraph">
-<p>Count the number of elements found in the collection(s), given the filters</p>
+<p>Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_parameters_8"><a class="anchor" href="#_parameters_8"></a>Parameters</h5>
+<h5 id="_parameters_6"><a class="anchor" href="#_parameters_6"></a>Parameters</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 11.1111%;">
+<col style="width: 16.6666%;">
+<col style="width: 50%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collection</strong><br>
+<em>required</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">collection</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Body</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>body</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_aggregationrequest">AggregationRequest</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_responses_7"><a class="anchor" href="#_responses_7"></a>Responses</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlasaggregation">ArlasAggregation</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_consumes_7"><a class="anchor" href="#_consumes_7"></a>Consumes</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_produces_7"><a class="anchor" href="#_produces_7"></a>Produces</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_aggregate"><a class="anchor" href="#_aggregate"></a>2.2.4. Aggregate</h4>
+<div class="literalblock">
+<div class="content">
+<pre>GET /explore/{collection}/_aggregate</pre>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_description_8"><a class="anchor" href="#_description_8"></a>Description</h5>
+<div class="paragraph">
+<p>Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_parameters_7"><a class="anchor" href="#_parameters_7"></a>Parameters</h5>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 10%;">
@@ -1843,7 +1390,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collection</strong><br>
 <em>required</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">collections</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">collection</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
@@ -1852,7 +1399,65 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>agg</strong><br>
+<em>required</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">* The agg parameter should be given in the following formats:<br>
+<br>
+{type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}<br>
+<br>
+Where :<br>
+<br>
+* <strong>{type}:{field}</strong> part is mandatory.<br>
+<br>
+* <strong>interval</strong> must be specified only when aggregation type is datehistogram, histogram and geohash.<br>
+<br>
+* <strong>format</strong> is optional for datehistogram, and must not be specified for the other types.<br>
+<br>
+* (<strong>collect_field</strong>,<strong>collect_fct</strong>) couple is optional for all aggregation types.<br>
+<br>
+* (<strong>order</strong>,<strong>on</strong>) couple is optional for all aggregation types.<br>
+<br>
+* <strong>size</strong> is optional for term and geohash, and must not be specified for the other types.<br>
+<br>
+* {type} possible values are :<br>
+<br>
+datehistogram, histogram, geohash and term.<br>
+<br>
+* {interval} possible values depends on {type}.<br>
+<br>
+If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second).<br>
+<br>
+If {type} = histogram, then {interval} = {size}.<br>
+<br>
+If {type} = geohash, then {interval} = {size}. It&#8217;s an integer between 1 and 12. Lower the length, greater is the surface of aggregation.<br>
+<br>
+If {type} = term, then interval-{interval} is not needed.<br>
+<br>
+* format-{format} is the date format for key aggregation. The default value is yyyy-MM-dd-hh:mm:ss.<br>
+<br>
+* {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}.<br>
+<br>
+{collect_fct} possible values are :<br>
+<br>
+----<br>
+   avg,cardinality,max,min,sum<br>
+----<br>
+<br>
+* {order} is set to sort the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation. Its values are 'asc' or 'desc'.<br>
+<br>
+* {on} is set to specify whether the {order} is on the field name, on the count of the aggregation or on the result of a metric sub-aggregation. Its values are 'field', 'count' or 'result'.<br>
+<br>
+* {size} Defines how many buckets should be returned.<br>
+<br>
+<strong>agg</strong> parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters.<br>
+<br>
+For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md" class="bare">https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md</a>.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -1860,7 +1465,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -1874,17 +1479,23 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 The possible values of the comparison operator are :<br>
 <br>
 ----<br>
-   Operator   |                   Description                      | value type<br>
+   Operator |                   Description                    | value type<br>
 <br>
-   :          |  {fieldName} equals {value}                        | numeric or strings<br>
+   :eq:     | {fieldName} equals {comma separated values}. <strong>OR</strong> operation is applied for the specified values | numeric or strings<br>
 <br>
-   :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric<br>
+   :ne:     | {fieldName} must not equal {comma separated values }. <strong>AND</strong> operation is applied for the specified values | numeric or strings<br>
 <br>
-   :gt:       |  {fieldName} is greater than {value}               | numeric<br>
+   :like:   | {fieldName}  is like {value}                     | numeric or strings<br>
 <br>
-   :lte:      |  {fieldName} is less than or equal to {value}      | numeric<br>
+   :gte:    | {fieldName} is greater than or equal to  {value} | numeric<br>
 <br>
-   :lt:       |  {fieldName}  is less than {value}                 | numeric<br>
+   :gt:     | {fieldName} is greater than {value}              | numeric<br>
+<br>
+   :lte:    | {fieldName} is less than or equal to {value}     | numeric<br>
+<br>
+   :lt:     | {fieldName}  is less than {value}                | numeric<br>
+<br>
+   :lt:     | {fieldName}  is less than {value}                | numeric<br>
 ----<br>
 <br>
 * The AND operator is applied between filters having different fieldNames.<br>
@@ -1951,7 +1562,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notpwithin</strong><br>
 <em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid outside the given BBOX (top,left,bottom,right)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid outside the given geometry (WKT)</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
@@ -1967,7 +1578,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pwithin</strong><br>
 <em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid contained within the given BBOX (top,left,bottom,right)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid contained within the given geometry (WKT)</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
@@ -1978,6 +1589,109 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock">A full text search</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-middle"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_responses_8"><a class="anchor" href="#_responses_8"></a>Responses</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlasaggregation">ArlasAggregation</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_consumes_8"><a class="anchor" href="#_consumes_8"></a>Consumes</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_produces_8"><a class="anchor" href="#_produces_8"></a>Produces</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_countpost"><a class="anchor" href="#_countpost"></a>2.2.5. Count</h4>
+<div class="literalblock">
+<div class="content">
+<pre>POST /explore/{collection}/_count</pre>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_description_9"><a class="anchor" href="#_description_9"></a>Description</h5>
+<div class="paragraph">
+<p>Count the number of elements found in the collection(s), given the filters</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_parameters_8"><a class="anchor" href="#_parameters_8"></a>Parameters</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 11.1111%;">
+<col style="width: 16.6666%;">
+<col style="width: 50%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collection</strong><br>
+<em>required</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">collections</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Body</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>body</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_count">Count</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -2001,7 +1715,17 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">No Content</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlashits">ArlasHits</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -2028,16 +1752,16 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </div>
 </div>
 <div class="sect3">
-<h4 id="_describe"><a class="anchor" href="#_describe"></a>2.2.6. Describe</h4>
+<h4 id="_count"><a class="anchor" href="#_count"></a>2.2.6. Count</h4>
 <div class="literalblock">
 <div class="content">
-<pre>GET /explore/{collection}/_describe</pre>
+<pre>GET /explore/{collection}/_count</pre>
 </div>
 </div>
 <div class="sect4">
 <h5 id="_description_10"><a class="anchor" href="#_description_10"></a>Description</h5>
 <div class="paragraph">
-<p>Describe the structure and the content of the given collection.</p>
+<p>Count the number of elements found in the collection(s), given the filters</p>
 </div>
 </div>
 <div class="sect4">
@@ -2064,8 +1788,82 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collection</strong><br>
 <em>required</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">collection</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">collections</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>f</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">* A triplet for filtering the result. Multiple filter can be provided. The order does not matter.<br>
+<br>
+* A triplet is composed of a field name, a comparison operator and a value.<br>
+<br>
+The possible values of the comparison operator are :<br>
+<br>
+----<br>
+   Operator |                   Description                    | value type<br>
+<br>
+   :eq:     | {fieldName} equals {comma separated values}. <strong>OR</strong> operation is applied for the specified values | numeric or strings<br>
+<br>
+   :ne:     | {fieldName} must not equal {comma separated values }. <strong>AND</strong> operation is applied for the specified values | numeric or strings<br>
+<br>
+   :like:   | {fieldName}  is like {value}                     | numeric or strings<br>
+<br>
+   :gte:    | {fieldName} is greater than or equal to  {value} | numeric<br>
+<br>
+   :gt:     | {fieldName} is greater than {value}              | numeric<br>
+<br>
+   :lte:    | {fieldName} is less than or equal to {value}     | numeric<br>
+<br>
+   :lt:     | {fieldName}  is less than {value}                | numeric<br>
+<br>
+   :lt:     | {fieldName}  is less than {value}                | numeric<br>
+----<br>
+<br>
+* The AND operator is applied between filters having different fieldNames.<br>
+<br>
+* The OR operator is applied on filters having the same fieldName.<br>
+<br>
+* If the fieldName starts with - then a must not filter is used<br>
+<br>
+* If the fieldName starts with - then a must not filter is used<br>
+<br>
+For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md" class="bare">https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md</a></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gintersect</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry intersecting the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry contained within the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -2086,11 +1884,51 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </tr>
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgintersect</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry not intersecting the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry outside the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notpwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid outside the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pretty</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Pretty print</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid contained within the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>q</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">A full text search</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
 </tr>
 </tbody>
 </table>
@@ -2114,7 +1952,17 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">No Content</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlashits">ArlasHits</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -2141,16 +1989,16 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </div>
 </div>
 <div class="sect3">
-<h4 id="_geosearch"><a class="anchor" href="#_geosearch"></a>2.2.7. Geoearch</h4>
+<h4 id="_describe"><a class="anchor" href="#_describe"></a>2.2.7. Describe</h4>
 <div class="literalblock">
 <div class="content">
-<pre>GET /explore/{collection}/_geosearch</pre>
+<pre>GET /explore/{collection}/_describe</pre>
 </div>
 </div>
 <div class="sect4">
 <h5 id="_description_11"><a class="anchor" href="#_description_11"></a>Description</h5>
 <div class="paragraph">
-<p>Search and return the elements found in the collection(s) as features, given the filters</p>
+<p>Describe the structure and the content of the given collection.</p>
 </div>
 </div>
 <div class="sect4">
@@ -2183,103 +2031,11 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </tr>
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>exclude</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>f</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">* A triplet for filtering the result. Multiple filter can be provided. The order does not matter.<br>
-<br>
-* A triplet is composed of a field name, a comparison operator and a value.<br>
-<br>
-The possible values of the comparison operator are :<br>
-<br>
-----<br>
-   Operator   |                   Description                      | value type<br>
-<br>
-   :          |  {fieldName} equals {value}                        | numeric or strings<br>
-<br>
-   :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric<br>
-<br>
-   :gt:       |  {fieldName} is greater than {value}               | numeric<br>
-<br>
-   :lte:      |  {fieldName} is less than or equal to {value}      | numeric<br>
-<br>
-   :lt:       |  {fieldName}  is less than {value}                 | numeric<br>
-----<br>
-<br>
-* The AND operator is applied between filters having different fieldNames.<br>
-<br>
-* The OR operator is applied on filters having the same fieldName.<br>
-<br>
-* If the fieldName starts with - then a must not filter is used<br>
-<br>
-* If the fieldName starts with - then a must not filter is used<br>
-<br>
-For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md" class="bare">https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md</a></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>from</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">From index to start the search from. Defaults to 0.</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"0"</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gintersect</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry intersecting the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gwithin</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry contained within the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>human</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Human readable print</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>include</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">List the name patterns of the field to be included in the result. Seperate patterns with a comma.</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
@@ -2291,73 +2047,11 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </tr>
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgintersect</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry not intersecting the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgwithin</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry outside the given geometry (WKT)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notpwithin</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid outside the given BBOX (top,left,bottom,right)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pretty</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Pretty print</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pwithin</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid contained within the given BBOX (top,left,bottom,right)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>q</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">A full text search</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
-<td class="tableblock halign-left valign-middle"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>size</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">The maximum number of entries or sub-entries to be returned. The default value is 10</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"10"</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>sort</strong><br>
-<em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">* Sort the result on the given fields ascending or descending.<br>
-<br>
-* Fields can be provided several times by separating them with a comma. The order matters.<br>
-<br>
-* For a descending sort, precede the field with '-'. The sort will be ascending otherwise.<br>
-<br>
-* For aggregation, provide the <code>agg</code> keyword as the <code>{field}</code>.</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
-<td class="tableblock halign-left valign-middle"></td>
 </tr>
 </tbody>
 </table>
@@ -2408,20 +2102,123 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </div>
 </div>
 <div class="sect3">
-<h4 id="_search"><a class="anchor" href="#_search"></a>2.2.8. Search</h4>
+<h4 id="_aggregatepost"><a class="anchor" href="#_aggregatepost"></a>2.2.8. GeoAggregate</h4>
 <div class="literalblock">
 <div class="content">
-<pre>GET /explore/{collection}/_search</pre>
+<pre>POST /explore/{collection}/_geoaggregate</pre>
 </div>
 </div>
 <div class="sect4">
 <h5 id="_description_12"><a class="anchor" href="#_description_12"></a>Description</h5>
 <div class="paragraph">
-<p>Search and return the elements found in the collection, given the filters</p>
+<p>Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
 </div>
 </div>
 <div class="sect4">
 <h5 id="_parameters_11"><a class="anchor" href="#_parameters_11"></a>Parameters</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 11.1111%;">
+<col style="width: 16.6666%;">
+<col style="width: 50%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collection</strong><br>
+<em>required</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">collection</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Body</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>body</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_aggregationrequest">AggregationRequest</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_responses_12"><a class="anchor" href="#_responses_12"></a>Responses</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlasaggregation">ArlasAggregation</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_consumes_12"><a class="anchor" href="#_consumes_12"></a>Consumes</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_produces_12"><a class="anchor" href="#_produces_12"></a>Produces</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_geoaggregate"><a class="anchor" href="#_geoaggregate"></a>2.2.9. GeoAggregate</h4>
+<div class="literalblock">
+<div class="content">
+<pre>GET /explore/{collection}/_geoaggregate</pre>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_description_13"><a class="anchor" href="#_description_13"></a>Description</h5>
+<div class="paragraph">
+<p>Aggregate the elements in the collection(s), given the filters and the aggregation parameters</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_parameters_12"><a class="anchor" href="#_parameters_12"></a>Parameters</h5>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 10%;">
@@ -2453,7 +2250,65 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>agg</strong><br>
+<em>required</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">* The agg parameter should be given in the following formats:<br>
+<br>
+{type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}<br>
+<br>
+Where :<br>
+<br>
+* <strong>{type}:{field}</strong> part is mandatory.<br>
+<br>
+* <strong>interval</strong> must be specified only when aggregation type is datehistogram, histogram and geohash.<br>
+<br>
+* <strong>format</strong> is optional for datehistogram, and must not be specified for the other types.<br>
+<br>
+* (<strong>collect_field</strong>,<strong>collect_fct</strong>) couple is optional for all aggregation types.<br>
+<br>
+* (<strong>order</strong>,<strong>on</strong>) couple is optional for all aggregation types.<br>
+<br>
+* <strong>size</strong> is optional for term and geohash, and must not be specified for the other types.<br>
+<br>
+* {type} possible values are :<br>
+<br>
+geohash, datehistogram, histogram and term. geohash must be the main aggregation.<br>
+<br>
+* {interval} possible values depends on {type}.<br>
+<br>
+If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second).<br>
+<br>
+If {type} = histogram, then {interval} = {size}.<br>
+<br>
+If {type} = geohash, then {interval} = {size}. It&#8217;s an integer between 1 and 12. Lower the length, greater is the surface of aggregation.<br>
+<br>
+If {type} = term, then interval-{interval} is not needed.<br>
+<br>
+* format-{format} is the date format for key aggregation. The default value is yyyy-MM-dd-hh:mm:ss.<br>
+<br>
+* {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}.<br>
+<br>
+{collect_fct} possible values are :<br>
+<br>
+----<br>
+   avg,cardinality,max,min,sum<br>
+----<br>
+<br>
+* {order} is set to sort the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation. Its values are 'asc' or 'desc'.<br>
+<br>
+* {on} is set to specify whether the {order} is on the field name, on the count of the aggregation or on the result of a metric sub-aggregation. Its values are 'field', 'count' or 'result'.<br>
+<br>
+* {size} Defines how many buckets should be returned.<br>
+<br>
+<strong>agg</strong> parameter is multiple. The first (main) aggregation must be geohash. Every agg parameter specified is a subaggregation of the previous one : order matters.<br>
+<br>
+For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md" class="bare">https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md</a></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -2461,7 +2316,337 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>f</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">* A triplet for filtering the result. Multiple filter can be provided. The order does not matter.<br>
+<br>
+* A triplet is composed of a field name, a comparison operator and a value.<br>
+<br>
+The possible values of the comparison operator are :<br>
+<br>
+----<br>
+   Operator |                   Description                    | value type<br>
+<br>
+   :eq:     | {fieldName} equals {comma separated values}. <strong>OR</strong> operation is applied for the specified values | numeric or strings<br>
+<br>
+   :ne:     | {fieldName} must not equal {comma separated values }. <strong>AND</strong> operation is applied for the specified values | numeric or strings<br>
+<br>
+   :like:   | {fieldName}  is like {value}                     | numeric or strings<br>
+<br>
+   :gte:    | {fieldName} is greater than or equal to  {value} | numeric<br>
+<br>
+   :gt:     | {fieldName} is greater than {value}              | numeric<br>
+<br>
+   :lte:    | {fieldName} is less than or equal to {value}     | numeric<br>
+<br>
+   :lt:     | {fieldName}  is less than {value}                | numeric<br>
+<br>
+   :lt:     | {fieldName}  is less than {value}                | numeric<br>
+----<br>
+<br>
+* The AND operator is applied between filters having different fieldNames.<br>
+<br>
+* The OR operator is applied on filters having the same fieldName.<br>
+<br>
+* If the fieldName starts with - then a must not filter is used<br>
+<br>
+* If the fieldName starts with - then a must not filter is used<br>
+<br>
+For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md" class="bare">https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md</a></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gintersect</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry intersecting the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry contained within the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>human</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Human readable print</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>max-age-cache</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">max-age-cache</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgintersect</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry not intersecting the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry outside the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notpwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid outside the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pretty</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Pretty print</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid contained within the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>q</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">A full text search</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_responses_13"><a class="anchor" href="#_responses_13"></a>Responses</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_featurecollection">FeatureCollection</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_consumes_13"><a class="anchor" href="#_consumes_13"></a>Consumes</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_produces_13"><a class="anchor" href="#_produces_13"></a>Produces</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_geosearchpost"><a class="anchor" href="#_geosearchpost"></a>2.2.10. GeoSearch</h4>
+<div class="literalblock">
+<div class="content">
+<pre>POST /explore/{collection}/_geosearch</pre>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_description_14"><a class="anchor" href="#_description_14"></a>Description</h5>
+<div class="paragraph">
+<p>Search and return the elements found in the collection(s) as features, given the filters</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_parameters_13"><a class="anchor" href="#_parameters_13"></a>Parameters</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 11.1111%;">
+<col style="width: 16.6666%;">
+<col style="width: 50%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collection</strong><br>
+<em>required</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">collection</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Body</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>body</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_search">Search</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_responses_14"><a class="anchor" href="#_responses_14"></a>Responses</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">No Content</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_consumes_14"><a class="anchor" href="#_consumes_14"></a>Consumes</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_produces_14"><a class="anchor" href="#_produces_14"></a>Produces</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_geosearch"><a class="anchor" href="#_geosearch"></a>2.2.11. GeoSearch</h4>
+<div class="literalblock">
+<div class="content">
+<pre>GET /explore/{collection}/_geosearch</pre>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_description_15"><a class="anchor" href="#_description_15"></a>Description</h5>
+<div class="paragraph">
+<p>Search and return the elements found in the collection(s) as features, given the filters</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_parameters_14"><a class="anchor" href="#_parameters_14"></a>Parameters</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 15%;">
+<col style="width: 45%;">
+<col style="width: 20%;">
+<col style="width: 10%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+<th class="tableblock halign-left valign-middle">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collection</strong><br>
+<em>required</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">collection</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -2483,17 +2668,23 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 The possible values of the comparison operator are :<br>
 <br>
 ----<br>
-   Operator   |                   Description                      | value type<br>
+   Operator |                   Description                    | value type<br>
 <br>
-   :          |  {fieldName} equals {value}                        | numeric or strings<br>
+   :eq:     | {fieldName} equals {comma separated values}. <strong>OR</strong> operation is applied for the specified values | numeric or strings<br>
 <br>
-   :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric<br>
+   :ne:     | {fieldName} must not equal {comma separated values }. <strong>AND</strong> operation is applied for the specified values | numeric or strings<br>
 <br>
-   :gt:       |  {fieldName} is greater than {value}               | numeric<br>
+   :like:   | {fieldName}  is like {value}                     | numeric or strings<br>
 <br>
-   :lte:      |  {fieldName} is less than or equal to {value}      | numeric<br>
+   :gte:    | {fieldName} is greater than or equal to  {value} | numeric<br>
 <br>
-   :lt:       |  {fieldName}  is less than {value}                 | numeric<br>
+   :gt:     | {fieldName} is greater than {value}              | numeric<br>
+<br>
+   :lte:    | {fieldName} is less than or equal to {value}     | numeric<br>
+<br>
+   :lt:     | {fieldName}  is less than {value}                | numeric<br>
+<br>
+   :lt:     | {fieldName}  is less than {value}                | numeric<br>
 ----<br>
 <br>
 * The AND operator is applied between filters having different fieldNames.<br>
@@ -2513,7 +2704,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>from</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">From index to start the search from. Defaults to 0.</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"0"</code></p></td>
 </tr>
 <tr>
@@ -2576,7 +2767,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notpwithin</strong><br>
 <em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid outside the given BBOX (top,left,bottom,right)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid outside the given geometry (WKT)</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
@@ -2592,7 +2783,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pwithin</strong><br>
 <em>optional</em></p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid contained within the given BBOX (top,left,bottom,right)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid contained within the given geometry (WKT)</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
@@ -2609,7 +2800,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>size</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">The maximum number of entries or sub-entries to be returned. The default value is 10</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"10"</code></p></td>
 </tr>
 <tr>
@@ -2620,17 +2811,108 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <br>
 * Fields can be provided several times by separating them with a comma. The order matters.<br>
 <br>
-* For a descending sort, precede the field with '-'. The sort will be ascending otherwise.<br>
-<br>
-* For aggregation, provide the <code>agg</code> keyword as the <code>{field}</code>.</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+* For a descending sort, precede the field with '-'. The sort will be ascending otherwise.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sect4">
-<h5 id="_responses_12"><a class="anchor" href="#_responses_12"></a>Responses</h5>
+<h5 id="_responses_15"><a class="anchor" href="#_responses_15"></a>Responses</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">No Content</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_consumes_15"><a class="anchor" href="#_consumes_15"></a>Consumes</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_produces_15"><a class="anchor" href="#_produces_15"></a>Produces</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_searchpost"><a class="anchor" href="#_searchpost"></a>2.2.12. Search</h4>
+<div class="literalblock">
+<div class="content">
+<pre>POST /explore/{collection}/_search</pre>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_description_16"><a class="anchor" href="#_description_16"></a>Description</h5>
+<div class="paragraph">
+<p>Search and return the elements found in the collection, given the filters</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_parameters_15"><a class="anchor" href="#_parameters_15"></a>Parameters</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 11.1111%;">
+<col style="width: 16.6666%;">
+<col style="width: 50%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collection</strong><br>
+<em>required</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">collection</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Body</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>body</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_search">Search</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_responses_16"><a class="anchor" href="#_responses_16"></a>Responses</h5>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 10%;">
@@ -2654,7 +2936,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect4">
-<h5 id="_consumes_12"><a class="anchor" href="#_consumes_12"></a>Consumes</h5>
+<h5 id="_consumes_16"><a class="anchor" href="#_consumes_16"></a>Consumes</h5>
 <div class="ulist">
 <ul>
 <li>
@@ -2664,7 +2946,278 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </div>
 </div>
 <div class="sect4">
-<h5 id="_produces_12"><a class="anchor" href="#_produces_12"></a>Produces</h5>
+<h5 id="_produces_16"><a class="anchor" href="#_produces_16"></a>Produces</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_search"><a class="anchor" href="#_search"></a>2.2.13. Search</h4>
+<div class="literalblock">
+<div class="content">
+<pre>GET /explore/{collection}/_search</pre>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_description_17"><a class="anchor" href="#_description_17"></a>Description</h5>
+<div class="paragraph">
+<p>Search and return the elements found in the collection, given the filters</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_parameters_16"><a class="anchor" href="#_parameters_16"></a>Parameters</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 15%;">
+<col style="width: 45%;">
+<col style="width: 20%;">
+<col style="width: 10%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+<th class="tableblock halign-left valign-middle">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collection</strong><br>
+<em>required</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">collection</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>exclude</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>f</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">* A triplet for filtering the result. Multiple filter can be provided. The order does not matter.<br>
+<br>
+* A triplet is composed of a field name, a comparison operator and a value.<br>
+<br>
+The possible values of the comparison operator are :<br>
+<br>
+----<br>
+   Operator |                   Description                    | value type<br>
+<br>
+   :eq:     | {fieldName} equals {comma separated values}. <strong>OR</strong> operation is applied for the specified values | numeric or strings<br>
+<br>
+   :ne:     | {fieldName} must not equal {comma separated values }. <strong>AND</strong> operation is applied for the specified values | numeric or strings<br>
+<br>
+   :like:   | {fieldName}  is like {value}                     | numeric or strings<br>
+<br>
+   :gte:    | {fieldName} is greater than or equal to  {value} | numeric<br>
+<br>
+   :gt:     | {fieldName} is greater than {value}              | numeric<br>
+<br>
+   :lte:    | {fieldName} is less than or equal to {value}     | numeric<br>
+<br>
+   :lt:     | {fieldName}  is less than {value}                | numeric<br>
+<br>
+   :lt:     | {fieldName}  is less than {value}                | numeric<br>
+----<br>
+<br>
+* The AND operator is applied between filters having different fieldNames.<br>
+<br>
+* The OR operator is applied on filters having the same fieldName.<br>
+<br>
+* If the fieldName starts with - then a must not filter is used<br>
+<br>
+* If the fieldName starts with - then a must not filter is used<br>
+<br>
+For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md" class="bare">https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md</a></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>from</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">From index to start the search from. Defaults to 0.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"0"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gintersect</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry intersecting the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry contained within the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>human</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Human readable print</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>include</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">List the name patterns of the field to be included in the result. Seperate patterns with a comma.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>max-age-cache</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">max-age-cache</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgintersect</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry not intersecting the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its geometry outside the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notpwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid outside the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pretty</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Pretty print</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its centroid contained within the given geometry (WKT)</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array(multi)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>q</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">A full text search</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>size</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">The maximum number of entries or sub-entries to be returned. The default value is 10</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"10"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>sort</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">* Sort the result on the given fields ascending or descending.<br>
+<br>
+* Fields can be provided several times by separating them with a comma. The order matters.<br>
+<br>
+* For a descending sort, precede the field with '-'. The sort will be ascending otherwise.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_responses_17"><a class="anchor" href="#_responses_17"></a>Responses</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlashits">ArlasHits</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_consumes_17"><a class="anchor" href="#_consumes_17"></a>Consumes</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_produces_17"><a class="anchor" href="#_produces_17"></a>Produces</h5>
 <div class="ulist">
 <ul>
 <li>
@@ -2681,13 +3234,199 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <h2 id="_definitions"><a class="anchor" href="#_definitions"></a>3. Definitions</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_arlasaggregation"><a class="anchor" href="#_arlasaggregation"></a>3.1. ArlasAggregation</h3>
-<div class="paragraph">
-<p><em>Type</em> : object</p>
-</div>
+<h3 id="_aggregationmodel"><a class="anchor" href="#_aggregationmodel"></a>3.1. AggregationModel</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collectFct</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collectField</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>field</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>format</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>interval</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>order</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>size</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>true</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>type</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect2">
-<h3 id="_arlaserror"><a class="anchor" href="#_arlaserror"></a>3.2. ArlasError</h3>
+<h3 id="_aggregationrequest"><a class="anchor" href="#_aggregationrequest"></a>3.2. AggregationRequest</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>aggregations</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_aggregations">Aggregations</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>filter</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_filter">Filter</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>form</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_form">Form</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_aggregations"><a class="anchor" href="#_aggregations"></a>3.3. Aggregations</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>aggregations</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; <a href="#_aggregationmodel">AggregationModel</a> &gt; array</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_arlasaggregation"><a class="anchor" href="#_arlasaggregation"></a>3.4. ArlasAggregation</h3>
+<div class="paragraph">
+<p>Aggregation result</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 61.1111%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>arlastime</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">All the aggregation execution time. It includes query time.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>count</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Count</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>elements</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Sub-aggregations</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; <a href="#_arlasaggregation">ArlasAggregation</a> &gt; array</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>key</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Key</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">object</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>key_as_string</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Key as string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">object</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>metric aggregation</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Metric aggregation</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlasmetric">ArlasMetric</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>name</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Name</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>querytime</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Query execution time</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>totalnb</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Total number of hits matching the query</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_arlaserror"><a class="anchor" href="#_arlaserror"></a>3.5. ArlasError</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -2719,7 +3458,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_arlashit"><a class="anchor" href="#_arlashit"></a>3.3. ArlasHit</h3>
+<h3 id="_arlashit"><a class="anchor" href="#_arlashit"></a>3.6. ArlasHit</h3>
 <div class="paragraph">
 <p>A hit retrieved from an ARLAS Collection</p>
 </div>
@@ -2753,7 +3492,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_arlashits"><a class="anchor" href="#_arlashits"></a>3.4. ArlasHits</h3>
+<h3 id="_arlashits"><a class="anchor" href="#_arlashits"></a>3.7. ArlasHits</h3>
 <div class="paragraph">
 <p>A collection of hits retrieved from ARLAS Collections</p>
 </div>
@@ -2793,7 +3532,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_arlasmd"><a class="anchor" href="#_arlasmd"></a>3.5. ArlasMD</h3>
+<h3 id="_arlasmd"><a class="anchor" href="#_arlasmd"></a>3.8. ArlasMD</h3>
 <div class="paragraph">
 <p>Metadata of the ARLAS hit</p>
 </div>
@@ -2815,7 +3554,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>centroid</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">The centroid of the hit</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_point">Point</a></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">object</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>geometry</strong><br>
@@ -2839,7 +3578,47 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_arlassuccess"><a class="anchor" href="#_arlassuccess"></a>3.6. ArlasSuccess</h3>
+<h3 id="_arlasmetric"><a class="anchor" href="#_arlasmetric"></a>3.9. ArlasMetric</h3>
+<div class="paragraph">
+<p>Metric agg</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 61.1111%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>field</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">field of the metric aggregation</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>type</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Name of the metric aggregation</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>value</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Value of the metric aggregation</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">number(double)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_arlassuccess"><a class="anchor" href="#_arlassuccess"></a>3.10. ArlasSuccess</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -2866,7 +3645,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_collectionreference"><a class="anchor" href="#_collectionreference"></a>3.7. CollectionReference</h3>
+<h3 id="_collectionreference"><a class="anchor" href="#_collectionreference"></a>3.11. CollectionReference</h3>
 <div class="paragraph">
 <p>The reference to ARLAS collection that embed elasticsearch index description.</p>
 </div>
@@ -2900,7 +3679,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_collectionreferenceparameters"><a class="anchor" href="#_collectionreferenceparameters"></a>3.8. CollectionReferenceParameters</h3>
+<h3 id="_collectionreferenceparameters"><a class="anchor" href="#_collectionreferenceparameters"></a>3.12. CollectionReferenceParameters</h3>
 <div class="paragraph">
 <p>The description of the elasticsearch index and the way ARLAS API will serve it.</p>
 </div>
@@ -2926,6 +3705,13 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>exclude_fields</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">List the name patterns of the fields to be excluded in the result. Seperate patterns with a comma.<br>
+<strong>Example</strong> : <code>"fieldname"</code></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>geometry_path</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Path to the collection&#8217;s geometry<br>
@@ -2937,6 +3723,13 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Path to the collection&#8217;s id<br>
 <strong>Example</strong> : <code>"id"</code></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>include_fields</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">List the name patterns of the fields to be included in the result. Seperate patterns with a comma.<br>
+<strong>Example</strong> : <code>"*"</code></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
 </tr>
 <tr>
@@ -2962,7 +3755,34 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_crs"><a class="anchor" href="#_crs"></a>3.9. Crs</h3>
+<h3 id="_count"><a class="anchor" href="#_count"></a>3.13. Count</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>filter</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_filter">Filter</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>form</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_form">Form</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_crs"><a class="anchor" href="#_crs"></a>3.14. Crs</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -2989,7 +3809,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_feature"><a class="anchor" href="#_feature"></a>3.10. Feature</h3>
+<h3 id="_feature"><a class="anchor" href="#_feature"></a>3.15. Feature</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3031,7 +3851,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_featurecollection"><a class="anchor" href="#_featurecollection"></a>3.11. FeatureCollection</h3>
+<h3 id="_featurecollection"><a class="anchor" href="#_featurecollection"></a>3.16. FeatureCollection</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3063,7 +3883,101 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_geojsonobject"><a class="anchor" href="#_geojsonobject"></a>3.12. GeoJsonObject</h3>
+<h3 id="_filter"><a class="anchor" href="#_filter"></a>3.17. Filter</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>f</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string &gt; array</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gintersect</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>gwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgintersect</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notgwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>notpwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pwithin</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>q</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_form"><a class="anchor" href="#_form"></a>3.18. Form</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>human</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pretty</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_geojsonobject"><a class="anchor" href="#_geojsonobject"></a>3.19. GeoJsonObject</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3090,7 +4004,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_geometrycollection"><a class="anchor" href="#_geometrycollection"></a>3.13. GeometryCollection</h3>
+<h3 id="_geometrycollection"><a class="anchor" href="#_geometrycollection"></a>3.20. GeometryCollection</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -3126,7 +4040,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_linestring"><a class="anchor" href="#_linestring"></a>3.14. LineString</h3>
+<h3 id="_linestring"><a class="anchor" href="#_linestring"></a>3.21. LineString</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -3162,7 +4076,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_lnglatalt"><a class="anchor" href="#_lnglatalt"></a>3.15. LngLatAlt</h3>
+<h3 id="_lnglatalt"><a class="anchor" href="#_lnglatalt"></a>3.22. LngLatAlt</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3199,7 +4113,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_multilinestring"><a class="anchor" href="#_multilinestring"></a>3.16. MultiLineString</h3>
+<h3 id="_multilinestring"><a class="anchor" href="#_multilinestring"></a>3.23. MultiLineString</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -3235,7 +4149,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_multipoint"><a class="anchor" href="#_multipoint"></a>3.17. MultiPoint</h3>
+<h3 id="_multipoint"><a class="anchor" href="#_multipoint"></a>3.24. MultiPoint</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -3271,7 +4185,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_multipolygon"><a class="anchor" href="#_multipolygon"></a>3.18. MultiPolygon</h3>
+<h3 id="_multipolygon"><a class="anchor" href="#_multipolygon"></a>3.25. MultiPolygon</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -3307,7 +4221,11 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_point"><a class="anchor" href="#_point"></a>3.19. Point</h3>
+<h3 id="_point"><a class="anchor" href="#_point"></a>3.26. Point</h3>
+<div class="paragraph">
+<p><em>Polymorphism</em> : Inheritance<br>
+<em>Discriminator</em> : type</p>
+</div>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3339,7 +4257,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_polygon"><a class="anchor" href="#_polygon"></a>3.20. Polygon</h3>
+<h3 id="_polygon"><a class="anchor" href="#_polygon"></a>3.27. Polygon</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -3374,12 +4292,98 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </tbody>
 </table>
 </div>
+<div class="sect2">
+<h3 id="_search"><a class="anchor" href="#_search"></a>3.28. Search</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>filter</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_filter">Filter</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>form</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_form">Form</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>size</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_size">Size</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>sort</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_sort">Sort</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_size"><a class="anchor" href="#_size"></a>3.29. Size</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>from</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>size</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_sort"><a class="anchor" href="#_sort"></a>3.30. Sort</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 42.8571%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>sort</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-05-03 17:00:49 +02:00
+Last updated 2017-05-03 15:52:40 CEST
 </div>
 </div>
 </body>

@@ -228,7 +228,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>deploy</phase>
+                        <phase>post-integration-test</phase>
                         <goals>
                             <goal>convertSwagger2markup</goal>
                         </goals>
@@ -279,7 +279,7 @@
                 <executions>
                     <execution>
                         <id>output-html</id>
-                        <phase>deploy</phase>
+                        <phase>post-integration-test</phase>
                         <goals>
                             <goal>process-asciidoc</goal>
                         </goals>
@@ -290,7 +290,7 @@
                     </execution>
                     <execution>
                         <id>output-pdf</id>
-                        <phase>deploy</phase>
+                        <phase>post-integration-test</phase>
                         <goals>
                             <goal>process-asciidoc</goal>
                         </goals>
@@ -320,3 +320,4 @@
         </pluginRepository>
     </pluginRepositories>
 </project>
+
