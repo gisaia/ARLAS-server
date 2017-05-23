@@ -571,7 +571,7 @@ public class FluidSearch {
 
     public void setCollectionReference(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
-        searchRequestBuilder = client.prepareSearch(collectionReference.params.indexName);
+        searchRequestBuilder = client.prepareSearch(collectionReference.params.indexName).setTypes(collectionReference.params.typeName);
         if(collectionReference.params.includeFields != null && !collectionReference.params.includeFields.isEmpty()) {
             include(collectionReference.params.includeFields);
         }
