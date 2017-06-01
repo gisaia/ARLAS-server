@@ -25,6 +25,7 @@ import io.arlas.server.rest.explore.aggregate.GeoAggregateRESTService;
 import io.arlas.server.rest.explore.count.CountRESTService;
 import io.arlas.server.rest.explore.describe.DescribeCollectionRESTService;
 import io.arlas.server.rest.explore.describe.DescribeRESTService;
+import io.arlas.server.rest.explore.raw.RawRESTService;
 import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
@@ -93,6 +94,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new SuggestRESTService(exploration));
         environment.jersey().register(new DescribeRESTService(exploration));
         environment.jersey().register(new DescribeCollectionRESTService(exploration));
+        environment.jersey().register(new RawRESTService(exploration));
         environment.jersey().register(new ElasticCollectionService(client, configuration));
     }
 }

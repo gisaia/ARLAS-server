@@ -8,14 +8,17 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Request;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.request.Filter;
+import io.arlas.server.model.request.Request;
 
 public abstract class AbstractTestWithDataSet extends AbstractTest {
+    
+    public static String COLLECTION_NAME = "geodata";
+    
     protected static Request request = new Request();
     static{
         request.filter = new Filter();
@@ -43,7 +46,7 @@ public abstract class AbstractTestWithDataSet extends AbstractTest {
         jsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_EXCLUDE_FIELDS);
 
         // PUT new collection
-        given().contentType("application/json").body(jsonAsMap).when().put("/collections/geodata").then().statusCode(200);
+        given().contentType("application/json").body(jsonAsMap).when().put("/collections/"+COLLECTION_NAME).then().statusCode(200);
         
         try {
             Thread.sleep(10000);
@@ -57,6 +60,6 @@ public abstract class AbstractTestWithDataSet extends AbstractTest {
         dataset.clearDataSet();
         
         //DELETE collection
-        when().delete("/collections/geodata").then().statusCode(200);
+        when().delete("/collections/"+COLLECTION_NAME).then().statusCode(200);
     }
 }

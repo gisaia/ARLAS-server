@@ -1,5 +1,10 @@
 package io.arlas.server.model.response;
 
+import java.util.Map;
+
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.utils.GeoTypeMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -10,4 +15,31 @@ public class ArlasHit {
 
     @ApiModelProperty(name = "data", value = "The hit's data")
     public Object data;
+    
+    public ArlasHit() {}
+    
+    public ArlasHit(CollectionReference collectionReference, Map<String,Object> source) throws ArlasException {
+        data = source;
+        md = new ArlasMD();
+        if (collectionReference.params.idPath != null
+                && source.get(collectionReference.params.idPath) != null) {
+            md.id = "" + source.get(collectionReference.params.idPath);
+        }
+        if (collectionReference.params.centroidPath != null
+                && source.get(collectionReference.params.centroidPath) != null) {
+            Object m = source.get(collectionReference.params.centroidPath);
+            md.centroid = GeoTypeMapper.getGeoJsonObject(m);
+        }
+        if (collectionReference.params.geometryPath != null
+                && source.get(collectionReference.params.geometryPath) != null) {
+            Object m = source.get(collectionReference.params.geometryPath);
+            md.geometry = GeoTypeMapper.getGeoJsonObject(m);
+        }
+        if (collectionReference.params.timestampPath != null
+                && source.get(collectionReference.params.timestampPath) != null) {
+            // TODO: parse timestamp
+            // arlasHit.md.timestamp =
+            // (String)hitsSources.get(collectionReference.params.timestampPath);
+        }
+    }
 }
