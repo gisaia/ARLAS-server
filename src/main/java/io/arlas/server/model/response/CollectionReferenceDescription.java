@@ -1,5 +1,7 @@
 package io.arlas.server.model.response;
 
+import java.util.List;
+
 import io.arlas.server.model.CollectionReference;
 import io.dropwizard.jackson.JsonSnakeCase;
 import io.swagger.annotations.ApiModel;
@@ -9,5 +11,5 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonSnakeCase
 public class CollectionReferenceDescription extends CollectionReference {
     @ApiModelProperty(value = "The collection fields")
-    public Object properties;
+    public List<CollectionReferenceDescriptionProperty> properties;
 }
