@@ -6,7 +6,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.index.IndexResponse;
@@ -73,7 +72,7 @@ public class DataSetTool {
         for(int i=-170; i<=170;i+=10){
             for(int j=-80; j<=80;j+=10){
                 data=new Data();
-                data.id= UUID.randomUUID().toString();
+                data.id= i+"-"+j;
                 data.fullname="My name is "+data.id;
                 data.startdate=1l*(i+1000)*(j+1000);
                 data.centroid=j+","+i;
