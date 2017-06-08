@@ -1,0 +1,19 @@
+{
+  "filter": {
+    "f": [
+      "country:eq:US",
+      "arrival_passengers:lte:120000"
+    ]
+  },
+  "form": {
+    "pretty": true,
+    "human": true
+  },
+  "size": {
+    "size": 3,
+    "from": 0
+  },
+  "sort": {
+    "sort": "area"
+  }
+}

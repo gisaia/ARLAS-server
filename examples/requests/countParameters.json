@@ -1,0 +1,12 @@
+{
+  "filter": {
+    "f": [
+      "country:eq:France",
+      "area:gte:10"
+    ]
+  },
+  "form": {
+    "pretty": true,
+    "human": true
+  }
+}
