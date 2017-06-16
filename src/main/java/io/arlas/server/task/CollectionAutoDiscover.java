@@ -1,6 +1,7 @@
 package io.arlas.server.task;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.elasticsearch.client.transport.TransportClient;
@@ -37,7 +38,12 @@ public class CollectionAutoDiscover extends Task {
     @Override
     public void execute(ImmutableMultimap<String, String> arg0, PrintWriter arg1) throws Exception {
         List<CollectionReferenceDescription> discoveredCollections = admin.getAllIndecesAsCollections();
-        List<CollectionReferenceDescription> existingCollections = admin.describeAllCollections(collectionDao.getAllCollectionReferences());
+        List<CollectionReferenceDescription> existingCollections = null;
+        try {
+            existingCollections = admin.describeAllCollections(collectionDao.getAllCollectionReferences());
+        } catch (Exception e) {
+            existingCollections = new ArrayList<CollectionReferenceDescription>();
+        }
         for(CollectionReferenceDescription collection : discoveredCollections) {
             if(!existingCollections.contains(collection)) {
                 CollectionReferenceDescription collectionToAdd = checkCollectionValidity(collection);

@@ -1,4 +1,4 @@
-package io.arlas.server.rest;
+package io.arlas.server;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

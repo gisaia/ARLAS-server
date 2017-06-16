@@ -14,7 +14,7 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     
     @Override
     protected String getUrlPath(String collection) {
-        return "/explore/"+collection+"/_aggregate";
+        return arlasPrefix + "explore/"+collection+"/_aggregate";
     }
     
     //----------------------------------------------------------------

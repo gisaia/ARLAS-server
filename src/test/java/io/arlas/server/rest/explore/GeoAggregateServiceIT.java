@@ -16,7 +16,7 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
     
     @Override
     protected String getUrlPath(String collection) {
-        return "/explore/"+collection+"/_geoaggregate";
+        return arlasPrefix + "explore/"+collection+"/_geoaggregate";
     }
     
     @Override

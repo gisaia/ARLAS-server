@@ -28,3 +28,10 @@ elastic-cluster: docker-cluster
 arlas-index:  ${ARLAS_ELASTIC-INDEX:-.arlas}
 arlas-cache-size: 1000
 arlas-cache-timeout: 60
+
+collection-auto-discover:
+  preferred-id-field-name: id,identifier
+  preferred-timestamp-field-name: startdate
+  preferred-centroid-field-name: centroid
+  preferred-geometry-field-name: geo,geometry
+  schedule: bla

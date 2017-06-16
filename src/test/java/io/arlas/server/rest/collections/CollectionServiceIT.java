@@ -2,20 +2,21 @@ package io.arlas.server.rest.collections;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.isOneOf;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import io.arlas.server.model.CollectionReference;
-import io.restassured.response.Response;
-import io.restassured.response.ValidatableResponse;
 import org.junit.Test;
 
-import io.arlas.server.rest.AbstractTestWithDataSet;
-import io.arlas.server.rest.DataSetTool;
+import io.arlas.server.AbstractTestWithCollection;
+import io.arlas.server.DataSetTool;
+import io.arlas.server.model.CollectionReference;
+import io.restassured.response.ValidatableResponse;
 
-public class CollectionServiceIT extends AbstractTestWithDataSet {
+public class CollectionServiceIT extends AbstractTestWithCollection {
 
     @Test
     public void testLifecycle() throws Exception {
@@ -23,11 +24,11 @@ public class CollectionServiceIT extends AbstractTestWithDataSet {
 
         // PUT new collection
         given().contentType("application/json").body(jsonAsMap)
-        .when().put("/collections/foo")
+        .when().put(arlasPrefix+"collections/foo")
         .then().statusCode(200);
 
         // GET collection
-        when().get("/collections/foo")
+        when().get(arlasPrefix+"collections/foo")
         .then().statusCode(200)
             .body("collection_name", equalTo("foo"))
             .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
@@ -38,11 +39,11 @@ public class CollectionServiceIT extends AbstractTestWithDataSet {
             .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH));
 
         // DELETE collection
-        when().delete("/collections/foo")
+        when().delete(arlasPrefix+"collections/foo")
         .then().statusCode(200);
 
         // GET deleted collection
-        when().get("/collections/foo")
+        when().get(arlasPrefix+"collections/foo")
         .then().statusCode(404);
     }
 
@@ -52,31 +53,31 @@ public class CollectionServiceIT extends AbstractTestWithDataSet {
 
         // PUT new collection 1
         given().contentType("application/json").body(jsonAsMap)
-                .when().put("/collections/collection1")
+                .when().put(arlasPrefix+"collections/collection1")
                 .then().statusCode(200);
 
         // PUT new collection 2
         given().contentType("application/json").body(jsonAsMap)
-                .when().put("/collections/collection2")
+                .when().put(arlasPrefix+"collections/collection2")
                 .then().statusCode(200);
 
         // GET all collections
-        when().get("/collections/")
+        when().get(arlasPrefix+"collections/")
                 .then().statusCode(200)
                 .body("collection_name", everyItem(isOneOf(COLLECTION_NAME,"collection1","collection2")));
 
         // DELETE collection 1
-        when().delete("/collections/collection1")
+        when().delete(arlasPrefix+"collections/collection1")
                 .then().statusCode(200);
         // GET deleted collection
-        when().get("/collections/collection1")
+        when().get(arlasPrefix+"collections/collection1")
                 .then().statusCode(404);
 
         // DELETE collection 2
-        when().delete("/collections/collection2")
+        when().delete(arlasPrefix+"collections/collection2")
                 .then().statusCode(200);
         // GET deleted collection
-        when().get("/collections/collection2")
+        when().get(arlasPrefix+"collections/collection2")
                 .then().statusCode(404);
 
     }
@@ -95,7 +96,7 @@ public class CollectionServiceIT extends AbstractTestWithDataSet {
         handleInvalidCollectionParameters(put(jsonAsMap));
 
         // GET uncreated collection foo
-        when().get("/collections/foo")
+        when().get(arlasPrefix+"collections/foo")
                 .then().statusCode(404);
     }
 
@@ -115,7 +116,7 @@ public class CollectionServiceIT extends AbstractTestWithDataSet {
         handleNotFoundCollectionParameters(put(jsonAsMap));
 
         // GET uncreated collection foo
-        when().get("/collections/foo")
+        when().get(arlasPrefix+"collections/foo")
                 .then().statusCode(404);
     }
 
@@ -130,7 +131,7 @@ public class CollectionServiceIT extends AbstractTestWithDataSet {
 
     private ValidatableResponse put(Map<String, Object> jsonAsMap){
         return given().contentType("application/json").body(jsonAsMap)
-                .when().put("/collections/foo")
+                .when().put(arlasPrefix+"collections/foo")
                 .then();
     }
 
@@ -146,6 +147,6 @@ public class CollectionServiceIT extends AbstractTestWithDataSet {
     }
     @Override
     protected String getUrlPath(String collection) {
-        return "/collections/"+collection;
+        return arlasPrefix + "/collections/"+collection;
     }
 }

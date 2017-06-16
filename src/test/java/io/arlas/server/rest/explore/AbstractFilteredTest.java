@@ -1,19 +1,18 @@
 package io.arlas.server.rest.explore;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import groovy.json.JsonBuilder;
-import io.arlas.server.model.request.*;
+import java.util.Arrays;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import io.arlas.server.rest.AbstractTestWithDataSet;
-import io.arlas.server.rest.DataSetTool;
+import io.arlas.server.AbstractTestWithCollection;
+import io.arlas.server.DataSetTool;
+import io.arlas.server.model.request.Filter;
+import io.arlas.server.model.request.Request;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 
-import java.util.Arrays;
-
-public abstract class AbstractFilteredTest extends AbstractTestWithDataSet {
+public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
     @Before
     public void setUpFilter(){

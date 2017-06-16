@@ -16,7 +16,7 @@ public class SearchServiceIT extends AbstractSizedTest {
     
     @Override
     public String getUrlPath(String collection) {
-        return "/explore/"+collection+"/_search";
+        return arlasPrefix + "explore/"+collection+"/_search";
     }
     
     @Override
