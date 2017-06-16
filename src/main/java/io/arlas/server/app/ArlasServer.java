@@ -29,6 +29,7 @@ import io.arlas.server.rest.explore.raw.RawRESTService;
 import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
+import io.arlas.server.task.CollectionAutoDiscover;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -96,5 +97,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new DescribeCollectionRESTService(exploration));
         environment.jersey().register(new RawRESTService(exploration));
         environment.jersey().register(new ElasticCollectionService(client, configuration));
+        
+        environment.admin().addTask(new CollectionAutoDiscover(client, configuration));
     }
 }

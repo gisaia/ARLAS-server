@@ -14,4 +14,9 @@ public class CollectionReferenceDescriptionProperty {
     
     @ApiModelProperty(value = "The collection field type")
     public ElasticType type;
+
+    @Override
+    public String toString() {
+        return "[name=" + name + ", type=" + type + "]";
+    }
 }

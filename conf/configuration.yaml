@@ -27,3 +27,10 @@ elastic-port: ${ARLAS_ELASTIC_PORT:-9300}
 arlas-index:  ${ARLAS_ELASTIC_INDEX:-.arlas}
 arlas-cache-size: 1000
 arlas-cache-timeout: 60
+
+collection-auto-discover:
+  preferred-id-field-name: id,identifier
+  preferred-timestamp-field-name: timestamp,startdate
+  preferred-centroid-field-name: centroid
+  preferred-geometry-field-name: geo,geometry
+  schedule: bla

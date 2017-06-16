@@ -12,4 +12,20 @@ import io.swagger.annotations.ApiModelProperty;
 public class CollectionReferenceDescription extends CollectionReference {
     @ApiModelProperty(value = "The collection fields")
     public List<CollectionReferenceDescriptionProperty> properties;
+
+    @Override
+    public boolean equals(Object obj) {
+        boolean ret = false;
+        if(obj instanceof CollectionReferenceDescription) {
+            CollectionReferenceDescription collection = (CollectionReferenceDescription)obj;
+            ret = collection.params.indexName.equals(this.params.indexName)
+                    && collection.params.typeName.equals(this.params.typeName);
+        }
+        return ret;
+    }
+
+    @Override
+    public String toString() {
+        return "[properties=" + properties + "]";
+    }
 }
