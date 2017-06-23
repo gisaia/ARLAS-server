@@ -5,9 +5,9 @@ import static org.hamcrest.Matchers.equalTo;
 
 import org.junit.Test;
 
-import io.arlas.server.rest.AbstractTestWithDataSet;
+import io.arlas.server.AbstractTestWithCollection;
 
-public class RawServiceIT extends AbstractTestWithDataSet {
+public class RawServiceIT extends AbstractTestWithCollection {
 
     @Test
     public void testGetArlasHit() throws Exception {
@@ -32,6 +32,6 @@ public class RawServiceIT extends AbstractTestWithDataSet {
 
     @Override
     protected String getUrlPath(String collection) {
-        return "/explore/"+collection;
+        return arlasPrefix + "explore/"+collection;
     }
 }

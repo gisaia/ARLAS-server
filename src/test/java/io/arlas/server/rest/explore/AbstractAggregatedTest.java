@@ -2,11 +2,11 @@ package io.arlas.server.rest.explore;
 
 import static io.restassured.RestAssured.given;
 
+import io.arlas.server.DataSetTool;
 import io.arlas.server.model.request.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.arlas.server.rest.DataSetTool;
 import io.restassured.response.ValidatableResponse;
 
 import java.util.ArrayList;

@@ -18,7 +18,7 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
     
     @Override
     public String getUrlPath(String collection) {
-        return "/explore/"+collection+"/_geosearch";
+        return arlasPrefix + "explore/"+collection+"/_geosearch";
     }
     
     @Override

@@ -50,4 +50,10 @@ public class CollectionReferenceParameters {
         this.includeFields = includeFields;
         this.excludeFields = excludeFields;
     }
+
+    @Override
+    public String toString() {
+        return "CollectionReferenceParameters [indexName=" + indexName + ", typeName=" + typeName + ", idPath=" + idPath + ", geometryPath=" + geometryPath + ", centroidPath=" + centroidPath
+                + ", timestampPath=" + timestampPath + ", includeFields=" + includeFields + ", excludeFields=" + excludeFields + "]";
+    }
 }

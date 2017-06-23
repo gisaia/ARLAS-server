@@ -1,4 +1,4 @@
-package io.arlas.server.rest;
+package io.arlas.server;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
@@ -15,9 +15,10 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.Request;
 
-public abstract class AbstractTestWithDataSet extends AbstractTest {
+public abstract class AbstractTestWithCollection extends AbstractTest {
     
     public static String COLLECTION_NAME = "geodata";
+    static DataSetTool dataset = null;
     
     protected static Request request = new Request();
     static{
@@ -46,7 +47,7 @@ public abstract class AbstractTestWithDataSet extends AbstractTest {
         jsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_EXCLUDE_FIELDS);
 
         // PUT new collection
-        given().contentType("application/json").body(jsonAsMap).when().put("/collections/"+COLLECTION_NAME).then().statusCode(200);
+        given().contentType("application/json").body(jsonAsMap).when().put("/arlas/collections/"+COLLECTION_NAME).then().statusCode(200);
         
         try {
             Thread.sleep(10000);
@@ -60,6 +61,6 @@ public abstract class AbstractTestWithDataSet extends AbstractTest {
         dataset.clearDataSet();
         
         //DELETE collection
-        when().delete("/collections/"+COLLECTION_NAME).then().statusCode(200);
+        when().delete("/arlas/collections/"+COLLECTION_NAME).then().statusCode(200);
     }
 }

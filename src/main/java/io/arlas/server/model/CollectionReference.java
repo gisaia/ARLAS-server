@@ -35,4 +35,9 @@ public class CollectionReference {
     public CollectionReference(String collectionName) {
         this.collectionName = collectionName;
     }
+
+    @Override
+    public String toString() {
+        return "CollectionReference [collectionName=" + collectionName + ", params=" + params + "]";
+    }
 }
