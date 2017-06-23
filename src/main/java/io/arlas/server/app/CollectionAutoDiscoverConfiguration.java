@@ -20,7 +20,7 @@ public class CollectionAutoDiscoverConfiguration {
     public String preferredGeometryFieldName;
     
     @JsonProperty("schedule")
-    public String schedule;
+    public int schedule;
     
     private List<String> getFields(String fieldsComaSeparated) {
         return Arrays.asList(fieldsComaSeparated.split(","));

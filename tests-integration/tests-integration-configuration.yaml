@@ -34,4 +34,4 @@ collection-auto-discover:
   preferred-timestamp-field-name: startdate
   preferred-centroid-field-name: centroid
   preferred-geometry-field-name: geo,geometry
-  schedule: bla
+  schedule: 0

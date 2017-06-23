@@ -20,7 +20,7 @@ import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.rest.collections.CollectionRESTServices;
 import io.dropwizard.servlets.tasks.Task;
 
-public class CollectionAutoDiscover extends Task {
+public class CollectionAutoDiscover extends Task implements Runnable {
     
     private ElasticAdmin admin;
     private CollectionReferenceDao collectionDao;
@@ -79,6 +79,15 @@ public class CollectionAutoDiscover extends Task {
                 || collection.params.timestampPath == null || collection.params.timestampPath.isEmpty())
             return null;
         return collection;
+    }
+
+    @Override
+    public void run() {
+        try {
+            execute(null,null);
+        } catch (Exception e) {
+            LOGGER.info("Unable to run scheduled task " + this.getClass().getCanonicalName());
+        }        
     }
 
 }

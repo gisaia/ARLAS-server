@@ -44,6 +44,6 @@ public class CollectionAutoDiscoverIT extends AbstractTestWithDataSet {
         
         // DELETE collection
         when().delete(arlasPrefix+"collections/"+DataSetTool.DATASET_INDEX_NAME+"-"+DataSetTool.DATASET_TYPE_NAME)
-                .then().statusCode(200);
+        .then().statusCode(200);
     }
 }

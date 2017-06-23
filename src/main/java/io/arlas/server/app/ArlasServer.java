@@ -2,6 +2,8 @@ package io.arlas.server.app;
 
 import java.net.InetAddress;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -33,6 +35,7 @@ import io.arlas.server.task.CollectionAutoDiscover;
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
@@ -99,5 +102,13 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new ElasticCollectionService(client, configuration));
         
         environment.admin().addTask(new CollectionAutoDiscover(client, configuration));
+        int scheduleAutoDiscover = configuration.collectionAutoDiscoverConfiguration.schedule;
+        if(scheduleAutoDiscover > 0) {
+            String nameFormat = "collection-auto-discover-%d";
+            ScheduledExecutorServiceBuilder sesBuilder = environment.lifecycle().scheduledExecutorService(nameFormat);
+            ScheduledExecutorService ses = sesBuilder.build();
+            Runnable autoDiscoverTask = new CollectionAutoDiscover(client, configuration);
+            ses.scheduleWithFixedDelay(autoDiscoverTask, 10, scheduleAutoDiscover, TimeUnit.SECONDS);
+        }
     }
 }
