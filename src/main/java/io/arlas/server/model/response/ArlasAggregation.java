@@ -18,7 +18,7 @@ public class ArlasAggregation extends AggregationMD {
     public Object keyAsString;
     @ApiModelProperty(name = "elements", value = "Sub-aggregations")
     public List<ArlasAggregation> elements;
-    @ApiModelProperty(name = "metric aggregation", value = "Metric aggregation")
+    @ApiModelProperty(name = "metric", value = "Metric aggregation")
     public ArlasMetric metric = null;
 
 
