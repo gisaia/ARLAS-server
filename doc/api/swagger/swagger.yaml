@@ -18,6 +18,29 @@ tags:
 schemes:
 - "http"
 paths:
+  /collections:
+    get:
+      tags:
+      - "collections"
+      summary: "Get all collection references"
+      description: "Get all collection references in ARLAS"
+      operationId: "getAll"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters: []
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/CollectionReference"
+        500:
+          description: "Arlas Server Error."
+          schema:
+            $ref: "#/definitions/ArlasError"
   /collections/{collection}:
     get:
       tags:
@@ -116,29 +139,6 @@ paths:
           description: "Arlas Server Error."
           schema:
             $ref: "#/definitions/ArlasError"
-  /collections:
-    get:
-      tags:
-      - "collections"
-      summary: "Get all collection references"
-      description: "Get all collection references in ARLAS"
-      operationId: "getAll"
-      consumes:
-      - "application/json;charset=utf-8"
-      produces:
-      - "application/json;charset=utf-8"
-      parameters: []
-      responses:
-        200:
-          description: "Successful operation"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/CollectionReference"
-        500:
-          description: "Arlas Server Error."
-          schema:
-            $ref: "#/definitions/ArlasError"
   /explore/{collection}/_aggregate:
     get:
       tags:
@@ -231,13 +231,13 @@ paths:
         description: "Any element having its point in time reference before the given\
           \ timestamp"
         required: false
-        type: "string"
+        type: "integer"
       - name: "after"
         in: "query"
         description: "Any element having its point in time reference after the given\
           \ timestamp"
         required: false
-        type: "string"
+        type: "integer"
       - name: "pwithin"
         in: "query"
         description: "Any element having its centroid contained within the given geometry\
@@ -450,13 +450,13 @@ paths:
         description: "Any element having its point in time reference before the given\
           \ timestamp"
         required: false
-        type: "string"
+        type: "integer"
       - name: "after"
         in: "query"
         description: "Any element having its point in time reference after the given\
           \ timestamp"
         required: false
-        type: "string"
+        type: "integer"
       - name: "pwithin"
         in: "query"
         description: "Any element having its centroid contained within the given geometry\
@@ -640,13 +640,13 @@ paths:
         description: "Any element having its point in time reference before the given\
           \ timestamp"
         required: false
-        type: "string"
+        type: "integer"
       - name: "after"
         in: "query"
         description: "Any element having its point in time reference after the given\
           \ timestamp"
         required: false
-        type: "string"
+        type: "integer"
       - name: "pwithin"
         in: "query"
         description: "Any element having its centroid contained within the given geometry\
@@ -844,6 +844,63 @@ paths:
           description: "Bad request."
           schema:
             $ref: "#/definitions/ArlasError"
+  /explore/{collection}/{identifier}:
+    get:
+      tags:
+      - "explore"
+      summary: "Get an Arlas document"
+      description: "Returns a raw indexed document."
+      operationId: "getArlasHit"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "collection"
+        in: "path"
+        description: "collection"
+        required: true
+        type: "string"
+      - name: "identifier"
+        in: "path"
+        description: "identifier"
+        required: true
+        type: "string"
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      - name: "human"
+        in: "query"
+        description: "Human readable print"
+        required: false
+        type: "boolean"
+        default: false
+      - name: "max-age-cache"
+        in: "query"
+        description: "max-age-cache"
+        required: false
+        type: "integer"
+        format: "int32"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ArlasHit"
+        500:
+          description: "Arlas Server Error."
+          schema:
+            $ref: "#/definitions/ArlasError"
+        400:
+          description: "Bad request."
+          schema:
+            $ref: "#/definitions/ArlasError"
+        404:
+          description: "Not Found Error."
+          schema:
+            $ref: "#/definitions/ArlasError"
   /explore/{collection}/_geosearch:
     get:
       tags:
@@ -901,13 +958,13 @@ paths:
         description: "Any element having its point in time reference before the given\
           \ timestamp"
         required: false
-        type: "string"
+        type: "integer"
       - name: "after"
         in: "query"
         description: "Any element having its point in time reference after the given\
           \ timestamp"
         required: false
-        type: "string"
+        type: "integer"
       - name: "pwithin"
         in: "query"
         description: "Any element having its centroid contained within the given geometry\
@@ -1001,15 +1058,15 @@ paths:
         description: "The maximum number of entries or sub-entries to be returned.\
           \ The default value is 10"
         required: false
-        type: "string"
-        default: "10"
+        type: "integer"
+        default: 10
         minimum: 1
       - name: "from"
         in: "query"
         description: "From index to start the search from. Defaults to 0."
         required: false
-        type: "string"
-        default: "0"
+        type: "integer"
+        default: 0
         minimum: 0
       - name: "sort"
         in: "query"
@@ -1135,13 +1192,13 @@ paths:
         description: "Any element having its point in time reference before the given\
           \ timestamp"
         required: false
-        type: "string"
+        type: "integer"
       - name: "after"
         in: "query"
         description: "Any element having its point in time reference after the given\
           \ timestamp"
         required: false
-        type: "string"
+        type: "integer"
       - name: "pwithin"
         in: "query"
         description: "Any element having its centroid contained within the given geometry\
@@ -1235,15 +1292,15 @@ paths:
         description: "The maximum number of entries or sub-entries to be returned.\
           \ The default value is 10"
         required: false
-        type: "string"
-        default: "10"
+        type: "integer"
+        default: 10
         minimum: 1
       - name: "from"
         in: "query"
         description: "From index to start the search from. Defaults to 0."
         required: false
-        type: "string"
-        default: "0"
+        type: "integer"
+        default: 0
         minimum: 0
       - name: "sort"
         in: "query"
@@ -1535,11 +1592,11 @@ definitions:
   ArlasAggregation:
     type: "object"
     properties:
-      querytime:
+      query_time:
         type: "integer"
         format: "int64"
         description: "Query execution time"
-      arlastime:
+      arlas_time:
         type: "integer"
         format: "int64"
         description: "All the aggregation execution time. It includes query time."
@@ -1565,7 +1622,7 @@ definitions:
         description: "Sub-aggregations"
         items:
           $ref: "#/definitions/ArlasAggregation"
-      metric aggregation:
+      metric:
         description: "Metric aggregation"
         $ref: "#/definitions/ArlasMetric"
     description: "Aggregation result"
@@ -1856,9 +1913,46 @@ definitions:
         description: "The collection parameters"
         $ref: "#/definitions/CollectionReferenceParameters"
       properties:
-        type: "object"
+        type: "array"
         description: "The collection fields"
+        items:
+          $ref: "#/definitions/CollectionReferenceDescriptionProperty"
     description: "Describe the structure and the content of the given collection."
+  CollectionReferenceDescriptionProperty:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "The collection field name"
+      type:
+        type: "string"
+        description: "The collection field type"
+        enum:
+        - "TEXT"
+        - "KEYWORD"
+        - "LONG"
+        - "INTEGER"
+        - "SHORT"
+        - "BYTE"
+        - "DOUBLE"
+        - "FLOAT"
+        - "DATE"
+        - "BOOLEAN"
+        - "BINARY"
+        - "INT_RANGE"
+        - "FLOAT_RANGE"
+        - "LONG_RANGE"
+        - "DOUBLE_RANGE"
+        - "DATE_RANGE"
+        - "OBJECT"
+        - "NESTED"
+        - "GEO_POINT"
+        - "GEO_SHAPE"
+        - "IP"
+        - "COMPLETION"
+        - "TOKEN_COUNT"
+        - "MAPPER_MURMUR3"
+        - "UNKNOWN"
   Search:
     type: "object"
     properties:
