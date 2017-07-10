@@ -6,6 +6,8 @@ import io.dropwizard.jackson.JsonSnakeCase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.Map;
+
 @ApiModel(value = "CollectionReferenceParameters", description = "The description of the elasticsearch index and the way ARLAS API will serve it.")
 @JsonSnakeCase
 public class CollectionReferenceParameters {
@@ -36,6 +38,9 @@ public class CollectionReferenceParameters {
     @ApiModelProperty(value = "List the name patterns of the fields to be excluded in the result. Seperate patterns with a comma.", example = "fieldname")
     public String excludeFields = null;
 
+    @ApiModelProperty(value = "Calculated params.")
+    public Map<String,String> custom_params = null;
+
     public CollectionReferenceParameters() {
     }
 
@@ -54,6 +59,6 @@ public class CollectionReferenceParameters {
     @Override
     public String toString() {
         return "CollectionReferenceParameters [indexName=" + indexName + ", typeName=" + typeName + ", idPath=" + idPath + ", geometryPath=" + geometryPath + ", centroidPath=" + centroidPath
-                + ", timestampPath=" + timestampPath + ", includeFields=" + includeFields + ", excludeFields=" + excludeFields + "]";
+                + ", timestampPath=" + timestampPath + ", includeFields=" + includeFields + ", excludeFields=" + excludeFields + ", timestampFormat=" + custom_params.get(CollectionReference.TIMESTAMP_FORMAT) +"]";
     }
 }
