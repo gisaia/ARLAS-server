@@ -31,8 +31,9 @@ public class CollectionAutoDiscoverIT extends AbstractTestWithDataSet {
             .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
             .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
             .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
-            .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH));
-        
+            .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+            .body("params.custom_params.timestamp_format",equalTo(DataSetTool.DATASET_TIMESTAMP_FORMAT));
+
         // discover collections
         when().post(getUrlPath("collection-auto-discover"))
         .then().statusCode(200);

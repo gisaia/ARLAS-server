@@ -230,9 +230,9 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         LinkedHashMap<String, Object> timestampMD = (LinkedHashMap)data.sourceAsMap().get(field);
         collectionRefParams.custom_params = new HashMap<>();
         if (timestampMD.keySet().contains("format")) {
-            collectionRefParams.custom_params.put("timestamp_format", timestampMD.get("format").toString());
+            collectionRefParams.custom_params.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
         } else {
-            collectionRefParams.custom_params.put("timestamp_format", "strict_date_optional_time||epoch_millis");
+            collectionRefParams.custom_params.put(CollectionReference.TIMESTAMP_FORMAT, CollectionReference.DEFAULT_TIMESTAMP_FORMAT);
         }
     }
 }
