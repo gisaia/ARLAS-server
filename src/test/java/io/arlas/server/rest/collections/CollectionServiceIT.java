@@ -36,7 +36,8 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
             .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
             .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
             .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
-            .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH));
+            .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+            .body("params.custom_params.timestamp_format", equalTo(DataSetTool.DATASET_TIMESTAMP_FORMAT));
 
         // DELETE collection
         when().delete(arlasPrefix+"collections/foo")

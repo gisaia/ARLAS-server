@@ -45,7 +45,8 @@ public class SearchServiceIT extends AbstractSizedTest {
         .body("totalnb", equalTo(1))
         .body("hits[0].data.job", equalTo("Architect"))
         .body("hits[0].data.startdate", equalTo(1009800))
-        .body("hits[0].data.centroid", equalTo("20,-10"));      
+        .body("hits[0].data.centroid", equalTo("20,-10"))
+        .body("hits[0].md.timestamp",equalTo(1009800));
     }
 
     @Override
