@@ -1,11 +1,17 @@
-# About
+# ARLAS-server
 
 ARLAS-server provides a highly simplified **REST API** for exploring data collections available in **ElasticSearch**. 
 **Enhanced capabilities** are provided for collections exposing a **geometry**, a **centroid** and a **timestamp**. A **Collection API** is also provided for managing collections.
 
 The exploration API is described [here](doc/api/API-definition.md) while the  Collection API is described [here](doc/api/API-Collection-definition.md).
 
-# Build
+## Prerequisites :
+
+ARLAS-server is a Dropwizard project. You need JDK 8 and Maven to be installed.
+
+## Installing :
+
+In order to download the project dependencies and build it :
 
 ```sh
 mvn clean package
@@ -18,8 +24,8 @@ sudo apt-get install libc6-dev
 sudo apt-get install libxml2-utils
 ```
 
+To run the project :
 
-# Run
 ```sh
 java -jar target/arlas-server-x.x.jar server conf/configuration.yaml
 ```
@@ -43,9 +49,9 @@ curl -X DELETE --header 'Accept: application/json' 'http://localhost:9999/arlas/
 ```
 
 
-# Integration Tests
-
-## with docker containers
+## Running the tests
+### Integration tests
+#### with docker containers
 
 ```sh
 ./tests-integration/tests-integration.sh
@@ -59,7 +65,7 @@ sudo apt-get install xmlstarlet
 
 Have a look to the official [elasticsearch image documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html) if you are in trouble with elasticsearch container.
 
-## whith running elasticsearch and arlas-server
+#### whith running elasticsearch and arlas-server
 
 ```sh
 export ARLAS_HOST="localhost"; export ARLAS_PORT="9999"; export ARLAS_PREFIX="/arlas/";
@@ -67,10 +73,7 @@ export ARLAS_ELASTIC_HOST="localhost"; export ARLAS_ELASTIC_PORT=9300;
 mvn clean install -DskipTests=false
 ```
 
-
-# Optional
-
-## Zipkin monitoring
+### Zipkin monitoring (optional)
 In order to monitor the REST service performances in ZIPKIN:
 - Enable zipkin in configuration.yaml
 - Then:
@@ -80,6 +83,11 @@ wget -O zipkin.jar 'https://search.maven.org/remote_content?g=io.zipkin.java&a=z
 java -jar zipkin.jar &
 ```
 
+## Built with :
+
+- [Dropwizard](http://www.dropwizard.io) - The web framework used.
+- [Maven](https://maven.apache.org/) - Dependency Management.
+- [Elasticsearch](https://www.elastic.co/) -  A distributed, RESTful search and analytics engine
 
 ## Generate API Documentation
 
@@ -100,3 +108,24 @@ swagger-codegen generate  -i doc/api/swagger/swagger.json  -l typescript-node -o
 swagger-codegen generate  -i doc/api/swagger/swagger.json  -l typescript-fetch -o doc/api/progapi/typescript-fetch
 mvn clean swagger2markup:convertSwagger2markup
 ```
+
+## Contributing :
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+
+## Versioning :
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags](https://gitlab.com/GISAIA.ARLAS/ARLAS-server/tags) on this repository.
+
+## Authors :
+
+- Gisaïa - *Initial work* - [Gisaïa](http://gisaia.fr/)
+
+See also the list of [contributors](https://gitlab.com/GISAIA.ARLAS/ARLAS-server/graphs/develop) who participated in this project.
+
+## License :
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## Acknowledgments :
+// TODO
