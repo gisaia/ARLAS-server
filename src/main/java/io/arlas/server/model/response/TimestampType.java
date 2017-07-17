@@ -1,74 +1,84 @@
 package io.arlas.server.model.response;
 
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+
 public enum TimestampType {
-    epoch_millis("epoch_millis"), epoch_second("epoch_second"),
+    epoch_millis(null), epoch_second(null),
 
-    basic_date("yyyyMMdd"), basic_date_time("yyyyMMdd'T'HHmmss.SSSZ"), basic_date_time_no_millis("yyyyMMdd'T'HHmmssZ"),
+    basic_date(ISODateTimeFormat.basicDate()), basic_date_time(ISODateTimeFormat.basicDateTime()),
+    basic_date_time_no_millis(ISODateTimeFormat.basicDateTimeNoMillis()),
 
-    basic_ordinal_date("yyyyDDD"),  basic_ordinal_date_time("yyyyDDD'T'HHmmss.SSSZ"),
-    basic_ordinal_date_time_no_millis("yyyyDDD'T'HHmmssZ"),
+    basic_ordinal_date(ISODateTimeFormat.basicOrdinalDate()),  basic_ordinal_date_time(ISODateTimeFormat.basicOrdinalDateTime()),
+    basic_ordinal_date_time_no_millis(ISODateTimeFormat.basicOrdinalDateTimeNoMillis()),
 
-    basic_time("HHmmss.SSSZ"),  basic_time_no_millis("HHmmssZ"),
+    basic_time(ISODateTimeFormat.basicTime()),  basic_time_no_millis(ISODateTimeFormat.basicTimeNoMillis()),
 
-    basic_t_time("'T'HHmmss.SSSZ"), basic_t_time_no_millis("'T'HHmmssZ"),
+    basic_t_time(ISODateTimeFormat.basicTTime()), basic_t_time_no_millis(ISODateTimeFormat.basicTTimeNoMillis()),
 
-    basic_week_date("xxxx'W'wwe"), strict_basic_week_date("xxxx'W'wwe"),
-    basic_week_date_time("xxxx'W'wwe'T'HHmmss.SSSZ"), strict_basic_week_date_time("xxxx'W'wwe'T'HHmmss.SSSZ"),
-    basic_week_date_time_no_millis("xxxx'W'wwe'T'HHmmssZ"), strict_basic_week_date_time_no_millis("xxxx'W'wwe'T'HHmmssZ"),
+    basic_week_date(ISODateTimeFormat.basicWeekDate()), strict_basic_week_date(ISODateTimeFormat.basicWeekDate()),
+    basic_week_date_time(ISODateTimeFormat.basicWeekDateTime()), strict_basic_week_date_time(ISODateTimeFormat.basicWeekDateTime()),
+    basic_week_date_time_no_millis(ISODateTimeFormat.basicWeekDateTimeNoMillis()),
+    strict_basic_week_date_time_no_millis(ISODateTimeFormat.basicWeekDateTimeNoMillis()),
 
-    date("yyyy-MM-dd"), strict_date("yyyy-MM-dd"),
-    date_hour("yyyy-MM-dd'T'HH"), strict_date_hour("yyyy-MM-dd'T'HH"),
-    date_hour_minute("yyyy-MM-dd'T'HH:mm"), strict_date_hour_minute("yyyy-MM-dd'T'HH:mm"),
-    date_hour_minute_second("yyyy-MM-dd'T'HH:mm:ss"), strict_date_hour_minute_second("yyyy-MM-dd'T'HH:mm:ss"),
-    date_hour_minute_second_fraction("yyyy-MM-dd'T'HH:mm:ss.SSS"), strict_date_hour_minute_second_fraction("yyyy-MM-dd'T'HH:mm:ss.SSS"),
-    date_hour_minute_second_millis("yyyy-MM-dd'T'HH:mm:ss.SSS"), strict_date_hour_minute_second_millis("yyyy-MM-dd'T'HH:mm:ss.SSS"),
-    date_time("yyyy-MM-dd'T'HH:mm:ss.SSSZZ"), strict_date_time("yyyy-MM-dd'T'HH:mm:ss.SSSZZ"),
-    date_time_no_millis("yyyy-MM-dd'T'HH:mm:ssZZ"), strict_date_time_no_millis("yyyy-MM-dd'T'HH:mm:ssZZ"),
+    date(ISODateTimeFormat.date()), strict_date(ISODateTimeFormat.date()),
+    date_hour(ISODateTimeFormat.dateHour()), strict_date_hour(ISODateTimeFormat.dateHour()),
+    date_hour_minute(ISODateTimeFormat.dateHourMinute()), strict_date_hour_minute(ISODateTimeFormat.dateHourMinute()),
+    date_hour_minute_second(ISODateTimeFormat.dateHourMinuteSecond()),
+    strict_date_hour_minute_second(ISODateTimeFormat.dateHourMinuteSecond()),
+    date_hour_minute_second_fraction(ISODateTimeFormat.dateHourMinuteSecondFraction()),
+    strict_date_hour_minute_second_fraction(ISODateTimeFormat.dateHourMinuteSecondFraction()),
+    date_hour_minute_second_millis(ISODateTimeFormat.dateHourMinuteSecondMillis()),
+    strict_date_hour_minute_second_millis(ISODateTimeFormat.dateHourMinuteSecondMillis()),
+    date_time(ISODateTimeFormat.dateTime()), strict_date_time(ISODateTimeFormat.dateTime()),
+    date_time_no_millis(ISODateTimeFormat.dateTimeNoMillis()), strict_date_time_no_millis(ISODateTimeFormat.dateTimeNoMillis()),
 
-    hour("HH"), strict_hour("HH"),
-    hour_minute("HH:mm"), strict_hour_minute("HH:mm"),
-    hour_minute_second("HH:mm:ss"), strict_hour_minute_second("HH:mm:ss"),
-    hour_minute_second_fraction("HH:mm:ss.SSS"), strict_hour_minute_second_fraction("HH:mm:ss.SSS"),
-    hour_minute_second_millis("HH:mm:ss.SSS"), strict_hour_minute_second_millis("HH:mm:ss.SSS"),
+    hour(ISODateTimeFormat.hour()), strict_hour(ISODateTimeFormat.hour()),
+    hour_minute(ISODateTimeFormat.hourMinute()), strict_hour_minute(ISODateTimeFormat.hourMinute()),
+    hour_minute_second(ISODateTimeFormat.hourMinuteSecond()), strict_hour_minute_second(ISODateTimeFormat.hourMinuteSecond()),
+    hour_minute_second_fraction(ISODateTimeFormat.hourMinuteSecondFraction()),
+    strict_hour_minute_second_fraction(ISODateTimeFormat.hourMinuteSecondFraction()),
+    hour_minute_second_millis(ISODateTimeFormat.hourMinuteSecondMillis()),
+    strict_hour_minute_second_millis(ISODateTimeFormat.hourMinuteSecondMillis()),
 
-    ordinal_date("yyyy-DDD"), strict_ordinal_date("yyyy-DDD"),
-    ordinal_date_time("yyyy-DDD'T'HH:mm:ss.SSSZZ"), strict_ordinal_date_time("yyyy-DDD'T'HH:mm:ss.SSSZZ"),
-    ordinal_date_time_no_millis("yyyy-DDD'T'HH:mm:ssZZ"), strict_ordinal_date_time_no_millis("yyyy-DDD'T'HH:mm:ssZZ"),
+    ordinal_date(ISODateTimeFormat.ordinalDate()), strict_ordinal_date(ISODateTimeFormat.ordinalDate()),
+    ordinal_date_time(ISODateTimeFormat.ordinalDateTime()), strict_ordinal_date_time(ISODateTimeFormat.ordinalDateTime()),
+    ordinal_date_time_no_millis(ISODateTimeFormat.ordinalDateTimeNoMillis()),
+    strict_ordinal_date_time_no_millis(ISODateTimeFormat.ordinalDateTimeNoMillis()),
 
-    date_optional_time("yyyy ['-' MM ['-' dd]] ['T' [HH [':' mm [':' ss [('.' | ',') digit+]] | [('.' | ',') digit+]] |" +
-            " [('.' | ',') digit+]] ['Z' | (('+' | '-') HH [':' mm [':' ss [('.' | ',') SSS]]])]]"),
-    strict_date_optional_time("yyyy ['-' MM ['-' dd]] ['T' [HH [':' mm [':' ss [('.' | ',') digit+]] | [('.' | ',') digit+]]" +
-            " | [('.' | ',') digit+]] ['Z' | (('+' | '-') HH [':' mm [':' ss [('.' | ',') SSS]]])]]"),
+    date_optional_time(ISODateTimeFormat.dateOptionalTimeParser()),
+    strict_date_optional_time(ISODateTimeFormat.dateOptionalTimeParser()),
 
-    time("HH:mm:ss.SSSZZ"), strict_time("HH:mm:ss.SSSZZ"),
-    time_no_millis("HH:mm:ssZZ"), strict_time_no_millis("HH:mm:ssZZ"),
+    time(ISODateTimeFormat.time()), strict_time(ISODateTimeFormat.time()),
+    time_no_millis(ISODateTimeFormat.timeNoMillis()), strict_time_no_millis(ISODateTimeFormat.timeNoMillis()),
 
-    t_time("'T'HH:mm:ss.SSSZZ"), strict_t_time("'T'HH:mm:ss.SSSZZ"),
-    t_time_no_millis("'T'HH:mm:ssZZ"), strict_t_time_no_millis("'T'HH:mm:ssZZ"),
+    t_time(ISODateTimeFormat.tTime()), strict_t_time(ISODateTimeFormat.tTime()),
+    t_time_no_millis(ISODateTimeFormat.tTimeNoMillis()), strict_t_time_no_millis(ISODateTimeFormat.tTimeNoMillis()),
 
-    week_date("xxxx-'W'ww-e"), strict_week_date("xxxx-'W'ww-e"),
-    week_date_time("xxxx-'W'ww-e'T'HH:mm:ss.SSSZZ"), strict_week_date_time("xxxx-'W'ww-e'T'HH:mm:ss.SSSZZ"),
-    week_date_time_no_millis("xxxx-'W'ww-e'T'HH:mm:ssZZ"), strict_week_date_time_no_millis("xxxx-'W'ww-e'T'HH:mm:ssZZ"),
-    weekyear("xxxx"), strict_weekyear("xxxx"),
-    weekyear_week("xxxx-'W'ww"), strict_weekyear_week("xxxx-'W'ww"),
-    weekyear_week_day("xxxx-'W'ww-e"), strict_weekyear_week_day("xxxx-'W'ww-e"),
+    week_date(ISODateTimeFormat.weekDate()), strict_week_date(ISODateTimeFormat.weekDate()),
+    week_date_time(ISODateTimeFormat.weekDateTime()), strict_week_date_time(ISODateTimeFormat.weekDateTime()),
+    week_date_time_no_millis(ISODateTimeFormat.weekDateTimeNoMillis()),
+    strict_week_date_time_no_millis(ISODateTimeFormat.weekDateTimeNoMillis()),
+    weekyear(ISODateTimeFormat.weekyear()), strict_weekyear(ISODateTimeFormat.weekyear()),
+    weekyear_week(ISODateTimeFormat.weekyearWeek()), strict_weekyear_week(ISODateTimeFormat.weekyearWeek()),
+    weekyear_week_day(ISODateTimeFormat.weekyearWeekDay()), strict_weekyear_week_day(ISODateTimeFormat.weekyearWeekDay()),
 
-    year("yyyy"), strict_year("yyyy"),
-    year_month("yyyy-MM"), strict_year_month("yyyy-MM"),
-    year_month_day("yyyy-MM-dd"), strict_year_month_day("yyyy-MM-dd"),
+    year(ISODateTimeFormat.year()), strict_year(ISODateTimeFormat.year()),
+    year_month(ISODateTimeFormat.yearMonth()), strict_year_month(ISODateTimeFormat.yearMonth()),
+    year_month_day(ISODateTimeFormat.yearMonthDay()), strict_year_month_day(ISODateTimeFormat.yearMonthDay()),
 
-    UNKNOWN("unknown");
+    UNKNOWN(null);
 
-    public final String pattern;
+    public DateTimeFormatter dateTimeFormatter;
 
-    TimestampType(String pattern) {
-        this.pattern = pattern;
+    TimestampType(DateTimeFormatter dateTimeFormatter) {
+        this.dateTimeFormatter = dateTimeFormatter;
     }
 
-    public static TimestampType getElasticsearchPatternName(String type) {
+    public static TimestampType getElasticsearchPatternName(String name) {
         TimestampType ret = UNKNOWN;
         for(TimestampType t : TimestampType.values()) {
-            if(t.name().equals(type)) {
+            if(t.name().equals(name)) {
                 ret = t;
                 break;
             }
@@ -76,8 +86,4 @@ public enum TimestampType {
         return ret;
     }
 
-    @Override
-    public String toString() {
-        return pattern.toString();
-    }
 }

@@ -16,7 +16,7 @@ public class CollectionReferenceDescriptionProperty {
     @ApiModelProperty(value = "The collection field type")
     public ElasticType type;
 
-    @ApiModelProperty(value = "The collection date format")
+    @ApiModelProperty(value = "The collection field format")
     public String format;
 
     @Override
