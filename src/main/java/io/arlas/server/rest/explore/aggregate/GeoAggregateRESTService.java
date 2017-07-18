@@ -83,11 +83,13 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
             @ApiParam(name ="before", value=Documentation.FILTER_PARAM_BEFORE,
                     allowMultiple = false,
+                    type = "integer",
                     required=false)
             @QueryParam(value="before") LongParam before,
 
             @ApiParam(name ="after", value=Documentation.FILTER_PARAM_AFTER,
                     allowMultiple = false,
+                    type = "integer",
                     required=false)
             @QueryParam(value="after") LongParam after,
 

@@ -78,11 +78,13 @@ public class SearchRESTService extends ExploreRESTServices {
 
             @ApiParam(name = "before", value=Documentation.FILTER_PARAM_BEFORE,
                     allowMultiple = false,
+                    type = "integer",
                     required = false)
             @QueryParam(value = "before") LongParam before,
 
             @ApiParam(name = "after", value=Documentation.FILTER_PARAM_AFTER,
                     allowMultiple = false,
+                    type = "integer",
                     required = false)
             @QueryParam(value = "after") LongParam after,
 
@@ -158,6 +160,7 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(name = "size", value = Documentation.SIZE_PARAM_SIZE,
                     defaultValue = "10",
                     allowableValues = "range[1, infinity]",
+                    type = "integer",
                     required = false)
             @DefaultValue("10")
             @QueryParam(value = "size") IntParam size,
@@ -165,6 +168,7 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(name = "from", value = Documentation.SIZE_PARAM_FROM,
                     defaultValue = "0",
                     allowableValues = "range[0, infinity]",
+                    type = "integer",
                     required = false)
             @DefaultValue("0")
             @QueryParam(value = "from") IntParam from,
