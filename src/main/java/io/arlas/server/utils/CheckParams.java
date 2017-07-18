@@ -50,13 +50,13 @@ public class CheckParams {
         }
         if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
             double[] tlbr = CheckParams.toDoubles(filter.pwithin);
-            if (!(tlbr.length == 4 && tlbr[0] > tlbr[2] && tlbr[2] < tlbr[3])) {
+            if (!(tlbr.length == 4 && tlbr[0] > tlbr[2] && tlbr[1] < tlbr[3])) {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
             }
         }
         if (filter.notpwithin != null && !filter.notpwithin.isEmpty()) {
             double[] tlbr = CheckParams.toDoubles(filter.notpwithin);
-            if (!(tlbr.length == 4 && tlbr[0] > tlbr[2] && tlbr[2] < tlbr[3])) {
+            if (!(tlbr.length == 4 && tlbr[0] > tlbr[2] && tlbr[1] < tlbr[3])) {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
             }
         }
