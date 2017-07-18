@@ -2,8 +2,10 @@ package io.arlas.server.task;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import io.arlas.server.model.CollectionReference;
 import org.elasticsearch.client.transport.TransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +27,8 @@ public class CollectionAutoDiscover extends Task implements Runnable {
     private ElasticAdmin admin;
     private CollectionReferenceDao collectionDao;
     private CollectionAutoDiscoverConfiguration configuration;
-    
-    Logger LOGGER = LoggerFactory.getLogger(CollectionRESTServices.class);
+
+    Logger LOGGER = LoggerFactory.getLogger(CollectionAutoDiscover.class);
 
     public CollectionAutoDiscover(TransportClient client, ArlasServerConfiguration configuration) {
         super("collection-auto-discover");
@@ -48,11 +50,9 @@ public class CollectionAutoDiscover extends Task implements Runnable {
             if(!existingCollections.contains(collection)) {
                 CollectionReferenceDescription collectionToAdd = checkCollectionValidity(collection);
                 if(collectionToAdd!=null) {
-                    LOGGER.info("add collection : " + collectionToAdd);
-                    collectionDao.putCollectionReference(collectionToAdd.collectionName, collectionToAdd.params);  
+                    collectionDao.putCollectionReference(collectionToAdd.collectionName, collectionToAdd.params);
                 } else {
-                    LOGGER.info("do not add collection from : " + collection);
-                }                    
+                }
             }
         }
     }
@@ -67,6 +67,10 @@ public class CollectionAutoDiscover extends Task implements Runnable {
                 collection.params.idPath = property.name;
             } else if(timestampPaths.contains(property.name) && (collection.params.timestampPath == null || collection.params.timestampPath.isEmpty())) {
                 collection.params.timestampPath = property.name;
+                if (property.format != null){
+                    collection.params.custom_params = new HashMap<>();
+                    collection.params.custom_params.put(CollectionReference.TIMESTAMP_FORMAT,property.format);
+                }
             } else if(centroidPaths.contains(property.name) && (collection.params.centroidPath == null || collection.params.centroidPath.isEmpty())) {
                 collection.params.centroidPath = property.name;
             } else if(geometryPaths.contains(property.name) && (collection.params.geometryPath == null || collection.params.geometryPath.isEmpty())) {
@@ -86,8 +90,8 @@ public class CollectionAutoDiscover extends Task implements Runnable {
         try {
             execute(null,null);
         } catch (Exception e) {
-            LOGGER.info("Unable to run scheduled task " + this.getClass().getCanonicalName());
-        }        
+            LOGGER.debug("Unable to run scheduled task " + this.getClass().getCanonicalName());
+        }
     }
 
 }

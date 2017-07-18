@@ -1,9 +1,7 @@
 package io.arlas.server.dao;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -85,6 +83,9 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 break;
             case CollectionReference.EXCLUDE_FIELDS:
                 params.excludeFields = source.get(field) != null ? source.get(field).toString() : null;
+                break;
+            case CollectionReference.CUSTOM_PARAMS:
+                params.custom_params = source.get(field) != null ? (Map<String,String>)source.get(field) : null;
                 break;
             }
         }
@@ -202,7 +203,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             if(collectionRefParams.timestampPath != null)
                 fields.add(collectionRefParams.timestampPath);
             if(!fields.isEmpty())
-                checkIndexMappingFields(collectionRefParams.indexName, collectionRefParams.typeName, fields.toArray(new String[fields.size()]));
+                checkIndexMappingFields(collectionRefParams, fields.toArray(new String[fields.size()]));
         } catch (IndexNotFoundException e) {
             throw new NotFoundException("Index "+collectionRefParams.indexName+" does not exist.");
         } catch (IOException e) {
@@ -210,13 +211,28 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         }
     }
     
-    private void checkIndexMappingFields(String indexName, String typeName, String... fields) throws ArlasException {
-        GetFieldMappingsResponse response = client.admin().indices().prepareGetFieldMappings(indexName).setTypes(typeName).setFields(fields).get();
+    private void checkIndexMappingFields(CollectionReferenceParameters collectionRefParams , String... fields) throws ArlasException {
+        GetFieldMappingsResponse response = client.admin().indices().prepareGetFieldMappings(collectionRefParams.indexName).setTypes(collectionRefParams.typeName).setFields(fields).get();
         for(String field : fields) {
-            FieldMappingMetaData data = response.fieldMappings(indexName, typeName, field);
+            FieldMappingMetaData data = response.fieldMappings(collectionRefParams.indexName, collectionRefParams.typeName, field);
             if(data == null || data.isNull()) {
-                throw new NotFoundException("Unable to find "+field+" from "+typeName+" in "+indexName+".");
+                throw new NotFoundException("Unable to find "+field+" from "+collectionRefParams.typeName+" in "+collectionRefParams.indexName+".");
             }
+            else {
+                if (field.equals(collectionRefParams.timestampPath)){
+                    setTimestampFormat(collectionRefParams, data, field);
+                }
+            }
+        }
+    }
+
+    private void setTimestampFormat(CollectionReferenceParameters collectionRefParams, FieldMappingMetaData data, String field) {
+        LinkedHashMap<String, Object> timestampMD = (LinkedHashMap)data.sourceAsMap().get(field);
+        collectionRefParams.custom_params = new HashMap<>();
+        if (timestampMD.keySet().contains("format")) {
+            collectionRefParams.custom_params.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
+        } else {
+            collectionRefParams.custom_params.put(CollectionReference.TIMESTAMP_FORMAT, CollectionReference.DEFAULT_TIMESTAMP_FORMAT);
         }
     }
 }

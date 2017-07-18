@@ -5,17 +5,19 @@ import java.util.Map;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.utils.GeoTypeMapper;
+import io.arlas.server.utils.TimestampTypeMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(value = "ArlasHit", description = "A hit retrieved from an ARLAS Collection")
 public class ArlasHit {
+
     @ApiModelProperty(name = "md", value = "The hit's metadata")
     public ArlasMD md;
 
     @ApiModelProperty(name = "data", value = "The hit's data")
     public Object data;
-    
+
     public ArlasHit() {}
     
     public ArlasHit(CollectionReference collectionReference, Map<String,Object> source) throws ArlasException {
@@ -37,9 +39,12 @@ public class ArlasHit {
         }
         if (collectionReference.params.timestampPath != null
                 && source.get(collectionReference.params.timestampPath) != null) {
-            // TODO: parse timestamp
-            // arlasHit.md.timestamp =
-            // (String)hitsSources.get(collectionReference.params.timestampPath);
+            Object t = source.get(collectionReference.params.timestampPath);
+            if (collectionReference.params.custom_params != null){
+                String f = collectionReference.params.custom_params.get(CollectionReference.TIMESTAMP_FORMAT);
+                md.timestamp = TimestampTypeMapper.getTimestamp(t,f);
+            }
+
         }
     }
 }

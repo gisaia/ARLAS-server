@@ -26,7 +26,7 @@ public class ElasticAdmin {
     public ElasticAdmin(TransportClient client){
         this.client = client;
     }
-    
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public CollectionReferenceDescription describeCollection (CollectionReference collectionReference) throws IOException {
         CollectionReferenceDescription collectionReferenceDescription = new CollectionReferenceDescription();
@@ -39,8 +39,16 @@ public class ElasticAdmin {
                 .get(collectionReferenceDescription.params.indexName).get(collectionReferenceDescription.params.typeName).sourceAsMap().get("properties");
         List<CollectionReferenceDescriptionProperty> properties = new ArrayList<CollectionReferenceDescriptionProperty>();
         for(Object field : fields.keySet()) {
-            properties.add(new CollectionReferenceDescriptionProperty(field.toString(), 
-                    ElasticType.getType(((Map<String,String>)fields.get(field)).get("type"))));
+            ElasticType type = ElasticType.getType(((Map<String,String>)fields.get(field)).get("type"));
+            String dateFormat;
+            if (type.equals(ElasticType.DATE)){
+                dateFormat = ((Map<String,String>)fields.get(field)).get("format");
+                if (dateFormat == null) {
+                    dateFormat = CollectionReference.DEFAULT_TIMESTAMP_FORMAT;
+                }
+            properties.add(new CollectionReferenceDescriptionProperty(field.toString(),type, dateFormat));
+            }
+            properties.add(new CollectionReferenceDescriptionProperty(field.toString(),type, null));
         }
         collectionReferenceDescription.properties = properties;
         return collectionReferenceDescription;
