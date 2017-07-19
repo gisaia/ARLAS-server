@@ -770,12 +770,12 @@ margin-bottom: 20px;
     defs.ArlasAggregation = {
   "type" : "object",
   "properties" : {
-    "querytime" : {
+    "query_time" : {
       "type" : "integer",
       "format" : "int64",
       "description" : "Query execution time"
     },
-    "arlastime" : {
+    "arlas_time" : {
       "type" : "integer",
       "format" : "int64",
       "description" : "All the aggregation execution time. It includes query time."
@@ -811,7 +811,7 @@ margin-bottom: 20px;
         "$ref" : "#/definitions/ArlasAggregation"
       }
     },
-    "metric aggregation" : {
+    "metric" : {
       "description" : "Metric aggregation",
       "$ref" : "#/definitions/ArlasMetric"
     }
@@ -953,12 +953,32 @@ margin-bottom: 20px;
       "$ref" : "#/definitions/CollectionReferenceParameters"
     },
     "properties" : {
-      "type" : "object",
+      "type" : "array",
       "description" : "The collection fields",
-      "properties" : { }
+      "items" : {
+        "$ref" : "#/definitions/CollectionReferenceDescriptionProperty"
+      }
     }
   },
   "description" : "Describe the structure and the content of the given collection."
+};
+    defs.CollectionReferenceDescriptionProperty = {
+  "type" : "object",
+  "properties" : {
+    "name" : {
+      "type" : "string",
+      "description" : "The collection field name"
+    },
+    "type" : {
+      "type" : "string",
+      "description" : "The collection field type",
+      "enum" : [ "TEXT", "KEYWORD", "LONG", "INTEGER", "SHORT", "BYTE", "DOUBLE", "FLOAT", "DATE", "BOOLEAN", "BINARY", "INT_RANGE", "FLOAT_RANGE", "LONG_RANGE", "DOUBLE_RANGE", "DATE_RANGE", "OBJECT", "NESTED", "GEO_POINT", "GEO_SHAPE", "IP", "COMPLETION", "TOKEN_COUNT", "MAPPER_MURMUR3", "UNKNOWN" ]
+    },
+    "format" : {
+      "type" : "string",
+      "description" : "The collection field format"
+    }
+  }
 };
     defs.CollectionReferenceParameters = {
   "type" : "object",
@@ -1000,6 +1020,13 @@ margin-bottom: 20px;
       "type" : "string",
       "example" : "fieldname",
       "description" : "List the name patterns of the fields to be excluded in the result. Seperate patterns with a comma."
+    },
+    "custom_params" : {
+      "type" : "object",
+      "description" : "Calculated params.",
+      "additionalProperties" : {
+        "type" : "string"
+      }
     }
   },
   "description" : "The description of the elasticsearch index and the way ARLAS API will serve it."
@@ -1379,6 +1406,9 @@ margin-bottom: 20px;
                     </li>
                     <li data-group="Explore" data-name="geosearchPost" class="">
                       <a href="#api-Explore-geosearchPost">geosearchPost</a>
+                    </li>
+                    <li data-group="Explore" data-name="getArlasHit" class="">
+                      <a href="#api-Explore-getArlasHit">getArlasHit</a>
                     </li>
                     <li data-group="Explore" data-name="list" class="">
                       <a href="#api-Explore-list">list</a>
@@ -3100,8 +3130,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
         String q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-        String before = before_example; // String | Any element having its point in time reference before the given timestamp
-        String after = after_example; // String | Any element having its point in time reference after the given timestamp
+        Integer before = 56; // Integer | Any element having its point in time reference before the given timestamp
+        Integer after = 56; // Integer | Any element having its point in time reference after the given timestamp
         array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
         array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
         array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -3215,8 +3245,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
         String q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-        String before = before_example; // String | Any element having its point in time reference before the given timestamp
-        String after = after_example; // String | Any element having its point in time reference after the given timestamp
+        Integer before = 56; // Integer | Any element having its point in time reference before the given timestamp
+        Integer after = 56; // Integer | Any element having its point in time reference after the given timestamp
         array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
         array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
         array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -3327,8 +3357,8 @@ array[String] *f = ; // - A triplet for filtering the result. Multiple filter ca
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
 String *q = q_example; // A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional)
-String *before = before_example; // Any element having its point in time reference before the given timestamp (optional)
-String *after = after_example; // Any element having its point in time reference after the given timestamp (optional)
+Integer *before = 56; // Any element having its point in time reference before the given timestamp (optional)
+Integer *after = 56; // Any element having its point in time reference after the given timestamp (optional)
 array[String] *pwithin = ; // Any element having its centroid contained within the given geometry (WKT) (optional)
 array[String] *gwithin = ; // Any element having its geometry contained within the given geometry (WKT) (optional)
 array[String] *gintersect = ; // Any element having its geometry intersecting the given geometry (WKT) (optional)
@@ -3462,8 +3492,8 @@ var opts = {
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
   'q': q_example, // {String} A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-  'before': before_example, // {String} Any element having its point in time reference before the given timestamp
-  'after': after_example, // {String} Any element having its point in time reference after the given timestamp
+  'before': 56, // {Integer} Any element having its point in time reference before the given timestamp
+  'after': 56, // {Integer} Any element having its point in time reference after the given timestamp
   'pwithin': , // {array[String]} Any element having its centroid contained within the given geometry (WKT)
   'gwithin': , // {array[String]} Any element having its geometry contained within the given geometry (WKT)
   'gintersect': , // {array[String]} Any element having its geometry intersecting the given geometry (WKT)
@@ -3590,8 +3620,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional) 
             var q = q_example;  // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional) 
-            var before = before_example;  // String | Any element having its point in time reference before the given timestamp (optional) 
-            var after = after_example;  // String | Any element having its point in time reference after the given timestamp (optional) 
+            var before = 56;  // Integer | Any element having its point in time reference before the given timestamp (optional) 
+            var after = 56;  // Integer | Any element having its point in time reference after the given timestamp (optional) 
             var pwithin = new array[String](); // array[String] | Any element having its centroid contained within the given geometry (WKT) (optional) 
             var gwithin = new array[String](); // array[String] | Any element having its geometry contained within the given geometry (WKT) (optional) 
             var gintersect = new array[String](); // array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional) 
@@ -3708,8 +3738,8 @@ $f = ; // array[String] | - A triplet for filtering the result. Multiple filter 
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
 $q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-$before = before_example; // String | Any element having its point in time reference before the given timestamp
-$after = after_example; // String | Any element having its point in time reference after the given timestamp
+$before = 56; // Integer | Any element having its point in time reference before the given timestamp
+$after = 56; // Integer | Any element having its point in time reference after the given timestamp
 $pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
 $gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
 $gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -3821,8 +3851,8 @@ my $f = []; # array[String] | - A triplet for filtering the result. Multiple fil
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
 my $q = q_example; # String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-my $before = before_example; # String | Any element having its point in time reference before the given timestamp
-my $after = after_example; # String | Any element having its point in time reference after the given timestamp
+my $before = 56; # Integer | Any element having its point in time reference before the given timestamp
+my $after = 56; # Integer | Any element having its point in time reference after the given timestamp
 my $pwithin = []; # array[String] | Any element having its centroid contained within the given geometry (WKT)
 my $gwithin = []; # array[String] | Any element having its geometry contained within the given geometry (WKT)
 my $gintersect = []; # array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -3937,8 +3967,8 @@ f =  # array[String] | - A triplet for filtering the result. Multiple filter can
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
 q = q_example # String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional)
-before = before_example # String | Any element having its point in time reference before the given timestamp (optional)
-after = after_example # String | Any element having its point in time reference after the given timestamp (optional)
+before = 56 # Integer | Any element having its point in time reference before the given timestamp (optional)
+after = 56 # Integer | Any element having its point in time reference after the given timestamp (optional)
 pwithin =  # array[String] | Any element having its centroid contained within the given geometry (WKT) (optional)
 gwithin =  # array[String] | Any element having its geometry contained within the given geometry (WKT) (optional)
 gintersect =  # array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional)
@@ -4128,7 +4158,7 @@ except ApiException as e:
   "in" : "query",
   "description" : "Any element having its point in time reference before the given timestamp",
   "required" : false,
-  "type" : "string"
+  "type" : "integer"
 };
 													var schema = schemaWrapper;
 
@@ -4161,7 +4191,7 @@ except ApiException as e:
   "in" : "query",
   "description" : "Any element having its point in time reference after the given timestamp",
   "required" : false,
-  "type" : "string"
+  "type" : "integer"
 };
 													var schema = schemaWrapper;
 
@@ -5169,8 +5199,8 @@ public class ExploreApiExample {
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
         String q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-        String before = before_example; // String | Any element having its point in time reference before the given timestamp
-        String after = after_example; // String | Any element having its point in time reference after the given timestamp
+        Integer before = 56; // Integer | Any element having its point in time reference before the given timestamp
+        Integer after = 56; // Integer | Any element having its point in time reference after the given timestamp
         array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
         array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
         array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -5235,8 +5265,8 @@ public class ExploreApiExample {
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
         String q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-        String before = before_example; // String | Any element having its point in time reference before the given timestamp
-        String after = after_example; // String | Any element having its point in time reference after the given timestamp
+        Integer before = 56; // Integer | Any element having its point in time reference before the given timestamp
+        Integer after = 56; // Integer | Any element having its point in time reference after the given timestamp
         array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
         array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
         array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -5298,8 +5328,8 @@ array[String] *f = ; // - A triplet for filtering the result. Multiple filter ca
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
 String *q = q_example; // A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional)
-String *before = before_example; // Any element having its point in time reference before the given timestamp (optional)
-String *after = after_example; // Any element having its point in time reference after the given timestamp (optional)
+Integer *before = 56; // Any element having its point in time reference before the given timestamp (optional)
+Integer *after = 56; // Any element having its point in time reference after the given timestamp (optional)
 array[String] *pwithin = ; // Any element having its centroid contained within the given geometry (WKT) (optional)
 array[String] *gwithin = ; // Any element having its geometry contained within the given geometry (WKT) (optional)
 array[String] *gintersect = ; // Any element having its geometry intersecting the given geometry (WKT) (optional)
@@ -5382,8 +5412,8 @@ var opts = {
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
   'q': q_example, // {String} A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-  'before': before_example, // {String} Any element having its point in time reference before the given timestamp
-  'after': after_example, // {String} Any element having its point in time reference after the given timestamp
+  'before': 56, // {Integer} Any element having its point in time reference before the given timestamp
+  'after': 56, // {Integer} Any element having its point in time reference after the given timestamp
   'pwithin': , // {array[String]} Any element having its centroid contained within the given geometry (WKT)
   'gwithin': , // {array[String]} Any element having its geometry contained within the given geometry (WKT)
   'gintersect': , // {array[String]} Any element having its geometry intersecting the given geometry (WKT)
@@ -5461,8 +5491,8 @@ namespace Example
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional) 
             var q = q_example;  // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional) 
-            var before = before_example;  // String | Any element having its point in time reference before the given timestamp (optional) 
-            var after = after_example;  // String | Any element having its point in time reference after the given timestamp (optional) 
+            var before = 56;  // Integer | Any element having its point in time reference before the given timestamp (optional) 
+            var after = 56;  // Integer | Any element having its point in time reference after the given timestamp (optional) 
             var pwithin = new array[String](); // array[String] | Any element having its centroid contained within the given geometry (WKT) (optional) 
             var gwithin = new array[String](); // array[String] | Any element having its geometry contained within the given geometry (WKT) (optional) 
             var gintersect = new array[String](); // array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional) 
@@ -5530,8 +5560,8 @@ $f = ; // array[String] | - A triplet for filtering the result. Multiple filter 
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
 $q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-$before = before_example; // String | Any element having its point in time reference before the given timestamp
-$after = after_example; // String | Any element having its point in time reference after the given timestamp
+$before = 56; // Integer | Any element having its point in time reference before the given timestamp
+$after = 56; // Integer | Any element having its point in time reference after the given timestamp
 $pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
 $gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
 $gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -5594,8 +5624,8 @@ my $f = []; # array[String] | - A triplet for filtering the result. Multiple fil
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
 my $q = q_example; # String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-my $before = before_example; # String | Any element having its point in time reference before the given timestamp
-my $after = after_example; # String | Any element having its point in time reference after the given timestamp
+my $before = 56; # Integer | Any element having its point in time reference before the given timestamp
+my $after = 56; # Integer | Any element having its point in time reference after the given timestamp
 my $pwithin = []; # array[String] | Any element having its centroid contained within the given geometry (WKT)
 my $gwithin = []; # array[String] | Any element having its geometry contained within the given geometry (WKT)
 my $gintersect = []; # array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -5661,8 +5691,8 @@ f =  # array[String] | - A triplet for filtering the result. Multiple filter can
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
 q = q_example # String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional)
-before = before_example # String | Any element having its point in time reference before the given timestamp (optional)
-after = after_example # String | Any element having its point in time reference after the given timestamp (optional)
+before = 56 # Integer | Any element having its point in time reference before the given timestamp (optional)
+after = 56 # Integer | Any element having its point in time reference after the given timestamp (optional)
 pwithin =  # array[String] | Any element having its centroid contained within the given geometry (WKT) (optional)
 gwithin =  # array[String] | Any element having its geometry contained within the given geometry (WKT) (optional)
 gintersect =  # array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional)
@@ -5815,7 +5845,7 @@ except ApiException as e:
   "in" : "query",
   "description" : "Any element having its point in time reference before the given timestamp",
   "required" : false,
-  "type" : "string"
+  "type" : "integer"
 };
 													var schema = schemaWrapper;
 
@@ -5848,7 +5878,7 @@ except ApiException as e:
   "in" : "query",
   "description" : "Any element having its point in time reference after the given timestamp",
   "required" : false,
-  "type" : "string"
+  "type" : "integer"
 };
 													var schema = schemaWrapper;
 
@@ -7427,8 +7457,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
         String q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-        String before = before_example; // String | Any element having its point in time reference before the given timestamp
-        String after = after_example; // String | Any element having its point in time reference after the given timestamp
+        Integer before = 56; // Integer | Any element having its point in time reference before the given timestamp
+        Integer after = 56; // Integer | Any element having its point in time reference after the given timestamp
         array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
         array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
         array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -7542,8 +7572,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
         String q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-        String before = before_example; // String | Any element having its point in time reference before the given timestamp
-        String after = after_example; // String | Any element having its point in time reference after the given timestamp
+        Integer before = 56; // Integer | Any element having its point in time reference before the given timestamp
+        Integer after = 56; // Integer | Any element having its point in time reference after the given timestamp
         array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
         array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
         array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -7654,8 +7684,8 @@ array[String] *f = ; // - A triplet for filtering the result. Multiple filter ca
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
 String *q = q_example; // A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional)
-String *before = before_example; // Any element having its point in time reference before the given timestamp (optional)
-String *after = after_example; // Any element having its point in time reference after the given timestamp (optional)
+Integer *before = 56; // Any element having its point in time reference before the given timestamp (optional)
+Integer *after = 56; // Any element having its point in time reference after the given timestamp (optional)
 array[String] *pwithin = ; // Any element having its centroid contained within the given geometry (WKT) (optional)
 array[String] *gwithin = ; // Any element having its geometry contained within the given geometry (WKT) (optional)
 array[String] *gintersect = ; // Any element having its geometry intersecting the given geometry (WKT) (optional)
@@ -7789,8 +7819,8 @@ var opts = {
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
   'q': q_example, // {String} A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-  'before': before_example, // {String} Any element having its point in time reference before the given timestamp
-  'after': after_example, // {String} Any element having its point in time reference after the given timestamp
+  'before': 56, // {Integer} Any element having its point in time reference before the given timestamp
+  'after': 56, // {Integer} Any element having its point in time reference after the given timestamp
   'pwithin': , // {array[String]} Any element having its centroid contained within the given geometry (WKT)
   'gwithin': , // {array[String]} Any element having its geometry contained within the given geometry (WKT)
   'gintersect': , // {array[String]} Any element having its geometry intersecting the given geometry (WKT)
@@ -7917,8 +7947,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional) 
             var q = q_example;  // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional) 
-            var before = before_example;  // String | Any element having its point in time reference before the given timestamp (optional) 
-            var after = after_example;  // String | Any element having its point in time reference after the given timestamp (optional) 
+            var before = 56;  // Integer | Any element having its point in time reference before the given timestamp (optional) 
+            var after = 56;  // Integer | Any element having its point in time reference after the given timestamp (optional) 
             var pwithin = new array[String](); // array[String] | Any element having its centroid contained within the given geometry (WKT) (optional) 
             var gwithin = new array[String](); // array[String] | Any element having its geometry contained within the given geometry (WKT) (optional) 
             var gintersect = new array[String](); // array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional) 
@@ -8035,8 +8065,8 @@ $f = ; // array[String] | - A triplet for filtering the result. Multiple filter 
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
 $q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-$before = before_example; // String | Any element having its point in time reference before the given timestamp
-$after = after_example; // String | Any element having its point in time reference after the given timestamp
+$before = 56; // Integer | Any element having its point in time reference before the given timestamp
+$after = 56; // Integer | Any element having its point in time reference after the given timestamp
 $pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
 $gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
 $gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -8148,8 +8178,8 @@ my $f = []; # array[String] | - A triplet for filtering the result. Multiple fil
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
 my $q = q_example; # String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-my $before = before_example; # String | Any element having its point in time reference before the given timestamp
-my $after = after_example; # String | Any element having its point in time reference after the given timestamp
+my $before = 56; # Integer | Any element having its point in time reference before the given timestamp
+my $after = 56; # Integer | Any element having its point in time reference after the given timestamp
 my $pwithin = []; # array[String] | Any element having its centroid contained within the given geometry (WKT)
 my $gwithin = []; # array[String] | Any element having its geometry contained within the given geometry (WKT)
 my $gintersect = []; # array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -8264,8 +8294,8 @@ f =  # array[String] | - A triplet for filtering the result. Multiple filter can
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
 q = q_example # String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional)
-before = before_example # String | Any element having its point in time reference before the given timestamp (optional)
-after = after_example # String | Any element having its point in time reference after the given timestamp (optional)
+before = 56 # Integer | Any element having its point in time reference before the given timestamp (optional)
+after = 56 # Integer | Any element having its point in time reference after the given timestamp (optional)
 pwithin =  # array[String] | Any element having its centroid contained within the given geometry (WKT) (optional)
 gwithin =  # array[String] | Any element having its geometry contained within the given geometry (WKT) (optional)
 gintersect =  # array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional)
@@ -8455,7 +8485,7 @@ except ApiException as e:
   "in" : "query",
   "description" : "Any element having its point in time reference before the given timestamp",
   "required" : false,
-  "type" : "string"
+  "type" : "integer"
 };
 													var schema = schemaWrapper;
 
@@ -8488,7 +8518,7 @@ except ApiException as e:
   "in" : "query",
   "description" : "Any element having its point in time reference after the given timestamp",
   "required" : false,
-  "type" : "string"
+  "type" : "integer"
 };
 													var schema = schemaWrapper;
 
@@ -9580,8 +9610,8 @@ public class ExploreApiExample {
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
         String q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-        String before = before_example; // String | Any element having its point in time reference before the given timestamp
-        String after = after_example; // String | Any element having its point in time reference after the given timestamp
+        Integer before = 56; // Integer | Any element having its point in time reference before the given timestamp
+        Integer after = 56; // Integer | Any element having its point in time reference after the given timestamp
         array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
         array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
         array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -9592,8 +9622,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
         Boolean human = true; // Boolean | Human readable print
         array[String] include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
         array[String] exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
-        String size = size_example; // String | The maximum number of entries or sub-entries to be returned. The default value is 10
-        String from = from_example; // String | From index to start the search from. Defaults to 0.
+        Integer size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+        Integer from = 56; // Integer | From index to start the search from. Defaults to 0.
         array[String] sort = -country,city; // array[String] | - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -9657,8 +9687,8 @@ public class ExploreApiExample {
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
         String q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-        String before = before_example; // String | Any element having its point in time reference before the given timestamp
-        String after = after_example; // String | Any element having its point in time reference after the given timestamp
+        Integer before = 56; // Integer | Any element having its point in time reference before the given timestamp
+        Integer after = 56; // Integer | Any element having its point in time reference after the given timestamp
         array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
         array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
         array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -9669,8 +9699,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
         Boolean human = true; // Boolean | Human readable print
         array[String] include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
         array[String] exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
-        String size = size_example; // String | The maximum number of entries or sub-entries to be returned. The default value is 10
-        String from = from_example; // String | From index to start the search from. Defaults to 0.
+        Integer size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+        Integer from = 56; // Integer | From index to start the search from. Defaults to 0.
         array[String] sort = -country,city; // array[String] | - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -9731,8 +9761,8 @@ array[String] *f = ; // - A triplet for filtering the result. Multiple filter ca
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
 String *q = q_example; // A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional)
-String *before = before_example; // Any element having its point in time reference before the given timestamp (optional)
-String *after = after_example; // Any element having its point in time reference after the given timestamp (optional)
+Integer *before = 56; // Any element having its point in time reference before the given timestamp (optional)
+Integer *after = 56; // Any element having its point in time reference after the given timestamp (optional)
 array[String] *pwithin = ; // Any element having its centroid contained within the given geometry (WKT) (optional)
 array[String] *gwithin = ; // Any element having its geometry contained within the given geometry (WKT) (optional)
 array[String] *gintersect = ; // Any element having its geometry intersecting the given geometry (WKT) (optional)
@@ -9743,8 +9773,8 @@ Boolean *pretty = true; // Pretty print (optional) (default to false)
 Boolean *human = true; // Human readable print (optional) (default to false)
 array[String] *include = *; // List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional)
 array[String] *exclude = city,state; // List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional)
-String *size = size_example; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
-String *from = from_example; // From index to start the search from. Defaults to 0. (optional) (default to 0)
+Integer *size = 56; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
+Integer *from = 56; // From index to start the search from. Defaults to 0. (optional) (default to 0)
 array[String] *sort = -country,city; // - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -9831,8 +9861,8 @@ var opts = {
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
   'q': q_example, // {String} A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-  'before': before_example, // {String} Any element having its point in time reference before the given timestamp
-  'after': after_example, // {String} Any element having its point in time reference after the given timestamp
+  'before': 56, // {Integer} Any element having its point in time reference before the given timestamp
+  'after': 56, // {Integer} Any element having its point in time reference after the given timestamp
   'pwithin': , // {array[String]} Any element having its centroid contained within the given geometry (WKT)
   'gwithin': , // {array[String]} Any element having its geometry contained within the given geometry (WKT)
   'gintersect': , // {array[String]} Any element having its geometry intersecting the given geometry (WKT)
@@ -9843,8 +9873,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
   'human': true, // {Boolean} Human readable print
   'include': *, // {array[String]} List the name patterns of the field to be included in the result. Seperate patterns with a comma.
   'exclude': city,state, // {array[String]} List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
-  'size': size_example, // {String} The maximum number of entries or sub-entries to be returned. The default value is 10
-  'from': from_example, // {String} From index to start the search from. Defaults to 0.
+  'size': 56, // {Integer} The maximum number of entries or sub-entries to be returned. The default value is 10
+  'from': 56, // {Integer} From index to start the search from. Defaults to 0.
   'sort': -country,city, // {array[String]} - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -9921,8 +9951,8 @@ namespace Example
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional) 
             var q = q_example;  // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional) 
-            var before = before_example;  // String | Any element having its point in time reference before the given timestamp (optional) 
-            var after = after_example;  // String | Any element having its point in time reference after the given timestamp (optional) 
+            var before = 56;  // Integer | Any element having its point in time reference before the given timestamp (optional) 
+            var after = 56;  // Integer | Any element having its point in time reference after the given timestamp (optional) 
             var pwithin = new array[String](); // array[String] | Any element having its centroid contained within the given geometry (WKT) (optional) 
             var gwithin = new array[String](); // array[String] | Any element having its geometry contained within the given geometry (WKT) (optional) 
             var gintersect = new array[String](); // array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional) 
@@ -9933,8 +9963,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
             var human = true;  // Boolean | Human readable print (optional)  (default to false)
             var include = new array[String](); // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional) 
             var exclude = new array[String](); // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional) 
-            var size = size_example;  // String | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)  (default to 10)
-            var from = from_example;  // String | From index to start the search from. Defaults to 0. (optional)  (default to 0)
+            var size = 56;  // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)  (default to 10)
+            var from = 56;  // Integer | From index to start the search from. Defaults to 0. (optional)  (default to 0)
             var sort = new array[String](); // array[String] | - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -10001,8 +10031,8 @@ $f = ; // array[String] | - A triplet for filtering the result. Multiple filter 
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
 $q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-$before = before_example; // String | Any element having its point in time reference before the given timestamp
-$after = after_example; // String | Any element having its point in time reference after the given timestamp
+$before = 56; // Integer | Any element having its point in time reference before the given timestamp
+$after = 56; // Integer | Any element having its point in time reference after the given timestamp
 $pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
 $gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
 $gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -10013,8 +10043,8 @@ $pretty = true; // Boolean | Pretty print
 $human = true; // Boolean | Human readable print
 $include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
 $exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
-$size = size_example; // String | The maximum number of entries or sub-entries to be returned. The default value is 10
-$from = from_example; // String | From index to start the search from. Defaults to 0.
+$size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+$from = 56; // Integer | From index to start the search from. Defaults to 0.
 $sort = -country,city; // array[String] | - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -10076,8 +10106,8 @@ my $f = []; # array[String] | - A triplet for filtering the result. Multiple fil
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
 my $q = q_example; # String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-my $before = before_example; # String | Any element having its point in time reference before the given timestamp
-my $after = after_example; # String | Any element having its point in time reference after the given timestamp
+my $before = 56; # Integer | Any element having its point in time reference before the given timestamp
+my $after = 56; # Integer | Any element having its point in time reference after the given timestamp
 my $pwithin = []; # array[String] | Any element having its centroid contained within the given geometry (WKT)
 my $gwithin = []; # array[String] | Any element having its geometry contained within the given geometry (WKT)
 my $gintersect = []; # array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -10088,8 +10118,8 @@ my $pretty = true; # Boolean | Pretty print
 my $human = true; # Boolean | Human readable print
 my $include = [*]; # array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
 my $exclude = [city,state]; # array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
-my $size = size_example; # String | The maximum number of entries or sub-entries to be returned. The default value is 10
-my $from = from_example; # String | From index to start the search from. Defaults to 0.
+my $size = 56; # Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+my $from = 56; # Integer | From index to start the search from. Defaults to 0.
 my $sort = [-country,city]; # array[String] | - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -10154,8 +10184,8 @@ f =  # array[String] | - A triplet for filtering the result. Multiple filter can
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
 q = q_example # String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional)
-before = before_example # String | Any element having its point in time reference before the given timestamp (optional)
-after = after_example # String | Any element having its point in time reference after the given timestamp (optional)
+before = 56 # Integer | Any element having its point in time reference before the given timestamp (optional)
+after = 56 # Integer | Any element having its point in time reference after the given timestamp (optional)
 pwithin =  # array[String] | Any element having its centroid contained within the given geometry (WKT) (optional)
 gwithin =  # array[String] | Any element having its geometry contained within the given geometry (WKT) (optional)
 gintersect =  # array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional)
@@ -10166,8 +10196,8 @@ pretty = true # Boolean | Pretty print (optional) (default to false)
 human = true # Boolean | Human readable print (optional) (default to false)
 include = * # array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional)
 exclude = city,state # array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional)
-size = size_example # String | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
-from = from_example # String | From index to start the search from. Defaults to 0. (optional) (default to 0)
+size = 56 # Integer | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
+from = 56 # Integer | From index to start the search from. Defaults to 0. (optional) (default to 0)
 sort = -country,city # array[String] | - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -10319,7 +10349,7 @@ except ApiException as e:
   "in" : "query",
   "description" : "Any element having its point in time reference before the given timestamp",
   "required" : false,
-  "type" : "string"
+  "type" : "integer"
 };
 													var schema = schemaWrapper;
 
@@ -10352,7 +10382,7 @@ except ApiException as e:
   "in" : "query",
   "description" : "Any element having its point in time reference after the given timestamp",
   "required" : false,
-  "type" : "string"
+  "type" : "integer"
 };
 													var schema = schemaWrapper;
 
@@ -10755,8 +10785,8 @@ except ApiException as e:
   "in" : "query",
   "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
   "required" : false,
-  "type" : "string",
-  "default" : "10",
+  "type" : "integer",
+  "default" : 10,
   "minimum" : 1
 };
 													var schema = schemaWrapper;
@@ -10790,8 +10820,8 @@ except ApiException as e:
   "in" : "query",
   "description" : "From index to start the search from. Defaults to 0.",
   "required" : false,
-  "type" : "string",
-  "default" : "0",
+  "type" : "integer",
+  "default" : 0,
   "minimum" : 0
 };
 													var schema = schemaWrapper;
@@ -11464,6 +11494,613 @@ except ApiException as e:
                         </article>
                       </div>
                       <hr>
+                    <div id="api-Explore-getArlasHit">
+                      <article id="api-Explore-getArlasHit-0" data-group="User" data-name="getArlasHit" data-version="0">
+                        <div class="pull-left">
+                          <h1>getArlasHit</h1>
+                          <p>Get an Arlas document</p>
+                        </div>
+                        <div class="pull-right"></div>
+                        <div class="clearfix"></div>
+                        <p></p>
+                        <p class="marked">Returns a raw indexed document.</p>
+                        <p></p>
+                        <br />
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/explore/{collection}/{identifier}</span></code></pre>
+                        <p>
+                          <h3>Usage and SDK Samples</h3>
+                        </p>
+                        <ul class="nav nav-tabs nav-tabs-examples">
+                          <li class="active"><a href="#examples-Explore-getArlasHit-0-curl">Curl</a></li>
+                          <li class=""><a href="#examples-Explore-getArlasHit-0-java">Java</a></li>
+                          <li class=""><a href="#examples-Explore-getArlasHit-0-android">Android</a></li>
+                          <!--<li class=""><a href="#examples-Explore-getArlasHit-0-groovy">Groovy</a></li>-->
+                          <li class=""><a href="#examples-Explore-getArlasHit-0-objc">Obj-C</a></li>
+                          <li class=""><a href="#examples-Explore-getArlasHit-0-javascript">JavaScript</a></li>
+                          <!--<li class=""><a href="#examples-Explore-getArlasHit-0-angular">Angular</a></li>-->
+                          <li class=""><a href="#examples-Explore-getArlasHit-0-csharp">C#</a></li>
+                          <li class=""><a href="#examples-Explore-getArlasHit-0-php">PHP</a></li>
+                          <li class=""><a href="#examples-Explore-getArlasHit-0-perl">Perl</a></li>
+                          <li class=""><a href="#examples-Explore-getArlasHit-0-python">Python</a></li>
+                        </ul>
+
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="examples-Explore-getArlasHit-0-curl">
+                            <pre class="prettyprint"><code class="language-bsh">curl -X <span style="text-transform: uppercase;">get</span> "http://localhost/arlas/explore/{collection}/{identifier}?pretty=&human=&maxAgeCache="</code></pre>
+                          </div>
+                          <div class="tab-pane" id="examples-Explore-getArlasHit-0-java">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
+import io.swagger.client.auth.*;
+import io.swagger.client.model.*;
+import io.swagger.client.api.ExploreApi;
+
+import java.io.File;
+import java.util.*;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        String identifier = identifier_example; // String | identifier
+        Boolean pretty = true; // Boolean | Pretty print
+        Boolean human = true; // Boolean | Human readable print
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            ArlasHit result = apiInstance.getArlasHit(collection, identifier, pretty, human, maxAgeCache);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#getArlasHit");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+
+                          <div class="tab-pane" id="examples-Explore-getArlasHit-0-android">
+                            <pre class="prettyprint"><code class="language-java">import io.swagger.client.api.ExploreApi;
+
+public class ExploreApiExample {
+
+    public static void main(String[] args) {
+        ExploreApi apiInstance = new ExploreApi();
+        String collection = collection_example; // String | collection
+        String identifier = identifier_example; // String | identifier
+        Boolean pretty = true; // Boolean | Pretty print
+        Boolean human = true; // Boolean | Human readable print
+        Integer maxAgeCache = 56; // Integer | max-age-cache
+        try {
+            ArlasHit result = apiInstance.getArlasHit(collection, identifier, pretty, human, maxAgeCache);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExploreApi#getArlasHit");
+            e.printStackTrace();
+        }
+    }
+}</code></pre>
+                          </div>
+  <!--
+  <div class="tab-pane" id="examples-Explore-getArlasHit-0-groovy">
+  <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+  </div> -->
+                            <div class="tab-pane" id="examples-Explore-getArlasHit-0-objc">
+                              <pre class="prettyprint"><code class="language-cpp">String *collection = collection_example; // collection
+String *identifier = identifier_example; // identifier
+Boolean *pretty = true; // Pretty print (optional) (default to false)
+Boolean *human = true; // Human readable print (optional) (default to false)
+Integer *maxAgeCache = 56; // max-age-cache (optional)
+
+ExploreApi *apiInstance = [[ExploreApi alloc] init];
+
+// Get an Arlas document
+[apiInstance getArlasHitWith:collection
+    identifier:identifier
+    pretty:pretty
+    human:human
+    maxAgeCache:maxAgeCache
+              completionHandler: ^(ArlasHit output, NSError* error) {
+                            if (output) {
+                                NSLog(@"%@", output);
+                            }
+                            if (error) {
+                                NSLog(@"Error: %@", error);
+                            }
+                        }];
+</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-getArlasHit-0-javascript">
+                              <pre class="prettyprint"><code class="language-js">var ArlasExplorationApi = require('arlas_exploration_api');
+
+var api = new ArlasExplorationApi.ExploreApi()
+
+var collection = collection_example; // {String} collection
+
+var identifier = identifier_example; // {String} identifier
+
+var opts = { 
+  'pretty': true, // {Boolean} Pretty print
+  'human': true, // {Boolean} Human readable print
+  'maxAgeCache': 56 // {Integer} max-age-cache
+};
+
+var callback = function(error, data, response) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log('API called successfully. Returned data: ' + data);
+  }
+};
+api.getArlasHit(collection, identifier, opts, callback);
+</code></pre>
+                            </div>
+
+                            <!--<div class="tab-pane" id="examples-Explore-getArlasHit-0-angular">
+              <pre class="prettyprint language-json prettyprinted" data-type="json"><code>Coming Soon!</code></pre>
+            </div>-->
+                            <div class="tab-pane" id="examples-Explore-getArlasHit-0-csharp">
+                              <pre class="prettyprint"><code class="language-cs">using System;
+using System.Diagnostics;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
+using IO.Swagger.Model;
+
+namespace Example
+{
+    public class getArlasHitExample
+    {
+        public void main()
+        {
+            
+            var apiInstance = new ExploreApi();
+            var collection = collection_example;  // String | collection
+            var identifier = identifier_example;  // String | identifier
+            var pretty = true;  // Boolean | Pretty print (optional)  (default to false)
+            var human = true;  // Boolean | Human readable print (optional)  (default to false)
+            var maxAgeCache = 56;  // Integer | max-age-cache (optional) 
+
+            try
+            {
+                // Get an Arlas document
+                ArlasHit result = apiInstance.getArlasHit(collection, identifier, pretty, human, maxAgeCache);
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling ExploreApi.getArlasHit: " + e.Message );
+            }
+        }
+    }
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-getArlasHit-0-php">
+                              <pre class="prettyprint"><code class="language-php"><&#63;php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+$api_instance = new Swagger\Client\Api\ExploreApi();
+$collection = collection_example; // String | collection
+$identifier = identifier_example; // String | identifier
+$pretty = true; // Boolean | Pretty print
+$human = true; // Boolean | Human readable print
+$maxAgeCache = 56; // Integer | max-age-cache
+
+try {
+    $result = $api_instance->getArlasHit($collection, $identifier, $pretty, $human, $maxAgeCache);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling ExploreApi->getArlasHit: ', $e->getMessage(), PHP_EOL;
+}
+?></code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-getArlasHit-0-perl">
+                              <pre class="prettyprint"><code class="language-perl">use Data::Dumper;
+use WWW::SwaggerClient::Configuration;
+use WWW::SwaggerClient::ExploreApi;
+
+my $api_instance = WWW::SwaggerClient::ExploreApi->new();
+my $collection = collection_example; # String | collection
+my $identifier = identifier_example; # String | identifier
+my $pretty = true; # Boolean | Pretty print
+my $human = true; # Boolean | Human readable print
+my $maxAgeCache = 56; # Integer | max-age-cache
+
+eval { 
+    my $result = $api_instance->getArlasHit(collection => $collection, identifier => $identifier, pretty => $pretty, human => $human, maxAgeCache => $maxAgeCache);
+    print Dumper($result);
+};
+if ($@) {
+    warn "Exception when calling ExploreApi->getArlasHit: $@\n";
+}</code></pre>
+                            </div>
+
+                            <div class="tab-pane" id="examples-Explore-getArlasHit-0-python">
+                              <pre class="prettyprint"><code class="language-python">from __future__ import print_statement
+import time
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
+
+# create an instance of the API class
+api_instance = swagger_client.ExploreApi()
+collection = collection_example # String | collection
+identifier = identifier_example # String | identifier
+pretty = true # Boolean | Pretty print (optional) (default to false)
+human = true # Boolean | Human readable print (optional) (default to false)
+maxAgeCache = 56 # Integer | max-age-cache (optional)
+
+try: 
+    # Get an Arlas document
+    api_response = api_instance.getArlasHit(collection, identifier, pretty=pretty, human=human, maxAgeCache=maxAgeCache)
+    pprint(api_response)
+except ApiException as e:
+    print("Exception when calling ExploreApi->getArlasHit: %s\n" % e)</code></pre>
+                            </div>
+                          </div>
+
+                          <h2>Parameters</h2>
+
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">collection*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "collection",
+  "in" : "path",
+  "description" : "collection",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_getArlasHit_collection');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_getArlasHit_collection"></div>
+</td>
+</tr>
+
+                                  <tr><td style="width:150px;">identifier*</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "identifier",
+  "in" : "path",
+  "description" : "identifier",
+  "required" : true,
+  "type" : "string"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_getArlasHit_identifier');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_getArlasHit_identifier"></div>
+</td>
+</tr>
+
+                            </table>
+
+
+
+
+                            <div class="methodsubtabletitle">Query parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">pretty</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "pretty",
+  "in" : "query",
+  "description" : "Pretty print",
+  "required" : false,
+  "type" : "boolean",
+  "default" : false
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_getArlasHit_pretty');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_getArlasHit_pretty"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">human</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "human",
+  "in" : "query",
+  "description" : "Human readable print",
+  "required" : false,
+  "type" : "boolean",
+  "default" : false
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_getArlasHit_human');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_getArlasHit_human"></div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">max-age-cache</td>
+<td>
+
+
+<script>
+												$(document).ready(function() {
+													var schemaWrapper = {
+  "name" : "max-age-cache",
+  "in" : "query",
+  "description" : "max-age-cache",
+  "required" : false,
+  "type" : "integer",
+  "format" : "int32"
+};
+													var schema = schemaWrapper;
+
+
+
+
+													var view = new JSONSchemaView(schema,1);
+													var result = $('#d2e199_getArlasHit_maxAgeCache');
+													result.empty();
+													result.append(view.render());
+
+
+
+
+
+												});
+												</script>
+												<div id="d2e199_getArlasHit_maxAgeCache"></div>
+</td>
+</tr>
+
+                            </table>
+
+                          <h2>Responses</h2>
+                            <h3> Status: 200 - Successful operation </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-getArlasHit-200-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-getArlasHit-200-schema">
+                                  <div id='responses-getArlasHit-200-schema-200' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Successful operation",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasHit"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-getArlasHit-200-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-getArlasHit-200-schema-200');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-getArlasHit-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 400 - Bad request. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-getArlasHit-400-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-getArlasHit-400-schema">
+                                  <div id='responses-getArlasHit-400-schema-400' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Bad request.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-getArlasHit-400-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-getArlasHit-400-schema-400');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-getArlasHit-400-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 404 - Not Found Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-getArlasHit-404-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-getArlasHit-404-schema">
+                                  <div id='responses-getArlasHit-404-schema-404' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Not Found Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-getArlasHit-404-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-getArlasHit-404-schema-404');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-getArlasHit-404-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                            <h3> Status: 500 - Arlas Server Error. </h3>
+
+                            <ul class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-getArlasHit-500-schema">Schema</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-getArlasHit-500-schema">
+                                  <div id='responses-getArlasHit-500-schema-500' style="padding: 30px; border-left: 1px solid #eee; border-right: 1px solid #eee; border-bottom: 1px solid #eee;">
+                                                               <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = {
+  "description" : "Arlas Server Error.",
+  "schema" : {
+    "$ref" : "#/definitions/ArlasError"
+  }
+};
+                                        var schema = schemaWrapper.schema;
+                                        schemaWrapper.definitions = defs;
+                                        //console.log(JSON.stringify(schema))
+                                        JsonRefs.resolveRefs(schemaWrapper, {
+                                            "depth": 3,
+                                            "resolveRemoteRefs": false,
+                                            "resolveFileRefs": false
+                                        }, function(err, resolved, metadata) {
+                                          //console.log(JSON.stringify(resolved));
+                                          var view = new JSONSchemaView(resolved.schema, 3);
+                                          $('#responses-getArlasHit-500-schema-data').val(JSON.stringify(resolved.schema));
+                                          var result = $('#responses-getArlasHit-500-schema-500');
+                                          result.empty();
+                                          result.append(view.render());
+                                        });
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-getArlasHit-500-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+
+                        </article>
+                      </div>
+                      <hr>
                     <div id="api-Explore-list">
                       <article id="api-Explore-list-0" data-group="User" data-name="list" data-version="0">
                         <div class="pull-left">
@@ -11935,8 +12572,8 @@ public class ExploreApiExample {
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
         String q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-        String before = before_example; // String | Any element having its point in time reference before the given timestamp
-        String after = after_example; // String | Any element having its point in time reference after the given timestamp
+        Integer before = 56; // Integer | Any element having its point in time reference before the given timestamp
+        Integer after = 56; // Integer | Any element having its point in time reference after the given timestamp
         array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
         array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
         array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -11947,8 +12584,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
         Boolean human = true; // Boolean | Human readable print
         array[String] include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
         array[String] exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
-        String size = size_example; // String | The maximum number of entries or sub-entries to be returned. The default value is 10
-        String from = from_example; // String | From index to start the search from. Defaults to 0.
+        Integer size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+        Integer from = 56; // Integer | From index to start the search from. Defaults to 0.
         String sort = -country,city; // String | - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -12012,8 +12649,8 @@ public class ExploreApiExample {
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
         String q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-        String before = before_example; // String | Any element having its point in time reference before the given timestamp
-        String after = after_example; // String | Any element having its point in time reference after the given timestamp
+        Integer before = 56; // Integer | Any element having its point in time reference before the given timestamp
+        Integer after = 56; // Integer | Any element having its point in time reference after the given timestamp
         array[String] pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
         array[String] gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
         array[String] gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -12024,8 +12661,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
         Boolean human = true; // Boolean | Human readable print
         array[String] include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
         array[String] exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
-        String size = size_example; // String | The maximum number of entries or sub-entries to be returned. The default value is 10
-        String from = from_example; // String | From index to start the search from. Defaults to 0.
+        Integer size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+        Integer from = 56; // Integer | From index to start the search from. Defaults to 0.
         String sort = -country,city; // String | - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -12086,8 +12723,8 @@ array[String] *f = ; // - A triplet for filtering the result. Multiple filter ca
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
 String *q = q_example; // A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional)
-String *before = before_example; // Any element having its point in time reference before the given timestamp (optional)
-String *after = after_example; // Any element having its point in time reference after the given timestamp (optional)
+Integer *before = 56; // Any element having its point in time reference before the given timestamp (optional)
+Integer *after = 56; // Any element having its point in time reference after the given timestamp (optional)
 array[String] *pwithin = ; // Any element having its centroid contained within the given geometry (WKT) (optional)
 array[String] *gwithin = ; // Any element having its geometry contained within the given geometry (WKT) (optional)
 array[String] *gintersect = ; // Any element having its geometry intersecting the given geometry (WKT) (optional)
@@ -12098,8 +12735,8 @@ Boolean *pretty = true; // Pretty print (optional) (default to false)
 Boolean *human = true; // Human readable print (optional) (default to false)
 array[String] *include = *; // List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional)
 array[String] *exclude = city,state; // List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional)
-String *size = size_example; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
-String *from = from_example; // From index to start the search from. Defaults to 0. (optional) (default to 0)
+Integer *size = 56; // The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
+Integer *from = 56; // From index to start the search from. Defaults to 0. (optional) (default to 0)
 String *sort = -country,city; // - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -12186,8 +12823,8 @@ var opts = {
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
   'q': q_example, // {String} A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-  'before': before_example, // {String} Any element having its point in time reference before the given timestamp
-  'after': after_example, // {String} Any element having its point in time reference after the given timestamp
+  'before': 56, // {Integer} Any element having its point in time reference before the given timestamp
+  'after': 56, // {Integer} Any element having its point in time reference after the given timestamp
   'pwithin': , // {array[String]} Any element having its centroid contained within the given geometry (WKT)
   'gwithin': , // {array[String]} Any element having its geometry contained within the given geometry (WKT)
   'gintersect': , // {array[String]} Any element having its geometry intersecting the given geometry (WKT)
@@ -12198,8 +12835,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
   'human': true, // {Boolean} Human readable print
   'include': *, // {array[String]} List the name patterns of the field to be included in the result. Seperate patterns with a comma.
   'exclude': city,state, // {array[String]} List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
-  'size': size_example, // {String} The maximum number of entries or sub-entries to be returned. The default value is 10
-  'from': from_example, // {String} From index to start the search from. Defaults to 0.
+  'size': 56, // {Integer} The maximum number of entries or sub-entries to be returned. The default value is 10
+  'from': 56, // {Integer} From index to start the search from. Defaults to 0.
   'sort': -country,city, // {String} - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -12276,8 +12913,8 @@ namespace Example
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional) 
             var q = q_example;  // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional) 
-            var before = before_example;  // String | Any element having its point in time reference before the given timestamp (optional) 
-            var after = after_example;  // String | Any element having its point in time reference after the given timestamp (optional) 
+            var before = 56;  // Integer | Any element having its point in time reference before the given timestamp (optional) 
+            var after = 56;  // Integer | Any element having its point in time reference after the given timestamp (optional) 
             var pwithin = new array[String](); // array[String] | Any element having its centroid contained within the given geometry (WKT) (optional) 
             var gwithin = new array[String](); // array[String] | Any element having its geometry contained within the given geometry (WKT) (optional) 
             var gintersect = new array[String](); // array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional) 
@@ -12288,8 +12925,8 @@ For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master
             var human = true;  // Boolean | Human readable print (optional)  (default to false)
             var include = new array[String](); // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional) 
             var exclude = new array[String](); // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional) 
-            var size = size_example;  // String | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)  (default to 10)
-            var from = from_example;  // String | From index to start the search from. Defaults to 0. (optional)  (default to 0)
+            var size = 56;  // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional)  (default to 10)
+            var from = 56;  // Integer | From index to start the search from. Defaults to 0. (optional)  (default to 0)
             var sort = -country,city;  // String | - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -12356,8 +12993,8 @@ $f = ; // array[String] | - A triplet for filtering the result. Multiple filter 
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
 $q = q_example; // String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-$before = before_example; // String | Any element having its point in time reference before the given timestamp
-$after = after_example; // String | Any element having its point in time reference after the given timestamp
+$before = 56; // Integer | Any element having its point in time reference before the given timestamp
+$after = 56; // Integer | Any element having its point in time reference after the given timestamp
 $pwithin = ; // array[String] | Any element having its centroid contained within the given geometry (WKT)
 $gwithin = ; // array[String] | Any element having its geometry contained within the given geometry (WKT)
 $gintersect = ; // array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -12368,8 +13005,8 @@ $pretty = true; // Boolean | Pretty print
 $human = true; // Boolean | Human readable print
 $include = *; // array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
 $exclude = city,state; // array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
-$size = size_example; // String | The maximum number of entries or sub-entries to be returned. The default value is 10
-$from = from_example; // String | From index to start the search from. Defaults to 0.
+$size = 56; // Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+$from = 56; // Integer | From index to start the search from. Defaults to 0.
 $sort = -country,city; // String | - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -12431,8 +13068,8 @@ my $f = []; # array[String] | - A triplet for filtering the result. Multiple fil
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md 
 my $q = q_example; # String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}
-my $before = before_example; # String | Any element having its point in time reference before the given timestamp
-my $after = after_example; # String | Any element having its point in time reference after the given timestamp
+my $before = 56; # Integer | Any element having its point in time reference before the given timestamp
+my $after = 56; # Integer | Any element having its point in time reference after the given timestamp
 my $pwithin = []; # array[String] | Any element having its centroid contained within the given geometry (WKT)
 my $gwithin = []; # array[String] | Any element having its geometry contained within the given geometry (WKT)
 my $gintersect = []; # array[String] | Any element having its geometry intersecting the given geometry (WKT)
@@ -12443,8 +13080,8 @@ my $pretty = true; # Boolean | Pretty print
 my $human = true; # Boolean | Human readable print
 my $include = [*]; # array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma.
 my $exclude = [city,state]; # array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.
-my $size = size_example; # String | The maximum number of entries or sub-entries to be returned. The default value is 10
-my $from = from_example; # String | From index to start the search from. Defaults to 0.
+my $size = 56; # Integer | The maximum number of entries or sub-entries to be returned. The default value is 10
+my $from = 56; # Integer | From index to start the search from. Defaults to 0.
 my $sort = -country,city; # String | - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -12509,8 +13146,8 @@ f =  # array[String] | - A triplet for filtering the result. Multiple filter can
  
 For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md  (optional)
 q = q_example # String | A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text} (optional)
-before = before_example # String | Any element having its point in time reference before the given timestamp (optional)
-after = after_example # String | Any element having its point in time reference after the given timestamp (optional)
+before = 56 # Integer | Any element having its point in time reference before the given timestamp (optional)
+after = 56 # Integer | Any element having its point in time reference after the given timestamp (optional)
 pwithin =  # array[String] | Any element having its centroid contained within the given geometry (WKT) (optional)
 gwithin =  # array[String] | Any element having its geometry contained within the given geometry (WKT) (optional)
 gintersect =  # array[String] | Any element having its geometry intersecting the given geometry (WKT) (optional)
@@ -12521,8 +13158,8 @@ pretty = true # Boolean | Pretty print (optional) (default to false)
 human = true # Boolean | Human readable print (optional) (default to false)
 include = * # array[String] | List the name patterns of the field to be included in the result. Seperate patterns with a comma. (optional)
 exclude = city,state # array[String] | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. (optional)
-size = size_example # String | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
-from = from_example # String | From index to start the search from. Defaults to 0. (optional) (default to 0)
+size = 56 # Integer | The maximum number of entries or sub-entries to be returned. The default value is 10 (optional) (default to 10)
+from = 56 # Integer | From index to start the search from. Defaults to 0. (optional) (default to 0)
 sort = -country,city # String | - Sort the result on the given fields ascending or descending. 
  
 - Fields can be provided several times by separating them with a comma. The order matters. 
@@ -12674,7 +13311,7 @@ except ApiException as e:
   "in" : "query",
   "description" : "Any element having its point in time reference before the given timestamp",
   "required" : false,
-  "type" : "string"
+  "type" : "integer"
 };
 													var schema = schemaWrapper;
 
@@ -12707,7 +13344,7 @@ except ApiException as e:
   "in" : "query",
   "description" : "Any element having its point in time reference after the given timestamp",
   "required" : false,
-  "type" : "string"
+  "type" : "integer"
 };
 													var schema = schemaWrapper;
 
@@ -13110,8 +13747,8 @@ except ApiException as e:
   "in" : "query",
   "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
   "required" : false,
-  "type" : "string",
-  "default" : "10",
+  "type" : "integer",
+  "default" : 10,
   "minimum" : 1
 };
 													var schema = schemaWrapper;
@@ -13145,8 +13782,8 @@ except ApiException as e:
   "in" : "query",
   "description" : "From index to start the search from. Defaults to 0.",
   "required" : false,
-  "type" : "string",
-  "default" : "0",
+  "type" : "integer",
+  "default" : 0,
   "minimum" : 0
 };
 													var schema = schemaWrapper;
@@ -15031,7 +15668,7 @@ except ApiException as e:
           </div>
           <div id="generator">
             <div class="content">
-              Generated 2017-05-15T19:26:09.435+02:00
+              Generated 2017-07-19T17:54:31.548+02:00
             </div>
           </div>
       </div>

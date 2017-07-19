@@ -22,34 +22,6 @@
   } ],
   "schemes" : [ "http" ],
   "paths" : {
-    "/collections" : {
-      "get" : {
-        "tags" : [ "collections" ],
-        "summary" : "Get all collection references",
-        "description" : "Get all collection references in ARLAS",
-        "operationId" : "getAll",
-        "consumes" : [ "application/json;charset=utf-8" ],
-        "produces" : [ "application/json;charset=utf-8" ],
-        "parameters" : [ ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful operation",
-            "schema" : {
-              "type" : "array",
-              "items" : {
-                "$ref" : "#/definitions/CollectionReference"
-              }
-            }
-          },
-          "500" : {
-            "description" : "Arlas Server Error.",
-            "schema" : {
-              "$ref" : "#/definitions/ArlasError"
-            }
-          }
-        }
-      }
-    },
     "/collections/{collection}" : {
       "get" : {
         "tags" : [ "collections" ],
@@ -160,6 +132,34 @@
             "description" : "Collection not found.",
             "schema" : {
               "$ref" : "#/definitions/ArlasError"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/ArlasError"
+            }
+          }
+        }
+      }
+    },
+    "/collections" : {
+      "get" : {
+        "tags" : [ "collections" ],
+        "summary" : "Get all collection references",
+        "description" : "Get all collection references in ARLAS",
+        "operationId" : "getAll",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/CollectionReference"
+              }
             }
           },
           "500" : {
@@ -1627,6 +1627,13 @@
           "type" : "string",
           "example" : "fieldname",
           "description" : "List the name patterns of the fields to be excluded in the result. Seperate patterns with a comma."
+        },
+        "custom_params" : {
+          "type" : "object",
+          "description" : "Calculated params.",
+          "additionalProperties" : {
+            "type" : "string"
+          }
         }
       },
       "description" : "The description of the elasticsearch index and the way ARLAS API will serve it."
@@ -2154,6 +2161,10 @@
           "type" : "string",
           "description" : "The collection field type",
           "enum" : [ "TEXT", "KEYWORD", "LONG", "INTEGER", "SHORT", "BYTE", "DOUBLE", "FLOAT", "DATE", "BOOLEAN", "BINARY", "INT_RANGE", "FLOAT_RANGE", "LONG_RANGE", "DOUBLE_RANGE", "DATE_RANGE", "OBJECT", "NESTED", "GEO_POINT", "GEO_SHAPE", "IP", "COMPLETION", "TOKEN_COUNT", "MAPPER_MURMUR3", "UNKNOWN" ]
+        },
+        "format" : {
+          "type" : "string",
+          "description" : "The collection field format"
         }
       }
     },

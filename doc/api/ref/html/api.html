@@ -457,6 +457,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_geosearch">2.2.11. GeoSearch</a></li>
 <li><a href="#_searchpost">2.2.12. Search</a></li>
 <li><a href="#_search">2.2.13. Search</a></li>
+<li><a href="#_getarlashit">2.2.14. Get an Arlas document</a></li>
 </ul>
 </li>
 </ul>
@@ -475,25 +476,26 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_arlassuccess">3.10. ArlasSuccess</a></li>
 <li><a href="#_collectionreference">3.11. CollectionReference</a></li>
 <li><a href="#_collectionreferencedescription">3.12. CollectionReferenceDescription</a></li>
-<li><a href="#_collectionreferenceparameters">3.13. CollectionReferenceParameters</a></li>
-<li><a href="#_count">3.14. Count</a></li>
-<li><a href="#_crs">3.15. Crs</a></li>
-<li><a href="#_feature">3.16. Feature</a></li>
-<li><a href="#_featurecollection">3.17. FeatureCollection</a></li>
-<li><a href="#_filter">3.18. Filter</a></li>
-<li><a href="#_form">3.19. Form</a></li>
-<li><a href="#_geojsonobject">3.20. GeoJsonObject</a></li>
-<li><a href="#_geometrycollection">3.21. GeometryCollection</a></li>
-<li><a href="#_linestring">3.22. LineString</a></li>
-<li><a href="#_lnglatalt">3.23. LngLatAlt</a></li>
-<li><a href="#_multilinestring">3.24. MultiLineString</a></li>
-<li><a href="#_multipoint">3.25. MultiPoint</a></li>
-<li><a href="#_multipolygon">3.26. MultiPolygon</a></li>
-<li><a href="#_point">3.27. Point</a></li>
-<li><a href="#_polygon">3.28. Polygon</a></li>
-<li><a href="#_search">3.29. Search</a></li>
-<li><a href="#_size">3.30. Size</a></li>
-<li><a href="#_sort">3.31. Sort</a></li>
+<li><a href="#_collectionreferencedescriptionproperty">3.13. CollectionReferenceDescriptionProperty</a></li>
+<li><a href="#_collectionreferenceparameters">3.14. CollectionReferenceParameters</a></li>
+<li><a href="#_count">3.15. Count</a></li>
+<li><a href="#_crs">3.16. Crs</a></li>
+<li><a href="#_feature">3.17. Feature</a></li>
+<li><a href="#_featurecollection">3.18. FeatureCollection</a></li>
+<li><a href="#_filter">3.19. Filter</a></li>
+<li><a href="#_form">3.20. Form</a></li>
+<li><a href="#_geojsonobject">3.21. GeoJsonObject</a></li>
+<li><a href="#_geometrycollection">3.22. GeometryCollection</a></li>
+<li><a href="#_linestring">3.23. LineString</a></li>
+<li><a href="#_lnglatalt">3.24. LngLatAlt</a></li>
+<li><a href="#_multilinestring">3.25. MultiLineString</a></li>
+<li><a href="#_multipoint">3.26. MultiPoint</a></li>
+<li><a href="#_multipolygon">3.27. MultiPolygon</a></li>
+<li><a href="#_point">3.28. Point</a></li>
+<li><a href="#_polygon">3.29. Polygon</a></li>
+<li><a href="#_search">3.30. Search</a></li>
+<li><a href="#_size">3.31. Size</a></li>
+<li><a href="#_sort">3.32. Sort</a></li>
 </ul>
 </li>
 </ul>
@@ -1410,7 +1412,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -1476,7 +1478,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -1808,7 +1810,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -1816,7 +1818,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -2276,7 +2278,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -2342,7 +2344,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -2679,7 +2681,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -2687,7 +2689,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -2745,7 +2747,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>from</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">From index to start the search from. Defaults to 0.</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"0"</code></p></td>
 </tr>
 <tr>
@@ -2841,7 +2843,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>size</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">The maximum number of entries or sub-entries to be returned. The default value is 10</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"10"</code></p></td>
 </tr>
 <tr>
@@ -3063,7 +3065,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>after</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference after the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -3071,7 +3073,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>before</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Any element having its point in time reference before the given timestamp</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"></td>
 </tr>
 <tr>
@@ -3129,7 +3131,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>from</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">From index to start the search from. Defaults to 0.</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"0"</code></p></td>
 </tr>
 <tr>
@@ -3225,7 +3227,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>size</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">The maximum number of entries or sub-entries to be returned. The default value is 10</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"10"</code></p></td>
 </tr>
 <tr>
@@ -3289,6 +3291,142 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </div>
 <div class="sect4">
 <h5 id="_produces_17"><a class="anchor" href="#_produces_17"></a>Produces</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_getarlashit"><a class="anchor" href="#_getarlashit"></a>2.2.14. Get an Arlas document</h4>
+<div class="literalblock">
+<div class="content">
+<pre>GET /explore/{collection}/{identifier}</pre>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_description_18"><a class="anchor" href="#_description_18"></a>Description</h5>
+<div class="paragraph">
+<p>Returns a raw indexed document.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_parameters_17"><a class="anchor" href="#_parameters_17"></a>Parameters</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 15%;">
+<col style="width: 45%;">
+<col style="width: 20%;">
+<col style="width: 10%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Type</th>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+<th class="tableblock halign-left valign-middle">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>collection</strong><br>
+<em>required</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">collection</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Path</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>identifier</strong><br>
+<em>required</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">identifier</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>human</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Human readable print</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>max-age-cache</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">max-age-cache</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int32)</p></td>
+<td class="tableblock halign-left valign-middle"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>Query</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>pretty</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Pretty print</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">boolean</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><code>"false"</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_responses_18"><a class="anchor" href="#_responses_18"></a>Responses</h5>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 70%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">HTTP Code</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>200</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Successful operation</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlashit">ArlasHit</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>400</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Bad request.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>404</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Not Found Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>500</strong></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Arlas Server Error.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlaserror">ArlasError</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect4">
+<h5 id="_consumes_18"><a class="anchor" href="#_consumes_18"></a>Consumes</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>application/json;charset=utf-8</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_produces_18"><a class="anchor" href="#_produces_18"></a>Produces</h5>
 <div class="ulist">
 <ul>
 <li>
@@ -3440,7 +3578,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>arlastime</strong><br>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>arlas_time</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">All the aggregation execution time. It includes query time.</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
@@ -3470,7 +3608,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock">object</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>metric aggregation</strong><br>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>metric</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Metric aggregation</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><a href="#_arlasmetric">ArlasMetric</a></p></td>
@@ -3482,7 +3620,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>querytime</strong><br>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>query_time</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Query execution time</p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">integer(int64)</p></td>
@@ -3784,13 +3922,50 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>properties</strong><br>
 <em>optional</em></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">The collection fields</p></td>
-<td class="tableblock halign-left valign-middle"><p class="tableblock">object</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; <a href="#_collectionreferencedescriptionproperty">CollectionReferenceDescriptionProperty</a> &gt; array</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sect2">
-<h3 id="_collectionreferenceparameters"><a class="anchor" href="#_collectionreferenceparameters"></a>3.13. CollectionReferenceParameters</h3>
+<h3 id="_collectionreferencedescriptionproperty"><a class="anchor" href="#_collectionreferencedescriptionproperty"></a>3.13. CollectionReferenceDescriptionProperty</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 61.1111%;">
+<col style="width: 22.2223%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-middle">Name</th>
+<th class="tableblock halign-left valign-middle">Description</th>
+<th class="tableblock halign-left valign-middle">Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>format</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">The collection field format</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>name</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">The collection field name</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>type</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">The collection field type</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">enum (TEXT, KEYWORD, LONG, INTEGER, SHORT, BYTE, DOUBLE, FLOAT, DATE, BOOLEAN, BINARY, INT_RANGE, FLOAT_RANGE, LONG_RANGE, DOUBLE_RANGE, DATE_RANGE, OBJECT, NESTED, GEO_POINT, GEO_SHAPE, IP, COMPLETION, TOKEN_COUNT, MAPPER_MURMUR3, UNKNOWN)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_collectionreferenceparameters"><a class="anchor" href="#_collectionreferenceparameters"></a>3.14. CollectionReferenceParameters</h3>
 <div class="paragraph">
 <p>The description of the elasticsearch index and the way ARLAS API will serve it.</p>
 </div>
@@ -3814,6 +3989,12 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 <td class="tableblock halign-left valign-middle"><p class="tableblock">Path to the collection&#8217;s centroid<br>
 <strong>Example</strong> : <code>"centroid"</code></p></td>
 <td class="tableblock halign-left valign-middle"><p class="tableblock">string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>custom_params</strong><br>
+<em>optional</em></p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">Calculated params.</p></td>
+<td class="tableblock halign-left valign-middle"><p class="tableblock">&lt; string, string &gt; map</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-middle"><p class="tableblock"><strong>exclude_fields</strong><br>
@@ -3866,7 +4047,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_count"><a class="anchor" href="#_count"></a>3.14. Count</h3>
+<h3 id="_count"><a class="anchor" href="#_count"></a>3.15. Count</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3893,7 +4074,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_crs"><a class="anchor" href="#_crs"></a>3.15. Crs</h3>
+<h3 id="_crs"><a class="anchor" href="#_crs"></a>3.16. Crs</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3920,7 +4101,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_feature"><a class="anchor" href="#_feature"></a>3.16. Feature</h3>
+<h3 id="_feature"><a class="anchor" href="#_feature"></a>3.17. Feature</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3962,7 +4143,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_featurecollection"><a class="anchor" href="#_featurecollection"></a>3.17. FeatureCollection</h3>
+<h3 id="_featurecollection"><a class="anchor" href="#_featurecollection"></a>3.18. FeatureCollection</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -3994,7 +4175,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_filter"><a class="anchor" href="#_filter"></a>3.18. Filter</h3>
+<h3 id="_filter"><a class="anchor" href="#_filter"></a>3.19. Filter</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -4061,7 +4242,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_form"><a class="anchor" href="#_form"></a>3.19. Form</h3>
+<h3 id="_form"><a class="anchor" href="#_form"></a>3.20. Form</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -4088,7 +4269,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_geojsonobject"><a class="anchor" href="#_geojsonobject"></a>3.20. GeoJsonObject</h3>
+<h3 id="_geojsonobject"><a class="anchor" href="#_geojsonobject"></a>3.21. GeoJsonObject</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -4115,7 +4296,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_geometrycollection"><a class="anchor" href="#_geometrycollection"></a>3.21. GeometryCollection</h3>
+<h3 id="_geometrycollection"><a class="anchor" href="#_geometrycollection"></a>3.22. GeometryCollection</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4151,7 +4332,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_linestring"><a class="anchor" href="#_linestring"></a>3.22. LineString</h3>
+<h3 id="_linestring"><a class="anchor" href="#_linestring"></a>3.23. LineString</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4187,7 +4368,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_lnglatalt"><a class="anchor" href="#_lnglatalt"></a>3.23. LngLatAlt</h3>
+<h3 id="_lnglatalt"><a class="anchor" href="#_lnglatalt"></a>3.24. LngLatAlt</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -4224,7 +4405,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_multilinestring"><a class="anchor" href="#_multilinestring"></a>3.24. MultiLineString</h3>
+<h3 id="_multilinestring"><a class="anchor" href="#_multilinestring"></a>3.25. MultiLineString</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4260,7 +4441,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_multipoint"><a class="anchor" href="#_multipoint"></a>3.25. MultiPoint</h3>
+<h3 id="_multipoint"><a class="anchor" href="#_multipoint"></a>3.26. MultiPoint</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4296,7 +4477,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_multipolygon"><a class="anchor" href="#_multipolygon"></a>3.26. MultiPolygon</h3>
+<h3 id="_multipolygon"><a class="anchor" href="#_multipolygon"></a>3.27. MultiPolygon</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4332,7 +4513,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_point"><a class="anchor" href="#_point"></a>3.27. Point</h3>
+<h3 id="_point"><a class="anchor" href="#_point"></a>3.28. Point</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4368,7 +4549,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_polygon"><a class="anchor" href="#_polygon"></a>3.28. Polygon</h3>
+<h3 id="_polygon"><a class="anchor" href="#_polygon"></a>3.29. Polygon</h3>
 <div class="paragraph">
 <p><em>Polymorphism</em> : Inheritance<br>
 <em>Discriminator</em> : type</p>
@@ -4404,7 +4585,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_search"><a class="anchor" href="#_search"></a>3.29. Search</h3>
+<h3 id="_search"><a class="anchor" href="#_search"></a>3.30. Search</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -4441,7 +4622,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_size"><a class="anchor" href="#_size"></a>3.30. Size</h3>
+<h3 id="_size"><a class="anchor" href="#_size"></a>3.31. Size</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -4468,7 +4649,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </table>
 </div>
 <div class="sect2">
-<h3 id="_sort"><a class="anchor" href="#_sort"></a>3.31. Sort</h3>
+<h3 id="_sort"><a class="anchor" href="#_sort"></a>3.32. Sort</h3>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
 <col style="width: 42.8571%;">
@@ -4494,7 +4675,7 @@ For more details, check <a href="https://gitlab.com/GISAIA.ARLAS/ARLAS-server/bl
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-05-15 11:56:11 CEST
+Last updated 2017-07-19 17:11:41 +02:00
 </div>
 </div>
 </body>
