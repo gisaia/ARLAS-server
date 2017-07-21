@@ -30,6 +30,9 @@ public class ArlasServerConfiguration extends Configuration {
     
     @JsonProperty("arlas-cache-timeout")
     public int arlascachetimeout;
+
+    @JsonProperty("arlas-cors-enabled")
+    public Boolean arlascorsenabled;
     
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;

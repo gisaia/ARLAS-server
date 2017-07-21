@@ -1,10 +1,12 @@
 package io.arlas.server.app;
 
 import java.net.InetAddress;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -40,6 +42,9 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
 
 public class ArlasServer extends Application<ArlasServerConfiguration> {
     public static void main(String... args) throws Exception {
@@ -101,6 +106,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new RawRESTService(exploration));
         environment.jersey().register(new ElasticCollectionService(client, configuration));
         
+        //tasks
         environment.admin().addTask(new CollectionAutoDiscover(client, configuration));
         int scheduleAutoDiscover = configuration.collectionAutoDiscoverConfiguration.schedule;
         if(scheduleAutoDiscover > 0) {
@@ -110,5 +116,26 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             Runnable autoDiscoverTask = new CollectionAutoDiscover(client, configuration);
             ses.scheduleWithFixedDelay(autoDiscoverTask, 10, scheduleAutoDiscover, TimeUnit.SECONDS);
         }
+
+        //cors
+        if(configuration.arlascorsenabled) {
+            configureCors(environment);
+        }
+    }
+
+    private void configureCors(Environment environment) {
+        CrossOriginFilter filter = new CrossOriginFilter();
+        final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CrossOriginFilter", filter);
+
+        // Configure CORS parameters
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,Accept,Origin,Authorization");
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "OPTIONS,GET,PUT,POST,DELETE,HEAD");
+        cors.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "true");
+        //cors.setInitParameter(CrossOriginFilter.PREFLIGHT_MAX_AGE_PARAM, "");
+        cors.setInitParameter(CrossOriginFilter.EXPOSED_HEADERS_PARAM, "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location");
+
+        // Add URL mapping
+        cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }
 }

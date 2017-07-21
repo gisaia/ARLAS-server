@@ -28,6 +28,7 @@ elastic-cluster: docker-cluster
 arlas-index:  ${ARLAS_ELASTIC-INDEX:-.arlas}
 arlas-cache-size: 1000
 arlas-cache-timeout: 60
+arlas-cors-enabled: true
 
 collection-auto-discover:
   preferred-id-field-name: id,identifier
