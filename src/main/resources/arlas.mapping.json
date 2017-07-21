@@ -1,0 +1,35 @@
+{
+  "_all": {
+    "enabled": true
+  },
+  "_source": {
+    "enabled": true
+  },
+  "dynamic": true,
+  "properties": {
+    "index_name": {
+      "type": "text"
+    },
+    "type_name": {
+      "type": "text"
+    },
+    "id_path": {
+      "type": "text"
+    },
+    "geometry_path": {
+      "type": "text"
+    },
+    "centroid_path": {
+      "type": "text"
+    },
+    "timestamp_path": {
+      "type": "text"
+    },
+    "include_fields": {
+      "type": "text"
+    },
+    "exclude_fields": {
+      "type": "text"
+    }
+  }
+}

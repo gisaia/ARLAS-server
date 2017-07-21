@@ -16,6 +16,10 @@ public class DummyCollectionReferenceDaoImpl implements CollectionReferenceDao {
     public static Map<String, CollectionReferenceParameters> index = new HashMap<String, CollectionReferenceParameters>();
 
     @Override
+    public void initCollectionDatabase() {
+    }
+
+    @Override
     public CollectionReference getCollectionReference(String ref) {
         CollectionReference collection = new CollectionReference(ref);
         collection.params = index.get(ref);
