@@ -1,5 +1,6 @@
 package io.arlas.server.dao;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,6 +18,8 @@ import io.arlas.server.model.CollectionReferenceParameters;
  *
  */
 public interface CollectionReferenceDao {
+    public void initCollectionDatabase() throws IOException;
+
     public CollectionReference getCollectionReference(String ref) throws NotFoundException;
 
     public List<CollectionReference> getAllCollectionReferences() throws InternalServerErrorException;

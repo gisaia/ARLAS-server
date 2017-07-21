@@ -1,10 +1,18 @@
 package io.arlas.server.dao;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InternalServerErrorException;
+import io.arlas.server.exceptions.NotFoundException;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.CollectionReferenceParameters;
+import org.apache.logging.log4j.core.util.IOUtils;
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -22,20 +30,14 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InternalServerErrorException;
-import io.arlas.server.exceptions.NotFoundException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.CollectionReferenceParameters;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao {
+
 
     TransportClient client = null;
     String arlasIndex = null;
@@ -54,6 +56,20 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                         return getCollectionReferenceFromES(ref);
                     }
                 });
+    }
+
+    @Override
+    public void initCollectionDatabase() throws IOException {
+        try {
+            client.admin().indices().prepareGetIndex().setIndices(arlasIndex).get();
+        } catch (IndexNotFoundException e) {
+            createArlasIndex();
+        }
+    }
+
+    private void createArlasIndex() throws IOException {
+        String arlasMapping = IOUtils.toString(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("arlas.mapping.json")));
+        client.admin().indices().prepareCreate(arlasIndex).addMapping("collection", arlasMapping).get();
     }
 
     private CollectionReferenceParameters getCollectionReferenceParameters(Map<String, Object> source) {
