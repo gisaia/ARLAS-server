@@ -73,6 +73,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
     @Override
     public void run(ArlasServerConfiguration configuration, Environment environment) throws Exception {
+        configuration.check();
+
         Settings settings;
         if ("localhost".equals(configuration.elastichost.toLowerCase())) {
             settings = Settings.EMPTY;
