@@ -242,7 +242,9 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         }
     }
 
-    private void setTimestampFormat(CollectionReferenceParameters collectionRefParams, FieldMappingMetaData data, String field) {
+    private void setTimestampFormat(CollectionReferenceParameters collectionRefParams, FieldMappingMetaData data, String fieldPath) {
+        String[] fields =  fieldPath.split("\\.");
+        String field = fields[fields.length-1];
         LinkedHashMap<String, Object> timestampMD = (LinkedHashMap)data.sourceAsMap().get(field);
         collectionRefParams.custom_params = new HashMap<>();
         if (timestampMD.keySet().contains("format")) {
