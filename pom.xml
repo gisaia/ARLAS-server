@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-server</artifactId>
-    <version>0.6-SNAPSHOT</version>
+    <version>0.5.2</version>
 
     <properties>
         <!-- PROJECT-->
