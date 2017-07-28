@@ -105,11 +105,8 @@ public class FluidSearch {
         LOGGER.debug("QUERY : "+searchRequestBuilder.toString());
         SearchResponse result = null;
 
-        try {
-            result = searchRequestBuilder.get();
-        }catch (ElasticsearchException e ){
-            throw new InvalidParameterException(e.getRootCause().getMessage() );
-        }
+        result = searchRequestBuilder.get();
+
         return result;
     }
 
