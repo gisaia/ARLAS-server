@@ -1,13 +1,27 @@
 # ARLAS-server
 
-ARLAS-server provides a highly simplified **REST API** for exploring data collections available in **ElasticSearch**. 
+ARLAS-server provides a highly simplified **REST API** for exploring data collections available in **ElasticSearch**.
 **Enhanced capabilities** are provided for collections exposing a **geometry**, a **centroid** and a **timestamp**. A **Collection API** is also provided for managing collections.
 
 The exploration API is described [here](doc/api/API-definition.md) while the  Collection API is described [here](doc/api/API-Collection-definition.md).
 
 ## Prerequisites :
 
-ARLAS-server is a Dropwizard project. You need JDK 8 and Maven to be installed.
+### Building
+
+ARLAS-server is a Dropwizard project. You need JDK 8 and Maven 3 to be installed.
+
+### Running
+
+You need a Java Runtime (JRE) 8 and an ElasticSearch server running. ARLAS is compliant with the following versions:
+| ElasticSearch Version |
+|  ---  |
+| 5.0.2 |
+| 5.1.2 |
+| 5.2.2 |
+| 5.3.3 |
+| 5.4.3 |
+| 5.5.1 |
 
 ## Installing :
 
@@ -17,7 +31,7 @@ In order to download the project dependencies and build it :
 mvn clean package
 ```
 
-Depending on your system, you might need to install some dependencies : 
+Depending on your system, you might need to install some dependencies :
 
 ```sh
 sudo apt-get install libc6-dev
@@ -35,13 +49,13 @@ Then, go to `http://localhost:9999/arlas/swagger` for exploring and testing the 
 To manage collections :
 
 ```sh
-curl -X PUT --header 'Content-Type: application/json;charset=utf-8' --header 'Accept: application/json' -d '{ \ 
-   "index_name": "myindex", \ 
-   "type_name": "mytype", \ 
-   "id_path": "mydoc.id", \ 
-   "geometry_path": "mydoc.geometry", \ 
-   "centroid_path": "mydoc.centroid", \ 
-   "timestamp_path": "mydoc.timestamp" \ 
+curl -X PUT --header 'Content-Type: application/json;charset=utf-8' --header 'Accept: application/json' -d '{ \
+   "index_name": "myindex", \
+   "type_name": "mytype", \
+   "id_path": "mydoc.id", \
+   "geometry_path": "mydoc.geometry", \
+   "centroid_path": "mydoc.centroid", \
+   "timestamp_path": "mydoc.timestamp" \
  }' 'http://localhost:9999/arlas/collections/mycollection'
 curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/collections'
 curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/collections/mycollection'
@@ -58,7 +72,7 @@ You can find more examples about how to use ARLAS-server in [examples/EXAMPLE.md
 ./tests-integration/tests-integration.sh
 ```
 
-Make sure to have docker installed and running on your system and you might need to install some dependencies : 
+Make sure to have docker installed and running on your system and you might need to install some dependencies :
 
 ```sh
 sudo apt-get install xmlstarlet
@@ -116,7 +130,17 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## Versioning :
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags](https://gitlab.com/GISAIA.ARLAS/ARLAS-server/tags) on this repository.
+We use our own versioning schema which looks like ```1.5.6``` where :
+
+- `1` : represents ARLAS-server API version
+- `5` : represents Elasticsearch compliance (see below for value correspondence)
+- `6` : represents ARLAS-server incremental version
+
+For Elasticsearch compliance, values currently supported are :
+
+- `5` : indicates that this version is compliant with Elasticsearch from version 5.0 to 5.5
+
+For the versions available, see the [tags](https://gitlab.com/GISAIA.ARLAS/ARLAS-server/tags) on this repository.
 
 ## Authors :
 
