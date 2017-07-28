@@ -48,6 +48,7 @@ curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/col
 curl -X DELETE --header 'Accept: application/json' 'http://localhost:9999/arlas/collections/mycollection'
 ```
 
+You can find more examples about how to use ARLAS-server in [examples/EXAMPLE.md](examples/EXAMPLE.md)
 
 ## Running the tests
 ### Integration tests

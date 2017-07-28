@@ -1,0 +1,21 @@
+{
+  "filter": {
+    "f": [
+      "continent:eq:Europe"
+    ]
+  },
+  "form": {
+    "pretty": true,
+    "human": true
+  },
+  "aggregations": {
+    "aggregations": [
+      {
+        "type": "term",
+        "field": "country",
+        "collectField": "area",
+        "collectFct": "max"
+      }
+    ]
+  }
+}
