@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import io.arlas.server.rest.*;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -18,10 +19,6 @@ import com.github.kristofa.brave.Brave;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 
-import io.arlas.server.rest.ArlasExceptionMapper;
-import io.arlas.server.rest.ConstraintViolationExceptionMapper;
-import io.arlas.server.rest.IllegalArgumentExceptionMapper;
-import io.arlas.server.rest.JsonProcessingExceptionMapper;
 import io.arlas.server.rest.collections.ElasticCollectionService;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
@@ -97,6 +94,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new IllegalArgumentExceptionMapper());
         environment.jersey().register(new JsonProcessingExceptionMapper());
         environment.jersey().register(new ConstraintViolationExceptionMapper());
+        environment.jersey().register(new ElasticsearchExceptionMapper());
         environment.jersey().register(new CountRESTService(exploration));
         environment.jersey().register(new SearchRESTService(exploration));
         environment.jersey().register(new AggregateRESTService(exploration));
