@@ -6,7 +6,7 @@ function clean_docker {
 	docker rm arlas-server || echo "arlas-server already removed"
 	docker kill elasticsearch || echo "elasticsearch already killed"
 	docker rm elasticsearch || echo "elasticsearch already removed"
-	
+
 	echo "===> clean maven repository"
 	docker run --rm \
 		-w /opt/maven \
@@ -21,8 +21,30 @@ function clean_exit {
 	echo "===> Exit status = ${ARG}"
     clean_docker
     exit $ARG
-} 
+}
 trap clean_exit EXIT
+
+usage(){
+	echo "Usage: ./test-integration.sh [--es=X.Y.Z]"
+	echo " --es=X.Y.Z   elasticsearch version to test"
+	exit 1
+}
+
+ES_VERSION="5.5.1"
+for i in "$@"
+do
+case $i in
+    --es=*)
+    ES_VERSION="${i#*=}"
+    shift # past argument=value
+    ;;
+    *)
+            # unknown option
+    ;;
+esac
+done
+
+if [ -z ${ES_VERSION+x} ]; then usage; else echo "ARLAS-server tested with Elasticsearch version : ${ES_VERSION}"; fi
 
 # GO TO PROJECT PATH
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
@@ -43,7 +65,7 @@ mv target/arlas-server-${VERSION}.jar target/arlas-server.jar
 echo "===> build arlas-server"
 docker build --tag=arlas-server:${VERSION} .
 echo "===> pull elasticsearch"
-docker pull docker.elastic.co/elasticsearch/elasticsearch:5.3.0
+docker pull docker.elastic.co/elasticsearch/elasticsearch:${ES_VERSION}
 
 # RUN
 echo "===> start elasticsearch"
@@ -55,9 +77,9 @@ docker run -d \
     -e xpack.monitoring.enabled=false \
     -e xpack.graph.enabled=false \
 	-e xpack.watcher.enabled=false \
-	docker.elastic.co/elasticsearch/elasticsearch:5.3.0
+	docker.elastic.co/elasticsearch/elasticsearch:${ES_VERSION}
 echo "===> wait for elasticsearch"
-docker run --link elasticsearch:elasticsearch --rm busybox sh -c 'i=1; until nc -w 2 elasticsearch 9200; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'	
+docker run --link elasticsearch:elasticsearch --rm busybox sh -c 'i=1; until nc -w 2 elasticsearch 9200; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
 
 echo "===> start arlas-server"
 docker run -ti -d \

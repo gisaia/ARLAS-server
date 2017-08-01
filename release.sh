@@ -9,14 +9,16 @@ function clean {
 	rm pom.xml.versionsBackup
 	git checkout -- .
     exit $ARG
-} 
+}
 trap clean EXIT
 
-usage(){ 
-	echo "Usage: ./release.sh -v=X.Y.Z -d=X.Y.Z+1 [--no-tests]"
-	echo " -v|--version   release version"
-	echo " -d|--dev       development version (-SNAPSHOT qualifier will be automatically added)"
-	echo " --no-tests     do not run integration tests"
+usage(){
+	echo "Usage: ./release.sh -api=X -es=Y -rel=Z -dev=Z+1 [--no-tests]"
+	echo " -es |--elastic-range     elasticsearch versions supported"
+	echo " -api|--api-version       release arlas API version"
+	echo " -rel|--arlas-release     release arlas-server version"
+	echo " -dev|--arlas-dev         development arlas-server version (-SNAPSHOT qualifier will be automatically added)"
+	echo " --no-tests               do not run integration tests"
 	exit 1
 }
 
@@ -24,12 +26,20 @@ TESTS="YES"
 for i in "$@"
 do
 case $i in
-    -v=*|--version=*)
-    VERSION="${i#*=}"
+    -rel=*|--arlas-release=*)
+    ARLAS_REL="${i#*=}"
     shift # past argument=value
     ;;
-    -d=*|--dev=*)
-    DEV="${i#*=}"
+    -dev=*|--arlas-dev=*)
+    ARLAS_DEV="${i#*=}"
+    shift # past argument=value
+    ;;
+    -api=*|--api-version=*)
+    API_VERSION="${i#*=}"
+    shift # past argument=value
+    ;;
+    -es=*|--elastic-range=*)
+    ELASTIC_RANGE="${i#*=}"
     shift # past argument=value
     ;;
     --no-tests)
@@ -42,9 +52,27 @@ case $i in
 esac
 done
 
-if [ -z ${VERSION+x} ]; then usage; else echo "Release version          : ${VERSION}"; fi
-if [ -z ${DEV+x} ]; then usage; else echo "Next development version : ${DEV}"; fi
-echo "Running tests            : ${TESTS}"
+ELASTIC_VERSIONS_5=("5.0.2" "5.1.2" "5.2.2" "5.3.3" "5.4.3" "5.5.1")
+case $ELASTIC_RANGE in
+    "5")
+        ELASTIC_VERSIONS=( "${ELASTIC_VERSIONS_5[@]}" )
+        ;;
+    *)
+        echo "Unknown --elasticsearch-range value"
+        echo "Possible values : "
+        echo "   -es=5 for versions ${ELASTIC_VERSIONS_5[*]}"
+        usage
+esac
+
+
+if [ -z ${ELASTIC_VERSIONS+x} ]; then usage;else echo "Elasticsearch versions support : ${ELASTIC_VERSIONS[*]}"; fi
+if [ -z ${API_VERSION+x} ]; then usage;  else    echo "API version                    : ${API_VERSION}"; fi
+if [ -z ${ARLAS_REL+x} ]; then usage;    else    echo "Release version                : ${ARLAS_REL}"; fi
+if [ -z ${ARLAS_DEV+x} ]; then usage;    else    echo "Next development version       : ${ARLAS_DEV}"; fi
+                                                 echo "Running tests                  : ${TESTS}"
+
+VERSION="${API_VERSION}-${ELASTIC_RANGE}-${ARLAS_REL}"
+DEV="${API_VERSION}-${ELASTIC_RANGE}-${ARLAS_DEV}"
 
 echo "=> Get develop branch"
 git checkout develop
@@ -67,10 +95,11 @@ echo "=> Wait for arlas-server up and running"
 i=1; until nc -w 2 localhost 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 
 itests() {
-	echo "=> Run integration tests"
-	export ARLAS_HOST="localhost"; export ARLAS_PORT=9999; export ARLAS_PREFIX="/arlas/";
-	export ARLAS_ELASTIC_HOST="localhost"; export ARLAS_ELASTIC_PORT=9300;
-	mvn clean install -DskipTests=false
+	echo "=> Run integration tests with several elasticsearch versions (${ELASTIC_VERSIONS[*]})"
+	for i in "${ELASTIC_RANGE[@]}"
+    do
+	    ./tests-integration/tests-integration.sh --es=$i
+    done
 }
 if [ "$TESTS" == "YES" ]; then itests; else echo "=> Skip integration tests"; fi
 
