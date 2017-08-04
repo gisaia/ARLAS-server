@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import io.arlas.server.rest.*;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
@@ -73,7 +74,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         configuration.check();
 
         Settings settings;
-        if ("localhost".equals(configuration.elastichost.toLowerCase())) {
+        if (Strings.isNullOrEmpty(configuration.elasticcluster)) {
             settings = Settings.EMPTY;
         } else {
             settings = Settings.builder().put("cluster.name", configuration.elasticcluster).build();

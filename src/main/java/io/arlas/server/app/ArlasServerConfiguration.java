@@ -39,8 +39,7 @@ public class ArlasServerConfiguration extends Configuration {
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 
     public void check() throws ArlasConfigurationException {
-        if(Strings.isNullOrEmpty(elastichost) || elasticport<1
-                || (!elastichost.equalsIgnoreCase("localhost") && Strings.isNullOrEmpty(elasticcluster))) {
+        if(Strings.isNullOrEmpty(elastichost) || elasticport<1) {
             throw new ArlasConfigurationException("Elastic search configuration missing in config file.");
         }
         if(zipkinConfiguration == null) {
