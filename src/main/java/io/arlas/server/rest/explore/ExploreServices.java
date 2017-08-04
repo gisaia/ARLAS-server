@@ -97,11 +97,14 @@ public class ExploreServices {
             if (filter.q != null && !filter.q.isEmpty()) {
                 fluidSearch = fluidSearch.filterQ(filter.q);
             }
-            if (filter.before != null) {
+            if (filter.before != null && filter.after == null) {
                 fluidSearch = fluidSearch.filterBefore(filter.before);
             }
-            if (filter.after != null) {
+            if (filter.after != null && filter.before == null) {
                 fluidSearch = fluidSearch.filterAfter(filter.after);
+            }
+            if(filter.after != null && filter.before != null) {
+                fluidSearch = fluidSearch.filterAfterBefore(filter.after, filter.before);
             }
             if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
                 double[] tlbr = CheckParams.toDoubles(filter.pwithin);

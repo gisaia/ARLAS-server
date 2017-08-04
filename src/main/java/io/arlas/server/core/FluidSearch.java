@@ -191,6 +191,12 @@ public class FluidSearch {
         return this;
     }
 
+    public FluidSearch filterAfterBefore(Long after, Long before) {
+        boolQueryBuilder = boolQueryBuilder
+                .filter(QueryBuilders.rangeQuery(collectionReference.params.timestampPath).gte(after).lte(before));
+        return this;
+    }
+
     public FluidSearch filterPWithin(double top, double left, double bottom, double right)
             throws ArlasException, IOException {
         GeoPoint topLeft = new GeoPoint(top,left);
