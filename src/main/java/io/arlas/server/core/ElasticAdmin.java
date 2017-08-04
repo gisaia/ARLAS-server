@@ -1,11 +1,7 @@
 package io.arlas.server.core;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.client.transport.TransportClient;
@@ -37,21 +33,36 @@ public class ElasticAdmin {
                 .prepareGetMappings(collectionReferenceDescription.params.indexName).setTypes(collectionReferenceDescription.params.typeName).get();
         LinkedHashMap fields = (LinkedHashMap)response.getMappings()
                 .get(collectionReferenceDescription.params.indexName).get(collectionReferenceDescription.params.typeName).sourceAsMap().get("properties");
-        List<CollectionReferenceDescriptionProperty> properties = new ArrayList<CollectionReferenceDescriptionProperty>();
-        for(Object field : fields.keySet()) {
-            ElasticType type = ElasticType.getType(((Map<String,String>)fields.get(field)).get("type"));
-            String dateFormat;
-            if (type.equals(ElasticType.DATE)){
-                dateFormat = ((Map<String,String>)fields.get(field)).get("format");
-                if (dateFormat == null) {
-                    dateFormat = CollectionReference.DEFAULT_TIMESTAMP_FORMAT;
-                }
-            properties.add(new CollectionReferenceDescriptionProperty(field.toString(),type, dateFormat));
-            }
-            properties.add(new CollectionReferenceDescriptionProperty(field.toString(),type, null));
-        }
+        Map<String,CollectionReferenceDescriptionProperty> properties = getFromSource(fields);
         collectionReferenceDescription.properties = properties;
         return collectionReferenceDescription;
+    }
+
+    private Map<String,CollectionReferenceDescriptionProperty> getFromSource(Map source) {
+        Map<String,CollectionReferenceDescriptionProperty> ret = new HashMap<>();
+        for(Object key : source.keySet()) {
+            if(source.get(key) instanceof Map) {
+                Map property = (Map) source.get(key);
+                CollectionReferenceDescriptionProperty collectionProperty = new CollectionReferenceDescriptionProperty();
+                if (property.containsKey("type")) {
+                    collectionProperty.type = ElasticType.getType(property.get("type"));
+                } else {
+                    collectionProperty.type = ElasticType.OBJECT;
+                }
+                if (property.containsKey("format")) {
+                    String format = property.get("format").toString();
+                    if (format == null && collectionProperty.type.equals(ElasticType.DATE)) {
+                        format = CollectionReference.DEFAULT_TIMESTAMP_FORMAT;
+                    }
+                    collectionProperty.format = format;
+                }
+                if (property.containsKey("properties") && property.get("properties") instanceof Map) {
+                    collectionProperty.properties = getFromSource((Map) property.get("properties"));
+                }
+                ret.put(key.toString(), collectionProperty);
+            }
+        }
+        return ret;
     }
 
     public List<CollectionReferenceDescription> describeAllCollections (List<CollectionReference> collectionReferenceList) throws IOException, ArlasException {

@@ -3,23 +3,22 @@ package io.arlas.server.model.response;
 
 import io.dropwizard.jackson.JsonSnakeCase;
 
+import java.util.Map;
+
 @JsonSnakeCase
 public class CollectionReferenceDescriptionProperty {
-    public CollectionReferenceDescriptionProperty(String name, ElasticType type, String format) {
-        super();
-        this.name = name;
-        this.type = type;
-        this.format = format;
-    }
 
-    public String name;
+    public CollectionReferenceDescriptionProperty() {
+    }
     
     public ElasticType type;
 
     public String format;
 
+    public Map<String,CollectionReferenceDescriptionProperty> properties;
+
     @Override
     public String toString() {
-        return "[name=" + name + ", type=" + type + "]";
+        return "[type=" + type + ", format=" + format + ", properties=" + properties + "]";
     }
 }

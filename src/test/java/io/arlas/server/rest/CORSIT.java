@@ -9,7 +9,7 @@ import static io.restassured.RestAssured.given;
 /**
  * Created by sfalquier on 07/07/2017.
  */
-public class CORSTest extends AbstractTest {
+public class CORSIT extends AbstractTest {
 
     @Test
     public void testCORS() throws Exception {

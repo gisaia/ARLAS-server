@@ -13,18 +13,26 @@
     "fullname": {
       "type": "text"
     },
-    "job": {
-      "type": "keyword"
+    "params": {
+      "properties": {
+        "job": {
+          "type": "keyword"
+        },
+        "startdate": {
+          "type": "date",
+          "format": "epoch_millis"
+        }
+      }
     },
-    "startdate": {
-      "type": "date",
-      "format": "epoch_millis"
-    },
-    "geometry": {
-      "type": "geo_shape"
-    },
-    "centroid": {
-      "type": "geo_point"
+    "geo_params": {
+      "properties": {
+        "geometry": {
+          "type": "geo_shape"
+        },
+        "centroid": {
+          "type": "geo_point"
+        }
+      }
     }
   }
 }

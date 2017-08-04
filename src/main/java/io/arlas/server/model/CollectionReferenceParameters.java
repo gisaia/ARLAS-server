@@ -49,6 +49,6 @@ public class CollectionReferenceParameters {
     @Override
     public String toString() {
         return "CollectionReferenceParameters [indexName=" + indexName + ", typeName=" + typeName + ", idPath=" + idPath + ", geometryPath=" + geometryPath + ", centroidPath=" + centroidPath
-                + ", timestampPath=" + timestampPath + ", includeFields=" + includeFields + ", excludeFields=" + excludeFields + ", timestampFormat=" + custom_params.get(CollectionReference.TIMESTAMP_FORMAT) +"]";
+                + ", timestampPath=" + timestampPath + ", includeFields=" + includeFields + ", excludeFields=" + excludeFields + ", custom_params=" + custom_params +"]";
     }
 }

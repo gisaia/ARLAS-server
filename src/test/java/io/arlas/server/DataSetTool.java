@@ -24,9 +24,9 @@ public class DataSetTool {
     public final static String DATASET_INDEX_NAME="dataset";
     public final static String DATASET_TYPE_NAME="mytype";
     public final static String DATASET_ID_PATH="id";
-    public final static String DATASET_GEOMETRY_PATH="geometry";
-    public final static String DATASET_CENTROID_PATH="centroid";
-    public final static String DATASET_TIMESTAMP_PATH="startdate";
+    public final static String DATASET_GEOMETRY_PATH="geo_params.geometry";
+    public final static String DATASET_CENTROID_PATH="geo_params.centroid";
+    public final static String DATASET_TIMESTAMP_PATH="params.startdate";
     public final static String DATASET_INCLUDE_FIELDS=null;
     public final static String DATASET_EXCLUDE_FIELDS=null;
     public final static String DATASET_TIMESTAMP_FORMAT="epoch_millis";
@@ -77,16 +77,16 @@ public class DataSetTool {
                 data=new Data();
                 data.id= i+"-"+j;
                 data.fullname="My name is "+data.id;
-                data.startdate=1l*(i+1000)*(j+1000);
-                data.centroid=j+","+i;
-                data.job=jobs[((Math.abs(i)+Math.abs(j))/10)%(jobs.length-1)];
+                data.params.startdate=1l*(i+1000)*(j+1000);
+                data.geo_params.centroid=j+","+i;
+                data.params.job=jobs[((Math.abs(i)+Math.abs(j))/10)%(jobs.length-1)];
                 List<LngLatAlt> coords = new ArrayList<>();
                 coords.add(new LngLatAlt(i-1,j+1));
                 coords.add(new LngLatAlt(i+1,j+1));
                 coords.add(new LngLatAlt(i+1,j-1));
                 coords.add(new LngLatAlt(i-1,j-1));
                 coords.add(new LngLatAlt(i-1,j+1));
-                data.geometry=new Polygon(coords);
+                data.geo_params.geometry=new Polygon(coords);
                 IndexResponse response = client.prepareIndex(DATASET_INDEX_NAME, DATASET_TYPE_NAME, data.id)
                         .setSource(mapper.writer().writeValueAsString(data))
                         .get();

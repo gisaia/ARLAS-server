@@ -1,13 +1,13 @@
 package io.arlas.server.model.response;
 
-import java.util.List;
-
 import io.arlas.server.model.CollectionReference;
 import io.dropwizard.jackson.JsonSnakeCase;
 
+import java.util.Map;
+
 @JsonSnakeCase
 public class CollectionReferenceDescription extends CollectionReference {
-    public List<CollectionReferenceDescriptionProperty> properties;
+    public Map<String,CollectionReferenceDescriptionProperty> properties;
 
     @Override
     public boolean equals(Object obj) {
@@ -22,6 +22,6 @@ public class CollectionReferenceDescription extends CollectionReference {
 
     @Override
     public String toString() {
-        return "[properties=" + properties + "]";
+        return "CollectionReference [collectionName=" + collectionName + ", params=" + params + ", properties=" + properties + "]";
     }
 }

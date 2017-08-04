@@ -19,6 +19,8 @@ import javax.ws.rs.core.MediaType;
 
 public abstract class ExploreRESTServices {
 
+    protected static Logger LOGGER = LoggerFactory.getLogger(ExploreRESTServices.class);
+
     protected static ObjectMapper mapper = new ObjectMapper();
 
     public ExploreServices getExploreServices() {
