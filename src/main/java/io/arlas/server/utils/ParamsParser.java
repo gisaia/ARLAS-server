@@ -42,7 +42,7 @@ public class ParamsParser {
 
     public static Aggregation getAggregationModel(List<String> agg){
         Aggregation aggregationModel = new Aggregation();
-        aggregationModel.type = agg.get(0);
+        aggregationModel.type = AggregationType.valueOf(agg.get(0));
         aggregationModel.field = agg.get(1);
 
         for (String parameter : agg){
@@ -62,7 +62,7 @@ public class ParamsParser {
                 aggregationModel.order = parameter.substring(AGG_ORDER_PARAM.length());
             }
             if (parameter.contains(AGG_ON_PARAM)){
-                aggregationModel.on = parameter.substring(AGG_ON_PARAM.length());
+                aggregationModel.on = AggregationOn.valueOf(parameter.substring(AGG_ON_PARAM.length()));
             }
             if (parameter.contains(AGG_SIZE_PARAM)){
                 aggregationModel.size = parameter.substring(AGG_SIZE_PARAM.length());
@@ -71,6 +71,7 @@ public class ParamsParser {
         return aggregationModel;
     }
 
+    // TODO : is this used?
     public static String getAggregationParam (List<String> aggParameters, String param){
         for (String parameter : aggParameters){
             if (parameter.contains(param)){

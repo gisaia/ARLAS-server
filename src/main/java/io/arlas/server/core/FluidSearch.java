@@ -46,9 +46,9 @@ import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.exceptions.NotImplementedException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Aggregation;
-import io.arlas.server.rest.explore.enumerations.AggregationOn;
+import io.arlas.server.model.request.AggregationOn;
 import io.arlas.server.rest.explore.enumerations.AggregationOrder;
-import io.arlas.server.rest.explore.enumerations.AggregationType;
+import io.arlas.server.model.request.AggregationType;
 import io.arlas.server.rest.explore.enumerations.DateInterval;
 import io.arlas.server.rest.explore.enumerations.MetricAggregationType;
 import io.arlas.server.utils.DateAggregationInterval;
@@ -287,23 +287,23 @@ public class FluidSearch {
         //check the agg syntax is correct
         Aggregation aggregationModel = aggregations.get(0);
         if (isGeoAggregate && counter == 0){
-            if (aggregationModel.type.equals(AggregationType.geohash.name())){
+            if (aggregationModel.type.equals(AggregationType.geohash)){
                 aggregationBuilder = buildGeohashAggregation(aggregationModel);
             }
             else throw new NotAllowedException(aggregationModel.type + NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE);
         }
         else {
             switch (aggregationModel.type) {
-                case AggregationType.DATEHISTOGRAM:
+                case datehistogram:
                     aggregationBuilder = buildDateHistogramAggregation(aggregationModel);
                     break;
-                case AggregationType.GEOHASH:
+                case geohash:
                     aggregationBuilder = buildGeohashAggregation(aggregationModel);
                     break;
-                case AggregationType.HISTOGRAM:
+                case histogram:
                     aggregationBuilder = buildHistogramAggregation(aggregationModel);
                     break;
-                case AggregationType.TERM:
+                case term:
                     aggregationBuilder = buildTermsAggregation(aggregationModel);
                     break;
             }
@@ -438,7 +438,7 @@ public class FluidSearch {
 
     private void setOrder(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, ValuesSourceAggregationBuilder.LeafOnly metricAggregation) throws ArlasException{
         String order = aggregationModel.order;
-        String on = aggregationModel.on;
+        AggregationOn on = aggregationModel.on;
         if (order != null && on != null) {
             if (!(aggregationBuilder instanceof GeoGridAggregationBuilder)){
                 Boolean asc;
@@ -451,19 +451,19 @@ public class FluidSearch {
                 else
                     throw new InvalidParameterException(INVALID_ORDER_VALUE + order);
 
-                if (on.equals(AggregationOn.field.name())) {
+                if (on.equals(AggregationOn.field)) {
                     termsOrder = Terms.Order.term(asc);
                     if (asc)
                         histogramOrder = Histogram.Order.KEY_ASC;
                     else
                         histogramOrder = Histogram.Order.KEY_DESC;
-                } else if (on.equals(AggregationOn.count.name())) {
+                } else if (on.equals(AggregationOn.count)) {
                     termsOrder = Terms.Order.count(asc);
                     if (asc)
                         histogramOrder = Histogram.Order.COUNT_ASC;
                     else
                         histogramOrder = Histogram.Order.COUNT_DESC;
-                } else if (on.equals(AggregationOn.result.name())) {
+                } else if (on.equals(AggregationOn.result)) {
                     if (metricAggregation != null) {
                         termsOrder = Terms.Order.aggregation(metricAggregation.getName(), asc);
                         histogramOrder = Histogram.Order.aggregation(metricAggregation.getName(), asc);

@@ -1,4 +1,4 @@
-package io.arlas.server.rest.explore.enumerations;
+package io.arlas.server.model.request;
 
 public enum AggregationOn {
     field, count, result

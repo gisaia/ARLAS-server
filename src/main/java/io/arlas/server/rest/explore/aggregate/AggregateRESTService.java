@@ -3,6 +3,7 @@ package io.arlas.server.rest.explore.aggregate;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.request.AggregationsRequest;
 import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.ArlasError;
 import io.arlas.server.rest.explore.Documentation;
@@ -144,10 +145,10 @@ public class AggregateRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        AggregationRequest aggregationRequest = new AggregationRequest();
-        aggregationRequest.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
-        aggregationRequest.aggregations = ParamsParser.getAggregations(agg);
-        AggregationResponse aggregationResponse = getArlasAggregation(aggregationRequest,collectionReference);
+        AggregationsRequest aggregationsRequest = new AggregationsRequest();
+        aggregationsRequest.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
+        aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
+        AggregationResponse aggregationResponse = getArlasAggregation(aggregationsRequest,collectionReference);
         aggregationResponse.arlasTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return Response.ok(aggregationResponse).build();
     }
@@ -174,7 +175,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
-            AggregationRequest aggregationRequest
+            AggregationsRequest aggregationsRequest
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         Long startArlasTime = System.nanoTime();
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
@@ -182,16 +183,16 @@ public class AggregateRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        AggregationResponse aggregationResponse = getArlasAggregation(aggregationRequest,collectionReference);
+        AggregationResponse aggregationResponse = getArlasAggregation(aggregationsRequest,collectionReference);
         aggregationResponse.arlasTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
 
         return Response.ok(aggregationResponse).build();
     }
 
-    public AggregationResponse getArlasAggregation(AggregationRequest aggregationRequest, CollectionReference collectionReference) throws ArlasException, IOException{
+    public AggregationResponse getArlasAggregation(AggregationsRequest aggregationsRequest, CollectionReference collectionReference) throws ArlasException, IOException{
         AggregationResponse aggregationResponse = new AggregationResponse();
         Long startQuery = System.nanoTime();
-        SearchResponse response = this.getExploreServices().aggregate(aggregationRequest,collectionReference,false);
+        SearchResponse response = this.getExploreServices().aggregate(aggregationsRequest,collectionReference,false);
         MultiBucketsAggregation aggregation;
         aggregation = (MultiBucketsAggregation)response.getAggregations().asList().get(0);
         aggregationResponse.totalnb = response.getHits().totalHits();
