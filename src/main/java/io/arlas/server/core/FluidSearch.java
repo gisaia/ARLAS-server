@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import io.arlas.server.model.request.*;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
@@ -45,13 +46,7 @@ import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.exceptions.NotImplementedException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.request.Aggregation;
-import io.arlas.server.model.request.AggregationOn;
-import io.arlas.server.rest.explore.enumerations.AggregationOrder;
-import io.arlas.server.model.request.AggregationType;
-import io.arlas.server.rest.explore.enumerations.DateInterval;
 import io.arlas.server.rest.explore.enumerations.MetricAggregationType;
-import io.arlas.server.utils.DateAggregationInterval;
 import io.arlas.server.utils.ParamsParser;
 
 
@@ -287,7 +282,7 @@ public class FluidSearch {
         //check the agg syntax is correct
         Aggregation aggregationModel = aggregations.get(0);
         if (isGeoAggregate && counter == 0){
-            if (aggregationModel.type.equals(AggregationType.geohash)){
+            if (aggregationModel.type.equals(AggregationTypeEnum.geohash)){
                 aggregationBuilder = buildGeohashAggregation(aggregationModel);
             }
             else throw new NotAllowedException(aggregationModel.type + NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE);
@@ -324,25 +319,22 @@ public class FluidSearch {
 
     private DateHistogramAggregationBuilder buildDateHistogramAggregation(Aggregation aggregationModel) throws ArlasException{
         DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram(DATEHISTOGRAM_AGG);
-        // Get the interval
-        DateAggregationInterval dateAggregationInterval = ParamsParser.getAggregationDateInterval(aggregationModel.interval);
-        DateHistogramInterval dateHistogramInterval = null;
-        Integer aggsize = dateAggregationInterval.aggsize;
-        if(dateAggregationInterval.aggunit.equals(DateInterval.YEAR) || dateAggregationInterval.aggunit.equals(DateInterval.QUARTER) ||dateAggregationInterval.aggunit.equals(DateInterval.DAY) ){
-            if(aggsize>1) throw new NotAllowedException("The size must be equal to 1 for the unit " + dateAggregationInterval.aggunit + ".");
+        if(aggregationModel.interval.unit.equals(UnitEnum.year) || aggregationModel.interval.unit.equals(UnitEnum.quarter) ||aggregationModel.interval.unit.equals(UnitEnum.day) ){
+            if(aggregationModel.interval.value>1) throw new NotAllowedException("The size must be equal to 1 for the unit " + aggregationModel.interval.unit + ".");
         }
-        switch (dateAggregationInterval.aggunit){
-            case DateInterval.YEAR : dateHistogramInterval = DateHistogramInterval.YEAR; break;
-            case DateInterval.QUARTER : dateHistogramInterval = DateHistogramInterval.QUARTER; break;
-            case DateInterval.MONTH : dateHistogramInterval = DateHistogramInterval.MONTH; break;
-            case DateInterval.WEEK : dateHistogramInterval = DateHistogramInterval.weeks(aggsize); break;
-            case DateInterval.DAY : dateHistogramInterval = DateHistogramInterval.days(aggsize); break;
-            case DateInterval.HOUR : dateHistogramInterval = DateHistogramInterval.hours(aggsize); break;
-            case DateInterval.MINUTE : dateHistogramInterval = DateHistogramInterval.minutes(aggsize); break;
-            case DateInterval.SECOND : dateHistogramInterval = DateHistogramInterval.seconds(aggsize); break;
+        DateHistogramInterval intervalUnit= null;
+        switch (aggregationModel.interval.unit){
+            case year : intervalUnit = DateHistogramInterval.YEAR; break;
+            case quarter: intervalUnit = DateHistogramInterval.QUARTER; break;
+            case month: intervalUnit = DateHistogramInterval.MONTH; break;
+            case week: intervalUnit = DateHistogramInterval.weeks(aggregationModel.interval.value); break;
+            case day: intervalUnit = DateHistogramInterval.days(aggregationModel.interval.value); break;
+            case hour: intervalUnit = DateHistogramInterval.hours(aggregationModel.interval.value); break;
+            case minute:  intervalUnit = DateHistogramInterval.minutes(aggregationModel.interval.value); break;
+            case second: intervalUnit = DateHistogramInterval.seconds(aggregationModel.interval.value); break;
             default : throw new InvalidParameterException(INVALID_DATE_UNIT);
         }
-        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(dateHistogramInterval);
+        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(intervalUnit);
         //get the field, format, collect_field, collect_fct, order, on
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder)setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
         return dateHistogramAggregationBuilder;
@@ -363,8 +355,7 @@ public class FluidSearch {
     private HistogramAggregationBuilder buildHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
         HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram(HISTOGRAM_AGG);
         // get the length
-        Double length = ParamsParser.getAggregationHistogramLength(aggregationModel.interval);
-        histogramAggregationBuilder = histogramAggregationBuilder.interval(length);
+        histogramAggregationBuilder = histogramAggregationBuilder.interval(aggregationModel.interval.value);
         //get the field, format, collect_field, collect_fct, order, on
         histogramAggregationBuilder = (HistogramAggregationBuilder)setAggregationParameters(aggregationModel, histogramAggregationBuilder);
         return histogramAggregationBuilder;
@@ -437,33 +428,33 @@ public class FluidSearch {
     }
 
     private void setOrder(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, ValuesSourceAggregationBuilder.LeafOnly metricAggregation) throws ArlasException{
-        String order = aggregationModel.order;
-        AggregationOn on = aggregationModel.on;
+        AggregationOrderEnum order = aggregationModel.order;
+        AggregationOnEnum on = aggregationModel.on;
         if (order != null && on != null) {
             if (!(aggregationBuilder instanceof GeoGridAggregationBuilder)){
                 Boolean asc;
                 Histogram.Order histogramOrder = null;
                 Terms.Order termsOrder = null;
-                if (order.equals(AggregationOrder.asc.name()))
+                if (order.equals(AggregationOrderEnum.asc.name()))
                     asc = true;
-                else if (order.equals(AggregationOrder.desc.name()))
+                else if (order.equals(AggregationOrderEnum.desc.name()))
                     asc = false;
                 else
                     throw new InvalidParameterException(INVALID_ORDER_VALUE + order);
 
-                if (on.equals(AggregationOn.field)) {
+                if (on.equals(AggregationOnEnum.field)) {
                     termsOrder = Terms.Order.term(asc);
                     if (asc)
                         histogramOrder = Histogram.Order.KEY_ASC;
                     else
                         histogramOrder = Histogram.Order.KEY_DESC;
-                } else if (on.equals(AggregationOn.count)) {
+                } else if (on.equals(AggregationOnEnum.count)) {
                     termsOrder = Terms.Order.count(asc);
                     if (asc)
                         histogramOrder = Histogram.Order.COUNT_ASC;
                     else
                         histogramOrder = Histogram.Order.COUNT_DESC;
-                } else if (on.equals(AggregationOn.result)) {
+                } else if (on.equals(AggregationOnEnum.result)) {
                     if (metricAggregation != null) {
                         termsOrder = Terms.Order.aggregation(metricAggregation.getName(), asc);
                         histogramOrder = Histogram.Order.aggregation(metricAggregation.getName(), asc);

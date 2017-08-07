@@ -40,14 +40,18 @@ public class ParamsParser {
         return aggregations;
     }
 
-    public static Aggregation getAggregationModel(List<String> agg){
+    public static Aggregation getAggregationModel(List<String> agg) throws ArlasException {
         Aggregation aggregationModel = new Aggregation();
-        aggregationModel.type = AggregationType.valueOf(agg.get(0));
+        aggregationModel.type = AggregationTypeEnum.valueOf(agg.get(0));
         aggregationModel.field = agg.get(1);
 
         for (String parameter : agg){
             if (parameter.contains(AGG_INTERVAL_PARAM)){
-                aggregationModel.interval = parameter.substring(AGG_INTERVAL_PARAM.length());
+                if(aggregationModel.type.equals(AggregationTypeEnum.datehistogram)){
+                    aggregationModel.interval = getDateInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));
+                }else{
+                    aggregationModel.interval = new Interval(Integer.parseInt(parameter.substring(AGG_INTERVAL_PARAM.length())), null);
+                }
             }
             if (parameter.contains(AGG_FORMAT_PARAM)){
                 aggregationModel.format = parameter.substring(AGG_FORMAT_PARAM.length());
@@ -59,10 +63,10 @@ public class ParamsParser {
                 aggregationModel.collectFct = parameter.substring(AGG_COLLECT_FCT_PARAM.length());
             }
             if (parameter.contains(AGG_ORDER_PARAM)){
-                aggregationModel.order = parameter.substring(AGG_ORDER_PARAM.length());
+                aggregationModel.order = AggregationOrderEnum.valueOf(parameter.substring(AGG_ORDER_PARAM.length()));
             }
             if (parameter.contains(AGG_ON_PARAM)){
-                aggregationModel.on = AggregationOn.valueOf(parameter.substring(AGG_ON_PARAM.length()));
+                aggregationModel.on = AggregationOnEnum.valueOf(parameter.substring(AGG_ON_PARAM.length()));
             }
             if (parameter.contains(AGG_SIZE_PARAM)){
                 aggregationModel.size = parameter.substring(AGG_SIZE_PARAM.length());
@@ -71,56 +75,28 @@ public class ParamsParser {
         return aggregationModel;
     }
 
-    // TODO : is this used?
-    public static String getAggregationParam (List<String> aggParameters, String param){
-        for (String parameter : aggParameters){
-            if (parameter.contains(param)){
-                return parameter.substring(param.length());
-            }
-        }
-        return null;
-    }
-
-    public static DateAggregationInterval getAggregationDateInterval(String aggInterval) throws ArlasException{
-        DateAggregationInterval dateAggregationInterval = null;
-        if (aggInterval != null && !aggInterval.equals("")){
-            String[] sizeAndUnit = aggInterval.split("(?<=[a-zA-Z])(?=\\d)|(?<=\\d)(?=[a-zA-Z])");
+    public static Interval getDateInterval(String intervalString) throws ArlasException{
+        if (intervalString != null && !intervalString.equals("")){
+            String[] sizeAndUnit = intervalString.split("(?<=[a-zA-Z])(?=\\d)|(?<=\\d)(?=[a-zA-Z])");
             if (sizeAndUnit.length == 2) {
-                dateAggregationInterval = new DateAggregationInterval();
-                dateAggregationInterval.aggsize = tryParseInteger(sizeAndUnit[0]);
-                if(dateAggregationInterval.aggsize == null){
+                Interval interval = new Interval(tryParseInteger(sizeAndUnit[0]), UnitEnum.valueOf(sizeAndUnit[1].toLowerCase()));
+                if(interval.value == null){
                     throw new InvalidParameterException(FluidSearch.INVALID_SIZE + sizeAndUnit[0]);
                 }
-                dateAggregationInterval.aggunit = sizeAndUnit[1].toLowerCase();
-                return dateAggregationInterval;
+                return interval;
             }
-            else throw new InvalidParameterException("The date interval " + aggInterval + "is not valid");
+            else throw new InvalidParameterException("The date interval " + intervalString + "is not valid");
         }
         else throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
     }
 
-    public static Integer getAggregationGeohasPrecision(String aggInterval) throws ArlasException{
-        if(aggInterval != null){
-            Integer precision = tryParseInteger(aggInterval);
-            if (precision != null){
-                if( precision >12 || precision<1)
-                    throw new InvalidParameterException("Invalid geohash aggregation precision of " + precision + ". Must be between 1 and 12.");
-                else return precision;
-            }
-            else throw new InvalidParameterException("Invalid geohash aggregation precision of  '" + aggInterval + "'. Must be an integer.");
+    public static Integer getAggregationGeohasPrecision(Interval interval) throws ArlasException{
+        if(interval != null){
+           if( interval.value >12 || interval.value<1) {
+               throw new InvalidParameterException("Invalid geohash aggregation precision of " + interval.value + ". Must be between 1 and 12.");
+           }else return interval.value;
         }
-        else throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
-    }
-
-    public static Double getAggregationHistogramLength(String aggInterval) throws ArlasException{
-        if(aggInterval != null){
-            Double length = tryParseDouble(aggInterval);
-            if (length != null){
-                return length;
-            }
-            else throw new InvalidParameterException("Invalid histogram aggregation precision of '" + aggInterval + "'. Must be a numeric value.");
-        }
-        else throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
+        throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
     }
 
     public static String getValidAggregationFormat(String aggFormat){

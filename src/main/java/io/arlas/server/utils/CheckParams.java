@@ -7,7 +7,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.request.*;
-import io.arlas.server.model.request.AggregationType;
+import io.arlas.server.model.request.AggregationTypeEnum;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.Arrays;
@@ -121,7 +121,7 @@ public class CheckParams {
         String[] aggParts = agg.split(":");
         if (aggParts.length > 1) {
             try{
-                AggregationType.valueOf(aggParts[0]);
+                AggregationTypeEnum.valueOf(aggParts[0]);
                 return true;
             }catch(Exception e){
                 throw new InvalidParameterException(INVALID_AGGREGATION_TYPE);

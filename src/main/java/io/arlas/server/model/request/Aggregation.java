@@ -1,14 +1,14 @@
 package io.arlas.server.model.request;
 
 public class Aggregation {
-    public AggregationType type;
+    public AggregationTypeEnum type;
     public String field;
-    public String interval;
+    public Interval interval;
     public String format;
     public String collectField;
     public String collectFct;
-    public String order;
-    public AggregationOn on;
+    public AggregationOrderEnum order;
+    public AggregationOnEnum on;
     public String size;
 
     public Aggregation() {
