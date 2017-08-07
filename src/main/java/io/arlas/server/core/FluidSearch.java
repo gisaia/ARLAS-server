@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
@@ -46,7 +45,7 @@ import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.exceptions.NotImplementedException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.request.AggregationModel;
+import io.arlas.server.model.request.Aggregation;
 import io.arlas.server.rest.explore.enumerations.AggregationOn;
 import io.arlas.server.rest.explore.enumerations.AggregationOrder;
 import io.arlas.server.rest.explore.enumerations.AggregationType;
@@ -284,9 +283,9 @@ public class FluidSearch {
         return this;
     }
 
-    private AggregationBuilder aggregateRecursive (List<AggregationModel> aggregations, AggregationBuilder aggregationBuilder, Boolean isGeoAggregate, Integer counter) throws ArlasException{
+    private AggregationBuilder aggregateRecursive (List<Aggregation> aggregations, AggregationBuilder aggregationBuilder, Boolean isGeoAggregate, Integer counter) throws ArlasException{
         //check the agg syntax is correct
-        AggregationModel aggregationModel = aggregations.get(0);
+        Aggregation aggregationModel = aggregations.get(0);
         if (isGeoAggregate && counter == 0){
             if (aggregationModel.type.equals(AggregationType.geohash.name())){
                 aggregationBuilder = buildGeohashAggregation(aggregationModel);
@@ -316,14 +315,14 @@ public class FluidSearch {
         counter++;
         return aggregationBuilder.subAggregation(aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate, counter));
     }
-    public FluidSearch aggregate(List<AggregationModel> aggregations, Boolean isGeoAggregate) throws ArlasException{
+    public FluidSearch aggregate(List<Aggregation> aggregations, Boolean isGeoAggregate) throws ArlasException{
         AggregationBuilder aggregationBuilder = null;
         aggregationBuilder = aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate, 0);
         searchRequestBuilder =searchRequestBuilder.setSize(0).addAggregation(aggregationBuilder);
         return this;
     }
 
-    private DateHistogramAggregationBuilder buildDateHistogramAggregation(AggregationModel aggregationModel) throws ArlasException{
+    private DateHistogramAggregationBuilder buildDateHistogramAggregation(Aggregation aggregationModel) throws ArlasException{
         DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram(DATEHISTOGRAM_AGG);
         // Get the interval
         DateAggregationInterval dateAggregationInterval = ParamsParser.getAggregationDateInterval(aggregationModel.interval);
@@ -350,7 +349,7 @@ public class FluidSearch {
     }
 
     // construct and returns the geohash aggregationModel builder
-    private GeoGridAggregationBuilder buildGeohashAggregation(AggregationModel aggregationModel) throws ArlasException{
+    private GeoGridAggregationBuilder buildGeohashAggregation(Aggregation aggregationModel) throws ArlasException{
         GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(GEOHASH_AGG);
         //get the precision
         Integer precision = ParamsParser.getAggregationGeohasPrecision(aggregationModel.interval);
@@ -361,7 +360,7 @@ public class FluidSearch {
     }
 
     // construct and returns the histogram aggregationModel builder
-    private HistogramAggregationBuilder buildHistogramAggregation(AggregationModel aggregationModel) throws ArlasException {
+    private HistogramAggregationBuilder buildHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
         HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram(HISTOGRAM_AGG);
         // get the length
         Double length = ParamsParser.getAggregationHistogramLength(aggregationModel.interval);
@@ -372,7 +371,7 @@ public class FluidSearch {
     }
 
     // construct and returns the terms aggregationModel builder
-    private TermsAggregationBuilder buildTermsAggregation(AggregationModel aggregationModel) throws ArlasException {
+    private TermsAggregationBuilder buildTermsAggregation(Aggregation aggregationModel) throws ArlasException {
         TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(TERM_AGG);
         //get the field, format, collect_field, collect_fct, order, on
         if(aggregationModel.interval != null){
@@ -382,7 +381,7 @@ public class FluidSearch {
         return termsAggregationBuilder;
     }
 
-    private ValuesSourceAggregationBuilder setAggregationParameters (AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException{
+    private ValuesSourceAggregationBuilder setAggregationParameters (Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException{
         String aggField = aggregationModel.field;
         aggregationBuilder = aggregationBuilder.field(aggField);
         //Get the format
@@ -437,7 +436,7 @@ public class FluidSearch {
         return aggregationBuilder;
     }
 
-    private void setOrder(AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, ValuesSourceAggregationBuilder.LeafOnly metricAggregation) throws ArlasException{
+    private void setOrder(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, ValuesSourceAggregationBuilder.LeafOnly metricAggregation) throws ArlasException{
         String order = aggregationModel.order;
         String on = aggregationModel.on;
         if (order != null && on != null) {

@@ -4,8 +4,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.request.AggregationRequest;
-import io.arlas.server.model.response.ArlasAggregation;
+import io.arlas.server.model.request.AggregationsRequest;
+import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.ArlasError;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
@@ -150,10 +150,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        AggregationRequest aggregationRequest = new AggregationRequest();
-        aggregationRequest.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
-        aggregationRequest.aggregations = ParamsParser.getAggregations(agg);
-        FeatureCollection fc = getFeatureCollection(aggregationRequest,collectionReference);
+        AggregationsRequest aggregationsRequest = new AggregationsRequest();
+        aggregationsRequest.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
+        aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
+        FeatureCollection fc = getFeatureCollection(aggregationsRequest,collectionReference);
         return Response.ok(fc).build();
     }
 
@@ -179,7 +179,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
-            AggregationRequest aggregationRequest
+            AggregationsRequest aggregationRequest
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
@@ -192,22 +192,22 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         return Response.ok(fc).build();
     }
 
-    private FeatureCollection getFeatureCollection(AggregationRequest aggregationRequest, CollectionReference collectionReference) throws ArlasException, IOException{
+    private FeatureCollection getFeatureCollection(AggregationsRequest aggregationRequest, CollectionReference collectionReference) throws ArlasException, IOException{
         FeatureCollection fc;
-        ArlasAggregation arlasAggregation = new ArlasAggregation();
+        AggregationResponse aggregationResponse = new AggregationResponse();
         SearchResponse response = this.getExploreServices().aggregate(aggregationRequest,collectionReference,true);
         MultiBucketsAggregation aggregation;
         aggregation = (MultiBucketsAggregation)response.getAggregations().asList().get(0);
-        arlasAggregation = this.getExploreServices().formatAggregationResult(aggregation,arlasAggregation);
-        fc = toGeoJson(arlasAggregation);
+        aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse);
+        fc = toGeoJson(aggregationResponse);
         return fc;
     }
 
-    private FeatureCollection toGeoJson(ArlasAggregation arlasAggregation) throws IOException{
+    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse) throws IOException{
         FeatureCollection fc = new FeatureCollection();
-        List<ArlasAggregation> elements = arlasAggregation.elements;
+        List<AggregationResponse> elements = aggregationResponse.elements;
         if (elements != null && elements.size()>0){
-            for (ArlasAggregation element : elements){
+            for (AggregationResponse element : elements){
                 Feature feature = new Feature();
                 Map<String,Object> properties = new HashMap<>();
                 GeoPoint geoPoint = (GeoPoint)element.key;

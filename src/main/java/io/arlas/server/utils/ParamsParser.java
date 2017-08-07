@@ -25,24 +25,23 @@ public class ParamsParser {
     private static final String AGG_SIZE_PARAM = "size-";
 
 
-    public static Aggregations getAggregations(List<String> agg) throws ArlasException{
-        Aggregations aggregations = new Aggregations();
-        aggregations.aggregations = new ArrayList<>();
+    public static List<Aggregation> getAggregations(List<String> agg) throws ArlasException{
+        List<Aggregation> aggregations = new ArrayList<>();
         if (agg != null && agg.size()>0 ){
             for (String aggregation : agg){
-                AggregationModel aggregationModel;
+                Aggregation aggregationModel;
                 if (CheckParams.isAggregationParamValid(aggregation)) {
                     List<String> aggParameters = Arrays.asList(aggregation.split(":"));
                     aggregationModel = getAggregationModel(aggParameters);
-                    aggregations.aggregations.add(aggregationModel);
+                    aggregations.add(aggregationModel);
                 }
             }
         }
         return aggregations;
     }
 
-    public static AggregationModel getAggregationModel(List<String> agg){
-        AggregationModel aggregationModel = new AggregationModel();
+    public static Aggregation getAggregationModel(List<String> agg){
+        Aggregation aggregationModel = new Aggregation();
         aggregationModel.type = agg.get(0);
         aggregationModel.field = agg.get(1);
 

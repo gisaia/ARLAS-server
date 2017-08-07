@@ -8,13 +8,9 @@ import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.request.*;
 import io.arlas.server.rest.explore.enumerations.AggregationType;
-import io.arlas.server.rest.explore.enumerations.DateInterval;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by hamou on 13/04/17.
@@ -34,12 +30,12 @@ public class CheckParams {
 
     public CheckParams() {
     }
-    public static void checkAggregationRequest(AggregationRequest aggregationRequest) throws ArlasException{
-        if (aggregationRequest == null || (aggregationRequest !=null && aggregationRequest.aggregations == null) ||
-                (aggregationRequest !=null && aggregationRequest.aggregations != null && aggregationRequest.aggregations.aggregations == null))
+    public static void checkAggregationRequest(AggregationsRequest aggregationRequest) throws ArlasException{
+        if (aggregationRequest == null ||  aggregationRequest.aggregations == null ||
+                 aggregationRequest.aggregations == null)
             throw new BadRequestException("Aggregation should not be null");
         else if (aggregationRequest !=null){
-            checkAggregation(aggregationRequest.aggregations);
+            checkAggregation(aggregationRequest);
         }
     }
     public static void checkFilter (Filter filter) throws ArlasException{
@@ -132,9 +128,9 @@ public class CheckParams {
             throw new InvalidParameterException(INVALID_AGGREGATION_PARAMETER);
     }
 
-    private static void checkAggregation(Aggregations aggregations) throws ArlasException{
+    private static void checkAggregation(AggregationsRequest aggregations) throws ArlasException{
         if (aggregations != null && aggregations.aggregations != null && aggregations.aggregations.size()>0){
-            for (AggregationModel aggregationModel : aggregations.aggregations){
+            for (Aggregation aggregationModel : aggregations.aggregations){
                 if ( aggregationModel.type != null && aggregationModel.field != null){
                     if (!AggregationType.aggregationTypes().contains(aggregationModel.type)){
                         throw new InvalidParameterException(INVALID_AGGREGATION_TYPE);
