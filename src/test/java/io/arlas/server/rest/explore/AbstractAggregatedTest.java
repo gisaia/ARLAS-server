@@ -32,7 +32,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         //GEOHASH
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.geohash;
         aggregationRequest.aggregations.get(0).field = "centroid";
-        aggregationRequest.aggregations.get(0).interval = new Interval(1, null); //"3";
+        aggregationRequest.aggregations.get(0).interval = new Interval(3, null); //"3";
         handleMatchingGeohashAggregate(post(aggregationRequest), 595, 1);
         handleMatchingGeohashAggregate(get("geohash:centroid:interval-3"), 595, 1);
 

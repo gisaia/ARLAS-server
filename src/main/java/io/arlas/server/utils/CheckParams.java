@@ -31,8 +31,7 @@ public class CheckParams {
     public CheckParams() {
     }
     public static void checkAggregationRequest(AggregationsRequest aggregationRequest) throws ArlasException{
-        if (aggregationRequest == null ||  aggregationRequest.aggregations == null ||
-                 aggregationRequest.aggregations == null)
+        if (aggregationRequest == null ||  aggregationRequest.aggregations == null)
             throw new BadRequestException("Aggregation should not be null");
         else if (aggregationRequest !=null){
             checkAggregation(aggregationRequest);
