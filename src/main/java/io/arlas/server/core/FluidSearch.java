@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.elasticsearch.ElasticsearchException;
+import io.arlas.server.model.request.*;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
 import org.elasticsearch.common.geo.builders.LineStringBuilder;
@@ -46,13 +47,7 @@ import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.exceptions.NotImplementedException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.request.AggregationModel;
-import io.arlas.server.rest.explore.enumerations.AggregationOn;
-import io.arlas.server.rest.explore.enumerations.AggregationOrder;
-import io.arlas.server.rest.explore.enumerations.AggregationType;
-import io.arlas.server.rest.explore.enumerations.DateInterval;
 import io.arlas.server.rest.explore.enumerations.MetricAggregationType;
-import io.arlas.server.utils.DateAggregationInterval;
 import io.arlas.server.utils.ParamsParser;
 
 
@@ -102,7 +97,7 @@ public class FluidSearch {
 
     public SearchResponse exec() throws ArlasException {
         searchRequestBuilder.setQuery(boolQueryBuilder);
-        LOGGER.debug("QUERY : "+searchRequestBuilder.toString());
+        LOGGER.debug("QUERY : " + searchRequestBuilder.toString());
         SearchResponse result = null;
 
         result = searchRequestBuilder.get();
@@ -110,70 +105,71 @@ public class FluidSearch {
         return result;
     }
 
-    public FluidSearch filter(List<String> f) throws ArlasException {
-        for (int i = 0; i < f.size(); i++) {
-            if (f.get(i) != null && !f.get(i).isEmpty()) {
-                String operands[] = f.get(i).split(":");
-                int operandsNumber = operands.length;
-                if (operandsNumber != 3) {
-                    throw new InvalidParameterException(INVALID_PARAMETER_F);
-                } else {
-                    //Means it's an gte, lte, like, ... operation
-                    if (operands[2] != null) {
-                        if (operands[1].equals("eq")){
-                            String fieldValues[] = operands[2].split(",");
-                            if (fieldValues.length>1){
-                                BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-                                for (String value : fieldValues){
-                                    orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(operands[0], value));
-                                }
-                                boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
-                            }
-                            else {
-                                boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.matchQuery(operands[0], operands[2]));
-                            }
-                        } else if (operands[1].equals("gte")) {
-                            boolQueryBuilder = boolQueryBuilder
-                                    .filter(QueryBuilders.rangeQuery(operands[0]).gte(operands[2]));
-                        } else if (operands[1].equals("gt")) {
-                            boolQueryBuilder = boolQueryBuilder
-                                    .filter(QueryBuilders.rangeQuery(operands[0]).gt(operands[2]));
-                        } else if (operands[1].equals("lte")) {
-                            boolQueryBuilder = boolQueryBuilder
-                                    .filter(QueryBuilders.rangeQuery(operands[0]).lte(operands[2]));
-                        } else if (operands[1].equals("lt")) {
-                            boolQueryBuilder = boolQueryBuilder
-                                    .filter(QueryBuilders.rangeQuery(operands[0]).lt(operands[2]));
-                        } else if (operands[1].equals("like")) {
-                            //TODO: if field type is fullText, use matchPhraseQuery instead of regexQuery
-                            boolQueryBuilder = boolQueryBuilder
-                                    .filter(QueryBuilders.regexpQuery(operands[0], ".*" + operands[2] + ".*"));
-                        } else if (operands[1].equals("ne")) {
-                            String fieldValues[] = operands[2].split(",");
-                            for (String value : fieldValues) {
-                                boolQueryBuilder = boolQueryBuilder
-                                        .mustNot(QueryBuilders.matchQuery(operands[0], value));
-                            }
-                        }
-                        else {
-                            throw new InvalidParameterException(INVALID_OPERATOR);
-                        }
-                    }
-                }
+    public FluidSearch filter(List<Expression> expressions) throws ArlasException {
+        for (Expression expression : expressions) {
+            if (Strings.isNullOrEmpty(expression.field) || expression.op == null ||Strings.isNullOrEmpty(expression.value)) {
+                throw new InvalidParameterException(INVALID_PARAMETER_F);
             }
+            String field = expression.field;
+            OperatorEnum op = expression.op;
+            String value = expression.value;
+            String fieldValues[] = value.split(",");
+            switch (op) {
+                case eq:
+                    if (fieldValues.length > 1) {
+                        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+                        for (String valueInValues : fieldValues) {
+                            orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(field, valueInValues));
+                        }
+                        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
+                    } else {
+                        boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.matchQuery(field, value));
+                    }
+                    break;
+                case gte:
+                    boolQueryBuilder = boolQueryBuilder
+                            .filter(QueryBuilders.rangeQuery(field).gte(value));
+                    break;
+                case gt:
+                    boolQueryBuilder = boolQueryBuilder
+                            .filter(QueryBuilders.rangeQuery(field).gt(value));
+                    break;
+                case lte:
+                    boolQueryBuilder = boolQueryBuilder
+                            .filter(QueryBuilders.rangeQuery(field).lte(value));
+                    break;
+                case lt:
+                    boolQueryBuilder = boolQueryBuilder
+                            .filter(QueryBuilders.rangeQuery(field).lt(value));
+                    break;
+                case like:
+                    //TODO: if field type is fullText, use matchPhraseQuery instead of regexQuery
+                    boolQueryBuilder = boolQueryBuilder
+                            .filter(QueryBuilders.regexpQuery(field, ".*" + value + ".*"));
+                    break;
+                case ne:
+                    for (String valueInValues : fieldValues) {
+                        boolQueryBuilder = boolQueryBuilder
+                                .mustNot(QueryBuilders.matchQuery(field, valueInValues));
+                    }
+                    break;
+                default:
+                    throw new InvalidParameterException(INVALID_OPERATOR);
+            }
+
         }
         return this;
     }
 
-    public FluidSearch filterQ(String q) throws ArlasException{
+    public FluidSearch filterQ(String q) throws ArlasException {
         String operands[] = q.split(":");
-        if (operands.length == 2){
+        if (operands.length == 2) {
             boolQueryBuilder = boolQueryBuilder
                     .filter(QueryBuilders.simpleQueryStringQuery(operands[1]).defaultOperator(Operator.AND).field(operands[0]));
-        }else if (operands.length == 1){
+        } else if (operands.length == 1) {
             boolQueryBuilder = boolQueryBuilder
                     .filter(QueryBuilders.simpleQueryStringQuery(operands[0]).defaultOperator(Operator.AND));
-        }else {
+        } else {
             throw new InvalidParameterException(INVALID_Q_FILTER);
         }
         return this;
@@ -199,19 +195,19 @@ public class FluidSearch {
 
     public FluidSearch filterPWithin(double top, double left, double bottom, double right)
             throws ArlasException, IOException {
-        GeoPoint topLeft = new GeoPoint(top,left);
-        GeoPoint bottomRight = new GeoPoint(bottom,right);
+        GeoPoint topLeft = new GeoPoint(top, left);
+        GeoPoint bottomRight = new GeoPoint(bottom, right);
         boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders
-                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft,bottomRight));
+                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft, bottomRight));
         return this;
     }
 
     public FluidSearch filterNotPWithin(double top, double left, double bottom, double right)
             throws ArlasException, IOException {
-        GeoPoint topLeft = new GeoPoint(top,left);
-        GeoPoint bottomRight = new GeoPoint(bottom,right);
+        GeoPoint topLeft = new GeoPoint(top, left);
+        GeoPoint bottomRight = new GeoPoint(bottom, right);
         boolQueryBuilder = boolQueryBuilder.mustNot(QueryBuilders
-                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft,bottomRight));
+                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft, bottomRight));
         return this;
     }
 
@@ -284,118 +280,133 @@ public class FluidSearch {
         return this;
     }
 
-    private AggregationBuilder aggregateRecursive (List<AggregationModel> aggregations, AggregationBuilder aggregationBuilder, Boolean isGeoAggregate, Integer counter) throws ArlasException{
+    private AggregationBuilder aggregateRecursive(List<Aggregation> aggregations, AggregationBuilder aggregationBuilder, Boolean isGeoAggregate, Integer counter) throws ArlasException {
         //check the agg syntax is correct
-        AggregationModel aggregationModel = aggregations.get(0);
-        if (isGeoAggregate && counter == 0){
-            if (aggregationModel.type.equals(AggregationType.geohash.name())){
+        Aggregation aggregationModel = aggregations.get(0);
+        if (isGeoAggregate && counter == 0) {
+            if (aggregationModel.type.equals(AggregationTypeEnum.geohash)) {
                 aggregationBuilder = buildGeohashAggregation(aggregationModel);
-            }
-            else throw new NotAllowedException(aggregationModel.type + NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE);
-        }
-        else {
+            } else throw new NotAllowedException(aggregationModel.type + NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE);
+        } else {
             switch (aggregationModel.type) {
-                case AggregationType.DATEHISTOGRAM:
+                case datehistogram:
                     aggregationBuilder = buildDateHistogramAggregation(aggregationModel);
                     break;
-                case AggregationType.GEOHASH:
+                case geohash:
                     aggregationBuilder = buildGeohashAggregation(aggregationModel);
                     break;
-                case AggregationType.HISTOGRAM:
+                case histogram:
                     aggregationBuilder = buildHistogramAggregation(aggregationModel);
                     break;
-                case AggregationType.TERM:
+                case term:
                     aggregationBuilder = buildTermsAggregation(aggregationModel);
                     break;
             }
         }
         aggregations.remove(0);
-        if (aggregations.size() == 0){
+        if (aggregations.size() == 0) {
             return aggregationBuilder;
         }
         counter++;
         return aggregationBuilder.subAggregation(aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate, counter));
     }
-    public FluidSearch aggregate(List<AggregationModel> aggregations, Boolean isGeoAggregate) throws ArlasException{
+
+    public FluidSearch aggregate(List<Aggregation> aggregations, Boolean isGeoAggregate) throws ArlasException {
         AggregationBuilder aggregationBuilder = null;
         aggregationBuilder = aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate, 0);
-        searchRequestBuilder =searchRequestBuilder.setSize(0).addAggregation(aggregationBuilder);
+        searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(aggregationBuilder);
         return this;
     }
 
-    private DateHistogramAggregationBuilder buildDateHistogramAggregation(AggregationModel aggregationModel) throws ArlasException{
+    private DateHistogramAggregationBuilder buildDateHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
         DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram(DATEHISTOGRAM_AGG);
-        // Get the interval
-        DateAggregationInterval dateAggregationInterval = ParamsParser.getAggregationDateInterval(aggregationModel.interval);
-        DateHistogramInterval dateHistogramInterval = null;
-        Integer aggsize = dateAggregationInterval.aggsize;
-        if(dateAggregationInterval.aggunit.equals(DateInterval.YEAR) || dateAggregationInterval.aggunit.equals(DateInterval.QUARTER) ||dateAggregationInterval.aggunit.equals(DateInterval.DAY) ){
-            if(aggsize>1) throw new NotAllowedException("The size must be equal to 1 for the unit " + dateAggregationInterval.aggunit + ".");
+        if (aggregationModel.interval.unit.equals(UnitEnum.year) || aggregationModel.interval.unit.equals(UnitEnum.quarter) || aggregationModel.interval.unit.equals(UnitEnum.day)) {
+            if (aggregationModel.interval.value > 1)
+                throw new NotAllowedException("The size must be equal to 1 for the unit " + aggregationModel.interval.unit + ".");
         }
-        switch (dateAggregationInterval.aggunit){
-            case DateInterval.YEAR : dateHistogramInterval = DateHistogramInterval.YEAR; break;
-            case DateInterval.QUARTER : dateHistogramInterval = DateHistogramInterval.QUARTER; break;
-            case DateInterval.MONTH : dateHistogramInterval = DateHistogramInterval.MONTH; break;
-            case DateInterval.WEEK : dateHistogramInterval = DateHistogramInterval.weeks(aggsize); break;
-            case DateInterval.DAY : dateHistogramInterval = DateHistogramInterval.days(aggsize); break;
-            case DateInterval.HOUR : dateHistogramInterval = DateHistogramInterval.hours(aggsize); break;
-            case DateInterval.MINUTE : dateHistogramInterval = DateHistogramInterval.minutes(aggsize); break;
-            case DateInterval.SECOND : dateHistogramInterval = DateHistogramInterval.seconds(aggsize); break;
-            default : throw new InvalidParameterException(INVALID_DATE_UNIT);
+        DateHistogramInterval intervalUnit = null;
+        switch (aggregationModel.interval.unit) {
+            case year:
+                intervalUnit = DateHistogramInterval.YEAR;
+                break;
+            case quarter:
+                intervalUnit = DateHistogramInterval.QUARTER;
+                break;
+            case month:
+                intervalUnit = DateHistogramInterval.MONTH;
+                break;
+            case week:
+                intervalUnit = DateHistogramInterval.weeks(aggregationModel.interval.value);
+                break;
+            case day:
+                intervalUnit = DateHistogramInterval.days(aggregationModel.interval.value);
+                break;
+            case hour:
+                intervalUnit = DateHistogramInterval.hours(aggregationModel.interval.value);
+                break;
+            case minute:
+                intervalUnit = DateHistogramInterval.minutes(aggregationModel.interval.value);
+                break;
+            case second:
+                intervalUnit = DateHistogramInterval.seconds(aggregationModel.interval.value);
+                break;
+            default:
+                throw new InvalidParameterException(INVALID_DATE_UNIT);
         }
-        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(dateHistogramInterval);
+        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(intervalUnit);
         //get the field, format, collect_field, collect_fct, order, on
-        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder)setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
+        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
         return dateHistogramAggregationBuilder;
     }
 
     // construct and returns the geohash aggregationModel builder
-    private GeoGridAggregationBuilder buildGeohashAggregation(AggregationModel aggregationModel) throws ArlasException{
+    private GeoGridAggregationBuilder buildGeohashAggregation(Aggregation aggregationModel) throws ArlasException {
         GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(GEOHASH_AGG);
         //get the precision
         Integer precision = ParamsParser.getAggregationGeohasPrecision(aggregationModel.interval);
         geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
         //get the field, format, collect_field, collect_fct, order, on
-        geoHashAggregationBuilder = (GeoGridAggregationBuilder)setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
+        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
         return geoHashAggregationBuilder;
     }
 
     // construct and returns the histogram aggregationModel builder
-    private HistogramAggregationBuilder buildHistogramAggregation(AggregationModel aggregationModel) throws ArlasException {
+    private HistogramAggregationBuilder buildHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
         HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram(HISTOGRAM_AGG);
         // get the length
-        Double length = ParamsParser.getAggregationHistogramLength(aggregationModel.interval);
-        histogramAggregationBuilder = histogramAggregationBuilder.interval(length);
+        if(aggregationModel.interval==null || aggregationModel.interval.value==null){
+            throw new InvalidParameterException("Interval must be provided. Currently null.");
+        }
+        histogramAggregationBuilder = histogramAggregationBuilder.interval(aggregationModel.interval.value);
         //get the field, format, collect_field, collect_fct, order, on
-        histogramAggregationBuilder = (HistogramAggregationBuilder)setAggregationParameters(aggregationModel, histogramAggregationBuilder);
+        histogramAggregationBuilder = (HistogramAggregationBuilder) setAggregationParameters(aggregationModel, histogramAggregationBuilder);
         return histogramAggregationBuilder;
     }
 
     // construct and returns the terms aggregationModel builder
-    private TermsAggregationBuilder buildTermsAggregation(AggregationModel aggregationModel) throws ArlasException {
+    private TermsAggregationBuilder buildTermsAggregation(Aggregation aggregationModel) throws ArlasException {
         TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(TERM_AGG);
         //get the field, format, collect_field, collect_fct, order, on
-        if(aggregationModel.interval != null){
+        if (aggregationModel.interval != null) {
             throw new BadRequestException(NO_TERM_INTERVAL);
         }
-        termsAggregationBuilder = (TermsAggregationBuilder)setAggregationParameters(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregationBuilder) setAggregationParameters(aggregationModel, termsAggregationBuilder);
         return termsAggregationBuilder;
     }
 
-    private ValuesSourceAggregationBuilder setAggregationParameters (AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException{
+    private ValuesSourceAggregationBuilder setAggregationParameters(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
         String aggField = aggregationModel.field;
         aggregationBuilder = aggregationBuilder.field(aggField);
         //Get the format
         String format = ParamsParser.getValidAggregationFormat(aggregationModel.format);
-        if (aggregationBuilder instanceof DateHistogramAggregationBuilder){
+        if (aggregationBuilder instanceof DateHistogramAggregationBuilder) {
             aggregationBuilder = aggregationBuilder.format(format);
-        }
-        else if (aggregationModel.format != null) {
+        } else if (aggregationModel.format != null) {
             throw new BadRequestException(NO_FORMAT_TO_SPECIFY);
         }
         // sub aggregate with a metric aggregationModel
         ValuesSourceAggregationBuilder.LeafOnly metricAggregation = null;
-        if(aggregationModel.collectField != null && aggregationModel.collectFct != null) {
+        if (aggregationModel.collectField != null && aggregationModel.collectFct != null) {
             switch (aggregationModel.collectFct) {
                 case MetricAggregationType.AVG:
                     metricAggregation = AggregationBuilders.avg("avg").field(aggregationModel.collectField);
@@ -412,19 +423,18 @@ public class FluidSearch {
                 case MetricAggregationType.SUM:
                     metricAggregation = AggregationBuilders.sum("sum").field(aggregationModel.collectField);
                     break;
-                default: throw new InvalidParameterException(aggregationModel.collectFct + " function is invalid.");
+                default:
+                    throw new InvalidParameterException(aggregationModel.collectFct + " function is invalid.");
             }
-            if (metricAggregation != null){
+            if (metricAggregation != null) {
                 aggregationBuilder.subAggregation(metricAggregation);
             }
-        }
-        else if (aggregationModel.collectField != null && aggregationModel.collectFct == null){
+        } else if (aggregationModel.collectField != null && aggregationModel.collectFct == null) {
             throw new BadRequestException(COLLECT_FCT_NOT_SPECIFIED);
-        }
-        else if (aggregationModel.collectField == null && aggregationModel.collectFct != null){
+        } else if (aggregationModel.collectField == null && aggregationModel.collectFct != null) {
             throw new BadRequestException(COLLECT_FIELD_NOT_SPECIFIED);
         }
-        if (aggregationModel.size != null){
+        if (aggregationModel.size != null) {
             Integer s = ParamsParser.getValidAggregationSize(aggregationModel.size);
             if (aggregationBuilder instanceof TermsAggregationBuilder)
                 aggregationBuilder = ((TermsAggregationBuilder) aggregationBuilder).size(s);
@@ -433,38 +443,38 @@ public class FluidSearch {
             else
                 throw new BadRequestException(NO_SIZE_TO_SPECIFY);
         }
-        setOrder(aggregationModel,aggregationBuilder, metricAggregation);
+        setOrder(aggregationModel, aggregationBuilder, metricAggregation);
         return aggregationBuilder;
     }
 
-    private void setOrder(AggregationModel aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, ValuesSourceAggregationBuilder.LeafOnly metricAggregation) throws ArlasException{
-        String order = aggregationModel.order;
-        String on = aggregationModel.on;
+    private void setOrder(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, ValuesSourceAggregationBuilder.LeafOnly metricAggregation) throws ArlasException {
+        AggregationOrderEnum order = aggregationModel.order;
+        AggregationOnEnum on = aggregationModel.on;
         if (order != null && on != null) {
-            if (!(aggregationBuilder instanceof GeoGridAggregationBuilder)){
+            if (!(aggregationBuilder instanceof GeoGridAggregationBuilder)) {
                 Boolean asc;
                 Histogram.Order histogramOrder = null;
                 Terms.Order termsOrder = null;
-                if (order.equals(AggregationOrder.asc.name()))
+                if (order.equals(AggregationOrderEnum.asc))
                     asc = true;
-                else if (order.equals(AggregationOrder.desc.name()))
+                else if (order.equals(AggregationOrderEnum.desc))
                     asc = false;
                 else
                     throw new InvalidParameterException(INVALID_ORDER_VALUE + order);
 
-                if (on.equals(AggregationOn.field.name())) {
+                if (on.equals(AggregationOnEnum.field)) {
                     termsOrder = Terms.Order.term(asc);
                     if (asc)
                         histogramOrder = Histogram.Order.KEY_ASC;
                     else
                         histogramOrder = Histogram.Order.KEY_DESC;
-                } else if (on.equals(AggregationOn.count.name())) {
+                } else if (on.equals(AggregationOnEnum.count)) {
                     termsOrder = Terms.Order.count(asc);
                     if (asc)
                         histogramOrder = Histogram.Order.COUNT_ASC;
                     else
                         histogramOrder = Histogram.Order.COUNT_DESC;
-                } else if (on.equals(AggregationOn.result.name())) {
+                } else if (on.equals(AggregationOnEnum.result)) {
                     if (metricAggregation != null) {
                         termsOrder = Terms.Order.aggregation(metricAggregation.getName(), asc);
                         histogramOrder = Histogram.Order.aggregation(metricAggregation.getName(), asc);
@@ -487,17 +497,15 @@ public class FluidSearch {
                     default:
                         throw new NotAllowedException(NO_ORDER_ON_TO_SPECIFY);
                 }
-            }else {
+            } else {
                 throw new NotAllowedException(ORDER_PARAM_NOT_ALLOWED);
             }
-        }
-        else if (order != null && on == null){
+        } else if (order != null && on == null) {
             if (aggregationBuilder instanceof GeoGridAggregationBuilder)
                 throw new NotAllowedException(ORDER_PARAM_NOT_ALLOWED);
             else
                 throw new BadRequestException(ON_NOT_SPECIFIED);
-        }
-        else if (order == null && on != null){
+        } else if (order == null && on != null) {
             if (aggregationBuilder instanceof GeoGridAggregationBuilder)
                 throw new NotAllowedException(ORDER_PARAM_NOT_ALLOWED);
             else
@@ -557,16 +565,16 @@ public class FluidSearch {
         if (wktGeometry != null) {
             String geometryType = wktGeometry.getGeometryType().toUpperCase();
             switch (geometryType) {
-            case "POLYGON":
-                return createPolygonBuilder((Polygon) wktGeometry);
-            case "MULTIPOLYGON":
-                return createMultiPolygonBuilder((MultiPolygon) wktGeometry);
-            case "LINESTRING":
-                return createLineStringBuilder((LineString) wktGeometry);
-            case "POINT":
-                return createPointBuilder((Point) wktGeometry);
-            default:
-                throw new InvalidParameterException("The given geometry is not handled.");
+                case "POLYGON":
+                    return createPolygonBuilder((Polygon) wktGeometry);
+                case "MULTIPOLYGON":
+                    return createMultiPolygonBuilder((MultiPolygon) wktGeometry);
+                case "LINESTRING":
+                    return createLineStringBuilder((LineString) wktGeometry);
+                case "POINT":
+                    return createPointBuilder((Point) wktGeometry);
+                default:
+                    throw new InvalidParameterException("The given geometry is not handled.");
             }
         }
         throw new InvalidParameterException("The given geometry is invalid.");
@@ -575,10 +583,10 @@ public class FluidSearch {
     public void setCollectionReference(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
         searchRequestBuilder = client.prepareSearch(collectionReference.params.indexName).setTypes(collectionReference.params.typeName);
-        if(collectionReference.params.includeFields != null && !collectionReference.params.includeFields.isEmpty()) {
+        if (collectionReference.params.includeFields != null && !collectionReference.params.includeFields.isEmpty()) {
             include(collectionReference.params.includeFields);
         }
-        if(collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
+        if (collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
             exclude(collectionReference.params.excludeFields);
         }
     }

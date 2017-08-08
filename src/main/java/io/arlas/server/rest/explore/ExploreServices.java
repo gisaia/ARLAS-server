@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.arlas.server.model.request.*;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
@@ -16,14 +17,7 @@ import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.request.AggregationRequest;
-import io.arlas.server.model.request.Aggregations;
-import io.arlas.server.model.request.Count;
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Search;
-import io.arlas.server.model.request.Size;
-import io.arlas.server.model.request.Sort;
-import io.arlas.server.model.response.ArlasAggregation;
+import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.ArlasMetric;
 import io.arlas.server.utils.CheckParams;
 
@@ -72,18 +66,18 @@ public class ExploreServices {
         return fluidSearch.exec().getHits();
     }
 
-    public SearchResponse aggregate(AggregationRequest aggregationRequest, CollectionReference collectionReference, Boolean isGeoAggregation) throws ArlasException,IOException{
-        CheckParams.checkAggregationRequest(aggregationRequest);
+    public SearchResponse aggregate(AggregationsRequest aggregationsRequest, CollectionReference collectionReference, Boolean isGeoAggregation) throws ArlasException,IOException{
+        CheckParams.checkAggregationRequest(aggregationsRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(aggregationRequest.filter,fluidSearch);
-        applyAggregation(aggregationRequest.aggregations,fluidSearch,isGeoAggregation);
+        applyFilter(aggregationsRequest.filter,fluidSearch);
+        applyAggregation(aggregationsRequest.aggregations,fluidSearch,isGeoAggregation);
         return fluidSearch.exec();
     }
 
-    protected void applyAggregation(Aggregations aggregations, FluidSearch fluidSearch, Boolean isGeoAggregation) throws ArlasException{
-        if (aggregations != null && aggregations.aggregations !=null && !aggregations.aggregations.isEmpty()){
-            fluidSearch = fluidSearch.aggregate(aggregations.aggregations,isGeoAggregation);
+    protected void applyAggregation(List<Aggregation> aggregations, FluidSearch fluidSearch, Boolean isGeoAggregation) throws ArlasException{
+        if (aggregations != null && aggregations !=null && !aggregations.isEmpty()){
+            fluidSearch = fluidSearch.aggregate(aggregations,isGeoAggregation);
         }
     }
 
@@ -144,38 +138,38 @@ public class ExploreServices {
         }
     }
 
-    public ArlasAggregation formatAggregationResult(MultiBucketsAggregation aggregation, ArlasAggregation arlasAggregation){
-        arlasAggregation.name = aggregation.getName();
-        arlasAggregation.elements = new ArrayList<ArlasAggregation>();
+    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse){
+        aggregationResponse.name = aggregation.getName();
+        aggregationResponse.elements = new ArrayList<AggregationResponse>();
         List<MultiBucketsAggregation.Bucket> buckets = (List<MultiBucketsAggregation.Bucket>)aggregation.getBuckets();
         buckets.forEach(bucket -> {
-            ArlasAggregation element = new ArlasAggregation();
+            AggregationResponse element = new AggregationResponse();
             element.key = bucket.getKey();
             element.keyAsString = bucket.getKeyAsString();
             element.count = bucket.getDocCount();
-            element.elements = new ArrayList<ArlasAggregation>();
+            element.elements = new ArrayList<AggregationResponse>();
             if (bucket.getAggregations().asList().size() == 0){
                 element.elements = null;
-                arlasAggregation.elements.add(element);
+                aggregationResponse.elements.add(element);
             }
             else {
                 bucket.getAggregations().forEach(subAggregation -> {
-                    ArlasAggregation subArlasAggregation = new ArlasAggregation();
-                    subArlasAggregation.name = subAggregation.getName();
+                    AggregationResponse subAggregationResponse = new AggregationResponse();
+                    subAggregationResponse.name = subAggregation.getName();
                     if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) ||subAggregation.getName().equals(FluidSearch.TERM_AGG)){
-                        subArlasAggregation = formatAggregationResult(((MultiBucketsAggregation)subAggregation), subArlasAggregation);
+                        subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation)subAggregation), subAggregationResponse);
                     } else{
-                        subArlasAggregation.elements = null;
+                        subAggregationResponse.elements = null;
                         ArlasMetric arlasMetric = new ArlasMetric();
                         arlasMetric.type = subAggregation.getName();
                         arlasMetric.value = (Double)subAggregation.getProperty("value");
-                        subArlasAggregation.metric = arlasMetric;
+                        subAggregationResponse.metric = arlasMetric;
                     }
-                    element.elements.add(subArlasAggregation);
+                    element.elements.add(subAggregationResponse);
                 });
-                arlasAggregation.elements.add(element);
+                aggregationResponse.elements.add(element);
             }
         });
-        return arlasAggregation;
+        return aggregationResponse;
     }
 }

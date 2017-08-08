@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.index.IndexResponse;
@@ -42,7 +43,8 @@ public class DataSetTool {
     }
 
     static public DataSetTool init() throws UnknownHostException {
-        return new DataSetTool(System.getenv("ARLAS_ELASTIC_HOST"), Integer.parseInt(System.getenv("ARLAS_ELASTIC_PORT")));
+        return new DataSetTool(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_HOST")).orElse("localhost"),
+                Integer.parseInt(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_PORT")).orElse("9300")));
     }
 
     static public DataSetTool init(String host, int port) throws UnknownHostException {

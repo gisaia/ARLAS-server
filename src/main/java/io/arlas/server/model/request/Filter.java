@@ -3,7 +3,7 @@ package io.arlas.server.model.request;
 import java.util.List;
 
 public class Filter {
-    public List<String> f;
+    public List<Expression> f;
     public String q;
     public Long before;
     public Long after;

@@ -3,8 +3,8 @@ package io.arlas.server.rest.explore.aggregate;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.request.AggregationRequest;
-import io.arlas.server.model.response.ArlasAggregation;
+import io.arlas.server.model.request.AggregationsRequest;
+import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.ArlasError;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
@@ -36,10 +36,10 @@ public class AggregateRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = Documentation.AGGREGATION_OPERATION, consumes = UTF8JSON, response = ArlasAggregation.class
+    @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = Documentation.AGGREGATION_OPERATION, consumes = UTF8JSON, response = AggregationResponse.class
 
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasAggregation.class, responseContainer = "ArlasAggregation" ),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = AggregationResponse.class, responseContainer = "ArlasAggregation" ),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
     public Response aggregate(
             // --------------------------------------------------------
@@ -145,12 +145,12 @@ public class AggregateRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        AggregationRequest aggregationRequest = new AggregationRequest();
-        aggregationRequest.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
-        aggregationRequest.aggregations = ParamsParser.getAggregations(agg);
-        ArlasAggregation arlasAggregation = getArlasAggregation(aggregationRequest,collectionReference);
-        arlasAggregation.arlasTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
-        return Response.ok(arlasAggregation).build();
+        AggregationsRequest aggregationsRequest = new AggregationsRequest();
+        aggregationsRequest.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
+        aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
+        AggregationResponse aggregationResponse = getArlasAggregation(aggregationsRequest,collectionReference);
+        aggregationResponse.arlasTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
+        return Response.ok(aggregationResponse).build();
     }
 
     @Timed
@@ -158,8 +158,8 @@ public class AggregateRESTService extends ExploreRESTServices {
     @POST
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = Documentation.AGGREGATION_OPERATION, consumes = UTF8JSON, response = ArlasAggregation.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasAggregation.class, responseContainer = "ArlasAggregation" ),
+    @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = Documentation.AGGREGATION_OPERATION, consumes = UTF8JSON, response = AggregationResponse.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = AggregationResponse.class, responseContainer = "ArlasAggregation" ),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class),
             @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
     public Response aggregatePost(
@@ -175,7 +175,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
-            AggregationRequest aggregationRequest
+            AggregationsRequest aggregationsRequest
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         Long startArlasTime = System.nanoTime();
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
@@ -183,22 +183,22 @@ public class AggregateRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        ArlasAggregation arlasAggregation = getArlasAggregation(aggregationRequest,collectionReference);
-        arlasAggregation.arlasTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
+        AggregationResponse aggregationResponse = getArlasAggregation(aggregationsRequest,collectionReference);
+        aggregationResponse.arlasTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
 
-        return Response.ok(arlasAggregation).build();
+        return Response.ok(aggregationResponse).build();
     }
 
-    public ArlasAggregation getArlasAggregation(AggregationRequest aggregationRequest, CollectionReference collectionReference) throws ArlasException, IOException{
-        ArlasAggregation arlasAggregation = new ArlasAggregation();
+    public AggregationResponse getArlasAggregation(AggregationsRequest aggregationsRequest, CollectionReference collectionReference) throws ArlasException, IOException{
+        AggregationResponse aggregationResponse = new AggregationResponse();
         Long startQuery = System.nanoTime();
-        SearchResponse response = this.getExploreServices().aggregate(aggregationRequest,collectionReference,false);
+        SearchResponse response = this.getExploreServices().aggregate(aggregationsRequest,collectionReference,false);
         MultiBucketsAggregation aggregation;
         aggregation = (MultiBucketsAggregation)response.getAggregations().asList().get(0);
-        arlasAggregation.totalnb = response.getHits().totalHits();
-        arlasAggregation.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
-        arlasAggregation = this.getExploreServices().formatAggregationResult(aggregation,arlasAggregation);
-        return arlasAggregation;
+        aggregationResponse.totalnb = response.getHits().totalHits();
+        aggregationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
+        aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse);
+        return aggregationResponse;
     }
 
 }

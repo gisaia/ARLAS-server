@@ -7,14 +7,10 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.request.*;
-import io.arlas.server.rest.explore.enumerations.AggregationType;
-import io.arlas.server.rest.explore.enumerations.DateInterval;
+import io.arlas.server.model.request.AggregationTypeEnum;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by hamou on 13/04/17.
@@ -34,12 +30,11 @@ public class CheckParams {
 
     public CheckParams() {
     }
-    public static void checkAggregationRequest(AggregationRequest aggregationRequest) throws ArlasException{
-        if (aggregationRequest == null || (aggregationRequest !=null && aggregationRequest.aggregations == null) ||
-                (aggregationRequest !=null && aggregationRequest.aggregations != null && aggregationRequest.aggregations.aggregations == null))
+    public static void checkAggregationRequest(AggregationsRequest aggregationRequest) throws ArlasException{
+        if (aggregationRequest == null ||  aggregationRequest.aggregations == null)
             throw new BadRequestException("Aggregation should not be null");
         else if (aggregationRequest !=null){
-            checkAggregation(aggregationRequest.aggregations);
+            checkAggregation(aggregationRequest);
         }
     }
     public static void checkFilter (Filter filter) throws ArlasException{
@@ -124,37 +119,27 @@ public class CheckParams {
     public static Boolean isAggregationParamValid(String agg) throws ArlasException {
         String[] aggParts = agg.split(":");
         if (aggParts.length > 1) {
-            if (AggregationType.aggregationTypes().contains(aggParts[0]))
+            try{
+                AggregationTypeEnum.valueOf(aggParts[0]);
                 return true;
-            else
+            }catch(Exception e){
                 throw new InvalidParameterException(INVALID_AGGREGATION_TYPE);
-        } else
+            }
+        } else {
             throw new InvalidParameterException(INVALID_AGGREGATION_PARAMETER);
+        }
     }
 
-    private static void checkAggregation(Aggregations aggregations) throws ArlasException{
+    private static void checkAggregation(AggregationsRequest aggregations) throws ArlasException{
         if (aggregations != null && aggregations.aggregations != null && aggregations.aggregations.size()>0){
-            for (AggregationModel aggregationModel : aggregations.aggregations){
+            for (Aggregation aggregationModel : aggregations.aggregations){
                 if ( aggregationModel.type != null && aggregationModel.field != null){
-                    if (!AggregationType.aggregationTypes().contains(aggregationModel.type)){
-                        throw new InvalidParameterException(INVALID_AGGREGATION_TYPE);
-                    }
-                }
-                else {
+                }else {
                     throw new InvalidParameterException(INVALID_AGGREGATION);
                 }
             }
         }
     }
-
-    // TODO: finish param check validation
-    // Verify that interval-{interval} is set and that {interval} respects
-    // {size}(unit) format.
-    public static Boolean isDateIntervalAggregationValid(String[] aggParts) {
-
-        return false;
-    }
-
 
     public static Integer getValidGeoHashPrecision(String aggInterval) throws ArlasException {
         if (aggInterval != null) {

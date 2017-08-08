@@ -2,6 +2,8 @@ package io.arlas.server.rest.explore;
 
 import java.util.Arrays;
 
+import io.arlas.server.model.request.Expression;
+import io.arlas.server.model.request.OperatorEnum;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,29 +27,29 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     //----------------------------------------------------------------
     @Test
     public void testFieldFilter() throws Exception {
-        request.filter.f = Arrays.asList("job:eq:" + DataSetTool.jobs[0]);
+        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.eq, DataSetTool.jobs[0]));//("job:eq:" + DataSetTool.jobs[0]);
         handleKnownFieldFilter(post(request));
-        handleKnownFieldFilter(get("f", request.filter.f.get(0)));
+        handleKnownFieldFilter(get("f", request.filter.f.get(0).toString()));
 
-        request.filter.f = Arrays.asList("job:eq:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
+        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.eq, DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]));//"job:eq:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
         handleKnownFieldFilterWithOr(post(request));
-        handleKnownFieldFilterWithOr(get("f", request.filter.f.get(0)));
+        handleKnownFieldFilterWithOr(get("f", request.filter.f.get(0).toString()));
 
-        request.filter.f = Arrays.asList("job:like:" + "cto");
+        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.like, "cto"));//"job:like:" + "cto");
         handleKnownFieldLikeFilter(post(request));
-        handleKnownFieldLikeFilter(get("f", request.filter.f.get(0)));
+        handleKnownFieldLikeFilter(get("f", request.filter.f.get(0).toString()));
 
-        request.filter.f = Arrays.asList("job:ne:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
+        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.ne, DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]));//"job:ne:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
         handleKnownFieldFilterNotEqual(post(request));
-        handleKnownFieldFilterNotEqual(get("f", request.filter.f.get(0)));
+        handleKnownFieldFilterNotEqual(get("f", request.filter.f.get(0).toString()));
         //TODO : fix the case where the field is full text
         /*handleKnownFullTextFieldLikeFilter(
                 givenFilterableRequestParams().param("f", "fullname:like:" + "name is")
                         .when().get(getUrlPath("geodata"))
                         .then());*/
-        request.filter.f = Arrays.asList("job:eq:UnknownJob");
+        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.eq, "UnknownJob"));//"job:eq:UnknownJob");
         handleUnknownFieldFilter(post(request));
-        handleUnknownFieldFilter(get("f", request.filter.f.get(0)));
+        handleUnknownFieldFilter(get("f", request.filter.f.get(0).toString()));
         request.filter.f = null;
 
     }
@@ -239,7 +241,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     
     @Test
     public void testComplexFilter() throws Exception {
-        request.filter.f = Arrays.asList("job:eq:Architect");
+        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.like, "Architect"));//"job:eq:Architect");
         request.filter.after = 1009799L;
         request.filter.before = 1009801L;
         request.filter.pwithin = "50,-50,-50,50";
@@ -250,7 +252,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.notgintersect = "POLYGON((-30 -10,30 10, 30 -30, -30 -30,-30 -10))";
         handleComplexFilter(post(request));
         handleComplexFilter(
-                givenFilterableRequestParams().param("f", request.filter.f.get(0))
+                givenFilterableRequestParams().param("f", request.filter.f.get(0).toString())
                     .param("after", request.filter.after)
                     .param("before", request.filter.before)
                     .param("pwithin", request.filter.pwithin)
@@ -269,8 +271,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     //----------------------------------------------------------------
     @Test
     public void testNotFoundCollection() throws Exception {
-        request.filter.f = Arrays.asList("job:eq:" + DataSetTool.jobs[0]);
-        request.filter.f = Arrays.asList("job:eq:" + DataSetTool.jobs[0]);
+        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.eq, DataSetTool.jobs[0]));//"job:eq:" + DataSetTool.jobs[0]);
+        // TODO : why was it doubled? : request.filter.f = Arrays.asList("job:eq:" + DataSetTool.jobs[0]);
         request.filter.after = 1000000L;
         request.filter.before = 2000000L;
         request.filter.pwithin = "10,10,-10,-10";
@@ -297,7 +299,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     @Test
     public void testInvalidFilterParameters() throws Exception {
         //FIELD
-        request.filter.f = Arrays.asList("foobar");
+        request.filter.f = Arrays.asList(new Expression("foobar", null, null));//);
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("f", request.filter.f.get(0)));
         request.filter.f = null;

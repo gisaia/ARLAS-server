@@ -7,6 +7,8 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 
+import io.arlas.server.model.request.AggregationTypeEnum;
+import io.arlas.server.model.request.Interval;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 
@@ -97,9 +99,9 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
 
     @Override
     protected RequestSpecification givenFilterableRequestBody() {
-        aggregationRequest.aggregations.aggregations.get(0).type = "geohash";
-        aggregationRequest.aggregations.aggregations.get(0).field = "centroid";
-        aggregationRequest.aggregations.aggregations.get(0).interval = "3";
+        aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.geohash;
+        aggregationRequest.aggregations.get(0).field = "centroid";
+        aggregationRequest.aggregations.get(0).interval = new Interval(3, null);
         request = aggregationRequest;
         return given().contentType("application/json;charset=utf-8");
     }
