@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType;
                 title = "ARLAS Exploration API",
                 description = "Explore the content of ARLAS collections",
                 license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
-                version = "API_VERSION"))
+                version = "1.0.6"))
 
 public abstract class ExploreRESTServices {
 
