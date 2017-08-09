@@ -10,7 +10,12 @@ import javax.ws.rs.core.MediaType;
 
 @Path("/explore")
 @Api(value = "/explore")
-@SwaggerDefinition(info = @Info(contact = @Contact(email = "contact@gisaia.com", name = "Gisaia", url = "http://www.gisaia.com/"), title = "ARLAS Exploration API", description = "Explore the content of ARLAS collections", license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"), version = "V0.1.0"))
+@SwaggerDefinition(
+        info = @Info(contact = @Contact(email = "contact@gisaia.com", name = "Gisaia", url = "http://www.gisaia.com/"),
+                title = "ARLAS Exploration API",
+                description = "Explore the content of ARLAS collections",
+                license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
+                version = "API_VERSION"))
 
 public abstract class ExploreRESTServices {
 

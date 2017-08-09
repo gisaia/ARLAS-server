@@ -1,0 +1,19 @@
+{
+  "name": "arlas-api",
+  "version": "0.0.0",
+  "description": "ARLAS Key Value Api.",
+  "author": "Gisaia",
+  "main": "./index.js",
+  "typings": "./index.d.ts",
+  "keywords": [
+    "angular",
+    "angular2",
+    "angular 2",
+    "angular4"
+],
+  "peerDependencies": {
+    "@angular/common": "^4.0.0",
+    "@angular/core": "^4.0.0",
+    "rxjs": "^5.1.0"
+  }
+}
