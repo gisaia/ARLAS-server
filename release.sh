@@ -14,11 +14,13 @@ trap clean EXIT
 
 usage(){
 	echo "Usage: ./release.sh -api=X -es=Y -rel=Z -dev=Z+1 [--no-tests]"
-	echo " -es |--elastic-range     elasticsearch versions supported"
-	echo " -api|--api-version       release arlas API version"
-	echo " -rel|--arlas-release     release arlas-server version"
-	echo " -dev|--arlas-dev         development arlas-server version (-SNAPSHOT qualifier will be automatically added)"
-	echo " --no-tests               do not run integration tests"
+	echo " -es |--elastic-range           elasticsearch versions supported"
+	echo " -api-major|--api-version       release arlas-server API major version"
+	echo " -api-minor|--api-minor-version release arlas-server API minor version"
+	echo " -api-patch|--api-patch-version release arlas-server API patch version"
+	echo " -rel|--arlas-release        release arlas-server version"
+	echo " -dev|--arlas-dev            development arlas-server version (-SNAPSHOT qualifier will be automatically added)"
+	echo " --no-tests                     do not run integration tests"
 	exit 1
 }
 
@@ -34,8 +36,16 @@ case $i in
     ARLAS_DEV="${i#*=}"
     shift # past argument=value
     ;;
-    -api=*|--api-version=*)
-    API_VERSION="${i#*=}"
+    -api-major=*|--api-major-version=*)
+    API_MAJOR_VERSION="${i#*=}"
+    shift # past argument=value
+    ;;
+    -api-minor=*|--api-minor-version=*)
+    API_MINOR_VERSION="${i#*=}"
+    shift # past argument=value
+    ;;
+    -api-patch=*|--api-patch-version=*)
+    API_PATCH_VERSION="${i#*=}"
     shift # past argument=value
     ;;
     -es=*|--elastic-range=*)
@@ -66,14 +76,18 @@ esac
 
 
 if [ -z ${ELASTIC_VERSIONS+x} ]; then usage;else echo "Elasticsearch versions support : ${ELASTIC_VERSIONS[*]}"; fi
-if [ -z ${API_VERSION+x} ]; then usage;  else    echo "API version                    : ${API_VERSION}"; fi
+if [ -z ${API_MAJOR_VERSION+x} ]; then usage;  else    echo "API MAJOR version        : ${API_MAJOR_VERSION}"; fi
+if [ -z ${API_MINOR_VERSION+x} ]; then usage;  else    echo "API MINOR version        : ${API_MINOR_VERSION}"; fi
+if [ -z ${API_PATCH_VERSION+x} ]; then usage;  else    echo "API PATCH version        : ${API_PATCH_VERSION}"; fi
 if [ -z ${ARLAS_REL+x} ]; then usage;    else    echo "Release version                : ${ARLAS_REL}"; fi
 if [ -z ${ARLAS_DEV+x} ]; then usage;    else    echo "Next development version       : ${ARLAS_DEV}"; fi
                                                  echo "Running tests                  : ${TESTS}"
 
-VERSION="${API_VERSION}-${ELASTIC_RANGE}-${ARLAS_REL}"
-DEV="${API_VERSION}-${ELASTIC_RANGE}-${ARLAS_DEV}"
+VERSION="${API_MAJOR_VERSION}-${ELASTIC_RANGE}-${ARLAS_REL}"
+DEV="${API_MAJOR_VERSION}-${ELASTIC_RANGE}-${ARLAS_DEV}"
+FULL_API_VERSION=${API_MAJOR_VERSION}"."${API_MINOR_VERSION}"."${API_PATCH_VERSION}
 
+mkdir tmp || echo "tmp exists"
 echo "=> Get develop branch"
 git checkout develop
 git pull origin develop
@@ -81,8 +95,10 @@ git pull origin develop
 echo "=> Update project version"
 mvn versions:set -DnewVersion=${VERSION}
 
+sed -i.bak 's/\"API_VERSION\"/\"'${FULL_API_VERSION}'\"/' src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
+
 echo "=> Package arlas-server"
-mvn clean install
+mvn clean package
 
 echo "=> Start arlas-server"
 # stop already running server
@@ -98,21 +114,37 @@ itests() {
 	echo "=> Run integration tests with several elasticsearch versions (${ELASTIC_VERSIONS[*]})"
 	for i in "${ELASTIC_RANGE[@]}"
     do
-	    ./tests-integration/tests-integration.sh --es=$i
+	    ./scripts/tests-integration.sh --es=$i
     done
 }
 if [ "$TESTS" == "YES" ]; then itests; else echo "=> Skip integration tests"; fi
 
 echo "=> Generate documentation"
-curl -XGET http://localhost:9999/arlas/swagger.json -o doc/api/swagger/swagger.json
-curl -XGET http://localhost:9999/arlas/swagger.yaml -o doc/api/swagger/swagger.yaml
-markdown-pdf doc/api/API-definition.md -o doc/api/API-definition.pdf -r landscape -z doc/api/markdown2pdf.css
-markdown-pdf doc/api/API-Collection-definition.md -o doc/api/API-Collection-definition.pdf -r landscape -z doc/api/markdown2pdf.css
-swagger-codegen generate  -i doc/api/swagger/swagger.json  -l html2 -o doc/api/progapi/html/
-swagger-codegen generate  -i doc/api/swagger/swagger.json  -l typescript-angular2 -o doc/api/progapi/typescript-angular2
-swagger-codegen generate  -i doc/api/swagger/swagger.json  -l typescript-node -o doc/api/progapi/typescript-node
-swagger-codegen generate  -i doc/api/swagger/swagger.json  -l typescript-fetch -o doc/api/progapi/typescript-fetch
-mvn clean swagger2markup:convertSwagger2markup post-integration-test
+curl -XGET http://localhost:9999/arlas/swagger.json -o tmp/swagger.json
+curl -XGET http://localhost:9999/arlas/swagger.yaml -o tmp/swagger.yaml
+mvn  swagger2markup:convertSwagger2markup post-integration-test
+
+echo "=> Generate client APIs"
+swagger-codegen generate  -i tmp/swagger.json  -l typescript-angular2 -o doc/api/progapi/typescript-angular2
+
+
+echo "=> Build Typescript API "${FULL_API_VERSION}
+BASEDIR=$PWD
+cd ${BASEDIR}/doc/api/progapi/typescript-angular2/
+cp ${BASEDIR}/conf/npm/package-build.json package.json
+cp ${BASEDIR}/conf/npm/tsconfig-build.json .
+npm version --no-git-tag-version ${FULL_API_VERSION}
+npm install
+npm run build-release
+cd ${BASEDIR}
+
+echo "=> Publish Typescript API "
+cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/doc/api/progapi/typescript-angular2/dist/package.json
+cd ${BASEDIR}/doc/api/progapi/typescript-angular2/dist
+npm version --no-git-tag-version ${FULL_API_VERSION}
+npm publish
+cd ${BASEDIR}
+
 
 echo "=> Commit release version"
 git commit -a -m "release version ${VERSION}"
@@ -131,5 +163,7 @@ git checkout develop
 git pull origin develop
 git rebase origin/master
 mvn versions:set -DnewVersion=${DEV}-SNAPSHOT
+echo "=> Update REST API version in JAVA source code"
+sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
 git commit -a -m "development version ${DEV}-SNAPSHOT"
 git push origin develop

@@ -8,3 +8,8 @@ save*
 .settings/*
 .DS_Store
 dependency-reduced-pom.xml
+doc/
+*.log
+*.versionsBackup
+*.bak
+tmp/

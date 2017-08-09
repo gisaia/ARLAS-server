@@ -1,6 +1,6 @@
 arlas-integration:
   script:
-    - ./tests-integration/tests-integration.sh
+    - ./scripts/tests-integration.sh
   only:
     - branches
   except:
@@ -8,13 +8,12 @@ arlas-integration:
 
 arlas-artifact:
   script:
-    - mvn package
-    - cp conf/configuration.yaml .
-    - cp target/arlas-server-*.jar .
+    - ./scripts/build-artifact.sh
   only:
     - tags
   artifacts:
     paths:
     - arlas-server-*.jar
     - configuration.yaml
+    - doc
     name: "arlas-binaries-${CI_COMMIT_TAG}"
