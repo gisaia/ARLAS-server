@@ -6,7 +6,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.AggregationsRequest;
 import io.arlas.server.model.response.AggregationResponse;
-import io.arlas.server.model.response.ArlasError;
+import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -45,8 +45,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @Consumes(UTF8JSON)
     @ApiOperation(value = "GeoAggregate", produces = UTF8JSON, notes = Documentation.GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class),
-            @ApiResponse(code = 501, message = "Not implemented functionality.", response = ArlasError.class)})
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
+            @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
     public Response geoaggregate(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -164,8 +164,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @Consumes(UTF8JSON)
     @ApiOperation(value = "GeoAggregate", produces = UTF8JSON, notes = Documentation.GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class),
-            @ApiResponse(code = 501, message = "Not implemented functionality.", response = ArlasError.class)})
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
+            @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
     public Response geoaggregatePost(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------

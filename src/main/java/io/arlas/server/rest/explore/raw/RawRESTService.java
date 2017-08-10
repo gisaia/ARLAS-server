@@ -18,8 +18,8 @@ import io.arlas.server.core.ElasticDocument;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.response.ArlasError;
-import io.arlas.server.model.response.ArlasHit;
+import io.arlas.server.model.response.Error;
+import io.arlas.server.model.response.Hit;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.swagger.annotations.ApiOperation;
@@ -37,11 +37,11 @@ public class RawRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Get an Arlas document", produces = UTF8JSON, notes = "Returns a raw indexed document.", consumes = UTF8JSON, response = ArlasHit.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasHit.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class),
-            @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class),
-            @ApiResponse(code = 404, message = "Not Found Error.", response = ArlasError.class) })
+    @ApiOperation(value = "Get an Arlas document", produces = UTF8JSON, notes = "Returns a raw indexed document.", consumes = UTF8JSON, response = Hit.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Hit.class),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class),
+            @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
+            @ApiResponse(code = 404, message = "Not Found Error.", response = Error.class) })
     public Response getArlasHit(
          // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -94,7 +94,7 @@ public class RawRESTService extends ExploreRESTServices {
             throw new NotFoundException("Document " + identifier + " not found.");
         }
         
-        ArlasHit hit = new ArlasHit(collectionReference, source);
+        Hit hit = new Hit(collectionReference, source);
         return Response.ok(hit).build();
     }
 }

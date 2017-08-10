@@ -1,11 +1,14 @@
 package io.arlas.server.model.response;
 
-public class ArlasError {
+import io.dropwizard.jackson.JsonSnakeCase;
+
+@JsonSnakeCase
+public class Error {
     public int status;
     public String message;
     public String error;
 
-    public ArlasError(int status, String error, String message) {
+    public Error(int status, String error, String message) {
         super();
         this.status = status;
         this.error = error;

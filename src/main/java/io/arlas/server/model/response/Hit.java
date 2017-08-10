@@ -9,20 +9,20 @@ import io.arlas.server.utils.TimestampTypeMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(value = "ArlasHit", description = "A hit retrieved from an ARLAS Collection")
-public class ArlasHit {
+import io.dropwizard.jackson.JsonSnakeCase;
 
-    @ApiModelProperty(name = "md", value = "The hit's metadata")
-    public ArlasMD md;
+@JsonSnakeCase
+public class Hit {
 
-    @ApiModelProperty(name = "data", value = "The hit's data")
+    public MD md;
+
     public Object data;
 
-    public ArlasHit() {}
+    public Hit() {}
     
-    public ArlasHit(CollectionReference collectionReference, Map<String,Object> source) throws ArlasException {
+    public Hit(CollectionReference collectionReference, Map<String,Object> source) throws ArlasException {
         data = source;
-        md = new ArlasMD();
+        md = new MD();
         if (collectionReference.params.idPath != null
                 && source.get(collectionReference.params.idPath) != null) {
             md.id = "" + source.get(collectionReference.params.idPath);

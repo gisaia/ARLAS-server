@@ -1,7 +1,9 @@
 package io.arlas.server.model.response;
 
-import io.swagger.annotations.ApiModelProperty;
 
+import io.dropwizard.jackson.JsonSnakeCase;
+
+@JsonSnakeCase
 public class CollectionReferenceDescriptionProperty {
     public CollectionReferenceDescriptionProperty(String name, ElasticType type, String format) {
         super();
@@ -10,13 +12,10 @@ public class CollectionReferenceDescriptionProperty {
         this.format = format;
     }
 
-    @ApiModelProperty(value = "The collection field name")
     public String name;
     
-    @ApiModelProperty(value = "The collection field type")
     public ElasticType type;
 
-    @ApiModelProperty(value = "The collection field format")
     public String format;
 
     @Override

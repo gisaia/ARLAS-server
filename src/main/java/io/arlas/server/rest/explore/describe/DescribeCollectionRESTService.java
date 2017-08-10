@@ -4,8 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.response.ArlasError;
-import io.arlas.server.model.response.ArlasHits;
+import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -31,7 +30,7 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
     @Consumes(UTF8JSON)
     @ApiOperation(value = "Describe", produces = UTF8JSON, notes = "Describe the structure and the content of the given collection. ", consumes = UTF8JSON, response = CollectionReferenceDescription.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReferenceDescription.class, responseContainer = "CollectionReferenceDescription" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
     public Response describe(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------

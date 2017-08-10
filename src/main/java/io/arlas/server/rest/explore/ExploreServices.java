@@ -18,7 +18,7 @@ import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.AggregationResponse;
-import io.arlas.server.model.response.ArlasMetric;
+import io.arlas.server.model.response.AggregationMetric;
 import io.arlas.server.utils.CheckParams;
 
 public class ExploreServices {
@@ -160,10 +160,10 @@ public class ExploreServices {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation)subAggregation), subAggregationResponse);
                     } else{
                         subAggregationResponse.elements = null;
-                        ArlasMetric arlasMetric = new ArlasMetric();
-                        arlasMetric.type = subAggregation.getName();
-                        arlasMetric.value = (Double)subAggregation.getProperty("value");
-                        subAggregationResponse.metric = arlasMetric;
+                        AggregationMetric aggregationMetric = new AggregationMetric();
+                        aggregationMetric.type = subAggregation.getName();
+                        aggregationMetric.value = (Double)subAggregation.getProperty("value");
+                        subAggregationResponse.metric = aggregationMetric;
                     }
                     element.elements.add(subAggregationResponse);
                 });

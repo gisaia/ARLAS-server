@@ -1,12 +1,11 @@
 package io.arlas.server.model.response;
 
-
-import org.geojson.FeatureCollection;
-
 import io.dropwizard.jackson.JsonSnakeCase;
 
 @JsonSnakeCase
-public class TimedFeatureCollection extends FeatureCollection{
+public class OperationInfo {
     public Long queryTime = null;
-    public Long arlasTime = null;
+    public Long totalTime = null;
+    public Long totalnb = null;
 }
+

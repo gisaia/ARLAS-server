@@ -71,8 +71,7 @@ echo "===> wait for arlas-server"
 docker run --link arlas-server:arlas-server --rm busybox sh -c 'i=1; until nc -w 2 arlas-server 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
 
 echo "=> Generate documentation"
-rm -r tmp || echo "cannot rm tmp"
-mkdir tmp || echo "cannot create tmp"
+mkdir tmp || echo "tmp exists"
 curl -XGET http://localhost:29999/arlas/swagger.json -o tmp/swagger.json
 curl -XGET http://localhost:29999/arlas/swagger.yaml -o tmp/swagger.yaml
 mvn  swagger2markup:convertSwagger2markup post-integration-test
