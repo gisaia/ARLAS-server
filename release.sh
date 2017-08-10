@@ -143,14 +143,8 @@ cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/tmp/typescript-angular2/d
 cd ${BASEDIR}/doc/api/progapi/typescript-angular2/dist
 npm version --no-git-tag-version ${FULL_API_VERSION}
 
-
-# !!!!!!
-exit
-
-
 npm publish
 cd ${BASEDIR}
-
 
 echo "=> Commit release version"
 git commit -a -m "release version ${VERSION}"
