@@ -140,10 +140,10 @@ cd ${BASEDIR}
 
 echo "=> Publish Typescript API "
 cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/tmp/typescript-angular2/dist/package.json
-cd ${BASEDIR}/doc/api/progapi/typescript-angular2/dist
+cd ${BASEDIR}/tmp/typescript-angular2/dist
 npm version --no-git-tag-version ${FULL_API_VERSION}
 
-npm publish
+npm publish || echo "Publishing on npm failed ... continue ..."
 cd ${BASEDIR}
 
 echo "=> Commit release version"
