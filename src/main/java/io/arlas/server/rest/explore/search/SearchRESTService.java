@@ -24,9 +24,9 @@ import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Search;
-import io.arlas.server.model.response.ArlasError;
-import io.arlas.server.model.response.ArlasHit;
-import io.arlas.server.model.response.ArlasHits;
+import io.arlas.server.model.response.Error;
+import io.arlas.server.model.response.Hit;
+import io.arlas.server.model.response.Hits;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -49,9 +49,9 @@ public class SearchRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Search", produces = UTF8JSON, notes = Documentation.SEARCH_OPERATION, consumes = UTF8JSON, response = ArlasHits.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasHits.class, responseContainer = "ArlasHits" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
+    @ApiOperation(value = "Search", produces = UTF8JSON, notes = Documentation.SEARCH_OPERATION, consumes = UTF8JSON, response = Hits.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Hits.class, responseContainer = "ArlasHits" ),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
     public Response search(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -201,8 +201,8 @@ public class SearchRESTService extends ExploreRESTServices {
         search.size = ParamsParser.getSize(size, from);
         search.sort = ParamsParser.getSort(sort);
 
-        ArlasHits arlasHits = getArlasHits(search, collectionReference);
-        return Response.ok(arlasHits).build();
+        Hits hits = getArlasHits(search, collectionReference);
+        return Response.ok(hits).build();
     }
 
 
@@ -211,9 +211,9 @@ public class SearchRESTService extends ExploreRESTServices {
     @POST
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Search", produces = UTF8JSON, notes = Documentation.SEARCH_OPERATION, consumes = UTF8JSON, response = ArlasHits.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasHits.class, responseContainer = "ArlasHits" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
+    @ApiOperation(value = "Search", produces = UTF8JSON, notes = Documentation.SEARCH_OPERATION, consumes = UTF8JSON, response = Hits.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Hits.class, responseContainer = "ArlasHits" ),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
     public Response searchPost(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -234,20 +234,20 @@ public class SearchRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        ArlasHits arlasHits = getArlasHits(search, collectionReference);
-        return Response.ok(arlasHits).build();
+        Hits hits = getArlasHits(search, collectionReference);
+        return Response.ok(hits).build();
     }
 
-    protected ArlasHits getArlasHits(Search search, CollectionReference collectionReference) throws ArlasException, IOException {
+    protected Hits getArlasHits(Search search, CollectionReference collectionReference) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().search(search,collectionReference);
 
-        ArlasHits arlasHits = new ArlasHits();
-        arlasHits.totalnb = searchHits.totalHits();
-        arlasHits.nbhits = searchHits.getHits().length;
-        arlasHits.hits = new ArrayList<>((int) arlasHits.nbhits);
+        Hits hits = new Hits();
+        hits.totalnb = searchHits.totalHits();
+        hits.nbhits = searchHits.getHits().length;
+        hits.hits = new ArrayList<>((int) hits.nbhits);
         for (SearchHit hit : searchHits.getHits()) {
-            arlasHits.hits.add(new ArlasHit(collectionReference,hit.getSource()));
+            hits.hits.add(new Hit(collectionReference,hit.getSource()));
         }
-        return arlasHits;
+        return hits;
     }
 }

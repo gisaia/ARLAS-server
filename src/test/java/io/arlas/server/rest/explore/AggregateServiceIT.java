@@ -66,13 +66,13 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     @Override
     protected void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String keyAsString) throws Exception {
         handleMatchingAggregate(then, featuresSize, featureCountMin, featureCountMax);
-        then.body("elements.keyAsString", everyItem(equalTo(keyAsString)));
+        then.body("elements.key_as_string", everyItem(equalTo(keyAsString)));
     }
 
     @Override
     protected void handleMatchingAggregateWithOrder(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String firstKey) throws Exception {
         handleMatchingAggregate(then, featuresSize, featureCountMin, featureCountMax);
-        then.body("elements[0].keyAsString", equalTo(firstKey));
+        then.body("elements[0].key_as_string", equalTo(firstKey));
     }
     
     @Override

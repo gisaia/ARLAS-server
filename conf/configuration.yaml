@@ -29,9 +29,10 @@ arlas-cache-size: 1000
 arlas-cache-timeout: 60
 arlas-cors-enabled: true
 
-#collection-auto-discover:
-#  preferred-id-field-name: id,identifier
-#  preferred-timestamp-field-name: timestamp,startdate
-#  preferred-centroid-field-name: centroid
-#  preferred-geometry-field-name: geo,geometry
-#  schedule: 20 #seconds
+
+collection-auto-discover:
+  preferred-id-field-name: id,identifier
+  preferred-timestamp-field-name: startdate
+  preferred-centroid-field-name: centroid
+  preferred-geometry-field-name: geo,geometry
+  schedule: 0

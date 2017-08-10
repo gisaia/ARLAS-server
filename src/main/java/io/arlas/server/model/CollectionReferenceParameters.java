@@ -8,37 +8,27 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Map;
 
-@ApiModel(value = "CollectionReferenceParameters", description = "The description of the elasticsearch index and the way ARLAS API will serve it.")
 @JsonSnakeCase
 public class CollectionReferenceParameters {
 
     @NotEmpty
-    @ApiModelProperty(value = "The collection's index name")
     public String indexName;
 
     @NotEmpty
-    @ApiModelProperty(value = "The collection's type name")
     public String typeName;
 
-    @ApiModelProperty(value = "Path to the collection's id", example = "id")
     public String idPath;
 
-    @ApiModelProperty(value = "Path to the collection's geometry", example = "geometry")
     public String geometryPath;
 
-    @ApiModelProperty(value = "Path to the collection's centroid", example = "centroid")
     public String centroidPath;
 
-    @ApiModelProperty(value = "Path to the collection's timestamp", example = "timestamp")
     public String timestampPath;
     
-    @ApiModelProperty(value = "List the name patterns of the fields to be included in the result. Seperate patterns with a comma.", example = "*")
     public String includeFields = null;
     
-    @ApiModelProperty(value = "List the name patterns of the fields to be excluded in the result. Seperate patterns with a comma.", example = "fieldname")
     public String excludeFields = null;
 
-    @ApiModelProperty(value = "Calculated params.")
     public Map<String,String> custom_params = null;
 
     public CollectionReferenceParameters() {

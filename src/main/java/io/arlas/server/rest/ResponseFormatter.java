@@ -3,13 +3,13 @@ package io.arlas.server.rest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import io.arlas.server.model.response.ArlasError;
-import io.arlas.server.model.response.ArlasSuccess;
+import io.arlas.server.model.response.Error;
+import io.arlas.server.model.response.Success;
 
 public class ResponseFormatter {
 
     public static Response getSuccessResponse(String message) {
-        return Response.ok(new ArlasSuccess(Response.Status.OK.getStatusCode(), message))
+        return Response.ok(new Success(Response.Status.OK.getStatusCode(), message))
                 .type(MediaType.APPLICATION_JSON).build();
     }
 
@@ -18,7 +18,7 @@ public class ResponseFormatter {
     }
 
     public static Response getErrorResponse(Exception e, Response.Status status, String message) {
-        return Response.status(status).entity(new ArlasError(status.getStatusCode(), e.getClass().getName(), message))
+        return Response.status(status).entity(new Error(status.getStatusCode(), e.getClass().getName(), message))
                 .type(MediaType.APPLICATION_JSON).build();
     }
 }

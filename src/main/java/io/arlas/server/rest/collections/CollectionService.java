@@ -19,8 +19,8 @@ import com.codahale.metrics.annotation.Timed;
 
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.response.ArlasError;
-import io.arlas.server.model.response.ArlasSuccess;
+import io.arlas.server.model.response.Error;
+import io.arlas.server.model.response.Success;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.rest.ResponseFormatter;
@@ -45,7 +45,7 @@ public abstract class CollectionService extends CollectionRESTServices {
             consumes=UTF8JSON
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class, responseContainer = "List" ),
-	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class)})
+	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     public Response getAll() throws InterruptedException, ExecutionException, IOException, ArlasException {	
         List<CollectionReference> collections = dao.getAllCollectionReferences();
@@ -66,8 +66,8 @@ public abstract class CollectionService extends CollectionRESTServices {
 
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
-	    @ApiResponse(code = 404, message = "Collection not found.", response = ArlasError.class),
-	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class)})
+	    @ApiResponse(code = 404, message = "Collection not found.", response = Error.class),
+	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     public Response get(
             @ApiParam(
@@ -94,9 +94,9 @@ public abstract class CollectionService extends CollectionRESTServices {
             response = CollectionReference.class
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
-	    @ApiResponse(code = 400, message = "JSON parameter malformed.", response = ArlasError.class),
-	    @ApiResponse(code = 404, message = "Not Found Error.", response = ArlasError.class),
-	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class)})
+	    @ApiResponse(code = 400, message = "JSON parameter malformed.", response = Error.class),
+	    @ApiResponse(code = 404, message = "Not Found Error.", response = Error.class),
+	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response put(
             @ApiParam(
                     name = "collection",
@@ -126,9 +126,9 @@ public abstract class CollectionService extends CollectionRESTServices {
             notes = "Delete a collection reference in ARLAS",
             consumes=UTF8JSON
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasSuccess.class),
-	    @ApiResponse(code = 404, message = "Collection not found.", response = ArlasError.class),
-	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class)})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Success.class),
+	    @ApiResponse(code = 404, message = "Collection not found.", response = Error.class),
+	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     public Response delete(
             @ApiParam(

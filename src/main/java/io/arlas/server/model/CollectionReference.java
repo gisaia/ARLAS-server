@@ -1,10 +1,7 @@
 package io.arlas.server.model;
 
 import io.dropwizard.jackson.JsonSnakeCase;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(value = "CollectionReference", description = "The reference to ARLAS collection that embed elasticsearch index description.")
 @JsonSnakeCase
 public class CollectionReference {
 
@@ -21,10 +18,8 @@ public class CollectionReference {
     public static final String EXCLUDE_FIELDS = "exclude_fields";
     public static final String CUSTOM_PARAMS = "custom_params";
 
-    @ApiModelProperty(value = "The collection name")
     public String collectionName;
 
-    @ApiModelProperty(value = "The collection parameters")
     public CollectionReferenceParameters params;
 
     public CollectionReference() {

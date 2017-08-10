@@ -5,7 +5,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.AggregationsRequest;
 import io.arlas.server.model.response.AggregationResponse;
-import io.arlas.server.model.response.ArlasError;
+import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -40,7 +40,7 @@ public class AggregateRESTService extends ExploreRESTServices {
 
     )
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = AggregationResponse.class, responseContainer = "ArlasAggregation" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
     public Response aggregate(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -149,7 +149,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         aggregationsRequest.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
         AggregationResponse aggregationResponse = getArlasAggregation(aggregationsRequest,collectionReference);
-        aggregationResponse.arlasTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
+        aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return Response.ok(aggregationResponse).build();
     }
 
@@ -160,8 +160,8 @@ public class AggregateRESTService extends ExploreRESTServices {
     @Consumes(UTF8JSON)
     @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = Documentation.AGGREGATION_OPERATION, consumes = UTF8JSON, response = AggregationResponse.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = AggregationResponse.class, responseContainer = "ArlasAggregation" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class),
-            @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class),
+            @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
     public Response aggregatePost(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -184,7 +184,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         AggregationResponse aggregationResponse = getArlasAggregation(aggregationsRequest,collectionReference);
-        aggregationResponse.arlasTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
+        aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
 
         return Response.ok(aggregationResponse).build();
     }

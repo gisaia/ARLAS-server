@@ -83,11 +83,10 @@ if [ -z ${ARLAS_REL+x} ]; then usage;    else    echo "Release version          
 if [ -z ${ARLAS_DEV+x} ]; then usage;    else    echo "Next development version       : ${ARLAS_DEV}"; fi
                                                  echo "Running tests                  : ${TESTS}"
 
-VERSION="${API_MAJOR_VERSION}-${ELASTIC_RANGE}-${ARLAS_REL}"
-DEV="${API_MAJOR_VERSION}-${ELASTIC_RANGE}-${ARLAS_DEV}"
+VERSION="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_REL}"
+DEV="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_DEV}"
 FULL_API_VERSION=${API_MAJOR_VERSION}"."${API_MINOR_VERSION}"."${API_PATCH_VERSION}
 
-mkdir tmp || echo "tmp exists"
 echo "=> Get develop branch"
 git checkout develop
 git pull origin develop
@@ -120,17 +119,18 @@ itests() {
 if [ "$TESTS" == "YES" ]; then itests; else echo "=> Skip integration tests"; fi
 
 echo "=> Generate documentation"
+mkdir tmp || echo "tmp exists"
 curl -XGET http://localhost:9999/arlas/swagger.json -o tmp/swagger.json
 curl -XGET http://localhost:9999/arlas/swagger.yaml -o tmp/swagger.yaml
 mvn  swagger2markup:convertSwagger2markup post-integration-test
 
 echo "=> Generate client APIs"
-swagger-codegen generate  -i tmp/swagger.json  -l typescript-angular2 -o doc/api/progapi/typescript-angular2
+swagger-codegen generate  -i tmp/swagger.json  -l typescript-angular2 -o tmp/typescript-angular2
 
 
 echo "=> Build Typescript API "${FULL_API_VERSION}
 BASEDIR=$PWD
-cd ${BASEDIR}/doc/api/progapi/typescript-angular2/
+cd ${BASEDIR}/tmp/typescript-angular2/
 cp ${BASEDIR}/conf/npm/package-build.json package.json
 cp ${BASEDIR}/conf/npm/tsconfig-build.json .
 npm version --no-git-tag-version ${FULL_API_VERSION}
@@ -139,9 +139,15 @@ npm run build-release
 cd ${BASEDIR}
 
 echo "=> Publish Typescript API "
-cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/doc/api/progapi/typescript-angular2/dist/package.json
+cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/tmp/typescript-angular2/dist/package.json
 cd ${BASEDIR}/doc/api/progapi/typescript-angular2/dist
 npm version --no-git-tag-version ${FULL_API_VERSION}
+
+
+# !!!!!!
+exit
+
+
 npm publish
 cd ${BASEDIR}
 

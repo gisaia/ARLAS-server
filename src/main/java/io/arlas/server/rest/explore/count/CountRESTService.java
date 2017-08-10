@@ -6,8 +6,8 @@ import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Count;
-import io.arlas.server.model.response.ArlasError;
-import io.arlas.server.model.response.ArlasHits;
+import io.arlas.server.model.response.Error;
+import io.arlas.server.model.response.Hits;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -36,9 +36,9 @@ public class CountRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Count", produces = UTF8JSON, notes = "Count the number of elements found in the collection(s), given the filters", consumes = UTF8JSON, response = ArlasHits.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasHits.class, responseContainer = "ArlasHits" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
+    @ApiOperation(value = "Count", produces = UTF8JSON, notes = "Count the number of elements found in the collection(s), given the filters", consumes = UTF8JSON, response = Hits.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Hits.class, responseContainer = "ArlasHits" ),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
     public Response count(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -138,8 +138,8 @@ public class CountRESTService extends ExploreRESTServices {
         Count count = new Count();
         count.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
 
-        ArlasHits arlasHits = getArlasHits(collectionReference, count);
-        return Response.ok(arlasHits).build();
+        Hits hits = getArlasHits(collectionReference, count);
+        return Response.ok(hits).build();
     }
 
 
@@ -148,9 +148,9 @@ public class CountRESTService extends ExploreRESTServices {
     @POST
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Count", produces = UTF8JSON, notes = "Count the number of elements found in the collection(s), given the filters", consumes = UTF8JSON, response = ArlasHits.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = ArlasHits.class, responseContainer = "ArlasHits" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = ArlasError.class), @ApiResponse(code = 400, message = "Bad request.", response = ArlasError.class) })
+    @ApiOperation(value = "Count", produces = UTF8JSON, notes = "Count the number of elements found in the collection(s), given the filters", consumes = UTF8JSON, response = Hits.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Hits.class, responseContainer = "ArlasHits" ),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
     public Response countPost(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -171,15 +171,15 @@ public class CountRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        ArlasHits arlasHits = getArlasHits(collectionReference, count);
-        return Response.ok(arlasHits).build();
+        Hits hits = getArlasHits(collectionReference, count);
+        return Response.ok(hits).build();
     }
 
-    protected ArlasHits getArlasHits(CollectionReference collectionReference, Count count) throws ArlasException, IOException {
+    protected Hits getArlasHits(CollectionReference collectionReference, Count count) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().count(count,collectionReference);
-        ArlasHits arlasHits = new ArlasHits();
-        arlasHits.totalnb = searchHits.totalHits();
-        arlasHits.nbhits = searchHits.getHits().length;
-        return arlasHits;
+        Hits hits = new Hits();
+        hits.totalnb = searchHits.totalHits();
+        hits.nbhits = searchHits.getHits().length;
+        return hits;
     }
 }
