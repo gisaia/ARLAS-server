@@ -143,7 +143,6 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             // Scroll until no hits are returned
             do {
                 for (SearchHit hit : scrollResp.getHits().getHits()) {
-                    System.out.println(hit + " = " + hit.getSource());
                     CollectionReference collection = new CollectionReference(hit.getId());
                     collection.params = getCollectionReferenceParameters(hit.getSource());
                     collections.add(collection);
@@ -209,7 +208,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             }
             
             //check fields
-            List<String> fields = new ArrayList<String>();
+            List<String> fields = new ArrayList<>();
             if(collectionRefParams.idPath != null)
                 fields.add(collectionRefParams.idPath);
             if(collectionRefParams.geometryPath != null)

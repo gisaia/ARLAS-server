@@ -94,13 +94,13 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     
     @Override
     protected RequestSpecification givenFilterableRequestParams() {
-        return given().param("agg", "geohash:centroid:interval-3");
+        return given().param("agg", "geohash:geo_params.centroid:interval-3");
     }
 
     @Override
     protected RequestSpecification givenFilterableRequestBody() {
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.geohash;
-        aggregationRequest.aggregations.get(0).field = "centroid";
+        aggregationRequest.aggregations.get(0).field = "geo_params.centroid";
         aggregationRequest.aggregations.get(0).interval = new Interval(3, null);
         request = aggregationRequest;
         return given().contentType("application/json;charset=utf-8");

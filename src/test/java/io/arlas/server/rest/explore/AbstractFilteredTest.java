@@ -27,19 +27,19 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     //----------------------------------------------------------------
     @Test
     public void testFieldFilter() throws Exception {
-        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.eq, DataSetTool.jobs[0]));//("job:eq:" + DataSetTool.jobs[0]);
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0]));//("job:eq:" + DataSetTool.jobs[0]);
         handleKnownFieldFilter(post(request));
         handleKnownFieldFilter(get("f", request.filter.f.get(0).toString()));
 
-        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.eq, DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]));//"job:eq:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]));//"job:eq:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
         handleKnownFieldFilterWithOr(post(request));
         handleKnownFieldFilterWithOr(get("f", request.filter.f.get(0).toString()));
 
-        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.like, "cto"));//"job:like:" + "cto");
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.like, "cto"));//"job:like:" + "cto");
         handleKnownFieldLikeFilter(post(request));
         handleKnownFieldLikeFilter(get("f", request.filter.f.get(0).toString()));
 
-        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.ne, DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]));//"job:ne:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.ne, DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]));//"job:ne:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
         handleKnownFieldFilterNotEqual(post(request));
         handleKnownFieldFilterNotEqual(get("f", request.filter.f.get(0).toString()));
         //TODO : fix the case where the field is full text
@@ -47,7 +47,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 givenFilterableRequestParams().param("f", "fullname:like:" + "name is")
                         .when().get(getUrlPath("geodata"))
                         .then());*/
-        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.eq, "UnknownJob"));//"job:eq:UnknownJob");
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, "UnknownJob"));//"job:eq:UnknownJob");
         handleUnknownFieldFilter(post(request));
         handleUnknownFieldFilter(get("f", request.filter.f.get(0).toString()));
         request.filter.f = null;
@@ -241,7 +241,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     
     @Test
     public void testComplexFilter() throws Exception {
-        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.like, "Architect"));//"job:eq:Architect");
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.like, "Architect"));//"job:eq:Architect");
         request.filter.after = 1009799L;
         request.filter.before = 1009801L;
         request.filter.pwithin = "50,-50,-50,50";
@@ -271,7 +271,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     //----------------------------------------------------------------
     @Test
     public void testNotFoundCollection() throws Exception {
-        request.filter.f = Arrays.asList(new Expression("job", OperatorEnum.eq, DataSetTool.jobs[0]));//"job:eq:" + DataSetTool.jobs[0]);
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0]));//"job:eq:" + DataSetTool.jobs[0]);
         // TODO : why was it doubled? : request.filter.f = Arrays.asList("job:eq:" + DataSetTool.jobs[0]);
         request.filter.after = 1000000L;
         request.filter.before = 2000000L;

@@ -16,10 +16,10 @@ public class RawServiceIT extends AbstractTestWithCollection {
         when().get(getUrlPath(COLLECTION_NAME)+"/0-0")
         .then().statusCode(200)
             .body("md.id", equalTo("0-0"))
-            .body("data.centroid", equalTo("0,0"))
+            .body("data.geo_params.centroid", equalTo("0,0"))
             .body("data.id", equalTo("0-0"))
             .body("data.fullname", equalTo("My name is 0-0"))
-            .body("data.startdate", equalTo(1000000));
+            .body("data.params.startdate", equalTo(1000000));
 
         // GET invalid collection
         when().get(getUrlPath("foo")+"/0-0")

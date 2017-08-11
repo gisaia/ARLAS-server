@@ -19,10 +19,10 @@ public enum ElasticType {
         this.elasticType = elasticType;
     }
     
-    public static ElasticType getType(String type) {
+    public static ElasticType getType(Object type) {
         ElasticType ret = UNKNOWN;
         for(ElasticType t : ElasticType.values()) {
-            if(t.elasticType.equals(type)) {
+            if(t.elasticType.equals(type.toString())) {
                 ret = t;
                 break;
             }

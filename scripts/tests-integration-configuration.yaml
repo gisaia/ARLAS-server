@@ -32,7 +32,7 @@ arlas-cors-enabled: true
 
 collection-auto-discover:
   preferred-id-field-name: id,identifier
-  preferred-timestamp-field-name: startdate
-  preferred-centroid-field-name: centroid
-  preferred-geometry-field-name: geo,geometry
+  preferred-timestamp-field-name: params.startdate
+  preferred-centroid-field-name: geo_params.centroid
+  preferred-geometry-field-name: geo,geo_params.geometry
   schedule: 0

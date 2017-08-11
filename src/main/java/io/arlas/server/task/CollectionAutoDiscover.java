@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.utils.MapExplorer;
 import org.elasticsearch.client.transport.TransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,14 +45,13 @@ public class CollectionAutoDiscover extends Task implements Runnable {
         try {
             existingCollections = admin.describeAllCollections(collectionDao.getAllCollectionReferences());
         } catch (Exception e) {
-            existingCollections = new ArrayList<CollectionReferenceDescription>();
+            existingCollections = new ArrayList<>();
         }
         for(CollectionReferenceDescription collection : discoveredCollections) {
             if(!existingCollections.contains(collection)) {
                 CollectionReferenceDescription collectionToAdd = checkCollectionValidity(collection);
                 if(collectionToAdd!=null) {
                     collectionDao.putCollectionReference(collectionToAdd.collectionName, collectionToAdd.params);
-                } else {
                 }
             }
         }
@@ -62,19 +62,36 @@ public class CollectionAutoDiscover extends Task implements Runnable {
         List<String> timestampPaths = configuration.getPreferredTimestampFieldNames();
         List<String> centroidPaths = configuration.getPreferredCentroidFieldNames();
         List<String> geometryPaths = configuration.getPreferredGeometryFieldNames();
-        for(CollectionReferenceDescriptionProperty property : collection.properties) {
-            if(idPaths.contains(property.name) && (collection.params.idPath == null || collection.params.idPath.isEmpty())) {
-                collection.params.idPath = property.name;
-            } else if(timestampPaths.contains(property.name) && (collection.params.timestampPath == null || collection.params.timestampPath.isEmpty())) {
-                collection.params.timestampPath = property.name;
-                if (property.format != null){
+        for(String path : idPaths) {
+            Object field = MapExplorer.getObjectFromPath(path,collection.properties);
+            if(field != null && field instanceof CollectionReferenceDescriptionProperty) {
+                collection.params.idPath = path;
+                break;
+            }
+        }
+        for(String path : timestampPaths) {
+            Object field = MapExplorer.getObjectFromPath(path,collection.properties);
+            if(field != null && field instanceof CollectionReferenceDescriptionProperty) {
+                collection.params.timestampPath = path;
+                if (((CollectionReferenceDescriptionProperty)field).format != null){
                     collection.params.custom_params = new HashMap<>();
-                    collection.params.custom_params.put(CollectionReference.TIMESTAMP_FORMAT,property.format);
+                    collection.params.custom_params.put(CollectionReference.TIMESTAMP_FORMAT,((CollectionReferenceDescriptionProperty)field).format);
                 }
-            } else if(centroidPaths.contains(property.name) && (collection.params.centroidPath == null || collection.params.centroidPath.isEmpty())) {
-                collection.params.centroidPath = property.name;
-            } else if(geometryPaths.contains(property.name) && (collection.params.geometryPath == null || collection.params.geometryPath.isEmpty())) {
-                collection.params.geometryPath = property.name;
+                break;
+            }
+        }
+        for(String path : centroidPaths) {
+            Object field = MapExplorer.getObjectFromPath(path,collection.properties);
+            if(field != null && field instanceof CollectionReferenceDescriptionProperty) {
+                collection.params.centroidPath = path;
+                break;
+            }
+        }
+        for(String path : geometryPaths) {
+            Object field = MapExplorer.getObjectFromPath(path,collection.properties);
+            if(field != null && field instanceof CollectionReferenceDescriptionProperty) {
+                collection.params.geometryPath = path;
+                break;
             }
         }
         if(collection.params.idPath == null || collection.params.idPath.isEmpty()
