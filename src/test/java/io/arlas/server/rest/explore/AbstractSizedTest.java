@@ -1,9 +1,6 @@
 package io.arlas.server.rest.explore;
 
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Request;
-import io.arlas.server.model.request.Search;
-import io.arlas.server.model.request.Size;
+import io.arlas.server.model.request.*;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.junit.Before;
@@ -104,14 +101,15 @@ public abstract class AbstractSizedTest extends AbstractFilteredTest {
     //---------------------- ValidatableResponse ------------------
     //----------------------------------------------------------------
 
-    private ValidatableResponse post(Request request){
+    protected ValidatableResponse post(Request request){
         return givenBigSizedRequestParamsPost().body(request)
                 .when().post(getUrlPath("geodata"))
                 .then();
     }
 
-    private ValidatableResponse get(String param,Object paramValue){
+    protected ValidatableResponse get(String param,Object paramValue){
         return givenBigSizedRequestParams().param(param, paramValue)
                 .when().get(getUrlPath("geodata"))
                 .then();
-    }}
+    }
+}

@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.not;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 
-public class GeoSearchServiceIT extends AbstractSizedTest {
+public class GeoSearchServiceIT extends AbstractProjectedTest {
     
     @Override
     public String getUrlPath(String collection) {
@@ -201,5 +201,11 @@ public class GeoSearchServiceIT extends AbstractSizedTest {
             then.statusCode(200)
             .body("$", not(hasKey("features")));
         }
+    }
+
+    @Override
+    protected void handleHiddenParameter(ValidatableResponse then, String hidden) throws Exception {
+        then.statusCode(200)
+        .body("features.properties", everyItem(not(hasKey(hidden))));
     }
 }

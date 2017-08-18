@@ -148,6 +148,13 @@ public class ParamsParser {
         return sortObject;
     }
 
+    public static Projection getProjection(String includes, String excludes) {
+        Projection projObject = new Projection();
+        projObject.includes = includes;
+        projObject.excludes = excludes;
+        return projObject;
+    }
+
     public static Integer getValidAggregationSize(String size) throws ArlasException {
         Integer s = tryParseInteger(size);
         if (s != null) {

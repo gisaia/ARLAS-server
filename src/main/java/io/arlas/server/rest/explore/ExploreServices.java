@@ -8,6 +8,7 @@ import io.arlas.server.model.request.*;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 
@@ -63,6 +64,7 @@ public class ExploreServices {
         applyFilter(search.filter,fluidSearch);
         applySize(search.size,fluidSearch);
         applySort(search.sort,fluidSearch);
+        applyProjection(search.projection,fluidSearch);
         return fluidSearch.exec().getHits();
     }
 
@@ -135,6 +137,15 @@ public class ExploreServices {
     protected void applySort(Sort sort, FluidSearch fluidSearch) throws ArlasException, IOException{
         if (sort != null && sort.sort != null){
             fluidSearch = fluidSearch.sort(sort.sort);
+        }
+    }
+
+    protected void applyProjection(Projection projection, FluidSearch fluidSearch) {
+        if (projection!= null && !Strings.isNullOrEmpty(projection.includes)) {
+            fluidSearch = fluidSearch.include(projection.includes);
+        }
+        if (projection!= null && !Strings.isNullOrEmpty(projection.excludes)) {
+            fluidSearch = fluidSearch.exclude(projection.excludes);
         }
     }
 
