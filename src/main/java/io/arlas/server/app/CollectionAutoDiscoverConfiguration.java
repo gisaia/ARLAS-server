@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.arlas.server.exceptions.ArlasConfigurationException;
+import org.elasticsearch.common.Strings;
 
 public class CollectionAutoDiscoverConfiguration {
     
@@ -22,23 +24,26 @@ public class CollectionAutoDiscoverConfiguration {
     @JsonProperty("schedule")
     public int schedule;
     
-    private List<String> getFields(String fieldsComaSeparated) {
+    private List<String> getFields(String fieldsComaSeparated) throws ArlasConfigurationException {
+        if(Strings.isNullOrEmpty(fieldsComaSeparated)) {
+            throw new ArlasConfigurationException("Collection auto discover configuration is missing or empty : " + this.toString());
+        }
         return Arrays.asList(fieldsComaSeparated.split(","));
     }
     
-    public List<String> getPreferredIdFieldNames() {
+    public List<String> getPreferredIdFieldNames() throws ArlasConfigurationException {
         return getFields(preferredIdFieldName);
     }
     
-    public List<String> getPreferredTimestampFieldNames() {
+    public List<String> getPreferredTimestampFieldNames() throws ArlasConfigurationException {
         return getFields(preferredTimestampFieldName);
     }
     
-    public List<String> getPreferredCentroidFieldNames() {
+    public List<String> getPreferredCentroidFieldNames() throws ArlasConfigurationException {
         return getFields(preferredCentroidFieldName);
     }
     
-    public List<String> getPreferredGeometryFieldNames() {
+    public List<String> getPreferredGeometryFieldNames() throws ArlasConfigurationException {
         return getFields(preferredGeometryFieldName);
     }
 
