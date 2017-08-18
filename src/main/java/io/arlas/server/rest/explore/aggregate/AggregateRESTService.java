@@ -150,7 +150,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
         AggregationResponse aggregationResponse = getArlasAggregation(aggregationsRequest,collectionReference);
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
-        return Response.ok(aggregationResponse).build();
+        return cache(Response.ok(aggregationResponse),maxagecache);
     }
 
     @Timed
@@ -175,7 +175,12 @@ public class AggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
-            AggregationsRequest aggregationsRequest
+            AggregationsRequest aggregationsRequest,
+            // --------------------------------------------------------
+            // ----------------------- EXTRA -----------------------
+            // --------------------------------------------------------
+            @ApiParam(value = "max-age-cache", required = false)
+            @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         Long startArlasTime = System.nanoTime();
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
@@ -186,7 +191,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         AggregationResponse aggregationResponse = getArlasAggregation(aggregationsRequest,collectionReference);
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
 
-        return Response.ok(aggregationResponse).build();
+        return cache(Response.ok(aggregationResponse),maxagecache);
     }
 
     public AggregationResponse getArlasAggregation(AggregationsRequest aggregationsRequest, CollectionReference collectionReference) throws ArlasException, IOException{

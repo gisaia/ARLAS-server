@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.arlas.server.model.request.*;
+import io.arlas.server.rest.ResponseCacheManager;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
@@ -24,10 +25,12 @@ import io.arlas.server.utils.CheckParams;
 public class ExploreServices {
     private TransportClient client;
     private CollectionReferenceDao daoCollectionReference;
+    private ResponseCacheManager responseCacheManager = null;
 
     public ExploreServices(TransportClient client, ArlasServerConfiguration configuration) {
         this.client = client;
         this.daoCollectionReference = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
+        this.responseCacheManager = new ResponseCacheManager(configuration.arlasrestcachetimeout);
     }
 
     public TransportClient getClient() {
@@ -42,8 +45,8 @@ public class ExploreServices {
         return daoCollectionReference;
     }
 
-    public void setDaoCollectionReference(CollectionReferenceDao daoCollectionReference) {
-        this.daoCollectionReference = daoCollectionReference;
+    public ResponseCacheManager getResponseCacheManager() {
+        return responseCacheManager;
     }
 
     public SearchRequestBuilder init(CollectionReference collection) {

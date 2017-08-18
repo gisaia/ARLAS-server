@@ -154,7 +154,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         aggregationsRequest.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
         FeatureCollection fc = getFeatureCollection(aggregationsRequest,collectionReference);
-        return Response.ok(fc).build();
+        return cache(Response.ok(fc),maxagecache);
     }
 
     @Timed
@@ -179,7 +179,12 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
-            AggregationsRequest aggregationRequest
+            AggregationsRequest aggregationRequest,
+            // --------------------------------------------------------
+            // ----------------------- EXTRA -----------------------
+            // --------------------------------------------------------
+            @ApiParam(value = "max-age-cache", required = false)
+            @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
@@ -189,7 +194,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
         FeatureCollection fc = getFeatureCollection(aggregationRequest,collectionReference);
 
-        return Response.ok(fc).build();
+        return cache(Response.ok(fc),maxagecache);
     }
 
     private FeatureCollection getFeatureCollection(AggregationsRequest aggregationRequest, CollectionReference collectionReference) throws ArlasException, IOException{

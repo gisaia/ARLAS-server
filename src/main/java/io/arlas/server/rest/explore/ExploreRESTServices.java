@@ -1,12 +1,14 @@
 package io.arlas.server.rest.explore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.arlas.server.rest.ResponseCacheManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/explore")
 @Api(value = "/explore")
@@ -33,5 +35,9 @@ public abstract class ExploreRESTServices {
 
     public ExploreRESTServices(ExploreServices exploreServices) {
         this.exploreServices = exploreServices;
+    }
+
+    public Response cache(Response.ResponseBuilder response, Integer maxagecache) {
+        return exploreServices.getResponseCacheManager().cache(response, maxagecache);
     }
 }

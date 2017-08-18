@@ -71,6 +71,6 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
 
         ElasticAdmin elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
         CollectionReferenceDescription collectionReferenceDescription = elasticAdmin.describeCollection(collectionReference);
-        return Response.ok(collectionReferenceDescription).build();
+        return cache(Response.ok(collectionReferenceDescription),maxagecache);
     }
 }

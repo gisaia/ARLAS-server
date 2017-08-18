@@ -43,6 +43,6 @@ public class DescribeRESTService extends ExploreRESTServices {
         List<CollectionReference> collectionReferences = exploreServices.getDaoCollectionReference().getAllCollectionReferences();
         ElasticAdmin elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
         List<CollectionReferenceDescription> collectionReferenceDescriptionList = elasticAdmin.describeAllCollections(collectionReferences);
-        return Response.ok(collectionReferenceDescriptionList).build();
+        return cache(Response.ok(collectionReferenceDescriptionList),maxagecache);
     }
 }

@@ -202,7 +202,7 @@ public class SearchRESTService extends ExploreRESTServices {
         search.sort = ParamsParser.getSort(sort);
 
         Hits hits = getArlasHits(search, collectionReference);
-        return Response.ok(hits).build();
+        return cache(Response.ok(hits),maxagecache);
     }
 
 
@@ -227,7 +227,12 @@ public class SearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- SEARCH -----------------------
             // --------------------------------------------------------
-            Search search
+            Search search,
+            // --------------------------------------------------------
+            // -----------------------  EXTRA   -----------------------
+            // --------------------------------------------------------
+            @ApiParam(value = "max-age-cache", required = false)
+            @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
@@ -235,7 +240,7 @@ public class SearchRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         Hits hits = getArlasHits(search, collectionReference);
-        return Response.ok(hits).build();
+        return cache(Response.ok(hits),maxagecache);
     }
 
     protected Hits getArlasHits(Search search, CollectionReference collectionReference) throws ArlasException, IOException {
