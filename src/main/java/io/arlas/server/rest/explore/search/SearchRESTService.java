@@ -142,14 +142,12 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(name = "include", value = Documentation.PROJECTION_PARAM_INCLUDE,
                     allowMultiple = true,
                     defaultValue = "*",
-                    example = "*",
                     required = false)
             @QueryParam(value = "include") String include,
 
             @ApiParam(name = "exclude", value = Documentation.PROJECTION_PARAM_EXCLUDE,
                     allowMultiple = true,
-                    defaultValue = "*",
-                    example = "city,state",
+                    defaultValue = "",
                     required = false)
             @QueryParam(value = "exclude") String exclude,
 
@@ -180,7 +178,6 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(name = "sort",
                     value = Documentation.SORT_PARAM_SORT,
                     allowMultiple = false,
-                    example = "-country,city",
                     required = false)
             @QueryParam(value = "sort") String sort,
 

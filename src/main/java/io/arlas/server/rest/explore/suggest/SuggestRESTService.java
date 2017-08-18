@@ -169,7 +169,6 @@ public class SuggestRESTService extends ExploreRESTServices {
             @ApiParam(name ="field", value="Name of the field to be used for retrieving the most relevant terms",
                     allowMultiple = false,
                     defaultValue = "_all",
-                    example = "recommended",
                     required=false)
             @QueryParam(value="field") String field,
 
