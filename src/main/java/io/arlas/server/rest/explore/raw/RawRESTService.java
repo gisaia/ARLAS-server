@@ -95,6 +95,6 @@ public class RawRESTService extends ExploreRESTServices {
         }
         
         Hit hit = new Hit(collectionReference, source);
-        return Response.ok(hit).build();
+        return cache(Response.ok(hit),maxagecache);
     }
 }

@@ -139,7 +139,7 @@ public class CountRESTService extends ExploreRESTServices {
         count.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
 
         Hits hits = getArlasHits(collectionReference, count);
-        return Response.ok(hits).build();
+        return cache(Response.ok(hits),maxagecache);
     }
 
 

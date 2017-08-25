@@ -200,7 +200,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         search.projection = ParamsParser.getProjection(include,exclude);
 
         FeatureCollection fc = getFeatures(collectionReference, search);
-        return Response.ok(fc).build();
+        return cache(Response.ok(fc),maxagecache);
     }
 
     @Timed
@@ -225,7 +225,12 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // -----------------------  Search   -----------------------
             // --------------------------------------------------------
-            Search search
+            Search search,
+            // --------------------------------------------------------
+            // -----------------------  EXTRA   -----------------------
+            // --------------------------------------------------------
+            @ApiParam(value = "max-age-cache", required = false)
+            @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
@@ -233,7 +238,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         FeatureCollection fc = getFeatures(collectionReference, search);
-        return Response.ok(fc).build();
+        return cache(Response.ok(fc),maxagecache);
     }
 
 
