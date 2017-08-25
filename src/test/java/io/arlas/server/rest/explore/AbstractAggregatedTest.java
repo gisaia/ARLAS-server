@@ -29,6 +29,7 @@ import org.junit.Test;
 import io.restassured.response.ValidatableResponse;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
     protected static AggregationsRequest aggregationRequest;
@@ -357,6 +358,13 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         //INVALID TYPE
         handleInvalidParameters(get("foobar"));
         handleInvalidParameters(get("foobar:params.job"));
+        InvalidAggregationsRequest invalidAggregationRequest = new InvalidAggregationsRequest();
+        invalidAggregationRequest.filter = new Filter();
+        invalidAggregationRequest.invalidAggregations = new ArrayList<>();
+        invalidAggregationRequest.invalidAggregations.add(new InvalidAggregation());
+        invalidAggregationRequest.invalidAggregations.get(0).type = "foobar";
+        invalidAggregationRequest.invalidAggregations.get(0).field = "params.job";
+        handleInvalidParameters(post(invalidAggregationRequest));
         
         //INVALID GEOHASH
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.geohash;
@@ -470,5 +478,24 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         return given().param("agg", paramValue)
                 .when().get(getUrlPath("geodata"))
                 .then();
+    }
+
+    public class InvalidAggregation {
+        public String type;
+        public String field;
+        public Interval interval;
+        public String format;
+        public String collectField;
+        public String collectFct;
+        public AggregationOrderEnum order;
+        public AggregationOnEnum on;
+        public String size;
+
+        public InvalidAggregation() {
+        }
+    }
+
+    public class InvalidAggregationsRequest extends Request {
+        public List<InvalidAggregation> invalidAggregations;
     }
 }
