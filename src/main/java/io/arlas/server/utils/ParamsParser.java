@@ -59,7 +59,6 @@ public class ParamsParser {
     public static Aggregation getAggregationModel(List<String> agg) throws ArlasException {
         Aggregation aggregationModel = new Aggregation();
         aggregationModel.type = AggregationTypeEnum.valueOf(agg.get(0));
-        aggregationModel.field = agg.get(1);
 
         for (String parameter : agg) {
             if (parameter.contains(AGG_INTERVAL_PARAM)) {
@@ -68,24 +67,20 @@ public class ParamsParser {
                 } else {
                     aggregationModel.interval = new Interval(Integer.parseInt(parameter.substring(AGG_INTERVAL_PARAM.length())), null);
                 }
-            }
-            if (parameter.contains(AGG_FORMAT_PARAM)) {
+            } else if (parameter.contains(AGG_FORMAT_PARAM)) {
                 aggregationModel.format = parameter.substring(AGG_FORMAT_PARAM.length());
-            }
-            if (parameter.contains(AGG_COLLECT_FIELD_PARAM)) {
+            } else if (parameter.contains(AGG_COLLECT_FIELD_PARAM)) {
                 aggregationModel.collectField = parameter.substring(AGG_COLLECT_FIELD_PARAM.length());
-            }
-            if (parameter.contains(AGG_COLLECT_FCT_PARAM)) {
+            } else if (parameter.contains(AGG_COLLECT_FCT_PARAM)) {
                 aggregationModel.collectFct = parameter.substring(AGG_COLLECT_FCT_PARAM.length());
-            }
-            if (parameter.contains(AGG_ORDER_PARAM)) {
+            } else if (parameter.contains(AGG_ORDER_PARAM)) {
                 aggregationModel.order = AggregationOrderEnum.valueOf(parameter.substring(AGG_ORDER_PARAM.length()));
-            }
-            if (parameter.contains(AGG_ON_PARAM)) {
+            } else if (parameter.contains(AGG_ON_PARAM)) {
                 aggregationModel.on = AggregationOnEnum.valueOf(parameter.substring(AGG_ON_PARAM.length()));
-            }
-            if (parameter.contains(AGG_SIZE_PARAM)) {
+            } else if (parameter.contains(AGG_SIZE_PARAM)) {
                 aggregationModel.size = parameter.substring(AGG_SIZE_PARAM.length());
+            } else if (parameter.equals(agg.get(1))) {
+                aggregationModel.field = parameter;
             }
         }
         return aggregationModel;

@@ -96,53 +96,52 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
     public void testDateHistogramAggregate() throws Exception {        
         //DATEHISTOGRAM
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.datehistogram;
-        aggregationRequest.aggregations.get(0).field = "params.startdate";
 
         aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.day); // "1day";
         handleMatchingAggregate(post(aggregationRequest), 1, 595);
-        handleMatchingAggregate(get("datehistogram:params.startdate:interval-1day"), 1, 595);
+        handleMatchingAggregate(get("datehistogram:interval-1day"), 1, 595);
 
         aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.minute); //"1minute";
         handleMatchingAggregate(post(aggregationRequest), 10, 1, 104);
-        handleMatchingAggregate(get("datehistogram:params.startdate:interval-1minute"),
+        handleMatchingAggregate(get("datehistogram:interval-1minute"),
                 10, 1, 104);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
         aggregationRequest.aggregations.get(0).collectFct = "avg";
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "avg", 769433F, 1263600F);
-        handleMatchingAggregateWithCollect(get("datehistogram:params.startdate:interval-1minute:collect_field-params.startdate:collect_fct-avg"),
+        handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-avg"),
                 10, 1, 104, "avg", 769433F, 1263600F);
 
         aggregationRequest.aggregations.get(0).collectFct = "cardinality";
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "cardinality", 1F, 72F);
-        handleMatchingAggregateWithCollect(get("datehistogram:params.startdate:interval-1minute:collect_field-params.startdate:collect_fct-cardinality"),
+        handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-cardinality"),
                 10, 1, 104, "cardinality", 1F, 72F);
 
         aggregationRequest.aggregations.get(0).collectFct = "max";
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "max", 772800F, 1263600F);
-        handleMatchingAggregateWithCollect(get("datehistogram:params.startdate:interval-1minute:collect_field-params.startdate:collect_fct-max"),
+        handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-max"),
                 10, 1, 104, "max", 772800F, 1263600F);
 
         aggregationRequest.aggregations.get(0).collectFct = "min";
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "min", 763600F, 1263600F);
-        handleMatchingAggregateWithCollect(get("datehistogram:params.startdate:interval-1minute:collect_field-params.startdate:collect_fct-min"),
+        handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-min"),
                 10, 1, 104, "min", 763600F, 1263600F);
 
         aggregationRequest.aggregations.get(0).collectFct = "sum";
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "sum", 1263600F, 102986100F);
-        handleMatchingAggregateWithCollect(get("datehistogram:params.startdate:interval-1minute:collect_field-params.startdate:collect_fct-sum"),
+        handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-sum"),
                 10, 1, 104, "sum", 1263600F, 102986100F);
 
         aggregationRequest.aggregations.get(0).collectField = null;
         aggregationRequest.aggregations.get(0).collectFct = null;
         aggregationRequest.aggregations.get(0).format = "yyyyMMdd";
         handleMatchingAggregate(post(aggregationRequest),10, 1, 104,"19700101");
-        handleMatchingAggregate(get("datehistogram:params.startdate:interval-1minute:format-yyyyMMdd"),
+        handleMatchingAggregate(get("datehistogram:interval-1minute:format-yyyyMMdd"),
                 10, 1, 104,"19700101");
 
         aggregationRequest.aggregations.get(0).format = null;
@@ -150,20 +149,20 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
                 10, 1, 104,"1970-01-01-00:21:00");
-        handleMatchingAggregateWithOrder(get("datehistogram:params.startdate:interval-1minute:order-asc:on-count"),
+        handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:order-asc:on-count"),
                 10, 1, 104,"1970-01-01-00:21:00");
 
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.field;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
                 10, 1, 104,"1970-01-01-00:21:00");
-        handleMatchingAggregateWithOrder(get("datehistogram:params.startdate:interval-1minute:order-desc:on-field"),
+        handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:order-desc:on-field"),
                 10, 1, 104,"1970-01-01-00:21:00");
 
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
                 10, 1, 104,"1970-01-01-00:12:00");
-        handleMatchingAggregateWithOrder(get("datehistogram:params.startdate:interval-1minute:order-asc:on-field"),
+        handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:order-asc:on-field"),
                 10, 1, 104,"1970-01-01-00:12:00");
 
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.result;
@@ -172,15 +171,21 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).collectFct = "sum";
         handleMatchingAggregateWithOrder(post(aggregationRequest),
                 10, 1, 104,"1970-01-01-00:16:00");
-        handleMatchingAggregateWithOrder(get("datehistogram:params.startdate:interval-1minute:collect_field-params.startdate:collect_fct-sum:order-desc:on-result"),
+        handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-sum:order-desc:on-result"),
                 10, 1, 104,"1970-01-01-00:16:00");
 
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
                 10, 1, 104,"1970-01-01-00:21:00");
 
-        handleMatchingAggregateWithOrder(get("datehistogram:params.startdate:interval-1minute:collect_field-params.startdate:collect_fct-sum:order-asc:on-result"),
+        handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-sum:order-asc:on-result"),
                 10, 1, 104,"1970-01-01-00:21:00");
+
+        aggregationRequest.aggregations.get(0).field = "params.startdate";
+        aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.day); // "1day";
+        handleMatchingAggregate(post(aggregationRequest), 1, 595);
+        handleMatchingAggregate(get("datehistogram:params.startdate:interval-1day"), 1, 595);
+
     }
     
     @Test
@@ -344,7 +349,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMultiMatchingAggregate(post(aggregationRequest),6);
         handleMultiMatchingAggregate(
                 given().param("agg", "histogram:params.startdate:interval-100000")
-                .param("agg", "datehistogram:params.startdate:interval-1minute")
+                .param("agg", "datehistogram:interval-1minute")
                 .when().get(getUrlPath("geodata"))
                 .then(),6);
     }
