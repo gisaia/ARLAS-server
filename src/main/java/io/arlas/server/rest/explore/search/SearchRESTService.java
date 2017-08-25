@@ -197,6 +197,7 @@ public class SearchRESTService extends ExploreRESTServices {
         search.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
         search.size = ParamsParser.getSize(size, from);
         search.sort = ParamsParser.getSort(sort);
+        search.projection = ParamsParser.getProjection(include,exclude);
 
         Hits hits = getArlasHits(search, collectionReference);
         return Response.ok(hits).build();

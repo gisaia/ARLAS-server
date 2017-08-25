@@ -1,18 +1,13 @@
 package io.arlas.server.rest.explore;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.isOneOf;
-import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasKey;
 
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 
-public class SearchServiceIT extends AbstractSizedTest {
+public class SearchServiceIT extends AbstractProjectedTest {
     
     @Override
     public String getUrlPath(String collection) {
@@ -209,5 +204,11 @@ public class SearchServiceIT extends AbstractSizedTest {
             then.statusCode(200)
             .body("nbhits", equalTo(size));
         }
+    }
+
+    @Override
+    protected void handleHiddenParameter(ValidatableResponse then, String hidden) throws Exception {
+        then.statusCode(200)
+        .body("hits.data", everyItem(not(hasKey(hidden))));
     }
 }
