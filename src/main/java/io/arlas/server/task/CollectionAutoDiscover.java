@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import io.arlas.server.exceptions.ArlasConfigurationException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.utils.MapExplorer;
 import org.elasticsearch.client.transport.TransportClient;
@@ -40,24 +41,28 @@ public class CollectionAutoDiscover extends Task implements Runnable {
 
     @Override
     public void execute(ImmutableMultimap<String, String> arg0, PrintWriter arg1) throws Exception {
-        List<CollectionReferenceDescription> discoveredCollections = admin.getAllIndecesAsCollections();
-        List<CollectionReferenceDescription> existingCollections = null;
         try {
-            existingCollections = admin.describeAllCollections(collectionDao.getAllCollectionReferences());
-        } catch (Exception e) {
-            existingCollections = new ArrayList<>();
-        }
-        for(CollectionReferenceDescription collection : discoveredCollections) {
-            if(!existingCollections.contains(collection)) {
-                CollectionReferenceDescription collectionToAdd = checkCollectionValidity(collection);
-                if(collectionToAdd!=null) {
-                    collectionDao.putCollectionReference(collectionToAdd.collectionName, collectionToAdd.params);
+            List<CollectionReferenceDescription> discoveredCollections = admin.getAllIndecesAsCollections();
+            List<CollectionReferenceDescription> existingCollections = null;
+            try {
+                existingCollections = admin.describeAllCollections(collectionDao.getAllCollectionReferences());
+            } catch (Exception e) {
+                existingCollections = new ArrayList<>();
+            }
+            for (CollectionReferenceDescription collection : discoveredCollections) {
+                if (!existingCollections.contains(collection)) {
+                    CollectionReferenceDescription collectionToAdd = checkCollectionValidity(collection);
+                    if (collectionToAdd != null) {
+                        collectionDao.putCollectionReference(collectionToAdd.collectionName, collectionToAdd.params);
+                    }
                 }
             }
+        } catch(ArlasConfigurationException e) {
+            LOGGER.error(e.getMessage(),e);
         }
     }
 
-    private CollectionReferenceDescription checkCollectionValidity(CollectionReferenceDescription collection) {
+    private CollectionReferenceDescription checkCollectionValidity(CollectionReferenceDescription collection) throws ArlasConfigurationException {
         List<String> idPaths = configuration.getPreferredIdFieldNames();
         List<String> timestampPaths = configuration.getPreferredTimestampFieldNames();
         List<String> centroidPaths = configuration.getPreferredCentroidFieldNames();
