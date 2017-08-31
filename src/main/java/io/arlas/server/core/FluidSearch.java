@@ -338,6 +338,9 @@ public class FluidSearch {
     }
 
     private DateHistogramAggregationBuilder buildDateHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
+        if(Strings.isNullOrEmpty(aggregationModel.field)) {
+            aggregationModel.field = collectionReference.params.timestampPath;
+        }
         DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram(DATEHISTOGRAM_AGG);
         if (aggregationModel.interval.unit.equals(UnitEnum.year) || aggregationModel.interval.unit.equals(UnitEnum.quarter) || aggregationModel.interval.unit.equals(UnitEnum.day)) {
             if (aggregationModel.interval.value > 1)

@@ -149,8 +149,8 @@ public class CheckParams {
     private static void checkAggregation(AggregationsRequest aggregations) throws ArlasException{
         if (aggregations != null && aggregations.aggregations != null && aggregations.aggregations.size()>0){
             for (Aggregation aggregationModel : aggregations.aggregations){
-                if ( aggregationModel.type != null && aggregationModel.field != null){
-                }else {
+                if ( aggregationModel.type == null ||
+                        (aggregationModel.field == null && aggregationModel.type != AggregationTypeEnum.datehistogram)){
                     throw new InvalidParameterException(INVALID_AGGREGATION);
                 }
             }
