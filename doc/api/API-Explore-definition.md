@@ -24,8 +24,10 @@ When multiple collections are permitted ({collections}), the comma is used for s
 | https://api.gisaia.com/demo/arlas/explore/`_describe` |
 | https://api.gisaia.com/demo/arlas/explore/`city,state,country`/`_describe` |
 | https://api.gisaia.com/demo/arlas/explore/`city,state,country`/`_count`?`q=bord*`&`f=country:France`&`pretty=true`&`human=true` |
-| https://api.gisaia.com/demo/arlas/explore/`election`/`_search`?`f=country:France`&`after=1490613808`&`format=geojson`& `pretty=true`&`human=true`&`size=1000`&`include=id,name` |
-| https://api.gisaia.com/demo/arlas/explore/`election`/`_aggregate`?`f=country:France`&`after=1490613808`&`format=geojson`& `pretty=true`&`human=true`&`size=1000`&`include=id,name`&`agg=geohash`&`agg_interval=4` |
+| https://api.gisaia.com/demo/arlas/explore/`election`/`_search`?`f=country:France`&`after=1490613808`&`pretty=true`&`human=true`&`size=1000`&`include=id,name` |
+| https://api.gisaia.com/demo/arlas/explore/`election`/`_aggregate`?`f=country:France`&`after=1490613808`&`pretty=true`&`human=true`&`size=1000`&`include=id,name`&`agg=geohash`&`agg_interval=4` |
+
+All URLs are accessible both with GET and POST requests. For POST requests, URL parts are passed as a JSON representation.
 
 # URL Parts
 
@@ -134,6 +136,10 @@ The `filter` url part allows the following parameters to be specified:
 
 > Example: `f=city:eq:Toulouse`&`f=city:eq:Bordeaux&after=1490613808&`
 
+NB : `filter` part can also be passed in request header `partition-filter` as a serialized json for partitioning concerns.
+
+> Example: `curl --header "Partition-Filter: {"after":1490613808, f":[{"field":"city","op":"eq","value":"Bordeaux"}]}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
+
 ---
 ## Part: `form`
 
@@ -145,17 +151,6 @@ The `form` url part allows the following parameters to be specified:
 | **human**  | `false`       | `true,false` | Human readable print | false    |
 
 > Example: `pretty=true&human=true`
-
----
-## Part: `format`
-
-The `format` url part allows the following parameters to be specified:
-
-| Parameter  | Default value | Values           | Description            | Multiple |
-| ---------- | ------------- | ---------------- | ---------------------- | -------- |
-| **format** | `false`       | `json`,`geojson` | JSON or GeoJSON format | false    |
-
-> Example: `format=geojson`
 
 ---
 ## Part: `projection`

@@ -23,6 +23,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.AggregationsRequest;
+import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.Documentation;
@@ -137,6 +138,8 @@ public class AggregateRESTService extends ExploreRESTServices {
                     required=false)
             @QueryParam(value="notgintersect") String notgintersect,
 
+            @HeaderParam(value="Partition-Filter") String partitionFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -167,7 +170,13 @@ public class AggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
         aggregationsRequest.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
-        AggregationResponse aggregationResponse = getArlasAggregation(aggregationsRequest,collectionReference);
+        AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
+        aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        MixedRequest request = new MixedRequest();
+        request.basicRequest = aggregationsRequest;
+        request.headerRequest = aggregationsRequestHeader;
+
+        AggregationResponse aggregationResponse = getArlasAggregation(request,collectionReference);
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(aggregationResponse),maxagecache);
     }
@@ -195,6 +204,13 @@ public class AggregateRESTService extends ExploreRESTServices {
             // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
             AggregationsRequest aggregationsRequest,
+
+            // --------------------------------------------------------
+            // -----------------------  FILTER  -----------------------
+            // --------------------------------------------------------
+
+            @HeaderParam(value="Partition-Filter") String partitionFilter,
+
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
@@ -207,16 +223,23 @@ public class AggregateRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        AggregationResponse aggregationResponse = getArlasAggregation(aggregationsRequest,collectionReference);
+
+        AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
+        aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        MixedRequest request = new MixedRequest();
+        request.basicRequest = aggregationsRequest;
+        request.headerRequest = aggregationsRequestHeader;
+
+        AggregationResponse aggregationResponse = getArlasAggregation(request,collectionReference);
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
 
         return cache(Response.ok(aggregationResponse),maxagecache);
     }
 
-    public AggregationResponse getArlasAggregation(AggregationsRequest aggregationsRequest, CollectionReference collectionReference) throws ArlasException, IOException{
+    public AggregationResponse getArlasAggregation(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException{
         AggregationResponse aggregationResponse = new AggregationResponse();
         Long startQuery = System.nanoTime();
-        SearchResponse response = this.getExploreServices().aggregate(aggregationsRequest,collectionReference,false);
+        SearchResponse response = this.getExploreServices().aggregate(request,collectionReference,false);
         MultiBucketsAggregation aggregation;
         aggregation = (MultiBucketsAggregation)response.getAggregations().asList().get(0);
         aggregationResponse.totalnb = response.getHits().totalHits();

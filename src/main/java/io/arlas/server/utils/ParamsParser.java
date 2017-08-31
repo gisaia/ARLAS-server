@@ -19,6 +19,8 @@
 
 package io.arlas.server.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
@@ -28,11 +30,13 @@ import io.dropwizard.jersey.params.IntParam;
 import io.dropwizard.jersey.params.LongParam;
 import org.elasticsearch.common.Strings;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class ParamsParser {
+    private static ObjectMapper objectMapper = new ObjectMapper();
     private static final String AGG_INTERVAL_PARAM = "interval-";
     private static final String AGG_FORMAT_PARAM = "format-";
     private static final String AGG_COLLECT_FIELD_PARAM = "collect_field-";
@@ -114,6 +118,18 @@ public class ParamsParser {
             return aggFormat;
         } else {
             return "yyyy-MM-dd-HH:mm:ss";
+        }
+    }
+
+    public static Filter getFilter(String serializedFilter) throws InvalidParameterException {
+        if(serializedFilter!=null) {
+            try {
+                return objectMapper.readValue(serializedFilter, Filter.class);
+            } catch (IOException e) {
+                throw new InvalidParameterException(FluidSearch.INVALID_FILTER + ": '" + serializedFilter + "'");
+            }
+        } else {
+            return null;
         }
     }
 
