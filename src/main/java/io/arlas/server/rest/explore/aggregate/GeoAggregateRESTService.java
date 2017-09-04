@@ -236,7 +236,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 Map<String,Object> properties = new HashMap<>();
                 GeoPoint geoPoint = (GeoPoint)element.key;
                 properties.put("count", element.count);
-                properties.put("geohash", geoPoint.getGeohash());
+                properties.put("geohash", element.keyAsString);
                 properties.put("elements", element.elements);
                 feature.setProperties(properties);
                 GeoJsonObject g = new Point(geoPoint.getLon(),geoPoint.getLat());
