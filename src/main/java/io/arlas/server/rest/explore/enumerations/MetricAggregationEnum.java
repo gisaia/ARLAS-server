@@ -20,5 +20,5 @@
 package io.arlas.server.rest.explore.enumerations;
 
 public enum MetricAggregationEnum {
-    avg, cardinality, max, min, sum, geocentroid, geobox;
+    avg, cardinality, max, min, sum, geocentroid, geobbox;
 }

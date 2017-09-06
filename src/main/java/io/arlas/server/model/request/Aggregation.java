@@ -31,6 +31,8 @@ public class Aggregation {
     public AggregationOrderEnum order;
     public AggregationOnEnum on;
     public String size;
+    public Boolean withGeoCentroid = false;
+    public Boolean withGeoBBOX = false;
 
     public Aggregation() {
     }

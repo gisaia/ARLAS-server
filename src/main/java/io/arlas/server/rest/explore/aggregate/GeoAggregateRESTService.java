@@ -255,12 +255,19 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             for (AggregationResponse element : elements){
                 Feature feature = new Feature();
                 Map<String,Object> properties = new HashMap<>();
-                GeoPoint geoPoint = (GeoPoint)element.key;
                 properties.put("count", element.count);
                 properties.put("geohash", element.keyAsString);
                 properties.put("elements", element.elements);
                 feature.setProperties(properties);
-                GeoJsonObject g = new Point(geoPoint.getLon(),geoPoint.getLat());
+                GeoJsonObject g;
+                if(element.BBOX != null) {
+                    g = element.BBOX;
+                } else if(element.centroid != null) {
+                    g = element.centroid;
+                } else {
+                    GeoPoint geoPoint = (GeoPoint)element.key;
+                    g = new Point(geoPoint.getLon(),geoPoint.getLat());
+                }
                 feature.setGeometry(g);
                 fc.add(feature);
             }

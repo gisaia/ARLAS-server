@@ -96,12 +96,14 @@ public class FluidSearch {
     public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
     public static final String NO_SIZE_TO_SPECIFY = "'size-' should not be specified for this aggregation.";
     public static final String NO_ORDER_ON_TO_SPECIFY = "'order-' and 'on-' should not be specified for this aggregation.";
+    public static final String NO_GEOBBOX_GEOCENTROID_TO_SPECIFY = "'withGeoBBOX-' and 'withGeoCentroid-' should be specified only for geohash-aggregation.";
     public static final String COLLECT_FCT_NOT_SPECIFIED = "The aggregation function 'collect_fct' is not specified.";
     public static final String COLLECT_FIELD_NOT_SPECIFIED = "The aggregation field 'collect_field' is not specified.";
     public static final String ORDER_NOT_SPECIFIED = "'order-' is not specified.";
     public static final String ON_NOT_SPECIFIED = "'on-' is not specified.";
     public static final String ORDER_PARAM_NOT_ALLOWED = "Order is not allowed for geohash aggregation.";
     public static final String ORDER_ON_RESULT_NOT_ALLOWED = "'on-result' sorts 'collect_field' and 'collect_fct' results. Please specify 'collect_field' and 'collect_fct'.";
+    public static final String ORDER_ON_GEO_RESULT_NOT_ALLOWED = "Ordering on 'result' is not allowed for geo-box neither geo-centroid metric aggregation. ";
     public static final String SIZE_NOT_IMPLEMENTED = "Size is not implemented for geohash.";
 
     private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
@@ -469,9 +471,17 @@ public class FluidSearch {
         } else if (aggregationModel.format != null) {
             throw new BadRequestException(NO_FORMAT_TO_SPECIFY);
         }
+        // if
+        if (!(aggregationBuilder instanceof GeoGridAggregationBuilder)) {
+            if (aggregationModel.withGeoBBOX || aggregationModel.withGeoCentroid) {
+                throw new BadRequestException(NO_GEOBBOX_GEOCENTROID_TO_SPECIFY);
+            }
+
+        }
         // sub aggregate with a metric aggregationModel
-        ValuesSourceAggregationBuilder.LeafOnly metricAggregation = null;
-        if (aggregationModel.collectField != null && aggregationModel.collectFct != null) {
+        ValuesSourceAggregationBuilder metricAggregation = null;
+        // collect_field must be a centroid for geocentroid and geobbox, so it's set automatically to collectionReference.params.centroidPath
+        if (aggregationModel.collectFct != null) {
             switch (aggregationModel.collectFct) {
                 case avg:
                     metricAggregation = AggregationBuilders.avg("avg").field(aggregationModel.collectField);
@@ -488,9 +498,32 @@ public class FluidSearch {
                 case sum:
                     metricAggregation = AggregationBuilders.sum("sum").field(aggregationModel.collectField);
                     break;
+                case geocentroid:
+                    //TODO : Throw an exception if the user has set collect_field to a field different from collectionReference.params.centroidPath ??
+                    // For now, if collect_field is set, it's ignored and replaced automatically by collectionReference.params.centroidPath
+                    aggregationModel.collectField = collectionReference.params.centroidPath;
+                    // This suffix will be used in the AggregationResponse construction in order to distinguish the case when the centroid
+                    // should be provided as metrics only and when it should be the geometry of the geoagragation
+                    String centroidSuffix = "";
+                    if (aggregationModel.withGeoCentroid && !aggregationModel.withGeoBBOX) {
+                        centroidSuffix = "-bucket";
+                    }
+                    metricAggregation = AggregationBuilders.geoCentroid(MetricAggregationEnum.geocentroid.name() + centroidSuffix).field(aggregationModel.collectField);
+                    break;
+                case geobbox:
+                    //TODO : Throw an exception if the user has set collect_field to a field different from collectionReference.params.centroidPath ??
+                    aggregationModel.collectField = collectionReference.params.centroidPath;
+                    String bboxSuffix = "";
+                    if (aggregationModel.withGeoBBOX) {
+                        bboxSuffix = "-bucket";
+                    }
+                    metricAggregation = AggregationBuilders.geoBounds(MetricAggregationEnum.geobbox.name() + bboxSuffix).field(aggregationModel.collectField);
+                    break;
                 default:
                     throw new InvalidParameterException(aggregationModel.collectFct + " function is invalid.");
             }
+        }
+        if (aggregationModel.collectField != null && aggregationModel.collectFct != null) {
             if (metricAggregation != null) {
                 aggregationBuilder.subAggregation(metricAggregation);
             }
@@ -509,10 +542,29 @@ public class FluidSearch {
                 throw new BadRequestException(NO_SIZE_TO_SPECIFY);
         }
         setOrder(aggregationModel, aggregationBuilder, metricAggregation);
+
+        //
+        if (aggregationModel.type == AggregationTypeEnum.geohash) {
+            if (aggregationModel.withGeoBBOX) {
+                // if geobbox is not already asked as a sub-aggregation
+                if (aggregationModel.collectFct != MetricAggregationEnum.geobbox) {
+                    metricAggregation = AggregationBuilders.geoBounds(MetricAggregationEnum.geobbox.name() + "-bucket").field(collectionReference.params.centroidPath);
+                    aggregationBuilder.subAggregation(metricAggregation);
+                }
+            } else if (aggregationModel.withGeoCentroid) {
+                // if geocentroid is not already asked as a sub-aggregation
+                if (aggregationModel.collectFct != MetricAggregationEnum.geocentroid) {
+                    metricAggregation = AggregationBuilders.geoCentroid(MetricAggregationEnum.geocentroid.name() + "-bucket").field(collectionReference.params.centroidPath);
+                    aggregationBuilder.subAggregation(metricAggregation);
+                }
+
+            }
+        }
+
         return aggregationBuilder;
     }
 
-    private void setOrder(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, ValuesSourceAggregationBuilder.LeafOnly metricAggregation) throws ArlasException {
+    private void setOrder(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, ValuesSourceAggregationBuilder metricAggregation) throws ArlasException {
         AggregationOrderEnum order = aggregationModel.order;
         AggregationOnEnum on = aggregationModel.on;
         if (order != null && on != null) {
@@ -541,8 +593,13 @@ public class FluidSearch {
                         histogramOrder = Histogram.Order.COUNT_DESC;
                 } else if (on.equals(AggregationOnEnum.result)) {
                     if (metricAggregation != null) {
-                        termsOrder = Terms.Order.aggregation(metricAggregation.getName(), asc);
-                        histogramOrder = Histogram.Order.aggregation(metricAggregation.getName(), asc);
+                        // ORDER ON RESULT IS NOT ALLOWED ON COORDINATES (CENTROID) OR BOUNDING BOX
+                        if (!metricAggregation.getName().equals(MetricAggregationEnum.geobbox.name()) && !metricAggregation.getName().equals(MetricAggregationEnum.geocentroid   .name())) {
+                            termsOrder = Terms.Order.aggregation(metricAggregation.getName(), asc);
+                            histogramOrder = Histogram.Order.aggregation(metricAggregation.getName(), asc);
+                        } else {
+                            throw new BadRequestException(ORDER_ON_GEO_RESULT_NOT_ALLOWED);
+                        }
                     } else {
                         throw new BadRequestException(ORDER_ON_RESULT_NOT_ALLOWED);
                     }

@@ -45,6 +45,8 @@ public class ParamsParser {
     private static final String AGG_ORDER_PARAM = "order-";
     private static final String AGG_ON_PARAM = "on-";
     private static final String AGG_SIZE_PARAM = "size-";
+    private static final String AGG_GEOCENTROID_PARAM = "withGeoCentroid-";
+    private static final String AGG_GEOBBOX_PARAM = "withGeoBBOX-";
 
     public static List<Aggregation> getAggregations(List<String> agg) throws ArlasException {
         List<Aggregation> aggregations = new ArrayList<>();
@@ -84,6 +86,10 @@ public class ParamsParser {
                 aggregationModel.on = AggregationOnEnum.valueOf(parameter.substring(AGG_ON_PARAM.length()));
             } else if (parameter.contains(AGG_SIZE_PARAM)) {
                 aggregationModel.size = parameter.substring(AGG_SIZE_PARAM.length());
+            } else if (parameter.contains(AGG_GEOCENTROID_PARAM)) {
+                aggregationModel.withGeoCentroid = Boolean.valueOf(parameter.substring(AGG_GEOCENTROID_PARAM.length()));
+            } else if (parameter.contains(AGG_GEOBBOX_PARAM)) {
+                aggregationModel.withGeoBBOX = Boolean.valueOf(parameter.substring(AGG_GEOBBOX_PARAM.length()));
             } else if (parameter.equals(agg.get(1))) {
                 aggregationModel.field = parameter;
             }
