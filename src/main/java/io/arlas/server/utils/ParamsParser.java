@@ -26,6 +26,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.request.*;
+import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 import io.dropwizard.jersey.params.IntParam;
 import io.dropwizard.jersey.params.LongParam;
 import org.elasticsearch.common.Strings;
@@ -76,7 +77,7 @@ public class ParamsParser {
             } else if (parameter.contains(AGG_COLLECT_FIELD_PARAM)) {
                 aggregationModel.collectField = parameter.substring(AGG_COLLECT_FIELD_PARAM.length());
             } else if (parameter.contains(AGG_COLLECT_FCT_PARAM)) {
-                aggregationModel.collectFct = parameter.substring(AGG_COLLECT_FCT_PARAM.length());
+                aggregationModel.collectFct = MetricAggregationEnum.valueOf(parameter.substring(AGG_COLLECT_FCT_PARAM.length()));
             } else if (parameter.contains(AGG_ORDER_PARAM)) {
                 aggregationModel.order = AggregationOrderEnum.valueOf(parameter.substring(AGG_ORDER_PARAM.length()));
             } else if (parameter.contains(AGG_ON_PARAM)) {

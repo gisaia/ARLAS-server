@@ -23,6 +23,7 @@ import static io.restassured.RestAssured.given;
 
 import io.arlas.server.DataSetTool;
 import io.arlas.server.model.request.*;
+import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,31 +66,31 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1"),32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "avg";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.avg;
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
                 32, 16, 25, "avg", 790075F, 1230075F);
         handleMatchingGeohashAggregateWithCollect(get("geohash:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-avg"),
                 32, 16, 25, "avg", 790075F, 1230075F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "cardinality";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.cardinality;
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
                 32, 16, 25, "cardinality", 16F, 25F);
         handleMatchingGeohashAggregateWithCollect(get("geohash:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-cardinality"),
                 32, 16, 25, "cardinality", 16F, 25F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "max";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.max;
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
                 32, 16, 25, "max", 817000F, 1263600F);
         handleMatchingGeohashAggregateWithCollect(get("geohash:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-max"),
                 32, 16, 25, "max", 817000F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "min";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.min;
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
                 32, 16, 25, "min", 763600F, 1197000F);
         handleMatchingGeohashAggregateWithCollect(get("geohash:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-min"),
                 32, 16, 25, "min", 763600F, 1197000F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.sum;
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
                 32, 16, 25, "sum", 12641200F, 28305000F);
         handleMatchingGeohashAggregateWithCollect(get("geohash:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-sum"),
@@ -111,31 +112,31 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
                 10, 1, 104);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "avg";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.avg;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "avg", 769433F, 1263600F);
         handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-avg"),
                 10, 1, 104, "avg", 769433F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "cardinality";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.cardinality;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "cardinality", 1F, 72F);
         handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-cardinality"),
                 10, 1, 104, "cardinality", 1F, 72F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "max";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.max;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "max", 772800F, 1263600F);
         handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-max"),
                 10, 1, 104, "max", 772800F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "min";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.min;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "min", 763600F, 1263600F);
         handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-min"),
                 10, 1, 104, "min", 763600F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.sum;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "sum", 1263600F, 102986100F);
         handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-sum"),
@@ -172,7 +173,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.result;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.sum;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
                 10, 1, 104,"1970-01-01-00:16:00");
         handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-sum:order-desc:on-result"),
@@ -207,31 +208,31 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingAggregate(get("histogram:params.startdate:interval-100000"),6, 14, 176);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "avg";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.avg;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 6, 14, 176, "avg", 786078F, 1226267F);
         handleMatchingAggregateWithCollect(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-avg"),
                 6, 14, 176, "avg", 786078F, 1226267F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "cardinality";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.cardinality;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 6, 14, 176, "cardinality", 14F, 111F);
         handleMatchingAggregateWithCollect(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-cardinality"),
                 6, 14, 176, "cardinality", 14F, 111F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "max";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.max;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 6, 14, 176, "max", 799800F, 1263600F);
         handleMatchingAggregateWithCollect(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-max"),
                 6, 14, 176, "max", 799800F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "min";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.min;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 6, 14, 176, "min", 763600F, 1263600F);
         handleMatchingAggregateWithCollect(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-min"),
                 6, 14, 176, "min", 763600F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.sum;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 6, 14, 176, "sum", 11005100F, 170040600F);
         handleMatchingAggregateWithCollect(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-sum"),
@@ -262,7 +263,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.result;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.sum;
         handleMatchingAggregateWithOrder(post(aggregationRequest),6, 14, 176,"1000000");
         handleMatchingAggregateWithOrder(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-sum:order-desc:on-result"),
                 6, 14, 176,"1000000");
@@ -282,23 +283,23 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingAggregate(get("term:params.job"), DataSetTool.jobs.length-1, 58, 64);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "avg";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.avg;
         handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "avg", 1000000F, 1000000F);
         handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-avg"),DataSetTool.jobs.length-1, 58, 64, "avg", 1000000F, 1000000F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "cardinality";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.cardinality;
         handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "cardinality", 44F, 49F);
         handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-cardinality"),DataSetTool.jobs.length-1, 58, 64, "cardinality", 44F, 49F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "max";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.max;
         handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "max", 1166400F, 1263600F);
         handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-max"),DataSetTool.jobs.length-1, 58, 64, "max", 1166400F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "min";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.min;
         handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "min", 763600F, 840000F);
         handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-min"),DataSetTool.jobs.length-1, 58, 64, "min", 763600F, 840000F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.sum;
         handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "sum", 58000000F, 640000000F);
         handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-sum"),DataSetTool.jobs.length-1, 58, 64, "sum", 58000000F, 640000000F);
 
@@ -318,7 +319,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingAggregateWithOrder(get("term:params.job:order-asc:on-field"),DataSetTool.jobs.length-1, 58, 64,"Actor");
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.sum;
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.result;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64,"Cost Estimator");
@@ -418,8 +419,12 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-foo"));
 
-        aggregationRequest.aggregations.get(0).collectFct = "bar";
-        handleInvalidParameters(post(aggregationRequest));
+        invalidAggregationRequest.invalidAggregations.get(0).type = "geohash";
+        invalidAggregationRequest.invalidAggregations.get(0).field = "geo_params.centroid";
+        invalidAggregationRequest.invalidAggregations.get(0).interval = new Interval(1, null);;
+        invalidAggregationRequest.invalidAggregations.get(0).collectField="foo";
+        invalidAggregationRequest.invalidAggregations.get(0).collectFct = "bar";
+        handleInvalidParameters(post(invalidAggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-foo:collect_fct-bar"));
 
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.datehistogram;

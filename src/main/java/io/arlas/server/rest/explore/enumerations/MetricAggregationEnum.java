@@ -19,13 +19,6 @@
 
 package io.arlas.server.rest.explore.enumerations;
 
-public enum MetricAggregationType {
-    avg, cardinality, max, min, sum;
-
-    public static final String AVG = "avg";
-    public static final String CARDINALITY = "cardinality";
-    public static final String MAX = "max";
-    public static final String MIN = "min";
-    public static final String SUM = "sum";
-
+public enum MetricAggregationEnum {
+    avg, cardinality, max, min, sum, geocentroid, geobox;
 }

@@ -25,7 +25,6 @@ import com.vividsolutions.jts.io.WKTReader;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
-import io.arlas.server.rest.explore.enumerations.MetricAggregationType;
 import io.arlas.server.utils.ParamsParser;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -54,6 +53,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.BadRequestException;
+import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.exceptions.NotAllowedException;
+import io.arlas.server.exceptions.NotImplementedException;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
+import io.arlas.server.utils.ParamsParser;
 
 
 public class FluidSearch {
@@ -458,19 +473,19 @@ public class FluidSearch {
         ValuesSourceAggregationBuilder.LeafOnly metricAggregation = null;
         if (aggregationModel.collectField != null && aggregationModel.collectFct != null) {
             switch (aggregationModel.collectFct) {
-                case MetricAggregationType.AVG:
+                case avg:
                     metricAggregation = AggregationBuilders.avg("avg").field(aggregationModel.collectField);
                     break;
-                case MetricAggregationType.CARDINALITY:
+                case cardinality:
                     metricAggregation = AggregationBuilders.cardinality("cardinality").field(aggregationModel.collectField);
                     break;
-                case MetricAggregationType.MAX:
+                case max:
                     metricAggregation = AggregationBuilders.max("max").field(aggregationModel.collectField);
                     break;
-                case MetricAggregationType.MIN:
+                case min:
                     metricAggregation = AggregationBuilders.min("min").field(aggregationModel.collectField);
                     break;
-                case MetricAggregationType.SUM:
+                case sum:
                     metricAggregation = AggregationBuilders.sum("sum").field(aggregationModel.collectField);
                     break;
                 default:
