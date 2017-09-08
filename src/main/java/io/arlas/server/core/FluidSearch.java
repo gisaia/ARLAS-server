@@ -72,6 +72,7 @@ import io.arlas.server.utils.ParamsParser;
 
 public class FluidSearch {
 
+    public static final String INVALID_FILTER = "Invalid filter parameter.";
     public static final String INVALID_PARAMETER_F = "Parameter f does not respect operation expression. ";
     public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'eq', gte', 'gt', 'lte', 'lt', 'like' or 'ne'. ";
     public static final String INVALID_Q_FILTER = "Invalid parameter. Please specify the text to search directly or '{fieldname}:{text to search}'. ";

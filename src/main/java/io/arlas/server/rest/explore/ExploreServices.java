@@ -73,29 +73,32 @@ public class ExploreServices {
         return client.prepareSearch(collection.params.indexName);
     }
 
-    public SearchHits count(Count count, CollectionReference collectionReference) throws ArlasException, IOException {
+    public SearchHits count(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(count.filter,fluidSearch);
+        applyFilter(request.basicRequest.filter,fluidSearch);
+        applyFilter(request.headerRequest.filter,fluidSearch);
         return fluidSearch.exec().getHits();
     }
 
-    public SearchHits search(Search search, CollectionReference collectionReference) throws ArlasException, IOException{
+    public SearchHits search(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException{
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(search.filter,fluidSearch);
-        applySize(search.size,fluidSearch);
-        applySort(search.sort,fluidSearch);
-        applyProjection(search.projection,fluidSearch);
+        applyFilter(request.basicRequest.filter,fluidSearch);
+        applyFilter(request.headerRequest.filter,fluidSearch);
+        applySize(((Search)request.basicRequest).size,fluidSearch);
+        applySort(((Search)request.basicRequest).sort,fluidSearch);
+        applyProjection(((Search)request.basicRequest).projection,fluidSearch);
         return fluidSearch.exec().getHits();
     }
 
-    public SearchResponse aggregate(AggregationsRequest aggregationsRequest, CollectionReference collectionReference, Boolean isGeoAggregation) throws ArlasException,IOException{
-        CheckParams.checkAggregationRequest(aggregationsRequest);
+    public SearchResponse aggregate(MixedRequest request, CollectionReference collectionReference, Boolean isGeoAggregation) throws ArlasException,IOException{
+        CheckParams.checkAggregationRequest(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(aggregationsRequest.filter,fluidSearch);
-        applyAggregation(aggregationsRequest.aggregations,fluidSearch,isGeoAggregation);
+        applyFilter(request.basicRequest.filter,fluidSearch);
+        applyFilter(request.headerRequest.filter,fluidSearch);
+        applyAggregation(((AggregationsRequest)request.basicRequest).aggregations,fluidSearch,isGeoAggregation);
         return fluidSearch.exec();
     }
 

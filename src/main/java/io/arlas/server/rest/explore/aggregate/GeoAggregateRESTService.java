@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.AggregationsRequest;
+import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.Documentation;
@@ -142,6 +143,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     required=false)
             @QueryParam(value="notgintersect") String notgintersect,
 
+            @HeaderParam(value="Partition-Filter") String partitionFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -172,7 +175,12 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
         aggregationsRequest.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
-        FeatureCollection fc = getFeatureCollection(aggregationsRequest,collectionReference);
+        AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
+        aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        MixedRequest request = new MixedRequest();
+        request.basicRequest = aggregationsRequest;
+        request.headerRequest = aggregationsRequestHeader;
+        FeatureCollection fc = getFeatureCollection(request,collectionReference);
         return cache(Response.ok(fc),maxagecache);
     }
 
@@ -199,6 +207,13 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
             AggregationsRequest aggregationRequest,
+
+            // --------------------------------------------------------
+            // -----------------------  FILTER  -----------------------
+            // --------------------------------------------------------
+
+            @HeaderParam(value="Partition-Filter") String partitionFilter,
+
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
@@ -211,15 +226,21 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
-        FeatureCollection fc = getFeatureCollection(aggregationRequest,collectionReference);
+        AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
+        aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        MixedRequest request = new MixedRequest();
+        request.basicRequest = aggregationRequest;
+        request.headerRequest = aggregationsRequestHeader;
+
+        FeatureCollection fc = getFeatureCollection(request,collectionReference);
 
         return cache(Response.ok(fc),maxagecache);
     }
 
-    private FeatureCollection getFeatureCollection(AggregationsRequest aggregationRequest, CollectionReference collectionReference) throws ArlasException, IOException{
+    private FeatureCollection getFeatureCollection(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException{
         FeatureCollection fc;
         AggregationResponse aggregationResponse = new AggregationResponse();
-        SearchResponse response = this.getExploreServices().aggregate(aggregationRequest,collectionReference,true);
+        SearchResponse response = this.getExploreServices().aggregate(request,collectionReference,true);
         MultiBucketsAggregation aggregation;
         aggregation = (MultiBucketsAggregation)response.getAggregations().asList().get(0);
         aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse);

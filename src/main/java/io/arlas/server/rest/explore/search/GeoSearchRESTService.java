@@ -25,17 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
+import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.Error;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -139,6 +132,8 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "notgintersect") String notgintersect,
 
+            @HeaderParam(value="Partition-Filter") String partitionFilter,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -218,7 +213,13 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         search.sort = ParamsParser.getSort(sort);
         search.projection = ParamsParser.getProjection(include,exclude);
 
-        FeatureCollection fc = getFeatures(collectionReference, search);
+        Search searchHeader = new Search();
+        searchHeader.filter = ParamsParser.getFilter(partitionFilter);
+        MixedRequest request = new MixedRequest();
+        request.basicRequest = search;
+        request.headerRequest = searchHeader;
+
+        FeatureCollection fc = getFeatures(collectionReference, request);
         return cache(Response.ok(fc),maxagecache);
     }
 
@@ -245,6 +246,13 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             // -----------------------  Search   -----------------------
             // --------------------------------------------------------
             Search search,
+
+            // --------------------------------------------------------
+            // -----------------------  FILTER  -----------------------
+            // --------------------------------------------------------
+
+            @HeaderParam(value="Partition-Filter") String partitionFilter,
+
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
@@ -256,13 +264,20 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        FeatureCollection fc = getFeatures(collectionReference, search);
+
+        Search searchHeader = new Search();
+        searchHeader.filter = ParamsParser.getFilter(partitionFilter);
+        MixedRequest request = new MixedRequest();
+        request.basicRequest = search;
+        request.headerRequest = searchHeader;
+
+        FeatureCollection fc = getFeatures(collectionReference, request);
         return cache(Response.ok(fc),maxagecache);
     }
 
 
-    protected FeatureCollection getFeatures(CollectionReference collectionReference, Search search) throws ArlasException, IOException {
-        SearchHits searchHits = this.getExploreServices().search(search, collectionReference);
+    protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
+        SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
         FeatureCollection fc = new FeatureCollection();
         SearchHit[] results = searchHits.getHits();
 

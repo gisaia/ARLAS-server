@@ -21,6 +21,8 @@ package io.arlas.server.rest.explore;
 
 import java.util.Arrays;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.OperatorEnum;
 import org.junit.Before;
@@ -34,6 +36,8 @@ import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 
 public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
     public void setUpFilter(){
@@ -49,18 +53,22 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0]));//("job:eq:" + DataSetTool.jobs[0]);
         handleKnownFieldFilter(post(request));
         handleKnownFieldFilter(get("f", request.filter.f.get(0).toString()));
+        handleKnownFieldFilter(header(request.filter));
 
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]));//"job:eq:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
         handleKnownFieldFilterWithOr(post(request));
         handleKnownFieldFilterWithOr(get("f", request.filter.f.get(0).toString()));
+        handleKnownFieldFilterWithOr(header(request.filter));
 
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.like, "cto"));//"job:like:" + "cto");
         handleKnownFieldLikeFilter(post(request));
         handleKnownFieldLikeFilter(get("f", request.filter.f.get(0).toString()));
+        handleKnownFieldLikeFilter(header(request.filter));
 
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.ne, DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]));//"job:ne:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
         handleKnownFieldFilterNotEqual(post(request));
         handleKnownFieldFilterNotEqual(get("f", request.filter.f.get(0).toString()));
+        handleKnownFieldFilterNotEqual(header(request.filter));
         //TODO : fix the case where the field is full text
         /*handleKnownFullTextFieldLikeFilter(
                 givenFilterableRequestParams().param("f", "fullname:like:" + "name is")
@@ -69,6 +77,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, "UnknownJob"));//"job:eq:UnknownJob");
         handleUnknownFieldFilter(post(request));
         handleUnknownFieldFilter(get("f", request.filter.f.get(0).toString()));
+        handleUnknownFieldFilter(header(request.filter));
         request.filter.f = null;
 
     }
@@ -79,14 +88,17 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.q = "My name is";
         handleMatchingQueryFilter(post(request));
         handleMatchingQueryFilter(get("q", request.filter.q));
+        handleMatchingQueryFilter(header(request.filter));
 
         request.filter.q = "fullname:My name is";
         handleMatchingQueryFilter(post(request));
         handleMatchingQueryFilter(get("q", request.filter.q));
+        handleMatchingQueryFilter(header(request.filter));
 
         request.filter.q = "UnknownQuery";
         handleNotMatchingQueryFilter(post(request));
         handleNotMatchingQueryFilter(get("q", request.filter.q));
+        handleNotMatchingQueryFilter(header(request.filter));
 
         request.filter.q = null;
     }
@@ -99,19 +111,23 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.before = 775000L;
         handleMatchingBeforeFilter(post(request));
         handleMatchingBeforeFilter(get("before",request.filter.before));
+        handleMatchingBeforeFilter(header(request.filter));
 
         request.filter.before = 760000L;
         handleNotMatchingBeforeFilter(post(request));
         handleNotMatchingBeforeFilter(get("before",request.filter.before));
+        handleNotMatchingBeforeFilter(header(request.filter));
 
         request.filter.before = null;
         request.filter.after = 1250000L;
         handleMatchingAfterFilter(post(request));
         handleMatchingAfterFilter(get("after",request.filter.after));
+        handleMatchingAfterFilter(header(request.filter));
 
         request.filter.after = 1270000L;
         handleNotMatchingAfterFilter(post(request));
         handleNotMatchingAfterFilter(get("after",request.filter.after));
+        handleNotMatchingAfterFilter(header(request.filter));
 
         request.filter.after = 770000L;
         request.filter.before = 775000L;
@@ -121,6 +137,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                     .param("before", request.filter.before)
                 .when().get(getUrlPath("geodata"))
                 .then());
+        handleMatchingBeforeAfterFilter(header(request.filter));
 
         request.filter.after = 765000L;
         request.filter.before = 770000L;
@@ -130,6 +147,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                     .param("before", request.filter.before)
                 .when().get(getUrlPath("geodata"))
                 .then());
+        handleNotMatchingBeforeAfterFilter(header(request.filter));
 
         request.filter.after = null;
         request.filter.before = null;
@@ -140,19 +158,23 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.pwithin = "5,-5,-5,5";
         handleMatchingPwithinFilter(post(request));
         handleMatchingPwithinFilter(get("pwithin",request.filter.pwithin));
+        handleMatchingPwithinFilter(header(request.filter));
 
         request.filter.pwithin = "90,175,85,180";
         handleNotMatchingPwithinFilter(post(request));
         handleNotMatchingPwithinFilter(get("pwithin",request.filter.pwithin));
+        handleNotMatchingPwithinFilter(header(request.filter));
 
         request.filter.pwithin = null;
         request.filter.notpwithin = "85,-170,-85,175";
         handleMatchingNotPwithinFilter(post(request));
         handleMatchingNotPwithinFilter(get("notpwithin",request.filter.notpwithin));
+        handleMatchingNotPwithinFilter(header(request.filter));
 
         request.filter.notpwithin = "85,-175,-85,175";
         handleNotMatchingNotPwithinFilter(post(request));
         handleNotMatchingNotPwithinFilter(get("notpwithin",request.filter.notpwithin));
+        handleNotMatchingNotPwithinFilter(header(request.filter));
 
         //TODO support correct 10,-10,-10,10 bounding box
         request.filter.pwithin = "11,-11,-11,11";
@@ -163,6 +185,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                     .param("notpwithin", request.filter.notpwithin)
                 .when().get(getUrlPath("geodata"))
                 .then());
+        handleMatchingPwithinComboFilter(header(request.filter));
 
         request.filter.pwithin = "6,-6,-6,6";
         request.filter.notpwithin = "5,-5,-5,5";
@@ -172,6 +195,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                     .param("notpwithin", request.filter.notpwithin)
                 .when().get(getUrlPath("geodata"))
                 .then());
+        handleNotMatchingPwithinComboFilter(header(request.filter));
 
         request.filter.pwithin = null;
         request.filter.notpwithin = null;
@@ -182,19 +206,23 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.gwithin = "POLYGON((2 2,2 -2,-2 -2,-2 2,2 2))";
         handleMatchingGwithinFilter(post(request));
         handleMatchingGwithinFilter(get("gwithin",request.filter.gwithin));
+        handleMatchingGwithinFilter(header(request.filter));
 
         request.filter.gwithin = "POLYGON((1 1,2 1,2 2,1 2,1 1))";
         handleNotMatchingGwithinFilter(post(request));
         handleNotMatchingGwithinFilter(get("gwithin",request.filter.gwithin));
+        handleNotMatchingGwithinFilter(header(request.filter));
         request.filter.gwithin = null;
 
         request.filter.notgwithin = "POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))";
         handleMatchingNotGwithinFilter(post(request));
         handleMatchingNotGwithinFilter(get("notgwithin",request.filter.notgwithin));
+        handleMatchingNotGwithinFilter(header(request.filter));
 
         request.filter.notgwithin = "POLYGON((180 90,-180 90,-180 -90,180 -90,180 90))";
         handleNotMatchingNotGwithinFilter(post(request));
         handleNotMatchingNotGwithinFilter(get("notgwithin",request.filter.notgwithin));
+        handleNotMatchingNotGwithinFilter(header(request.filter));
 
         request.filter.gwithin = "POLYGON((12 12,12 -12,-12 -12,-12 12,12 12))";
         request.filter.notgwithin = "POLYGON((8 8,8 -8,-8 -8,-8 8,8 8))";
@@ -204,6 +232,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                     .param("notgwithin", request.filter.notgwithin)
                 .when().get(getUrlPath("geodata"))
                 .then());
+        handleMatchingGwithinComboFilter(header(request.filter));
 
         request.filter.gwithin = "POLYGON((12 12,12 -12,-12 -12,-12 12,12 12))";
         request.filter.notgwithin = "POLYGON((11 11,11 -11,-11 -11,-11 11,11 11))";
@@ -213,6 +242,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .param("notgwithin", request.filter.notgwithin)
                 .when().get(getUrlPath("geodata"))
                 .then());
+        handleNotMatchingGwithinComboFilter(header(request.filter));
         request.filter.gwithin = null;
         request.filter.notgwithin = null;
     }
@@ -222,19 +252,23 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.gintersect = "POLYGON((0 1,1 1,1 -1,0 -1,0 1))";
         handleMatchingGintersectFilter(post(request));
         handleMatchingGintersectFilter(get("gintersect",request.filter.gintersect));
+        handleMatchingGintersectFilter(header(request.filter));
 
         request.filter.gintersect = "POLYGON((2 2,3 2,3 3,2 3,2 2))";
         handleNotMatchingGintersectFilter(post(request));
         handleNotMatchingGintersectFilter(get("gintersect", request.filter.gintersect));
+        handleNotMatchingGintersectFilter(header(request.filter));
         request.filter.gintersect = null;
 
         request.filter.notgintersect = "POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))";
         handleMatchingNotGintersectFilter(post(request));
         handleMatchingNotGintersectFilter(get("notgintersect", request.filter.notgintersect));
+        handleMatchingNotGintersectFilter(header(request.filter));
 
         request.filter.notgintersect = "POLYGON((180 90,-180 90,-180 -90,180 -90,180 90))";
         handleNotMatchingNotGintersectFilter(post(request));
         handleNotMatchingNotGintersectFilter(get("notgintersect", request.filter.notgintersect));
+        handleNotMatchingNotGintersectFilter(header(request.filter));
 
         request.filter.gintersect = "POLYGON((10 10,10 -10,-10 -10,-10 10,10 10))";
         request.filter.notgintersect = "POLYGON((10 10,10 -10,0 -10,0 10,10 10))";
@@ -244,6 +278,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                     .param("notgintersect", request.filter.notgintersect)
                 .when().get(getUrlPath("geodata"))
                 .then());
+        handleMatchingGintersectComboFilter(header(request.filter));
 
         request.filter.gintersect = "POLYGON((10 10,10 -10,-10 -10,-10 10,10 10))";
         request.filter.notgintersect = "POLYGON((11 11,11 -11,-11 -11,-11 11,11 11))";
@@ -253,6 +288,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .param("notgintersect", request.filter.notgintersect)
                 .when().get(getUrlPath("geodata"))
                 .then());
+        handleNotMatchingGintersectComboFilter(header(request.filter));
         request.filter.gintersect = null;
         request.filter.notgintersect = null;
 
@@ -282,6 +318,50 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                     .param("notgintersect", request.filter.notgintersect)
                 .when().get(getUrlPath("geodata"))
                 .then());
+        handleComplexFilter(header(request.filter));
+        request.filter = new Filter();
+    }
+
+    @Test
+    public void testMixedFilter() throws Exception {
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, "Architect"));//"job:eq:Architect");
+        request.filter.after = 1009799L;
+        request.filter.pwithin = "50,-50,-50,50";
+        request.filter.gwithin = "POLYGON((30 30,30 -30,-30 -30,-30 30,30 30))";
+        request.filter.gintersect = "POLYGON((-20 20, 20 20, 20 -20, -20 -20, -20 20))";
+
+        Filter filterHeader = new Filter();
+        filterHeader.before = 1009801L;
+        filterHeader.notpwithin = "50,20,-50,60";
+        filterHeader.notgwithin = "POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))";
+        filterHeader.notgintersect = "POLYGON((-30 -10,30 10, 30 -30, -30 -30,-30 -10))";
+        handleComplexFilter(
+                givenFilterableRequestParams()
+                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
+                        .param("f", (new Expression("params.job", OperatorEnum.eq, "Architect")).toString())
+                        .param("after", request.filter.after)
+                        .param("pwithin", request.filter.pwithin)
+                        .param("gwithin", request.filter.gwithin)
+                        .param("gintersect", request.filter.gintersect)
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+        handleComplexFilter(
+                givenFilterableRequestBody().body(request)
+                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
+                        .when().post(getUrlPath("geodata"))
+                        .then());
+
+        filterHeader.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, "Actor"));
+        handleNotMatchingRequest(
+                givenFilterableRequestParams().header("partition-filter", objectMapper.writeValueAsString(filterHeader))
+                        .param("f", (new Expression("params.job", OperatorEnum.eq, "Architect")).toString())
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+        handleNotMatchingRequest(
+                givenFilterableRequestBody().body(request)
+                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
+                        .when().post(getUrlPath("geodata"))
+                        .then());
         request.filter = new Filter();
     }
     
@@ -321,18 +401,21 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.f = Arrays.asList(new Expression("foobar", null, null));//);
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("f", request.filter.f.get(0)));
+        handleInvalidParameters(header(request.filter));
         request.filter.f = null;
 
         //Q
         request.filter.q = "fullname:My:name";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("q", request.filter.q));
+        handleInvalidParameters(header(request.filter));
         request.filter.q = null;
                 
         // BEFORE/AFTER
         request.filter.after = 1200000l;
         request.filter.before = 1000000L;
         handleInvalidParameters(post(request));
+        handleInvalidParameters(header(request.filter));
         handleInvalidParameters(
                 givenFilterableRequestParams().param("before", request.filter.before)
                 .param("after", request.filter.after)
@@ -354,57 +437,69 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.pwithin = "-5,-5,5,5";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("pwithin",request.filter.pwithin));
+        handleInvalidParameters(header(request.filter));
 
         request.filter.pwithin = "foo";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("pwithin",request.filter.pwithin));
+        handleInvalidParameters(header(request.filter));
         request.filter.pwithin = null;
 
         request.filter.notpwithin = "-5,-5,5,5";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("notpwithin",request.filter.notpwithin));
+        handleInvalidParameters(header(request.filter));
 
         request.filter.notpwithin = "foo";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("notpwithin",request.filter.notpwithin));
+        handleInvalidParameters(header(request.filter));
         request.filter.notpwithin = null;
         
         //GWITHIN
         request.filter.gwithin = "POLYGON((10 10,10 -10,0 -10))";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("gwithin",request.filter.gwithin));
+        handleInvalidParameters(header(request.filter));
 
         request.filter.gwithin = "foo";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("gwithin",request.filter.gwithin));
+        handleInvalidParameters(header(request.filter));
         request.filter.gwithin = null;
 
         request.filter.notgwithin = "POLYGON((10 10,10 -10,0 -10))";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("notgwithin",request.filter.notgwithin));
+        handleInvalidParameters(header(request.filter));
 
         request.filter.notgwithin = "foo";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("notgwithin",request.filter.notgwithin));
+        handleInvalidParameters(header(request.filter));
         request.filter.notgwithin = null;
 
         //GINTERSECT
         request.filter.gintersect = "POLYGON((10 10,10 -10,0 -10))";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("gintersect",request.filter.gintersect));
+        handleInvalidParameters(header(request.filter));
 
         request.filter.gintersect = "foo";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("gintersect",request.filter.gintersect));
+        handleInvalidParameters(header(request.filter));
         request.filter.gintersect = null;
 
         request.filter.notgintersect = "POLYGON((10 10,10 -10,0 -10))";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("notgintersect",request.filter.notgintersect));
+        handleInvalidParameters(header(request.filter));
 
         request.filter.notgintersect = "foo";
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("notgintersect",request.filter.notgintersect));
+        handleInvalidParameters(header(request.filter));
         request.filter.notgintersect = null;
 
     }
@@ -533,6 +628,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
     private ValidatableResponse get(String param,Object paramValue){
         return givenFilterableRequestParams().param(param, paramValue)
+                .when().get(getUrlPath("geodata"))
+                .then();
+    }
+
+    private ValidatableResponse header(Filter filter) throws JsonProcessingException {
+        return givenFilterableRequestParams().header("Partition-Filter", objectMapper.writeValueAsString(filter))
                 .when().get(getUrlPath("geodata"))
                 .then();
     }

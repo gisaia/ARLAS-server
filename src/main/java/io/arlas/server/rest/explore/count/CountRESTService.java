@@ -24,6 +24,7 @@ import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Count;
+import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Hits;
 import io.arlas.server.rest.explore.Documentation;
@@ -124,6 +125,8 @@ public class CountRESTService extends ExploreRESTServices {
                     required=false)
             @QueryParam(value="notgintersect") String notgintersect,
 
+            @HeaderParam(value="Partition-Filter") String partitionfilter,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -155,8 +158,13 @@ public class CountRESTService extends ExploreRESTServices {
 
         Count count = new Count();
         count.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
+        MixedRequest request = new MixedRequest();
+        request.basicRequest = count;
+        Count countHeader = new Count();
+        countHeader.filter = ParamsParser.getFilter(partitionfilter);
+        request.headerRequest = countHeader;
 
-        Hits hits = getArlasHits(collectionReference, count);
+        Hits hits = getArlasHits(collectionReference, request);
         return cache(Response.ok(hits),maxagecache);
     }
 
@@ -181,6 +189,12 @@ public class CountRESTService extends ExploreRESTServices {
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
+            // -----------------------  FILTER  -----------------------
+            // --------------------------------------------------------
+
+            @HeaderParam(value="Partition-Filter") String partitionfilter,
+
+            // --------------------------------------------------------
             // -----------------------  SEARCH  -----------------------
             // --------------------------------------------------------
             Count count
@@ -189,12 +203,19 @@ public class CountRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        Hits hits = getArlasHits(collectionReference, count);
+
+        MixedRequest request = new MixedRequest();
+        request.basicRequest = count;
+        Count countHeader = new Count();
+        countHeader.filter = ParamsParser.getFilter(partitionfilter);
+        request.headerRequest = countHeader;
+
+        Hits hits = getArlasHits(collectionReference, request);
         return Response.ok(hits).build();
     }
 
-    protected Hits getArlasHits(CollectionReference collectionReference, Count count) throws ArlasException, IOException {
-        SearchHits searchHits = this.getExploreServices().count(count,collectionReference);
+    protected Hits getArlasHits(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
+        SearchHits searchHits = this.getExploreServices().count(request,collectionReference);
         Hits hits = new Hits();
         hits.totalnb = searchHits.totalHits();
         hits.nbhits = searchHits.getHits().length;

@@ -46,11 +46,11 @@ public class CheckParams {
 
     public CheckParams() {
     }
-    public static void checkAggregationRequest(AggregationsRequest aggregationRequest) throws ArlasException{
-        if (aggregationRequest == null ||  aggregationRequest.aggregations == null)
+    public static void checkAggregationRequest(Request request) throws ArlasException{
+        if (request == null ||  !(request instanceof AggregationsRequest) || ((AggregationsRequest)request).aggregations == null)
             throw new BadRequestException("Aggregation should not be null");
-        else if (aggregationRequest !=null){
-            checkAggregation(aggregationRequest);
+        else if (request !=null){
+            checkAggregation((AggregationsRequest)request);
         }
     }
     public static void checkFilter (Filter filter) throws ArlasException{
