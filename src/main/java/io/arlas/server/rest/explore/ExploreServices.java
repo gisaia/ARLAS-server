@@ -209,25 +209,24 @@ public class ExploreServices {
                         subAggregationResponse.elements = null;
                         AggregationMetric aggregationMetric = new AggregationMetric();
                         aggregationMetric.type = subAggregation.getName();
-                        if (!aggregationMetric.type.equals(MetricAggregationEnum.geobbox.name()) && !aggregationMetric.type.equals(MetricAggregationEnum.geocentroid.name())
-                                && !aggregationMetric.type.equals(MetricAggregationEnum.geobbox.name() + "-bucket") && !aggregationMetric.type.equals(MetricAggregationEnum.geocentroid.name() + "-bucket")) {
+                        if (!aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase()) && !aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase())
+                                && !aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase() + "-bucket") && !aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase() + "-bucket")) {
                             aggregationMetric.value = (Double)subAggregation.getProperty("value");
                         } else {
                             FeatureCollection fc = new FeatureCollection();
                             Feature feature = new Feature();
-                            if (aggregationMetric.type.equals(MetricAggregationEnum.geobbox.name()) || aggregationMetric.type.equals(MetricAggregationEnum.geobbox.name() + "-bucket")) {
+                            if (aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase()) || aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase() + "-bucket")) {
                                 Polygon box = createBox((GeoBounds)subAggregation);
                                 GeoJsonObject g = box;
-                                if (aggregationMetric.type.equals(MetricAggregationEnum.geobbox.name() + "-bucket")) {
+                                if (aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase() + "-bucket")) {
                                     element.BBOX = box;
                                 }
                                 feature.setGeometry(g);
                                 fc.add(feature);
-                            } else if (aggregationMetric.type.equals(MetricAggregationEnum.geocentroid.name()) || aggregationMetric.type.equals(MetricAggregationEnum.geocentroid.name() + "-bucket")) {
-
+                            } else if (aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase()) || aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase() + "-bucket")) {
                                 GeoPoint centroid = ((GeoCentroid)subAggregation).centroid();
                                 GeoJsonObject g = new Point(centroid.getLon(), centroid.getLat());
-                                if (aggregationMetric.type.equals(MetricAggregationEnum.geocentroid.name() + "-bucket")) {
+                                if (aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase() + "-bucket")) {
                                     element.centroid = (Point)g;
                                 }
                                 feature.setGeometry(g);
@@ -236,7 +235,7 @@ public class ExploreServices {
                             aggregationMetric.value = fc;
                         }
                         // No need to add the geocentroid or the geobox as metric if withGeoCentroid or withGeoBBox is true (respectively)
-                        if (!aggregationMetric.type.equals(MetricAggregationEnum.geobbox.name() + "-bucket") && !aggregationMetric.type.equals(MetricAggregationEnum.geocentroid.name() + "-bucket")) {
+                        if (!aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase() + "-bucket") && !aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase() + "-bucket")) {
                             subAggregationResponse.metric = aggregationMetric;
                         } else {
                             subAggregationResponse = null;

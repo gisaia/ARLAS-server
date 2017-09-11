@@ -67,14 +67,23 @@ The sub-parameters possible values are:
 | **interval**      | {interval}                                      | Size of the intervals.(1)                   |
 | **format**        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.         |
 | **collect_field** | `{collect_field}`                               | The field used to aggregate collections. |
-| **collect_fct**   | `avg,cardinality,max,min,sum`                   | The aggregation function to apply to collections on the specified **collect_field**. |
+| **collect_fct**   | `avg,cardinality,max,min,sum,geobbox,geocentroid (2)` | The aggregation function to apply to collections on the specified **collect_field**. |
 | **order**         | `asc,desc`                                      | Sorts the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation, ascending or descending. |
-| **on**            | `field,count,result` (2)                        | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
+| **on**            | `field,count,result` (3)                        | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
 | **size**          | {size}                                          | Defines how many buckets should be returned. |
+| **withGeoBBOX**   | Boolean (4)(5)                                  | When it's true : the geoaggregation geometry is the data extent (bbox) of each bucket. |
+| **withGeoBBOX**   | Boolean (4)(5)                                  | When it's true : the geoaggregation geometry is the centroid of each bucket. |
 
 (1) Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
 
-(2) When **on** is `result`, then (**collect_field**,**collect_fct**) should be specified
+(2) (**collect_field**,**collect_fct**) should both be specified, except when **collect_fct** = `geobbox` or `geocentroid`, it could be specified alone.
+The metrics `geobbox` and `geocentroid` are returned as features collections.
+
+(3) When **on** is `result`, then (**collect_field**,**collect_fct**) should be specified. Except when **collect_fct** = `geobbox` or `geocentroid`, then **on**=`result` is prohibited .
+
+(4) If **withGeoCentroid** or **withGeoBBOX** are specified, the returned geometry is the one used in the geojson. **withGeoBBOX** wins over **withGeoCentroid**.
+
+(5) If **withGeoCentroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics.
 
 | Service             | Aggregation type    | Interval                                 | Description                              |
 | ------------------- | ------------------- | ---------------------------------------- | ---------------------------------------- |

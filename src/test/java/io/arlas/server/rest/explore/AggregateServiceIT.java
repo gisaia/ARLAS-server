@@ -69,12 +69,22 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
     @Override
     protected void handleMatchingGeohashAggregateWithGeocentroidBucket(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int elementsSize, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
-        then.statusCode(400);
+        handleMatchingGeohashAggregate(then,featuresSize,featureCountMin,featureCountMax);
+        then
+        .body("elements.centroid.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))
+        .body("elements.centroid.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))
+        .body("elements.centroid.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))
+        .body("elements.centroid.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))));
     }
 
     @Override
     protected void handleMatchingGeohashAggregateWithGeoBboxBucket(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int elementsSize, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
-        then.statusCode(400);
+        handleMatchingGeohashAggregate(then,featuresSize,featureCountMin,featureCountMax);
+        then
+        .body("elements.bbox.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))))
+        .body("elements.bbox.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))))
+        .body("elements.bbox.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))))
+        .body("elements.bbox.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))));
     }
 
     @Override

@@ -79,7 +79,7 @@ public class ParamsParser {
             } else if (parameter.contains(AGG_COLLECT_FIELD_PARAM)) {
                 aggregationModel.collectField = parameter.substring(AGG_COLLECT_FIELD_PARAM.length());
             } else if (parameter.contains(AGG_COLLECT_FCT_PARAM)) {
-                aggregationModel.collectFct = MetricAggregationEnum.valueOf(parameter.substring(AGG_COLLECT_FCT_PARAM.length()));
+                aggregationModel.collectFct = MetricAggregationEnum.valueOf(parameter.substring(AGG_COLLECT_FCT_PARAM.length()).toUpperCase());
             } else if (parameter.contains(AGG_ORDER_PARAM)) {
                 aggregationModel.order = AggregationOrderEnum.valueOf(parameter.substring(AGG_ORDER_PARAM.length()));
             } else if (parameter.contains(AGG_ON_PARAM)) {
