@@ -79,5 +79,4 @@ docker run -v $PWD:/opt/docs auchida/markdown-pdf markdown-pdf doc/api/API-Explo
 docker run -v $PWD:/opt/docs auchida/markdown-pdf markdown-pdf doc/api/API-Collection-definition.md -o doc/api/API-Collection-definition.pdf -r landscape -z doc/api/markdown2pdf.css
 cp conf/configuration.yaml .
 cp target/arlas-*.jar .
-mv target/doc/* doc/
-
+mv target/doc/api/* doc/api/
