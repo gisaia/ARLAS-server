@@ -16,4 +16,5 @@ arlas-artifact:
     - arlas-server-*.jar
     - configuration.yaml
     - doc
+    - examples
     name: "arlas-binaries-${CI_COMMIT_TAG}"

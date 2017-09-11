@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.Error;
+import io.arlas.server.utils.MapExplorer;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.geojson.Feature;
@@ -283,30 +284,25 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
         for (SearchHit hit : results) {
             Feature feature = new Feature();
-            Map<String, Object> hitsSources = hit.getSource();
+            Map<String, Object> source = hit.getSource();
             if (collectionReference.params.geometryPath != null) {
-                if (hitsSources.keySet().contains(collectionReference.params.geometryPath)) {
-                    String geometryPath = collectionReference.params.geometryPath;
-                    Object m = hitsSources.get(geometryPath);
-                    feature.setGeometry(GeoTypeMapper.getGeoJsonObject(m));
-                    hitsSources.remove(geometryPath);
+                Object geometry = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
+                if (geometry!=null) {
+                    feature.setGeometry(GeoTypeMapper.getGeoJsonObject(geometry));
                     feature.setProperties(hit.getSource());
                 } else {
                     feature.setProperties(hit.getSource());
                 }
             } else if (collectionReference.params.centroidPath != null) {
-                if (hitsSources.keySet().contains(collectionReference.params.centroidPath)) {
-                    String centroidPath = collectionReference.params.centroidPath;
-                    Object m = hitsSources.get(centroidPath);
-                    feature.setGeometry(GeoTypeMapper.getGeoJsonObject(m));
-                    hitsSources.remove(centroidPath);
+                Object centroid = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
+                if (centroid!=null) {
+                    feature.setGeometry(GeoTypeMapper.getGeoJsonObject(centroid));
                     feature.setProperties(hit.getSource());
                 } else {
                     feature.setProperties(hit.getSource());
                 }
             }
             fc.add(feature);
-
         }
         return fc;
     }

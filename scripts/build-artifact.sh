@@ -75,6 +75,9 @@ mkdir tmp || echo "tmp exists"
 curl -XGET http://localhost:29999/arlas/swagger.json -o tmp/swagger.json
 curl -XGET http://localhost:29999/arlas/swagger.yaml -o tmp/swagger.yaml
 mvn  swagger2markup:convertSwagger2markup post-integration-test
+docker run -v $PWD:/opt/docs auchida/markdown-pdf markdown-pdf doc/api/API-Explore-definition.md -o doc/api/API-Explore-definition.pdf -r landscape -z doc/api/markdown2pdf.css
+docker run -v $PWD:/opt/docs auchida/markdown-pdf markdown-pdf doc/api/API-Collection-definition.md -o doc/api/API-Collection-definition.pdf -r landscape -z doc/api/markdown2pdf.css
 cp conf/configuration.yaml .
 cp target/arlas-*.jar .
-mv target/doc .
+mv target/doc/* doc/
+
