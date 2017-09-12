@@ -60,6 +60,10 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingGeohashAggregate(post(aggregationRequest),32, 16, 25);
         handleMatchingGeohashAggregate(get("geohash:geo_params.centroid:interval-1"),32, 16, 25);
 
+        aggregationRequest.aggregations.get(0).interval = new Interval(1, null); //"1";
+        handleMatchingGeohashAggregateCenter(post(aggregationRequest),32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
+        handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1"),32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
+
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
         aggregationRequest.aggregations.get(0).collectFct = "avg";
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
@@ -463,7 +467,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
     protected abstract void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCount) throws Exception;
     protected abstract void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception;
     protected abstract void handleMatchingGeohashAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin, float featureCollectMax) throws Exception;
-    
+    protected abstract void handleMatchingGeohashAggregateCenter(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
     protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCount) throws Exception;
     protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception;
     protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String keyAsString) throws Exception;

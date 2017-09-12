@@ -25,10 +25,13 @@ import java.util.List;
 
 import io.arlas.server.model.request.*;
 import io.arlas.server.rest.ResponseCacheManager;
+import org.apache.lucene.geo.Rectangle;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.geo.GeoHashUtils;
+import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 
@@ -180,8 +183,12 @@ public class ExploreServices {
         List<MultiBucketsAggregation.Bucket> buckets = (List<MultiBucketsAggregation.Bucket>)aggregation.getBuckets();
         buckets.forEach(bucket -> {
             AggregationResponse element = new AggregationResponse();
-            element.key = bucket.getKey();
             element.keyAsString = bucket.getKeyAsString();
+            if(aggregationResponse.name.equals(FluidSearch.GEOHASH_AGG)) {
+                element.key = getGeohashCentre(element.keyAsString.toString());
+            } else {
+                element.key = bucket.getKey();
+            }
             element.count = bucket.getDocCount();
             element.elements = new ArrayList<AggregationResponse>();
             if (bucket.getAggregations().asList().size() == 0){
@@ -207,5 +214,19 @@ public class ExploreServices {
             }
         });
         return aggregationResponse;
+    }
+
+    private GeoPoint getGeohashCentre(String geohash) {
+        Rectangle bbox = GeoHashUtils.bbox(geohash);
+
+        Double maxLon = bbox.maxLon;
+        Double minLon = bbox.minLon;
+        Double lon = (maxLon + minLon) / 2;
+
+        Double maxLat = bbox.maxLat;
+        Double minLat = bbox.minLat;
+        Double lat = (maxLat + minLat) / 2;
+
+        return new GeoPoint(lat, lon);
     }
 }
