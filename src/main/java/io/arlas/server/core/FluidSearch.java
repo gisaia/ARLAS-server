@@ -19,22 +19,20 @@
 
 package io.arlas.server.core;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+import io.arlas.server.exceptions.*;
+import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
+import io.arlas.server.rest.explore.enumerations.MetricAggregationType;
+import io.arlas.server.utils.ParamsParser;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
-import org.elasticsearch.common.geo.builders.LineStringBuilder;
-import org.elasticsearch.common.geo.builders.MultiPolygonBuilder;
-import org.elasticsearch.common.geo.builders.PointBuilder;
-import org.elasticsearch.common.geo.builders.PolygonBuilder;
-import org.elasticsearch.common.geo.builders.ShapeBuilder;
+import org.elasticsearch.common.geo.builders.*;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -52,22 +50,10 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
-
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.BadRequestException;
-import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.exceptions.NotAllowedException;
-import io.arlas.server.exceptions.NotImplementedException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.rest.explore.enumerations.MetricAggregationType;
-import io.arlas.server.utils.ParamsParser;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class FluidSearch {
@@ -110,6 +96,9 @@ public class FluidSearch {
     private BoolQueryBuilder boolQueryBuilder;
     private CollectionReference collectionReference;
 
+    private List<String> include = new ArrayList<>();
+    private List<String> exclude = new ArrayList<>();
+
     public FluidSearch(TransportClient client) {
         this.client = client;
         boolQueryBuilder = QueryBuilders.boolQuery();
@@ -117,11 +106,45 @@ public class FluidSearch {
 
     public SearchResponse exec() throws ArlasException {
         searchRequestBuilder.setQuery(boolQueryBuilder);
+
+        //apply include and exclude filters
+        if (include.isEmpty() && collectionReference.params.includeFields != null && !collectionReference.params.includeFields.isEmpty()) {
+            include(collectionReference.params.includeFields);
+        }
+        if (exclude.isEmpty() && collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
+            exclude(collectionReference.params.excludeFields);
+        }
+        List<String> includeFieldList = new ArrayList<>();
+        if(!include.isEmpty()) {
+            for (String includeField : include) {
+                includeFieldList.add(includeField);
+            }
+            for (String path : getCollectionPaths()) {
+                boolean alreadyIncluded = false;
+                for (String includeField : include) {
+                    if (includeField.equals("*") || path.startsWith(includeField)) {
+                        alreadyIncluded = true;
+                    }
+                }
+                if (!alreadyIncluded) {
+                    includeFieldList.add(path);
+                }
+            }
+        }
+        String[] includeFields = includeFieldList.toArray(new String[includeFieldList.size()]);
+        if(includeFields.length == 0) {
+            includeFields = new String[]{"*"};
+        }
+        String[] excludeFields = exclude.toArray(new String[exclude.size()]);
+        if(excludeFields.length == 0) {
+            excludeFields = null;
+        }
+        searchRequestBuilder = searchRequestBuilder.setFetchSource(includeFields, excludeFields);
+
+        //Get Elasticsearch response
         LOGGER.debug("QUERY : " + searchRequestBuilder.toString());
         SearchResponse result = null;
-
         result = searchRequestBuilder.get();
-
         return result;
     }
 
@@ -261,16 +284,20 @@ public class FluidSearch {
 
     public FluidSearch include(String include) {
         if (include != null) {
-            String includeFields[] = include.split(",");
-            searchRequestBuilder = searchRequestBuilder.setFetchSource(includeFields, null);
+            String includeFieldArray[] = include.split(",");
+            for(String field : includeFieldArray) {
+                this.include.add(field);
+            }
         }
         return this;
     }
 
     public FluidSearch exclude(String exclude) {
         if (exclude != null) {
-            String excludeFields[] = exclude.split(",");
-            searchRequestBuilder = searchRequestBuilder.setFetchSource(null, excludeFields);
+            String excludeFieldArray[] = exclude.split(",");
+            for(String field : excludeFieldArray) {
+                this.exclude.add(field);
+            }
         }
         return this;
     }
@@ -606,11 +633,12 @@ public class FluidSearch {
     public void setCollectionReference(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
         searchRequestBuilder = client.prepareSearch(collectionReference.params.indexName).setTypes(collectionReference.params.typeName);
-        if (collectionReference.params.includeFields != null && !collectionReference.params.includeFields.isEmpty()) {
-            include(collectionReference.params.includeFields);
-        }
-        if (collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
-            exclude(collectionReference.params.excludeFields);
-        }
+    }
+
+    public List<String> getCollectionPaths() {
+        return Arrays.asList(collectionReference.params.idPath,
+                collectionReference.params.geometryPath,
+                collectionReference.params.centroidPath,
+                collectionReference.params.timestampPath);
     }
 }
