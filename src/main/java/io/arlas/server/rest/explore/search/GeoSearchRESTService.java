@@ -133,6 +133,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "notgintersect") String notgintersect,
 
+            @ApiParam(hidden = true)
             @HeaderParam(value="Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
@@ -252,6 +253,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
 
+            @ApiParam(hidden = true)
             @HeaderParam(value="Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
