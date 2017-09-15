@@ -20,11 +20,7 @@
 package io.arlas.server.rest.explore;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.*;
 
 import io.arlas.server.model.request.AggregationTypeEnum;
 import io.arlas.server.model.request.Interval;
@@ -75,6 +71,17 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     protected void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
     }
+
+    @Override
+    protected void handleMatchingGeohashAggregateCenter(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+        handleMatchingGeohashAggregate(then,featuresSize,featureCountMin,featureCountMax);
+        then
+        .body("elements.key.lon", everyItem(greaterThanOrEqualTo(centroidLonMin)))
+        .body("elements.key.lat", everyItem(greaterThanOrEqualTo(centroidLatMin)))
+        .body("elements.key.lon", everyItem(lessThanOrEqualTo(centroidLonMax)))
+        .body("elements.key.lat", everyItem(lessThanOrEqualTo(centroidLatMax)));
+    }
+
 
     @Override
     protected void handleMatchingAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin,
