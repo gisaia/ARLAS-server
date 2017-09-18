@@ -125,6 +125,7 @@ public class CountRESTService extends ExploreRESTServices {
                     required=false)
             @QueryParam(value="notgintersect") String notgintersect,
 
+            @ApiParam(hidden = true)
             @HeaderParam(value="Partition-Filter") String partitionfilter,
 
             // --------------------------------------------------------
@@ -192,6 +193,7 @@ public class CountRESTService extends ExploreRESTServices {
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
 
+            @ApiParam(hidden = true)
             @HeaderParam(value="Partition-Filter") String partitionfilter,
 
             // --------------------------------------------------------
