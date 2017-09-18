@@ -25,6 +25,6 @@ import io.dropwizard.jackson.JsonSnakeCase;
 public class AggregationMetric {
     public String type;
     public String field;
-    public Double value;
+    public Object value;
 
 }

@@ -21,6 +21,8 @@ package io.arlas.server.model.response;
 
 import java.util.List;
 import io.dropwizard.jackson.JsonSnakeCase;
+import org.geojson.Point;
+import org.geojson.Polygon;
 
 @JsonSnakeCase
 public class AggregationResponse extends OperationInfo {
@@ -30,4 +32,6 @@ public class AggregationResponse extends OperationInfo {
     public Object keyAsString;
     public List<AggregationResponse> elements;
     public AggregationMetric metric = null;
+    public Polygon BBOX = null;
+    public Point centroid = null;
 }

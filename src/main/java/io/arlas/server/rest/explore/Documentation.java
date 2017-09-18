@@ -136,7 +136,7 @@ public class Documentation {
     public static final String GEOAGGREGATION_OPERATION="Aggregate the elements in the collection(s), given the filters and the aggregation parameters";
     public static final String GEOAGGREGATION_PARAM_AGG="- The agg parameter should be given in the following formats:  " +
             "\n \n" +
-            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size} " +
+            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}:withGeoCentroid-{Boolean}:withGeoBBOX-{Boolean} " +
             "\n \n" +
             "Where :" +
             "\n \n" +
@@ -172,14 +172,26 @@ public class Documentation {
             "\n \n" +
             "  {collect_fct} possible values are : "+
             "\n \n" +
-            "       avg,cardinality,max,min,sum" +
+            "       avg,cardinality,max,min,sum,geobbox,geocentroid" +
+            "\n \n" +
+            "- {withGeoCentroid} : When it's true : the geoaggregation geometry is the centroid of each bucket." +
+            "\n \n" +
+            "- {withGeoBBOX} : When it's true : the geoaggregation geometry is the data extent (bbox) of each bucket." +
+            "\n \n" +
+            "- (collect_field,collect_fct) should both be specified, except when collect_fct = `geobbox` or `geocentroid`, it could be specified alone. The metrics `geobbox` and `geocentroid` are returned as features collections."+
             "\n \n" +
             "- {order} is set to sort the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation. " +
             "Its values are 'asc' or 'desc'. " +
             "\n \n" +
             "- {on} is set to specify whether the {order} is on the field name, on the count of the aggregation or on the result of a metric sub-aggregation. Its values are 'field', 'count' or 'result'. " +
             "\n \n" +
+            "- When {on} = `result`, then (collect_field,collect_fct) should be specified. Except when {collect_fct} = `geobbox` or `geocentroid`, then {on}=`result` is prohibited" +
+            "\n \n" +
             "- {size} Defines how many buckets should be returned. " +
+            "\n \n" +
+            "If {withGeoCentroid} or {withGeoBBOX} are specified, the returned geometry is the one used in the geojson. {withGeoBBOX} wins over {withGeoCentroid}" +
+            "\n \n" +
+            "If {withGeoCentroid} and {collect_fct}=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics" +
             "\n \n" +
             "**agg** parameter is multiple. The first (main) aggregation must be geohash. Every agg parameter specified is a subaggregation of the previous one : order matters. "+
             "\n \n" +

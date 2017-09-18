@@ -23,6 +23,7 @@ import static io.restassured.RestAssured.given;
 
 import io.arlas.server.DataSetTool;
 import io.arlas.server.model.request.*;
+import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,35 +66,75 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1"),32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "avg";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.AVG;
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
                 32, 16, 25, "avg", 790075F, 1230075F);
         handleMatchingGeohashAggregateWithCollect(get("geohash:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-avg"),
                 32, 16, 25, "avg", 790075F, 1230075F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "cardinality";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.CARDINALITY;
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
                 32, 16, 25, "cardinality", 16F, 25F);
         handleMatchingGeohashAggregateWithCollect(get("geohash:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-cardinality"),
                 32, 16, 25, "cardinality", 16F, 25F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "max";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.MAX;
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
                 32, 16, 25, "max", 817000F, 1263600F);
         handleMatchingGeohashAggregateWithCollect(get("geohash:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-max"),
                 32, 16, 25, "max", 817000F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "min";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.MIN;
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
                 32, 16, 25, "min", 763600F, 1197000F);
         handleMatchingGeohashAggregateWithCollect(get("geohash:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-min"),
                 32, 16, 25, "min", 763600F, 1197000F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.SUM;
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
                 32, 16, 25, "sum", 12641200F, 28305000F);
         handleMatchingGeohashAggregateWithCollect(get("geohash:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-sum"),
                 32, 16, 25, "sum", 12641200F, 28305000F);
+
+        aggregationRequest.aggregations.get(0).collectField = null;
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
+        handleMatchingGeohashAggregateWithGeocentroidCollect(post(aggregationRequest),
+                32, 16, 25, "geocentroid", -155.00000031664968F, -65.00000014901161F, 154.99999981373549F, 64.99999981373549F);
+        handleMatchingGeohashAggregateWithGeocentroidCollect(get("geohash:geo_params.centroid:interval-1:collect_fct-geocentroid"),
+                32, 16, 25, "geocentroid", -155.00000031664968F, -65.00000014901161F, 154.99999981373549F, 64.99999981373549F);
+
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOBBOX;
+        handleMatchingGeohashAggregateWithGeoBboxCollect(post(aggregationRequest),
+                32, 16, 25, "geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        handleMatchingGeohashAggregateWithGeoBboxCollect(get("geohash:geo_params.centroid:interval-1:collect_fct-geobbox"),
+                32, 16, 25, "geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+
+        aggregationRequest.aggregations.get(0).collectFct = null;
+        aggregationRequest.aggregations.get(0).withGeoCentroid = true;
+        handleMatchingGeohashAggregateWithGeocentroidBucket(post(aggregationRequest),
+                32, 16, 25, 0,  -155.00000031664968F, -65.00000014901161F, 154.99999981373549F, 64.99999981373549F);
+        handleMatchingGeohashAggregateWithGeocentroidBucket(get("geohash:geo_params.centroid:interval-1:withGeoCentroid-true"),
+                32, 16, 25, 0, -155.00000031664968F, -65.00000014901161F, 154.99999981373549F, 64.99999981373549F);
+
+        aggregationRequest.aggregations.get(0).withGeoBBOX = true;
+        handleMatchingGeohashAggregateWithGeoBboxBucket(post(aggregationRequest),
+                32, 16, 25, 0, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        handleMatchingGeohashAggregateWithGeoBboxBucket(get("geohash:geo_params.centroid:interval-1:withGeoCentroid-true:withGeoBBOX-true"),
+                32, 16, 25, 0, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOBBOX;
+        handleMatchingGeohashAggregateWithGeoBboxBucket(post(aggregationRequest),
+                32, 16, 25, 0, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        handleMatchingGeohashAggregateWithGeoBboxBucket(get("geohash:geo_params.centroid:interval-1:withGeoCentroid-true:withGeoBBOX-true:collect_fct-geobbox"),
+                32, 16, 25, 0, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
+        handleMatchingGeohashAggregateWithGeoBboxBucket(post(aggregationRequest),
+                32, 16, 25, 1, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        handleMatchingGeohashAggregateWithGeoBboxBucket(get("geohash:geo_params.centroid:interval-1:withGeoCentroid-true:withGeoBBOX-true:collect_fct-geocentroid"),
+                32, 16, 25, 1, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+
+
     }
     
     @Test
@@ -111,35 +152,48 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
                 10, 1, 104);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "avg";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.AVG;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "avg", 769433F, 1263600F);
         handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-avg"),
                 10, 1, 104, "avg", 769433F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "cardinality";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.CARDINALITY;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "cardinality", 1F, 72F);
         handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-cardinality"),
                 10, 1, 104, "cardinality", 1F, 72F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "max";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.MAX;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "max", 772800F, 1263600F);
         handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-max"),
                 10, 1, 104, "max", 772800F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "min";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.MIN;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "min", 763600F, 1263600F);
         handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-min"),
                 10, 1, 104, "min", 763600F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.SUM;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 10, 1, 104, "sum", 1263600F, 102986100F);
         handleMatchingAggregateWithCollect(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-sum"),
                 10, 1, 104, "sum", 1263600F, 102986100F);
+
+        aggregationRequest.aggregations.get(0).collectField = null;
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
+        handleMatchingAggregateWithGeocentroidCollect(post(aggregationRequest),
+                10, 1, 104, "geocentroid", -166.66666673496366F, -76.66666673496366F, 169.9999999254942F, 79.9999999254942F);
+        handleMatchingAggregateWithGeocentroidCollect(get("datehistogram:interval-1minute:collect_fct-geocentroid"),
+                10, 1, 104, "geocentroid", -166.66666673496366F, -76.66666673496366F, 169.9999999254942F, 79.9999999254942F);
+
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOBBOX;
+        handleMatchingAggregateWithGeoBboxCollect(post(aggregationRequest),
+                10, 1, 104, "geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        handleMatchingAggregateWithGeoBboxCollect(get("datehistogram:interval-1minute:collect_fct-geobbox"),
+                10, 1, 104, "geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
 
         aggregationRequest.aggregations.get(0).collectField = null;
         aggregationRequest.aggregations.get(0).collectFct = null;
@@ -169,10 +223,19 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:order-asc:on-field"),
                 10, 1, 104,"1970-01-01-00:12:00");
 
+        aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;
+        aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
+
+        handleMatchingAggregateWithOrder(post(aggregationRequest),
+                10, 1, 104,"1970-01-01-00:21:00");
+        handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:order-asc:on-count:collect_fct-geocentroid"),
+                10, 1, 104,"1970-01-01-00:21:00");
+
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.result;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.SUM;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
                 10, 1, 104,"1970-01-01-00:16:00");
         handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-sum:order-desc:on-result"),
@@ -207,35 +270,49 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingAggregate(get("histogram:params.startdate:interval-100000"),6, 14, 176);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "avg";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.AVG;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 6, 14, 176, "avg", 786078F, 1226267F);
         handleMatchingAggregateWithCollect(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-avg"),
                 6, 14, 176, "avg", 786078F, 1226267F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "cardinality";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.CARDINALITY;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 6, 14, 176, "cardinality", 14F, 111F);
         handleMatchingAggregateWithCollect(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-cardinality"),
                 6, 14, 176, "cardinality", 14F, 111F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "max";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.MAX;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 6, 14, 176, "max", 799800F, 1263600F);
         handleMatchingAggregateWithCollect(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-max"),
                 6, 14, 176, "max", 799800F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "min";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.MIN;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 6, 14, 176, "min", 763600F, 1263600F);
         handleMatchingAggregateWithCollect(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-min"),
                 6, 14, 176, "min", 763600F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.SUM;
         handleMatchingAggregateWithCollect(post(aggregationRequest),
                 6, 14, 176, "sum", 11005100F, 170040600F);
         handleMatchingAggregateWithCollect(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-sum"),
                 6, 14, 176, "sum", 11005100F, 170040600F);
+
+        aggregationRequest.aggregations.get(0).collectField = null;
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
+        handleMatchingAggregateWithGeocentroidCollect(post(aggregationRequest),
+                6, 14, 176, "geocentroid", -158.57142884284258F, -65.71428582072258F, 153.33333296701312F, 63.333333134651184F);
+        handleMatchingAggregateWithGeocentroidCollect(get("histogram:params.startdate:interval-100000:collect_fct-geocentroid"),
+                6, 14, 176, "geocentroid", -158.57142884284258F, -65.71428582072258F, 153.33333296701312F, 63.333333134651184F);
+
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOBBOX;
+        handleMatchingAggregateWithGeoBboxCollect(post(aggregationRequest),
+                6, 14, 176, "geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        handleMatchingAggregateWithGeoBboxCollect(get("histogram:params.startdate:interval-100000:collect_fct-geobbox"),
+                6, 14, 176, "geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+
 
         aggregationRequest.aggregations.get(0).collectField = null;
         aggregationRequest.aggregations.get(0).collectFct = null;
@@ -259,10 +336,19 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingAggregateWithOrder(get("histogram:params.startdate:interval-100000:order-asc:on-field"),
                 6, 14, 176,"700000");
 
+        aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;
+        aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
+        handleMatchingAggregateWithOrder(post(aggregationRequest),
+                6, 14, 176,"700000");
+        handleMatchingAggregateWithOrder(get("histogram:params.startdate:interval-100000:order-asc:on-count:collect_fct-geocentroid"),
+                6, 14, 176,"700000");
+
+
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.result;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.SUM;
         handleMatchingAggregateWithOrder(post(aggregationRequest),6, 14, 176,"1000000");
         handleMatchingAggregateWithOrder(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-sum:order-desc:on-result"),
                 6, 14, 176,"1000000");
@@ -282,27 +368,40 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingAggregate(get("term:params.job"), DataSetTool.jobs.length-1, 58, 64);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "avg";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.AVG;
         handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "avg", 1000000F, 1000000F);
         handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-avg"),DataSetTool.jobs.length-1, 58, 64, "avg", 1000000F, 1000000F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "cardinality";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.CARDINALITY;
         handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "cardinality", 44F, 49F);
         handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-cardinality"),DataSetTool.jobs.length-1, 58, 64, "cardinality", 44F, 49F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "max";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.MAX;
         handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "max", 1166400F, 1263600F);
         handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-max"),DataSetTool.jobs.length-1, 58, 64, "max", 1166400F, 1263600F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "min";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.MIN;
         handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "min", 763600F, 840000F);
         handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-min"),DataSetTool.jobs.length-1, 58, 64, "min", 763600F, 840000F);
 
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.SUM;
         handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "sum", 58000000F, 640000000F);
         handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-sum"),DataSetTool.jobs.length-1, 58, 64, "sum", 58000000F, 640000000F);
 
+        aggregationRequest.aggregations.get(0).collectField = "geo_params.centroid";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
+        handleMatchingAggregateWithGeocentroidCollect(post(aggregationRequest),
+                DataSetTool.jobs.length-1, 58, 64, "geocentroid", -8.381903171539307e-7F, -4.1909515857696533e-7F, -5.029141902923584e-7F, -2.514570951461792e-7F);
+        handleMatchingAggregateWithGeocentroidCollect(get("term:params.job:collect_field-geo_params.centroid:collect_fct-geocentroid"),
+                DataSetTool.jobs.length-1, 58, 64, "geocentroid", -8.381903171539307e-7F, -4.1909515857696533e-7F, -5.029141902923584e-7F, -2.514570951461792e-7F);
+
         aggregationRequest.aggregations.get(0).collectField = null;
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOBBOX;
+        handleMatchingAggregateWithGeoBboxCollect(post(aggregationRequest),
+                DataSetTool.jobs.length-1, 58, 64, "geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        handleMatchingAggregateWithGeoBboxCollect(get("term:params.job:collect_fct-geobbox"),
+                DataSetTool.jobs.length-1, 58, 64, "geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+
         aggregationRequest.aggregations.get(0).collectFct = null;
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
@@ -317,8 +416,14 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingAggregateWithOrder(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64,"Actor");
         handleMatchingAggregateWithOrder(get("term:params.job:order-asc:on-field"),DataSetTool.jobs.length-1, 58, 64,"Actor");
 
+        aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;
+        aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
+        handleMatchingAggregateWithOrder(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64,"Cost Estimator");
+        handleMatchingAggregateWithOrder(get("term:params.job:order-desc:on-count:collect_fct-geocentroid"),DataSetTool.jobs.length-1, 58, 64,"Cost Estimator");
+
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
-        aggregationRequest.aggregations.get(0).collectFct = "sum";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.SUM;
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.result;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64,"Cost Estimator");
@@ -412,14 +517,33 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:order-desc:on-result"));
 
+
+        aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
+        aggregationRequest.aggregations.get(0).on = AggregationOnEnum.result;
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
+        handleInvalidParameters(post(aggregationRequest));
+        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:order-asc:on-result:collect_fct-geocentroid"));
+
+
         aggregationRequest.aggregations.get(0).order = null;
         aggregationRequest.aggregations.get(0).on = null;
+        aggregationRequest.aggregations.get(0).collectField = "params.job";
+        aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
+        handleInvalidParameters(post(aggregationRequest));
+        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-params.job:collect_fct-geocentroid"));
+
+
         aggregationRequest.aggregations.get(0).collectField = "foo";
+        aggregationRequest.aggregations.get(0).collectFct = null;
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-foo"));
 
-        aggregationRequest.aggregations.get(0).collectFct = "bar";
-        handleInvalidParameters(post(aggregationRequest));
+        invalidAggregationRequest.invalidAggregations.get(0).type = "geohash";
+        invalidAggregationRequest.invalidAggregations.get(0).field = "geo_params.centroid";
+        invalidAggregationRequest.invalidAggregations.get(0).interval = new Interval(1, null);;
+        invalidAggregationRequest.invalidAggregations.get(0).collectField="foo";
+        invalidAggregationRequest.invalidAggregations.get(0).collectFct = "bar";
+        handleInvalidParameters(post(invalidAggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-foo:collect_fct-bar"));
 
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.datehistogram;
@@ -447,6 +571,12 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("term:params.job:interval-1"));
+
+        aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
+        aggregationRequest.aggregations.get(0).interval = null;
+        aggregationRequest.aggregations.get(0).withGeoCentroid = true;
+        handleInvalidParameters(post(aggregationRequest));
+        handleInvalidParameters(get("term:params.job:interval-1:withGeoCentroid-true"));
     }
 
     @Test
@@ -468,12 +598,19 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
     protected abstract void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception;
     protected abstract void handleMatchingGeohashAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin, float featureCollectMax) throws Exception;
     protected abstract void handleMatchingGeohashAggregateCenter(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
+
+    protected abstract void handleMatchingGeohashAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
+    protected abstract void handleMatchingGeohashAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float left, float bottom, float right, float top) throws Exception;
+    protected abstract void handleMatchingGeohashAggregateWithGeocentroidBucket(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int elementsSize, float left, float bottom, float right, float top) throws Exception;
+    protected abstract void handleMatchingGeohashAggregateWithGeoBboxBucket(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int elementsSize, float left, float bottom, float right, float top) throws Exception;
     protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCount) throws Exception;
     protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception;
     protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String keyAsString) throws Exception;
     protected abstract void handleMatchingAggregateWithOrder(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String firstKey) throws Exception;
     protected abstract void handleMatchingAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin, float featureCollectMax) throws Exception;
-    
+    protected abstract void handleMatchingAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
+    protected abstract void handleMatchingAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float left, float bottom, float right, float top) throws Exception;
+
     protected abstract void handleMultiMatchingAggregate(ValidatableResponse then, int featuresSize) throws Exception;
     protected abstract void handleMultiMatchingGeohashAggregate(ValidatableResponse then, int featuresSize) throws Exception;
 

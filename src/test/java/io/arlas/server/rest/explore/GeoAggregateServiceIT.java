@@ -21,7 +21,6 @@ package io.arlas.server.rest.explore;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.hasItem;
 
 import io.arlas.server.model.request.AggregationTypeEnum;
 import io.arlas.server.model.request.Interval;
@@ -60,12 +59,61 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
 
     @Override
     protected void handleMatchingGeohashAggregateCenter(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
-        handleMatchingGeohashAggregate(then,featuresSize,featureCountMin,featureCountMax);
+        handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
         .body("features.geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))
         .body("features.geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))
         .body("features.geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))
         .body("features.geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))));
+    }
+    protected void handleMatchingGeohashAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+        handleMatchingGeohashAggregate(then,featuresSize,featureCountMin,featureCountMax);
+        then
+        .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))
+        .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))
+        .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))
+        .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))
+        .body("features.properties.elements[0].name", everyItem(equalTo(collectFct)))
+        .body("features.properties.elements[0].metric.type", everyItem(equalTo(collectFct)));
+    }
+
+    @Override
+    protected void handleMatchingGeohashAggregateWithGeocentroidBucket(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int elementsSize, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+        handleMatchingGeohashAggregate(then,featuresSize,featureCountMin,featureCountMax);
+        then
+        .body("features.geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))
+        .body("features.geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))
+        .body("features.geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))
+        .body("features.geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))
+        .body("features[0].properties.elements.size()", equalTo(elementsSize));
+    }
+
+    @Override
+    protected void handleMatchingGeohashAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+        handleMatchingGeohashAggregate(then,featuresSize,featureCountMin,featureCountMax);
+        then
+        .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))))
+        .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))))
+        .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))))
+        .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))))
+        .body("features.properties.elements[0].name", everyItem(equalTo(collectFct)))
+        .body("features.properties.elements[0].metric.type", everyItem(equalTo(collectFct)));
+    }
+
+    @Override
+    protected void handleMatchingGeohashAggregateWithGeoBboxBucket(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int elementsSize, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+        handleMatchingGeohashAggregate(then,featuresSize,featureCountMin,featureCountMax);
+        then
+        .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))))
+        .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))))
+        .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))))
+        .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))))
+        .body("features[0].properties.elements.size()", equalTo(elementsSize));
+    }
+
+    @Override
+    protected void handleMatchingAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+        then.statusCode(400);
     }
     
     @Override
@@ -94,6 +142,12 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
             float featureCollectMax) throws Exception {
         then.statusCode(400);
     }
+
+    @Override
+    protected void handleMatchingAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+        then.statusCode(400);
+    }
+
     
     @Override
     protected void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String keyAsString) throws Exception {

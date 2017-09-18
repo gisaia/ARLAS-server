@@ -26,6 +26,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.request.*;
+import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 import io.dropwizard.jersey.params.IntParam;
 import io.dropwizard.jersey.params.LongParam;
 import org.elasticsearch.common.Strings;
@@ -44,6 +45,8 @@ public class ParamsParser {
     private static final String AGG_ORDER_PARAM = "order-";
     private static final String AGG_ON_PARAM = "on-";
     private static final String AGG_SIZE_PARAM = "size-";
+    private static final String AGG_GEOCENTROID_PARAM = "withGeoCentroid-";
+    private static final String AGG_GEOBBOX_PARAM = "withGeoBBOX-";
 
     public static List<Aggregation> getAggregations(List<String> agg) throws ArlasException {
         List<Aggregation> aggregations = new ArrayList<>();
@@ -76,13 +79,17 @@ public class ParamsParser {
             } else if (parameter.contains(AGG_COLLECT_FIELD_PARAM)) {
                 aggregationModel.collectField = parameter.substring(AGG_COLLECT_FIELD_PARAM.length());
             } else if (parameter.contains(AGG_COLLECT_FCT_PARAM)) {
-                aggregationModel.collectFct = parameter.substring(AGG_COLLECT_FCT_PARAM.length());
+                aggregationModel.collectFct = MetricAggregationEnum.valueOf(parameter.substring(AGG_COLLECT_FCT_PARAM.length()).toUpperCase());
             } else if (parameter.contains(AGG_ORDER_PARAM)) {
                 aggregationModel.order = AggregationOrderEnum.valueOf(parameter.substring(AGG_ORDER_PARAM.length()));
             } else if (parameter.contains(AGG_ON_PARAM)) {
                 aggregationModel.on = AggregationOnEnum.valueOf(parameter.substring(AGG_ON_PARAM.length()));
             } else if (parameter.contains(AGG_SIZE_PARAM)) {
                 aggregationModel.size = parameter.substring(AGG_SIZE_PARAM.length());
+            } else if (parameter.contains(AGG_GEOCENTROID_PARAM)) {
+                aggregationModel.withGeoCentroid = Boolean.valueOf(parameter.substring(AGG_GEOCENTROID_PARAM.length()));
+            } else if (parameter.contains(AGG_GEOBBOX_PARAM)) {
+                aggregationModel.withGeoBBOX = Boolean.valueOf(parameter.substring(AGG_GEOBBOX_PARAM.length()));
             } else if (parameter.equals(agg.get(1))) {
                 aggregationModel.field = parameter;
             }
