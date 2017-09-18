@@ -33,6 +33,8 @@ import static org.hamcrest.Matchers.not;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 
+import java.util.List;
+
 public class GeoSearchServiceIT extends AbstractProjectedTest {
     
     @Override
@@ -223,8 +225,30 @@ public class GeoSearchServiceIT extends AbstractProjectedTest {
     }
 
     @Override
-    protected void handleHiddenParameter(ValidatableResponse then, String hidden) throws Exception {
-        then.statusCode(200)
-        .body("features.properties", everyItem(not(hasKey(hidden))));
+    protected void handleHiddenParameter(ValidatableResponse then, List<String> hidden) throws Exception {
+        then.statusCode(200);
+        for(String key : hidden) {
+            String path = "features.properties";
+            String lastKey = key;
+            if(key.contains(".")) {
+                path += ("."+key.substring(0, key.lastIndexOf(".")));
+                lastKey = key.substring(key.lastIndexOf(".") + 1, key.length());
+            }
+            then.body(path, everyItem(not(hasKey(lastKey))));
+        }
+    }
+
+    @Override
+    protected void handleDisplayedParameter(ValidatableResponse then, List<String> displayed) throws Exception {
+        then.statusCode(200);
+        for(String key : displayed) {
+            String path = "features.properties";
+            String lastKey = key;
+            if(key.contains(".")) {
+                path += ("."+key.substring(0, key.lastIndexOf(".")));
+                lastKey = key.substring(key.lastIndexOf(".") + 1, key.length());
+            }
+            then.body(path, everyItem(hasKey(lastKey)));
+        }
     }
 }
