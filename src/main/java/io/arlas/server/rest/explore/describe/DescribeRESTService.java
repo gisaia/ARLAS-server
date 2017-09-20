@@ -25,6 +25,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.swagger.annotations.ApiOperation;
@@ -52,6 +53,15 @@ public class DescribeRESTService extends ExploreRESTServices {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReferenceDescription.class, responseContainer = "CollectionReferenceDescription" ),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
     public Response list(
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name ="pretty", value= Documentation.FORM_PRETTY,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required=false)
+            @QueryParam(value="pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------

@@ -157,12 +157,6 @@ public class SuggestRESTService extends ExploreRESTServices {
                     required=false)
             @QueryParam(value="pretty") Boolean pretty,
 
-            @ApiParam(name ="human", value="Human readable print",
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required=false)
-            @QueryParam(value="human") Boolean human,
-
             // --------------------------------------------------------
             // -----------------------  SIZE   -----------------------
             // --------------------------------------------------------

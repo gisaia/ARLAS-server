@@ -25,13 +25,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 import com.codahale.metrics.annotation.Timed;
@@ -43,6 +37,7 @@ import io.arlas.server.model.response.Success;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.rest.ResponseFormatter;
+import io.arlas.server.rest.explore.Documentation;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -66,7 +61,16 @@ public abstract class CollectionService extends CollectionRESTServices {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class, responseContainer = "List" ),
 	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
-    public Response getAll() throws InterruptedException, ExecutionException, IOException, ArlasException {	
+    public Response getAll(
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required=false)
+            @QueryParam(value="pretty") Boolean pretty
+    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         List<CollectionReference> collections = dao.getAllCollectionReferences();
         return ResponseFormatter.getResultResponse(collections);
     }
@@ -94,7 +98,16 @@ public abstract class CollectionService extends CollectionRESTServices {
                     value = "collection",
                     allowMultiple = false,
                     required=true)
-            @PathParam(value = "collection") String collection
+            @PathParam(value = "collection") String collection,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name ="pretty", value= Documentation.FORM_PRETTY,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required=false)
+            @QueryParam(value="pretty") Boolean pretty
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         CollectionReference cr = dao.getCollectionReference(collection);
         return ResponseFormatter.getResultResponse(cr);
@@ -126,7 +139,16 @@ public abstract class CollectionService extends CollectionRESTServices {
             @ApiParam(name = "collectionParams",
                         value="collectionParams",
                         required=true)
-            @NotNull @Valid CollectionReferenceParameters collectionReferenceParameters
+            @NotNull @Valid CollectionReferenceParameters collectionReferenceParameters,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required=false)
+            @QueryParam(value="pretty") Boolean pretty
 
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         dao.checkCollectionReferenceParameters(collectionReferenceParameters);
@@ -155,7 +177,16 @@ public abstract class CollectionService extends CollectionRESTServices {
                     value = "collection",
                     allowMultiple = false,
                     required=true)
-            @PathParam(value = "collection") String collection
+            @PathParam(value = "collection") String collection,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required=false)
+            @QueryParam(value="pretty") Boolean pretty
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         dao.deleteCollectionReference(collection);
         return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
