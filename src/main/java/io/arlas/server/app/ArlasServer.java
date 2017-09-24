@@ -26,6 +26,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import io.arlas.server.rest.*;
+import io.arlas.server.rest.explore.search.PBFSearchRESTService;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.Strings;
@@ -119,16 +120,17 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new SearchRESTService(exploration));
         environment.jersey().register(new AggregateRESTService(exploration));
         environment.jersey().register(new GeoSearchRESTService(exploration));
+        environment.jersey().register(new PBFSearchRESTService(exploration));
         environment.jersey().register(new GeoAggregateRESTService(exploration));
         environment.jersey().register(new SuggestRESTService(exploration));
         environment.jersey().register(new DescribeRESTService(exploration));
         environment.jersey().register(new DescribeCollectionRESTService(exploration));
         environment.jersey().register(new RawRESTService(exploration));
         environment.jersey().register(new ElasticCollectionService(client, configuration));
-
+        
         //filters
         environment.jersey().register(PrettyPrintFilter.class);
-        
+
         //tasks
         environment.admin().addTask(new CollectionAutoDiscover(client, configuration));
         int scheduleAutoDiscover = configuration.collectionAutoDiscoverConfiguration.schedule;
