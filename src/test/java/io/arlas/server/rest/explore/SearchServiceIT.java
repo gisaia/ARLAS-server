@@ -28,7 +28,7 @@ import io.restassured.specification.RequestSpecification;
 
 import java.util.List;
 
-public class SearchServiceIT extends AbstractProjectedTest {
+public class SearchServiceIT extends AbstractSortedTest {
     
     @Override
     public String getUrlPath(String collection) {
@@ -227,6 +227,10 @@ public class SearchServiceIT extends AbstractProjectedTest {
         }
     }
 
+    //----------------------------------------------------------------
+    //----------------------- PROJECTION PART ------------------------------
+    //----------------------------------------------------------------
+
     @Override
     protected void handleHiddenParameter(ValidatableResponse then, List<String> hidden) throws Exception {
         then.statusCode(200);
@@ -253,5 +257,26 @@ public class SearchServiceIT extends AbstractProjectedTest {
             }
             then.body(path, everyItem(hasKey(lastKey)));
         }
+    }
+
+    //----------------------------------------------------------------
+    //----------------------- SORT PART ------------------------------
+    //----------------------------------------------------------------
+
+    @Override
+    protected void handleSortParameter(ValidatableResponse then, String firstElement) throws Exception {
+        then.statusCode(200)
+                .body("hits[0].data.params.job", equalTo(firstElement));
+    }
+
+    @Override
+    protected void handleGeoSortParameter(ValidatableResponse then, String firstElement) throws Exception {
+        then.statusCode(200)
+                .body("hits[0].data.geo_params.centroid", equalTo(firstElement));
+    }
+
+    @Override
+    protected void handleInvalidGeoSortParameter(ValidatableResponse then) {
+        then.statusCode(400);
     }
 }

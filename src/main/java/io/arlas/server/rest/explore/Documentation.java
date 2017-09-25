@@ -32,6 +32,8 @@ public class Documentation {
             "- Fields can be provided several times by separating them with a comma. The order matters. " +
             "\n \n" +
             "- For a descending sort, precede the field with '-'. The sort will be ascending otherwise." +
+            "\n \n" +
+            "- For a geodistance sort, specify the point, from which the distances are calculated, as follow : 'geodistance:lat lon'" +
             "\n \n";
 
     public static final String FILTER_PARAM_F="- A triplet for filtering the result. Multiple filter can be provided. " +
@@ -73,10 +75,10 @@ public class Documentation {
     public static final String FILTER_PARAM_Q="A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}";
     public static final String FILTER_PARAM_BEFORE="Any element having its point in time reference before the given timestamp";
     public static final String FILTER_PARAM_AFTER="Any element having its point in time reference after the given timestamp";
-    public static final String FILTER_PARAM_PWITHIN="Any element having its centroid contained within the given geometry (WKT)";
+    public static final String FILTER_PARAM_PWITHIN="Any element having its centroid contained within the given bbox : 'top, left, bottom, right'. ";
     public static final String FILTER_PARAM_GWITHIN="Any element having its geometry contained within the given geometry (WKT)";
     public static final String FILTER_PARAM_GINTERSECT="Any element having its geometry intersecting the given geometry (WKT)";
-    public static final String FILTER_PARAM_NOTPWITHIN="Any element having its centroid outside the given geometry (WKT)";
+    public static final String FILTER_PARAM_NOTPWITHIN="Any element having its centroid outside the given bbox : 'top, left, bottom, right'.";
     public static final String FILTER_PARAM_NOTGWITHIN="Any element having its geometry outside the given geometry (WKT)";
     public static final String FILTER_PARAM_NOTGINTERSECT="Any element having its geometry not intersecting the given geometry (WKT)";
 
