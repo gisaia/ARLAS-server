@@ -6,11 +6,11 @@ public class BoundingBox {
     double east;
     double west;
 
-    public BoundingBox(double north, double south, double east, double west) {
+    public BoundingBox(double north, double south, double west, double east) {
         this.north = north;
         this.south = south;
-        this.east = east;
         this.west = west;
+        this.east = east;
     }
 
     @Override

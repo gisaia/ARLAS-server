@@ -1,9 +1,17 @@
 package io.arlas.server.utils;
 
+import org.apache.lucene.geo.Rectangle;
+import org.elasticsearch.common.geo.GeoHashUtils;
+
 public class GeoTileUtil {
 
     public static BoundingBox getBoundingBox(final Tile tile) {
         return getBoundingBox(tile.getxTile(), tile.getyTile(), tile.getzTile());
+    }
+
+    public static BoundingBox getBoundingBox(final String geohash) {
+        Rectangle r = GeoHashUtils.bbox(geohash);
+        return new BoundingBox(r.maxLat, r.minLat, r.minLon, r.maxLon);
     }
 
     public static BoundingBox getBoundingBox(final int x, final int y, final int z) {

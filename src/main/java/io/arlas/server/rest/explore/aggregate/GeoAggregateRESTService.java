@@ -30,12 +30,16 @@ import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.utils.BoundingBox;
+import io.arlas.server.utils.GeoTileUtil;
 import io.arlas.server.utils.ParamsParser;
+import io.arlas.server.utils.Tile;
 import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.logging.log4j.util.Strings;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
@@ -47,6 +51,7 @@ import org.geojson.Point;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -177,6 +182,163 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         request.headerRequest = aggregationsRequestHeader;
         FeatureCollection fc = getFeatureCollection(request,collectionReference);
         return cache(Response.ok(fc),maxagecache);
+    }
+
+
+    @Timed
+    @Path("{collection}/_geoaggregate/{geohash}")
+    @GET
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(value = "GeoAggregate on a geohash", produces = UTF8JSON, notes = Documentation.GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection" ),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
+            @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
+    public Response geohashgeoaggregate(
+            // --------------------------------------------------------
+            // ----------------------- PATH ---------------------------
+            // --------------------------------------------------------
+            @ApiParam(
+                    name = "collection",
+                    value="collection",
+                    allowMultiple = false,
+                    required=true)
+            @PathParam(value = "collection") String collection,
+
+            @ApiParam(
+                    name = "geohash",
+                    value="geohash",
+                    allowMultiple = false,
+                    required=true)
+            @PathParam(value = "geohash") String geohash,
+
+            // --------------------------------------------------------
+            // ----------------------- AGGREGATION --------------------
+            // --------------------------------------------------------
+            @ApiParam(name ="agg",
+                    value= Documentation.GEOAGGREGATION_PARAM_AGG,
+                    allowMultiple = false
+            )
+            @QueryParam(value="agg") List<String> agg,
+
+            // --------------------------------------------------------
+            // ----------------------- FILTER -------------------------
+            // --------------------------------------------------------
+            @ApiParam(name ="f",
+                    value= Documentation.FILTER_PARAM_F,
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="f") List<String> f,
+
+            @ApiParam(name ="q", value=Documentation.FILTER_PARAM_Q,
+                    allowMultiple = false,
+                    required=false)
+            @QueryParam(value="q") String q,
+
+            @ApiParam(name ="before", value=Documentation.FILTER_PARAM_BEFORE,
+                    allowMultiple = false,
+                    type = "integer",
+                    required=false)
+            @QueryParam(value="before") LongParam before,
+
+            @ApiParam(name ="after", value=Documentation.FILTER_PARAM_AFTER,
+                    allowMultiple = false,
+                    type = "integer",
+                    required=false)
+            @QueryParam(value="after") LongParam after,
+
+            @ApiParam(name ="pwithin", value=Documentation.FILTER_PARAM_PWITHIN,
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="pwithin") String pwithin,
+
+            @ApiParam(name ="gwithin", value=Documentation.FILTER_PARAM_GWITHIN,
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="gwithin") String gwithin,
+
+            @ApiParam(name ="gintersect", value=Documentation.FILTER_PARAM_GINTERSECT,
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="gintersect") String gintersect,
+
+            @ApiParam(name ="notpwithin", value=Documentation.FILTER_PARAM_NOTPWITHIN,
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="notpwithin") String notpwithin,
+
+            @ApiParam(name ="notgwithin", value=Documentation.FILTER_PARAM_NOTGWITHIN,
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="notgwithin") String notgwithin,
+
+            @ApiParam(name ="notgintersect", value=Documentation.FILTER_PARAM_NOTGINTERSECT,
+                    allowMultiple = true,
+                    required=false)
+            @QueryParam(value="notgintersect") String notgintersect,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value="Partition-Filter") String partitionFilter,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM ---------------------------
+            // --------------------------------------------------------
+            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required=false)
+            @QueryParam(value="pretty") Boolean pretty,
+
+            @ApiParam(name ="human", value=Documentation.FORM_HUMAN,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required=false)
+            @QueryParam(value="human") Boolean human,
+
+            // --------------------------------------------------------
+            // ----------------------- EXTRA --------------------------
+            // --------------------------------------------------------
+            @ApiParam(value = "max-age-cache", required = false)
+            @QueryParam(value = "max-age-cache") Integer maxagecache
+    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException, JsonProcessingException {
+        if(geohash.startsWith("#")){
+            geohash=geohash.substring(1,geohash.length());
+        }
+        BoundingBox bbox = GeoTileUtil.getBoundingBox(geohash);
+        if(Strings.isNotEmpty(pwithin)){
+            bbox.setNorth(Math.min(bbox.getNorth(), Double.parseDouble(pwithin.split(",")[0].trim())));
+            bbox.setWest(Math.max(bbox.getWest(), Double.parseDouble(pwithin.split(",")[1].trim())));
+            bbox.setSouth(Math.max(bbox.getSouth(), Double.parseDouble(pwithin.split(",")[2].trim())));
+            bbox.setEast(Math.min(bbox.getEast(), Double.parseDouble(pwithin.split(",")[3].trim())));
+        }
+        pwithin=bbox.getNorth()+","+bbox.getWest()+","+bbox.getSouth()+","+bbox.getEast();
+        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+                .getCollectionReference(collection);
+        if (collectionReference == null) {
+            throw new NotFoundException(collection);
+        }
+
+        if(agg==null || agg.size()==0){
+            agg= Collections.singletonList("geohash:"+collectionReference.params.centroidPath+":interval-"+geohash.length());
+        }
+
+        return this.geoaggregate(
+                collection,
+                agg,
+                f,
+                q,
+                before,
+                after,
+                pwithin,
+                gwithin,
+                gintersect,
+                notpwithin,
+                notgwithin,
+                notgintersect,
+                partitionFilter,
+                pretty,
+                human,
+                maxagecache);
     }
 
     @Timed

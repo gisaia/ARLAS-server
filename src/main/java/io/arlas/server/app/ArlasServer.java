@@ -26,7 +26,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import io.arlas.server.rest.*;
-import io.arlas.server.rest.explore.search.PBFSearchRESTService;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.Strings;
@@ -120,7 +119,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new SearchRESTService(exploration));
         environment.jersey().register(new AggregateRESTService(exploration));
         environment.jersey().register(new GeoSearchRESTService(exploration));
-        environment.jersey().register(new PBFSearchRESTService(exploration));
         environment.jersey().register(new GeoAggregateRESTService(exploration));
         environment.jersey().register(new SuggestRESTService(exploration));
         environment.jersey().register(new DescribeRESTService(exploration));
