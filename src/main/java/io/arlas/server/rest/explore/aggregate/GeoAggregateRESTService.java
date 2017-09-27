@@ -337,7 +337,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 notgintersect,
                 partitionFilter,
                 pretty,
-                human,
                 maxagecache);
     }
 

@@ -18,6 +18,7 @@ public abstract class AbstractSortedTest extends AbstractProjectedTest {
         search.filter = new Filter();
         search.sort = new Sort();
         search.projection = new Projection();
+        search.filter = new Filter();
     }
 
     //----------------------------------------------------------------

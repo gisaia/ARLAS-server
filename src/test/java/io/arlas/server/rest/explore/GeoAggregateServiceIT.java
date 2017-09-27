@@ -27,12 +27,15 @@ import io.arlas.server.model.request.Interval;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 
-public class GeoAggregateServiceIT extends AbstractAggregatedTest {
+public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     
     @Override
     protected String getUrlPath(String collection) {
         return arlasPrefix + "explore/"+collection+"/_geoaggregate";
     }
+
+    @Override
+    protected String getGeohashUrlPath(String collection, String geohash) { return getUrlPath(collection) + "/" + geohash;}
     
     @Override
     protected void handleNotMatchingRequest(ValidatableResponse then) {
@@ -303,4 +306,30 @@ public class GeoAggregateServiceIT extends AbstractAggregatedTest {
         then.statusCode(200)
         .body("features.size()", equalTo(3));
     }
+
+    //----------------------------------------------------------------
+    //----------------------- GEOHASH TILES PART -------------------------
+    //----------------------------------------------------------------
+
+    @Override
+    protected void handleGeohashTileGreaterThanPrecision(ValidatableResponse then, int count, String geohash) throws Exception {
+        then.statusCode(200)
+        .body("features.size()", equalTo(1))
+        .body("features[0].properties.count", equalTo(count))
+        .body("features[0].properties.geohash", lessThanOrEqualTo(geohash));
+    }
+
+    @Override
+    protected void handleGeohashTileLessThanPrecision(ValidatableResponse then, int featuresSize, String geohash) throws Exception{
+        then.statusCode(200)
+        .body("features.size()", equalTo(featuresSize))
+        .body("features.properties.geohash", everyItem(greaterThanOrEqualTo(geohash)));
+    }
+
+    @Override
+    protected void handleInvalidGeohashTile(ValidatableResponse then) {
+        then.statusCode(400);
+    }
+
+
 }

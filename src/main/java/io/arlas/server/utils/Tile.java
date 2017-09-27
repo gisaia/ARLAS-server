@@ -1,11 +1,14 @@
 package io.arlas.server.utils;
 
+import io.arlas.server.exceptions.ArlasException;
+
 public class Tile {
     int xTile;
     int yTile;
     int zTile;
 
-    public Tile(int x, int y, int z){
+    public Tile(int x, int y, int z) throws ArlasException{
+        CheckParams.checkXYZTileValidity(x, y, z);
         this.xTile=x;
         this.yTile=y;
         this.zTile=z;

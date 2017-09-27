@@ -407,7 +407,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                 notgintersect,
                 partitionFilter,
                 pretty,
-                human,
                 include,
                 exclude,
                 size,

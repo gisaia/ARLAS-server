@@ -1,16 +1,24 @@
 package io.arlas.server.utils;
 
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
 import org.apache.lucene.geo.Rectangle;
 import org.elasticsearch.common.geo.GeoHashUtils;
 
 public class GeoTileUtil {
 
+    public static final String INVALID_GEOHASH = "Invalid geohash";
     public static BoundingBox getBoundingBox(final Tile tile) {
         return getBoundingBox(tile.getxTile(), tile.getyTile(), tile.getzTile());
     }
 
-    public static BoundingBox getBoundingBox(final String geohash) {
-        Rectangle r = GeoHashUtils.bbox(geohash);
+    public static BoundingBox getBoundingBox(final String geohash) throws ArlasException {
+        Rectangle r;
+        try {
+            r = GeoHashUtils.bbox(geohash);
+        } catch (Exception e) {
+            throw new InvalidParameterException(INVALID_GEOHASH);
+        }
         return new BoundingBox(r.maxLat, r.minLat, r.minLon, r.maxLon);
     }
 
@@ -49,7 +57,7 @@ public class GeoTileUtil {
         return ytile;
     }
 
-    public static Tile getTile(final double lat, final double lon, final int zoom) {
+    public static Tile getTile(final double lat, final double lon, final int zoom) throws ArlasException{
         return new Tile(getXTile(lat,lon,zoom),getYTile(lat,lon,zoom),zoom);
     }
 }
