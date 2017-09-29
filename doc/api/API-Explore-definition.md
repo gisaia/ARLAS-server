@@ -145,7 +145,9 @@ The `filter` url part allows the following parameters to be specified:
 
 > Example: `f=city:eq:Toulouse`&`f=city:eq:Bordeaux&after=1490613808&`
 
-NB : `filter` part can also be passed in request header `partition-filter` as a serialized json for partitioning concerns.
+### Partition filtering
+
+`filter` part can also be passed in request header `Partition-Filter` as a serialized json for partitioning concerns.
 
 > Example: `curl --header "Partition-Filter: {"after":1490613808, f":[{"field":"city","op":"eq","value":"Bordeaux"}]}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
 

@@ -3,7 +3,17 @@
 ARLAS-server provides a highly simplified **REST API** for exploring data collections available in **ElasticSearch**.
 **Enhanced capabilities** are provided for collections exposing a **geometry**, a **centroid** and a **timestamp**. A **Collection API** is also provided for managing collections.
 
-The exploration API is described [here](doc/api/API-definition.md) while the  Collection API is described [here](doc/api/API-Collection-definition.md).
+## API Reference
+
+Collection API is used to link your Elasticsearch data to ARLAS-server ([documentation](doc/api/API-Collection-definition.md)).
+
+Exploration API provides various ways to explore your data ([documentation](doc/api/API-Explore-definition.md)).
+
+## Exploitation
+
+ARLAS-server provides some usefull exploitation features :
+
+* [Partition-Filter header](doc/api/API-Explore-definition.md#partition-filtering)
 
 ## Prerequisites :
 
