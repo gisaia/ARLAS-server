@@ -34,6 +34,7 @@ import java.util.Arrays;
 public class CheckParams {
     private static final String POLYGON_TYPE = "POLYGON";
     private static final String INVALID_SORT_PARAMETER = "Invalid sort syntax. Please use the following syntax : 'fieldName:ASC' or 'fieldName:DESC'. ";
+    private static final String INVALID_XYZ_PARAMETER = "Z must be between 0 and 22. X and Y must be between 0 and (2^Z-1)";
     private static final String INVALID_DATE_UNIT = "Invalid date unit. Please use the following list : year,quarter,month,week,day,hour,minute,second. ";
     private static final String INVALID_DATE_SIZE = "Invalid date size. Please specify an integer. ";
     private static final String INVALID_DATE_INTERVAL = "Invalid date interval. Please use the following syntax : '{size}(year,quarter,month,week,day,hour,minute,second). ";
@@ -179,6 +180,22 @@ public class CheckParams {
                 throw new InvalidParameterException(INVALID_INTERVAL_TYPE);
         }
         return null;
+    }
+
+    public static void checkXYZTileValidity (int x, int y, int z) throws ArlasException {
+        if (z>=0 && z<=22) {
+            if (!isIntegerInXYZRange(x, z) || !isIntegerInXYZRange(x, z)){
+                throw new InvalidParameterException(INVALID_XYZ_PARAMETER);
+            }
+        } else {
+            throw new InvalidParameterException(INVALID_XYZ_PARAMETER);
+        }
+    }
+
+    private static boolean isIntegerInXYZRange(int n, int z) {
+        long minRange = 0;
+        long maxRange = (long)(Math.pow(2,z) - 1);
+        return (n>=minRange && n<=maxRange);
     }
 
     private static Integer tryParseInteger(String text) {

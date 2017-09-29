@@ -20,27 +20,22 @@
 package io.arlas.server.rest.explore;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.isOneOf;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 
 import java.util.List;
 
-public class GeoSearchServiceIT extends AbstractSortedTest {
+public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     
     @Override
     public String getUrlPath(String collection) {
         return arlasPrefix + "explore/"+collection+"/_geosearch";
     }
+
+    @Override
+    public String getXYZUrlPath(String collection, int z, int x, int y) { return getUrlPath(collection)+ "/" + z + "/" + x + "/" + y; }
     
     @Override
     protected void handleNotMatchingRequest(ValidatableResponse then) {
@@ -274,6 +269,26 @@ public class GeoSearchServiceIT extends AbstractSortedTest {
 
     @Override
     protected void handleInvalidGeoSortParameter(ValidatableResponse then) {
+        then.statusCode(400);
+    }
+
+    //----------------------- XYZ TILES PART -------------------------
+    //----------------------------------------------------------------
+
+    @Override
+    protected void handleXYZWithoutFilters(ValidatableResponse then, String bottomLeft, String topRight) throws Exception {
+        then.statusCode(200)
+        .body("features.properties.geo_params.centroid", everyItem(greaterThanOrEqualTo(bottomLeft)))
+        .body("features.properties.geo_params.centroid", everyItem(lessThanOrEqualTo(topRight)));
+    }
+
+    @Override
+    protected void handleXYZWithPwithin(ValidatableResponse then, String bottomLeft, String topRight) throws Exception{
+        handleXYZWithoutFilters(then, bottomLeft, topRight);
+    }
+
+    @Override
+    protected void handleInvalidXYZ(ValidatableResponse then) {
         then.statusCode(400);
     }
 }

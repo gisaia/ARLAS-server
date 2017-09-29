@@ -125,10 +125,10 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new DescribeCollectionRESTService(exploration));
         environment.jersey().register(new RawRESTService(exploration));
         environment.jersey().register(new ElasticCollectionService(client, configuration));
-
+        
         //filters
         environment.jersey().register(PrettyPrintFilter.class);
-        
+
         //tasks
         environment.admin().addTask(new CollectionAutoDiscover(client, configuration));
         int scheduleAutoDiscover = configuration.collectionAutoDiscoverConfiguration.schedule;

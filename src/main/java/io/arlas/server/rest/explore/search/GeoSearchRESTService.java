@@ -26,11 +26,13 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.Error;
-import io.arlas.server.utils.MapExplorer;
+import io.arlas.server.utils.*;
+import org.apache.logging.log4j.util.Strings;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.geojson.Feature;
@@ -44,8 +46,6 @@ import io.arlas.server.model.request.Search;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
-import io.arlas.server.utils.GeoTypeMapper;
-import io.arlas.server.utils.ParamsParser;
 import io.dropwizard.jersey.params.IntParam;
 import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.ApiOperation;
@@ -219,6 +219,203 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         return cache(Response.ok(fc),maxagecache);
     }
 
+
+
+
+
+    @Timed
+    @Path("{collection}/_geosearch/{z}/{x}/{y}")
+    @GET
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(value = "Tiled GeoSearch", produces = UTF8JSON, notes = Documentation.GEOSEARCH_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection" ),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
+    public Response tiledgeosearch(
+            // --------------------------------------------------------
+            // ----------------------- PATH -----------------------
+            // --------------------------------------------------------
+            @ApiParam(
+                    name = "collection",
+                    value = "collection",
+                    allowMultiple = false,
+                    required = true)
+            @PathParam(value = "collection") String collection,
+            @ApiParam(
+                    name = "x",
+                    value = "x",
+                    allowMultiple = false,
+                    required = true)
+            @PathParam(value = "x") Integer x,
+            @ApiParam(
+                    name = "y",
+                    value = "y",
+                    allowMultiple = false,
+                    required = true)
+            @PathParam(value = "y") Integer y,
+            @ApiParam(
+                    name = "z",
+                    value = "z",
+                    allowMultiple = false,
+                    required = true)
+            @PathParam(value = "z") Integer z,
+            // --------------------------------------------------------
+            // -----------------------  FILTER  -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "f",
+                    value = Documentation.FILTER_PARAM_F,
+                    allowMultiple = true,
+                    required = false)
+            @QueryParam(value = "f") List<String> f,
+
+            @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "q") String q,
+
+            @ApiParam(name = "before", value = Documentation.FILTER_PARAM_BEFORE,
+                    allowMultiple = false,
+                    type = "integer",
+                    required = false)
+            @QueryParam(value = "before") LongParam before,
+
+            @ApiParam(name = "after", value = Documentation.FILTER_PARAM_AFTER,
+                    allowMultiple = false,
+                    type = "integer",
+                    required = false)
+            @QueryParam(value = "after") LongParam after,
+
+            @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
+                    allowMultiple = true,
+                    required = false)
+            @QueryParam(value = "pwithin") String pwithin,
+
+            @ApiParam(name = "gwithin", value = Documentation.FILTER_PARAM_GWITHIN,
+                    allowMultiple = true,
+                    required = false)
+            @QueryParam(value = "gwithin") String gwithin,
+
+            @ApiParam(name = "gintersect", value = Documentation.FILTER_PARAM_GINTERSECT,
+                    allowMultiple = true,
+                    required = false)
+            @QueryParam(value = "gintersect") String gintersect,
+
+            @ApiParam(name = "notpwithin", value = Documentation.FILTER_PARAM_NOTPWITHIN,
+                    allowMultiple = true,
+                    required = false)
+            @QueryParam(value = "notpwithin") String notpwithin,
+
+            @ApiParam(name = "notgwithin", value = Documentation.FILTER_PARAM_NOTGWITHIN,
+                    allowMultiple = true,
+                    required = false)
+            @QueryParam(value = "notgwithin") String notgwithin,
+
+            @ApiParam(name = "notgintersect", value = Documentation.FILTER_PARAM_NOTGINTERSECT,
+                    allowMultiple = true,
+                    required = false)
+            @QueryParam(value = "notgintersect") String notgintersect,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value="Partition-Filter") String partitionFilter,
+
+            // --------------------------------------------------------
+            // -----------------------  FORM    -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty,
+
+            @ApiParam(name = "human", value = Documentation.FORM_HUMAN,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required = false)
+            @QueryParam(value = "human") Boolean human,
+
+            // --------------------------------------------------------
+            // -----------------------  PROJECTION   -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(name = "include", value = Documentation.PROJECTION_PARAM_INCLUDE,
+                    allowMultiple = true,
+                    defaultValue = "*",
+                    required = false)
+            @QueryParam(value = "include") String include,
+
+            @ApiParam(name = "exclude", value = Documentation.PROJECTION_PARAM_EXCLUDE,
+                    allowMultiple = true,
+                    defaultValue = "",
+                    required = false)
+            @QueryParam(value = "exclude") String exclude,
+
+            // --------------------------------------------------------
+            // -----------------------  SIZE   -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(name = "size", value = Documentation.SIZE_PARAM_SIZE,
+                    defaultValue = "10",
+                    allowableValues = "range[1, infinity]",
+                    type = "integer",
+                    required = false)
+            @DefaultValue("10")
+            @QueryParam(value = "size") IntParam size,
+
+            @ApiParam(name = "from", value = Documentation.SIZE_PARAM_FROM,
+                    defaultValue = "0",
+                    allowableValues = "range[0, infinity]",
+                    type = "integer",
+                    required = false)
+            @DefaultValue("0")
+            @QueryParam(value = "from") IntParam from,
+
+            // --------------------------------------------------------
+            // -----------------------  SORT   -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(name = "sort",
+                    value = Documentation.SORT_PARAM_SORT,
+                    allowMultiple = true,
+                    required = false)
+            @QueryParam(value = "sort") String sort,
+
+            // --------------------------------------------------------
+            // -----------------------  EXTRA   -----------------------
+            // --------------------------------------------------------
+            @ApiParam(value = "max-age-cache", required = false)
+            @QueryParam(value = "max-age-cache") Integer maxagecache
+    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
+        BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x,y,z));
+        if(Strings.isNotEmpty(pwithin)){
+            bbox.setNorth(Math.min(bbox.getNorth(), Double.parseDouble(pwithin.split(",")[0].trim())));
+            bbox.setWest(Math.max(bbox.getWest(), Double.parseDouble(pwithin.split(",")[1].trim())));
+            bbox.setSouth(Math.max(bbox.getSouth(), Double.parseDouble(pwithin.split(",")[2].trim())));
+            bbox.setEast(Math.min(bbox.getEast(), Double.parseDouble(pwithin.split(",")[3].trim())));
+        }
+        pwithin=bbox.getNorth()+","+bbox.getWest()+","+bbox.getSouth()+","+bbox.getEast();
+        return this.geosearch(
+                collection,
+                f,
+                q,
+                before,
+                after,
+                pwithin,
+                gwithin,
+                gintersect,
+                notpwithin,
+                notgwithin,
+                notgintersect,
+                partitionFilter,
+                pretty,
+                include,
+                exclude,
+                size,
+                from,
+                sort,
+                maxagecache);
+    }
+
+
     @Timed
     @Path("{collection}/_geosearch")
     @POST
@@ -280,6 +477,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         FeatureCollection fc = getFeatures(collectionReference, request);
         return cache(Response.ok(fc),maxagecache);
     }
+
+
+
 
 
     protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
