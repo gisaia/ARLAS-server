@@ -19,7 +19,6 @@
 
 package io.arlas.server.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
@@ -30,6 +29,7 @@ import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 import io.dropwizard.jersey.params.IntParam;
 import io.dropwizard.jersey.params.LongParam;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.geo.GeoPoint;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -180,6 +180,33 @@ public class ParamsParser {
         Sort sortObject = new Sort();
         sortObject.sort = sort;
         return sortObject;
+    }
+
+    public static GeoPoint getGeoSortParams(String geoSort) throws ArlasException {
+        List<String> geoSortList = Arrays.asList(geoSort.split(":"));
+        String geoDistance;
+        String latLon;
+        if (geoSortList.size() > 1) {
+            geoDistance = geoSortList.get(0);
+            latLon = geoSortList.get(1);
+            if (!geoDistance.toLowerCase().equals(FluidSearch.GEO_DISTANCE)) {
+                throw new InvalidParameterException(FluidSearch.INVALID_GEOSORT_LABEL);
+            }
+        } else {
+            throw new InvalidParameterException(FluidSearch.INVALID_GEOSORT_LABEL);
+        }
+        String[] geoSortLatLon = latLon.split(" ");
+        if (geoSortLatLon.length > 1) {
+            Double lat = tryParseDouble(geoSortLatLon[0]);
+            Double lon = tryParseDouble(geoSortLatLon[1]);
+            if (lat != null && lon != null ) {
+                return new GeoPoint(lat, lon);
+            } else {
+                throw new InvalidParameterException(FluidSearch.INVALID_GEOSORT_LAT_LON);
+            }
+        } else {
+            throw new InvalidParameterException(FluidSearch.INVALID_GEOSORT_LAT_LON);
+        }
     }
 
     public static Projection getProjection(String includes, String excludes) {

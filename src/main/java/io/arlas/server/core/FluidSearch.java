@@ -19,10 +19,8 @@
 
 package io.arlas.server.core;
 
-import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
-import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
 import io.arlas.server.utils.ParamsParser;
@@ -30,6 +28,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.geo.builders.*;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -45,6 +44,7 @@ import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregati
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,17 +58,13 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.exceptions.NotImplementedException;
-import io.arlas.server.model.CollectionReference;
 import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
-import io.arlas.server.utils.ParamsParser;
 
 
 public class FluidSearch {
@@ -85,10 +81,13 @@ public class FluidSearch {
     public static final String INVALID_DATE_UNIT = "Invalid date unit.";
     public static final String INVALID_ON_VALUE = "Invalid 'on-' value ";
     public static final String INVALID_ORDER_VALUE = "Invalid 'on-' value ";
+    public static final String INVALID_GEOSORT_LAT_LON = "'lat lon' must be numeric values separated by a space";
+    public static final String INVALID_GEOSORT_LABEL = "To sort by geo_distance, please specifiy the point, from which the distances are calculated, as following 'geodistance:lat lon'";
     public static final String DATEHISTOGRAM_AGG = "Datehistogram aggregation";
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
     public static final String GEOHASH_AGG = "Geohash aggregation";
+    public static final String GEO_DISTANCE = "geodistance";
     public static final String NOT_ALLOWED_AGGREGATION_TYPE = " aggregation type is not allowed. Please use '_geoaggregate' service instead.";
     public static final String NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE = " aggregation type is not allowed as main aggregation. Please make sure that geohash is the main aggregation or use '_aggregate' service instead.";
     public static final String INTREVAL_NOT_SPECIFIED = "Interval parameter 'interval-' is not specified.";
@@ -339,11 +338,21 @@ public class FluidSearch {
                     field = signedField;
                     sortOrder = SortOrder.ASC;
                 }
-                searchRequestBuilder = searchRequestBuilder.addSort(field, sortOrder);
-
+                if (field.split(" ").length > 1) {
+                    geoDistanceSort(field, sortOrder);
+                } else {
+                    searchRequestBuilder = searchRequestBuilder.addSort(field, sortOrder);
+                }
             }
         }
         return this;
+    }
+
+    private void geoDistanceSort(String geoSort, SortOrder sortOrder) throws ArlasException {
+        GeoPoint sortOnPoint = ParamsParser.getGeoSortParams(geoSort);
+        String geoSortField = collectionReference.params.centroidPath;
+        searchRequestBuilder = searchRequestBuilder.addSort(SortBuilders.geoDistanceSort(geoSortField, sortOnPoint.lat(), sortOnPoint.lon())
+                .order(sortOrder).geoDistance(GeoDistance.PLANE));
     }
 
     private AggregationBuilder aggregateRecursive(List<Aggregation> aggregations, AggregationBuilder aggregationBuilder, Boolean isGeoAggregate, Integer counter) throws ArlasException {

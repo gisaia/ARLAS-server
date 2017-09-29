@@ -124,10 +124,10 @@ The `filter` url part allows the following parameters to be specified:
 | **q**             | None          | `{text}` or `{fieldname}:{text}` | A full text search. Optionally, it's possible to search the text on a specific field                       | false    |
 | **before**        | None          | timestamp                      | Any element having its point in time reference before the given timestamp | false    |
 | **after**         | None          | timestamp                      | Any element having its point in time reference after the given timestamp | false    |
-| **pwithin**       | None          | geometry                       | Any element having its centroid contained within the given BBOX | false    |
+| **pwithin**       | None          | geometry                       | Any element having its centroid contained within the given BBOX : `top, left, bottom, right`| false    |
 | **gwithin**       | None          | geometry                       | Any element having its geometry contained within the given geometry | false    |
 | **gintersect**    | None          | geometry                       | Any element having its geometry intersecting the given geometry (WKT) | false    |
-| **notpwithin**    | None          | geometry                       | Any element having its centroid outside the given BBOX | false    |
+| **notpwithin**    | None          | geometry                       | Any element having its centroid outside the given BBOX : `top, left, bottom, right` | false    |
 | **notgwithin**    | None          | geometry                       | Any element having its geometry not contained within the given geometry | false    |
 | **notgintersect** | None          | geometry                       | Any element having its geometry not intersecting the given geometry (WKT) | false    |
 
@@ -202,6 +202,7 @@ The `sort` url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values                         | Description                              | Multiple                                 |
 | --------- | ------------- | ------------------------------ | ---------------------------------------- | ---------------------------------------- |
-| **sort**  | None          | `((-?){field})(,(-?){field})*` | Sort the result on the given fields ascending or descending. Fields can be provided several times by separating them with a comma. The order matters. For a descending sort, precede the field with '-'. The sort will be ascending otherwise. For aggregation, provide the `agg` keyword as the `{field}`. | false (separate fields with comma in the same parameter) |
+| **sort**  | None          | `((-?)({field}||geodistance:lat lon))(,(-?){field})*` | Sort the result on the given fields ascending or descending.
+Fields can be provided several times by separating them with a comma. The order matters. For a descending sort, precede the field with '-'. The sort will be ascending otherwise. For aggregation, provide the `agg` keyword as the `{field}`. For a geodistance sort, specify the point, from which the distances are calculated, as follow : `geodistance:lat lon`  | false (separate fields with comma in the same parameter) |
 
-> Example: `sort=-country,city`
+> Example: `sort=-country,city,geodistance:-50 -110`
