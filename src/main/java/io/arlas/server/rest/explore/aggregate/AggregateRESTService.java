@@ -150,12 +150,6 @@ public class AggregateRESTService extends ExploreRESTServices {
                     required=false)
             @QueryParam(value="pretty") Boolean pretty,
 
-            @ApiParam(name ="human", value=Documentation.FORM_HUMAN,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required=false)
-            @QueryParam(value="human") Boolean human,
-
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
@@ -212,6 +206,15 @@ public class AggregateRESTService extends ExploreRESTServices {
 
             @ApiParam(hidden = true)
             @HeaderParam(value="Partition-Filter") String partitionFilter,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required=false)
+            @QueryParam(value="pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------

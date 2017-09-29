@@ -157,9 +157,8 @@ The `form` url part allows the following parameters to be specified:
 | Parameter  | Default value | Values       | Description          | Multiple |
 | ---------- | ------------- | ------------ | -------------------- | -------- |
 | **pretty** | `false`       | `true,false` | Pretty print         | false    |
-| **human**  | `false`       | `true,false` | Human readable print | false    |
 
-> Example: `pretty=true&human=true`
+> Example: `pretty=true`
 
 ---
 ## Part: `projection`
