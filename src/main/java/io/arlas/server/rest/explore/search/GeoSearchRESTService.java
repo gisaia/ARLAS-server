@@ -392,27 +392,31 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             bbox.setSouth(Math.max(bbox.getSouth(), Double.parseDouble(pwithin.split(",")[2].trim())));
             bbox.setEast(Math.min(bbox.getEast(), Double.parseDouble(pwithin.split(",")[3].trim())));
         }
-        pwithin=bbox.getNorth()+","+bbox.getWest()+","+bbox.getSouth()+","+bbox.getEast();
-        return this.geosearch(
-                collection,
-                f,
-                q,
-                before,
-                after,
-                pwithin,
-                gwithin,
-                gintersect,
-                notpwithin,
-                notgwithin,
-                notgintersect,
-                partitionFilter,
-                pretty,
-                include,
-                exclude,
-                size,
-                from,
-                sort,
-                maxagecache);
+        if (bbox.getNorth() > bbox.getSouth() && bbox.getWest() < bbox.getEast()) {
+            pwithin = bbox.getNorth() + "," + bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast();
+            return this.geosearch(
+                    collection,
+                    f,
+                    q,
+                    before,
+                    after,
+                    pwithin,
+                    gwithin,
+                    gintersect,
+                    notpwithin,
+                    notgwithin,
+                    notgintersect,
+                    partitionFilter,
+                    pretty,
+                    include,
+                    exclude,
+                    size,
+                    from,
+                    sort,
+                    maxagecache);
+        } else {
+            return Response.ok(new FeatureCollection()).build();
+        }
     }
 
 

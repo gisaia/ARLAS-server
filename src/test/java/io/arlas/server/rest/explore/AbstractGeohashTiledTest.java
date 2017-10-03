@@ -20,6 +20,9 @@ public abstract class AbstractGeohashTiledTest extends AbstractAggregatedTest {
         String pwithin = "81,98,79,101";
         handleGeohashTileLessThanPrecision(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", pwithin,"yn"), 1, "yn");
 
+        pwithin = "5,-5,0,0";
+        handleGeohashTileDisjointFromPwithin(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", pwithin,"yn"));
+
     }
 
     @Test
@@ -33,6 +36,7 @@ public abstract class AbstractGeohashTiledTest extends AbstractAggregatedTest {
 
     protected abstract void handleGeohashTileGreaterThanPrecision(ValidatableResponse then, int count, String geohash) throws Exception;
     protected abstract void handleGeohashTileLessThanPrecision(ValidatableResponse then, int featuresSize, String geohash) throws Exception;
+    protected abstract void handleGeohashTileDisjointFromPwithin(ValidatableResponse then) throws Exception;
     protected abstract void handleInvalidGeohashTile(ValidatableResponse then) throws Exception;
 
     private ValidatableResponse geohashTileGet(Object paramValue, String geohash){

@@ -288,6 +288,12 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     }
 
     @Override
+    protected void handleXYZDisjointFromPwithin(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+        .body("features", equalTo(null));
+    }
+
+    @Override
     protected void handleInvalidXYZ(ValidatableResponse then) {
         then.statusCode(400);
     }
