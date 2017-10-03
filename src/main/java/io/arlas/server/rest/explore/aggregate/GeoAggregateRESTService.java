@@ -311,7 +311,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             bbox.setSouth(Math.max(bbox.getSouth(), Double.parseDouble(pwithin.split(",")[2].trim())));
             bbox.setEast(Math.min(bbox.getEast(), Double.parseDouble(pwithin.split(",")[3].trim())));
         }
-        pwithin=bbox.getNorth()+","+bbox.getWest()+","+bbox.getSouth()+","+bbox.getEast();
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
@@ -322,22 +321,28 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             agg= Collections.singletonList("geohash:"+collectionReference.params.centroidPath+":interval-"+geohash.length());
         }
 
-        return this.geoaggregate(
-                collection,
-                agg,
-                f,
-                q,
-                before,
-                after,
-                pwithin,
-                gwithin,
-                gintersect,
-                notpwithin,
-                notgwithin,
-                notgintersect,
-                partitionFilter,
-                pretty,
-                maxagecache);
+        if (bbox.getNorth() > bbox.getSouth() && bbox.getWest() < bbox.getEast()) {
+            pwithin=bbox.getNorth()+","+bbox.getWest()+","+bbox.getSouth()+","+bbox.getEast();
+            return this.geoaggregate(
+                    collection,
+                    agg,
+                    f,
+                    q,
+                    before,
+                    after,
+                    pwithin,
+                    gwithin,
+                    gintersect,
+                    notpwithin,
+                    notgwithin,
+                    notgintersect,
+                    partitionFilter,
+                    pretty,
+                    maxagecache);
+        } else {
+            return Response.ok(new FeatureCollection()).build();
+        }
+
     }
 
     @Timed

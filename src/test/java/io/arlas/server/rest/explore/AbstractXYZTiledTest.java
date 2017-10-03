@@ -25,7 +25,11 @@ public abstract class AbstractXYZTiledTest extends AbstractSortedTest {
 
         search.filter.pwithin = "80,-30,60,50";
         handleXYZWithPwithin(xyzTileGet("pwithin", search.filter.pwithin, 2, 2, 0), "66.5,0", "80,50");
+
+        search.filter.pwithin = "5,-5,0,0";
+        handleXYZDisjointFromPwithin(xyzTileGet("pwithin", search.filter.pwithin, 2, 2, 0));
         search.filter.pwithin = null;
+
     }
 
     @Test
@@ -36,6 +40,7 @@ public abstract class AbstractXYZTiledTest extends AbstractSortedTest {
 
     protected abstract void handleXYZWithoutFilters(ValidatableResponse then, String bottomLeft, String topRight) throws Exception;
     protected abstract void handleXYZWithPwithin(ValidatableResponse then, String bottomLeft, String topRight) throws Exception;
+    protected abstract void handleXYZDisjointFromPwithin(ValidatableResponse then) throws Exception;
     protected abstract void handleInvalidXYZ(ValidatableResponse then) throws Exception;
 
     private ValidatableResponse xyzTileGet(String param,Object paramValue, int z, int x, int y){

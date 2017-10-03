@@ -327,6 +327,12 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
+    protected void handleGeohashTileDisjointFromPwithin(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+        .body("features", equalTo(null));
+    }
+
+    @Override
     protected void handleInvalidGeohashTile(ValidatableResponse then) {
         then.statusCode(400);
     }
