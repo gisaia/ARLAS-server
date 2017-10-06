@@ -30,10 +30,7 @@ import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
-import io.arlas.server.utils.BoundingBox;
-import io.arlas.server.utils.GeoTileUtil;
-import io.arlas.server.utils.ParamsParser;
-import io.arlas.server.utils.Tile;
+import io.arlas.server.utils.*;
 import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -306,10 +303,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
         BoundingBox bbox = GeoTileUtil.getBoundingBox(geohash);
         if(Strings.isNotEmpty(pwithin)){
-            bbox.setNorth(Math.min(bbox.getNorth(), Double.parseDouble(pwithin.split(",")[0].trim())));
-            bbox.setWest(Math.max(bbox.getWest(), Double.parseDouble(pwithin.split(",")[1].trim())));
-            bbox.setSouth(Math.max(bbox.getSouth(), Double.parseDouble(pwithin.split(",")[2].trim())));
-            bbox.setEast(Math.min(bbox.getEast(), Double.parseDouble(pwithin.split(",")[3].trim())));
+            bbox = GeoTileUtil.bboxIntersects(bbox, pwithin);
         }
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
@@ -321,7 +315,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             agg= Collections.singletonList("geohash:"+collectionReference.params.centroidPath+":interval-"+geohash.length());
         }
 
-        if (bbox.getNorth() > bbox.getSouth() && bbox.getWest() < bbox.getEast()) {
+        if (bbox != null && bbox.getNorth() > bbox.getSouth()) {
             pwithin=bbox.getNorth()+","+bbox.getWest()+","+bbox.getSouth()+","+bbox.getEast();
             return this.geoaggregate(
                     collection,

@@ -20,6 +20,9 @@ public abstract class AbstractGeohashTiledTest extends AbstractAggregatedTest {
         String pwithin = "81,98,79,101";
         handleGeohashTileLessThanPrecision(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", pwithin,"yn"), 1, "yn");
 
+        pwithin = "5,180,0,-165";
+        handleGeohashTileLessThanPrecision(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", pwithin,"80"), 1, "80");
+
         pwithin = "5,-5,0,0";
         handleGeohashTileDisjointFromPwithin(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", pwithin,"yn"));
 

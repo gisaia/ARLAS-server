@@ -28,14 +28,10 @@ import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.request.AggregationTypeEnum;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
 public class CheckParams {
-    private static Logger LOGGER = LoggerFactory.getLogger(CheckParams.class);
-
     private static final String POLYGON_TYPE = "POLYGON";
     private static final String INVALID_SORT_PARAMETER = "Invalid sort syntax. Please use the following syntax : 'fieldName:ASC' or 'fieldName:DESC'. ";
     private static final String INVALID_XYZ_PARAMETER = "Z must be between 0 and 22. X and Y must be between 0 and (2^Z-1)";
@@ -203,11 +199,6 @@ public class CheckParams {
     }
 
     private static boolean isBboxLatLonInCorrectRanges(double[] tlbr) {
-        LOGGER.info(""+tlbr[0] );
-        LOGGER.info(""+tlbr[1] );
-        LOGGER.info(""+tlbr[2] );
-        LOGGER.info(""+tlbr[3] );
-
         return tlbr[0] >= -90 && tlbr[2] >= -90 && tlbr[0] <= 90 && tlbr[2] <= 90 &&
                tlbr[1] >= -180 && tlbr[3] >= -180 && tlbr[1] <= 180 && tlbr[3] <= 180;
     }
