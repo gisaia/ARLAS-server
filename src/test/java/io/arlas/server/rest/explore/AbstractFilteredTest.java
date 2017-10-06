@@ -156,9 +156,14 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     @Test
     public void testPwithinFilter() throws Exception {
         request.filter.pwithin = "5,-5,-5,5";
-        handleMatchingPwithinFilter(post(request));
-        handleMatchingPwithinFilter(get("pwithin",request.filter.pwithin));
-        handleMatchingPwithinFilter(header(request.filter));
+        handleMatchingPwithinFilter(post(request), "0,0");
+        handleMatchingPwithinFilter(get("pwithin",request.filter.pwithin), "0,0");
+        handleMatchingPwithinFilter(header(request.filter), "0,0");
+
+        request.filter.pwithin = "5,180,0,-165";
+        handleMatchingPwithinFilter(post(request), "0,-170");
+        handleMatchingPwithinFilter(get("pwithin",request.filter.pwithin), "0,-170");
+        handleMatchingPwithinFilter(header(request.filter), "0,-170");
 
         request.filter.pwithin = "90,175,85,180";
         handleNotMatchingPwithinFilter(post(request));
@@ -542,7 +547,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     protected abstract void handleMatchingAfterFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception;
     
-    protected abstract void handleMatchingPwithinFilter(ValidatableResponse then) throws Exception;
+    protected abstract void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception;
     protected abstract void handleMatchingNotPwithinFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingPwithinComboFilter(ValidatableResponse then) throws Exception;
     

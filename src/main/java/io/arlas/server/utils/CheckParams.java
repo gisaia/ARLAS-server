@@ -28,10 +28,14 @@ import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.request.AggregationTypeEnum;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
 public class CheckParams {
+    private static Logger LOGGER = LoggerFactory.getLogger(CheckParams.class);
+
     private static final String POLYGON_TYPE = "POLYGON";
     private static final String INVALID_SORT_PARAMETER = "Invalid sort syntax. Please use the following syntax : 'fieldName:ASC' or 'fieldName:DESC'. ";
     private static final String INVALID_XYZ_PARAMETER = "Z must be between 0 and 22. X and Y must be between 0 and (2^Z-1)";
@@ -62,13 +66,13 @@ public class CheckParams {
         }
         if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
             double[] tlbr = CheckParams.toDoubles(filter.pwithin);
-            if (!(tlbr.length == 4 && tlbr[0] > tlbr[2] && tlbr[1] < tlbr[3])) {
+            if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
             }
         }
         if (filter.notpwithin != null && !filter.notpwithin.isEmpty()) {
             double[] tlbr = CheckParams.toDoubles(filter.notpwithin);
-            if (!(tlbr.length == 4 && tlbr[0] > tlbr[2] && tlbr[1] < tlbr[3])) {
+            if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
             }
         }
@@ -196,6 +200,16 @@ public class CheckParams {
         long minRange = 0;
         long maxRange = (long)(Math.pow(2,z) - 1);
         return (n>=minRange && n<=maxRange);
+    }
+
+    private static boolean isBboxLatLonInCorrectRanges(double[] tlbr) {
+        LOGGER.info(""+tlbr[0] );
+        LOGGER.info(""+tlbr[1] );
+        LOGGER.info(""+tlbr[2] );
+        LOGGER.info(""+tlbr[3] );
+
+        return tlbr[0] >= -90 && tlbr[2] >= -90 && tlbr[0] <= 90 && tlbr[2] <= 90 &&
+               tlbr[1] >= -180 && tlbr[3] >= -180 && tlbr[1] <= 180 && tlbr[3] <= 180;
     }
 
     private static Integer tryParseInteger(String text) {

@@ -255,7 +255,7 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
     
     @Override
-    protected void handleMatchingPwithinFilter(ValidatableResponse then) throws Exception {
+    protected void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception {
         then.statusCode(200)
         .body("elements.size()", equalTo(1));
     }

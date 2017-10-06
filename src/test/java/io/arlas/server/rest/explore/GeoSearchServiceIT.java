@@ -127,10 +127,10 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     }
     
     @Override
-    protected void handleMatchingPwithinFilter(ValidatableResponse then) throws Exception {
+    protected void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(1))
-        .body("features.properties.geo_params.centroid", everyItem(equalTo("0,0")));
+        .body("features.properties.geo_params.centroid", everyItem(equalTo(centroid)));
     }
     
     @Override
