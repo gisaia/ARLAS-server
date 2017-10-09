@@ -1,7 +1,9 @@
 package io.arlas.server.utils;
 
+import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.exceptions.NotImplementedException;
 import org.apache.lucene.geo.Rectangle;
 import org.elasticsearch.common.geo.GeoHashUtils;
 
@@ -20,6 +22,44 @@ public class GeoTileUtil {
             throw new InvalidParameterException(INVALID_GEOHASH);
         }
         return new BoundingBox(r.maxLat, r.minLat, r.minLon, r.maxLon);
+    }
+
+    public static BoundingBox bboxIntersects(BoundingBox bbox, String bboxCorners) throws ArlasException {
+        double topBboxCorner = Double.parseDouble(bboxCorners.split(",")[0].trim());
+        double leftBboxCorner = Double.parseDouble(bboxCorners.split(",")[1].trim());
+        double bottomBboxCorner = Double.parseDouble(bboxCorners.split(",")[2].trim());
+        double rightBboxCorner = Double.parseDouble(bboxCorners.split(",")[3].trim());
+        if (leftBboxCorner < rightBboxCorner) {
+            // If the bbox is in Paris region
+            bbox.setNorth(Math.min(bbox.getNorth(), Double.parseDouble(bboxCorners.split(",")[0].trim())));
+            bbox.setWest(Math.max(bbox.getWest(), leftBboxCorner));
+            bbox.setSouth(Math.max(bbox.getSouth(), Double.parseDouble(bboxCorners.split(",")[2].trim())));
+            bbox.setEast(Math.min(bbox.getEast(), Double.parseDouble(bboxCorners.split(",")[3].trim())));
+            if (bbox.getWest() > bbox.getEast()) {
+                bbox = null;
+            }
+        } else if (leftBboxCorner > rightBboxCorner) { // If the bbox is in Béring Strait
+            // If the bbox intersects the tile twice
+            if (bbox.getWest() < rightBboxCorner && bbox.getEast() > leftBboxCorner) {
+                throw new NotImplementedException(FluidSearch.NOT_SUPPORTED_BBOX_INTERSECTION);
+            } else {
+                // If there is one intersection
+                bbox.setNorth(Math.min(bbox.getNorth(), topBboxCorner));
+                bbox.setSouth(Math.max(bbox.getSouth(), bottomBboxCorner));
+                // if only leftBboxCorner is "lefter" than the east of the tile ==> (rightBboxCorner < west of bbox)
+                if (bbox.getEast() > leftBboxCorner  ) {
+                    bbox.setWest(Math.max(bbox.getWest(), leftBboxCorner));
+                    // and we dont set the east which stays bbox.getEast()
+                } else if (bbox.getWest() < rightBboxCorner){
+                    // if only rightBboxCorner is "righter" than the west of tile ==> (leftBboxCorner > east of bbox)
+                    bbox.setEast(Math.min(bbox.getEast(), rightBboxCorner));
+                    // and we dont set the west which stays bbox.getWest()
+                } else {
+                    bbox = null;
+                }
+            }
+        }
+        return bbox;
     }
 
     public static BoundingBox getBoundingBox(final int x, final int y, final int z) {

@@ -29,6 +29,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import io.arlas.server.exceptions.NotImplementedException;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.utils.*;
@@ -387,12 +388,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x,y,z));
         if(Strings.isNotEmpty(pwithin)){
-            bbox.setNorth(Math.min(bbox.getNorth(), Double.parseDouble(pwithin.split(",")[0].trim())));
-            bbox.setWest(Math.max(bbox.getWest(), Double.parseDouble(pwithin.split(",")[1].trim())));
-            bbox.setSouth(Math.max(bbox.getSouth(), Double.parseDouble(pwithin.split(",")[2].trim())));
-            bbox.setEast(Math.min(bbox.getEast(), Double.parseDouble(pwithin.split(",")[3].trim())));
+            bbox = GeoTileUtil.bboxIntersects(bbox, pwithin);
         }
-        if (bbox.getNorth() > bbox.getSouth() && bbox.getWest() < bbox.getEast()) {
+        if (bbox != null && bbox.getNorth() > bbox.getSouth()) {
             pwithin = bbox.getNorth() + "," + bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast();
             return this.geosearch(
                     collection,

@@ -99,7 +99,7 @@ public class FluidSearch {
     public static final String COLLECT_FCT_NOT_SPECIFIED = "The aggregation function 'collect_fct' is not specified.";
     public static final String COLLECT_FIELD_NOT_SPECIFIED = "The aggregation field 'collect_field' is not specified.";
     public static final String BAD_COLLECT_FIELD_FOR_GEO_METRICS = "For GeoBBOX and GeoCentroid, 'collect_field' should be the centroid path";
-
+    public static final String NOT_SUPPORTED_BBOX_INTERSECTION = "Unsupported case : pwithin bbox intersects the tile/geohash twice.";
     public static final String ORDER_NOT_SPECIFIED = "'order-' is not specified.";
     public static final String ON_NOT_SPECIFIED = "'on-' is not specified.";
     public static final String ORDER_PARAM_NOT_ALLOWED = "Order is not allowed for geohash aggregation.";

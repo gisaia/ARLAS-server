@@ -107,7 +107,7 @@ public class CountServiceIT extends AbstractFilteredTest {
     }
     
     @Override
-    protected void handleMatchingPwithinFilter(ValidatableResponse then) throws Exception {
+    protected void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception {
         handleMatchingFilter(then,1);
     }
 

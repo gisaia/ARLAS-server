@@ -62,13 +62,13 @@ public class CheckParams {
         }
         if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
             double[] tlbr = CheckParams.toDoubles(filter.pwithin);
-            if (!(tlbr.length == 4 && tlbr[0] > tlbr[2] && tlbr[1] < tlbr[3])) {
+            if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
             }
         }
         if (filter.notpwithin != null && !filter.notpwithin.isEmpty()) {
             double[] tlbr = CheckParams.toDoubles(filter.notpwithin);
-            if (!(tlbr.length == 4 && tlbr[0] > tlbr[2] && tlbr[1] < tlbr[3])) {
+            if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
                 throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
             }
         }
@@ -196,6 +196,11 @@ public class CheckParams {
         long minRange = 0;
         long maxRange = (long)(Math.pow(2,z) - 1);
         return (n>=minRange && n<=maxRange);
+    }
+
+    private static boolean isBboxLatLonInCorrectRanges(double[] tlbr) {
+        return tlbr[0] >= -90 && tlbr[2] >= -90 && tlbr[0] <= 90 && tlbr[2] <= 90 &&
+               tlbr[1] >= -180 && tlbr[3] >= -180 && tlbr[1] <= 180 && tlbr[3] <= 180;
     }
 
     private static Integer tryParseInteger(String text) {

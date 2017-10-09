@@ -134,10 +134,10 @@ public class SearchServiceIT extends AbstractSortedTest {
     }
 
     @Override
-    protected void handleMatchingPwithinFilter(ValidatableResponse then) throws Exception {
+    protected void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception {
         then.statusCode(200)
         .body("totalnb", equalTo(1))
-        .body("hits.data.geo_params.centroid", everyItem(equalTo("0,0")));
+        .body("hits.data.geo_params.centroid", everyItem(equalTo(centroid)));
     }
 
     @Override
