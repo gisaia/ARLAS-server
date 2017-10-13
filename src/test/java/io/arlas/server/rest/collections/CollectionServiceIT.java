@@ -19,21 +19,18 @@
 
 package io.arlas.server.rest.collections;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.isOneOf;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Test;
-
 import io.arlas.server.AbstractTestWithCollection;
 import io.arlas.server.DataSetTool;
 import io.arlas.server.model.CollectionReference;
 import io.restassured.response.ValidatableResponse;
+import org.hamcrest.Matcher;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
 
 public class CollectionServiceIT extends AbstractTestWithCollection {
 
@@ -76,15 +73,8 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .when().put(arlasPrefix+"collections/collection1")
                 .then().statusCode(200);
 
-        // PUT new collection 2
-        given().contentType("application/json").body(jsonAsMap)
-                .when().put(arlasPrefix+"collections/collection2")
-                .then().statusCode(200);
-
         // GET all collections
-        when().get(arlasPrefix+"collections/")
-                .then().statusCode(200)
-                .body("collection_name", everyItem(isOneOf(COLLECTION_NAME,"collection1","collection2")));
+        getAllCollections(hasItems(equalTo(COLLECTION_NAME), equalTo("collection1")));
 
         // DELETE collection 1
         when().delete(arlasPrefix+"collections/collection1")
@@ -92,14 +82,73 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         // GET deleted collection
         when().get(arlasPrefix+"collections/collection1")
                 .then().statusCode(404);
+    }
 
-        // DELETE collection 2
-        when().delete(arlasPrefix+"collections/collection2")
+    private void getAllCollections(Matcher matcher) throws InterruptedException {
+        int cpt = 0;
+        while(cpt > 0 && cpt < 5) {
+            try {
+                when().get(arlasPrefix + "collections/")
+                        .then().statusCode(200)
+                        .body("collection_name", matcher);
+                cpt = -1;
+            } catch(Exception e) {
+                cpt ++;
+                Thread.sleep(1000);
+            }
+        }
+    }
+
+    @Test
+    public void testImportExportCollections() throws Exception {
+
+        // GET all collections
+        getAllCollections(everyItem(equalTo(COLLECTION_NAME)));
+
+        // EXPORT all collections
+        String jsonExport = get(arlasPrefix+"collections/_export").asString();
+
+        // DELETE collection
+        when().delete(arlasPrefix+"collections/"+COLLECTION_NAME)
                 .then().statusCode(200);
+
         // GET deleted collection
-        when().get(arlasPrefix+"collections/collection2")
+        when().get(arlasPrefix+"collections/"+COLLECTION_NAME)
                 .then().statusCode(404);
 
+        // IMPORT all collections
+        given().multiPart("file", jsonExport)
+                .when().post(arlasPrefix+"collections/_import")
+                .then().statusCode(200)
+                .body("collection_name", everyItem(equalTo(COLLECTION_NAME)));
+
+        // GET all collections
+        getAllCollections(everyItem(equalTo(COLLECTION_NAME)));
+        /*when().get(arlasPrefix+"collections/")
+                .then().statusCode(200)
+                .body("collection_name", everyItem(equalTo(COLLECTION_NAME)));*/
+
+        // IMPORT existing collections
+        given().multiPart("file", jsonExport)
+                .when().post(arlasPrefix+"collections/_import")
+                .then().statusCode(200)
+                .body("collection_name", everyItem(equalTo(COLLECTION_NAME)));
+
+        // GET all collections
+        getAllCollections(everyItem(equalTo(COLLECTION_NAME)));
+
+        // IMPORT a new collection
+        given().multiPart("file", jsonExport.replaceAll(COLLECTION_NAME, "foo"))
+                .when().post(arlasPrefix+"collections/_import")
+                .then().statusCode(200)
+                .body("collection_name", hasItems(equalTo("foo")));
+
+        // GET all collections
+        getAllCollections(hasItems(equalTo("foo"),equalTo(COLLECTION_NAME)));
+
+        // DELETE new collection
+        when().delete(arlasPrefix+"collections/foo")
+                .then().statusCode(200);
     }
 
     @Test
@@ -122,7 +171,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
     @Test
     public void testNotFoundCollectionParameters() throws Exception {
-        Map<String, Object> jsonAsMap = new HashMap<String, Object>();
+        Map<String, Object> jsonAsMap = new HashMap<>();
         jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
         jsonAsMap.put(CollectionReference.TYPE_NAME, DataSetTool.DATASET_TYPE_NAME);
         jsonAsMap.put(CollectionReference.ID_PATH, "unknownId");
@@ -156,7 +205,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     }
 
     private Map<String, Object> getJsonAsMap(){
-        Map<String, Object> jsonAsMap = new HashMap<String, Object>();
+        Map<String, Object> jsonAsMap = new HashMap<>();
         jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
         jsonAsMap.put(CollectionReference.TYPE_NAME, DataSetTool.DATASET_TYPE_NAME);
         jsonAsMap.put(CollectionReference.ID_PATH, DataSetTool.DATASET_ID_PATH);

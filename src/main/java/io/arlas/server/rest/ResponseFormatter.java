@@ -36,6 +36,11 @@ public class ResponseFormatter {
         return Response.ok(object).type(MediaType.APPLICATION_JSON).build();
     }
 
+    public static Response getFileResponse(Object object, String fileName) {
+        return Response.ok(object).type(MediaType.APPLICATION_JSON)
+                .header("Content-Disposition", "attachment; filename="+fileName).build();
+    }
+
     public static Response getErrorResponse(Exception e, Response.Status status, String message) {
         return Response.status(status).entity(new Error(status.getStatusCode(), e.getClass().getName(), message))
                 .type(MediaType.APPLICATION_JSON).build();
