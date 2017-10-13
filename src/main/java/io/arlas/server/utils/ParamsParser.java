@@ -113,13 +113,16 @@ public class ParamsParser {
         } else throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
     }
 
-    public static Integer getAggregationGeohasPrecision(Interval interval) throws ArlasException {
+    public static Integer getAggregationGeohashPrecision(Interval interval) throws ArlasException {
         if (interval != null) {
             if (interval.value > 12 || interval.value < 1) {
                 throw new InvalidParameterException("Invalid geohash aggregation precision of " + interval.value + ". Must be between 1 and 12.");
-            } else return interval.value;
+            } else {
+                return interval.value;
+            }
+        } else {
+            throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
         }
-        throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
     }
 
     public static String getValidAggregationFormat(String aggFormat) {

@@ -77,7 +77,7 @@ The sub-parameters possible values are:
 | **size**          | {size}                                          | Defines how many buckets should be returned. |
 | **include**       | Comma separated strings (4)                     | Specifies the values for which buckets will be created. |
 | **withGeoBBOX**   | Boolean (5)(6)                                  | When it's true : the geoaggregation geometry is the data extent (bbox) of each bucket. |
-| **withGeoBBOX**   | Boolean (5)(6)                                  | When it's true : the geoaggregation geometry is the centroid of each bucket. |
+| **withGeoCentroid**   | Boolean (5)(6)                              | When it's true : the geoaggregation geometry is the centroid of each bucket. |
 
 (1) Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
 

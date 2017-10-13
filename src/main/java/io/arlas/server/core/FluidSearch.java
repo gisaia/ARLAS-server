@@ -398,6 +398,7 @@ public class FluidSearch {
 
     private DateHistogramAggregationBuilder buildDateHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
         CheckParams.checkNullityOfAggregationIncludeParameter(aggregationModel.include);
+        CheckParams.checkNullityOfAggregationIntervalParameter(aggregationModel.interval);
         if(Strings.isNullOrEmpty(aggregationModel.field)) {
             aggregationModel.field = collectionReference.params.timestampPath;
         }
@@ -444,9 +445,11 @@ public class FluidSearch {
     // construct and returns the geohash aggregationModel builder
     private GeoGridAggregationBuilder buildGeohashAggregation(Aggregation aggregationModel) throws ArlasException {
         CheckParams.checkNullityOfAggregationIncludeParameter(aggregationModel.include);
+        CheckParams.checkNullityOfAggregationIntervalParameter(aggregationModel.interval);
+
         GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(GEOHASH_AGG);
         //get the precision
-        Integer precision = ParamsParser.getAggregationGeohasPrecision(aggregationModel.interval);
+        Integer precision = ParamsParser.getAggregationGeohashPrecision(aggregationModel.interval);
         geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
         //get the field, format, collect_field, collect_fct, order, on
         geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
@@ -456,11 +459,9 @@ public class FluidSearch {
     // construct and returns the histogram aggregationModel builder
     private HistogramAggregationBuilder buildHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
         CheckParams.checkNullityOfAggregationIncludeParameter(aggregationModel.include);
+        CheckParams.checkNullityOfAggregationIntervalParameter(aggregationModel.interval);
+
         HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram(HISTOGRAM_AGG);
-        // get the length
-        if(aggregationModel.interval==null || aggregationModel.interval.value==null){
-            throw new InvalidParameterException("Interval must be provided. Currently null.");
-        }
         histogramAggregationBuilder = histogramAggregationBuilder.interval(aggregationModel.interval.value);
         //get the field, format, collect_field, collect_fct, order, on
         histogramAggregationBuilder = (HistogramAggregationBuilder) setAggregationParameters(aggregationModel, histogramAggregationBuilder);

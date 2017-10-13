@@ -557,7 +557,11 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).include = "foo";
         handleInvalidParameters(post(invalidAggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:include-foo"));
+
         aggregationRequest.aggregations.get(0).include = null;
+        aggregationRequest.aggregations.get(0).interval = null;
+        handleInvalidParameters(post(invalidAggregationRequest));
+        handleInvalidParameters(get("geohash:geo_params.centroid"));
 
 
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.datehistogram;
@@ -573,7 +577,11 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).include = "foo";
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("datehistogram:params.startdate:interval-1day:include-foo"));
+
         aggregationRequest.aggregations.get(0).include = null;
+        aggregationRequest.aggregations.get(0).interval = null;
+        handleInvalidParameters(post(aggregationRequest));
+        handleInvalidParameters(get("datehistogram:params.startdate"));
 
 
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.histogram;

@@ -80,6 +80,12 @@ public class CheckParams {
         }
     }
 
+    public static void checkNullityOfAggregationIntervalParameter(Interval interval) throws ArlasException {
+        if(interval==null || interval.value==null){
+            throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
+        }
+    }
+
 
 
     public static void checkSize (Size size) throws ArlasException{
