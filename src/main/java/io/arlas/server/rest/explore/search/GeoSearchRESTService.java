@@ -328,12 +328,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "pretty") Boolean pretty,
 
-            @ApiParam(name = "human", value = Documentation.FORM_HUMAN,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
-            @QueryParam(value = "human") Boolean human,
-
             // --------------------------------------------------------
             // -----------------------  PROJECTION   -----------------------
             // --------------------------------------------------------
@@ -479,10 +473,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         FeatureCollection fc = getFeatures(collectionReference, request);
         return cache(Response.ok(fc),maxagecache);
     }
-
-
-
-
 
     protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().search(request, collectionReference);

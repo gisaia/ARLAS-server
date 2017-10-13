@@ -286,12 +286,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     required=false)
             @QueryParam(value="pretty") Boolean pretty,
 
-            @ApiParam(name ="human", value=Documentation.FORM_HUMAN,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required=false)
-            @QueryParam(value="human") Boolean human,
-
             // --------------------------------------------------------
             // ----------------------- EXTRA --------------------------
             // --------------------------------------------------------
