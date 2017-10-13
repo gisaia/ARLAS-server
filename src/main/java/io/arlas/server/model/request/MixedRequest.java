@@ -19,9 +19,6 @@
 
 package io.arlas.server.model.request;
 
-/**
- * Created by sfalquier on 31/08/2017.
- */
 public class MixedRequest {
     public Request basicRequest;
     public Request headerRequest;
