@@ -367,6 +367,11 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingAggregate(post(aggregationRequest), DataSetTool.jobs.length-1, 58, 64);
         handleMatchingAggregate(get("term:params.job"), DataSetTool.jobs.length-1, 58, 64);
 
+        aggregationRequest.aggregations.get(0).include = "A.*";
+        handleMatchingAggregate(post(aggregationRequest), 4, 58, 59);
+        handleMatchingAggregate(get("term:params.job:include-A.*"), 4, 58, 59);
+        aggregationRequest.aggregations.get(0).include = null;
+
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.AVG;
         handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "avg", 1000000F, 1000000F);
@@ -546,6 +551,15 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(post(invalidAggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-foo:collect_fct-bar"));
 
+
+        aggregationRequest.aggregations.get(0).collectFct = null;
+        aggregationRequest.aggregations.get(0).collectField = null;
+        aggregationRequest.aggregations.get(0).include = "foo";
+        handleInvalidParameters(post(invalidAggregationRequest));
+        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:include-foo"));
+        aggregationRequest.aggregations.get(0).include = null;
+
+
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.datehistogram;
         aggregationRequest.aggregations.get(0).field = "params.job";
         aggregationRequest.aggregations.get(0).interval = new Interval(1,UnitEnum.day);// TODO: was incorrect (iday), was it on purpose?
@@ -554,6 +568,14 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("datehistogram:params.job:interval-1day"));
 
+
+        aggregationRequest.aggregations.get(0).field = "params.startdate";
+        aggregationRequest.aggregations.get(0).include = "foo";
+        handleInvalidParameters(post(aggregationRequest));
+        handleInvalidParameters(get("datehistogram:params.startdate:interval-1day:include-foo"));
+        aggregationRequest.aggregations.get(0).include = null;
+
+
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.histogram;
         aggregationRequest.aggregations.get(0).field = "params.startdate";
         aggregationRequest.aggregations.get(0).interval  = new Interval(100000, null);
@@ -561,11 +583,19 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("histogram:params.startdate:interval-100000:format-yyyyMMdd"));
 
+        aggregationRequest.aggregations.get(0).format = null;
+        aggregationRequest.aggregations.get(0).include = "foo";
+        handleInvalidParameters(post(aggregationRequest));
+        handleInvalidParameters(get("histogram:params.startdate:interval-100000:include-foo"));
+
         aggregationRequest.aggregations.get(0).field = "params.job";
         aggregationRequest.aggregations.get(0).interval = null;
         aggregationRequest.aggregations.get(0).format = null;
+        aggregationRequest.aggregations.get(0).include = null;
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("histogram:params.job"));
+
+
 
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
         aggregationRequest.aggregations.get(0).interval = new Interval(1, null);

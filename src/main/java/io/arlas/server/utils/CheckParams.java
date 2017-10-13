@@ -74,6 +74,14 @@ public class CheckParams {
         }
     }
 
+    public static void checkNullityOfAggregationIncludeParameter(String include) throws ArlasException {
+        if (include != null) {
+            throw new BadRequestException(FluidSearch.NO_INCLUDE_TO_SPECIFY);
+        }
+    }
+
+
+
     public static void checkSize (Size size) throws ArlasException{
         if (size.size != null && size.size > 0) {
             if (size.from != null) {

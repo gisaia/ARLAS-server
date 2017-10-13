@@ -103,6 +103,8 @@ public class Documentation {
             "\n \n" +
             "   - **size** is optional for term and geohash, and must not be specified for the other types." +
             "\n \n" +
+            "   - **include** is optional for term, and must not be specified for the other types." +
+            "\n \n" +
             "- {type} possible values are : " +
             "\n \n" +
             "       datehistogram, histogram, geohash and term. " +
@@ -132,6 +134,8 @@ public class Documentation {
             "\n \n" +
             "- {size} Defines how many buckets should be returned. " +
             "\n \n" +
+            "- {include} Specifies the values for which buckets will be created. This values are comma separated. If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created." +
+            "\n \n" +
             "**agg** parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. "+
             "\n \n" +
             "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md.";
@@ -155,6 +159,8 @@ public class Documentation {
             "   - (**order**,**on**) couple is optional for all aggregation types." +
             "\n \n" +
             "   - **size** is optional for term and geohash, and must not be specified for the other types." +
+            "\n \n" +
+            "   - **include** is optional for term, and must not be specified for the other types." +
             "\n \n" +
             "- {type} possible values are : " +
             "\n \n" +
@@ -192,6 +198,8 @@ public class Documentation {
             "- When {on} = `result`, then (collect_field,collect_fct) should be specified. Except when {collect_fct} = `geobbox` or `geocentroid`, then {on}=`result` is prohibited" +
             "\n \n" +
             "- {size} Defines how many buckets should be returned. " +
+            "\n \n" +
+            "- {include} Specifies the values for which buckets will be created. This values are comma separated. If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created." +
             "\n \n" +
             "If {withGeoCentroid} or {withGeoBBOX} are specified, the returned geometry is the one used in the geojson. {withGeoBBOX} wins over {withGeoCentroid}" +
             "\n \n" +

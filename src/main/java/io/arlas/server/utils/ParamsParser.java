@@ -45,6 +45,7 @@ public class ParamsParser {
     private static final String AGG_ORDER_PARAM = "order-";
     private static final String AGG_ON_PARAM = "on-";
     private static final String AGG_SIZE_PARAM = "size-";
+    private static final String AGG_INCLUDE_PARAM = "include-";
     private static final String AGG_GEOCENTROID_PARAM = "withGeoCentroid-";
     private static final String AGG_GEOBBOX_PARAM = "withGeoBBOX-";
 
@@ -86,6 +87,8 @@ public class ParamsParser {
                 aggregationModel.on = AggregationOnEnum.valueOf(parameter.substring(AGG_ON_PARAM.length()));
             } else if (parameter.contains(AGG_SIZE_PARAM)) {
                 aggregationModel.size = parameter.substring(AGG_SIZE_PARAM.length());
+            } else if (parameter.contains(AGG_INCLUDE_PARAM)) {
+                aggregationModel.include = parameter.substring(AGG_INCLUDE_PARAM.length());
             } else if (parameter.contains(AGG_GEOCENTROID_PARAM)) {
                 aggregationModel.withGeoCentroid = Boolean.valueOf(parameter.substring(AGG_GEOCENTROID_PARAM.length()));
             } else if (parameter.contains(AGG_GEOBBOX_PARAM)) {

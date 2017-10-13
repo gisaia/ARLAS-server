@@ -23,6 +23,7 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
+import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ParamsParser;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -43,6 +44,7 @@ import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -92,6 +94,7 @@ public class FluidSearch {
     public static final String NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE = " aggregation type is not allowed as main aggregation. Please make sure that geohash is the main aggregation or use '_aggregate' service instead.";
     public static final String INTREVAL_NOT_SPECIFIED = "Interval parameter 'interval-' is not specified.";
     public static final String NO_TERM_INTERVAL = "'interval-' should not be specified for term aggregation.";
+    public static final String NO_INCLUDE_TO_SPECIFY = "'include-' should not be specified for this aggregation";
     public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
     public static final String NO_SIZE_TO_SPECIFY = "'size-' should not be specified for this aggregation.";
     public static final String NO_ORDER_ON_TO_SPECIFY = "'order-' and 'on-' should not be specified for this aggregation.";
@@ -394,6 +397,7 @@ public class FluidSearch {
     }
 
     private DateHistogramAggregationBuilder buildDateHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
+        CheckParams.checkNullityOfAggregationIncludeParameter(aggregationModel.include);
         if(Strings.isNullOrEmpty(aggregationModel.field)) {
             aggregationModel.field = collectionReference.params.timestampPath;
         }
@@ -439,6 +443,7 @@ public class FluidSearch {
 
     // construct and returns the geohash aggregationModel builder
     private GeoGridAggregationBuilder buildGeohashAggregation(Aggregation aggregationModel) throws ArlasException {
+        CheckParams.checkNullityOfAggregationIncludeParameter(aggregationModel.include);
         GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(GEOHASH_AGG);
         //get the precision
         Integer precision = ParamsParser.getAggregationGeohasPrecision(aggregationModel.interval);
@@ -450,6 +455,7 @@ public class FluidSearch {
 
     // construct and returns the histogram aggregationModel builder
     private HistogramAggregationBuilder buildHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
+        CheckParams.checkNullityOfAggregationIncludeParameter(aggregationModel.include);
         HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram(HISTOGRAM_AGG);
         // get the length
         if(aggregationModel.interval==null || aggregationModel.interval.value==null){
@@ -469,6 +475,17 @@ public class FluidSearch {
             throw new BadRequestException(NO_TERM_INTERVAL);
         }
         termsAggregationBuilder = (TermsAggregationBuilder) setAggregationParameters(aggregationModel, termsAggregationBuilder);
+
+        if (aggregationModel.include != null && !aggregationModel.include.isEmpty()) {
+            String[] includeList = aggregationModel.include.split(",");
+            IncludeExclude includeExclude;
+            if (includeList.length > 1) {
+                includeExclude = new IncludeExclude(includeList, null);
+            } else {
+                includeExclude = new IncludeExclude(includeList[0], null);
+            }
+            termsAggregationBuilder = termsAggregationBuilder.includeExclude(includeExclude);
+        }
         return termsAggregationBuilder;
     }
 
