@@ -13,8 +13,10 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Count the number of elements found in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection as features, given the filters |
+| /arlas/explore/`{collection}`/**_geosearch**/`{z}`/`{x}`/`{y}`?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection and localized in the given tile(x,y,z) as features, given the filters |
 | /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s), given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_geoaggregate**?`aggregation` &`filter` & `form` & `size` & `sort` | Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters |
+| /arlas/explore/`{collections}`/**_geoaggregate**/`{geohash}`?`aggregation` &`filter` & `form` & `size` & `sort` | Aggregate the elements in the collection(s) and localized in the given `{geohash}` as features, given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_suggest**?`filter` & `form` & `size` & `suggest` | Suggest the the n (n=`size`) most relevant terms given the filters |
 
 When multiple collections are permitted ({collections}), the comma is used for separating the collection names.

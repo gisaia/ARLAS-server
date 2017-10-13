@@ -187,7 +187,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "GeoAggregate on a geohash", produces = UTF8JSON, notes = Documentation.GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
+    @ApiOperation(value = "GeoAggregate on a geohash", produces = UTF8JSON, notes = Documentation.GEOHASH_GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection" ),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
             @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
@@ -285,12 +285,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     defaultValue = "false",
                     required=false)
             @QueryParam(value="pretty") Boolean pretty,
-
-            @ApiParam(name ="human", value=Documentation.FORM_HUMAN,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required=false)
-            @QueryParam(value="human") Boolean human,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA --------------------------
