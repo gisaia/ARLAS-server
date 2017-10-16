@@ -34,13 +34,23 @@ You need a Java Runtime (JRE) 8 and an ElasticSearch server running. ARLAS is co
 | 5.4.3 |
 | 5.5.1 |
 
-## Installing :
+## Build
 
+### JAR
 In order to download the project dependencies and build it :
 
 ```sh
 mvn clean package
 ```
+### Docker
+
+```sh
+docker build --tag=arlas-server:latest .
+```
+
+## Run
+
+### JAR
 
 To run the project :
 
@@ -50,7 +60,27 @@ java -jar target/arlas-server-x.x.jar server conf/configuration.yaml
 
 Then, go to `http://localhost:9999/arlas/swagger` for exploring and testing the API.
 
-To manage collections :
+### Docker
+
+```sh
+docker run arlas-server:latest
+```
+
+## Configuration
+
+The configuration.yaml aggregate 4 configurations:
+- Swagger
+- The HTTP server and logging
+- ARLAS datasource
+- ARLAS cache
+- ARLAS collection auto discovery
+- ZIPKIN
+
+See the configuration [document](CONFIGURATION.md) for further details on how to configure ARLAS Server with configuration.yaml and how to run ARLAS Server within a docker container.
+
+## Examples
+
+To add a collection:
 
 ```sh
 curl -X PUT --header 'Content-Type: application/json;charset=utf-8' --header 'Accept: application/json' -d '{ \
@@ -61,8 +91,20 @@ curl -X PUT --header 'Content-Type: application/json;charset=utf-8' --header 'Ac
    "centroid_path": "mydoc.centroid", \
    "timestamp_path": "mydoc.timestamp" \
  }' 'http://localhost:9999/arlas/collections/mycollection'
+```
+
+To list the collections:
+```sh
 curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/collections'
+```
+
+To describe a collection:
+```sh
 curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/collections/mycollection'
+```
+
+To remove a collection:
+```sh
 curl -X DELETE --header 'Accept: application/json' 'http://localhost:9999/arlas/collections/mycollection'
 ```
 

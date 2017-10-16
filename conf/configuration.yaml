@@ -1,39 +1,83 @@
-swagger:
-  resourcePackage: io.arlas.server.rest
-zipkin:
-  enabled: false
-  # Listening IP address of the service
-  # serviceHost: 127.0.0.1
-  # Listening port of the service
-  # servicePort: 9999
-  # collector: http
-  # baseUrl: http://localhost:9411/
+########################################################
+############ SWAGGER                     ###############
+########################################################
+#
+swagger: # Configuration of SWAGGER for generating documentation and APIs
+  resourcePackage: io.arlas.server.rest # The java package to process for extracting the APIs
+
+########################################################
+############ HTTP SERVER                 ###############
+########################################################
+# Configuration of the HTTP Server and of the HTTP ACCESS LOGGING
 server:
-  #requestLog:
-  #  appenders:
-  #    - type: file
-  #      currentLogFilename: ${ACCESS_LOG_DIR:-log}/access.log
-  #      archivedLogFilenamePattern: ${ACCESS_LOG_DIR:-log}/our-app/accedd-%d.log.gz
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: ${ARLAS_ACCESS_LOG_FILE:-arlas-access.log}
+        archivedLogFilenamePattern: ${ACCESS_LOG_FILE_ARCHIVE:-arlas-access-%d.log.gz}
   registerDefaultExceptionMappers: false
   type: simple
   applicationContextPath: ${ARLAS_PREFIX:-/arlas/}
+  adminContextPath: ${ARLAS_ADMIN_PATH:-/admin}
   connector:
     type: http
     port: ${ARLAS_PORT:-9999}
+  maxThreads: ${ARLAS_MAX_THREADS:-1024}
+  minThreads: ${ARLAS_MIN_THREADS:-8}
+  maxQueuedRequests: ${ARLAS_MAX_QUEUED_REQUESTS:-1024}
+
+########################################################
+############ LOGGING                     ###############
+########################################################
+# Configuration console and file LOGGING
 logging:
-  level: INFO
-elastic-host: ${ARLAS_ELASTIC_HOST:-localhost}
-elastic-port: ${ARLAS_ELASTIC_PORT:-9300}
+  level: ${ARLAS_LOGGING_LEVEL:-INFO}
+  appenders:
+    - type: console
+      threshold:  ${ARLAS_LOGGING_CONSOLE_LEVEL:-INFO}
+    - type: file
+      currentLogFilename: ${ARLAS_LOGGING_FILE:-arlas.log}
+      threshold: ${ARLAS_LOGGING_FILE_LEVEL:-INFO}
+      archive: ${ARLAS_LOGGING_FILE_ARCHIVE:-true}
+      archivedLogFilenamePattern: ${ARLAS_LOGGING_FILE_ARCHIVE_FILE_PATTERN:-arlas-%d.log}
+      archivedFileCount: ${ARLAS_LOGGING_FILE_ARCHIVE_FILE_COUNT:-5}
+
+########################################################
+############ DATASOURCE                  ###############
+########################################################
+# Configuration of the datasource
+elastic-host: ${ELASTICSEARCH_PORT_9300_TCP_ADDR:-localhost}
+elastic-port: ${ELASTICSEARCH_PORT_9300_TCP_PORT:-9300}
+elastic-cluster: ${ARLAS_ELASTIC_CLUSTER:-elasticsearch}
 arlas-index:  ${ARLAS_ELASTIC_INDEX:-.arlas}
-arlas-cache-size: 1000
-arlas-cache-timeout: 60
-#arlas-rest-cache-timeout: 60
-arlas-cors-enabled: true
 
+########################################################
+############ CACHE                       ###############
+########################################################
+# Configuration of the cache
+arlas-cache-size: ${ARLAS_CACHE_SIZE:-1000}
+arlas-cache-timeout: ${ARLAS_CACHE_TIMEOUT:-60}
+arlas-cors-enabled: ${ARLAS_CORSE_ENABLED:-true}
 
+########################################################
+############ COLLECTION DISCOVERY        ###############
+########################################################
+# Automatic discovery of the collections contained in the datasource (ES).
+# Set schedule to 0 if you want to disable the automatic discovery
 collection-auto-discover:
   preferred-id-field-name: id,identifier
-  preferred-timestamp-field-name: startdate
-  preferred-centroid-field-name: centroid
-  preferred-geometry-field-name: geo,geometry
-  schedule: 0
+  preferred-timestamp-field-name: params.startdate
+  preferred-centroid-field-name: geo_params.centroid
+  preferred-geometry-field-name: geo,geo_params.geometry
+  schedule: ${ARLAS_COLLECTION_AUTODISCOVER_SCHEDULE:-0} # Set to 0 to disable the discovery
+
+########################################################
+############ ZIPKIN                      ###############
+########################################################
+# Zipkin let you analyze the API calls
+zipkin: # The ZIPIN configuration, not active by default
+  enabled: ${ARLAS_ZIPKIN_ENABLED:-false} # Do we want zipkin to collect the API calls? Not by default.
+  serviceHost: ${ARLAS_ZIPKIN_SERVICE_HOST:-127.0.0.1} # Listening IP address of the service
+  servicePort: ${ARLAS_PORT:-9999} # Listening port of the service
+  collector: ${ARLAS_ZIPKIN_COLLECTOR:-http}
+  baseUrl: ${ARLAS_ZIPKIN_BASEURL:-http://localhost:9411} # Where is zipkin running?

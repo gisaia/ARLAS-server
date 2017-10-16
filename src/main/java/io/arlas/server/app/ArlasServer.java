@@ -35,9 +35,13 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.kristofa.brave.Brave;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.arlas.server.rest.collections.ElasticCollectionService;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -64,13 +68,13 @@ import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 
 public class ArlasServer extends Application<ArlasServerConfiguration> {
+    Logger LOGGER = LoggerFactory.getLogger(ArlasServer.class);
     public static void main(String... args) throws Exception {
         new ArlasServer().run(args);
     }
 
     @Override
     public void initialize(Bootstrap<ArlasServerConfiguration> bootstrap) {
-
         bootstrap.registerMetrics();
         bootstrap.setConfigurationSourceProvider(new SubstitutingSourceProvider(
                 bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
@@ -90,7 +94,9 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
     @Override
     public void run(ArlasServerConfiguration configuration, Environment environment) throws Exception {
+        LOGGER.info("Raw configuration: "+ (new ObjectMapper()).writer().writeValueAsString(configuration));
         configuration.check();
+        LOGGER.info("Checked configuration: "+ (new ObjectMapper()).writer().writeValueAsString(configuration));
 
         Settings settings;
         if (Strings.isNullOrEmpty(configuration.elasticcluster)) {
@@ -125,7 +131,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new DescribeCollectionRESTService(exploration));
         environment.jersey().register(new RawRESTService(exploration));
         environment.jersey().register(new ElasticCollectionService(client, configuration));
-        
+
         //filters
         environment.jersey().register(PrettyPrintFilter.class);
 
