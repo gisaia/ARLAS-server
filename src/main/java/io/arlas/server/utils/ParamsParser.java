@@ -45,6 +45,7 @@ public class ParamsParser {
     private static final String AGG_ORDER_PARAM = "order-";
     private static final String AGG_ON_PARAM = "on-";
     private static final String AGG_SIZE_PARAM = "size-";
+    private static final String AGG_INCLUDE_PARAM = "include-";
     private static final String AGG_GEOCENTROID_PARAM = "withGeoCentroid-";
     private static final String AGG_GEOBBOX_PARAM = "withGeoBBOX-";
 
@@ -86,6 +87,8 @@ public class ParamsParser {
                 aggregationModel.on = AggregationOnEnum.valueOf(parameter.substring(AGG_ON_PARAM.length()));
             } else if (parameter.contains(AGG_SIZE_PARAM)) {
                 aggregationModel.size = parameter.substring(AGG_SIZE_PARAM.length());
+            } else if (parameter.contains(AGG_INCLUDE_PARAM)) {
+                aggregationModel.include = parameter.substring(AGG_INCLUDE_PARAM.length());
             } else if (parameter.contains(AGG_GEOCENTROID_PARAM)) {
                 aggregationModel.withGeoCentroid = Boolean.valueOf(parameter.substring(AGG_GEOCENTROID_PARAM.length()));
             } else if (parameter.contains(AGG_GEOBBOX_PARAM)) {
@@ -110,13 +113,16 @@ public class ParamsParser {
         } else throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
     }
 
-    public static Integer getAggregationGeohasPrecision(Interval interval) throws ArlasException {
+    public static Integer getAggregationGeohashPrecision(Interval interval) throws ArlasException {
         if (interval != null) {
             if (interval.value > 12 || interval.value < 1) {
                 throw new InvalidParameterException("Invalid geohash aggregation precision of " + interval.value + ". Must be between 1 and 12.");
-            } else return interval.value;
+            } else {
+                return interval.value;
+            }
+        } else {
+            throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
         }
-        throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
     }
 
     public static String getValidAggregationFormat(String aggFormat) {

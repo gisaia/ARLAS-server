@@ -56,6 +56,8 @@ The other parts must be specified or not depending on the aggregation type. All 
 | (**collect_field**,**collect_fct**) | All types                 | optional |
 | (**order**,**on**)        | `term, histogram, datehistogram`    | optional |
 | **size**                  | `term, geohash`                     | optional |
+| **include**               | `term`                              | optional |
+
 
 
 > Example: `agg=datehistogram:date:interval-20day:format-dd.MM.yyyy`&`agg=term:sexe:collect_field-age:collect_fct-avg:order-asc:on-result:size-5`
@@ -73,8 +75,9 @@ The sub-parameters possible values are:
 | **order**         | `asc,desc`                                      | Sorts the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation, ascending or descending. |
 | **on**            | `field,count,result` (3)                        | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
 | **size**          | {size}                                          | Defines how many buckets should be returned. |
-| **withGeoBBOX**   | Boolean (4)(5)                                  | When it's true : the geoaggregation geometry is the data extent (bbox) of each bucket. |
-| **withGeoBBOX**   | Boolean (4)(5)                                  | When it's true : the geoaggregation geometry is the centroid of each bucket. |
+| **include**       | Comma separated strings (4)                     | Specifies the values for which buckets will be created. |
+| **withGeoBBOX**   | Boolean (5)(6)                                  | When it's true : the geoaggregation geometry is the data extent (bbox) of each bucket. |
+| **withGeoCentroid**   | Boolean (5)(6)                              | When it's true : the geoaggregation geometry is the centroid of each bucket. |
 
 (1) Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
 
@@ -83,9 +86,11 @@ The metrics `geobbox` and `geocentroid` are returned as features collections.
 
 (3) When **on** is `result`, then (**collect_field**,**collect_fct**) should be specified. Except when **collect_fct** = `geobbox` or `geocentroid`, then **on**=`result` is prohibited .
 
-(4) If **withGeoCentroid** or **withGeoBBOX** are specified, the returned geometry is the one used in the geojson. **withGeoBBOX** wins over **withGeoCentroid**.
+(4) If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created.
 
-(5) If **withGeoCentroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics.
+(5) If **withGeoCentroid** or **withGeoBBOX** are specified, the returned geometry is the one used in the geojson. **withGeoBBOX** wins over **withGeoCentroid**.
+
+(6) If **withGeoCentroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics.
 
 | Service             | Aggregation type    | Interval                                 | Description                              |
 | ------------------- | ------------------- | ---------------------------------------- | ---------------------------------------- |
