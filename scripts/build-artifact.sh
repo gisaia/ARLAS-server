@@ -66,6 +66,7 @@ docker run -ti -d \
 	--name arlas-server \
 	-p 29999:9999 \
 	--link elasticsearch:elasticsearch \
+  -e "ARLAS_ELASTIC_CLUSTER=docker-cluster" \
 	arlas-server:${VERSION}
 echo "===> wait for arlas-server"
 docker run --link arlas-server:arlas-server --rm busybox sh -c 'i=1; until nc -w 2 arlas-server 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
