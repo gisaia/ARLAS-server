@@ -34,6 +34,7 @@ import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoHashUtils;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.InternalAggregation;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 
 import io.arlas.server.app.ArlasServerConfiguration;
@@ -211,7 +212,7 @@ public class ExploreServices {
                         aggregationMetric.type = subAggregation.getName();
                         if (!aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase()) && !aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase())
                                 && !aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase() + "-bucket") && !aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase() + "-bucket")) {
-                            aggregationMetric.value = (Double)subAggregation.getProperty("value");
+                            aggregationMetric.value = (((InternalAggregation)subAggregation).getProperty("value"));
                         } else {
                             FeatureCollection fc = new FeatureCollection();
                             Feature feature = new Feature();

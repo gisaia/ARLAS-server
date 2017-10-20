@@ -240,7 +240,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 checkIndexMappingFields(collectionRefParams, fields.toArray(new String[fields.size()]));
         } catch (IndexNotFoundException e) {
             throw new NotFoundException("Index "+collectionRefParams.indexName+" does not exist.");
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new NotFoundException("Unable to access "+collectionRefParams.typeName+" in "+collectionRefParams.indexName+".");
         }
     }

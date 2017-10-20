@@ -19,21 +19,20 @@
 
 package io.arlas.server.core;
 
-import java.io.IOException;
-import java.util.*;
-
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
-
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.common.collect.ImmutableOpenMap;
+
+import java.io.IOException;
+import java.util.*;
 
 public class ElasticAdmin {
 
@@ -94,12 +93,10 @@ public class ElasticAdmin {
     
     public List<CollectionReferenceDescription> getAllIndecesAsCollections() throws IOException {
         List<CollectionReferenceDescription> collections = new ArrayList<CollectionReferenceDescription>();
-        ImmutableOpenMap<String, IndexMetaData> indices = client.admin().cluster()
-                .prepareState().get().getState()
-                .getMetaData().getIndices();
+        ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> indices = client.admin().indices().getMappings(new GetMappingsRequest()).actionGet().getMappings();
         for(Iterator<String> indexNames = indices.keysIt(); indexNames.hasNext();) {
             String indexName = indexNames.next();
-            ImmutableOpenMap<String, MappingMetaData> mappings = indices.get(indexName).getMappings();
+            ImmutableOpenMap<String, MappingMetaData> mappings = indices.get(indexName);
             for(Iterator<String> mappingNames = mappings.keysIt(); mappingNames.hasNext();) {
                 String mappingName = mappingNames.next();
                 CollectionReference collection = new CollectionReference();
