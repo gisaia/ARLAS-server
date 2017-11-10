@@ -20,5 +20,5 @@
 package io.arlas.server.model.request;
 
 public enum OperatorEnum {
-    eq, gte, gt, lte, lt, like, ne
+    eq, gte, gt, lte, lt, like, ne, range
 }

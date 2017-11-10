@@ -134,6 +134,26 @@ public class SearchServiceIT extends AbstractSortedTest {
     }
 
     @Override
+    protected void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end, int size) throws Exception {
+        then.statusCode(200)
+        .body("totalnb", equalTo(size))
+        .body("hits.data.params.startdate", everyItem(greaterThan(start)))
+        .body("hits.data.params.startdate", everyItem(lessThan(end)));
+    }
+
+    @Override
+    protected void handleMatchingStringRangeFilter(ValidatableResponse then, String start, String end, int size) throws Exception {
+        then.statusCode(200)
+        .body("totalnb", equalTo(size))
+        .body("hits.data.params.job", everyItem(greaterThan(start)))
+        .body("hits.data.params.job", everyItem(lessThan(end)));
+    }
+
+    @Override
+    protected void handleMatchingNumericRangeFilter(ValidatableResponse then, float start, float end, int size) throws Exception {
+    }
+
+    @Override
     protected void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception {
         then.statusCode(200)
         .body("totalnb", equalTo(1))

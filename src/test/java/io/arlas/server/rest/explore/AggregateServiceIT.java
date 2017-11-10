@@ -253,6 +253,22 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
         then.statusCode(200)
         .body("elements.size()", equalTo(2));
     }
+
+    @Override
+    protected void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end, int size) throws Exception {
+        then.statusCode(200)
+        .body("elements.size()", equalTo(size));
+    }
+
+    @Override
+    protected void handleMatchingStringRangeFilter(ValidatableResponse then, String start, String end, int size) throws Exception {
+        then.statusCode(200)
+        .body("elements.size()", equalTo(size));
+    }
+
+    @Override
+    protected void handleMatchingNumericRangeFilter(ValidatableResponse then, float start, float end, int size) throws Exception {
+    }
     
     @Override
     protected void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception {

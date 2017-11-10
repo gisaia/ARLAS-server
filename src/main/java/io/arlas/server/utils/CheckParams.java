@@ -114,6 +114,14 @@ public class CheckParams {
         }
     }
 
+    public static void checkRangeValidity(String range) throws ArlasException {
+        if((range.isEmpty() || !(range.startsWith("[") || range.startsWith("]")) ||
+                        !(range.endsWith("[") || range.endsWith("]")) ||
+                        !(range.contains(";")))) {
+            throw new java.security.InvalidParameterException(FluidSearch.INVALID_PARAMETER_F);
+        }
+    }
+
 
     public static Boolean isPolygon(Geometry geometry) {
         String geometryType = geometry.getGeometryType().toUpperCase();

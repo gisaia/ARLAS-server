@@ -20,7 +20,7 @@
 package io.arlas.server.rest.explore;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
@@ -104,6 +104,20 @@ public class CountServiceIT extends AbstractFilteredTest {
     @Override
     protected void handleMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception {
         handleMatchingFilter(then,2);
+    }
+
+    @Override
+    protected void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end, int size) throws Exception {
+        handleMatchingFilter(then,size);
+    }
+
+    @Override
+    protected void handleMatchingStringRangeFilter(ValidatableResponse then, String start, String end, int size) throws Exception {
+        handleMatchingFilter(then,size);
+    }
+
+    @Override
+    protected void handleMatchingNumericRangeFilter(ValidatableResponse then, float start, float end, int size) throws Exception {
     }
     
     @Override

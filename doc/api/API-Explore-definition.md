@@ -127,10 +127,8 @@ The `filter` url part allows the following parameters to be specified:
 
 | Parameter         | Default value | Values                         | Description                              | Multiple |
 | ----------------- | ------------- | ------------------------------ | ---------------------------------------- | -------- |
-| **f**             | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **`:eq:`** filter, values can be comma separated (field`:eq:`v1,v2) which stands for an **OR**. For the **`:ne:`**  filter, values can be comma separated (field`:ne:`v1,v2) which stands for an **AND** | true     |
-| **q**             | None          | `{text}` or `{fieldname}:{text}` | A full text search. Optionally, it's possible to search the text on a specific field                       | false    |
-| **before**        | None          | timestamp                      | Any element having its point in time reference before the given timestamp | false    |
-| **after**         | None          | timestamp                      | Any element having its point in time reference after the given timestamp | false    |
+| **f**             | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **`:eq:`** and **`:range:`** filters, values can be comma separated (field`:eq:`v1,v2) which stands for an **OR**. For the **`:ne:`**  filter, values can be comma separated (field`:ne:`v1,v2) which stands for an **AND** | true     |
+| **q**             | None          | `{text}` or `{fieldname}:{text}` | A full text search. Optionally, it's possible to search the text on a specific field                       | false    |                     | Any element having its point in time reference after the given timestamp | false    |
 | **pwithin**       | None          | geometry                       | Any element having its centroid contained within the given BBOX : `top, left, bottom, right`| false    |
 | **gwithin**       | None          | geometry                       | Any element having its geometry contained within the given geometry | false    |
 | **gintersect**    | None          | geometry                       | Any element having its geometry intersecting the given geometry (WKT) | false    |
@@ -139,18 +137,31 @@ The `filter` url part allows the following parameters to be specified:
 | **notgintersect** | None          | geometry                       | Any element having its geometry not intersecting the given geometry (WKT) | false    |
 
 
+| Operator      | Description                                                                                                         | Value type         |
+| ------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| **`:eq:`**    | `{fieldName}` equals `{comma separated values}`. **OR** operation is applied for the specified values               | numeric or strings |
+| **`:ne:`**    | `{fieldName}` must not equal `{comma separated values }`. **AND** operation is applied for the specified values     | numeric or strings |
+| **`:like:`**  | `{fieldName}` is like `{value}`.                                                                                    | numeric or strings |
+| **`:gte:`**   | `{fieldName}` is greater than or equal to `{value}`                                                                 | numeric            |
+| **`:gt:`**    | `{fieldName}` is greater than `{value}`                                                                             | numeric            |
+| **`:lte:`**   | `{fieldName}` is less than or equal to `{value}`                                                                    | numeric            |
+| **`:lt:`**    | `{fieldName}` is less than `{value}`                                                                                | numeric            |
+| **`:range:`** | `{fieldName}` is between `{comma separated [min-max] values}`. **OR** operation is applied for the specified ranges | numeric or strings |
 
-| Operator     | Description                                         | Value type         |
-| -----------  | --------------------------------------------------- | ------------------ |
-| **`:eq:`**      | `{fieldName}` equals `{comma separated values}`. **OR** operation is applied for the specified values | numeric or strings |
-| **`:ne:`**   | `{fieldName}` must not equal `{comma separated values }`. **AND** operation is applied for the specified values | numeric or strings |
-| **`:like:`** | `{fieldName}` is like `{value}`.                    | numeric or strings |
-| **`:gte:`**  | `{fieldName}` is greater than or equal to `{value}` | numeric            |
-| **`:gt:`**   | `{fieldName}` is greater than `{value}`             | numeric            |
-| **`:lte:`**  | `{fieldName}` is less than or equal to `{value}`    | numeric            |
-| **`:lt:`**   | `{fieldName}` is less than `{value}`                | numeric            |
+The `:range:` operator has a specific syntax to indicates if range bounds are taken into account or not.
 
-> Example: `f=city:eq:Toulouse`&`f=city:eq:Bordeaux&after=1490613808&`
+| Range operator syntax             | Meaning                    |
+| --------------------------------- | -------------------------- |
+| `x:range:]min;max[`               | min<x<max                  |
+| `x:range:[min;max]`               | min<=x<=max                |
+| `x:range:]min;max]`               | min<x<=max                 |
+| `x:range:[min;max[`               | min<=x<max                 |
+| `x:range:]min1;max1[,]min2;max2[` | min1<x<max1 OR min2<x<max2 |
+
+On top of that, `:range:` operator supports generic aliases to represent collection configured fields :
+* `$timestamp` refers to collection's timestamp field.
+
+> Example: `f=city:eq:Toulouse&f=city:eq:Bordeaux&f=$timestamp:range:[0;1490613808]`
 
 ### Partition filtering
 
