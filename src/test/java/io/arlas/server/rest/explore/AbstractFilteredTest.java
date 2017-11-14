@@ -152,6 +152,68 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.after = null;
         request.filter.before = null;
     }
+
+    @Test
+    public void testRangeFilter() throws Exception {
+
+        // TIMESTAMP RANGE
+
+        request.filter.f = Arrays.asList(new Expression("params.startdate", OperatorEnum.range, "[0;775000]"));
+        handleMatchingTimestampRangeFilter(post(request), 0, 775000, 3);
+        handleMatchingTimestampRangeFilter(get("f", request.filter.f.get(0).toString()), 0, 775000, 3);
+        handleMatchingTimestampRangeFilter(header(request.filter), 0, 775000, 3);
+
+        //ALIAS
+        request.filter.f = Arrays.asList(new Expression("$timestamp", OperatorEnum.range, "[0;775000]"));
+        handleMatchingTimestampRangeFilter(post(request), 0, 775000, 3);
+        handleMatchingTimestampRangeFilter(get("f", request.filter.f.get(0).toString()), 0, 775000, 3);
+        handleMatchingTimestampRangeFilter(header(request.filter), 0, 775000, 3);
+
+        request.filter.f = Arrays.asList(new Expression("$timestamp", OperatorEnum.range, "[770000;775000]"));
+        handleMatchingTimestampRangeFilter(post(request), 770000, 775000, 2);
+        handleMatchingTimestampRangeFilter(get("f", request.filter.f.get(0).toString()), 770000, 775000, 2);
+        handleMatchingTimestampRangeFilter(header(request.filter), 770000, 775000, 2);
+
+        //MULTIRANGE
+        request.filter.f = Arrays.asList(new Expression("$timestamp", OperatorEnum.range, "[0;765000],[770000;775000]"));
+        handleMatchingTimestampRangeFilter(post(request), 0, 775000, 3);
+        handleMatchingTimestampRangeFilter(get("f", request.filter.f.get(0).toString()), 0, 775000, 3);
+        handleMatchingTimestampRangeFilter(header(request.filter), 0, 775000, 3);
+
+        request.filter.f = Arrays.asList(new Expression("params.startdate", OperatorEnum.range, "[1270000;1283600]"));
+        handleNotMatchingRange(post(request));
+        handleNotMatchingRange(get("f", request.filter.f.get(0).toString()));
+        handleNotMatchingRange(header(request.filter));
+
+        request.filter.f = Arrays.asList(new Expression("params.startdate", OperatorEnum.range, "[765000;770000],[1270000;1283600]"));
+        handleNotMatchingRange(post(request));
+        handleNotMatchingRange(get("f", request.filter.f.get(0).toString()));
+        handleNotMatchingRange(header(request.filter));
+
+        // TEXT RANGE
+
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.range, "[Ac;An]"));
+        handleMatchingStringRangeFilter(post(request), "Ac", "An", 59);
+        handleMatchingStringRangeFilter(get("f", request.filter.f.get(0).toString()), "Ac", "An", 59);
+        handleMatchingStringRangeFilter(header(request.filter), "Ac", "An", 59);
+
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.range, "[Coa;Cod]"));
+        handleMatchingStringRangeFilter(post(request), "Coa", "Cod", 58);
+        handleMatchingStringRangeFilter(get("f", request.filter.f.get(0).toString()), "Coa", "Cod", 58);
+        handleMatchingStringRangeFilter(header(request.filter), "Coa", "Cod", 58);
+
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.range, "[Coa;Cod],[Ac;An]"));
+        handleMatchingStringRangeFilter(post(request), "Ac", "Cod", 117);
+        handleMatchingStringRangeFilter(get("f", request.filter.f.get(0).toString()), "Ac", "Cod", 117);
+        handleMatchingStringRangeFilter(header(request.filter), "Ac", "Cod", 117);
+
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.range, "[X;Z]"));
+        handleNotMatchingRange(post(request));
+        handleNotMatchingRange(get("f", request.filter.f.get(0).toString()));
+        handleNotMatchingRange(header(request.filter));
+
+        request.filter.f = null;
+    }
     
     @Test
     public void testPwithinFilter() throws Exception {
@@ -409,6 +471,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleInvalidParameters(header(request.filter));
         request.filter.f = null;
 
+        request.filter.f = Arrays.asList(new Expression("params.startdate", OperatorEnum.range, "[0;775000],"));//);
+        handleInvalidParameters(post(request));
+        handleInvalidParameters(get("f", request.filter.f.get(0).toString()));
+        handleInvalidParameters(header(request.filter));
+        request.filter.f = null;
+
         //Q
         request.filter.q = "fullname:My:name";
         handleInvalidParameters(post(request));
@@ -546,7 +614,14 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     protected abstract void handleMatchingBeforeFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingAfterFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception;
-    
+
+    protected abstract void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end,
+                                                               int size) throws Exception;
+    protected abstract void handleMatchingNumericRangeFilter(ValidatableResponse then, float start, float end,
+                                                             int size) throws Exception;
+    protected abstract void handleMatchingStringRangeFilter(ValidatableResponse then, String start, String end,
+                                                            int size) throws Exception;
+
     protected abstract void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception;
     protected abstract void handleMatchingNotPwithinFilter(ValidatableResponse then) throws Exception;
     protected abstract void handleMatchingPwithinComboFilter(ValidatableResponse then) throws Exception;
@@ -574,6 +649,10 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     }
     
     protected void handleNotMatchingBeforeFilter(ValidatableResponse then) throws Exception {
+        handleNotMatchingRequest(then);
+    }
+
+    protected void handleNotMatchingRange(ValidatableResponse then) throws Exception {
         handleNotMatchingRequest(then);
     }
 

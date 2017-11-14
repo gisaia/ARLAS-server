@@ -125,6 +125,25 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
         .body("features.properties.params.startdate", everyItem(greaterThan(770000)))
         .body("features.properties.params.startdate", everyItem(lessThan(775000)));
     }
+
+    @Override
+    protected void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end, int size) throws Exception {
+        then.statusCode(200)
+        .body("features.size()", equalTo(size))
+        .body("features.properties.params.startdate", everyItem(greaterThan(start)))
+        .body("features.properties.params.startdate", everyItem(lessThan(end)));
+    }
+
+    @Override
+    protected void handleMatchingStringRangeFilter(ValidatableResponse then, String start, String end, int size) throws Exception {
+        then.statusCode(200)
+        .body("features.properties.params.job", everyItem(greaterThan(start)))
+        .body("features.properties.params.job", everyItem(lessThan(end)));
+    }
+
+    @Override
+    protected void handleMatchingNumericRangeFilter(ValidatableResponse then, float start, float end, int size) throws Exception {
+    }
     
     @Override
     protected void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception {

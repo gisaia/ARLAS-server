@@ -35,6 +35,7 @@ import org.elasticsearch.common.geo.builders.*;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoGridAggregationBuilder;
@@ -72,6 +73,7 @@ import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 public class FluidSearch {
 
     public static final String INVALID_FILTER = "Invalid filter parameter.";
+    public static final String INVALID_FILTER_TYPE = "Invalid filter : Filter values must be numeric.";
     public static final String INVALID_PARAMETER_F = "Parameter f does not respect operation expression. ";
     public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'eq', gte', 'gt', 'lte', 'lt', 'like' or 'ne'. ";
     public static final String INVALID_Q_FILTER = "Invalid parameter. Please specify the text to search directly or '{fieldname}:{text to search}'. ";
@@ -85,6 +87,8 @@ public class FluidSearch {
     public static final String INVALID_ORDER_VALUE = "Invalid 'on-' value ";
     public static final String INVALID_GEOSORT_LAT_LON = "'lat lon' must be numeric values separated by a space";
     public static final String INVALID_GEOSORT_LABEL = "To sort by geo_distance, please specifiy the point, from which the distances are calculated, as following 'geodistance:lat lon'";
+    public static final String INVALID_TIMESTAMP_RANGE = "Timestamp range values must be numbers.";
+    public static final String INCOHERENT_RANGE_VALUES_TYPES = "Range values must have the same types.";
     public static final String DATEHISTOGRAM_AGG = "Datehistogram aggregation";
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
@@ -102,6 +106,7 @@ public class FluidSearch {
     public static final String COLLECT_FCT_NOT_SPECIFIED = "The aggregation function 'collect_fct' is not specified.";
     public static final String COLLECT_FIELD_NOT_SPECIFIED = "The aggregation field 'collect_field' is not specified.";
     public static final String BAD_COLLECT_FIELD_FOR_GEO_METRICS = "For GeoBBOX and GeoCentroid, 'collect_field' should be the centroid path";
+    public static final String BAD_FIELD_ALIAS = "This alias does not represent a collection configured field. ";
     public static final String NOT_SUPPORTED_BBOX_INTERSECTION = "Unsupported case : pwithin bbox intersects the tile/geohash twice.";
     public static final String ORDER_NOT_SPECIFIED = "'order-' is not specified.";
     public static final String ON_NOT_SPECIFIED = "'on-' is not specified.";
@@ -109,6 +114,8 @@ public class FluidSearch {
     public static final String ORDER_ON_RESULT_NOT_ALLOWED = "'on-result' sorts 'collect_field' and 'collect_fct' results. Please specify 'collect_field' and 'collect_fct'.";
     public static final String ORDER_ON_GEO_RESULT_NOT_ALLOWED = "Ordering on 'result' is not allowed for geo-box neither geo-centroid metric aggregation. ";
     public static final String SIZE_NOT_IMPLEMENTED = "Size is not implemented for geohash.";
+    public static final String RANGE_ALIASES_CHARACTER = "$";
+    public static final String TIMESTAMP_ALIAS = "timestamp";
 
     private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
 
@@ -171,7 +178,7 @@ public class FluidSearch {
 
     public FluidSearch filter(List<Expression> expressions) throws ArlasException {
         for (Expression expression : expressions) {
-            if (Strings.isNullOrEmpty(expression.field) || expression.op == null ||Strings.isNullOrEmpty(expression.value)) {
+            if (Strings.isNullOrEmpty(expression.field) || expression.op == null || Strings.isNullOrEmpty(expression.value)) {
                 throw new InvalidParameterException(INVALID_PARAMETER_F);
             }
             String field = expression.field;
@@ -217,12 +224,67 @@ public class FluidSearch {
                                 .mustNot(QueryBuilders.matchQuery(field, valueInValues));
                     }
                     break;
+                case range:
+                    field = getFieldFromFieldAliases(field);
+                    if (fieldValues.length > 1) {
+                        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+                        for (String valueInValues : fieldValues) {
+                            CheckParams.checkRangeValidity(valueInValues);
+                            orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(field, valueInValues));
+                        }
+                        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
+                    } else {
+                        CheckParams.checkRangeValidity(value);
+                        boolQueryBuilder = boolQueryBuilder.filter(getRangeQueryBuilder(field, value));
+                    }
+                    break;
                 default:
                     throw new InvalidParameterException(INVALID_OPERATOR);
             }
-
         }
         return this;
+    }
+
+    public String getFieldFromFieldAliases(String fieldAlias) throws ArlasException {
+        boolean isAlias = fieldAlias.startsWith(RANGE_ALIASES_CHARACTER);
+        if(isAlias) {
+            String alias = fieldAlias.substring(1, fieldAlias.length());
+            if(alias.equals(TIMESTAMP_ALIAS)) {
+                return collectionReference.params.timestampPath;
+            } else {
+                throw new BadRequestException(BAD_FIELD_ALIAS);
+            }
+        } else {
+            return fieldAlias;
+        }
+    }
+
+    public RangeQueryBuilder getRangeQueryBuilder(String field, String value) throws ArlasException {
+        boolean incMin = value.startsWith("[");
+        boolean incMax = value.endsWith("]");
+        Object min = value.substring(1,value.lastIndexOf(";"));
+        Object max = value.substring(value.lastIndexOf(";")+1,value.length()-1);
+        if (field.equals(collectionReference.params.timestampPath)) {
+            try {
+                min = Long.parseLong((String)min);
+                max = Long.parseLong((String)max);
+                ParamsParser.formatRangeValues((Long)min, (Long)max, collectionReference);
+            }catch (NumberFormatException e){
+                throw new InvalidParameterException(INVALID_TIMESTAMP_RANGE);
+            }
+        }
+        RangeQueryBuilder ret = QueryBuilders.rangeQuery(field);
+        if(incMin) {
+            ret = ret.gte(min);
+        } else {
+            ret = ret.gt(min);
+        }
+        if(incMax) {
+            ret = ret.lte(max);
+        } else {
+            ret = ret.lt(max);
+        }
+        return ret;
     }
 
     public FluidSearch filterQ(String q) throws ArlasException {

@@ -24,6 +24,7 @@ import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
 import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 import io.dropwizard.jersey.params.IntParam;
@@ -229,6 +230,13 @@ public class ParamsParser {
         } else throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
     }
 
+    public static void formatRangeValues(Long min, Long max, CollectionReference collectionReference) {
+        String format = collectionReference.params.custom_params.get(CollectionReference.TIMESTAMP_FORMAT);
+        TimestampTypeMapper.formatDate(min, format);
+        TimestampTypeMapper.formatDate(max, format);
+    }
+
+
     private static Integer tryParseInteger(String text) {
         try {
             return Integer.parseInt(text);
@@ -244,4 +252,5 @@ public class ParamsParser {
             return null;
         }
     }
+
 }
