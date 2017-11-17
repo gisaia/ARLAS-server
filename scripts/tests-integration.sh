@@ -30,7 +30,7 @@ usage(){
 	exit 1
 }
 
-ES_VERSION="5.5.1"
+ES_VERSION="5.6.3"
 for i in "$@"
 do
 case $i in

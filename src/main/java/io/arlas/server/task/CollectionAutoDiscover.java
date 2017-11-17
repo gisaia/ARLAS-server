@@ -19,29 +19,26 @@
 
 package io.arlas.server.task;
 
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import io.arlas.server.exceptions.ArlasConfigurationException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.utils.MapExplorer;
-import org.elasticsearch.client.transport.TransportClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableMultimap;
-
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.CollectionAutoDiscoverConfiguration;
 import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
+import io.arlas.server.exceptions.ArlasConfigurationException;
+import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
-import io.arlas.server.rest.collections.CollectionRESTServices;
+import io.arlas.server.utils.MapExplorer;
 import io.dropwizard.servlets.tasks.Task;
+import org.elasticsearch.client.transport.TransportClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class CollectionAutoDiscover extends Task implements Runnable {
     
