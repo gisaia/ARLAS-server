@@ -20,6 +20,7 @@
 package io.arlas.server.rest;
 
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.cluster.block.ClusterBlockException;
 import org.slf4j.Logger;
@@ -36,6 +37,8 @@ public class ElasticsearchExceptionMapper implements ExceptionMapper<Elasticsear
         logger.error("Error occurred", e);
         if(e instanceof NoNodeAvailableException || e instanceof ClusterBlockException)
             return ResponseFormatter.getErrorResponse(e, Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        else if(e instanceof SearchPhaseExecutionException)
+            return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST, e.getCause().getMessage());
         else
             return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST, e.getMessage());
     }
