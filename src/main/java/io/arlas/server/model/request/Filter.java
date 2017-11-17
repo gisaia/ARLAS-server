@@ -24,8 +24,6 @@ import java.util.List;
 public class Filter {
     public List<Expression> f;
     public String q;
-    public Long before;
-    public Long after;
     public String pwithin;
     public String gwithin;
     public String gintersect;

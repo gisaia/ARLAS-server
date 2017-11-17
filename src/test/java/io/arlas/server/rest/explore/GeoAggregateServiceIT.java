@@ -236,24 +236,6 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
     
     @Override
-    protected void handleMatchingBeforeFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(3));
-    }
-
-    @Override
-    protected void handleMatchingAfterFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(3));
-    }
-
-    @Override
-    protected void handleMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(2));
-    }
-
-    @Override
     protected void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end, int size) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(size));
@@ -263,10 +245,6 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     protected void handleMatchingStringRangeFilter(ValidatableResponse then, String start, String end, int size) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(size));
-    }
-
-    @Override
-    protected void handleMatchingNumericRangeFilter(ValidatableResponse then, float start, float end, int size) throws Exception {
     }
     
     @Override

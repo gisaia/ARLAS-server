@@ -92,18 +92,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "q") String q,
 
-            @ApiParam(name = "before", value = Documentation.FILTER_PARAM_BEFORE,
-                    allowMultiple = false,
-                    type = "integer",
-                    required = false)
-            @QueryParam(value = "before") LongParam before,
-
-            @ApiParam(name = "after", value = Documentation.FILTER_PARAM_AFTER,
-                    allowMultiple = false,
-                    type = "integer",
-                    required = false)
-            @QueryParam(value = "after") LongParam after,
-
             @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
                     allowMultiple = true,
                     required = false)
@@ -205,7 +193,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         }
 
         Search search = new Search();
-        search.filter = ParamsParser.getFilter(f, q, before, after, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect);
+        search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect);
         search.size = ParamsParser.getSize(size, from);
         search.sort = ParamsParser.getSort(sort);
         search.projection = ParamsParser.getProjection(include,exclude);
@@ -273,18 +261,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     allowMultiple = false,
                     required = false)
             @QueryParam(value = "q") String q,
-
-            @ApiParam(name = "before", value = Documentation.FILTER_PARAM_BEFORE,
-                    allowMultiple = false,
-                    type = "integer",
-                    required = false)
-            @QueryParam(value = "before") LongParam before,
-
-            @ApiParam(name = "after", value = Documentation.FILTER_PARAM_AFTER,
-                    allowMultiple = false,
-                    type = "integer",
-                    required = false)
-            @QueryParam(value = "after") LongParam after,
 
             @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
                     allowMultiple = true,
@@ -390,8 +366,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     collection,
                     f,
                     q,
-                    before,
-                    after,
                     pwithin,
                     gwithin,
                     gintersect,

@@ -96,18 +96,6 @@ public class AggregateRESTService extends ExploreRESTServices {
                     required=false)
             @QueryParam(value="q") String q,
 
-            @ApiParam(name ="before", value=Documentation.FILTER_PARAM_BEFORE,
-                    allowMultiple = false,
-                    type = "integer",
-                    required=false)
-            @QueryParam(value="before") LongParam before,
-
-            @ApiParam(name ="after", value=Documentation.FILTER_PARAM_AFTER,
-                    allowMultiple = false,
-                    type = "integer",
-                    required=false)
-            @QueryParam(value="after") LongParam after,
-
             @ApiParam(name ="pwithin", value=Documentation.FILTER_PARAM_PWITHIN,
                     allowMultiple = true,
                     required=false)
@@ -163,7 +151,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
-        aggregationsRequest.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
+        aggregationsRequest.filter = ParamsParser.getFilter(f,q,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);

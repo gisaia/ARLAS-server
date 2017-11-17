@@ -90,21 +90,6 @@ public class CountServiceIT extends AbstractFilteredTest {
     protected void handleMatchingQueryFilter(ValidatableResponse then) throws Exception {
         handleMatchingFilter(then,595); 
     }
-    
-    @Override
-    protected void handleMatchingBeforeFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,3);
-    }
-
-    @Override
-    protected void handleMatchingAfterFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,3);
-    }
-
-    @Override
-    protected void handleMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,2);
-    }
 
     @Override
     protected void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end, int size) throws Exception {
@@ -114,10 +99,6 @@ public class CountServiceIT extends AbstractFilteredTest {
     @Override
     protected void handleMatchingStringRangeFilter(ValidatableResponse then, String start, String end, int size) throws Exception {
         handleMatchingFilter(then,size);
-    }
-
-    @Override
-    protected void handleMatchingNumericRangeFilter(ValidatableResponse then, float start, float end, int size) throws Exception {
     }
     
     @Override

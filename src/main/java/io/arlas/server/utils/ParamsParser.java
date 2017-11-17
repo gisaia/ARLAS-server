@@ -147,7 +147,7 @@ public class ParamsParser {
         }
     }
 
-    public static Filter getFilter(List<String> filters, String q, LongParam before, LongParam after, String pwithin, String gwithin, String gintersect, String notpwithin, String notgwithin, String notgintersect) throws ArlasException {
+    public static Filter getFilter(List<String> filters, String q, String pwithin, String gwithin, String gintersect, String notpwithin, String notgwithin, String notgintersect) throws ArlasException {
         Filter filter = new Filter();
         filter.f = new ArrayList<>();
 
@@ -161,12 +161,6 @@ public class ParamsParser {
             }
         }
         filter.q = q;
-        if (after != null) {
-            filter.after = after.get();
-        }
-        if (before != null) {
-            filter.before = before.get();
-        }
         filter.pwithin = pwithin;
         filter.gwithin = gwithin;
         filter.gintersect = gintersect;

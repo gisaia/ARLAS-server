@@ -73,13 +73,11 @@ import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 public class FluidSearch {
 
     public static final String INVALID_FILTER = "Invalid filter parameter.";
-    public static final String INVALID_FILTER_TYPE = "Invalid filter : Filter values must be numeric.";
     public static final String INVALID_PARAMETER_F = "Parameter f does not respect operation expression. ";
     public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'eq', gte', 'gt', 'lte', 'lt', 'like' or 'ne'. ";
     public static final String INVALID_Q_FILTER = "Invalid parameter. Please specify the text to search directly or '{fieldname}:{text to search}'. ";
     public static final String INVALID_WKT = "Invalid WKT geometry.";
     public static final String INVALID_BBOX = "Invalid BBOX";
-    public static final String INVALID_BEFORE_AFTER = "Invalid date parameters : before and after must be positive and before must be greater than after.";
     public static final String INVALID_SIZE = "Invalid size parameter.";
     public static final String INVALID_FROM = "Invalid from parameter.";
     public static final String INVALID_DATE_UNIT = "Invalid date unit.";
@@ -88,7 +86,6 @@ public class FluidSearch {
     public static final String INVALID_GEOSORT_LAT_LON = "'lat lon' must be numeric values separated by a space";
     public static final String INVALID_GEOSORT_LABEL = "To sort by geo_distance, please specifiy the point, from which the distances are calculated, as following 'geodistance:lat lon'";
     public static final String INVALID_TIMESTAMP_RANGE = "Timestamp range values must be numbers.";
-    public static final String INCOHERENT_RANGE_VALUES_TYPES = "Range values must have the same types.";
     public static final String DATEHISTOGRAM_AGG = "Datehistogram aggregation";
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
@@ -298,24 +295,6 @@ public class FluidSearch {
         } else {
             throw new InvalidParameterException(INVALID_Q_FILTER);
         }
-        return this;
-    }
-
-    public FluidSearch filterAfter(Long after) {
-        boolQueryBuilder = boolQueryBuilder
-                .filter(QueryBuilders.rangeQuery(collectionReference.params.timestampPath).gte(after));
-        return this;
-    }
-
-    public FluidSearch filterBefore(Long before) {
-        boolQueryBuilder = boolQueryBuilder
-                .filter(QueryBuilders.rangeQuery(collectionReference.params.timestampPath).lte(before));
-        return this;
-    }
-
-    public FluidSearch filterAfterBefore(Long after, Long before) {
-        boolQueryBuilder = boolQueryBuilder
-                .filter(QueryBuilders.rangeQuery(collectionReference.params.timestampPath).gte(after).lte(before));
         return this;
     }
 
@@ -730,14 +709,6 @@ public class FluidSearch {
                 throw new NotAllowedException(ORDER_PARAM_NOT_ALLOWED);
             else
                 throw new BadRequestException(ORDER_NOT_SPECIFIED);
-        }
-    }
-
-    private Integer tryParse(String text) {
-        try {
-            return Integer.parseInt(text);
-        } catch (NumberFormatException e) {
-            return null;
         }
     }
 
