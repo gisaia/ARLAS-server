@@ -108,16 +108,6 @@ public class SuggestRESTService extends ExploreRESTServices {
                     required=false)
             @QueryParam(value="q") String q,
 
-            @ApiParam(name ="before", value="Any element having its point in time reference before the given timestamp",
-                    allowMultiple = false,
-                    required=false)
-            @QueryParam(value="before") Long before,
-
-            @ApiParam(name ="after", value="Any element having its point in time reference after the given timestamp",
-                    allowMultiple = false,
-                    required=false)
-            @QueryParam(value="after") Long after,
-
             @ApiParam(name ="pwithin", value="Any element having its centroid contained within the given geometry (WKT)",
                     allowMultiple = true,
                     required=false)

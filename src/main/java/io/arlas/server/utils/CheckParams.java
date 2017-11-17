@@ -55,11 +55,6 @@ public class CheckParams {
         }
     }
     public static void checkFilter (Filter filter) throws ArlasException{
-        if (filter.before != null || filter.after != null) {
-            if ((filter.before != null && filter.before < 0) || (filter.after != null && filter.after < 0)
-                    || (filter.before != null && filter.after != null && filter.before < filter.after))
-                throw new InvalidParameterException(FluidSearch.INVALID_BEFORE_AFTER);
-        }
         if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
             double[] tlbr = CheckParams.toDoubles(filter.pwithin);
             if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {

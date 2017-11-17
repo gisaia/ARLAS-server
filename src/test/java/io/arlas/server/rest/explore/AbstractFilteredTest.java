@@ -102,56 +102,6 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
         request.filter.q = null;
     }
-    
-    @Test
-    public void testAfterBeforeFilter() throws Exception {
-
-        //max 1 263 600
-        //min 763600
-        request.filter.before = 775000L;
-        handleMatchingBeforeFilter(post(request));
-        handleMatchingBeforeFilter(get("before",request.filter.before));
-        handleMatchingBeforeFilter(header(request.filter));
-
-        request.filter.before = 760000L;
-        handleNotMatchingBeforeFilter(post(request));
-        handleNotMatchingBeforeFilter(get("before",request.filter.before));
-        handleNotMatchingBeforeFilter(header(request.filter));
-
-        request.filter.before = null;
-        request.filter.after = 1250000L;
-        handleMatchingAfterFilter(post(request));
-        handleMatchingAfterFilter(get("after",request.filter.after));
-        handleMatchingAfterFilter(header(request.filter));
-
-        request.filter.after = 1270000L;
-        handleNotMatchingAfterFilter(post(request));
-        handleNotMatchingAfterFilter(get("after",request.filter.after));
-        handleNotMatchingAfterFilter(header(request.filter));
-
-        request.filter.after = 770000L;
-        request.filter.before = 775000L;
-        handleMatchingBeforeAfterFilter(post(request));
-        handleMatchingBeforeAfterFilter(
-                givenFilterableRequestParams().param("after", request.filter.after)
-                    .param("before", request.filter.before)
-                .when().get(getUrlPath("geodata"))
-                .then());
-        handleMatchingBeforeAfterFilter(header(request.filter));
-
-        request.filter.after = 765000L;
-        request.filter.before = 770000L;
-        handleNotMatchingBeforeAfterFilter(post(request));
-        handleNotMatchingBeforeAfterFilter(
-                givenFilterableRequestParams().param("after", request.filter.after)
-                    .param("before", request.filter.before)
-                .when().get(getUrlPath("geodata"))
-                .then());
-        handleNotMatchingBeforeAfterFilter(header(request.filter));
-
-        request.filter.after = null;
-        request.filter.before = null;
-    }
 
     @Test
     public void testRangeFilter() throws Exception {
@@ -191,7 +141,6 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleNotMatchingRange(header(request.filter));
 
         // TEXT RANGE
-
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.range, "[Ac;An]"));
         handleMatchingStringRangeFilter(post(request), "Ac", "An", 59);
         handleMatchingStringRangeFilter(get("f", request.filter.f.get(0).toString()), "Ac", "An", 59);
@@ -363,9 +312,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     
     @Test
     public void testComplexFilter() throws Exception {
-        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.like, "Architect"));//"job:eq:Architect");
-        request.filter.after = 1009799L;
-        request.filter.before = 1009801L;
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.like, "Architect"),//"job:eq:Architect"
+                new Expression("params.startdate", OperatorEnum.range, "[1009799;1009801]"));
         request.filter.pwithin = "50,-50,-50,50";
         request.filter.notpwithin = "50,20,-50,60";
         request.filter.gwithin = "POLYGON((30 30,30 -30,-30 -30,-30 30,30 30))";
@@ -375,8 +323,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleComplexFilter(post(request));
         handleComplexFilter(
                 givenFilterableRequestParams().param("f", request.filter.f.get(0).toString())
-                    .param("after", request.filter.after)
-                    .param("before", request.filter.before)
+                    .param("f","params.startdate:range:[1009799;1009801]")
                     .param("pwithin", request.filter.pwithin)
                     .param("notpwithin", request.filter.notpwithin)
                     .param("gwithin", request.filter.gwithin)
@@ -391,22 +338,22 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
     @Test
     public void testMixedFilter() throws Exception {
-        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, "Architect"));//"job:eq:Architect");
-        request.filter.after = 1009799L;
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, "Architect"),//"job:eq:Architect"
+                new Expression("params.startdate", OperatorEnum.range, "[1009799;2000000]"));
         request.filter.pwithin = "50,-50,-50,50";
         request.filter.gwithin = "POLYGON((30 30,30 -30,-30 -30,-30 30,30 30))";
         request.filter.gintersect = "POLYGON((-20 20, 20 20, 20 -20, -20 -20, -20 20))";
 
         Filter filterHeader = new Filter();
-        filterHeader.before = 1009801L;
+        filterHeader.f = Arrays.asList(new Expression("params.startdate", OperatorEnum.range, "[0;1009801]"));
         filterHeader.notpwithin = "50,20,-50,60";
         filterHeader.notgwithin = "POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))";
         filterHeader.notgintersect = "POLYGON((-30 -10,30 10, 30 -30, -30 -30,-30 -10))";
         handleComplexFilter(
                 givenFilterableRequestParams()
                         .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
-                        .param("f", (new Expression("params.job", OperatorEnum.eq, "Architect")).toString())
-                        .param("after", request.filter.after)
+                        .param("f", new Expression("params.job", OperatorEnum.eq, "Architect").toString())
+                        .param("f", new Expression("params.startdate", OperatorEnum.range, "[1009799;2000000]").toString())
                         .param("pwithin", request.filter.pwithin)
                         .param("gwithin", request.filter.gwithin)
                         .param("gintersect", request.filter.gintersect)
@@ -437,10 +384,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     //----------------------------------------------------------------
     @Test
     public void testNotFoundCollection() throws Exception {
-        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0]));//"job:eq:" + DataSetTool.jobs[0]);
-        // TODO : why was it doubled? : request.filter.f = Arrays.asList("job:eq:" + DataSetTool.jobs[0]);
-        request.filter.after = 1000000L;
-        request.filter.before = 2000000L;
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0]),//"job:eq:" + DataSetTool.jobs[0]
+                new Expression("params.startdate", OperatorEnum.range, "[1000000;2000000]"));
         request.filter.pwithin = "10,10,-10,-10";
         request.filter.notpwithin = "5,5,-5,-5";
         handleNotFoundCollection(
@@ -449,15 +394,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .then());
         handleNotFoundCollection(
                 givenFilterableRequestParams().param("f", request.filter.f)
-                    .param("after", request.filter.after)
-                    .param("before",  request.filter.before)
                     .param("pwithin",  request.filter.pwithin)
                     .param("notpwithin",  request.filter.notpwithin)
                 .when().get(getUrlPath("unknowncollection"))
                 .then());
         request.filter.f = null;
-        request.filter.after = null;
-        request.filter.before = null;
         request.filter.pwithin = null;
         request.filter.notpwithin = null;
     }
@@ -483,28 +424,6 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleInvalidParameters(get("q", request.filter.q));
         handleInvalidParameters(header(request.filter));
         request.filter.q = null;
-                
-        // BEFORE/AFTER
-        request.filter.after = 1200000l;
-        request.filter.before = 1000000L;
-        handleInvalidParameters(post(request));
-        handleInvalidParameters(header(request.filter));
-        handleInvalidParameters(
-                givenFilterableRequestParams().param("before", request.filter.before)
-                .param("after", request.filter.after)
-                .when().get(getUrlPath("geodata"))
-                .then());
-        request.filter.after = null;
-        request.filter.before = null;
-
-        handleInvalidParameters(
-                givenFilterableRequestParams().param("before", "foo")
-                .when().get(getUrlPath("geodata"))
-                .then());
-        handleInvalidParameters(
-                givenFilterableRequestParams().param("after", "foo")
-                .when().get(getUrlPath("geodata"))
-                .then());
         
         //PWITHIN
         request.filter.pwithin = "-5,-5,5,5";
@@ -610,15 +529,10 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
     
     protected abstract void handleMatchingQueryFilter(ValidatableResponse then) throws Exception;
-    
-    protected abstract void handleMatchingBeforeFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleMatchingAfterFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception;
+
 
     protected abstract void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end,
                                                                int size) throws Exception;
-    protected abstract void handleMatchingNumericRangeFilter(ValidatableResponse then, float start, float end,
-                                                             int size) throws Exception;
     protected abstract void handleMatchingStringRangeFilter(ValidatableResponse then, String start, String end,
                                                             int size) throws Exception;
 
@@ -647,20 +561,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     protected void handleNotMatchingQueryFilter(ValidatableResponse then) throws Exception {
         handleNotMatchingRequest(then);
     }
-    
-    protected void handleNotMatchingBeforeFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingRequest(then);
-    }
 
     protected void handleNotMatchingRange(ValidatableResponse then) throws Exception {
-        handleNotMatchingRequest(then);
-    }
-
-    protected void handleNotMatchingAfterFilter(ValidatableResponse then) throws Exception {
-        handleNotMatchingRequest(then);
-    }
-
-    protected void handleNotMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception {
         handleNotMatchingRequest(then);
     }
     

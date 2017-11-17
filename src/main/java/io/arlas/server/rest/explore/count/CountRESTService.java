@@ -83,18 +83,6 @@ public class CountRESTService extends ExploreRESTServices {
                     required=false)
             @QueryParam(value="q") String q,
 
-            @ApiParam(name ="before", value=Documentation.FILTER_PARAM_BEFORE,
-                    allowMultiple = false,
-                    type = "integer",
-                    required=false)
-            @QueryParam(value="before") LongParam before,
-
-            @ApiParam(name ="after", value=Documentation.FILTER_PARAM_AFTER,
-                    allowMultiple = false,
-                    type = "integer",
-                    required=false)
-            @QueryParam(value="after") LongParam after,
-
             @ApiParam(name ="pwithin", value=Documentation.FILTER_PARAM_PWITHIN,
                     allowMultiple = true,
                     required=false)
@@ -152,7 +140,7 @@ public class CountRESTService extends ExploreRESTServices {
         fluidSearch.setCollectionReference(collectionReference);
 
         Count count = new Count();
-        count.filter = ParamsParser.getFilter(f,q,before,after,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
+        count.filter = ParamsParser.getFilter(f,q,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
         MixedRequest request = new MixedRequest();
         request.basicRequest = count;
         Count countHeader = new Count();

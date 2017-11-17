@@ -112,28 +112,6 @@ public class SearchServiceIT extends AbstractSortedTest {
     }
 
     @Override
-    protected void handleMatchingBeforeFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(3))
-        .body("hits.data.params.startdate", everyItem(lessThan(775000)));
-    }
-
-    @Override
-    protected void handleMatchingAfterFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(3))
-        .body("hits.data.params.startdate", everyItem(greaterThan(1250000)));
-    }
-
-    @Override
-    protected void handleMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(2))
-        .body("hits.data.params.startdate", everyItem(greaterThan(770000)))
-        .body("hits.data.params.startdate", everyItem(lessThan(775000)));
-    }
-
-    @Override
     protected void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end, int size) throws Exception {
         then.statusCode(200)
         .body("totalnb", equalTo(size))
@@ -147,10 +125,6 @@ public class SearchServiceIT extends AbstractSortedTest {
         .body("totalnb", equalTo(size))
         .body("hits.data.params.job", everyItem(greaterThan(start)))
         .body("hits.data.params.job", everyItem(lessThan(end)));
-    }
-
-    @Override
-    protected void handleMatchingNumericRangeFilter(ValidatableResponse then, float start, float end, int size) throws Exception {
     }
 
     @Override

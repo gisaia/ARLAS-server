@@ -103,28 +103,6 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
         then.statusCode(200)
         .body("features.size()", equalTo(10));//get only default sized result array
     }
-    
-    @Override
-    protected void handleMatchingBeforeFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(3))
-        .body("features.properties.params.startdate", everyItem(lessThan(775000)));
-    }
-
-    @Override
-    protected void handleMatchingAfterFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(3))
-        .body("features.properties.params.startdate", everyItem(greaterThan(1250000)));
-    }
-
-    @Override
-    protected void handleMatchingBeforeAfterFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(2))
-        .body("features.properties.params.startdate", everyItem(greaterThan(770000)))
-        .body("features.properties.params.startdate", everyItem(lessThan(775000)));
-    }
 
     @Override
     protected void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end, int size) throws Exception {
@@ -139,10 +117,6 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
         then.statusCode(200)
         .body("features.properties.params.job", everyItem(greaterThan(start)))
         .body("features.properties.params.job", everyItem(lessThan(end)));
-    }
-
-    @Override
-    protected void handleMatchingNumericRangeFilter(ValidatableResponse then, float start, float end, int size) throws Exception {
     }
     
     @Override

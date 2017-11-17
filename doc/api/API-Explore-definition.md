@@ -26,8 +26,8 @@ When multiple collections are permitted ({collections}), the comma is used for s
 | https://api.gisaia.com/demo/arlas/explore/`_describe` |
 | https://api.gisaia.com/demo/arlas/explore/`city,state,country`/`_describe` |
 | https://api.gisaia.com/demo/arlas/explore/`city,state,country`/`_count`?`q=bord*`&`f=country:France`&`pretty=true`&`human=true` |
-| https://api.gisaia.com/demo/arlas/explore/`election`/`_search`?`f=country:France`&`after=1490613808`&`pretty=true`&`human=true`&`size=1000`&`include=id,name` |
-| https://api.gisaia.com/demo/arlas/explore/`election`/`_aggregate`?`f=country:France`&`after=1490613808`&`pretty=true`&`human=true`&`size=1000`&`include=id,name`&`agg=geohash`&`agg_interval=4` |
+| https://api.gisaia.com/demo/arlas/explore/`election`/`_search`?`f=country:France`&`f=$timestamp:range:[0;1490613808]`&`pretty=true`&`human=true`&`size=1000`&`include=id,name` |
+| https://api.gisaia.com/demo/arlas/explore/`election`/`_aggregate`?`f=country:France`&`f=$timestamp:range:[0;1490613808]`&`pretty=true`&`human=true`&`size=1000`&`include=id,name`&`agg=geohash`&`agg_interval=4` |
 
 All URLs are accessible both with GET and POST requests. For POST requests, URL parts are passed as a JSON representation.
 
@@ -128,13 +128,13 @@ The `filter` url part allows the following parameters to be specified:
 | Parameter         | Default value | Values                         | Description                              | Multiple |
 | ----------------- | ------------- | ------------------------------ | ---------------------------------------- | -------- |
 | **f**             | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **`:eq:`** and **`:range:`** filters, values can be comma separated (field`:eq:`v1,v2) which stands for an **OR**. For the **`:ne:`**  filter, values can be comma separated (field`:ne:`v1,v2) which stands for an **AND** | true     |
-| **q**             | None          | `{text}` or `{fieldname}:{text}` | A full text search. Optionally, it's possible to search the text on a specific field                       | false    |                     | Any element having its point in time reference after the given timestamp | false    |
+| **q**             | None          | `{text}` or `{fieldname}:{text}` | A full text search. Optionally, it's possible to search the text on a specific field      | false    |
 | **pwithin**       | None          | geometry                       | Any element having its centroid contained within the given BBOX : `top, left, bottom, right`| false    |
-| **gwithin**       | None          | geometry                       | Any element having its geometry contained within the given geometry | false    |
-| **gintersect**    | None          | geometry                       | Any element having its geometry intersecting the given geometry (WKT) | false    |
-| **notpwithin**    | None          | geometry                       | Any element having its centroid outside the given BBOX : `top, left, bottom, right` | false    |
-| **notgwithin**    | None          | geometry                       | Any element having its geometry not contained within the given geometry | false    |
-| **notgintersect** | None          | geometry                       | Any element having its geometry not intersecting the given geometry (WKT) | false    |
+| **gwithin**       | None          | geometry                       | Any element having its geometry contained within the given geometry                         | false    |
+| **gintersect**    | None          | geometry                       | Any element having its geometry intersecting the given geometry (WKT)                       | false    |
+| **notpwithin**    | None          | geometry                       | Any element having its centroid outside the given BBOX : `top, left, bottom, right`         | false    |
+| **notgwithin**    | None          | geometry                       | Any element having its geometry not contained within the given geometry                     | false    |
+| **notgintersect** | None          | geometry                       | Any element having its geometry not intersecting the given geometry (WKT)                   | false    |
 
 
 | Operator      | Description                                                                                                         | Value type         |
@@ -167,7 +167,7 @@ On top of that, `:range:` operator supports generic aliases to represent collect
 
 `filter` part can also be passed in request header `Partition-Filter` as a serialized json for partitioning concerns.
 
-> Example: `curl --header "Partition-Filter: {"after":1490613808, f":[{"field":"city","op":"eq","value":"Bordeaux"}]}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
+> Example: `curl --header "Partition-Filter: {f":[{"field":"city","op":"eq","value":"Bordeaux"}]}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
 
 ---
 ## Part: `form`
