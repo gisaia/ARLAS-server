@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e
 
+dockerlogin=`docker info | sed '/Username:/!d;s/.* //'`
+if  [ -z "$dockerlogin"  ] ; then echo "your are not logged on dockerhub"; exit -1; else  echo "logged as "$dockerlogin ; fi
+
+npmlogin=`npm whoami`
+if  [ -z "$npmlogin"  ] ; then echo "your are not logged on npm"; exit -1; else  echo "logged as "$npmlogin ; fi
+
+elasticsearchstatus=`curl -XGET http://localhost:9200/`
+if  [ -z "$elasticsearchstatus"  ] ; then echo "Elasticsearch is not running. Please start Elasticsearch before releasing."; exit -1; else  echo "Elasticsearch is running: OK" ; fi
+
 function clean {
     ARG=$?
 	echo "=> Exit status = $ARG"
@@ -103,8 +112,11 @@ echo "=> Start arlas-server"
 # stop already running server
 pkill -f 'java.*arlas-server' || echo "no arlas-server running"
 # start fresh new server
-cp target/arlas-server-${VERSION}.jar target/arlas-server-${VERSION}-release.jar
-java -jar target/arlas-server-${VERSION}-release.jar server conf/configuration.yaml > arlas.log 2>&1 &
+cp target/arlas-server-${VERSION}.jar target/arlas-server.jar
+
+docker build --tag arlas-server:${VERSION} --tag arlas-server:latest --tag gisaia/arlas-server:${VERSION} --tag gisaia/arlas-server:latest .
+
+java -jar target/arlas-server.jar server conf/configuration.yaml > arlas.log 2>&1 &
 
 echo "=> Wait for arlas-server up and running"
 i=1; until nc -w 2 localhost 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
