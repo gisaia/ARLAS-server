@@ -116,6 +116,9 @@ cp target/arlas-server-${VERSION}.jar target/arlas-server.jar
 
 docker build --tag arlas-server:${VERSION} --tag arlas-server:latest --tag gisaia/arlas-server:${VERSION} --tag gisaia/arlas-server:latest .
 
+docker push gisaia/arlas-server:${VERSION}
+docker push gisaia/arlas-server:latest
+
 java -jar target/arlas-server.jar server conf/configuration.yaml > arlas.log 2>&1 &
 
 echo "=> Wait for arlas-server up and running"
