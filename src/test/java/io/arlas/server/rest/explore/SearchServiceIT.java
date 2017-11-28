@@ -25,7 +25,9 @@ import static org.hamcrest.Matchers.hasKey;
 
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
+import org.hamcrest.Matcher;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class SearchServiceIT extends AbstractSortedTest {
@@ -66,39 +68,10 @@ public class SearchServiceIT extends AbstractSortedTest {
     }
 
     @Override
-    protected void handleKnownFieldFilter(ValidatableResponse then) throws Exception {
+    protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
         then.statusCode(200)
-        .body("totalnb", equalTo(59))
-        .body("hits.data.params.job", everyItem(equalTo("Actor")));
-    }
-
-    @Override
-    protected void handleKnownFieldFilterWithOr(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(117))
-        .body("hits.data.params.job",  everyItem(isOneOf("Actor","Announcers")));
-    }
-
-    @Override
-    protected void handleKnownFieldLikeFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(59))
-        .body("hits.data.params.job",  everyItem(equalTo("Actor")));
-    }
-
-    //TODO : fix the case where the field is full text
-    /*@Override
-    protected void handleKnownFullTextFieldLikeFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(595))
-        .body("hits.data.job", everyItem(isOneOf("Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter")));
-    }*/
-
-    @Override
-    protected void handleKnownFieldFilterNotEqual(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(478))
-        .body("hits.data.params.job", everyItem(isOneOf("Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter")));
+                .body("totalnb", equalTo(nbResults))
+                .body("hits.data.params.job", everyItem(isOneOf(values)));
     }
     
     //----------------------------------------------------------------
@@ -127,69 +100,12 @@ public class SearchServiceIT extends AbstractSortedTest {
         .body("hits.data.params.job", everyItem(lessThan(end)));
     }
 
-    @Override
-    protected void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception {
+    protected void handleMatchingGeometryFilter(ValidatableResponse then, int nbResults, Matcher<?> centroidMatcher) throws Exception {
         then.statusCode(200)
-        .body("totalnb", equalTo(1))
-        .body("hits.data.geo_params.centroid", everyItem(equalTo(centroid)));
+                .body("totalnb", equalTo(nbResults))
+                .body("hits.data.geo_params.centroid", centroidMatcher);
     }
 
-    @Override
-    protected void handleMatchingNotPwithinFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(17))
-        .body("hits.data.geo_params.centroid", everyItem(endsWith("170")));
-    }
-
-    @Override
-    protected void handleMatchingPwithinComboFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(8))
-        .body("hits.data.geo_params.centroid", hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
-    }
-
-    @Override
-    protected void handleMatchingGwithinFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(1))
-        .body("hits.data.geo_params.centroid", everyItem(equalTo("0,0")));
-    }
-
-    @Override
-    protected void handleMatchingNotGwithinFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(4))
-        .body("hits.data.geo_params.centroid", hasItems("-70,170","-80,170","-70,160","-80,160"));
-    }
-
-    @Override
-    protected void handleMatchingGwithinComboFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(8))
-        .body("hits.data.geo_params.centroid", hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
-    }
-
-    @Override
-    protected void handleMatchingGintersectFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(1))
-        .body("hits.data.geo_params.centroid", everyItem(equalTo("0,0")));
-    }
-
-    @Override
-    protected void handleMatchingNotGintersectFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(1))
-        .body("hits.data.geo_params.centroid", everyItem(equalTo("-80,170")));
-    }
-
-    @Override
-    protected void handleMatchingGintersectComboFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("totalnb", equalTo(3))
-        .body("hits.data.geo_params.centroid", hasItems("10,-10","0,-10","-10,-10"));
-    }
-    
     //----------------------------------------------------------------
     //----------------------- SIZE PART ------------------------------
     //----------------------------------------------------------------
@@ -200,7 +116,7 @@ public class SearchServiceIT extends AbstractSortedTest {
 
     @Override
     protected RequestSpecification givenBigSizedRequestParamsPost() {
-        search.filter.q = "My name is";
+        search.filter.q = Arrays.asList("My name is");
         return given().contentType("application/json");
     }
 

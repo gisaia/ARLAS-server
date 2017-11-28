@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.*;
 
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
+import org.hamcrest.Matcher;
 
 public class CountServiceIT extends AbstractFilteredTest {
     
@@ -61,30 +62,9 @@ public class CountServiceIT extends AbstractFilteredTest {
     }
 
     @Override
-    protected void handleKnownFieldFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,59);
+    protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
+        handleMatchingFilter(then,nbResults);
     }
-
-    @Override
-    protected void handleKnownFieldFilterWithOr(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,117);
-    }
-
-    @Override
-    protected void handleKnownFieldLikeFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,59);
-    }
-
-    @Override
-    protected void handleKnownFieldFilterNotEqual(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,478);
-    }
-
-    //TODO : fix the case where the field is full text
-    /*@Override
-    protected void handleKnownFullTextFieldLikeFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,595);
-    }*/
     
     @Override
     protected void handleMatchingQueryFilter(ValidatableResponse then) throws Exception {
@@ -100,50 +80,9 @@ public class CountServiceIT extends AbstractFilteredTest {
     protected void handleMatchingStringRangeFilter(ValidatableResponse then, String start, String end, int size) throws Exception {
         handleMatchingFilter(then,size);
     }
-    
-    @Override
-    protected void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception {
-        handleMatchingFilter(then,1);
-    }
 
     @Override
-    protected void handleMatchingNotPwithinFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,17);
+    protected void handleMatchingGeometryFilter(ValidatableResponse then, int nbResults, Matcher<?> centroidMatcher) throws Exception {
+        handleMatchingFilter(then,nbResults);
     }
-
-    @Override
-    protected void handleMatchingPwithinComboFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,8);
-    }
-    
-    @Override
-    protected void handleMatchingGwithinFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,1);
-    }
-
-    @Override
-    protected void handleMatchingNotGwithinFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,4);
-    }
-
-    @Override
-    protected void handleMatchingGwithinComboFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,8);
-    }
-    
-    @Override
-    protected void handleMatchingGintersectFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,1);
-    }
-
-    @Override
-    protected void handleMatchingNotGintersectFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,1);
-    }
-
-    @Override
-    protected void handleMatchingGintersectComboFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,3);
-    }
-    
 }

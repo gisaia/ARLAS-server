@@ -19,21 +19,26 @@
 
 package io.arlas.server.rest.explore;
 
-import java.util.Arrays;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.model.request.Expression;
-import io.arlas.server.model.request.OperatorEnum;
-import org.junit.Before;
-import org.junit.Test;
-
 import io.arlas.server.AbstractTestWithCollection;
 import io.arlas.server.DataSetTool;
+import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.Filter;
+import io.arlas.server.model.request.OperatorEnum;
 import io.arlas.server.model.request.Request;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.hamcrest.Matcher;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
 
 public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
@@ -51,33 +56,36 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     @Test
     public void testFieldFilter() throws Exception {
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0]));//("job:eq:" + DataSetTool.jobs[0]);
-        handleKnownFieldFilter(post(request));
-        handleKnownFieldFilter(get("f", request.filter.f.get(0).toString()));
-        handleKnownFieldFilter(header(request.filter));
+        handleFieldFilter(post(request), 59, "Actor");
+        handleFieldFilter(get("f", request.filter.f.get(0).toString()), 59, "Actor");
+        handleFieldFilter(header(request.filter), 59, "Actor");
 
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]));//"job:eq:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
-        handleKnownFieldFilterWithOr(post(request));
-        handleKnownFieldFilterWithOr(get("f", request.filter.f.get(0).toString()));
-        handleKnownFieldFilterWithOr(header(request.filter));
+        handleFieldFilter(post(request), 117,"Actor","Announcers");
+        handleFieldFilter(get("f", request.filter.f.get(0).toString()),117,"Actor","Announcers");
+        handleFieldFilter(header(request.filter),117,"Actor","Announcers");
 
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.like, "cto"));//"job:like:" + "cto");
-        handleKnownFieldLikeFilter(post(request));
-        handleKnownFieldLikeFilter(get("f", request.filter.f.get(0).toString()));
-        handleKnownFieldLikeFilter(header(request.filter));
+        handleFieldFilter(post(request), 59, "Actor");
+        handleFieldFilter(get("f", request.filter.f.get(0).toString()), 59, "Actor");
+        handleFieldFilter(header(request.filter), 59, "Actor");
 
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.ne, DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]));//"job:ne:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
-        handleKnownFieldFilterNotEqual(post(request));
-        handleKnownFieldFilterNotEqual(get("f", request.filter.f.get(0).toString()));
-        handleKnownFieldFilterNotEqual(header(request.filter));
-        //TODO : fix the case where the field is full text
-        /*handleKnownFullTextFieldLikeFilter(
-                givenFilterableRequestParams().param("f", "fullname:like:" + "name is")
-                        .when().get(getUrlPath("geodata"))
-                        .then());*/
+        handleFieldFilter(post(request), 478, "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter");
+        handleFieldFilter(get("f", request.filter.f.get(0).toString()), 478, "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter");
+        handleFieldFilter(header(request.filter), 478, "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter");
+
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, "UnknownJob"));//"job:eq:UnknownJob");
         handleUnknownFieldFilter(post(request));
         handleUnknownFieldFilter(get("f", request.filter.f.get(0).toString()));
         handleUnknownFieldFilter(header(request.filter));
+
+        request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, "Actor"),new Expression("params.job", OperatorEnum.eq, "Announcers"));
+        handleNotMatchingRequest(post(request));
+        handleNotMatchingRequest(
+                get(Arrays.asList(new ImmutablePair<>("f", request.filter.f.get(0).toString()),new ImmutablePair<>("f", request.filter.f.get(1).toString()))));
+        handleNotMatchingRequest(header(request.filter));
+
         request.filter.f = null;
 
     }
@@ -85,20 +93,26 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     @Test
     public void testQueryFilter() throws Exception {
 
-        request.filter.q = "My name is";
+        request.filter.q = Arrays.asList("My name is");
         handleMatchingQueryFilter(post(request));
-        handleMatchingQueryFilter(get("q", request.filter.q));
+        handleMatchingQueryFilter(get("q", request.filter.q.get(0)));
         handleMatchingQueryFilter(header(request.filter));
 
-        request.filter.q = "fullname:My name is";
+        request.filter.q = Arrays.asList("fullname:My name is");
         handleMatchingQueryFilter(post(request));
-        handleMatchingQueryFilter(get("q", request.filter.q));
+        handleMatchingQueryFilter(get("q", request.filter.q.get(0)));
         handleMatchingQueryFilter(header(request.filter));
 
-        request.filter.q = "UnknownQuery";
+        request.filter.q = Arrays.asList("UnknownQuery");
         handleNotMatchingQueryFilter(post(request));
-        handleNotMatchingQueryFilter(get("q", request.filter.q));
+        handleNotMatchingQueryFilter(get("q", request.filter.q.get(0)));
         handleNotMatchingQueryFilter(header(request.filter));
+
+        request.filter.q = Arrays.asList("fullname:My name is","foo");
+        handleNotMatchingRequest(post(request));
+        handleNotMatchingRequest(get(Arrays.asList(new ImmutablePair<>("q", request.filter.q.get(0)),
+                new ImmutablePair<>("q", request.filter.q.get(1)))));
+        handleNotMatchingRequest(header(request.filter));
 
         request.filter.q = null;
     }
@@ -107,7 +121,6 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     public void testRangeFilter() throws Exception {
 
         // TIMESTAMP RANGE
-
         request.filter.f = Arrays.asList(new Expression("params.startdate", OperatorEnum.range, "[0;775000]"));
         handleMatchingTimestampRangeFilter(post(request), 0, 775000, 3);
         handleMatchingTimestampRangeFilter(get("f", request.filter.f.get(0).toString()), 0, 775000, 3);
@@ -166,49 +179,65 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     
     @Test
     public void testPwithinFilter() throws Exception {
-        request.filter.pwithin = "5,-5,-5,5";
-        handleMatchingPwithinFilter(post(request), "0,0");
-        handleMatchingPwithinFilter(get("pwithin",request.filter.pwithin), "0,0");
-        handleMatchingPwithinFilter(header(request.filter), "0,0");
+        request.filter.pwithin = Arrays.asList("5,-5,-5,5");
+        handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(get("pwithin",request.filter.pwithin.get(0)), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
 
-        request.filter.pwithin = "5,180,0,-165";
-        handleMatchingPwithinFilter(post(request), "0,-170");
-        handleMatchingPwithinFilter(get("pwithin",request.filter.pwithin), "0,-170");
-        handleMatchingPwithinFilter(header(request.filter), "0,-170");
+        request.filter.pwithin = Arrays.asList("5,180,0,-165");
+        handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo( "0,-170")));
+        handleMatchingGeometryFilter(get("pwithin",request.filter.pwithin.get(0)), 1, everyItem(equalTo( "0,-170")));
+        handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo( "0,-170")));
 
-        request.filter.pwithin = "90,175,85,180";
+        request.filter.pwithin = Arrays.asList("90,175,85,180");
         handleNotMatchingPwithinFilter(post(request));
-        handleNotMatchingPwithinFilter(get("pwithin",request.filter.pwithin));
+        handleNotMatchingPwithinFilter(get("pwithin",request.filter.pwithin.get(0)));
         handleNotMatchingPwithinFilter(header(request.filter));
 
-        request.filter.pwithin = null;
-        request.filter.notpwithin = "85,-170,-85,175";
-        handleMatchingNotPwithinFilter(post(request));
-        handleMatchingNotPwithinFilter(get("notpwithin",request.filter.notpwithin));
-        handleMatchingNotPwithinFilter(header(request.filter));
+        request.filter.pwithin = Arrays.asList("50,-5,-50,180", "50,-180,-50,5");
+        handleMatchingGeometryFilter(post(request),10, everyItem(endsWith("0")));
+        handleMatchingGeometryFilter(
+                get(Arrays.asList(new ImmutablePair<>("pwithin", request.filter.pwithin.get(0)),
+                        new ImmutablePair<>("pwithin", request.filter.pwithin.get(1)))),
+                10, everyItem(endsWith("0")));
+        handleMatchingGeometryFilter(header(request.filter),10, everyItem(endsWith("0")));
 
-        request.filter.notpwithin = "85,-175,-85,175";
+        request.filter.pwithin = null;
+        request.filter.notpwithin = Arrays.asList("85,-170,-85,175");
+        handleMatchingGeometryFilter(post(request), 17, everyItem(endsWith("170")));
+        handleMatchingGeometryFilter(get("notpwithin",request.filter.notpwithin.get(0)), 17, everyItem(endsWith("170")));
+        handleMatchingGeometryFilter(header(request.filter), 17, everyItem(endsWith("170")));
+
+        request.filter.notpwithin = Arrays.asList("85,-175,-85,175");
         handleNotMatchingNotPwithinFilter(post(request));
-        handleNotMatchingNotPwithinFilter(get("notpwithin",request.filter.notpwithin));
+        handleNotMatchingNotPwithinFilter(get("notpwithin",request.filter.notpwithin.get(0)));
         handleNotMatchingNotPwithinFilter(header(request.filter));
 
-        //TODO support correct 10,-10,-10,10 bounding box
-        request.filter.pwithin = "11,-11,-11,11";
-        request.filter.notpwithin = "5,-5,-5,5";
-        handleMatchingPwithinComboFilter(post(request));
-        handleMatchingPwithinComboFilter(
-                givenFilterableRequestParams().param("pwithin", request.filter.pwithin)
-                    .param("notpwithin", request.filter.notpwithin)
-                .when().get(getUrlPath("geodata"))
-                .then());
-        handleMatchingPwithinComboFilter(header(request.filter));
+        request.filter.notpwithin = Arrays.asList("90,-180,-90,-5", "90,5,-90,180");
+        handleMatchingGeometryFilter(post(request),17, everyItem(endsWith("0")));
+        handleMatchingGeometryFilter(
+                get(Arrays.asList(new ImmutablePair<>("notpwithin", request.filter.notpwithin.get(0)),
+                        new ImmutablePair<>("notpwithin", request.filter.notpwithin.get(1)))),
+                17, everyItem(endsWith("0")));
+        handleMatchingGeometryFilter(header(request.filter),17, everyItem(endsWith("0")));
 
-        request.filter.pwithin = "6,-6,-6,6";
-        request.filter.notpwithin = "5,-5,-5,5";
+        //TODO support correct 10,-10,-10,10 bounding box
+        request.filter.pwithin = Arrays.asList("11,-11,-11,11");
+        request.filter.notpwithin = Arrays.asList("5,-5,-5,5");
+        handleMatchingGeometryFilter(post(request),8,hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
+        handleMatchingGeometryFilter(
+                givenFilterableRequestParams().param("pwithin", request.filter.pwithin.get(0))
+                    .param("notpwithin", request.filter.notpwithin.get(0))
+                .when().get(getUrlPath("geodata"))
+                .then(),8,hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
+        handleMatchingGeometryFilter(header(request.filter),8,hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
+
+        request.filter.pwithin = Arrays.asList("6,-6,-6,6");
+        request.filter.notpwithin = Arrays.asList("5,-5,-5,5");
         handleNotMatchingPwithinComboFilter(post(request));
         handleNotMatchingPwithinComboFilter(
-                givenFilterableRequestParams().param("pwithin", request.filter.pwithin)
-                    .param("notpwithin", request.filter.notpwithin)
+                givenFilterableRequestParams().param("pwithin", request.filter.pwithin.get(0))
+                    .param("notpwithin", request.filter.notpwithin.get(0))
                 .when().get(getUrlPath("geodata"))
                 .then());
         handleNotMatchingPwithinComboFilter(header(request.filter));
@@ -219,43 +248,59 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     
     @Test
     public void testGwithinFilter() throws Exception {
-        request.filter.gwithin = "POLYGON((2 2,2 -2,-2 -2,-2 2,2 2))";
-        handleMatchingGwithinFilter(post(request));
-        handleMatchingGwithinFilter(get("gwithin",request.filter.gwithin));
-        handleMatchingGwithinFilter(header(request.filter));
+        request.filter.gwithin = Arrays.asList("POLYGON((2 2,2 -2,-2 -2,-2 2,2 2))");
+        handleMatchingGeometryFilter(post(request),1,everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(get("gwithin",request.filter.gwithin.get(0)),1,everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(header(request.filter),1,everyItem(equalTo("0,0")));
 
-        request.filter.gwithin = "POLYGON((1 1,2 1,2 2,1 2,1 1))";
+        request.filter.gwithin = Arrays.asList("POLYGON((1 1,2 1,2 2,1 2,1 1))");
         handleNotMatchingGwithinFilter(post(request));
-        handleNotMatchingGwithinFilter(get("gwithin",request.filter.gwithin));
+        handleNotMatchingGwithinFilter(get("gwithin",request.filter.gwithin.get(0)));
         handleNotMatchingGwithinFilter(header(request.filter));
+
+        request.filter.gwithin = Arrays.asList("POLYGON((1 1,10 -20,-10 -20,-10 20,1 1))","POLYGON((2 2,2 -2,-2 -2,-2 2,2 2))");
+        handleMatchingGeometryFilter(post(request),1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(
+                get(Arrays.asList(new ImmutablePair<>("gwithin", request.filter.gwithin.get(0)),
+                        new ImmutablePair<>("gwithin", request.filter.gwithin.get(1)))),
+                1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(header(request.filter),1, everyItem(equalTo("0,0")));
         request.filter.gwithin = null;
 
-        request.filter.notgwithin = "POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))";
-        handleMatchingNotGwithinFilter(post(request));
-        handleMatchingNotGwithinFilter(get("notgwithin",request.filter.notgwithin));
-        handleMatchingNotGwithinFilter(header(request.filter));
+        request.filter.notgwithin = Arrays.asList("POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))");
+        handleMatchingGeometryFilter(post(request),4,hasItems("-70,170","-80,170","-70,160","-80,160"));
+        handleMatchingGeometryFilter(get("notgwithin",request.filter.notgwithin.get(0)),4,hasItems("-70,170","-80,170","-70,160","-80,160"));
+        handleMatchingGeometryFilter(header(request.filter),4,hasItems("-70,170","-80,170","-70,160","-80,160"));
 
-        request.filter.notgwithin = "POLYGON((180 90,-180 90,-180 -90,180 -90,180 90))";
+        request.filter.notgwithin = Arrays.asList("POLYGON((180 90,-180 90,-180 -90,180 -90,180 90))");
         handleNotMatchingNotGwithinFilter(post(request));
-        handleNotMatchingNotGwithinFilter(get("notgwithin",request.filter.notgwithin));
+        handleNotMatchingNotGwithinFilter(get("notgwithin",request.filter.notgwithin.get(0)));
         handleNotMatchingNotGwithinFilter(header(request.filter));
 
-        request.filter.gwithin = "POLYGON((12 12,12 -12,-12 -12,-12 12,12 12))";
-        request.filter.notgwithin = "POLYGON((8 8,8 -8,-8 -8,-8 8,8 8))";
-        handleMatchingGwithinComboFilter(post(request));
-        handleMatchingGwithinComboFilter(
-                givenFilterableRequestParams().param("gwithin", request.filter.gwithin)
-                    .param("notgwithin", request.filter.notgwithin)
-                .when().get(getUrlPath("geodata"))
-                .then());
-        handleMatchingGwithinComboFilter(header(request.filter));
+        request.filter.notgwithin = Arrays.asList("POLYGON((180 90,-180 90,-180 -80,100 -80,100 -70,180 -70,180 90))","POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))");
+        handleMatchingGeometryFilter(post(request),4,hasItems("-70,170","-80,170","-70,160","-80,160"));
+        handleMatchingGeometryFilter(
+                get(Arrays.asList(new ImmutablePair<>("notgwithin", request.filter.notgwithin.get(0)),
+                        new ImmutablePair<>("notgwithin", request.filter.notgwithin.get(1)))),
+                4,hasItems("-70,170","-80,170","-70,160","-80,160"));
+        handleMatchingGeometryFilter(header(request.filter),4,hasItems("-70,170","-80,170","-70,160","-80,160"));
 
-        request.filter.gwithin = "POLYGON((12 12,12 -12,-12 -12,-12 12,12 12))";
-        request.filter.notgwithin = "POLYGON((11 11,11 -11,-11 -11,-11 11,11 11))";
+        request.filter.gwithin = Arrays.asList("POLYGON((12 12,12 -12,-12 -12,-12 12,12 12))");
+        request.filter.notgwithin = Arrays.asList("POLYGON((8 8,8 -8,-8 -8,-8 8,8 8))");
+        handleMatchingGeometryFilter(post(request),8,hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
+        handleMatchingGeometryFilter(
+                givenFilterableRequestParams().param("gwithin", request.filter.gwithin.get(0))
+                    .param("notgwithin", request.filter.notgwithin.get(0))
+                .when().get(getUrlPath("geodata"))
+                .then(),8,hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
+        handleMatchingGeometryFilter(header(request.filter),8,hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
+
+        request.filter.gwithin = Arrays.asList("POLYGON((12 12,12 -12,-12 -12,-12 12,12 12))");
+        request.filter.notgwithin = Arrays.asList("POLYGON((11 11,11 -11,-11 -11,-11 11,11 11))");
         handleNotMatchingGwithinComboFilter(post(request));
         handleNotMatchingGwithinComboFilter(
-                givenFilterableRequestParams().param("gwithin", request.filter.gwithin)
-                .param("notgwithin", request.filter.notgwithin)
+                givenFilterableRequestParams().param("gwithin", request.filter.gwithin.get(0))
+                .param("notgwithin", request.filter.notgwithin.get(0))
                 .when().get(getUrlPath("geodata"))
                 .then());
         handleNotMatchingGwithinComboFilter(header(request.filter));
@@ -265,43 +310,59 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     
     @Test
     public void testGintersectFilter() throws Exception {
-        request.filter.gintersect = "POLYGON((0 1,1 1,1 -1,0 -1,0 1))";
-        handleMatchingGintersectFilter(post(request));
-        handleMatchingGintersectFilter(get("gintersect",request.filter.gintersect));
-        handleMatchingGintersectFilter(header(request.filter));
+        request.filter.gintersect = Arrays.asList("POLYGON((0 1,1 1,1 -1,0 -1,0 1))");
+        handleMatchingGeometryFilter(post(request),1,everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(get("gintersect",request.filter.gintersect.get(0)),1,everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(header(request.filter),1,everyItem(equalTo("0,0")));
 
-        request.filter.gintersect = "POLYGON((2 2,3 2,3 3,2 3,2 2))";
+        request.filter.gintersect = Arrays.asList("POLYGON((2 2,3 2,3 3,2 3,2 2))");
         handleNotMatchingGintersectFilter(post(request));
-        handleNotMatchingGintersectFilter(get("gintersect", request.filter.gintersect));
+        handleNotMatchingGintersectFilter(get("gintersect", request.filter.gintersect.get(0)));
         handleNotMatchingGintersectFilter(header(request.filter));
+
+        request.filter.gintersect = Arrays.asList("POLYGON((12 12,12 -12,-12 -12,-12 12,12 12))","POLYGON((0 1,1 1,1 -1,0 -1,0 1))");
+        handleMatchingGeometryFilter(post(request),1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(
+                get(Arrays.asList(new ImmutablePair<>("gintersect", request.filter.gintersect.get(0)),
+                        new ImmutablePair<>("gintersect", request.filter.gintersect.get(1)))),
+                1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(header(request.filter),1, everyItem(equalTo("0,0")));
         request.filter.gintersect = null;
 
-        request.filter.notgintersect = "POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))";
-        handleMatchingNotGintersectFilter(post(request));
-        handleMatchingNotGintersectFilter(get("notgintersect", request.filter.notgintersect));
-        handleMatchingNotGintersectFilter(header(request.filter));
+        request.filter.notgintersect = Arrays.asList("POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))");
+        handleMatchingGeometryFilter(post(request),1,everyItem(equalTo("-80,170")));
+        handleMatchingGeometryFilter(get("notgintersect", request.filter.notgintersect.get(0)),1,everyItem(equalTo("-80,170")));
+        handleMatchingGeometryFilter(header(request.filter),1,everyItem(equalTo("-80,170")));
 
-        request.filter.notgintersect = "POLYGON((180 90,-180 90,-180 -90,180 -90,180 90))";
+        request.filter.notgintersect = Arrays.asList("POLYGON((180 90,-180 90,-180 -90,180 -90,180 90))");
         handleNotMatchingNotGintersectFilter(post(request));
-        handleNotMatchingNotGintersectFilter(get("notgintersect", request.filter.notgintersect));
+        handleNotMatchingNotGintersectFilter(get("notgintersect", request.filter.notgintersect.get(0)));
         handleNotMatchingNotGintersectFilter(header(request.filter));
 
-        request.filter.gintersect = "POLYGON((10 10,10 -10,-10 -10,-10 10,10 10))";
-        request.filter.notgintersect = "POLYGON((10 10,10 -10,0 -10,0 10,10 10))";
-        handleMatchingGintersectComboFilter(post(request));
-        handleMatchingGintersectComboFilter(
-                givenFilterableRequestParams().param("gintersect", request.filter.gintersect)
-                    .param("notgintersect", request.filter.notgintersect)
-                .when().get(getUrlPath("geodata"))
-                .then());
-        handleMatchingGintersectComboFilter(header(request.filter));
+        request.filter.notgintersect = Arrays.asList("POLYGON((12 12,12 -12,-12 -12,-12 12,12 12))","POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))");
+        handleMatchingGeometryFilter(post(request),1,everyItem(equalTo("-80,170")));
+        handleMatchingGeometryFilter(
+                get(Arrays.asList(new ImmutablePair<>("notgintersect", request.filter.notgintersect.get(0)),
+                        new ImmutablePair<>("notgintersect", request.filter.notgintersect.get(1)))),
+                1,everyItem(equalTo("-80,170")));
+        handleMatchingGeometryFilter(header(request.filter),1,everyItem(equalTo("-80,170")));
 
-        request.filter.gintersect = "POLYGON((10 10,10 -10,-10 -10,-10 10,10 10))";
-        request.filter.notgintersect = "POLYGON((11 11,11 -11,-11 -11,-11 11,11 11))";
+        request.filter.gintersect = Arrays.asList("POLYGON((10 10,10 -10,-10 -10,-10 10,10 10))");
+        request.filter.notgintersect = Arrays.asList("POLYGON((10 10,10 -10,0 -10,0 10,10 10))");
+        handleMatchingGeometryFilter(post(request),3,hasItems("10,-10","0,-10","-10,-10"));
+        handleMatchingGeometryFilter(
+                givenFilterableRequestParams().param("gintersect", request.filter.gintersect.get(0))
+                    .param("notgintersect", request.filter.notgintersect.get(0))
+                .when().get(getUrlPath("geodata"))
+                .then(),3,hasItems("10,-10","0,-10","-10,-10"));
+        handleMatchingGeometryFilter(header(request.filter),3,hasItems("10,-10","0,-10","-10,-10"));
+
+        request.filter.gintersect = Arrays.asList("POLYGON((10 10,10 -10,-10 -10,-10 10,10 10))");
+        request.filter.notgintersect = Arrays.asList("POLYGON((11 11,11 -11,-11 -11,-11 11,11 11))");
         handleNotMatchingGintersectComboFilter(post(request));
         handleNotMatchingGintersectComboFilter(
-                givenFilterableRequestParams().param("gintersect", request.filter.gintersect)
-                .param("notgintersect", request.filter.notgintersect)
+                givenFilterableRequestParams().param("gintersect", request.filter.gintersect.get(0))
+                .param("notgintersect", request.filter.notgintersect.get(0))
                 .when().get(getUrlPath("geodata"))
                 .then());
         handleNotMatchingGintersectComboFilter(header(request.filter));
@@ -314,22 +375,22 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     public void testComplexFilter() throws Exception {
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.like, "Architect"),//"job:eq:Architect"
                 new Expression("params.startdate", OperatorEnum.range, "[1009799;1009801]"));
-        request.filter.pwithin = "50,-50,-50,50";
-        request.filter.notpwithin = "50,20,-50,60";
-        request.filter.gwithin = "POLYGON((30 30,30 -30,-30 -30,-30 30,30 30))";
-        request.filter.notgwithin = "POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))";
-        request.filter.gintersect = "POLYGON((-20 20, 20 20, 20 -20, -20 -20, -20 20))";
-        request.filter.notgintersect = "POLYGON((-30 -10,30 10, 30 -30, -30 -30,-30 -10))";
+        request.filter.pwithin = Arrays.asList("50,-50,-50,50");
+        request.filter.notpwithin = Arrays.asList("50,20,-50,60");
+        request.filter.gwithin = Arrays.asList("POLYGON((30 30,30 -30,-30 -30,-30 30,30 30))");
+        request.filter.notgwithin = Arrays.asList("POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))");
+        request.filter.gintersect = Arrays.asList("POLYGON((-20 20, 20 20, 20 -20, -20 -20, -20 20))");
+        request.filter.notgintersect = Arrays.asList("POLYGON((-30 -10,30 10, 30 -30, -30 -30,-30 -10))");
         handleComplexFilter(post(request));
         handleComplexFilter(
                 givenFilterableRequestParams().param("f", request.filter.f.get(0).toString())
                     .param("f","params.startdate:range:[1009799;1009801]")
-                    .param("pwithin", request.filter.pwithin)
-                    .param("notpwithin", request.filter.notpwithin)
-                    .param("gwithin", request.filter.gwithin)
-                    .param("notgwithin", request.filter.notgwithin)
-                    .param("gintersect", request.filter.gintersect)
-                    .param("notgintersect", request.filter.notgintersect)
+                    .param("pwithin", request.filter.pwithin.get(0))
+                    .param("notpwithin", request.filter.notpwithin.get(0))
+                    .param("gwithin", request.filter.gwithin.get(0))
+                    .param("notgwithin", request.filter.notgwithin.get(0))
+                    .param("gintersect", request.filter.gintersect.get(0))
+                    .param("notgintersect", request.filter.notgintersect.get(0))
                 .when().get(getUrlPath("geodata"))
                 .then());
         handleComplexFilter(header(request.filter));
@@ -340,23 +401,23 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     public void testMixedFilter() throws Exception {
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, "Architect"),//"job:eq:Architect"
                 new Expression("params.startdate", OperatorEnum.range, "[1009799;2000000]"));
-        request.filter.pwithin = "50,-50,-50,50";
-        request.filter.gwithin = "POLYGON((30 30,30 -30,-30 -30,-30 30,30 30))";
-        request.filter.gintersect = "POLYGON((-20 20, 20 20, 20 -20, -20 -20, -20 20))";
+        request.filter.pwithin = Arrays.asList("50,-50,-50,50");
+        request.filter.gwithin = Arrays.asList("POLYGON((30 30,30 -30,-30 -30,-30 30,30 30))");
+        request.filter.gintersect = Arrays.asList("POLYGON((-20 20, 20 20, 20 -20, -20 -20, -20 20))");
 
         Filter filterHeader = new Filter();
         filterHeader.f = Arrays.asList(new Expression("params.startdate", OperatorEnum.range, "[0;1009801]"));
-        filterHeader.notpwithin = "50,20,-50,60";
-        filterHeader.notgwithin = "POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))";
-        filterHeader.notgintersect = "POLYGON((-30 -10,30 10, 30 -30, -30 -30,-30 -10))";
+        filterHeader.notpwithin = Arrays.asList("50,20,-50,60");
+        filterHeader.notgwithin = Arrays.asList("POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))");
+        filterHeader.notgintersect = Arrays.asList("POLYGON((-30 -10,30 10, 30 -30, -30 -30,-30 -10))");
         handleComplexFilter(
                 givenFilterableRequestParams()
                         .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
                         .param("f", new Expression("params.job", OperatorEnum.eq, "Architect").toString())
                         .param("f", new Expression("params.startdate", OperatorEnum.range, "[1009799;2000000]").toString())
-                        .param("pwithin", request.filter.pwithin)
-                        .param("gwithin", request.filter.gwithin)
-                        .param("gintersect", request.filter.gintersect)
+                        .param("pwithin", request.filter.pwithin.get(0))
+                        .param("gwithin", request.filter.gwithin.get(0))
+                        .param("gintersect", request.filter.gintersect.get(0))
                         .when().get(getUrlPath("geodata"))
                         .then());
         handleComplexFilter(
@@ -386,16 +447,16 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     public void testNotFoundCollection() throws Exception {
         request.filter.f = Arrays.asList(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0]),//"job:eq:" + DataSetTool.jobs[0]
                 new Expression("params.startdate", OperatorEnum.range, "[1000000;2000000]"));
-        request.filter.pwithin = "10,10,-10,-10";
-        request.filter.notpwithin = "5,5,-5,-5";
+        request.filter.pwithin = Arrays.asList("10,10,-10,-10");
+        request.filter.notpwithin = Arrays.asList("5,5,-5,-5");
         handleNotFoundCollection(
                 givenFilterableRequestBody().body(request)
                 .when().post(getUrlPath("unknowncollection"))
                 .then());
         handleNotFoundCollection(
                 givenFilterableRequestParams().param("f", request.filter.f)
-                    .param("pwithin",  request.filter.pwithin)
-                    .param("notpwithin",  request.filter.notpwithin)
+                    .param("pwithin",  request.filter.pwithin.get(0))
+                    .param("notpwithin",  request.filter.notpwithin.get(0))
                 .when().get(getUrlPath("unknowncollection"))
                 .then());
         request.filter.f = null;
@@ -419,78 +480,78 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.f = null;
 
         //Q
-        request.filter.q = "fullname:My:name";
+        request.filter.q = Arrays.asList("fullname:My:name");
         handleInvalidParameters(post(request));
-        handleInvalidParameters(get("q", request.filter.q));
+        handleInvalidParameters(get("q", request.filter.q.get(0)));
         handleInvalidParameters(header(request.filter));
         request.filter.q = null;
         
         //PWITHIN
-        request.filter.pwithin = "-5,-5,5,5";
+        request.filter.pwithin = Arrays.asList("-5,-5,5,5");
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("pwithin",request.filter.pwithin));
         handleInvalidParameters(header(request.filter));
 
-        request.filter.pwithin = "foo";
+        request.filter.pwithin = Arrays.asList("foo");
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("pwithin",request.filter.pwithin));
         handleInvalidParameters(header(request.filter));
         request.filter.pwithin = null;
 
-        request.filter.notpwithin = "-5,-5,5,5";
+        request.filter.notpwithin = Arrays.asList("-5,-5,5,5");
         handleInvalidParameters(post(request));
-        handleInvalidParameters(get("notpwithin",request.filter.notpwithin));
+        handleInvalidParameters(get("notpwithin",request.filter.notpwithin.get(0)));
         handleInvalidParameters(header(request.filter));
 
-        request.filter.notpwithin = "foo";
+        request.filter.notpwithin = Arrays.asList("foo");
         handleInvalidParameters(post(request));
-        handleInvalidParameters(get("notpwithin",request.filter.notpwithin));
+        handleInvalidParameters(get("notpwithin",request.filter.notpwithin.get(0)));
         handleInvalidParameters(header(request.filter));
         request.filter.notpwithin = null;
         
         //GWITHIN
-        request.filter.gwithin = "POLYGON((10 10,10 -10,0 -10))";
+        request.filter.gwithin = Arrays.asList("POLYGON((10 10,10 -10,0 -10))");
         handleInvalidParameters(post(request));
-        handleInvalidParameters(get("gwithin",request.filter.gwithin));
+        handleInvalidParameters(get("gwithin",request.filter.gwithin.get(0)));
         handleInvalidParameters(header(request.filter));
 
-        request.filter.gwithin = "foo";
+        request.filter.gwithin = Arrays.asList("foo");
         handleInvalidParameters(post(request));
-        handleInvalidParameters(get("gwithin",request.filter.gwithin));
+        handleInvalidParameters(get("gwithin",request.filter.gwithin.get(0)));
         handleInvalidParameters(header(request.filter));
         request.filter.gwithin = null;
 
-        request.filter.notgwithin = "POLYGON((10 10,10 -10,0 -10))";
+        request.filter.notgwithin = Arrays.asList("POLYGON((10 10,10 -10,0 -10))");
         handleInvalidParameters(post(request));
-        handleInvalidParameters(get("notgwithin",request.filter.notgwithin));
+        handleInvalidParameters(get("notgwithin",request.filter.notgwithin.get(0)));
         handleInvalidParameters(header(request.filter));
 
-        request.filter.notgwithin = "foo";
+        request.filter.notgwithin = Arrays.asList("foo");
         handleInvalidParameters(post(request));
-        handleInvalidParameters(get("notgwithin",request.filter.notgwithin));
+        handleInvalidParameters(get("notgwithin",request.filter.notgwithin.get(0)));
         handleInvalidParameters(header(request.filter));
         request.filter.notgwithin = null;
 
         //GINTERSECT
-        request.filter.gintersect = "POLYGON((10 10,10 -10,0 -10))";
+        request.filter.gintersect = Arrays.asList("POLYGON((10 10,10 -10,0 -10))");
         handleInvalidParameters(post(request));
-        handleInvalidParameters(get("gintersect",request.filter.gintersect));
+        handleInvalidParameters(get("gintersect",request.filter.gintersect.get(0)));
         handleInvalidParameters(header(request.filter));
 
-        request.filter.gintersect = "foo";
+        request.filter.gintersect = Arrays.asList("foo");
         handleInvalidParameters(post(request));
-        handleInvalidParameters(get("gintersect",request.filter.gintersect));
+        handleInvalidParameters(get("gintersect",request.filter.gintersect.get(0)));
         handleInvalidParameters(header(request.filter));
         request.filter.gintersect = null;
 
-        request.filter.notgintersect = "POLYGON((10 10,10 -10,0 -10))";
+        request.filter.notgintersect = Arrays.asList("POLYGON((10 10,10 -10,0 -10))");
         handleInvalidParameters(post(request));
-        handleInvalidParameters(get("notgintersect",request.filter.notgintersect));
+        handleInvalidParameters(get("notgintersect",request.filter.notgintersect.get(0)));
         handleInvalidParameters(header(request.filter));
 
-        request.filter.notgintersect = "foo";
+        request.filter.notgintersect = Arrays.asList("foo");
         handleInvalidParameters(post(request));
-        handleInvalidParameters(get("notgintersect",request.filter.notgintersect));
+        handleInvalidParameters(get("notgintersect",request.filter.notgintersect.get(0)));
         handleInvalidParameters(header(request.filter));
         request.filter.notgintersect = null;
 
@@ -522,31 +583,16 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     protected abstract RequestSpecification givenFilterableRequestParams();
     protected abstract RequestSpecification givenFilterableRequestBody();
 
-    protected abstract void handleKnownFieldFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleKnownFieldFilterWithOr(ValidatableResponse then) throws Exception;
-    protected abstract void handleKnownFieldLikeFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleKnownFieldFilterNotEqual(ValidatableResponse then) throws Exception;
+    protected abstract void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception;
 
-    
     protected abstract void handleMatchingQueryFilter(ValidatableResponse then) throws Exception;
-
 
     protected abstract void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end,
                                                                int size) throws Exception;
     protected abstract void handleMatchingStringRangeFilter(ValidatableResponse then, String start, String end,
                                                             int size) throws Exception;
 
-    protected abstract void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception;
-    protected abstract void handleMatchingNotPwithinFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleMatchingPwithinComboFilter(ValidatableResponse then) throws Exception;
-    
-    protected abstract void handleMatchingGwithinFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleMatchingNotGwithinFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleMatchingGwithinComboFilter(ValidatableResponse then) throws Exception;
-    
-    protected abstract void handleMatchingGintersectFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleMatchingNotGintersectFilter(ValidatableResponse then) throws Exception;
-    protected abstract void handleMatchingGintersectComboFilter(ValidatableResponse then) throws Exception;
+    protected abstract void handleMatchingGeometryFilter(ValidatableResponse then, int nbResults, Matcher<?> centroidMatcher) throws Exception;
     
     protected abstract void handleComplexFilter(ValidatableResponse then) throws Exception;
     
@@ -614,6 +660,16 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
     private ValidatableResponse get(String param,Object paramValue){
         return givenFilterableRequestParams().param(param, paramValue)
+                .when().get(getUrlPath("geodata"))
+                .then();
+    }
+
+    private ValidatableResponse get(List<Pair<String,String>> params){
+        RequestSpecification req = givenFilterableRequestParams();
+        for(Pair<String,String> param : params) {
+            req = req.param(param.getKey(),param.getValue());
+        }
+        return req
                 .when().get(getUrlPath("geodata"))
                 .then();
     }

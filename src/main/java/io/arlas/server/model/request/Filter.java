@@ -23,11 +23,11 @@ import java.util.List;
 
 public class Filter {
     public List<Expression> f;
-    public String q;
-    public String pwithin;
-    public String gwithin;
-    public String gintersect;
-    public String notpwithin;
-    public String notgwithin;
-    public String notgintersect;
+    public List<String> q;
+    public List<String> pwithin;
+    public List<String> gwithin;
+    public List<String> gintersect;
+    public List<String> notpwithin;
+    public List<String> notgwithin;
+    public List<String> notgintersect;
 }

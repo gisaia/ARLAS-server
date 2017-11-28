@@ -26,6 +26,7 @@ import io.arlas.server.model.request.AggregationTypeEnum;
 import io.arlas.server.model.request.Interval;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
+import org.hamcrest.Matcher;
 
 public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     
@@ -197,36 +198,11 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
         then.statusCode(200)
         .body("features.size()", equalTo(1));     
     }
-    
-    @Override
-    protected void handleKnownFieldFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(59));
-    }
 
     @Override
-    protected void handleKnownFieldFilterWithOr(ValidatableResponse then) throws Exception {
+    protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(117));
-    }
-
-    @Override
-    protected void handleKnownFieldLikeFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(59));
-    }
-
-    //TODO : fix the case where the field is full text
-    /*@Override
-    protected void handleKnownFullTextFieldLikeFilter(ValidatableResponse then) throws Exception {
-         then.statusCode(200)
-        .body("features.size()", equalTo(595));
-    }*/
-
-    @Override
-    protected void handleKnownFieldFilterNotEqual(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(478));
+                .body("features.size()", equalTo(nbResults));
     }
     
     @Override
@@ -246,61 +222,13 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
         then.statusCode(200)
         .body("features.size()", equalTo(size));
     }
-    
-    @Override
-    protected void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(1));
-    }
 
     @Override
-    protected void handleMatchingNotPwithinFilter(ValidatableResponse then) throws Exception {
+    protected void handleMatchingGeometryFilter(ValidatableResponse then, int nbResults, Matcher<?> centroidMatcher) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(17));
-    }
-
-    @Override
-    protected void handleMatchingPwithinComboFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(8));
+                .body("features.size()", equalTo(nbResults));
     }
     
-    @Override
-    protected void handleMatchingGwithinFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(1));
-    }
-
-    @Override
-    protected void handleMatchingNotGwithinFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(4));
-    }
-
-    @Override
-    protected void handleMatchingGwithinComboFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(8));
-    }
-    
-    @Override
-    protected void handleMatchingGintersectFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(1));
-    }
-
-    @Override
-    protected void handleMatchingNotGintersectFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(1));
-    }
-
-    @Override
-    protected void handleMatchingGintersectComboFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(3));
-    }
-
     //----------------------------------------------------------------
     //----------------------- GEOHASH TILES PART -------------------------
     //----------------------------------------------------------------

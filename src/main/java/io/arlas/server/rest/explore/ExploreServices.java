@@ -124,27 +124,41 @@ public class ExploreServices {
                 fluidSearch = fluidSearch.filter(filter.f);
             }
             if (filter.q != null && !filter.q.isEmpty()) {
-                fluidSearch = fluidSearch.filterQ(filter.q);
+                for(String q : filter.q) {
+                    fluidSearch = fluidSearch.filterQ(q);
+                }
             }
             if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
-                double[] tlbr = CheckParams.toDoubles(filter.pwithin);
-                fluidSearch = fluidSearch.filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+                for(String pw : filter.pwithin) {
+                    double[] tlbr = CheckParams.toDoubles(pw);
+                    fluidSearch = fluidSearch.filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+                }
             }
             if (filter.gwithin != null && !filter.gwithin.isEmpty()) {
-                fluidSearch = fluidSearch.filterGWithin(filter.gwithin);
+                for(String gw : filter.gwithin) {
+                    fluidSearch = fluidSearch.filterGWithin(gw);
+                }
             }
             if (filter.gintersect != null && !filter.gintersect.isEmpty()) {
-                fluidSearch = fluidSearch.filterGIntersect(filter.gintersect);
+                for(String gi : filter.gintersect) {
+                    fluidSearch = fluidSearch.filterGIntersect(gi);
+                }
             }
             if (filter.notpwithin != null && !filter.notpwithin.isEmpty()) {
-                double[] tlbr = CheckParams.toDoubles(filter.notpwithin);
-                fluidSearch = fluidSearch.filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+                for(String npw : filter.notpwithin) {
+                    double[] tlbr = CheckParams.toDoubles(npw);
+                    fluidSearch = fluidSearch.filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+                }
             }
             if (filter.notgwithin != null && !filter.notgwithin.isEmpty()) {
-                fluidSearch = fluidSearch.filterNotGWithin(filter.notgwithin);
+                for(String ngw : filter.notgwithin) {
+                    fluidSearch = fluidSearch.filterNotGWithin(ngw);
+                }
             }
             if (filter.notgintersect != null && !filter.notgintersect.isEmpty()) {
-                fluidSearch = fluidSearch.filterNotGIntersect(filter.notgintersect);
+                for(String ngi : filter.notgintersect) {
+                    fluidSearch = fluidSearch.filterNotGIntersect(ngi);
+                }
             }
         }
     }

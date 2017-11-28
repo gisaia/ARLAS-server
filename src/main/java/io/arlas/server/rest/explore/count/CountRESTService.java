@@ -79,39 +79,39 @@ public class CountRESTService extends ExploreRESTServices {
             @QueryParam(value="f") List<String> f,
 
             @ApiParam(name ="q", value=Documentation.FILTER_PARAM_Q,
-                    allowMultiple = false,
+                    allowMultiple = true,
                     required=false)
-            @QueryParam(value="q") String q,
+            @QueryParam(value="q") List<String> q,
 
             @ApiParam(name ="pwithin", value=Documentation.FILTER_PARAM_PWITHIN,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="pwithin") String pwithin,
+            @QueryParam(value="pwithin") List<String> pwithin,
 
             @ApiParam(name ="gwithin", value=Documentation.FILTER_PARAM_GWITHIN,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="gwithin") String gwithin,
+            @QueryParam(value="gwithin") List<String> gwithin,
 
             @ApiParam(name ="gintersect", value=Documentation.FILTER_PARAM_GINTERSECT,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="gintersect") String gintersect,
+            @QueryParam(value="gintersect") List<String> gintersect,
 
             @ApiParam(name ="notpwithin", value=Documentation.FILTER_PARAM_NOTPWITHIN,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="notpwithin") String notpwithin,
+            @QueryParam(value="notpwithin") List<String> notpwithin,
 
             @ApiParam(name ="notgwithin", value=Documentation.FILTER_PARAM_NOTGWITHIN,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="notgwithin") String notgwithin,
+            @QueryParam(value="notgwithin") List<String> notgwithin,
 
             @ApiParam(name ="notgintersect", value=Documentation.FILTER_PARAM_NOTGINTERSECT,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="notgintersect") String notgintersect,
+            @QueryParam(value="notgintersect") List<String> notgintersect,
 
             @ApiParam(hidden = true)
             @HeaderParam(value="Partition-Filter") String partitionfilter,
