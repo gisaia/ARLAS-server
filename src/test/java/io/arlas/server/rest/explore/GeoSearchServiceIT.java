@@ -24,7 +24,9 @@ import static org.hamcrest.Matchers.*;
 
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
+import org.hamcrest.Matcher;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class GeoSearchServiceIT extends AbstractXYZTiledTest {
@@ -66,36 +68,11 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
         .body("features[0].properties.params.startdate", equalTo(1009800))
         .body("features[0].properties.geo_params.centroid", equalTo("20,-10"));
     }
-    
-    @Override
-    protected void handleKnownFieldFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.properties.params.job", everyItem(equalTo("Actor")));
-    }
-    
-    @Override
-    protected void handleKnownFieldFilterWithOr(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.properties.params.job", everyItem(isOneOf("Actor","Announcers")));
-    }
 
     @Override
-    protected void handleKnownFieldLikeFilter(ValidatableResponse then) throws Exception {
+    protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
         then.statusCode(200)
-        .body("features.properties.params.job", everyItem(equalTo("Actor")));
-    }
-
-    //TODO : fix the case where the field is full text
-    /*@Override
-    protected void handleKnownFullTextFieldLikeFilter(ValidatableResponse then) throws Exception {
-         then.statusCode(200)
-        .body("features.properties.job", everyItem(isOneOf("Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter")));
-    }*/
-
-    @Override
-    protected void handleKnownFieldFilterNotEqual(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.properties.params.job", everyItem(isOneOf("Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter")));
+                .body("features.properties.params.job", everyItem(isOneOf(values)));
     }
     
     @Override
@@ -118,68 +95,12 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
         .body("features.properties.params.job", everyItem(greaterThan(start)))
         .body("features.properties.params.job", everyItem(lessThan(end)));
     }
-    
-    @Override
-    protected void handleMatchingPwithinFilter(ValidatableResponse then, String centroid) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(1))
-        .body("features.properties.geo_params.centroid", everyItem(equalTo(centroid)));
-    }
-    
-    @Override
-    protected void handleMatchingNotPwithinFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(10))//get only default sized result array
-        .body("features.properties.geo_params.centroid", everyItem(endsWith("170")));
-    }
 
     @Override
-    protected void handleMatchingPwithinComboFilter(ValidatableResponse then) throws Exception {
+    protected void handleMatchingGeometryFilter(ValidatableResponse then, int nbResults, Matcher<?> centroidMatcher) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(8))
-        .body("features.properties.geo_params.centroid", hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
-    }
-    
-    @Override
-    protected void handleMatchingGwithinFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(1))
-        .body("features.properties.geo_params.centroid", everyItem(equalTo("0,0")));
-    }
-
-    @Override
-    protected void handleMatchingNotGwithinFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(4))
-        .body("features.properties.geo_params.centroid", hasItems("-70,170","-80,170","-70,160","-80,160"));
-    }
-
-    @Override
-    protected void handleMatchingGwithinComboFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(8))
-        .body("features.properties.geo_params.centroid", hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
-    }
-    
-    @Override
-    protected void handleMatchingGintersectFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(1))
-        .body("features.properties.geo_params.centroid", everyItem(equalTo("0,0")));
-    }
-
-    @Override
-    protected void handleMatchingNotGintersectFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(1))
-        .body("features.properties.geo_params.centroid", everyItem(equalTo("-80,170")));
-    }
-
-    @Override
-    protected void handleMatchingGintersectComboFilter(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-        .body("features.size()", equalTo(3))
-        .body("features.properties.geo_params.centroid", hasItems("10,-10","0,-10","-10,-10"));
+                .body("features.size()", equalTo(Math.min(nbResults,10)))
+                .body("features.properties.geo_params.centroid", centroidMatcher);
     }
 
     //----------------------------------------------------------------
@@ -192,7 +113,7 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
 
     @Override
     protected RequestSpecification givenBigSizedRequestParamsPost() {
-        search.filter.q = "My name is";
+        search.filter.q = Arrays.asList("My name is");
         return given().contentType("application/json");
     }
     

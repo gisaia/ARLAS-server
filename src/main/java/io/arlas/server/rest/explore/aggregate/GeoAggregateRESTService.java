@@ -48,10 +48,7 @@ import org.geojson.Point;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
@@ -99,39 +96,39 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value="f") List<String> f,
 
             @ApiParam(name ="q", value=Documentation.FILTER_PARAM_Q,
-                    allowMultiple = false,
+                    allowMultiple = true,
                     required=false)
-            @QueryParam(value="q") String q,
+            @QueryParam(value="q") List<String> q,
 
             @ApiParam(name ="pwithin", value=Documentation.FILTER_PARAM_PWITHIN,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="pwithin") String pwithin,
+            @QueryParam(value="pwithin") List<String> pwithin,
 
             @ApiParam(name ="gwithin", value=Documentation.FILTER_PARAM_GWITHIN,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="gwithin") String gwithin,
+            @QueryParam(value="gwithin") List<String> gwithin,
 
             @ApiParam(name ="gintersect", value=Documentation.FILTER_PARAM_GINTERSECT,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="gintersect") String gintersect,
+            @QueryParam(value="gintersect") List<String> gintersect,
 
             @ApiParam(name ="notpwithin", value=Documentation.FILTER_PARAM_NOTPWITHIN,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="notpwithin") String notpwithin,
+            @QueryParam(value="notpwithin") List<String> notpwithin,
 
             @ApiParam(name ="notgwithin", value=Documentation.FILTER_PARAM_NOTGWITHIN,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="notgwithin") String notgwithin,
+            @QueryParam(value="notgwithin") List<String> notgwithin,
 
             @ApiParam(name ="notgintersect", value=Documentation.FILTER_PARAM_NOTGINTERSECT,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="notgintersect") String notgintersect,
+            @QueryParam(value="notgintersect") List<String> notgintersect,
 
             @ApiParam(hidden = true)
             @HeaderParam(value="Partition-Filter") String partitionFilter,
@@ -216,39 +213,39 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value="f") List<String> f,
 
             @ApiParam(name ="q", value=Documentation.FILTER_PARAM_Q,
-                    allowMultiple = false,
+                    allowMultiple = true,
                     required=false)
-            @QueryParam(value="q") String q,
+            @QueryParam(value="q") List<String> q,
 
             @ApiParam(name ="pwithin", value=Documentation.FILTER_PARAM_PWITHIN,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="pwithin") String pwithin,
+            @QueryParam(value="pwithin") List<String> pwithin,
 
             @ApiParam(name ="gwithin", value=Documentation.FILTER_PARAM_GWITHIN,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="gwithin") String gwithin,
+            @QueryParam(value="gwithin") List<String> gwithin,
 
             @ApiParam(name ="gintersect", value=Documentation.FILTER_PARAM_GINTERSECT,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="gintersect") String gintersect,
+            @QueryParam(value="gintersect") List<String> gintersect,
 
             @ApiParam(name ="notpwithin", value=Documentation.FILTER_PARAM_NOTPWITHIN,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="notpwithin") String notpwithin,
+            @QueryParam(value="notpwithin") List<String> notpwithin,
 
             @ApiParam(name ="notgwithin", value=Documentation.FILTER_PARAM_NOTGWITHIN,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="notgwithin") String notgwithin,
+            @QueryParam(value="notgwithin") List<String> notgwithin,
 
             @ApiParam(name ="notgintersect", value=Documentation.FILTER_PARAM_NOTGINTERSECT,
                     allowMultiple = true,
                     required=false)
-            @QueryParam(value="notgintersect") String notgintersect,
+            @QueryParam(value="notgintersect") List<String> notgintersect,
 
             @ApiParam(hidden = true)
             @HeaderParam(value="Partition-Filter") String partitionFilter,
@@ -272,8 +269,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             geohash=geohash.substring(1,geohash.length());
         }
         BoundingBox bbox = GeoTileUtil.getBoundingBox(geohash);
-        if(Strings.isNotEmpty(pwithin)){
-            bbox = GeoTileUtil.bboxIntersects(bbox, pwithin);
+        if(pwithin != null && !pwithin.isEmpty()){
+            for(String pw : pwithin) {
+                bbox = GeoTileUtil.bboxIntersects(bbox, pw);
+            }
         }
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
@@ -286,7 +285,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
 
         if (bbox != null && bbox.getNorth() > bbox.getSouth()) {
-            pwithin=bbox.getNorth()+","+bbox.getWest()+","+bbox.getSouth()+","+bbox.getEast();
+            pwithin=Arrays.asList(bbox.getNorth()+","+bbox.getWest()+","+bbox.getSouth()+","+bbox.getEast());
             return this.geoaggregate(
                     collection,
                     agg,

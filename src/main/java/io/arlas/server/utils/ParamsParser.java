@@ -147,7 +147,7 @@ public class ParamsParser {
         }
     }
 
-    public static Filter getFilter(List<String> filters, String q, String pwithin, String gwithin, String gintersect, String notpwithin, String notgwithin, String notgintersect) throws ArlasException {
+    public static Filter getFilter(List<String> filters, List<String> q, List<String> pwithin, List<String> gwithin, List<String> gintersect, List<String> notpwithin, List<String> notgwithin, List<String> notgintersect) throws ArlasException {
         Filter filter = new Filter();
         filter.f = new ArrayList<>();
 

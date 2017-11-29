@@ -56,15 +56,19 @@ public class CheckParams {
     }
     public static void checkFilter (Filter filter) throws ArlasException{
         if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
-            double[] tlbr = CheckParams.toDoubles(filter.pwithin);
-            if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
-                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            for(String pw : filter.pwithin) {
+                double[] tlbr = CheckParams.toDoubles(pw);
+                if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
+                    throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+                }
             }
         }
         if (filter.notpwithin != null && !filter.notpwithin.isEmpty()) {
-            double[] tlbr = CheckParams.toDoubles(filter.notpwithin);
-            if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
-                throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            for(String npw : filter.notpwithin) {
+                double[] tlbr = CheckParams.toDoubles(npw);
+                if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
+                    throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+                }
             }
         }
     }
