@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-dockerlogin=`docker info | sed '/Username:/!d;s/.* //'`
-if  [ -z "$dockerlogin"  ] ; then echo "your are not logged on dockerhub"; exit -1; else  echo "logged as "$dockerlogin ; fi
-
 npmlogin=`npm whoami`
 if  [ -z "$npmlogin"  ] ; then echo "your are not logged on npm"; exit -1; else  echo "logged as "$npmlogin ; fi
 
