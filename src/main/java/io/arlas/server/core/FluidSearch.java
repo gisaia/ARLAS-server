@@ -32,10 +32,7 @@ import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.geo.builders.*;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoGridAggregationBuilder;
@@ -173,73 +170,83 @@ public class FluidSearch {
         return result;
     }
 
-    public FluidSearch filter(List<Expression> expressions) throws ArlasException {
-        for (Expression expression : expressions) {
-            if (Strings.isNullOrEmpty(expression.field) || expression.op == null || Strings.isNullOrEmpty(expression.value)) {
-                throw new InvalidParameterException(INVALID_PARAMETER_F);
-            }
-            String field = expression.field;
-            OperatorEnum op = expression.op;
-            String value = expression.value;
-            String fieldValues[] = value.split(",");
-            switch (op) {
-                case eq:
-                    if (fieldValues.length > 1) {
-                        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-                        for (String valueInValues : fieldValues) {
-                            orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(field, valueInValues));
-                        }
-                        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
-                    } else {
-                        boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.matchQuery(field, value));
-                    }
-                    break;
-                case gte:
-                    boolQueryBuilder = boolQueryBuilder
-                            .filter(QueryBuilders.rangeQuery(field).gte(value));
-                    break;
-                case gt:
-                    boolQueryBuilder = boolQueryBuilder
-                            .filter(QueryBuilders.rangeQuery(field).gt(value));
-                    break;
-                case lte:
-                    boolQueryBuilder = boolQueryBuilder
-                            .filter(QueryBuilders.rangeQuery(field).lte(value));
-                    break;
-                case lt:
-                    boolQueryBuilder = boolQueryBuilder
-                            .filter(QueryBuilders.rangeQuery(field).lt(value));
-                    break;
-                case like:
-                    //TODO: if field type is fullText, use matchPhraseQuery instead of regexQuery
-                    boolQueryBuilder = boolQueryBuilder
-                            .filter(QueryBuilders.regexpQuery(field, ".*" + value + ".*"));
-                    break;
-                case ne:
-                    for (String valueInValues : fieldValues) {
-                        boolQueryBuilder = boolQueryBuilder
-                                .mustNot(QueryBuilders.matchQuery(field, valueInValues));
-                    }
-                    break;
-                case range:
-                    field = getFieldFromFieldAliases(field);
-                    if (fieldValues.length > 1) {
-                        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-                        for (String valueInValues : fieldValues) {
-                            CheckParams.checkRangeValidity(valueInValues);
-                            orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(field, valueInValues));
-                        }
-                        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
-                    } else {
-                        CheckParams.checkRangeValidity(value);
-                        boolQueryBuilder = boolQueryBuilder.filter(getRangeQueryBuilder(field, value));
-                    }
-                    break;
-                default:
-                    throw new InvalidParameterException(INVALID_OPERATOR);
-            }
+    public FluidSearch filter(MultiValueFilter<Expression> f) throws ArlasException {
+        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+        for (Expression fFilter : f) {
+            orBoolQueryBuilder = orBoolQueryBuilder
+                    .should(filter(fFilter));
         }
+        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
+        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
         return this;
+    }
+
+    private BoolQueryBuilder filter(Expression expression) throws ArlasException {
+        BoolQueryBuilder ret = QueryBuilders.boolQuery();
+        if (Strings.isNullOrEmpty(expression.field) || expression.op == null || Strings.isNullOrEmpty(expression.value)) {
+            throw new InvalidParameterException(INVALID_PARAMETER_F);
+        }
+        String field = expression.field;
+        OperatorEnum op = expression.op;
+        String value = expression.value;
+        String fieldValues[] = value.split(",");
+        switch (op) {
+            case eq:
+                if (fieldValues.length > 1) {
+                    BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+                    for (String valueInValues : fieldValues) {
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(field, valueInValues));
+                    }
+                    ret = ret.filter(orBoolQueryBuilder);
+                } else {
+                    ret = ret.filter(QueryBuilders.matchQuery(field, value));
+                }
+                break;
+            case gte:
+                ret = ret
+                        .filter(QueryBuilders.rangeQuery(field).gte(value));
+                break;
+            case gt:
+                ret = ret
+                        .filter(QueryBuilders.rangeQuery(field).gt(value));
+                break;
+            case lte:
+                ret = ret
+                        .filter(QueryBuilders.rangeQuery(field).lte(value));
+                break;
+            case lt:
+                ret = ret
+                        .filter(QueryBuilders.rangeQuery(field).lt(value));
+                break;
+            case like:
+                //TODO: if field type is fullText, use matchPhraseQuery instead of regexQuery
+                ret = ret
+                        .filter(QueryBuilders.regexpQuery(field, ".*" + value + ".*"));
+                break;
+            case ne:
+                for (String valueInValues : fieldValues) {
+                    ret = ret
+                            .mustNot(QueryBuilders.matchQuery(field, valueInValues));
+                }
+                break;
+            case range:
+                field = getFieldFromFieldAliases(field);
+                if (fieldValues.length > 1) {
+                    BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+                    for (String valueInValues : fieldValues) {
+                        CheckParams.checkRangeValidity(valueInValues);
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(field, valueInValues));
+                    }
+                    ret = ret.filter(orBoolQueryBuilder);
+                } else {
+                    CheckParams.checkRangeValidity(value);
+                    ret = ret.filter(getRangeQueryBuilder(field, value));
+                }
+                break;
+            default:
+                throw new InvalidParameterException(INVALID_OPERATOR);
+        }
+        return ret;
     }
 
     public String getFieldFromFieldAliases(String fieldAlias) throws ArlasException {
@@ -259,8 +266,8 @@ public class FluidSearch {
     public RangeQueryBuilder getRangeQueryBuilder(String field, String value) throws ArlasException {
         boolean incMin = value.startsWith("[");
         boolean incMax = value.endsWith("]");
-        Object min = value.substring(1,value.lastIndexOf(";"));
-        Object max = value.substring(value.lastIndexOf(";")+1,value.length()-1);
+        Object min = value.substring(1,value.lastIndexOf("<"));
+        Object max = value.substring(value.lastIndexOf("<")+1,value.length()-1);
         if (field.equals(collectionReference.params.timestampPath)) {
             try {
                 min = Long.parseLong((String)min);
@@ -284,63 +291,110 @@ public class FluidSearch {
         return ret;
     }
 
-    public FluidSearch filterQ(String q) throws ArlasException {
-        String operands[] = q.split(":");
-        if (operands.length == 2) {
-            boolQueryBuilder = boolQueryBuilder
-                    .filter(QueryBuilders.simpleQueryStringQuery(operands[1]).defaultOperator(Operator.AND).field(operands[0]));
-        } else if (operands.length == 1) {
-            boolQueryBuilder = boolQueryBuilder
-                    .filter(QueryBuilders.simpleQueryStringQuery(operands[0]).defaultOperator(Operator.AND));
-        } else {
-            throw new InvalidParameterException(INVALID_Q_FILTER);
+    public FluidSearch filterQ(MultiValueFilter<String> q) throws ArlasException {
+        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+        for (String qFilter : q) {
+            String operands[] = qFilter.split(":");
+            if (operands.length == 2) {
+                orBoolQueryBuilder = orBoolQueryBuilder
+                        .should((QueryBuilders.simpleQueryStringQuery(operands[1]).defaultOperator(Operator.AND).field(operands[0])));
+            } else if (operands.length == 1) {
+                orBoolQueryBuilder = orBoolQueryBuilder
+                        .should((QueryBuilders.simpleQueryStringQuery(operands[0]).defaultOperator(Operator.AND)));
+            } else {
+                throw new InvalidParameterException(INVALID_Q_FILTER);
+            }
         }
+        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
+        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
         return this;
     }
 
-    public FluidSearch filterPWithin(double top, double left, double bottom, double right)
+    public FluidSearch filterPWithin(MultiValueFilter<String> pwithin) throws IOException, ArlasException {
+        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+        for (String pwithinFilter : pwithin) {
+            double[] tlbr = CheckParams.toDoubles(pwithinFilter);
+            orBoolQueryBuilder = orBoolQueryBuilder
+                    .should(filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
+        }
+        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
+        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
+        return this;
+    }
+
+    private GeoBoundingBoxQueryBuilder filterPWithin(double top, double left, double bottom, double right)
             throws ArlasException, IOException {
         GeoPoint topLeft = new GeoPoint(top, left);
         GeoPoint bottomRight = new GeoPoint(bottom, right);
-        boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders
-                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft, bottomRight));
+        return QueryBuilders
+                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft, bottomRight);
+    }
+
+    public FluidSearch filterNotPWithin(MultiValueFilter<String> notpwithin) throws IOException, ArlasException {
+        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+        for (String notpwithinFilter : notpwithin) {
+            double[] tlbr = CheckParams.toDoubles(notpwithinFilter);
+            orBoolQueryBuilder = orBoolQueryBuilder
+                    .should(filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
+        }
+        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(notpwithin.size());
+        boolQueryBuilder = boolQueryBuilder.mustNot(orBoolQueryBuilder);
         return this;
     }
 
-    public FluidSearch filterNotPWithin(double top, double left, double bottom, double right)
+    private GeoBoundingBoxQueryBuilder filterNotPWithin(double top, double left, double bottom, double right)
             throws ArlasException, IOException {
         GeoPoint topLeft = new GeoPoint(top, left);
         GeoPoint bottomRight = new GeoPoint(bottom, right);
-        boolQueryBuilder = boolQueryBuilder.mustNot(QueryBuilders
-                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft, bottomRight));
+        return QueryBuilders
+                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft, bottomRight);
+    }
+
+    public FluidSearch filterGWithin(MultiValueFilter<String> gwithin) throws ArlasException, IOException {
+        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+        for (String geometry : gwithin) {
+            ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+            orBoolQueryBuilder = orBoolQueryBuilder
+                    .should(QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, shapeBuilder));
+        }
+        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
+        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
         return this;
     }
 
-    public FluidSearch filterGWithin(String geometry) throws ArlasException, IOException {
-        ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
-        boolQueryBuilder = boolQueryBuilder
-                .filter(QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, shapeBuilder));
+    public FluidSearch filterNotGWithin(MultiValueFilter<String> notgwithin) throws ArlasException, IOException {
+        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+        for (String geometry : notgwithin) {
+            ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+            orBoolQueryBuilder = orBoolQueryBuilder
+                    .should(QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, shapeBuilder));
+        }
+        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(notgwithin.size());
+        boolQueryBuilder = boolQueryBuilder.mustNot(orBoolQueryBuilder);
         return this;
     }
 
-    public FluidSearch filterNotGWithin(String geometry) throws ArlasException, IOException {
-        ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
-        boolQueryBuilder = boolQueryBuilder
-                .mustNot(QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, shapeBuilder));
+    public FluidSearch filterGIntersect(MultiValueFilter<String> gintersect) throws ArlasException, IOException {
+        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+        for (String geometry : gintersect) {
+            ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+            orBoolQueryBuilder = orBoolQueryBuilder
+                    .should(QueryBuilders.geoIntersectionQuery(collectionReference.params.geometryPath, shapeBuilder));
+        }
+        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
+        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
         return this;
     }
 
-    public FluidSearch filterGIntersect(String geometry) throws ArlasException, IOException {
-        ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
-        boolQueryBuilder = boolQueryBuilder
-                .filter(QueryBuilders.geoIntersectionQuery(collectionReference.params.geometryPath, shapeBuilder));
-        return this;
-    }
-
-    public FluidSearch filterNotGIntersect(String geometry) throws ArlasException, IOException {
-        ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
-        boolQueryBuilder = boolQueryBuilder
-                .filter(QueryBuilders.geoDisjointQuery(collectionReference.params.geometryPath, shapeBuilder));
+    public FluidSearch filterNotGIntersect(MultiValueFilter<String> notgintersect) throws ArlasException, IOException {
+        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+        for (String geometry : notgintersect) {
+            ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+            orBoolQueryBuilder = orBoolQueryBuilder
+                    .should(QueryBuilders.geoIntersectionQuery(collectionReference.params.geometryPath, shapeBuilder));
+        }
+        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(notgintersect.size());
+        boolQueryBuilder = boolQueryBuilder.mustNot(orBoolQueryBuilder);
         return this;
     }
 

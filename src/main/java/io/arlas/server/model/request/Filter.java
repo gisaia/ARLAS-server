@@ -22,12 +22,12 @@ package io.arlas.server.model.request;
 import java.util.List;
 
 public class Filter {
-    public List<Expression> f;
-    public List<String> q;
-    public List<String> pwithin;
-    public List<String> gwithin;
-    public List<String> gintersect;
-    public List<String> notpwithin;
-    public List<String> notgwithin;
-    public List<String> notgintersect;
+    public List<MultiValueFilter<Expression>> f;
+    public List<MultiValueFilter<String>> q;
+    public List<MultiValueFilter<String>> pwithin;
+    public List<MultiValueFilter<String>> gwithin;
+    public List<MultiValueFilter<String>> gintersect;
+    public List<MultiValueFilter<String>> notpwithin;
+    public List<MultiValueFilter<String>> notgwithin;
+    public List<MultiValueFilter<String>> notgintersect;
 }

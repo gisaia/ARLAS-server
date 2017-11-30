@@ -37,7 +37,7 @@ public class Documentation {
             "- For a geodistance sort, specify the point, from which the distances are calculated, as follow : 'geodistance:lat lon'" +
             "\n \n";
 
-    public static final String FILTER_PARAM_F="- A triplet for filtering the result. Multiple filter can be provided. " +
+    public static final String FILTER_PARAM_F="- A triplet for filtering the result. Multiple filter can be provided in distinct parameters (AND operator is applied) or in the same parameter separated by semi-colons (OR operator is applied). " +
             "The order does not matter. " +
             "\n \n" +
             "- A triplet is composed of a field name, a comparison operator and a value. " +
@@ -62,18 +62,7 @@ public class Documentation {
             "\n \n" +
             "       :lt:     | {fieldName}  is less than {value}                | numeric " +
             "\n \n" +
-            "       :range:  | {fieldName} is between `{comma separated [min-max] values}`. **OR** operation is applied for the specified ranges | numeric or strings" +
-            "\n \n" +
-            "\n \n" +
-            "- The AND operator is applied between filters having different fieldNames. " +
-            "\n \n" +
-            "- The OR operator is applied on filters having the same fieldName. " +
-            "\n \n" +
-            "- If the fieldName starts with - then a must not filter is used" +
-            "\n \n" +
-            "- If the fieldName starts with - then a must not filter is used" +
-            "\n \n" +
-            "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ";
+            "       :range:  | {fieldName} is between `{comma separated [min-max] values}`. **OR** operation is applied for the specified ranges | numeric or strings";
 
     public static final String FILTER_PARAM_Q="A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}";
     public static final String FILTER_PARAM_PWITHIN="Any element having its centroid contained within the given bbox : 'top, left, bottom, right'. ";

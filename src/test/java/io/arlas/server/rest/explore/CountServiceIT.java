@@ -67,8 +67,8 @@ public class CountServiceIT extends AbstractFilteredTest {
     }
     
     @Override
-    protected void handleMatchingQueryFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,595); 
+    protected void handleMatchingQueryFilter(ValidatableResponse then, int nbResults) throws Exception {
+        handleMatchingFilter(then,nbResults);
     }
 
     @Override

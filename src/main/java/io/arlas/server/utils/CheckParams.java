@@ -56,18 +56,22 @@ public class CheckParams {
     }
     public static void checkFilter (Filter filter) throws ArlasException{
         if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
-            for(String pw : filter.pwithin) {
-                double[] tlbr = CheckParams.toDoubles(pw);
-                if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
-                    throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            for(MultiValueFilter<String> multiPwithin : filter.pwithin) {
+                for(String pw : multiPwithin) {
+                    double[] tlbr = CheckParams.toDoubles(pw);
+                    if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
+                        throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+                    }
                 }
             }
         }
         if (filter.notpwithin != null && !filter.notpwithin.isEmpty()) {
-            for(String npw : filter.notpwithin) {
-                double[] tlbr = CheckParams.toDoubles(npw);
-                if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
-                    throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            for(MultiValueFilter<String> multiNotPwithin : filter.notpwithin) {
+                for(String npw : multiNotPwithin) {
+                    double[] tlbr = CheckParams.toDoubles(npw);
+                    if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
+                        throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+                    }
                 }
             }
         }
@@ -116,7 +120,7 @@ public class CheckParams {
     public static void checkRangeValidity(String range) throws ArlasException {
         if((range.isEmpty() || !(range.startsWith("[") || range.startsWith("]")) ||
                         !(range.endsWith("[") || range.endsWith("]")) ||
-                        !(range.contains(";")))) {
+                        !(range.contains("<")))) {
             throw new java.security.InvalidParameterException(FluidSearch.INVALID_PARAMETER_F);
         }
     }

@@ -121,42 +121,42 @@ public class ExploreServices {
         if (filter !=null) {
             CheckParams.checkFilter(filter);
             if (filter.f != null && !filter.f.isEmpty()) {
-                fluidSearch = fluidSearch.filter(filter.f);
+                for(MultiValueFilter<Expression> f : filter.f) {
+                    fluidSearch = fluidSearch.filter(f);
+                }
             }
             if (filter.q != null && !filter.q.isEmpty()) {
-                for(String q : filter.q) {
+                for(MultiValueFilter<String> q : filter.q) {
                     fluidSearch = fluidSearch.filterQ(q);
                 }
             }
             if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
-                for(String pw : filter.pwithin) {
-                    double[] tlbr = CheckParams.toDoubles(pw);
-                    fluidSearch = fluidSearch.filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+                for(MultiValueFilter<String> pw : filter.pwithin) {
+                    fluidSearch = fluidSearch.filterPWithin(pw);
                 }
             }
             if (filter.gwithin != null && !filter.gwithin.isEmpty()) {
-                for(String gw : filter.gwithin) {
+                for(MultiValueFilter<String> gw : filter.gwithin) {
                     fluidSearch = fluidSearch.filterGWithin(gw);
                 }
             }
             if (filter.gintersect != null && !filter.gintersect.isEmpty()) {
-                for(String gi : filter.gintersect) {
+                for(MultiValueFilter<String> gi : filter.gintersect) {
                     fluidSearch = fluidSearch.filterGIntersect(gi);
                 }
             }
             if (filter.notpwithin != null && !filter.notpwithin.isEmpty()) {
-                for(String npw : filter.notpwithin) {
-                    double[] tlbr = CheckParams.toDoubles(npw);
-                    fluidSearch = fluidSearch.filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]);
+                for(MultiValueFilter<String> npw : filter.notpwithin) {
+                    fluidSearch = fluidSearch.filterNotPWithin(npw);
                 }
             }
             if (filter.notgwithin != null && !filter.notgwithin.isEmpty()) {
-                for(String ngw : filter.notgwithin) {
+                for(MultiValueFilter<String> ngw : filter.notgwithin) {
                     fluidSearch = fluidSearch.filterNotGWithin(ngw);
                 }
             }
             if (filter.notgintersect != null && !filter.notgintersect.isEmpty()) {
-                for(String ngi : filter.notgintersect) {
+                for(MultiValueFilter<String> ngi : filter.notgintersect) {
                     fluidSearch = fluidSearch.filterNotGIntersect(ngi);
                 }
             }
