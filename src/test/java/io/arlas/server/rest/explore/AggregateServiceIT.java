@@ -207,9 +207,9 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
     
     @Override
-    protected void handleMatchingQueryFilter(ValidatableResponse then) throws Exception {
+    protected void handleMatchingQueryFilter(ValidatableResponse then, int nbResults) throws Exception {
         then.statusCode(200)
-        .body("elements.size()", equalTo(595));
+        .body("elements.size()", equalTo(nbResults));
     }
 
     @Override

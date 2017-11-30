@@ -23,6 +23,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.hasKey;
 
+import io.arlas.server.model.request.MultiValueFilter;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
@@ -79,9 +80,9 @@ public class SearchServiceIT extends AbstractSortedTest {
     //----------------------------------------------------------------
 
     @Override
-    protected void handleMatchingQueryFilter(ValidatableResponse then) throws Exception {
+    protected void handleMatchingQueryFilter(ValidatableResponse then, int nbResults) throws Exception {
         then.statusCode(200)
-        .body("totalnb", equalTo(595));
+        .body("totalnb", equalTo(nbResults));
     }
 
     @Override
@@ -116,7 +117,7 @@ public class SearchServiceIT extends AbstractSortedTest {
 
     @Override
     protected RequestSpecification givenBigSizedRequestParamsPost() {
-        search.filter.q = Arrays.asList("My name is");
+        search.filter.q = Arrays.asList(new MultiValueFilter<>("My name is"));
         return given().contentType("application/json");
     }
 

@@ -206,9 +206,9 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
     
     @Override
-    protected void handleMatchingQueryFilter(ValidatableResponse then) throws Exception {
+    protected void handleMatchingQueryFilter(ValidatableResponse then, int nbResults) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(595));
+        .body("features.size()", equalTo(nbResults));
     }
     
     @Override

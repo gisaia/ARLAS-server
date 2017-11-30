@@ -28,7 +28,6 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
 import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 import io.dropwizard.jersey.params.IntParam;
-import io.dropwizard.jersey.params.LongParam;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoPoint;
 
@@ -151,23 +150,48 @@ public class ParamsParser {
         Filter filter = new Filter();
         filter.f = new ArrayList<>();
 
-        for (String f : filters) {
-            if (!Strings.isNullOrEmpty(f)) {
-                String operands[] = f.split(":");
-                if (operands.length != 3) {
-                    throw new InvalidParameterException(FluidSearch.INVALID_PARAMETER_F+": '"+f+"'");
+        for (String multiF : filters) {
+            MultiValueFilter<Expression> multiFilter = new MultiValueFilter<>();
+            for(String f : getMultiFiltersFromSemiColonsSeparatedString(multiF)) {
+                if (!Strings.isNullOrEmpty(f)) {
+                    String operands[] = f.split(":");
+                    if (operands.length != 3) {
+                        throw new InvalidParameterException(FluidSearch.INVALID_PARAMETER_F + ": '" + f + "'");
+                    }
+                    multiFilter.add(new Expression(operands[0], OperatorEnum.valueOf(operands[1]), operands[2]));
                 }
-                filter.f.add(new Expression(operands[0], OperatorEnum.valueOf(operands[1]), operands[2]));
+            }
+            filter.f.add(multiFilter);
+        }
+        filter.q = getStringMultiFilter(q);
+        filter.pwithin = getStringMultiFilter(pwithin);
+        filter.gwithin = getStringMultiFilter(gwithin);
+        filter.gintersect = getStringMultiFilter(gintersect);
+        filter.notpwithin = getStringMultiFilter(notpwithin);
+        filter.notgwithin = getStringMultiFilter(notgwithin);
+        filter.notgintersect = getStringMultiFilter(notgintersect);
+        return filter;
+    }
+
+    private static List<MultiValueFilter<String>> getStringMultiFilter(List<String> filters) {
+        List<MultiValueFilter<String>> ret = null;
+        if(filters != null && !filters.isEmpty()) {
+            ret = new ArrayList<>();
+            for (String multiFilterString : filters) {
+                MultiValueFilter<String> multiFilter = new MultiValueFilter<>();
+                for (String filter : getMultiFiltersFromSemiColonsSeparatedString(multiFilterString)) {
+                    if (!Strings.isNullOrEmpty(filter)) {
+                        multiFilter.add(filter);
+                    }
+                }
+                ret.add(multiFilter);
             }
         }
-        filter.q = q;
-        filter.pwithin = pwithin;
-        filter.gwithin = gwithin;
-        filter.gintersect = gintersect;
-        filter.notpwithin = notpwithin;
-        filter.notgwithin = notgwithin;
-        filter.notgintersect = notgintersect;
-        return filter;
+        return ret;
+    }
+
+    private static String[] getMultiFiltersFromSemiColonsSeparatedString(String filters) {
+        return filters.split(";");
     }
 
     public static Size getSize(IntParam size, IntParam from) throws ArlasException {

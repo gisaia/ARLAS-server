@@ -1,9 +1,6 @@
 package io.arlas.server.rest.explore;
 
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Projection;
-import io.arlas.server.model.request.Size;
-import io.arlas.server.model.request.Sort;
+import io.arlas.server.model.request.*;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,16 +22,16 @@ public abstract class AbstractXYZTiledTest extends AbstractSortedTest {
         handleXYZWithoutFilters(xyzTileGet(null, null, 2, 2, 1), "0,0", "66.6,90");
         handleXYZWithoutFilters(xyzTileGet(null, null, 2, 3, 0), "66.6,90", "86,180");
 
-        search.filter.pwithin = Arrays.asList("80,-30,60,50");
-        handleXYZWithPwithin(xyzTileGet("pwithin", search.filter.pwithin.get(0).toString(), 2, 2, 0), "66.5,0", "80,50");
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("80,-30,60,50"));
+        handleXYZWithPwithin(xyzTileGet("pwithin", search.filter.pwithin.get(0).get(0).toString(), 2, 2, 0), "66.5,0", "80,50");
 
 
-        search.filter.pwithin = Arrays.asList("-5,180,-67,-1");
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-5,180,-67,-1"));
         // inverted the order of bottomLeft and topRight parameters because of the negative values
-        handleXYZWithPwithin(xyzTileGet("pwithin", search.filter.pwithin.get(0).toString(), 2, 1, 2), "-10,-10", "-60,-90");
+        handleXYZWithPwithin(xyzTileGet("pwithin", search.filter.pwithin.get(0).get(0).toString(), 2, 1, 2), "-10,-10", "-60,-90");
 
-        search.filter.pwithin = Arrays.asList("5,-5,0,0");
-        handleXYZDisjointFromPwithin(xyzTileGet("pwithin", search.filter.pwithin.get(0).toString(), 2, 2, 0));
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("5,-5,0,0"));
+        handleXYZDisjointFromPwithin(xyzTileGet("pwithin", search.filter.pwithin.get(0).get(0).toString(), 2, 2, 0));
         search.filter.pwithin = null;
 
     }

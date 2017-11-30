@@ -22,6 +22,7 @@ package io.arlas.server.rest.explore;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
+import io.arlas.server.model.request.MultiValueFilter;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
@@ -76,9 +77,9 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     }
     
     @Override
-    protected void handleMatchingQueryFilter(ValidatableResponse then) throws Exception {
+    protected void handleMatchingQueryFilter(ValidatableResponse then, int nbResults) throws Exception {
         then.statusCode(200)
-        .body("features.size()", equalTo(10));//get only default sized result array
+        .body("features.size()", equalTo(Math.min(nbResults,10)));//get only default sized result array
     }
 
     @Override
@@ -113,7 +114,7 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
 
     @Override
     protected RequestSpecification givenBigSizedRequestParamsPost() {
-        search.filter.q = Arrays.asList("My name is");
+        search.filter.q = Arrays.asList(new MultiValueFilter<>("My name is"));
         return given().contentType("application/json");
     }
     
