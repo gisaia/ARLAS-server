@@ -6,8 +6,7 @@
     ]
   },
   "form": {
-    "pretty": true,
-    "human": true
+    "pretty": true
   },
   "size": {
     "size": 3,
