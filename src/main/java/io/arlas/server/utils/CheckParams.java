@@ -47,6 +47,7 @@ public class CheckParams {
 
     public CheckParams() {
     }
+
     public static void checkAggregationRequest(Request request) throws ArlasException{
         if (request == null ||  !(request instanceof AggregationsRequest) || ((AggregationsRequest)request).aggregations == null)
             throw new BadRequestException("Aggregation should not be null");
@@ -54,6 +55,7 @@ public class CheckParams {
             checkAggregation((AggregationsRequest)request);
         }
     }
+
     public static void checkFilter (Filter filter) throws ArlasException{
         if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
             for(MultiValueFilter<String> multiPwithin : filter.pwithin) {
@@ -88,8 +90,6 @@ public class CheckParams {
             throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
         }
     }
-
-
 
     public static void checkSize (Size size) throws ArlasException{
         if (size.size != null && size.size > 0) {

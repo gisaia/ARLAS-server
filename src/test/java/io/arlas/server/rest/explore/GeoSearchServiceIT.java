@@ -191,15 +191,10 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     //----------------------------------------------------------------
 
     @Override
-    protected void handleXYZWithoutFilters(ValidatableResponse then, String bottomLeft, String topRight) throws Exception {
+    protected void handleXYZ(ValidatableResponse then, String bottomLeft, String topRight) throws Exception {
         then.statusCode(200)
         .body("features.properties.geo_params.centroid", everyItem(greaterThanOrEqualTo(bottomLeft)))
         .body("features.properties.geo_params.centroid", everyItem(lessThanOrEqualTo(topRight)));
-    }
-
-    @Override
-    protected void handleXYZWithPwithin(ValidatableResponse then, String bottomLeft, String topRight) throws Exception{
-        handleXYZWithoutFilters(then, bottomLeft, topRight);
     }
 
     @Override

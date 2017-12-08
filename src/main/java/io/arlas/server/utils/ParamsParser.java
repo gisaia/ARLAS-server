@@ -173,7 +173,7 @@ public class ParamsParser {
         return filter;
     }
 
-    private static List<MultiValueFilter<String>> getStringMultiFilter(List<String> filters) {
+    public static List<MultiValueFilter<String>> getStringMultiFilter(List<String> filters) {
         List<MultiValueFilter<String>> ret = null;
         if(filters != null && !filters.isEmpty()) {
             ret = new ArrayList<>();
@@ -254,6 +254,27 @@ public class ParamsParser {
         TimestampTypeMapper.formatDate(max, format);
     }
 
+    public static List<String> simplifyPwithinAgainstBbox(List<String>  pwithin, BoundingBox bbox) throws ArlasException {
+        List<String> simplifiedPwithin = new ArrayList<>();
+        List<MultiValueFilter<String>> pwithinFilters = ParamsParser.getStringMultiFilter(pwithin);
+        if(pwithinFilters != null && !pwithinFilters.isEmpty()){
+            for(MultiValueFilter<String> pws : pwithinFilters) {
+                StringBuffer buff = new StringBuffer();
+                for(String pw : pws) {
+                    BoundingBox simplifiedBbox = GeoTileUtil.bboxIntersects(bbox, pw);
+                    if(simplifiedBbox != null && simplifiedBbox.getNorth() > simplifiedBbox.getSouth()) {
+                        if(buff.length()>0)
+                            buff.append(";");
+                        buff.append(simplifiedBbox.getNorth() + "," + simplifiedBbox.getWest() + "," + simplifiedBbox.getSouth() + "," + simplifiedBbox.getEast());
+                    }
+                }
+                if(buff.length()>0) {
+                    simplifiedPwithin.add(buff.toString());
+                }
+            }
+        }
+        return simplifiedPwithin;
+    }
 
     private static Integer tryParseInteger(String text) {
         try {
