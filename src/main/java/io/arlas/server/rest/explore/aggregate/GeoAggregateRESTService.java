@@ -269,11 +269,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             geohash=geohash.substring(1,geohash.length());
         }
         BoundingBox bbox = GeoTileUtil.getBoundingBox(geohash);
-        if(pwithin != null && !pwithin.isEmpty()){
-            for(String pw : pwithin) {
-                bbox = GeoTileUtil.bboxIntersects(bbox, pw);
-            }
-        }
+        String pwithinBbox = bbox.getNorth() + "," + bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast();
+
+        //check if every pwithin param has a value that intersects bbox
+        List<String> simplifiedPwithin = ParamsParser.simplifyPwithinAgainstBbox(pwithin, bbox);
+
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
@@ -284,14 +284,16 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             agg= Collections.singletonList("geohash:"+collectionReference.params.centroidPath+":interval-"+geohash.length());
         }
 
-        if (bbox != null && bbox.getNorth() > bbox.getSouth()) {
-            pwithin=Arrays.asList(bbox.getNorth()+","+bbox.getWest()+","+bbox.getSouth()+","+bbox.getEast());
+        if (bbox != null && bbox.getNorth() > bbox.getSouth()
+                // if sizes are not equals, it means one multi-value pwithin does not intersects bbox => no results
+                && pwithin.size()==simplifiedPwithin.size()) {
+            simplifiedPwithin.add(pwithinBbox);
             return this.geoaggregate(
                     collection,
                     agg,
                     f,
                     q,
-                    pwithin,
+                    simplifiedPwithin,
                     gwithin,
                     gintersect,
                     notpwithin,
