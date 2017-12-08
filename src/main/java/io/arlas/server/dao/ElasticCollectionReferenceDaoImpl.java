@@ -238,6 +238,8 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 fields.add(collectionRefParams.timestampPath);
             if(!fields.isEmpty())
                 checkIndexMappingFields(collectionRefParams, fields.toArray(new String[fields.size()]));
+        } catch (ArlasException e) {
+            throw e;
         } catch (IndexNotFoundException e) {
             throw new NotFoundException("Index "+collectionRefParams.indexName+" does not exist.");
         } catch (Exception e) {
