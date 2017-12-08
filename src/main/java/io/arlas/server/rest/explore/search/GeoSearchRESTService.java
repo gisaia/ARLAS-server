@@ -21,6 +21,7 @@ package io.arlas.server.rest.explore.search;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import javax.ws.rs.core.Response;
 
 import io.arlas.server.exceptions.NotImplementedException;
 import io.arlas.server.model.request.MixedRequest;
+import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.utils.*;
 import org.apache.logging.log4j.util.Strings;
@@ -358,18 +360,20 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x,y,z));
-        if(pwithin != null && !pwithin.isEmpty()){
-            for(String pw : pwithin) {
-                bbox = GeoTileUtil.bboxIntersects(bbox, pw);
-            }
-        }
-        if (bbox != null && bbox.getNorth() > bbox.getSouth()) {
-            pwithin = Arrays.asList(bbox.getNorth() + "," + bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast());
+        String pwithinBbox = bbox.getNorth() + "," + bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast();
+
+        //check if every pwithin param has a value that intersects bbox
+        List<String> simplifiedPwithin = ParamsParser.simplifyPwithinAgainstBbox(pwithin, bbox);
+
+        if (bbox != null && bbox.getNorth() > bbox.getSouth()
+                // if sizes are not equals, it means one multi-value pwithin does not intersects bbox => no results
+                && pwithin.size()==simplifiedPwithin.size()) {
+            simplifiedPwithin.add(pwithinBbox);
             return this.geosearch(
                     collection,
                     f,
                     q,
-                    pwithin,
+                    simplifiedPwithin,
                     gwithin,
                     gintersect,
                     notpwithin,
