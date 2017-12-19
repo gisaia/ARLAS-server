@@ -107,7 +107,7 @@ The resulting list contains one item which is **airport_collection**.
 
 If you want to describe a collection reference specifically, use : **GET** `/explore/{collection}/_describe`
 
-- `curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/explore/airport_collection/_describe?pretty=false&human=false'`
+- `curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/explore/airport_collection/_describe?pretty=false'`
 
 ### 3. Count :
 
@@ -125,13 +125,12 @@ Assuming you want to know the number of airports located in France and whose are
                 ]
               },
               "form": {
-                "pretty": true,
-                "human": true
+                "pretty": true
               }
             }
 
  - **GET** :
-     - `curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/explore/airport_collection/_count?f=country%3Aeq%3AFrance&f=area%3Agte%3A10&pretty=false&human=false'`
+     - `curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/explore/airport_collection/_count?f=country%3Aeq%3AFrance&f=area%3Agte%3A10&pretty=false'`
 
 The result should be 16 airports.
 
@@ -157,8 +156,7 @@ that you're only interested in the 3 smallest ones.
                 ]
               },
               "form": {
-                "pretty": true,
-                "human": true
+                "pretty": true
               },
               "size": {
                 "size": 3,
@@ -172,7 +170,7 @@ that you're only interested in the 3 smallest ones.
 
 
 - **GET** :
-     - `curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/explore/airport_collection/_search?f=country%3Aeq%3AUS&f=arrival_passengers%3Alte%3A120000&pretty=false&human=false&include=*&size=3&from=0&sort=area'`
+     - `curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/explore/airport_collection/_search?f=country%3Aeq%3AUS&f=arrival_passengers%3Alte%3A120000&pretty=false&include=*&size=3&from=0&sort=area'`
 
 ##### Example 2 :
 
@@ -193,7 +191,6 @@ that you want the result to be sorted decreasingly on the number of departure pa
               },
               "form": {
                 "pretty": true,
-                "human": true
               },
               "sort": {
                 "sort": "-departure_passengers"
@@ -201,7 +198,7 @@ that you want the result to be sorted decreasingly on the number of departure pa
             }
 
  - **GET** :
-    - `curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/explore/airport_collection/_geosearch?f=country%3Aeq%3AFrance&f=area%3Agte%3A5&pwithin=45.3%2C-1%2C42.6%2C2.7&pretty=false&human=false&exclude=city%2Cstate&size=10&from=0&sort=-departure_passengers'`
+    - `curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/explore/airport_collection/_geosearch?f=country%3Aeq%3AFrance&f=area%3Agte%3A5&pwithin=45.3%2C-1%2C42.6%2C2.7&pretty=false&exclude=city%2Cstate&size=10&from=0&sort=-departure_passengers'`
 
 ### 4. Aggregate - GeoAggregate :
 
@@ -223,8 +220,7 @@ Assuming you want to know the number of airports and the area of the largest one
                 ]
               },
               "form": {
-                "pretty": true,
-                "human": true
+                "pretty": true
               },
               "aggregations": {
                 "aggregations": [
@@ -239,7 +235,7 @@ Assuming you want to know the number of airports and the area of the largest one
             }
 
  - **GET**:
-    - `curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/explore/airport_collection/_aggregate?agg=term%3Acountry%3Acollect_field-area%3Acollect_fct-max&f=continent%3Aeq%3AEurope&pretty=false&human=false'`
+    - `curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/explore/airport_collection/_aggregate?agg=term%3Acountry%3Acollect_field-area%3Acollect_fct-max&f=continent%3Aeq%3AEurope&pretty=false&'`
 
 
 ##### Example 2 :
@@ -252,8 +248,7 @@ Assuming you want to aggregate the airports on geohashes which length is 1 . The
 
     {
       "form": {
-        "pretty": true,
-        "human": true
+        "pretty": true
       },
       "aggregations": {
         "aggregations": [
@@ -274,4 +269,4 @@ Assuming you want to aggregate the airports on geohashes which length is 1 . The
 
 
  - **GET**:
-    -`curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/explore/airport_collection/_geoaggregate?agg=geohash%3Acentroid%3Ainterval-1&agg=term%3Aairport_type%3Acollect_field-arrival_passengers%3Acollect_fct-sum&pretty=false&human=false'`
+    -`curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/explore/airport_collection/_geoaggregate?agg=geohash%3Acentroid%3Ainterval-1&agg=term%3Aairport_type%3Acollect_field-arrival_passengers%3Acollect_fct-sum&pretty=false'`

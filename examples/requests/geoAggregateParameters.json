@@ -1,7 +1,6 @@
 {
   "form": {
-    "pretty": true,
-    "human": true
+    "pretty": true
   },
   "aggregations": {
     "aggregations": [

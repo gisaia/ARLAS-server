@@ -7,8 +7,7 @@
     "pwithin": "45.3,-1,42.6,2.7"
   },
   "form": {
-    "pretty": true,
-    "human": true
+    "pretty": true
   },
   "sort": {
     "sort": "-departure_passengers"
