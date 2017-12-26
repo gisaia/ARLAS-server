@@ -1,19 +1,33 @@
-# fetch basic image
-FROM maven:3.5.0-jdk-8
+#####################
+# COMPILATION STAGE #
+#####################
+FROM maven:3.5-jdk-8-alpine as build
+WORKDIR /opt/app
 
-# install netcat
-RUN apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install netcat -y
+# selectively add the POM file
+ADD pom.xml /opt/app/
+# get all the downloads out of the way
+RUN mvn verify clean --fail-never
+
+# build all project
+COPY . /opt/app
+RUN mvn install
+
+###################
+# PACKAGING STAGE #
+###################
+FROM openjdk:8-jre-alpine
+ARG version
+ENV artifact arlas-server-${version}.jar
+
+# install nc for wait-for-elasticsearch.sh
+RUN apk add --update netcat-openbsd && rm -rf /var/cache/apk/*
 
 # application placed into /opt/app
-RUN mkdir -p /opt/app
 WORKDIR /opt/app
-ADD target/arlas-server.jar /opt/app/arlas-server.jar
-ADD conf/configuration.yaml /opt/app/configuration.yaml
-ADD scripts/wait-for-elasticsearch.sh /opt/app/wait-for-elasticsearch.sh
-
-# local application port
+COPY --from=build /opt/app/target/${artifact} /opt/app/arlas-server.jar
+COPY --from=build /opt/app/conf/configuration.yaml /opt/app
+COPY --from=build /opt/app/scripts/wait-for-elasticsearch.sh /opt/app
 EXPOSE 9999
 
-# execute it
-CMD java -jar /opt/app/arlas-server.jar server configuration.yaml
+CMD java -jar /opt/app/arlas-server.jar server /opt/app/configuration.yaml
