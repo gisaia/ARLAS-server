@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e
 
-function clean_docker {
-	docker kill arlas-server || echo "arlas-server already killed"
-	docker rm arlas-server || echo "arlas-server already removed"
-	docker kill elasticsearch || echo "elasticsearch already killed"
-	docker rm elasticsearch || echo "elasticsearch already removed"
+export ARLAS_VERSION=`xmlstarlet sel -t -v /_:project/_:version pom.xml`
+export ELASTIC_VERSION="5.6.5"
 
-	echo "===> clean maven repository"
+function clean_docker {
+    echo "===> stop arlas-server stack"
+    docker-compose down
+    echo "===> clean maven repository"
 	docker run --rm \
 		-w /opt/maven \
 		-v $PWD:/opt/maven \
@@ -30,12 +30,11 @@ usage(){
 	exit 1
 }
 
-ES_VERSION="5.6.3"
 for i in "$@"
 do
 case $i in
     --es=*)
-    ES_VERSION="${i#*=}"
+    ELASTIC_VERSION="${i#*=}"
     shift # past argument=value
     ;;
     *)
@@ -44,7 +43,7 @@ case $i in
 esac
 done
 
-if [ -z ${ES_VERSION+x} ]; then usage; else echo "ARLAS-server tested with Elasticsearch version : ${ES_VERSION}"; fi
+if [ -z ${ELASTIC_VERSION+x} ]; then usage; else echo "ARLAS-server tested with Elasticsearch version : ${ELASTIC_VERSION}"; fi
 
 # GO TO PROJECT PATH
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
@@ -55,40 +54,23 @@ echo "===> kill/rm old containers if needed"
 clean_docker
 
 # PACKAGE
-echo "===> package arlas-server"
-mvn clean install
-VERSION=`xmlstarlet sel -t -v /_:project/_:version pom.xml`
-echo "arlas-server:${VERSION}"
-mv target/arlas-server-${VERSION}.jar target/arlas-server.jar
+echo "===> compile arlas-server"
+docker run --rm \
+    -w /opt/maven \
+	-v $PWD:/opt/maven \
+	-v $HOME/.m2:/root/.m2 \
+	maven:3.5.0-jdk-8 \
+	mvn clean install
+echo "arlas-server:${ARLAS_VERSION}"
 
 # BUILD
-echo "===> build arlas-server"
-docker build --tag=arlas-server:${VERSION} .
-echo "===> pull elasticsearch"
-docker pull docker.elastic.co/elasticsearch/elasticsearch:${ES_VERSION}
+echo "===> build arlas-server docker image"
+docker build --build-arg version=${ARLAS_VERSION} --tag=arlas-server:${ARLAS_VERSION} -f Dockerfile-package-only .
 
-# RUN
-echo "===> start elasticsearch"
-docker run -d \
-	--name elasticsearch \
-	-p 19200:9200 \
-    -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
-    -e xpack.security.enabled=false \
-    -e xpack.monitoring.enabled=false \
-    -e xpack.graph.enabled=false \
-	-e xpack.watcher.enabled=false \
-	docker.elastic.co/elasticsearch/elasticsearch:${ES_VERSION}
-echo "===> wait for elasticsearch"
-docker run --link elasticsearch:elasticsearch --rm busybox sh -c 'i=1; until nc -w 2 elasticsearch 9200; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
+echo "===> start arlas-server stack"
+docker-compose up -d
 
-echo "===> start arlas-server"
-docker run -ti -d \
-	--name arlas-server \
-	-p 19999:9999 \
-	--link elasticsearch:elasticsearch \
-  -e "ARLAS_ELASTIC_CLUSTER=docker-cluster" \
-	arlas-server:${VERSION}
-echo "===> wait for arlas-server"
+echo "===> wait for arlas-server up and running"
 docker run --link arlas-server:arlas-server --rm busybox sh -c 'i=1; until nc -w 2 arlas-server 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
 
 # TEST
