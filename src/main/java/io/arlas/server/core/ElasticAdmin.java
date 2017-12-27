@@ -27,7 +27,7 @@ import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 
@@ -36,8 +36,8 @@ import java.util.*;
 
 public class ElasticAdmin {
 
-    public TransportClient client;
-    public ElasticAdmin(TransportClient client){
+    public Client client;
+    public ElasticAdmin(Client client){
         this.client = client;
     }
 

@@ -29,7 +29,7 @@ import org.apache.lucene.geo.Rectangle;
 import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoHashUtils;
 import org.elasticsearch.common.geo.GeoPoint;
@@ -51,21 +51,21 @@ import org.elasticsearch.search.aggregations.metrics.geocentroid.GeoCentroid;
 import org.geojson.*;
 
 public class ExploreServices {
-    private TransportClient client;
+    private Client client;
     private CollectionReferenceDao daoCollectionReference;
     private ResponseCacheManager responseCacheManager = null;
 
-    public ExploreServices(TransportClient client, ArlasServerConfiguration configuration) {
+    public ExploreServices(Client client, ArlasServerConfiguration configuration) {
         this.client = client;
         this.daoCollectionReference = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
         this.responseCacheManager = new ResponseCacheManager(configuration.arlasrestcachetimeout);
     }
 
-    public TransportClient getClient() {
+    public Client getClient() {
         return client;
     }
 
-    public void setClient(TransportClient client) {
+    public void setClient(Client client) {
         this.client = client;
     }
 

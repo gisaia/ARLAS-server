@@ -31,7 +31,6 @@ import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import org.apache.logging.log4j.core.util.IOUtils;
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -39,7 +38,7 @@ import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -58,11 +57,11 @@ import java.util.concurrent.TimeUnit;
 public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao {
 
 
-    TransportClient client = null;
+    Client client = null;
     String arlasIndex = null;
     private static LoadingCache<String, CollectionReference> collections = null;
 
-    public ElasticCollectionReferenceDaoImpl(TransportClient client, String arlasIndex, int arlasCacheSize, int arlasCacheTimeout) {
+    public ElasticCollectionReferenceDaoImpl(Client client, String arlasIndex, int arlasCacheSize, int arlasCacheTimeout) {
         super();
         this.client = client;
         this.arlasIndex = arlasIndex;

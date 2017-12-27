@@ -31,7 +31,7 @@ import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.utils.MapExplorer;
 import io.dropwizard.servlets.tasks.Task;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class CollectionAutoDiscover extends Task implements Runnable {
 
     Logger LOGGER = LoggerFactory.getLogger(CollectionAutoDiscover.class);
 
-    public CollectionAutoDiscover(TransportClient client, ArlasServerConfiguration configuration) {
+    public CollectionAutoDiscover(Client client, ArlasServerConfiguration configuration) {
         super("collection-auto-discover");
         this.admin = new ElasticAdmin(client);
         this.configuration = configuration.collectionAutoDiscoverConfiguration;
