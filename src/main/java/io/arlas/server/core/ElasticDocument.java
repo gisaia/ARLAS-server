@@ -23,15 +23,15 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.Client;
 
 import io.arlas.server.model.CollectionReference;
 
 public class ElasticDocument {
 
-    public TransportClient client;
+    public Client client;
     
-    public ElasticDocument(TransportClient client){
+    public ElasticDocument(Client client){
         this.client = client;
     }
     

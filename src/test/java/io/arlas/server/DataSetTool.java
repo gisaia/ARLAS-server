@@ -30,7 +30,7 @@ import java.util.Optional;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.AdminClient;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
@@ -53,7 +53,7 @@ public class DataSetTool {
 
 
     AdminClient adminClient;
-    TransportClient client;
+    Client client;
 
     public static void main(String [] args) throws IOException {
         DataSetTool dst = DataSetTool.init(args[0], Integer.parseInt(args[1]));

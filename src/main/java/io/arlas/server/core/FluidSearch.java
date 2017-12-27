@@ -27,7 +27,7 @@ import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ParamsParser;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.common.geo.GeoPoint;
@@ -113,7 +113,7 @@ public class FluidSearch {
 
     private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
 
-    private TransportClient client;
+    private Client client;
     private SearchRequestBuilder searchRequestBuilder;
     private BoolQueryBuilder boolQueryBuilder;
     private CollectionReference collectionReference;
@@ -121,7 +121,7 @@ public class FluidSearch {
     private List<String> include = new ArrayList<>();
     private List<String> exclude = new ArrayList<>();
 
-    public FluidSearch(TransportClient client) {
+    public FluidSearch(Client client) {
         this.client = client;
         boolQueryBuilder = QueryBuilders.boolQuery();
     }

@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.arlas.server.rest.*;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -106,7 +106,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             settings = Settings.builder().put("cluster.name", configuration.elasticcluster).build();
         }
 
-        TransportClient client = new PreBuiltTransportClient(settings)
+        Client client = new PreBuiltTransportClient(settings)
                 .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(configuration.elastichost),
                         configuration.elasticport));
 
