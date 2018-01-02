@@ -14,15 +14,12 @@ services:
     ports:
       - 19200:9200
       - 19300:9300
-    network_mode: bridge
   arlas-server:
     image: arlas-server:${ARLAS_VERSION}
     container_name: arlas-server
     environment:
       - "ARLAS_ELASTIC_CLUSTER=docker-cluster"
+      - "ARLAS_ELASTIC_HOST=elasticsearch"
     ports:
       - 19999:9999
-    links:
-      - elasticsearch
-    network_mode: bridge
     command: ["/opt/app/wait-for-elasticsearch.sh", "elasticsearch", "9300"]

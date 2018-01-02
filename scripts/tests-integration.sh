@@ -6,7 +6,7 @@ export ELASTIC_VERSION="5.6.5"
 
 function clean_docker {
     echo "===> stop arlas-server stack"
-    docker-compose down
+    docker-compose --project-name arlas down
     echo "===> clean maven repository"
 	docker run --rm \
 		-w /opt/maven \
@@ -68,10 +68,10 @@ echo "===> build arlas-server docker image"
 docker build --build-arg version=${ARLAS_VERSION} --tag=arlas-server:${ARLAS_VERSION} -f Dockerfile-package-only .
 
 echo "===> start arlas-server stack"
-docker-compose up -d
+docker-compose --project-name arlas up -d
 
 echo "===> wait for arlas-server up and running"
-docker run --link arlas-server:arlas-server --rm busybox sh -c 'i=1; until nc -w 2 arlas-server 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
+docker run --net arlas_default --rm busybox sh -c 'i=1; until nc -w 2 arlas-server 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
 
 # TEST
 echo "===> run integration tests"
@@ -84,7 +84,6 @@ docker run --rm \
 	-e ARLAS_PREFIX="/arlas/" \
 	-e ARLAS_ELASTIC_HOST="elasticsearch" \
 	-e ARLAS_ELASTIC_PORT="9300" \
-	--link arlas-server:arlas-server \
-	--link elasticsearch:elasticsearch \
+	--net arlas_default \
 	maven:3.5.0-jdk-8 \
 	mvn install -DskipTests=false

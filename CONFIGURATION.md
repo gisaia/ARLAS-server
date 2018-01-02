@@ -56,8 +56,8 @@ The configuration of ARLAS related functions are described below. The other  mod
 
 | Environment variable | ARLAS Server configuration variable |
 | --- | --- |
-| ELASTICSEARCH_PORT_9300_TCP_ADDR | elastic-host |
-| ELASTICSEARCH_PORT_9300_TCP_PORT | elastic-port |
+| ARLAS_ELASTIC_HOST | elastic-host |
+| ARLAS_ELASTIC_PORT | elastic-port |
 | ARLAS_ELASTIC_CLUSTER | elastic-cluster |
 | ARLAS_ELASTIC_INDEX | arlas-index |
 
