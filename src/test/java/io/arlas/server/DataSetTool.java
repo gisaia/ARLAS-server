@@ -32,7 +32,8 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
@@ -42,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DataSetTool {
+
     static Logger LOGGER = LoggerFactory.getLogger(DataSetTool.class);
 
 
@@ -88,7 +90,7 @@ public class DataSetTool {
                 settings = Settings.builder().put("cluster.name", "docker-cluster").build();
             }
             client = new PreBuiltTransportClient(settings)
-                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
+                    .addTransportAddress(new TransportAddress(InetAddress.getByName(host), port));
             adminClient = client.admin();
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
@@ -102,10 +104,11 @@ public class DataSetTool {
     public static void loadDataSet() throws IOException {
         String mapping = IOUtils.toString(new InputStreamReader(DataSetTool.class.getClassLoader().getResourceAsStream("dataset.mapping.json")));
         try {
-            adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
+	        adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
         } catch (Exception e) {
         }
-        adminClient.indices().prepareCreate(DATASET_INDEX_NAME).addMapping(DATASET_TYPE_NAME, mapping).get();
+        adminClient.indices().prepareCreate(DATASET_INDEX_NAME).addMapping(DATASET_TYPE_NAME, mapping, XContentType.JSON).get();
+
         Data data;
         ObjectMapper mapper = new ObjectMapper();
         for (int i = -170; i <= 170; i += 10) {
@@ -126,8 +129,9 @@ public class DataSetTool {
                 coords.add(new LngLatAlt(i - 1, j - 1));
                 coords.add(new LngLatAlt(i - 1, j + 1));
                 data.geo_params.geometry = new Polygon(coords);
+
                 IndexResponse response = client.prepareIndex(DATASET_INDEX_NAME, DATASET_TYPE_NAME, "ES_ID_TEST" + data.id)
-                        .setSource(mapper.writer().writeValueAsString(data))
+                        .setSource(mapper.writer().writeValueAsString(data), XContentType.JSON)
                         .get();
             }
         }

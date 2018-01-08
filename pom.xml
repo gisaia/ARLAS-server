@@ -22,7 +22,7 @@
         <io.rest-assured.version>3.0.5</io.rest-assured.version>
 
         <!-- ELASTICSEARCH-->
-        <elastic.version>5.6.3</elastic.version>
+        <elastic.version>6.2.3</elastic.version>
 
         <!-- GEO-->
         <geotools.version>18.0</geotools.version>

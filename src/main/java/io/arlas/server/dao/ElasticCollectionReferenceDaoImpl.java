@@ -103,7 +103,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     private void createArlasIndex() throws IOException {
         String arlasMapping = IOUtils.toString(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("arlas.mapping.json")));
-        client.admin().indices().prepareCreate(arlasIndex).addMapping("collection", arlasMapping).get();
+        client.admin().indices().prepareCreate(arlasIndex).addMapping("collection", arlasMapping, XContentType.JSON).get();
     }
 
     private CollectionReference getCollectionReferenceFromES(String ref) throws ArlasException {
@@ -172,6 +172,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         } catch (JsonProcessingException e) {
             new InternalServerErrorException("Can not put collection "+collectionReference.collectionName,e);
         }
+
         if (response.status().getStatus() != RestStatus.OK.getStatus()
                 && response.status().getStatus() != RestStatus.CREATED.getStatus()) {
             throw new InternalServerErrorException("Unable to index collection : " + response.status().toString());

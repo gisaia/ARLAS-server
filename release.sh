@@ -70,7 +70,7 @@ case $i in
 esac
 done
 
-ELASTIC_VERSIONS_5=("5.0.2" "5.1.2" "5.2.2" "5.3.3" "5.4.3" "5.5.1" "5.6.5")
+ELASTIC_VERSIONS_5=("6.0.1","6.1.3","6.2.3")
 case $ELASTIC_RANGE in
     "5")
         ELASTIC_VERSIONS=( "${ELASTIC_VERSIONS_5[@]}" )
@@ -109,8 +109,6 @@ docker push gisaia/arlas-server:${VERSION}
 docker push gisaia/arlas-server:latest
 
 echo "=> Start arlas-server stack"
-export ARLAS_VERSION=${VERSION}
-export ELASTIC_VERSION="5.6.5"
 docker-compose --project-name arlas up -d
 DOCKER_IP=$(docker-machine ip || echo "localhost")
 
