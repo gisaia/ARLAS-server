@@ -37,8 +37,8 @@
         <swagger2markup.plugin.version>1.2.0</swagger2markup.plugin.version>
         <swagger2markup.extension.version>1.2.0</swagger2markup.extension.version>
 
-        <swagger.input>tmp/swagger.yaml</swagger.input>
-        <asciidoctor.input.directory>src/doc/swagger</asciidoctor.input.directory>
+        <swagger.input>target/tmp/swagger.yaml</swagger.input>
+        <swagger.output>target/generated-docs/</swagger.output>
     </properties>
 
     <dependencies>
@@ -232,7 +232,7 @@
                 </dependencies>
                 <configuration>
                     <swaggerInput>${swagger.input}</swaggerInput>
-                    <outputDir>${generated.asciidoc.directory}</outputDir>
+                    <outputDir>${swagger.output}</outputDir>
                     <config>
                         <swagger2markup.markupLanguage>ASCIIDOC</swagger2markup.markupLanguage>
                         <swagger2markup.pathsGroupedBy>TAGS</swagger2markup.pathsGroupedBy>
@@ -251,6 +251,40 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>io.github.swagger2markup</groupId>
+                <artifactId>swagger2markup-maven-plugin</artifactId>
+                <version>${swagger2markup.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>io.github.swagger2markup</groupId>
+                        <artifactId>swagger2markup-import-files-ext</artifactId>
+                        <version>${swagger2markup.extension.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>io.github.swagger2markup</groupId>
+                        <artifactId>swagger2markup</artifactId>
+                        <version>${swagger2markup.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <swaggerInput>${swagger.input}</swaggerInput>
+                    <outputDir>${swagger.output}</outputDir>
+                    <config>
+                        <swagger2markup.markupLanguage>MARKDOWN</swagger2markup.markupLanguage>
+                    </config>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>convertSwagger2markup</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- SUREFIRE LOCK DOWN -->
             <plugin>
                 <!-- lock down surefire version -->
                 <!-- avoid having to "download all the internet" on each docker build of arlas-server docker image -->

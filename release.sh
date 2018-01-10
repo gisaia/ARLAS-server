@@ -110,7 +110,7 @@ docker push gisaia/arlas-server:latest
 echo "=> Start arlas-server stack"
 export ARLAS_VERSION=${VERSION}
 export ELASTIC_VERSION="5.6.5"
-docker-compose up -d
+docker-compose --project-name arlas up -d
 DOCKER_IP=$(docker-machine ip || echo "localhost")
 
 echo "=> Wait for arlas-server up and running"
@@ -122,7 +122,7 @@ curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.json -o tmp/swagger.json
 curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.yaml -o tmp/swagger.yaml
 
 echo "=> Stop arlas-server stack"
-docker-compose down
+docker-compose --project-name arlas down
 
 itests() {
 	echo "=> Run integration tests with several elasticsearch versions (${ELASTIC_VERSIONS[*]})"
