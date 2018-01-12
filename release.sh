@@ -4,14 +4,20 @@ set -e
 npmlogin=`npm whoami`
 if  [ -z "$npmlogin"  ] ; then echo "your are not logged on npm"; exit -1; else  echo "logged as "$npmlogin ; fi
 
-function clean {
+function clean_docker {
+    echo "===> stop arlas-server stack"
+    docker-compose --project-name arlas down
+}
+
+function clean_exit {
     ARG=$?
 	echo "=> Exit status = $ARG"
 	rm pom.xml.versionsBackup
 	git checkout -- .
+	clean_docker
     exit $ARG
 }
-trap clean EXIT
+trap clean_exit EXIT
 
 usage(){
 	echo "Usage: ./release.sh -api=X -es=Y -rel=Z -dev=Z+1 [--no-tests]"
@@ -103,7 +109,7 @@ mvn clean package
 echo "=> Build arlas-server docker image"
 cp target/arlas-server-${VERSION}.jar target/arlas-server.jar
 
-docker build --tag arlas-server:${VERSION} --tag arlas-server:latest --tag gisaia/arlas-server:${VERSION} --tag gisaia/arlas-server:latest .
+docker build --build-arg version=${VERSION} --tag arlas-server:${VERSION} --tag arlas-server:latest --tag gisaia/arlas-server:${VERSION} --tag gisaia/arlas-server:latest .
 docker push gisaia/arlas-server:${VERSION}
 docker push gisaia/arlas-server:latest
 
@@ -117,9 +123,10 @@ echo "=> Wait for arlas-server up and running"
 i=1; until nc -w 2 ${DOCKER_IP} 19999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 
 echo "=> Get swagger documentation"
-mkdir tmp || echo "tmp exists"
-curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.json -o tmp/swagger.json
-curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.yaml -o tmp/swagger.yaml
+mkdir target/tmp || echo "target/tmp exists"
+i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.json -o target/tmp/swagger.json; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
+i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.yaml -o target/tmp/swagger.yaml; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
+
 
 echo "=> Stop arlas-server stack"
 docker-compose --project-name arlas down
@@ -134,7 +141,7 @@ itests() {
 if [ "$TESTS" == "YES" ]; then itests; else echo "=> Skip integration tests"; fi
 
 echo "=> Generate client APIs"
-swagger-codegen generate  -i tmp/swagger.json  -l typescript-angular2 -o tmp/typescript-angular2
+swagger-codegen generate  -i target/tmp/swagger.json  -l typescript-angular2 -o tmp/typescript-angular2
 
 echo "=> Build Typescript API "${FULL_API_VERSION}
 BASEDIR=$PWD
