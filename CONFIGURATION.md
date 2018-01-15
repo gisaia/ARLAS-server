@@ -27,6 +27,24 @@ The configuration of ARLAS related functions are described below. The other  mod
 
 ## ARLAS Server as a docker container
 
+ARLAS can run as a docker container. A rich set of properties of the configuration file can be overriden by passing environment variables to the container:
+
+```shell
+docker run -ti -d \
+   --name arlas-server \
+   -e "ARLAS_ELASTIC_CLUSTER=my-own-cluster" \
+   arlas-server:latest
+```
+
+The tables bellow list those properties.
+
+
+### JAVA
+
+| Environment variable | Description |
+| --- | --- |
+| ARLAS_XMX | Java Maximum Heap Size |
+
 ### Server
 
 | Environment variable | ARLAS Server configuration variable |
@@ -79,3 +97,35 @@ The configuration of ARLAS related functions are described below. The other  mod
 | ARLAS_ZIPKIN_COLLECTOR | zipkin.servicePort |
 | ARLAS_ZIPKIN_BASEURL | zipkin.collector |
 | ARLAS_ZIPKIN_BASEURL | zipkin.baseUrl |
+
+### File/URL based configuration
+
+Instead of overriding some properties of the configuration file, it is possible to start the ARLAS Server container with a given configuration file.
+
+#### File
+
+The ARLAS Server container can start with a mounted configuration file thanks to docker volume mapping. For instance, if the current directory of the host contains a `configuration.yaml` file, the container can be started as follow:
+
+```shell
+docker run -ti -d \
+   --name arlas-server \
+   -v `pwd`/configuration.yaml:/opt/app/configuration.yaml \
+   arlas-server:latest
+  ```
+
+#### URL
+
+The ARLAS Server container can start with a configuration file that is downloaded before starting up. The configuration file must be available through an URL accessible from within the container. The URL is specified with an environment variable:
+
+| Environment variable | Description |
+| --- | --- |
+| ARLAS_CONFIGURATION_URL | URL of the ARLAS configuration file to be downloaded by the container before starting |
+
+For instance, if the current directory of the host contains a `configuration.yaml` file, the container can be started as follow:
+
+```shell
+docker run -ti -d \
+   --name arlas-server \
+   -e ARLAS_CONFIGURATION_URL="http://somemachine/conf.yaml" \
+   arlas-server:latest
+  ```

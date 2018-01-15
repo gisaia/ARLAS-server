@@ -17,17 +17,16 @@ RUN mvn install
 # PACKAGING STAGE #
 ###################
 FROM openjdk:8-jre-alpine
-ARG version
-ENV artifact arlas-server-${version}.jar
 
 # install nc for wait-for-elasticsearch.sh
-RUN apk add --update netcat-openbsd && rm -rf /var/cache/apk/*
+RUN apk add --update netcat-openbsd curl && rm -rf /var/cache/apk/*
 
 # application placed into /opt/app
 WORKDIR /opt/app
-COPY --from=build /opt/app/target/${artifact} /opt/app/arlas-server.jar
+COPY --from=build /opt/app/target/arlas-server-*.jar /opt/app/arlas-server.jar
 COPY --from=build /opt/app/conf/configuration.yaml /opt/app
 COPY --from=build /opt/app/scripts/wait-for-elasticsearch.sh /opt/app
+COPY --from=build /opt/app/scripts/start.sh /opt/app/
 EXPOSE 9999
 
-CMD java -jar /opt/app/arlas-server.jar server /opt/app/configuration.yaml
+CMD /opt/app/start.sh
