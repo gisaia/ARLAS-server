@@ -103,13 +103,7 @@ mvn versions:set -DnewVersion=${VERSION}
 
 sed -i.bak 's/\"API_VERSION\"/\"'${FULL_API_VERSION}'\"/' src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
 
-echo "=> Package arlas-server"
-mvn clean package
-
-echo "=> Build arlas-server docker image"
-cp target/arlas-server-${VERSION}.jar target/arlas-server.jar
-
-docker build --build-arg version=${VERSION} --tag arlas-server:${VERSION} --tag arlas-server:latest --tag gisaia/arlas-server:${VERSION} --tag gisaia/arlas-server:latest .
+docker build --tag arlas-server:${VERSION} --tag arlas-server:latest --tag gisaia/arlas-server:${VERSION} --tag gisaia/arlas-server:latest .
 docker push gisaia/arlas-server:${VERSION}
 docker push gisaia/arlas-server:latest
 

@@ -2,18 +2,16 @@
 # PACKAGING STAGE #
 ###################
 FROM openjdk:8-jre-alpine
-ARG version
-ENV artifact arlas-server-${version}.jar
 
-# install nc for wait-for-elasticsearch.sh
-RUN apk add --update netcat-openbsd && rm -rf /var/cache/apk/*
+# install script dependencies
+RUN apk add --update netcat-openbsd curl && rm -rf /var/cache/apk/*
 
 # application placed into /opt/app
 WORKDIR /opt/app
-ADD target/${artifact} /opt/app/arlas-server.jar
+ADD target/arlas-server*.jar /opt/app/arlas-server.jar
 ADD conf/configuration.yaml /opt/app/configuration.yaml
 ADD scripts/wait-for-elasticsearch.sh /opt/app/wait-for-elasticsearch.sh
-
+ADD scripts/start.sh /opt/app/start.sh
 EXPOSE 9999
 
-CMD java -jar /opt/app/arlas-server.jar server /opt/app/configuration.yaml
+CMD /opt/app/start.sh

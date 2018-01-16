@@ -18,7 +18,7 @@ RUN mvn install
 ###################
 FROM openjdk:8-jre-alpine
 
-# install nc for wait-for-elasticsearch.sh
+# install script dependencies
 RUN apk add --update netcat-openbsd curl && rm -rf /var/cache/apk/*
 
 # application placed into /opt/app
