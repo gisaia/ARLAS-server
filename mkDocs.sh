@@ -37,7 +37,7 @@ echo "arlas-server:${ARLAS_VERSION}"
 
 # BUILD
 echo "===> build arlas-server docker image"
-docker build --build-arg version=${ARLAS_VERSION} --tag=arlas-server:${ARLAS_VERSION} -f Dockerfile-package-only .
+docker build --tag=arlas-server:${ARLAS_VERSION} -f Dockerfile-package-only .
 
 echo "=> Start arlas-server stack"
 docker-compose --project-name arlas up -d
