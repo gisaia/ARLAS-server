@@ -29,4 +29,7 @@ COPY --from=build /opt/app/scripts/wait-for-elasticsearch.sh /opt/app
 COPY --from=build /opt/app/scripts/start.sh /opt/app/
 EXPOSE 9999
 
+HEALTHCHECK --interval=5m --timeout=3s \
+  CMD curl http://localhost:9999/admin/healthcheck | grep -v "\"healthy\":false" || exit 1
+
 CMD /opt/app/start.sh

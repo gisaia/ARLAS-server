@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import io.arlas.server.health.ElasticsearchHealthCheck;
 import io.arlas.server.rest.*;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.elasticsearch.client.Client;
@@ -147,6 +148,9 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             Runnable autoDiscoverTask = new CollectionAutoDiscover(client, configuration);
             ses.scheduleWithFixedDelay(autoDiscoverTask, 10, scheduleAutoDiscover, TimeUnit.SECONDS);
         }
+
+        //healthchecks
+        environment.healthChecks().register("elasticsearch", new ElasticsearchHealthCheck(client));
 
         //cors
         if(configuration.arlascorsenabled) {
