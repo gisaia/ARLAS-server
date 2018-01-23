@@ -76,7 +76,7 @@ The configuration.yaml aggregate 4 configurations:
 - ARLAS collection auto discovery
 - ZIPKIN
 
-See the configuration [document](CONFIGURATION.md) for further details on how to configure ARLAS Server with configuration.yaml and how to run ARLAS Server within a docker container.
+See the configuration for further details on how to configure ARLAS Server with configuration.yaml and how to run ARLAS Server within a docker container.
 
 ## Examples
 
