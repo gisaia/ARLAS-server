@@ -28,6 +28,7 @@ import org.geojson.Polygon;
 public class AggregationResponse extends OperationInfo {
     public String name;
     public Long count;
+    public Long sumOtherDocCounts;
     public Object key;
     public Object keyAsString;
     public List<AggregationResponse> elements;
@@ -35,3 +36,4 @@ public class AggregationResponse extends OperationInfo {
     public Polygon BBOX = null;
     public Point centroid = null;
 }
+
