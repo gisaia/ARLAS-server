@@ -57,7 +57,7 @@ arlas-index:  ${ARLAS_ELASTIC_INDEX:-.arlas}
 # Configuration of the cache
 arlas-cache-size: ${ARLAS_CACHE_SIZE:-1000}
 arlas-cache-timeout: ${ARLAS_CACHE_TIMEOUT:-60}
-arlas-cors-enabled: ${ARLAS_CORSE_ENABLED:-true}
+arlas-cors-enabled: ${ARLAS_CORS_ENABLED:-true}
 
 ########################################################
 ############ COLLECTION DISCOVERY        ###############
