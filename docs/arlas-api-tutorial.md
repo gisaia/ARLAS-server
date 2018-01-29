@@ -18,7 +18,7 @@ collection reference;
 !!! note
     In this tutorial Elasticsearch binds to localhost:9200. Please consider adapting the hostname and the port to your configuration.
 
-    Also, to execute the commands below correctly, please place your terminal in **ARLAS-server/examples** folder.
+    Also, to execute the commands below correctly, please place your terminal in **ARLAS-server/docs** folder.
 
 
 ## Create an index
