@@ -54,8 +54,8 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.geohash;
         aggregationRequest.aggregations.get(0).field = "geo_params.centroid";
         aggregationRequest.aggregations.get(0).interval = new Interval(3, null); //"3";
-        handleMatchingGeohashAggregate(post(aggregationRequest), 595, 1);
-        handleMatchingGeohashAggregate(get("geohash:geo_params.centroid:interval-3"), 595, 1);
+        handleMatchingGeohashAggregate(post(aggregationRequest), 595, 1, 1);
+        handleMatchingGeohashAggregate(get("geohash:geo_params.centroid:interval-3"), 595, 1, 1);
 
         aggregationRequest.aggregations.get(0).interval = new Interval(1, null); //"1";
         handleMatchingGeohashAggregate(post(aggregationRequest),32, 16, 25);
@@ -143,12 +143,12 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.datehistogram;
 
         aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.day); // "1day";
-        handleMatchingAggregate(post(aggregationRequest), 1, 595);
-        handleMatchingAggregate(get("datehistogram:interval-1day"), 1, 595);
+        handleSumOtherCountsExistence(post(aggregationRequest), 1, 595, 595);
+        handleSumOtherCountsExistence(get("datehistogram:interval-1day"), 1, 595, 595);
 
         aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.minute); //"1minute";
-        handleMatchingAggregate(post(aggregationRequest), 10, 1, 104);
-        handleMatchingAggregate(get("datehistogram:interval-1minute"),
+        handleSumOtherCountsExistence(post(aggregationRequest), 10, 1, 104);
+        handleSumOtherCountsExistence(get("datehistogram:interval-1minute"),
                 10, 1, 104);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
@@ -200,7 +200,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).format = "yyyyMMdd";
         handleMatchingAggregate(post(aggregationRequest),10, 1, 104,"19700101");
         handleMatchingAggregate(get("datehistogram:interval-1minute:format-yyyyMMdd"),
-                10, 1, 104,"19700101");
+                10, 1, 104, "19700101");
 
         aggregationRequest.aggregations.get(0).format = null;
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;
@@ -250,8 +250,8 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
 
         aggregationRequest.aggregations.get(0).field = "params.startdate";
         aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.day); // "1day";
-        handleMatchingAggregate(post(aggregationRequest), 1, 595);
-        handleMatchingAggregate(get("datehistogram:params.startdate:interval-1day"), 1, 595);
+        handleMatchingAggregate(post(aggregationRequest), 1, 595, 595);
+        handleMatchingAggregate(get("datehistogram:params.startdate:interval-1day"), 1, 595,595);
 
     }
     
@@ -262,12 +262,12 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).field = "params.startdate";
 
         aggregationRequest.aggregations.get(0).interval = new Interval(2000000, null);
-        handleMatchingAggregate(post(aggregationRequest), 1, 595);
-        handleMatchingAggregate(get("histogram:params.startdate:interval-2000000"), 1, 595);
+        handleSumOtherCountsExistence(post(aggregationRequest), 1, 595, 595);
+        handleSumOtherCountsExistence(get("histogram:params.startdate:interval-2000000"), 1, 595, 595);
 
         aggregationRequest.aggregations.get(0).interval = new Interval(100000, null);
-        handleMatchingAggregate(post(aggregationRequest),6, 14, 176);
-        handleMatchingAggregate(get("histogram:params.startdate:interval-100000"),6, 14, 176);
+        handleSumOtherCountsExistence(post(aggregationRequest),6, 14, 176, -1);
+        handleSumOtherCountsExistence(get("histogram:params.startdate:interval-100000"),6, 14, 176);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.AVG;
@@ -364,12 +364,17 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         //TERM
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
         aggregationRequest.aggregations.get(0).field = "params.job";
-        handleMatchingAggregate(post(aggregationRequest), DataSetTool.jobs.length-1, 58, 64);
-        handleMatchingAggregate(get("term:params.job"), DataSetTool.jobs.length-1, 58, 64);
+        handleSumOtherCountsExistence(post(aggregationRequest), DataSetTool.jobs.length-1, 58, 64, 0);
+        handleSumOtherCountsExistence(get("term:params.job"), DataSetTool.jobs.length-1, 58, 64, 0);
+
+        aggregationRequest.aggregations.get(0).size = "5";
+        handleSumOtherCountsExistence(post(aggregationRequest), 5, 58, 64, 290);
+        handleSumOtherCountsExistence(get("term:params.job:size-5"), 5, 58, 64, 290);
+        aggregationRequest.aggregations.get(0).size = null;
 
         aggregationRequest.aggregations.get(0).include = "A.*";
-        handleMatchingAggregate(post(aggregationRequest), 4, 58, 59);
-        handleMatchingAggregate(get("term:params.job:include-A.*"), 4, 58, 59);
+        handleSumOtherCountsExistence(post(aggregationRequest), 4, 58, 59, 0);
+        handleSumOtherCountsExistence(get("term:params.job:include-A.*"), 4, 58, 59, 0);
         aggregationRequest.aggregations.get(0).include = null;
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
@@ -632,7 +637,6 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
     //---------------------- SPECIFIC BEHAVIORS ----------------------
     //----------------------------------------------------------------
     
-    protected abstract void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCount) throws Exception;
     protected abstract void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception;
     protected abstract void handleMatchingGeohashAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin, float featureCollectMax) throws Exception;
     protected abstract void handleMatchingGeohashAggregateCenter(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
@@ -641,13 +645,15 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
     protected abstract void handleMatchingGeohashAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float left, float bottom, float right, float top) throws Exception;
     protected abstract void handleMatchingGeohashAggregateWithGeocentroidBucket(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int elementsSize, float left, float bottom, float right, float top) throws Exception;
     protected abstract void handleMatchingGeohashAggregateWithGeoBboxBucket(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int elementsSize, float left, float bottom, float right, float top) throws Exception;
-    protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCount) throws Exception;
     protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception;
     protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String keyAsString) throws Exception;
     protected abstract void handleMatchingAggregateWithOrder(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String firstKey) throws Exception;
     protected abstract void handleMatchingAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin, float featureCollectMax) throws Exception;
     protected abstract void handleMatchingAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
     protected abstract void handleMatchingAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float left, float bottom, float right, float top) throws Exception;
+
+    protected abstract void handleSumOtherCountsExistence(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception;
+    protected abstract void handleSumOtherCountsExistence(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int sumOtherDocCounts) throws Exception;
 
     protected abstract void handleMultiMatchingAggregate(ValidatableResponse then, int featuresSize) throws Exception;
     protected abstract void handleMultiMatchingGeohashAggregate(ValidatableResponse then, int featuresSize) throws Exception;

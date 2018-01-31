@@ -38,18 +38,10 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     //----------------------------------------------------------------
     //----------------------- AGGREGATE PART -------------------------
     //----------------------------------------------------------------
-    
-    @Override
-    protected void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCount) throws Exception {
-        handleMatchingGeohashAggregate(then, featuresSize, featureCount, featureCount);
-    }
-    
+
     @Override
     protected void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception {
-        then.statusCode(200)
-        .body("elements.size()", equalTo(featuresSize))
-        .body("elements.count", everyItem(greaterThanOrEqualTo(featureCountMin)))
-        .body("elements.count", everyItem(lessThanOrEqualTo(featureCountMax)));
+        handleMatchingAggregate(then, featuresSize, featureCountMin, featureCountMax);
     }
 
     @Override
@@ -105,7 +97,6 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
         handleMatchingAggregateWithGeoBboxCollect(then,featuresSize,featureCountMin,featureCountMax, collectFct, centroidLonMin, centroidLatMin, centroidLonMax, centroidLatMax);
     }
 
-
     @Override
     protected void handleMatchingGeohashAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin,
             float featureCollectMax) throws Exception {
@@ -115,16 +106,6 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
         .body("elements.elements[0].metric.value", everyItem(lessThanOrEqualTo(featureCollectMax)))
         .body("elements.elements[0].name", everyItem(equalTo(collectFct)))
         .body("elements.elements[0].metric.type", everyItem(equalTo(collectFct)));
-    }
-    
-    @Override
-    protected void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCount) throws Exception {
-        handleMatchingAggregate(then, featuresSize, featureCount, featureCount);
-    }
-
-    @Override
-    protected void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception {
-        handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
     }
 
     @Override
@@ -137,6 +118,31 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
         .body("elements.key.lat", everyItem(lessThanOrEqualTo(centroidLatMax)));
     }
 
+    @Override
+    protected void handleSumOtherCountsExistence(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception {
+        handleSumOtherCountsExistence(then, featuresSize, featureCountMin, featureCountMax, -1);
+
+    }
+
+    @Override
+    protected void handleSumOtherCountsExistence(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int sumOtherDocCounts) throws Exception {
+        handleMatchingAggregate(then, featuresSize, featureCountMin, featureCountMax);
+        if (sumOtherDocCounts == -1) {
+            then
+            .body("sum_other_doc_counts", nullValue());
+        } else {
+            then
+            .body("sum_other_doc_counts", equalTo(sumOtherDocCounts));
+        }
+    }
+
+    @Override
+    protected void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception {
+        then.statusCode(200)
+        .body("elements.size()", equalTo(featuresSize))
+        .body("elements.count", everyItem(greaterThanOrEqualTo(featureCountMin)))
+        .body("elements.count", everyItem(lessThanOrEqualTo(featureCountMax)));
+    }
 
     @Override
     protected void handleMatchingAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin,

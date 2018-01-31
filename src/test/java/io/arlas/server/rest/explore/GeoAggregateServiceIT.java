@@ -48,17 +48,14 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     //----------------------------------------------------------------
     //----------------------- AGGREGATE PART -------------------------
     //----------------------------------------------------------------
-    @Override
-    protected void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCount) throws Exception {
-        handleMatchingGeohashAggregate(then, featuresSize, featureCount, featureCount);
-    }
-    
+
     @Override
     protected void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception {
         then.statusCode(200)
         .body("features.size()", equalTo(featuresSize))
         .body("features.properties.count", everyItem(greaterThanOrEqualTo(featureCountMin)))
-        .body("features.properties.count", everyItem(lessThanOrEqualTo(featureCountMax)));
+        .body("features.properties.count", everyItem(lessThanOrEqualTo(featureCountMax)))
+        .body("sum_other_doc_counts", nullValue());
     }
 
     @Override
@@ -130,9 +127,14 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
         .body("features.properties.elements[0].name", everyItem(equalTo(collectFct)))
         .body("features.properties.elements[0].metric.type", everyItem(equalTo(collectFct)));
     }
-    
+
     @Override
-    protected void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCount) throws Exception {
+    protected void handleSumOtherCountsExistence(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception {
+        then.statusCode(400);
+    }
+
+    @Override
+    protected void handleSumOtherCountsExistence(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int sumOtherDocCounts) throws Exception {
         then.statusCode(400);
     }
 
