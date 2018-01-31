@@ -135,7 +135,7 @@ itests() {
 if [ "$TESTS" == "YES" ]; then itests; else echo "=> Skip integration tests"; fi
 
 echo "=> Generate client APIs"
-swagger-codegen generate  -i target/tmp/swagger.json  -l typescript-angular2 -o tmp/typescript-angular2
+swagger-codegen generate  -i target/tmp/swagger.json -c conf/swagger/config-option.json -l typescript-angular2 -o tmp/typescript-angular2
 
 echo "=> Build Typescript API "${FULL_API_VERSION}
 BASEDIR=$PWD
