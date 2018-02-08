@@ -82,7 +82,7 @@
         <!-- ____________________________________________________ -->
         <!-- GEO -->
         <!-- ____________________________________________________ -->
-         <dependency>
+        <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-main</artifactId>
             <version>${geotools.version}</version>
@@ -122,10 +122,10 @@
         <!-- Tests -->
         <!-- ____________________________________________________ -->
         <dependency>
-      		<groupId>io.rest-assured</groupId>
-      		<artifactId>rest-assured</artifactId>
-      		<version>${io.rest-assured.version}</version>
-      		<scope>test</scope>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${io.rest-assured.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -154,6 +154,45 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>2.2</version>
+                <executions>
+                    <execution>
+                        <id>xjc</id>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <xjbSources>
+                        <xjbSource>src/main/resources/global.xjb</xjbSource>
+                    </xjbSources>
+                    <sources>
+                        <source>src/main/resources/schema.xsd</source>
+                    </sources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.8</version>
+                <configuration>
+                    <sources>
+                        <source>target/generated-sources/jaxb</source>
+                    </sources>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.7.0</version>
@@ -163,22 +202,22 @@
                 </configuration>
             </plugin>
             <plugin>
-        		<groupId>org.apache.maven.plugins</groupId>
-        		<artifactId>maven-failsafe-plugin</artifactId>
-        		<version>2.20.1</version>
-        		<configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.20.1</version>
+                <configuration>
                     <argLine>-Xmx2048m -XX:MaxPermSize=1024m</argLine>
                     <skipITs>${skipTests}</skipITs>
                 </configuration>
-        		<executions>
-          			<execution>
-            			<goals>
-              				<goal>integration-test</goal>
-              				<goal>verify</goal>
-            			</goals>
-          			</execution>
-        		</executions>
-      		</plugin>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
