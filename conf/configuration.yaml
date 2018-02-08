@@ -17,7 +17,8 @@ server:
         archivedLogFilenamePattern: ${ACCESS_LOG_FILE_ARCHIVE:-arlas-access-%d.log.gz}
   registerDefaultExceptionMappers: false
   type: simple
-  applicationContextPath: ${ARLAS_PREFIX:-/arlas/}
+  rootPath: ${ARLAS_PREFIX:-/arlas/}
+  applicationContextPath: /
   adminContextPath: ${ARLAS_ADMIN_PATH:-/admin}
   connector:
     type: http

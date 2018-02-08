@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.arlas.server.health.ElasticsearchHealthCheck;
 import io.arlas.server.rest.*;
+import io.dropwizard.assets.AssetsBundle;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
@@ -92,6 +93,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
                 return configuration.zipkinConfiguration;
             }
         });
+        bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
     }
 
     @Override
