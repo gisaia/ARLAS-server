@@ -56,7 +56,14 @@ public class ArlasServerConfiguration extends Configuration {
 
     @JsonProperty("arlas-cors-enabled")
     public Boolean arlascorsenabled;
-    
+
+    @JsonProperty("arlas-service-collections-enabled")
+    public Boolean arlasServiceCollectionsEnabled;
+
+    @JsonProperty("arlas-service-explore-enabled")
+    public Boolean arlasServiceExploreEnabled;
+
+
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 
@@ -81,6 +88,12 @@ public class ArlasServerConfiguration extends Configuration {
         }
         if(arlascorsenabled==null) {
             arlascorsenabled = false;
+        }
+        if(arlasServiceCollectionsEnabled==null){
+            arlasServiceCollectionsEnabled=true;
+        }
+        if(arlasServiceExploreEnabled==null){
+            arlasServiceExploreEnabled=true;
         }
         if(collectionAutoDiscoverConfiguration == null) {
             collectionAutoDiscoverConfiguration = new CollectionAutoDiscoverConfiguration();

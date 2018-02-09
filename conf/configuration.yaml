@@ -5,6 +5,15 @@
 swagger: # Configuration of SWAGGER for generating documentation and APIs
   resourcePackage: io.arlas.server.rest # The java package to process for extracting the APIs
 
+
+
+########################################################
+############ ENABLED SERVICES            ###############
+########################################################
+#
+arlas-service-collections-enabled: ${ARLAS_SERVICE_COLLECTIONS_ENABLE:-true}
+arlas-service-explore-enabled: ${ARLAS_SERVICE_EXPLORE_ENABLE:-true}
+
 ########################################################
 ############ HTTP SERVER                 ###############
 ########################################################
