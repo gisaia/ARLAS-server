@@ -61,11 +61,18 @@ docker run -ti -d \
 
 ## ARLAS configuration properties
 
+### Enabled Services
+
+| Environment variable | ARLAS Server configuration variable | Default | Description |
+| --- | --- | --- | --- |
+| ARLAS_SERVICE_COLLECTIONS_ENABLE    | arlas-service-collections-enabled    | true     | Whether the collection service is enabled or not |
+| ARLAS_SERVICE_EXPLORE_ENABLE    | arlas-service-explore-enabled    | true     | Whether the explore service is enabled or not |
+
 ### Datasource
 
 | Environment variable | ARLAS Server configuration variable | Default | Description |
 | --- | --- | --- | --- |
-| ARLAS_ELASTIC_HOST    | elastic-host    | localhost     | hostname or ip address of the elasticsearch node that is used for storing ARLAS configuration
+| ARLAS_ELASTIC_HOST    | elastic-host    | localhost     | hostname or ip address of the elasticsearch node that is used for storing ARLAS configuration |
 | ARLAS_ELASTIC_PORT    | elastic-port    | 9300          | port of the elasticsearch node that is used for storing ARLAS configuration  |
 | ARLAS_ELASTIC_CLUSTER | elastic-cluster | elasticsearch | clustername of the elasticsearch cluster that is used for storing ARLAS configuration |
 | ARLAS_ELASTIC_INDEX   | arlas-index     | .arlas        | name of the index that is used for storing ARLAS configuration |

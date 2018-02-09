@@ -126,20 +126,30 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new JsonProcessingExceptionMapper());
         environment.jersey().register(new ConstraintViolationExceptionMapper());
         environment.jersey().register(new ElasticsearchExceptionMapper());
-        environment.jersey().register(new CountRESTService(exploration));
-        environment.jersey().register(new SearchRESTService(exploration));
-        environment.jersey().register(new AggregateRESTService(exploration));
-        environment.jersey().register(new GeoSearchRESTService(exploration));
-        environment.jersey().register(new GeoAggregateRESTService(exploration));
-        environment.jersey().register(new SuggestRESTService(exploration));
-        environment.jersey().register(new DescribeRESTService(exploration));
-        environment.jersey().register(new DescribeCollectionRESTService(exploration));
-        environment.jersey().register(new RawRESTService(exploration));
-        environment.jersey().register(new ElasticCollectionService(client, configuration));
+
+        if(configuration.arlasServiceExploreEnabled){
+            environment.jersey().register(new CountRESTService(exploration));
+            environment.jersey().register(new SearchRESTService(exploration));
+            environment.jersey().register(new AggregateRESTService(exploration));
+            environment.jersey().register(new GeoSearchRESTService(exploration));
+            environment.jersey().register(new GeoAggregateRESTService(exploration));
+            environment.jersey().register(new SuggestRESTService(exploration));
+            environment.jersey().register(new DescribeRESTService(exploration));
+            environment.jersey().register(new RawRESTService(exploration));
+            environment.jersey().register(new DescribeCollectionRESTService(exploration));
+            LOGGER.info("Explore API enabled");
+        }else{
+            LOGGER.info("Explore API disabled");
+        }
+        if(configuration.arlasServiceCollectionsEnabled) {
+            LOGGER.info("Collection API enabled");
+            environment.jersey().register(new ElasticCollectionService(client, configuration));
+        }else{
+            LOGGER.info("Collection API disabled");
+        }
 
         //filters
         environment.jersey().register(PrettyPrintFilter.class);
-
         //tasks
         environment.admin().addTask(new CollectionAutoDiscover(client, configuration));
         int scheduleAutoDiscover = configuration.collectionAutoDiscoverConfiguration.schedule;
