@@ -40,7 +40,7 @@ docker run -ti -d \
    --name arlas-server \
    -v `pwd`/configuration.yaml:/opt/app/configuration.yaml \
    arlas-server:latest
-  ```
+```
 
 #### URL
 
@@ -57,7 +57,7 @@ docker run -ti -d \
    --name arlas-server \
    -e ARLAS_CONFIGURATION_URL="http://somemachine/conf.yaml" \
    arlas-server:latest
-  ```
+```
 
 ## ARLAS configuration properties
 
@@ -65,9 +65,9 @@ docker run -ti -d \
 
 | Environment variable | ARLAS Server configuration variable | Default | Description |
 | --- | --- | --- | --- |
-| ARLAS_ELASTIC_HOST    | elastic-host    | localhost     | hostname or ip address of the elasticsearch node that is used for storing ARLAS configuration 
+| ARLAS_ELASTIC_HOST    | elastic-host    | localhost     | hostname or ip address of the elasticsearch node that is used for storing ARLAS configuration
 | ARLAS_ELASTIC_PORT    | elastic-port    | 9300          | port of the elasticsearch node that is used for storing ARLAS configuration  |
-| ARLAS_ELASTIC_CLUSTER | elastic-cluster | elasticsearch | clustername of the elasticsearch cluster that is used for storing ARLAS configuration | 
+| ARLAS_ELASTIC_CLUSTER | elastic-cluster | elasticsearch | clustername of the elasticsearch cluster that is used for storing ARLAS configuration |
 | ARLAS_ELASTIC_INDEX   | arlas-index     | .arlas        | name of the index that is used for storing ARLAS configuration |
 
 ### Collection Cache & Disovery
@@ -124,5 +124,3 @@ docker run -ti -d \
 | Environment variable | Description |
 | --- | --- |
 | ARLAS_XMX | Java Maximum Heap Size |
-
-
