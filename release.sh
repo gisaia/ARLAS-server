@@ -13,6 +13,7 @@ function clean_exit {
     ARG=$?
 	echo "=> Exit status = $ARG"
 	rm pom.xml.versionsBackup
+	rm -rf target/tmp || echo "target/tmp already removed"
 	git checkout -- .
 	clean_docker
     exit $ARG
@@ -135,11 +136,15 @@ itests() {
 if [ "$TESTS" == "YES" ]; then itests; else echo "=> Skip integration tests"; fi
 
 echo "=> Generate client APIs"
-swagger-codegen generate  -i target/tmp/swagger.json -c conf/swagger/config-option.json -l typescript-angular2 -o tmp/typescript-angular2
+BASEDIR=$PWD
+#@see scripts/build-swagger-codegen.sh if you need a fresher version of swagger codegen
+docker run --rm \
+	-v $PWD:/opt/gen \
+	-v $HOME/.m2:/root/.m2 \
+	gisaia/swagger-codegen:2.2.3
 
 echo "=> Build Typescript API "${FULL_API_VERSION}
-BASEDIR=$PWD
-cd ${BASEDIR}/tmp/typescript-angular2/
+cd ${BASEDIR}/target/tmp/typescript-angular2/
 cp ${BASEDIR}/conf/npm/package-build.json package.json
 cp ${BASEDIR}/conf/npm/tsconfig-build.json .
 npm version --no-git-tag-version ${FULL_API_VERSION}
@@ -149,7 +154,7 @@ cd ${BASEDIR}
 
 echo "=> Publish Typescript API "
 cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/tmp/typescript-angular2/dist/package.json
-cd ${BASEDIR}/tmp/typescript-angular2/dist
+cd ${BASEDIR}/target/tmp/typescript-angular2/dist
 npm version --no-git-tag-version ${FULL_API_VERSION}
 
 npm publish || echo "Publishing on npm failed ... continue ..."
