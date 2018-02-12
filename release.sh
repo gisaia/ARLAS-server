@@ -153,7 +153,7 @@ npm run build-release
 cd ${BASEDIR}
 
 echo "=> Publish Typescript API "
-cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/tmp/typescript-angular2/dist/package.json
+cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/target/tmp/typescript-angular2/dist/package.json
 cd ${BASEDIR}/target/tmp/typescript-angular2/dist
 npm version --no-git-tag-version ${FULL_API_VERSION}
 
