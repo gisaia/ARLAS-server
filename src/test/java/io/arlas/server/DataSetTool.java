@@ -106,7 +106,7 @@ public class DataSetTool {
                 coords.add(new LngLatAlt(i-1,j-1));
                 coords.add(new LngLatAlt(i-1,j+1));
                 data.geo_params.geometry=new Polygon(coords);
-                IndexResponse response = client.prepareIndex(DATASET_INDEX_NAME, DATASET_TYPE_NAME, data.id)
+                IndexResponse response = client.prepareIndex(DATASET_INDEX_NAME, DATASET_TYPE_NAME, "ES_ID_TEST" + data.id)
                         .setSource(mapper.writer().writeValueAsString(data))
                         .get();
             }
