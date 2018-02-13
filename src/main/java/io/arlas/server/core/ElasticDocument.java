@@ -19,24 +19,34 @@
 
 package io.arlas.server.core;
 
-import java.io.IOException;
 import java.util.Map;
-
-import org.elasticsearch.action.get.GetResponse;
+import java.util.concurrent.ExecutionException;
 import org.elasticsearch.client.Client;
 
 import io.arlas.server.model.CollectionReference;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHits;
 
 public class ElasticDocument {
 
     public Client client;
-    
+
     public ElasticDocument(Client client){
         this.client = client;
     }
     
-    public Map<String,Object> getSource (CollectionReference collectionReference, String identifier) throws IOException {
-        GetResponse response = client.prepareGet(collectionReference.params.indexName, collectionReference.params.typeName, identifier).get();
-        return response.getSource();
+    public Map<String,Object> getSource (CollectionReference collectionReference, String identifier) throws  ExecutionException, InterruptedException {
+        
+        SearchHits hits = client
+                .prepareSearch(collectionReference.params.indexName)
+                .setQuery(QueryBuilders.matchQuery(collectionReference.params.idPath,identifier))
+                .execute()
+                .get()
+                .getHits();
+        Map<String,Object> response = null;
+        if(hits.getHits().length>0){
+            response = hits.getAt(0).getSource();
+        }
+        return response;
     }
 }
