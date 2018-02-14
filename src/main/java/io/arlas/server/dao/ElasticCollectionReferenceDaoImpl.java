@@ -121,6 +121,10 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             case CollectionReference.CUSTOM_PARAMS:
                 params.custom_params = source.get(field) != null ? (Map<String,String>)source.get(field) : null;
                 break;
+            case CollectionReference.JSON_SCHEMA:
+                ObjectMapper mapper = new ObjectMapper();
+                params.json_schema = source.get(field) != null ? mapper.valueToTree(source.get(field)) : null;
+                break;
             }
         }
         return params;
