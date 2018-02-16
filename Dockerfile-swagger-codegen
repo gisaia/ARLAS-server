@@ -6,5 +6,4 @@ ADD swagger-codegen/modules/swagger-codegen-cli/target/swagger-codegen-cli.jar /
 CMD java -jar /opt/swagger/swagger-codegen-cli.jar generate \
    -i /opt/gen/target/tmp/swagger.json \
    -l typescript-angular2 \
-   -c /opt/gen/conf/swagger/config-option.json \
    -o /opt/gen/target/tmp/typescript-angular2

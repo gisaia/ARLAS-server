@@ -191,7 +191,7 @@ public class ExploreServices {
     public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse){
         aggregationResponse.name = aggregation.getName();
         if (aggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
-            aggregationResponse.sumOtherDocCounts = ((Terms)aggregation).getSumOfOtherDocCounts();
+            aggregationResponse.sumotherdoccounts = ((Terms)aggregation).getSumOfOtherDocCounts();
         }
 
         aggregationResponse.elements = new ArrayList<AggregationResponse>();
@@ -215,7 +215,7 @@ public class ExploreServices {
                     AggregationResponse subAggregationResponse = new AggregationResponse();
                     subAggregationResponse.name = subAggregation.getName();
                     if (subAggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
-                        subAggregationResponse.sumOtherDocCounts = ((Terms)subAggregation).getSumOfOtherDocCounts();
+                        subAggregationResponse.sumotherdoccounts = ((Terms)subAggregation).getSumOfOtherDocCounts();
                     }
                     if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) ||subAggregation.getName().equals(FluidSearch.TERM_AGG)){
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation)subAggregation), subAggregationResponse);
