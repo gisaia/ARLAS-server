@@ -129,10 +129,10 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
         handleMatchingAggregate(then, featuresSize, featureCountMin, featureCountMax);
         if (sumOtherDocCounts == -1) {
             then
-            .body("sum_other_doc_counts", nullValue());
+            .body("sumotherdoccounts", nullValue());
         } else {
             then
-            .body("sum_other_doc_counts", equalTo(sumOtherDocCounts));
+            .body("sumotherdoccounts", equalTo(sumOtherDocCounts));
         }
     }
 

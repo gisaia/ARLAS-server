@@ -28,7 +28,7 @@ import org.geojson.Polygon;
 public class AggregationResponse extends OperationInfo {
     public String name;
     public Long count;
-    public Long sumOtherDocCounts;
+    public Long sumotherdoccounts;
     public Object key;
     public Object keyAsString;
     public List<AggregationResponse> elements;
