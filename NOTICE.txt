@@ -1,2 +1,30 @@
+
 ARLAS-server
-Copyright 2017 Gisaïa
+Copyright 2017 and onwards Gisaïa
+
+
+ARLAS-server embeds the following components and their dependencies :
+
++ DROPWIZARD
+    - Dropwizard            (Apache License Version 2.0 - http://www.dropwizard.io/)
+    - dropwizard-swagger    (Apache License Version 2.0 - https://github.com/smoketurner/dropwizard-swagger)
+    - dropwizard-zipkin     (Apache License Version 2.0 - https://github.com/smoketurner/dropwizard-zipkin)
+
++ ELASTICSEARCH
+    - Elasticsearch         (Apache License Version 2.0 - https://www.elastic.co/products/elasticsearch)
+
++ TOOLS
+    - GeoTools              (Lesser General Public License - http://www.geotools.org)
+    - Google Protobuf       (Copyright 2014, Google Inc. All rights reserved. - https://github.com/google/protobuf)
+    - GeoAPI                (Copyright 2003-2015 Open Geospatial Consortium, Inc. All Rights Reserved. - http://www.geoapi.org/)
+    - geojson-jackson       (Apache License Version 2.0 - http://blog.opendatalab.de/)
+    - JTS Topology Suite    (Lesser General Public License - http://sourceforge.net/projects/jts-topo-suite)
+    - Spatial4J             (Apache License Version 2.0 - https://www.locationtech.org/)
+
++ TESTS
+    - Rest-assured          (Apache License Version 2.0 - https://github.com/rest-assured/rest-assured)
+    - JUnit                 (Eclipse Public License v 1.0 - https://junit.org/junit4/)
+    - Hamcrest              (BSD License - http://hamcrest.org/)
+
++ LOGS
+    - log4j                 (Apache License Version 2.0 - https://github.com/apache/log4j)
