@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.AdminClient;
@@ -38,8 +39,13 @@ import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataSetTool {
+    static Logger LOGGER = LoggerFactory.getLogger(DataSetTool.class);
+    public static ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+
     public final static String DATASET_INDEX_NAME="dataset";
     public final static String DATASET_TYPE_NAME="mytype";
     public final static String DATASET_ID_PATH="id";
@@ -51,6 +57,16 @@ public class DataSetTool {
     public final static String DATASET_TIMESTAMP_FORMAT="epoch_millis";
     public static final String[] jobs= {"Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter"};
 
+    public  static  Object jsonSchema;
+
+    static {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            jsonSchema = mapper.readValue(classLoader.getResourceAsStream("dataset.schema.json"),ObjectNode.class);
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(),e);
+        }
+    }
 
     AdminClient adminClient;
     Client client;
@@ -61,16 +77,17 @@ public class DataSetTool {
         dst.loadDataSet();
     }
 
-    static public DataSetTool init() throws UnknownHostException {
+    static public DataSetTool init() throws IOException {
+
         return new DataSetTool(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_HOST")).orElse("localhost"),
                 Integer.parseInt(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_PORT")).orElse("9300")));
     }
 
-    static public DataSetTool init(String host, int port) throws UnknownHostException {
-        return new DataSetTool(host, port);
+    static public DataSetTool init(String host, int port) throws IOException {
+       return new DataSetTool(host, port);
     }
 
-    private DataSetTool(String host, int port) throws UnknownHostException {
+    private DataSetTool(String host, int port) throws IOException {
 	Settings settings = null;
         if ("localhost".equals(host)){
             settings=Settings.EMPTY;

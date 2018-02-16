@@ -19,6 +19,7 @@
 
 package io.arlas.server.model;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import io.dropwizard.jackson.JsonSnakeCase;
@@ -50,6 +51,8 @@ public class CollectionReferenceParameters {
 
     public Map<String,String> custom_params = null;
 
+    public ObjectNode json_schema = null;
+
     public CollectionReferenceParameters() {
     }
 
@@ -68,6 +71,6 @@ public class CollectionReferenceParameters {
     @Override
     public String toString() {
         return "CollectionReferenceParameters [indexName=" + indexName + ", typeName=" + typeName + ", idPath=" + idPath + ", geometryPath=" + geometryPath + ", centroidPath=" + centroidPath
-                + ", timestampPath=" + timestampPath + ", includeFields=" + includeFields + ", excludeFields=" + excludeFields + ", custom_params=" + custom_params +"]";
+                + ", timestampPath=" + timestampPath + ", includeFields=" + includeFields + ", excludeFields=" + excludeFields + ", custom_params=" + custom_params + ", json_schema=" + json_schema +"]";
     }
 }

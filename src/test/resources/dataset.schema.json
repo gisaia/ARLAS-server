@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "required": [
+    "data",
+    "md"
+  ],
+  "type": "object",
+  "properties": {
+    "md": {
+      "required": [
+        "centroid",
+        "geometry",
+        "id",
+        "timestamp"
+      ],
+      "type": "object",
+      "properties": {
+        "geometry": {
+          "required": [
+            "coordinates"
+          ],
+          "type": "object",
+          "properties": {
+            "coordinates": {
+              "items": {
+                "items": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "timestamp": {
+          "type": "integer"
+        },
+        "centroid": {
+          "required": [
+            "coordinates"
+          ],
+          "type": "object",
+          "properties": {
+            "coordinates": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "data": {
+      "required": [
+        "fullname",
+        "geo_params",
+        "id",
+        "params"
+      ],
+      "type": "object",
+      "properties": {
+        "fullname": {
+          "type": "string"
+        },
+        "params": {
+          "required": [
+            "job",
+            "startdate"
+          ],
+          "type": "object",
+          "properties": {
+            "startdate": {
+              "type": "integer"
+            },
+            "job": {
+              "type": "string"
+            }
+          }
+        },
+        "id": {
+          "type": "string"
+        },
+        "geo_params": {
+          "required": [
+            "centroid",
+            "geometry"
+          ],
+          "type": "object",
+          "properties": {
+            "geometry": {
+              "required": [
+                "coordinates",
+                "type"
+              ],
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "coordinates": {
+                  "items": {
+                    "items": {
+                      "items": {
+                        "type": "number"
+                      },
+                      "type": "array"
+                    },
+                    "type": "array"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "centroid": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

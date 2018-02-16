@@ -23,6 +23,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
@@ -265,5 +266,38 @@ public abstract class CollectionService extends CollectionRESTServices {
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         dao.deleteCollectionReference(collection);
         return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
+    }
+
+
+    @Timed
+    @Path("/_import_json_schema/{collection}")
+    @PUT
+    @Produces(UTF8JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @ApiOperation(
+            value="Add JSON schema to the collection references from a json file",
+            produces=UTF8JSON,
+            notes = "Add JSON schema to the collection references from a json file",
+            consumes= MediaType.MULTIPART_FORM_DATA
+    )
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = String.class ),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    public Response importSchemaJson(
+            @ApiParam(
+                    name = "collection",
+                    value = "collection",
+                    allowMultiple = false,
+                    required=true)
+            @PathParam(value = "collection") String collection,
+            @FormDataParam("json_schema_file") InputStream inputStream,
+            @FormDataParam("json_schema_file") FormDataContentDisposition fileDetail
+    ) throws ArlasException, IOException {
+
+        CollectionReference cr = dao.getCollectionReference(collection);
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonNodes = objectMapper.readValue(inputStream, ObjectNode.class);
+        cr.params.json_schema=jsonNodes;
+
+        return ResponseFormatter.getResultResponse(save(collection, cr.params));
     }
 }
