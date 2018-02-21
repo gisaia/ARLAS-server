@@ -1,5 +1,7 @@
 # ARLAS-server
 
+![Build Status](https://img.shields.io/travis/gisaia/ARLAS-server/develop.svg?label=develop)
+
 ARLAS-server provides a highly simplified **REST API** for exploring data collections available in **ElasticSearch**.
 **Enhanced capabilities** are provided for collections exposing a **geometry**, a **centroid** and a **timestamp**. A **Collection API** is also provided for managing collections.
 
