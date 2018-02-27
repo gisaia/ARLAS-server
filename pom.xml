@@ -37,7 +37,7 @@
         <swagger2markup.plugin.version>1.2.0</swagger2markup.plugin.version>
         <swagger2markup.extension.version>1.2.0</swagger2markup.extension.version>
 
-        <swagger.input>target/tmp/swagger.yaml</swagger.input>
+        <swagger.input>target/tmp/swagger.json</swagger.input>
         <swagger.output>target/generated-docs/</swagger.output>
     </properties>
 
