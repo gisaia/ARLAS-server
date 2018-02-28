@@ -17,8 +17,9 @@
  * under the License.
  */
 
-package io.arlas.server.rest;
+package io.arlas.server.exceptions;
 
+import io.arlas.server.rest.ResponseFormatter;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.client.transport.NoNodeAvailableException;

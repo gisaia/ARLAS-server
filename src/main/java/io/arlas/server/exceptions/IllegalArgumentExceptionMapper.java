@@ -17,11 +17,12 @@
  * under the License.
  */
 
-package io.arlas.server.rest;
+package io.arlas.server.exceptions;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
+import io.arlas.server.rest.ResponseFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

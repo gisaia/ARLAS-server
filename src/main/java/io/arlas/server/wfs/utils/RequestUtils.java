@@ -17,22 +17,22 @@
  * under the License.
  */
 
-package io.arlas.server.rest;
+package io.arlas.server.wfs.utils;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
+import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.exceptions.ArlasConfigurationException;
+import org.deegree.protocol.wfs.WFSRequestType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class RequestUtils {
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-public class JsonProcessingExceptionMapper implements ExceptionMapper<JsonProcessingException> {
-    Logger logger = LoggerFactory.getLogger(ArlasExceptionMapper.class);
-
-    @Override
-    public Response toResponse(JsonProcessingException e) {
-        logger.error("Error occurred", e);
-        return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST, "Malformed JSON parameter.");
+    public static WFSRequestType getRequestTypeByName(String requestName, ArlasServerConfiguration configuration )
+            throws ArlasConfigurationException {
+        if ( configuration.wfsConfiguration.getSupportedRequest().indexOf(requestName)<0 ) {
+            return null;
+        }else if(WFSRequestType.valueOf(requestName)==null){
+            String msg = "Request type '" + requestName + "' is not supported.";
+            return null;
+        }
+        return WFSRequestType.valueOf(requestName);
     }
 }

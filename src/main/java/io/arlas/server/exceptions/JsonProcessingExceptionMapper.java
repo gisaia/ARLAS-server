@@ -17,22 +17,22 @@
  * under the License.
  */
 
-package io.arlas.server.rest;
+package io.arlas.server.exceptions;
 
-import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
-
+import io.arlas.server.rest.ResponseFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+public class JsonProcessingExceptionMapper implements ExceptionMapper<JsonProcessingException> {
     Logger logger = LoggerFactory.getLogger(ArlasExceptionMapper.class);
 
     @Override
-    public Response toResponse(ConstraintViolationException e) {
+    public Response toResponse(JsonProcessingException e) {
         logger.error("Error occurred", e);
-        return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST,
-                "Invalid JSON parameter. Fields indexName and typeName are mandatory.");
+        return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST, "Malformed JSON parameter.");
     }
 }

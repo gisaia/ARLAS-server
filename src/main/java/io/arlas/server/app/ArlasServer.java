@@ -25,9 +25,14 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.yunspace.dropwizard.xml.XmlBundle;
+import io.arlas.server.exceptions.*;
 import io.arlas.server.health.ElasticsearchHealthCheck;
 import io.arlas.server.rest.*;
+import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
 import io.dropwizard.assets.AssetsBundle;
+import io.arlas.server.wfs.WFSHandler;
+import io.arlas.server.wfs.WFSService;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
@@ -94,6 +99,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             }
         });
         bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
+        bootstrap.addBundle(new XmlBundle());
+
     }
 
     @Override
@@ -101,6 +108,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         LOGGER.info("Raw configuration: "+ (new ObjectMapper()).writer().writeValueAsString(configuration));
         configuration.check();
         LOGGER.info("Checked configuration: "+ (new ObjectMapper()).writer().writeValueAsString(configuration));
+
 
         Settings settings;
         if (Strings.isNullOrEmpty(configuration.elasticcluster)) {
@@ -148,8 +156,13 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             LOGGER.info("Collection API disabled");
         }
 
+        //WFS
+        WFSHandler wfsHandler = new WFSHandler(configuration);
+        environment.jersey().register(new WFSService(exploration, wfsHandler));
+
         //filters
         environment.jersey().register(PrettyPrintFilter.class);
+        environment.jersey().register(InsensitiveCaseFilter.class);
         //tasks
         environment.admin().addTask(new CollectionAutoDiscover(client, configuration));
         int scheduleAutoDiscover = configuration.collectionAutoDiscoverConfiguration.schedule;
