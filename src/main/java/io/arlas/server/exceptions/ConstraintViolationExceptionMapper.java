@@ -17,18 +17,22 @@
  * under the License.
  */
 
-package io.arlas.server.model.response;
+package io.arlas.server.exceptions;
 
-import io.dropwizard.jackson.JsonSnakeCase;
-import org.geojson.GeoJsonObject;
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import io.arlas.server.rest.ResponseFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@JsonSnakeCase
-public class MD {
-    public String id;
+public class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
+    Logger logger = LoggerFactory.getLogger(ArlasExceptionMapper.class);
 
-    public Long timestamp;
-
-    public Object geometry;
-
-    public Object centroid;
+    @Override
+    public Response toResponse(ConstraintViolationException e) {
+        logger.error("Error occurred", e);
+        return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST,
+                "Invalid JSON parameter. Fields indexName and typeName are mandatory.");
+    }
 }

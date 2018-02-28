@@ -22,8 +22,14 @@ package io.arlas.server.rest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import io.arlas.server.exceptions.WFSException;
+import io.arlas.server.exceptions.WFSExceptionMessage;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Success;
+import io.arlas.server.model.response.WFSError;
+import net.opengis.ows._1.ExceptionReport;
+import net.opengis.ows._1.ExceptionType;
+import net.opengis.ows._1.ObjectFactory;
 
 public class ResponseFormatter {
 
@@ -44,5 +50,13 @@ public class ResponseFormatter {
     public static Response getErrorResponse(Exception e, Response.Status status, String message) {
         return Response.status(status).entity(new Error(status.getStatusCode(), e.getClass().getName(), message))
                 .type(MediaType.APPLICATION_JSON).build();
+    }
+
+    public static Response getWFSErrorResponse(WFSException e){
+        WFSError wfsError = new WFSError(e);
+        Response response = Response.status(e.getExceptionMessages().get(0).getExceptionCode().getHttpStatusCode())
+                .entity(wfsError.exceptionReport)
+                .type(MediaType.APPLICATION_XML).build();
+        return response;
     }
 }

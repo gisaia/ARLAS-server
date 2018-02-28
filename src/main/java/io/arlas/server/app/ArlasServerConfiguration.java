@@ -20,13 +20,21 @@
 package io.arlas.server.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.exceptions.ArlasConfigurationException;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.elasticsearch.common.Strings;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@JacksonXmlRootElement
 public class ArlasServerConfiguration extends Configuration {
+
+    @JsonProperty("arlas-wfs")
+    public WFSConfiguration wfsConfiguration;
+
     @JsonProperty("zipkin")
     public ZipkinFactory zipkinConfiguration;
 

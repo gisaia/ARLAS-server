@@ -17,13 +17,12 @@
  * under the License.
  */
 
-package io.arlas.server.rest;
+package io.arlas.server.exceptions;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-
-import io.arlas.server.exceptions.*;
+import io.arlas.server.rest.ResponseFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +43,9 @@ public class ArlasExceptionMapper implements ExceptionMapper<ArlasException> {
             return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST, e.getMessage());
         else if (e instanceof NotImplementedException)
             return ResponseFormatter.getErrorResponse(e, Response.Status.NOT_IMPLEMENTED, e.getMessage());
+        else if (e instanceof WFSException){
+            return ResponseFormatter.getWFSErrorResponse((WFSException)e);
+        }
         else
             return ResponseFormatter.getErrorResponse(e, Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
     }

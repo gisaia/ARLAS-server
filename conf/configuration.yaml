@@ -91,3 +91,12 @@ zipkin: # The ZIPIN configuration, not active by default
   servicePort: ${ARLAS_PORT:-9999} # Listening port of the service
   collector: ${ARLAS_ZIPKIN_COLLECTOR:-http}
   baseUrl: ${ARLAS_ZIPKIN_BASEURL:-http://localhost:9411} # Where is zipkin running?
+
+########################################################
+############ WFS                      ###############
+########################################################
+arlas-wfs:
+  supportedVersion: 2.0.0
+  supportedEncoding: KVP
+  queryMaxFeature: 15000
+  supportedRequest: GetCapabilities,DescribeFeatureType,ListStoredQueries,DescribeStoredQueries,GetFeature,GetPropertyValue
