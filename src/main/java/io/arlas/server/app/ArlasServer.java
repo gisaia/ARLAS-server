@@ -155,11 +155,13 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         }else{
             LOGGER.info("Collection API disabled");
         }
-
-        //WFS
-        WFSHandler wfsHandler = new WFSHandler(configuration);
-        environment.jersey().register(new WFSService(exploration, wfsHandler));
-
+        if(configuration.arlasServiceWFSEnabled){
+            LOGGER.info("WFS Service enabled");
+            WFSHandler wfsHandler = new WFSHandler(configuration);
+            environment.jersey().register(new WFSService(exploration, wfsHandler));
+        }else{
+            LOGGER.info("WFS Service disabled");
+        }
         //filters
         environment.jersey().register(PrettyPrintFilter.class);
         environment.jersey().register(InsensitiveCaseFilter.class);

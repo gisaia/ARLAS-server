@@ -71,6 +71,9 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("arlas-service-explore-enabled")
     public Boolean arlasServiceExploreEnabled;
 
+    @JsonProperty("arlas-service-wfs-enabled")
+    public Boolean arlasServiceWFSEnabled;
+
 
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
@@ -102,6 +105,9 @@ public class ArlasServerConfiguration extends Configuration {
         }
         if(arlasServiceExploreEnabled==null){
             arlasServiceExploreEnabled=true;
+        }
+        if(arlasServiceWFSEnabled==null){
+            arlasServiceWFSEnabled=false;
         }
         if(collectionAutoDiscoverConfiguration == null) {
             collectionAutoDiscoverConfiguration = new CollectionAutoDiscoverConfiguration();
