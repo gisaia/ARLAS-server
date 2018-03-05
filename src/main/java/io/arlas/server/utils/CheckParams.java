@@ -125,6 +125,11 @@ public class CheckParams {
         }
     }
 
+    public static void checkTimestampFormatValidity(String timestamp) throws ArlasException {
+        if (tryParseLong(timestamp) == null) {
+            throw new InvalidParameterException(FluidSearch.INVALID_TIMESTAMP_RANGE);
+        }
+    }
 
     public static Boolean isPolygon(Geometry geometry) {
         String geometryType = geometry.getGeometryType().toUpperCase();
@@ -239,6 +244,14 @@ public class CheckParams {
     private static Double tryParseDouble(String text) {
         try {
             return Double.parseDouble(text);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private static Long tryParseLong(String text) {
+        try {
+            return Long.parseLong(text);
         } catch (NumberFormatException e) {
             return null;
         }

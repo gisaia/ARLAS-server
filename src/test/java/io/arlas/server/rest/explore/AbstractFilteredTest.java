@@ -88,6 +88,17 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString()+";"+request.filter.f.get(0).get(1).toString()),117,"Actor","Announcers");
         handleFieldFilter(header(request.filter),117,"Actor","Announcers");
 
+        // TIMESTAMP LTE, LT, GTE, GT
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.lte, "775000")));
+        handleFieldFilter(post(request),3,"Chemist","Brain Scientist");
+        handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString()),3,"Chemist","Brain Scientist");
+        handleFieldFilter(header(request.filter),3,"Chemist","Brain Scientist");
+
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.gt, "1250000")));
+        handleFieldFilter(post(request),3,"Chemist","Brain Scientist");
+        handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString()),3,"Chemist","Brain Scientist");
+        handleFieldFilter(header(request.filter),3,"Chemist","Brain Scientist");
+
         request.filter.f = null;
 
     }
@@ -519,6 +530,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.f = null;
 
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[0<775000],")));//);
+        handleInvalidParameters(post(request));
+        handleInvalidParameters(get("f", request.filter.f.get(0).get(0).toString()));
+        handleInvalidParameters(header(request.filter));
+        request.filter.f = null;
+
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.gte, "775000.0")));//);
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("f", request.filter.f.get(0).get(0).toString()));
         handleInvalidParameters(header(request.filter));
