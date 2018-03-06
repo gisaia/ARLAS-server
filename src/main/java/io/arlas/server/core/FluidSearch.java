@@ -23,6 +23,7 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
+import io.arlas.server.model.response.TimestampType;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ParamsParser;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -83,6 +84,7 @@ public class FluidSearch {
     public static final String INVALID_GEOSORT_LAT_LON = "'lat lon' must be numeric values separated by a space";
     public static final String INVALID_GEOSORT_LABEL = "To sort by geo_distance, please specifiy the point, from which the distances are calculated, as following 'geodistance:lat lon'";
     public static final String INVALID_TIMESTAMP_RANGE = "Timestamp range values must be numbers.";
+
     public static final String DATEHISTOGRAM_AGG = "Datehistogram aggregation";
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
@@ -203,20 +205,24 @@ public class FluidSearch {
                 }
                 break;
             case gte:
-                ret = ret
-                        .filter(QueryBuilders.rangeQuery(field).gte(value));
+                RangeQueryBuilder gteRangeQuery = QueryBuilders.rangeQuery(field).gte(value);
+                applyFormatOnRangeQuery(field, value, gteRangeQuery);
+                ret = ret.filter(gteRangeQuery);
                 break;
             case gt:
-                ret = ret
-                        .filter(QueryBuilders.rangeQuery(field).gt(value));
+                RangeQueryBuilder gtRangeQuery = QueryBuilders.rangeQuery(field).gt(value);
+                applyFormatOnRangeQuery(field, value, gtRangeQuery);
+                ret = ret.filter(gtRangeQuery);
                 break;
             case lte:
-                ret = ret
-                        .filter(QueryBuilders.rangeQuery(field).lte(value));
+                RangeQueryBuilder lteRangeQuery = QueryBuilders.rangeQuery(field).lte(value);
+                applyFormatOnRangeQuery(field, value, lteRangeQuery);
+                ret = ret.filter(lteRangeQuery);
                 break;
             case lt:
-                ret = ret
-                        .filter(QueryBuilders.rangeQuery(field).lt(value));
+                RangeQueryBuilder ltRangeQuery = QueryBuilders.rangeQuery(field).lt(value);
+                applyFormatOnRangeQuery(field, value, ltRangeQuery);
+                ret = ret.filter(ltRangeQuery);
                 break;
             case like:
                 //TODO: if field type is fullText, use matchPhraseQuery instead of regexQuery
@@ -263,6 +269,13 @@ public class FluidSearch {
         }
     }
 
+    public void applyFormatOnRangeQuery(String field, String value, RangeQueryBuilder rangeQuery) throws ArlasException {
+        if (field.equals(collectionReference.params.timestampPath)) {
+            CheckParams.checkTimestampFormatValidity(value);
+            rangeQuery = rangeQuery.format(TimestampType.epoch_millis.name());
+        }
+    }
+
     public RangeQueryBuilder getRangeQueryBuilder(String field, String value) throws ArlasException {
         boolean incMin = value.startsWith("[");
         boolean incMax = value.endsWith("]");
@@ -287,6 +300,9 @@ public class FluidSearch {
             ret = ret.lte(max);
         } else {
             ret = ret.lt(max);
+        }
+        if (field.equals(collectionReference.params.timestampPath)) {
+            ret = ret.format(TimestampType.epoch_millis.name());
         }
         return ret;
     }
