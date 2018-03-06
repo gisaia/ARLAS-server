@@ -19,58 +19,56 @@
 
 package io.arlas.server.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import io.dropwizard.jackson.JsonSnakeCase;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.Map;
 
-@JsonSnakeCase
 public class CollectionReferenceParameters {
 
     @NotEmpty
+    @JsonProperty(value="index_name", required = true)
     public String indexName;
 
     @NotEmpty
+    @JsonProperty(value="type_name", required = true)
     public String typeName;
 
+    @JsonProperty(value="id_path", required = true)
     public String idPath;
 
+    @JsonProperty(value = "geometry_path", required = true)
     public String geometryPath;
 
+    @JsonProperty(value = "centroid_path", required = true)
     public String centroidPath;
 
+    @JsonProperty(value = "timestamp_path", required = true)
     public String timestampPath;
-    
+
+    @JsonProperty(value = "include_fields", required = false)
     public String includeFields = null;
-    
+
+    @JsonProperty(value = "exclude_fields", required = false)
     public String excludeFields = null;
 
-    public Map<String,String> custom_params = null;
+    @JsonProperty(value = "custom_params", required = false)
+    public Map<String,String> customParams = null;
 
-    public ObjectNode json_schema = null;
+    @JsonProperty(value = "json_schema", required = false)
+    public ObjectNode jsonSchema = null;
 
     public CollectionReferenceParameters() {
     }
 
     public CollectionReferenceParameters(String indexName, String typeName, String idPath, String geometryPath,
-            String centroidPath, String timestampPath, String includeFields, String excludeFields) {
+            String centroidPath, String timestampPath) {
         this.indexName = indexName;
         this.typeName = typeName;
         this.idPath = idPath;
         this.geometryPath = geometryPath;
         this.centroidPath = centroidPath;
         this.timestampPath = timestampPath;
-        this.includeFields = includeFields;
-        this.excludeFields = excludeFields;
-    }
-
-    @Override
-    public String toString() {
-        return "CollectionReferenceParameters [indexName=" + indexName + ", typeName=" + typeName + ", idPath=" + idPath + ", geometryPath=" + geometryPath + ", centroidPath=" + centroidPath
-                + ", timestampPath=" + timestampPath + ", includeFields=" + includeFields + ", excludeFields=" + excludeFields + ", custom_params=" + custom_params + ", json_schema=" + json_schema +"]";
     }
 }

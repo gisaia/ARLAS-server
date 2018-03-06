@@ -19,9 +19,9 @@
 
 package io.arlas.server.model;
 
-import io.dropwizard.jackson.JsonSnakeCase;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonSnakeCase
+
 public class CollectionReference {
 
     public static final String COLLECTION_NAME = "collection_name";
@@ -38,24 +38,21 @@ public class CollectionReference {
     public static final String CUSTOM_PARAMS = "custom_params";
     public static final String JSON_SCHEMA = "json_schema";
 
+    @JsonProperty(value="collection_name", required = true)
     public String collectionName;
 
+    @JsonProperty(value="params", required = true)
     public CollectionReferenceParameters params;
 
     public CollectionReference() {
-    }
-
-    public CollectionReference(String collectionName, CollectionReferenceParameters params) {
-        this.collectionName = collectionName;
-        this.params = params;
     }
 
     public CollectionReference(String collectionName) {
         this.collectionName = collectionName;
     }
 
-    @Override
-    public String toString() {
-        return "CollectionReference [collectionName=" + collectionName + ", params=" + params + "]";
+    public CollectionReference(String collectionName, CollectionReferenceParameters params) {
+        this.collectionName = collectionName;
+        this.params = params;
     }
 }

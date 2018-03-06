@@ -59,7 +59,7 @@ public class Hit {
         if (collectionReference.params.timestampPath != null) {
             Object t = MapExplorer.getObjectFromPath(collectionReference.params.timestampPath, source);
             if (t != null) {
-                String f = collectionReference.params.custom_params.get(CollectionReference.TIMESTAMP_FORMAT);
+                String f = collectionReference.params.customParams.get(CollectionReference.TIMESTAMP_FORMAT);
                 md.timestamp = TimestampTypeMapper.getTimestamp(t, f);
             }
         }

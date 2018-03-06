@@ -25,7 +25,6 @@ import javax.ws.rs.ext.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-@Provider
 public class WFSException extends ArlasException  {
     private static final long serialVersionUID = 1L;
 
