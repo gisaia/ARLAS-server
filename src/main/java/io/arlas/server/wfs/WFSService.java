@@ -139,7 +139,7 @@ public class WFSService {
     ) throws IOException, ArlasException, OWSException,WFSException {
 
         Version requestVersion = VersionUtils.getVersion(version);
-        WFSRequestType requestType = RequestUtils.getRequestTypeByName(request, wfsHandler.arlasServerConfiguration);
+        WFSRequestType requestType = RequestUtils.getRequestTypeByName(request);
 
         if (requestType == null) {
             String msg = "Request type '" + request + "' is not supported.";
