@@ -19,15 +19,21 @@
 
 package io.arlas.server.wfs.utils;
 
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.exceptions.ArlasConfigurationException;
 import org.deegree.protocol.wfs.WFSRequestType;
+import java.util.Arrays;
 
 public class RequestUtils {
 
-    public static WFSRequestType getRequestTypeByName(String requestName, ArlasServerConfiguration configuration )
-            throws ArlasConfigurationException {
-        if ( configuration.wfsConfiguration.getSupportedRequest().indexOf(requestName)<0 ) {
+    private static final String[] supportedRequest = {
+            "GetCapabilities"
+            ,"DescribeFeatureType",
+            "ListStoredQueries",
+            "DescribeStoredQueries",
+            "GetFeature",
+            "GetPropertyValue"
+    };
+    public static WFSRequestType getRequestTypeByName(String requestName) {
+        if (Arrays.asList(supportedRequest).indexOf(requestName)<0 ) {
             return null;
         }else if(WFSRequestType.valueOf(requestName)==null){
             String msg = "Request type '" + requestName + "' is not supported.";

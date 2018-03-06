@@ -28,6 +28,7 @@ import net.opengis.wfs._2.FeatureTypeListType;
 import net.opengis.wfs._2.FeatureTypeType;
 import net.opengis.wfs._2.OutputFormatListType;
 import net.opengis.wfs._2.WFSCapabilitiesType;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
@@ -43,7 +44,7 @@ public class GetCapabilitiesHandler {
             throws ArlasConfigurationException {
         this.wfsHandler = wfsHandler;
         this.arlasServerConfiguration = arlasServerConfiguration;
-        this.arlasServerConfiguration.wfsConfiguration.getSupportedVersion().forEach(v ->getCapabilitiesType.setVersion(v));
+        getCapabilitiesType.setVersion("2.0.0");
         trueValueType.setValue("TRUE");
         falseValueType.setValue("FALSE");
         this.setServiceProvider();

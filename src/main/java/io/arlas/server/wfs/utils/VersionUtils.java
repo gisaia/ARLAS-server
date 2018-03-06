@@ -26,6 +26,8 @@ import org.deegree.commons.tom.ows.Version;
 import org.deegree.commons.utils.kvp.InvalidParameterValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -40,7 +42,8 @@ public class VersionUtils {
 
         Version version = requestedVersion;
         SortedSet<Version> offeredVersions = new TreeSet<Version>();
-        List<String> supportedVersion = configuration.wfsConfiguration.getSupportedVersion();
+        List<String> supportedVersion = new ArrayList<>();
+        supportedVersion.add("2.0.0");
         supportedVersion.forEach(v -> {
             try {
                 offeredVersions.add(getVersion(v));

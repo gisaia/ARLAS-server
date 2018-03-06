@@ -96,7 +96,4 @@ zipkin: # The ZIPIN configuration, not active by default
 ############ WFS                      ###############
 ########################################################
 arlas-wfs:
-  supportedVersion: 2.0.0
-  supportedEncoding: KVP
-  queryMaxFeature: 15000
-  supportedRequest: GetCapabilities,DescribeFeatureType,ListStoredQueries,DescribeStoredQueries,GetFeature,GetPropertyValue
+  queryMaxFeature: ${ARLAS_WFS_QUERYMAXFEATURE:-1000}

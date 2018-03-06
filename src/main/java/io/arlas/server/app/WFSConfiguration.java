@@ -28,18 +28,8 @@ import java.util.List;
 
 public class WFSConfiguration {
 
-
-    @JsonProperty("supportedVersion")
-    public String supportedVersion;
-
-    @JsonProperty("supportedEncoding")
-    public String supportedEncoding;
-
     @JsonProperty("queryMaxFeature")
     public Number queryMaxFeature;
-
-    @JsonProperty("supportedRequest")
-    public String supportedRequest;
 
     private List<String> getFields(String fieldsComaSeparated) throws ArlasConfigurationException {
         if(Strings.isNullOrEmpty(fieldsComaSeparated)) {
@@ -48,19 +38,7 @@ public class WFSConfiguration {
         return Arrays.asList(fieldsComaSeparated.split(","));
     }
 
-    public List<String> getSupportedVersion() throws ArlasConfigurationException {
-        return getFields(supportedVersion);
-    }
-
-    public List<String> getSupportedEncoding() throws ArlasConfigurationException {
-        return getFields(supportedEncoding);
-    }
-
     public Number getQueryMaxFeature() throws ArlasConfigurationException {
         return queryMaxFeature;
-    }
-
-    public List<String> getSupportedRequest() throws ArlasConfigurationException {
-        return getFields(supportedRequest);
     }
 }

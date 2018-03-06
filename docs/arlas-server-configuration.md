@@ -67,6 +67,8 @@ docker run -ti -d \
 | --- | --- | --- | --- |
 | ARLAS_SERVICE_COLLECTIONS_ENABLE    | arlas-service-collections-enabled    | true     | Whether the collection service is enabled or not |
 | ARLAS_SERVICE_EXPLORE_ENABLE    | arlas-service-explore-enabled    | true     | Whether the explore service is enabled or not |
+| ARLAS_SERVICE_WFS_ENABLE    | arlas-service-wfs-enabled    | false     | Whether the WFS service is enabled or not |
+
 
 ### Datasource
 
@@ -103,6 +105,12 @@ docker run -ti -d \
 | ARLAS_MAX_THREADS | server.maxThreads | 1024 |
 | ARLAS_MIN_THREADS | server.minThreads | 8 |
 | ARLAS_MAX_QUEUED_REQUESTS | server.maxQueuedRequests | 1024 |
+
+### WFS
+
+| Environment variable | ARLAS WFS Server configuration variable | Default |
+| --- | --- | --- |
+| ARLAS_WFS_QUERYMAXFEATURE | arlas-wfs.queryMaxFeature | 1000 |
 
 ### Logging
 
