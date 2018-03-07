@@ -21,7 +21,7 @@ package io.arlas.server.model.response;
 
 public enum ElasticType {
     TEXT("text"), KEYWORD("keyword"),
-    LONG("long"), INTEGER("integer"), SHORT("short"), BYTE("byte"), DOUBLE("double"), FLOAT("double"),
+    LONG("long"), INTEGER("integer"), SHORT("short"), BYTE("byte"), DOUBLE("double"), FLOAT("float"),
     DATE("date"),
     BOOLEAN("boolean"),
     BINARY("binary"),
