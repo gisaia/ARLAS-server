@@ -19,6 +19,7 @@
 
 package io.arlas.server.rest.collections;
 
+import io.arlas.server.exceptions.ArlasException;
 import org.elasticsearch.client.Client;
 
 import io.arlas.server.app.ArlasServerConfiguration;
@@ -28,7 +29,7 @@ import java.io.IOException;
 
 public class ElasticCollectionService extends CollectionService {
 
-    public ElasticCollectionService(Client client, ArlasServerConfiguration configuration) throws IOException {
+    public ElasticCollectionService(Client client, ArlasServerConfiguration configuration) throws ArlasException {
         super();
         this.dao = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
         dao.initCollectionDatabase();

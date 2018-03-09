@@ -35,16 +35,14 @@ import io.arlas.server.model.CollectionReferenceParameters;
  *
  */
 public interface CollectionReferenceDao {
-    public void initCollectionDatabase() throws IOException;
+    public void initCollectionDatabase() throws ArlasException;
 
-    public CollectionReference getCollectionReference(String ref) throws NotFoundException;
+    public CollectionReference getCollectionReference(String ref) throws ArlasException;
 
-    public List<CollectionReference> getAllCollectionReferences() throws InternalServerErrorException;
+    public List<CollectionReference> getAllCollectionReferences() throws ArlasException;
 
-    public CollectionReference putCollectionReference(String ref, CollectionReferenceParameters desc)
-            throws InternalServerErrorException, JsonProcessingException;
+    public CollectionReference putCollectionReference(CollectionReference collectionReference)
+            throws ArlasException;
 
-    public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException;
-    
-    public void checkCollectionReferenceParameters(CollectionReferenceParameters collectionRefParams) throws ArlasException;
+    public void deleteCollectionReference(String ref) throws ArlasException;
 }

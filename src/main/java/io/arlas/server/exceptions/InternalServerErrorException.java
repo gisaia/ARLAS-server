@@ -27,4 +27,8 @@ public class InternalServerErrorException extends ArlasException {
         super(message);
     }
 
+    public InternalServerErrorException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }

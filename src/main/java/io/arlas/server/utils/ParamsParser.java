@@ -249,7 +249,7 @@ public class ParamsParser {
     }
 
     public static void formatRangeValues(Long min, Long max, CollectionReference collectionReference) {
-        String format = collectionReference.params.custom_params.get(CollectionReference.TIMESTAMP_FORMAT);
+        String format = collectionReference.params.customParams.get(CollectionReference.TIMESTAMP_FORMAT);
         TimestampTypeMapper.formatDate(min, format);
         TimestampTypeMapper.formatDate(max, format);
     }

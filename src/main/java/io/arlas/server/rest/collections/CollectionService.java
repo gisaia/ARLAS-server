@@ -227,8 +227,7 @@ public abstract class CollectionService extends CollectionRESTServices {
     }
 
     public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters) throws ArlasException, JsonProcessingException {
-        dao.checkCollectionReferenceParameters(collectionReferenceParameters);
-        CollectionReference cr = dao.putCollectionReference(collection, collectionReferenceParameters);
+        CollectionReference cr = dao.putCollectionReference(new CollectionReference(collection, collectionReferenceParameters));
         return cr;
     }
 
@@ -270,7 +269,7 @@ public abstract class CollectionService extends CollectionRESTServices {
 
 
     @Timed
-    @Path("/_import_json_schema/{collection}")
+    @Path("{collection}/_import_json_schema")
     @PUT
     @Produces(UTF8JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -296,7 +295,7 @@ public abstract class CollectionService extends CollectionRESTServices {
         CollectionReference cr = dao.getCollectionReference(collection);
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonNodes = objectMapper.readValue(inputStream, ObjectNode.class);
-        cr.params.json_schema=jsonNodes;
+        cr.params.jsonSchema=jsonNodes;
 
         return ResponseFormatter.getResultResponse(save(collection, cr.params));
     }

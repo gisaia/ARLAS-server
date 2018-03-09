@@ -69,7 +69,7 @@ public class CollectionAutoDiscover extends Task implements Runnable {
                 if (!existingCollections.contains(collection)) {
                     CollectionReferenceDescription collectionToAdd = checkCollectionValidity(collection);
                     if (collectionToAdd != null) {
-                        collectionDao.putCollectionReference(collectionToAdd.collectionName, collectionToAdd.params);
+                        collectionDao.putCollectionReference(collectionToAdd);
                     }
                 }
             }
@@ -95,8 +95,8 @@ public class CollectionAutoDiscover extends Task implements Runnable {
             if(field != null && field instanceof CollectionReferenceDescriptionProperty) {
                 collection.params.timestampPath = path;
                 if (((CollectionReferenceDescriptionProperty)field).format != null){
-                    collection.params.custom_params = new HashMap<>();
-                    collection.params.custom_params.put(CollectionReference.TIMESTAMP_FORMAT,((CollectionReferenceDescriptionProperty)field).format);
+                    collection.params.customParams = new HashMap<>();
+                    collection.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT,((CollectionReferenceDescriptionProperty)field).format);
                 }
                 break;
             }

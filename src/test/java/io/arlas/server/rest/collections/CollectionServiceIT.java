@@ -58,7 +58,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
         // PUT SCHEMA JSON
         given().multiPart("json_schema_file", DataSetTool.jsonSchema.toString() )
-                .when().put(arlasPrefix+"collections/_import_json_schema/foo")
+                .when().put(arlasPrefix+"collections/foo/_import_json_schema")
                 .then().statusCode(200)
                 .body("collection_name", equalTo("foo"))
                 .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
