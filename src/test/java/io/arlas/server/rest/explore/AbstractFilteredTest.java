@@ -83,6 +83,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 get(Arrays.asList(new ImmutablePair<>("f", request.filter.f.get(0).get(0).toString()),new ImmutablePair<>("f", request.filter.f.get(1).get(0).toString()))));
         handleNotMatchingRequest(header(request.filter));
 
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, "Actor:Announcers")));
+        handleNotMatchingRequest(post(request));
+        handleNotMatchingRequest(
+                get(Arrays.asList(new ImmutablePair<>("f", request.filter.f.get(0).get(0).toString()))));
+        handleNotMatchingRequest(header(request.filter));
+
         request.filter.f = Arrays.asList(new MultiValueFilter<>(Arrays.asList(new Expression("params.job", OperatorEnum.eq, "Actor"),new Expression("params.job", OperatorEnum.eq, "Announcers"))));
         handleFieldFilter(post(request),117,"Actor","Announcers");
         handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString()+";"+request.filter.f.get(0).get(1).toString()),117,"Actor","Announcers");

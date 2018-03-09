@@ -155,10 +155,17 @@ public class ParamsParser {
             for(String f : getMultiFiltersFromSemiColonsSeparatedString(multiF)) {
                 if (!Strings.isNullOrEmpty(f)) {
                     String operands[] = f.split(":");
-                    if (operands.length != 3) {
+                    StringBuffer value = new StringBuffer();
+                    if (operands.length < 3) {
                         throw new InvalidParameterException(FluidSearch.INVALID_PARAMETER_F + ": '" + f + "'");
+                    } else {
+                        for(int i = 2; i < operands.length; i++) {
+                            if(value.length()>0)
+                                value.append(":");
+                            value.append(operands[i]);
+                        }
                     }
-                    multiFilter.add(new Expression(operands[0], OperatorEnum.valueOf(operands[1]), operands[2]));
+                    multiFilter.add(new Expression(operands[0], OperatorEnum.valueOf(operands[1]), value.toString()));
                 }
             }
             filter.f.add(multiFilter);
