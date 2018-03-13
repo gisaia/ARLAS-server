@@ -22,7 +22,6 @@ package io.arlas.server;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +43,6 @@ import org.slf4j.LoggerFactory;
 
 public class DataSetTool {
     static Logger LOGGER = LoggerFactory.getLogger(DataSetTool.class);
-    public static ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 
     public final static String DATASET_INDEX_NAME="dataset";
     public final static String DATASET_TYPE_NAME="mytype";
@@ -58,49 +56,35 @@ public class DataSetTool {
     public static final String[] jobs= {"Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter"};
 
     public  static  Object jsonSchema;
+    public static AdminClient adminClient;
+    public static Client client;
 
     static {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            jsonSchema = mapper.readValue(classLoader.getResourceAsStream("dataset.schema.json"),ObjectNode.class);
+            jsonSchema = mapper.readValue(DataSetTool.class.getClassLoader().getResourceAsStream("dataset.schema.json"),ObjectNode.class);
+            Settings settings = null;
+            String host = Optional.ofNullable(System.getenv("ARLAS_ELASTIC_HOST")).orElse("localhost");
+            Integer port = Integer.valueOf(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_PORT")).orElse("9300"));
+            if ("localhost".equals(host)){
+                settings=Settings.EMPTY;
+            }else{
+                settings=Settings.builder().put("cluster.name", "docker-cluster").build();
+            }
+            client = new PreBuiltTransportClient(settings)
+                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
+            adminClient = client.admin();
         } catch (IOException e) {
             LOGGER.error(e.getMessage(),e);
         }
     }
 
-    AdminClient adminClient;
-    Client client;
-
     public static void main(String [] args) throws IOException {
-        DataSetTool dst = DataSetTool.init(args[0], Integer.parseInt(args[1]));
-        dst.clearDataSet();
-        dst.loadDataSet();
+        DataSetTool.loadDataSet();
     }
 
-    static public DataSetTool init() throws IOException {
-
-        return new DataSetTool(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_HOST")).orElse("localhost"),
-                Integer.parseInt(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_PORT")).orElse("9300")));
-    }
-
-    static public DataSetTool init(String host, int port) throws IOException {
-       return new DataSetTool(host, port);
-    }
-
-    private DataSetTool(String host, int port) throws IOException {
-	Settings settings = null;
-        if ("localhost".equals(host)){
-            settings=Settings.EMPTY;
-        }else{
-            settings=Settings.builder().put("cluster.name", "docker-cluster").build();
-        }
-        client = new PreBuiltTransportClient(settings)
-                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
-        adminClient = client.admin();
-    }
-
-    public void loadDataSet() throws IOException {
-        String mapping = IOUtils.toString(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("dataset.mapping.json")));
+    public static void loadDataSet() throws IOException {
+        String mapping = IOUtils.toString(new InputStreamReader(DataSetTool.class.getClassLoader().getResourceAsStream("dataset.mapping.json")));
         try {
 	    adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
 	} catch (Exception e) {
@@ -130,7 +114,7 @@ public class DataSetTool {
         }
     }
 
-    public void clearDataSet(){
+    public static void clearDataSet()  {
         adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
     }
 }

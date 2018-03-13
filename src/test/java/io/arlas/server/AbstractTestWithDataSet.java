@@ -28,11 +28,8 @@ import org.junit.BeforeClass;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.Request;
 
-public abstract class AbstractTestWithDataSet extends AbstractTest {
-    
-    public static String COLLECTION_NAME = "geodata";
-    static DataSetTool dataset = null;
-    
+public abstract class AbstractTestWithDataSet extends AbstractTestContext {
+
     protected static Request request = new Request();
     static{
         request.filter = new Filter();
@@ -41,8 +38,7 @@ public abstract class AbstractTestWithDataSet extends AbstractTest {
     @BeforeClass
     public static void beforeClass() {
         try {
-           dataset = DataSetTool.init();
-           dataset.loadDataSet();
+           DataSetTool.loadDataSet();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -57,7 +53,7 @@ public abstract class AbstractTestWithDataSet extends AbstractTest {
     }
 
     @AfterClass
-    public static void afterClass() {
-        dataset.clearDataSet();
+    public static void afterClass() throws IOException {
+        DataSetTool.clearDataSet();
     }
 }
