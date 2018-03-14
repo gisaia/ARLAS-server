@@ -96,4 +96,13 @@ zipkin: # The ZIPIN configuration, not active by default
 ############ WFS                      ###############
 ########################################################
 arlas-wfs:
-  queryMaxFeature: ${ARLAS_WFS_QUERYMAXFEATURE:-1000}
+  featureNamespace: ${ARLAS_WFS_FEATURE_NAMESPACE:-arlas}
+  queryMaxFeature: ${ARLAS_WFS_QUERY_MAX_FEATURE:-1000}
+  serverUri: ${ARLAS_WFS_SERVER_URI:-http://arlas-server:9999/arlas/}
+  serviceProviderName: ${ARLAS_WFS_SERVICE_PROVIDER_NAME:-ARLAS}
+  serviceProviderSite: ${ARLAS_WFS_SERVICE_PROVIDER_SITE:-www.gisaia.com}
+  serviceProviderRole: ${ARLAS_WFS_SERVICE_PROVIDER_ROLE:-Developer}
+  serviceContactIndividualName: ${ARLAS_WFS_SERVICE_CONTACT_NAME:-John Doe}
+  serviceContactAdressCity: ${ARLAS_WFS_SERVICE_CONTACT_CITY:-Toulouse}
+  serviceContactAdressPostalCode: ${ARLAS_WFS_SERVICE_CONTACT_CODE:-31000}
+  serviceContactAdressCountry: ${ARLAS_WFS_SERVICE_CONTACT_COUNTRY:-France}

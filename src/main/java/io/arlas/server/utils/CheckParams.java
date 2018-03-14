@@ -222,15 +222,15 @@ public class CheckParams {
         }
     }
 
+    private static boolean isBboxLatLonInCorrectRanges(double[] tlbr) {
+        return tlbr[0] >= -90 && tlbr[2] >= -90 && tlbr[0] <= 90 && tlbr[2] <= 90 &&
+                tlbr[1] >= -180 && tlbr[3] >= -180 && tlbr[1] <= 180 && tlbr[3] <= 180;
+    }
+
     private static boolean isIntegerInXYZRange(int n, int z) {
         long minRange = 0;
         long maxRange = (long)(Math.pow(2,z) - 1);
         return (n>=minRange && n<=maxRange);
-    }
-
-    private static boolean isBboxLatLonInCorrectRanges(double[] tlbr) {
-        return tlbr[0] >= -90 && tlbr[2] >= -90 && tlbr[0] <= 90 && tlbr[2] <= 90 &&
-               tlbr[1] >= -180 && tlbr[3] >= -180 && tlbr[1] <= 180 && tlbr[3] <= 180;
     }
 
     private static Integer tryParseInteger(String text) {

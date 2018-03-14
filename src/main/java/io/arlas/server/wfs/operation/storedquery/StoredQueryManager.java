@@ -21,7 +21,8 @@ package io.arlas.server.wfs.operation.storedquery;
 
 import io.arlas.server.wfs.utils.WFSConstant;
 import net.opengis.wfs._2.*;
-import org.deegree.commons.ows.exception.OWSException;
+import io.arlas.server.exceptions.WFSException;
+import io.arlas.server.exceptions.WFSExceptionCode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import javax.xml.namespace.QName;
@@ -45,10 +46,10 @@ public class StoredQueryManager {
         return storedQueries;
     }
 
-    public StoredQuery getStoredQuery(String id) throws OWSException {
+    public StoredQuery getStoredQuery(String id) throws WFSException {
         if (DEFAULT_QUERY.getId().equals(id))
             return DEFAULT_QUERY;
-        throw new OWSException( "A stored query with identifier '" + id + "' is not offered by this server.", OWSException.INVALID_PARAMETER_VALUE,"request");
+        throw new WFSException( WFSExceptionCode.INVALID_PARAMETER_VALUE,"A stored query with identifier '" + id + "' is not offered by this server.","storedquery_id");
     }
 
     private StoredQuery createDefaultStoredQuery() throws ParserConfigurationException {
@@ -67,7 +68,7 @@ public class StoredQueryManager {
 
         ParameterExpressionType parameter = new ParameterExpressionType();
         parameter.setName("id");
-        parameter.setType(QName.valueOf("sring"));
+        parameter.setType(QName.valueOf("string"));
         Title parameterTitle = new Title();
         parameterTitle.setLang("en");
         parameterTitle.setValue("Identifier");
@@ -95,6 +96,6 @@ public class StoredQueryManager {
         queryExpression.setLanguage(WFSConstant.DEFAULT_LANGUAGE);
         description.getQueryExpressionText().add(queryExpression);
 
-        return new StoredQuery(description, this);
+        return new StoredQuery(description);
     }
 }

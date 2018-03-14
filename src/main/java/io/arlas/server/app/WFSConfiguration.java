@@ -22,23 +22,79 @@ package io.arlas.server.app;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.server.exceptions.ArlasConfigurationException;
 import org.elasticsearch.common.Strings;
-
 import java.util.Arrays;
 import java.util.List;
 
 public class WFSConfiguration {
 
+    @JsonProperty("featureNamespace")
+    public String featureNamespace;
+
     @JsonProperty("queryMaxFeature")
     public Number queryMaxFeature;
 
-    private List<String> getFields(String fieldsComaSeparated) throws ArlasConfigurationException {
-        if(Strings.isNullOrEmpty(fieldsComaSeparated)) {
-            throw new ArlasConfigurationException("Collection auto discover configuration is missing or empty : " + this.toString());
-        }
-        return Arrays.asList(fieldsComaSeparated.split(","));
+    @JsonProperty("serverUri")
+    public String serverUri;
+
+    @JsonProperty("serviceProviderName")
+    public String serviceProviderName;
+
+    @JsonProperty("serviceProviderSite")
+    public String serviceProviderSite;
+
+    @JsonProperty("serviceProviderRole")
+    public String serviceProviderRole;
+
+    @JsonProperty("serviceContactIndividualName")
+    public String serviceContactIndividualName;
+
+    @JsonProperty("serviceContactAdressCity")
+    public String serviceContactAdressCity;
+
+    @JsonProperty("serviceContactAdressPostalCode")
+    public String serviceContactAdressPostalCode;
+
+    @JsonProperty("serviceContactAdressCountry")
+    public String serviceContactAdressCountry;
+
+
+    public String getFeatureNamespace() {
+        return featureNamespace;
     }
 
-    public Number getQueryMaxFeature() throws ArlasConfigurationException {
+    public Number getQueryMaxFeature()  {
         return queryMaxFeature;
+    }
+
+    public String getServerUri() {
+        return serverUri;
+    }
+
+    public String getServiceProviderName() {
+        return serviceProviderName;
+    }
+
+    public String getServiceProviderSite() {
+        return serviceProviderSite;
+    }
+
+    public String getServiceProviderRole() {
+        return serviceProviderRole;
+    }
+
+    public String getServiceContactIndividualName() {
+        return serviceContactIndividualName;
+    }
+
+    public String getServiceContactAdressCity() {
+        return serviceContactAdressCity;
+    }
+
+    public String getServiceContactAdressPostalCode() {
+        return serviceContactAdressPostalCode;
+    }
+
+    public String getServiceContactAdressCountry() {
+        return serviceContactAdressCountry;
     }
 }

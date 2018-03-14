@@ -19,26 +19,41 @@
 
 package io.arlas.server.wfs.operation.describefeaturetype;
 
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
+import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.wfs.WFSHandler;
 import io.arlas.server.wfs.utils.WFSConstant;
-import org.deegree.gml.GMLVersion;
+import io.arlas.server.wfs.utils.XmlUtils;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Stack;
 
 public class DescribeFeatureTypeHandler {
 
-    public DescribeFeatureTypeHandler() {}
 
-    public StreamingOutput getDescribeFeatureTypeResponse(String collectionName, String uri) {
+
+    private WFSHandler wfsHandler;
+
+    public DescribeFeatureTypeHandler(WFSHandler wfsHandler) {
+        this.wfsHandler=wfsHandler;
+    }
+
+    public StreamingOutput getDescribeFeatureTypeResponse(CollectionReference collectionReference, String uri) {
+
         StreamingOutput streamingOutput = new StreamingOutput() {
             @Override
-            public void write(OutputStream outputStream) throws WebApplicationException, IOException {
+            public void write(OutputStream outputStream) throws WebApplicationException {
                 try {
-                    writeArlasFeatureSchema(outputStream, collectionName,uri);
+                    writeArlasFeatureSchema(outputStream, collectionReference,uri);
 
                 } catch (XMLStreamException e) {
                     e.printStackTrace();
@@ -48,9 +63,12 @@ public class DescribeFeatureTypeHandler {
         return streamingOutput;
     }
 
-    public void writeArlasFeatureSchema(OutputStream outputStream, String collectionName, String uri)throws XMLStreamException {
 
-        GMLVersion gmlVersion = GMLVersion.GML_32;
+
+    public void writeArlasFeatureSchema(OutputStream outputStream, CollectionReference collectionReference, String uri)throws XMLStreamException {
+
+        String collectionName = collectionReference.collectionName;
+        String geometryPath = collectionReference.params.geometryPath;
 
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(outputStream);
@@ -61,23 +79,25 @@ public class DescribeFeatureTypeHandler {
         writer.writeAttribute("attributeFormDefault", "unqualified");
         writer.writeAttribute("elementFormDefault", "qualified");
         writer.writeAttribute("targetNamespace",uri);
-        writer.writeNamespace(WFSConstant.WFS_PREFIX, WFSConstant.WFS_200_NS);
-        writer.writeNamespace(WFSConstant.GML_PREFIX, gmlVersion.getNamespace());
-        writer.writeNamespace("arlas", uri);
+        writer.writeNamespace(WFSConstant.WFS_PREFIX, WFSConstant.WFS_NAMESPACE_URI);
+        writer.writeNamespace(WFSConstant.GML_PREFIX, WFSConstant.GML_NAMESPACE_URI);
+        writer.writeNamespace(wfsHandler.wfsConfiguration.featureNamespace, uri);
 
         // import GML core schema
         String parentElement = null;
         String parentType = null;
         writer.writeEmptyElement(WFSConstant.XSNS, "import");
-        writer.writeAttribute("namespace", gmlVersion.getNamespace());
+
+        writer.writeAttribute("namespace", WFSConstant.GML_NAMESPACE_URI);
         // there is no abstract FeatureCollection element in GML 3.2 anymore
         parentElement = WFSConstant.GML_PREFIX + ":AbstractFeature";
         parentType = WFSConstant.GML_PREFIX + ":AbstractFeatureType";
-        writer.writeAttribute("schemaLocation", WFSConstant.GML_32_DEFAULT_INCLUDE);
+        writer.writeAttribute("schemaLocation", WFSConstant.GML_NAMESPACE_URI);
 
         // write wfs:FeatureCollection element declaration
         writer.writeStartElement(WFSConstant.XSNS, "element");
         writer.writeAttribute("name", collectionName);
+
         writer.writeAttribute("type", "arlas:" + collectionName +"FeatureType");
         writer.writeAttribute("substitutionGroup", parentElement);
         writer.writeEndElement();
@@ -91,21 +111,14 @@ public class DescribeFeatureTypeHandler {
         writer.writeAttribute("base", parentType);
 
         writer.writeStartElement(WFSConstant.XSNS, "sequence");
+
         writer.writeEmptyElement(WFSConstant.XSNS, "element");
-        writer.writeAttribute("name", "id");
-        writer.writeAttribute("type", WFSConstant.XS_PREFIX + ":string");
+        writer.writeAttribute("name", geometryPath);
+        writer.writeAttribute(XmlUtils.TYPE, WFSConstant.GML_PREFIX + ":GeometryPropertyType");
         writer.writeAttribute("minOccurs", "1");
         writer.writeAttribute("maxOccurs", "1");
-        writer.writeEmptyElement(WFSConstant.XSNS, "element");
-        writer.writeAttribute("name", "timestamp");
-        writer.writeAttribute("type", WFSConstant.XS_PREFIX + ":long");
-        writer.writeAttribute("minOccurs", "1");
-        writer.writeAttribute("maxOccurs", "1");
-        writer.writeEmptyElement(WFSConstant.XSNS, "element");
-        writer.writeAttribute("name", "centroid");
-        writer.writeAttribute("type", WFSConstant.GML_PREFIX + ":PointPropertyType");
-        writer.writeAttribute("minOccurs", "1");
-        writer.writeAttribute("maxOccurs", "1");
+
+        XmlUtils.parsePropertiesXsd(((CollectionReferenceDescription) collectionReference).properties,writer, new Stack<String>());
 
         writer.writeEndElement();
         writer.writeEndElement();

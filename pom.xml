@@ -88,6 +88,16 @@
             <version>${geotools.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-geojson</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools.xsd</groupId>
+            <artifactId>gt-xsd-fes</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
@@ -116,41 +126,6 @@
             <artifactId>spatial4j</artifactId>
             <version>${spatial4j.version}</version>
         </dependency>
-
-
-        <!-- ____________________________________________________ -->
-        <!-- WFS -->
-        <!-- ____________________________________________________ -->
-        <dependency>
-            <groupId>com.yunspace.dropwizard</groupId>
-            <artifactId>dropwizard-xml</artifactId>
-            <version>41</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-xml-provider</artifactId>
-            <version>2.8.7</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-xml</artifactId>
-            <version>2.8.7</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.deegree</groupId>
-            <artifactId>deegree-protocol-wfs</artifactId>
-            <version>3.3.20</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ethlo.jsons2xsd</groupId>
-            <artifactId>jsons2xsd</artifactId>
-            <version>2.0</version>
-        </dependency>
-
         <!-- ____________________________________________________ -->
         <!-- Tests -->
         <!-- ____________________________________________________ -->
@@ -172,7 +147,6 @@
             <version>${org.hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
-
         <!-- ____________________________________________________ -->
         <!-- LOGS -->
         <!-- ____________________________________________________ -->
@@ -401,16 +375,7 @@
             <name>Boundless Maven Repository</name>
             <url>http://repo.boundlessgeo.com/main</url>
         </repository>
-        <repository>
-            <id>deegree-repo</id>
-            <url>http://repo.deegree.org/content/groups/public</url>
-            <releases>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
+
         <repository>
             <id>jcenter</id>
             <url>http://jcenter.bintray.com</url>

@@ -17,20 +17,21 @@
  * under the License.
  */
 
-package io.arlas.server.exceptions;
+package io.arlas.server.wfs.utils;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import io.arlas.server.rest.ResponseFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public enum WFSRequestType {
 
-public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentException> {
-    Logger logger = LoggerFactory.getLogger(ArlasExceptionMapper.class);
+    GetCapabilities,
+    DescribeFeatureType,
+    GetFeature,
+    Transaction,
+    GetFeatureWithLock,
+    GetGmlObject,
+    LockFeature,
+    GetPropertyValue,
+    CreateStoredQuery,
+    DropStoredQuery,
+    ListStoredQueries,
+    DescribeStoredQueries;
 
-    @Override
-    public Response toResponse(IllegalArgumentException e) {
-        logger.error("Error occurred", e);
-        return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST, e.getMessage());
-    }
 }

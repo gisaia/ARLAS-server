@@ -19,38 +19,57 @@
 
 package io.arlas.server.wfs.operation.getcapabilities;
 
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.exceptions.ArlasConfigurationException;
+import io.arlas.server.app.WFSConfiguration;
 import io.arlas.server.wfs.WFSHandler;
+import io.arlas.server.wfs.utils.WFSConstant;
+import io.arlas.server.wfs.utils.WFSRequestType;
 import net.opengis.fes._2.*;
 import net.opengis.ows._1.*;
 import net.opengis.wfs._2.FeatureTypeListType;
 import net.opengis.wfs._2.FeatureTypeType;
 import net.opengis.wfs._2.OutputFormatListType;
 import net.opengis.wfs._2.WFSCapabilitiesType;
-
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+import java.util.Arrays;
 
 public class GetCapabilitiesHandler {
 
-    public ArlasServerConfiguration arlasServerConfiguration;
+    private static final String[] SECTION_NAMES = {"ServiceIdentification","ServiceProvider","FeatureTypeList","Filter_Capabilities"};
+    private static final String SECTION_DOMAIN_NAME = "Sections";
+    private static final String ACCEPT_VERSIONS_DOMAIN_NAME ="AcceptVersions";
+    private static final String RESOLVE_DOMAIN_NAME ="resolve";
+    private static final String LOCAL_VALUE ="local";
+    private static final String TRUE ="TRUE";
+    private static final String FALSE ="FALSE";
+    private static final String IMPLEMENTS_BASIC_WFS ="ImplementsBasicWFS";
+    private static final String IMPLEMENTS_TRANSACTIONAL_WFS ="ImplementsTransactionalWFS";
+    private static final String KVP_ENCODING ="KVPEncoding";
+    private static final String RESOURCE_ID ="ResourceId";
+    private static final String BOX ="BBOX";
+    private static final String INTERSECTS ="Intersects";
+    private static final String ENVELOPE ="Envelope";
+    private static final String POLYGON ="Polygon";
+    private static final String AFTER ="After";
+    private static final String BEFORE ="Before";
+    private static final String DURING ="During";
+
     public WFSHandler wfsHandler;
-    protected WFSCapabilitiesType getCapabilitiesType = new WFSCapabilitiesType();
+    public WFSCapabilitiesType getCapabilitiesType = new WFSCapabilitiesType();
     protected ValueType trueValueType = new ValueType();
     protected ValueType falseValueType = new ValueType();
+    private WFSConfiguration wfsConfiguration;
 
-    public GetCapabilitiesHandler(ArlasServerConfiguration arlasServerConfiguration, WFSHandler wfsHandler)
-            throws ArlasConfigurationException {
+    public GetCapabilitiesHandler(WFSConfiguration wfsConfiguration, WFSHandler wfsHandler) {
         this.wfsHandler = wfsHandler;
-        this.arlasServerConfiguration = arlasServerConfiguration;
-        getCapabilitiesType.setVersion("2.0.0");
-        trueValueType.setValue("TRUE");
-        falseValueType.setValue("FALSE");
-        this.setServiceProvider();
-        this.setServiceIdentification();
-        this.setOperations();
-        this.setFilterCapabilities();
+        this.wfsConfiguration = wfsConfiguration;
+        getCapabilitiesType.setVersion(WFSConstant.SUPPORTED_WFS_VERSION);
+        trueValueType.setValue(TRUE);
+        falseValueType.setValue(FALSE);
+        setServiceProvider();
+        setServiceIdentification();
+        setOperations();
+        setFilterCapabilities();
     }
 
     public JAXBElement<WFSCapabilitiesType> getWFSCapabilitiesResponse() {
@@ -59,18 +78,18 @@ public class GetCapabilitiesHandler {
 
     private void setServiceProvider() {
         ServiceProvider serviceProvider = new ServiceProvider();
-        serviceProvider.setProviderName("ARLAS");
+        serviceProvider.setProviderName(wfsConfiguration.serviceProviderName);
         OnlineResourceType onlineResourceType = new OnlineResourceType();
-        onlineResourceType.setHref("www.gisaia.com");
-        onlineResourceType.setRole("Main Developer");
+        onlineResourceType.setHref(wfsConfiguration.serviceProviderSite);
+        onlineResourceType.setRole(wfsConfiguration.serviceProviderRole);
         serviceProvider.setProviderSite(onlineResourceType);
         ResponsiblePartySubsetType responsiblePartySubsetType = new ResponsiblePartySubsetType();
-        responsiblePartySubsetType.setIndividualName("Matthieu Barbet");
+        responsiblePartySubsetType.setIndividualName(wfsConfiguration.serviceContactIndividualName);
         ContactType contactType = new ContactType();
         AddressType addressType = new AddressType();
-        addressType.setCity("Blagnac");
-        addressType.setCountry("France");
-        addressType.setPostalCode("31700");
+        addressType.setCity(wfsConfiguration.serviceContactAdressCity);
+        addressType.setCountry(wfsConfiguration.serviceContactAdressCountry);
+        addressType.setPostalCode(wfsConfiguration.serviceContactAdressPostalCode);
         contactType.setAddress(addressType);
         responsiblePartySubsetType.setContactInfo(contactType);
         serviceProvider.setServiceContact(responsiblePartySubsetType);
@@ -80,11 +99,10 @@ public class GetCapabilitiesHandler {
     private void setServiceIdentification() {
         ServiceIdentification serviceIdentification = new ServiceIdentification();
         CodeType codeType = new CodeType();
-        codeType.setValue("WFS");
+        codeType.setValue(WFSConstant.WFS);
         serviceIdentification.setServiceType(codeType);
-        serviceIdentification.getServiceTypeVersion().add("2.0.0");
+        serviceIdentification.getServiceTypeVersion().add(WFSConstant.SUPPORTED_WFS_VERSION);
         getCapabilitiesType.setServiceIdentification(serviceIdentification);
-
     }
 
     public void setOperationsUrl(String url) {
@@ -96,132 +114,145 @@ public class GetCapabilitiesHandler {
             http.getGetOrPost().add(get);
             op.getDCP().get(0).setHTTP(http);
         });
-
     }
 
     private void setOperations() {
         OperationsMetadata operationsMetadata = new OperationsMetadata();
-        DCP dcp = new DCP();
-        HTTP http = new HTTP();
-        dcp.setHTTP(http);
-
-        Operation getCapabilities = new Operation();
-        getCapabilities.setName("GetCapabilities");
-
+        DomainType[] noParameters = {};
+        //create AcceptVersions parameter for GetCapabilities operation
         DomainType acceptVersions = new DomainType();
-        acceptVersions.setName("AcceptVersions");
+        acceptVersions.setName(ACCEPT_VERSIONS_DOMAIN_NAME);
         acceptVersions.setAllowedValues(new AllowedValues());
         ValueType version = new ValueType();
-        version.setValue("2.0.0");
+        version.setValue(WFSConstant.SUPPORTED_WFS_VERSION);
         acceptVersions.getAllowedValues().getValueOrRange().add(version);
+        //create sections parameter for GetCapabilities operation
         DomainType sections = new DomainType();
-        sections.setName("Sections");
+        sections.setName(SECTION_DOMAIN_NAME);
         sections.setAllowedValues(new AllowedValues());
-
-        ValueType serviceIdentification = new ValueType();
-        serviceIdentification.setValue("ServiceIdentification");
-        sections.getAllowedValues().getValueOrRange().add(serviceIdentification);
-        ValueType serviceProvider = new ValueType();
-        serviceProvider.setValue("ServiceProvider");
-        sections.getAllowedValues().getValueOrRange().add(serviceProvider);
-
-        ValueType featureTypeList = new ValueType();
-        featureTypeList.setValue("FeatureTypeList");
-        sections.getAllowedValues().getValueOrRange().add(featureTypeList);
-
-        ValueType filterCapabilities = new ValueType();
-        filterCapabilities.setValue("Filter_Capabilities");
-        sections.getAllowedValues().getValueOrRange().add(filterCapabilities);
-
-        getCapabilities.getParameter().add(acceptVersions);
-        getCapabilities.getParameter().add(sections);
-        getCapabilities.getDCP().add(dcp);
-
-        Operation describeFeatureType = new Operation();
-        describeFeatureType.setName("DescribeFeatureType");
-        describeFeatureType.getDCP().add(dcp);
-
-        Operation listStoredQueries = new Operation();
-        listStoredQueries.setName("ListStoredQueries");
-        listStoredQueries.getDCP().add(dcp);
-
-        Operation getPropertyValue = new Operation();
-        getPropertyValue.setName("GetPropertyValue");
-        getPropertyValue.getDCP().add(dcp);
-
-        Operation describedStoredQueries = new Operation();
-        describedStoredQueries.setName("DescribeStoredQueries");
-        describedStoredQueries.getDCP().add(dcp);
-
-        Operation getFeature = new Operation();
-        getFeature.setName("GetFeature");
-        getFeature.getDCP().add(dcp);
+        //add sections
+        Arrays.asList(SECTION_NAMES).forEach(sectionName->addSection(sectionName,sections));
+        //create resolve parameter for GetFeature and GetPropertyValue operation
         DomainType resolve = new DomainType();
-        resolve.setName("resolve");
+        resolve.setName(RESOLVE_DOMAIN_NAME);
         resolve.setAllowedValues(new AllowedValues());
         ValueType local = new ValueType();
-        local.setValue("local");
+        local.setValue(LOCAL_VALUE);
         resolve.getAllowedValues().getValueOrRange().add(local);
-
-        getFeature.getParameter().add(resolve);
-        getPropertyValue.getParameter().add(resolve);
-        operationsMetadata.getOperation().add(getCapabilities);
-        operationsMetadata.getOperation().add(describeFeatureType);
-        operationsMetadata.getOperation().add(listStoredQueries);
-        operationsMetadata.getOperation().add(describedStoredQueries);
-        operationsMetadata.getOperation().add(getFeature);
-        operationsMetadata.getOperation().add(getPropertyValue);
-
-        addConformanceType(operationsMetadata, "ImplementsBasicWFS", falseValueType);
-        addConformanceType(operationsMetadata, "ImplementsTransactionalWFS", falseValueType);
-        addConformanceType(operationsMetadata, "KVPEncoding", trueValueType);
+        //add  operations
+        DomainType[] getCapabilitiesParameters = {acceptVersions,sections};
+        addOperation(WFSRequestType.GetCapabilities.name(),operationsMetadata,getCapabilitiesParameters);
+        addOperation(WFSRequestType.DescribeFeatureType.name(),operationsMetadata,noParameters);
+        addOperation(WFSRequestType.ListStoredQueries.name(),operationsMetadata,noParameters);
+        addOperation(WFSRequestType.DescribeStoredQueries.name(),operationsMetadata,noParameters);
+        addOperation(WFSRequestType.GetFeature.name(),operationsMetadata,resolve);
+        addOperation(WFSRequestType.GetPropertyValue.name(),operationsMetadata,resolve);
+        //add  conformance
+        addConformanceType(operationsMetadata, IMPLEMENTS_BASIC_WFS, trueValueType);
+        addConformanceType(operationsMetadata, IMPLEMENTS_TRANSACTIONAL_WFS, falseValueType);
+        addConformanceType(operationsMetadata, KVP_ENCODING, trueValueType);
         addDefaultConformance(operationsMetadata);
         getCapabilitiesType.setOperationsMetadata(operationsMetadata);
-
     }
 
     public void setFeatureTypeListType(String name,String uri) {
         FeatureTypeListType featureTypeListType = new FeatureTypeListType();
         FeatureTypeType featureTypeType = new FeatureTypeType();
-        featureTypeType.setDefaultCRS("urn:ogc:def:crs:EPSG::4326");
-        QName qname = new QName(uri, name,"arlas");
+        featureTypeType.setDefaultCRS(WFSConstant.SUPPORTED_CRS[0]);
+        QName qname = new QName(uri, name,wfsConfiguration.featureNamespace);
         featureTypeType.setName(qname);
         OutputFormatListType outputFormatListType = new OutputFormatListType();
-        outputFormatListType.getFormat().add("application/gml+xml; version=3.2");
-        outputFormatListType.getFormat().add("text/xml; subtype=gml/3.2");
+        Arrays.asList(WFSConstant.FEATURE_GML_FORMAT).forEach(format->outputFormatListType.getFormat().add(format));
         featureTypeType.setOutputFormats(outputFormatListType);
         featureTypeListType.getFeatureType().add(featureTypeType);
         getCapabilitiesType.setFeatureTypeList(featureTypeListType);
-
     }
 
 
     public void setFilterCapabilities() {
         FilterCapabilities filterCapabilities = wfsHandler.fesFactory.createFilterCapabilities();
+
         ConformanceType fesConformanceType = new ConformanceType();
         addDefaultConformance(fesConformanceType);
+
         IdCapabilitiesType idCapabilitiesType = wfsHandler.fesFactory.createIdCapabilitiesType();
         ResourceIdentifierType resourceIdentifierType = new ResourceIdentifierType();
-        resourceIdentifierType.setName(QName.valueOf("ResourceId"));
+        QName _ResourceId_QNAME = new QName(WFSConstant.FES_NAMESPACE_URI, RESOURCE_ID);
+        resourceIdentifierType.setName(_ResourceId_QNAME);
         idCapabilitiesType.getResourceIdentifier().add(resourceIdentifierType);
+
         SpatialCapabilitiesType spatialCapabilities = wfsHandler.fesFactory.createSpatialCapabilitiesType();
         SpatialOperatorsType spatialOperatorsType = new SpatialOperatorsType();
         GeometryOperandsType geometryOperandsType = new GeometryOperandsType();
-        SpatialOperatorType spatialOperatorType = new SpatialOperatorType();
-        GeometryOperandsType.GeometryOperand geometryOperand = new GeometryOperandsType.GeometryOperand();
-        geometryOperand.setName(QName.valueOf("BBOX"));
-        geometryOperandsType.getGeometryOperand().add(geometryOperand);
-        spatialOperatorType.setGeometryOperands(geometryOperandsType);
+        SpatialOperatorType spatialOperatorBBOXType = new SpatialOperatorType();
+        SpatialOperatorType spatialOperatorIntersectsType = new SpatialOperatorType();
+        GeometryOperandsType.GeometryOperand envGeometryOperand = new GeometryOperandsType.GeometryOperand();
+        GeometryOperandsType.GeometryOperand polyGeometryOperand = new GeometryOperandsType.GeometryOperand();
+        QName envQname = new QName(WFSConstant.GML_NAMESPACE_URI, ENVELOPE,WFSConstant.GML_PREFIX);
+        QName polyQname = new QName(WFSConstant.GML_NAMESPACE_URI, POLYGON,WFSConstant.GML_PREFIX);
+        envGeometryOperand.setName(envQname);
+        polyGeometryOperand.setName(polyQname);
+        geometryOperandsType.getGeometryOperand().add(envGeometryOperand);
+        geometryOperandsType.getGeometryOperand().add(polyGeometryOperand);
         spatialCapabilities.setGeometryOperands(geometryOperandsType);
-        spatialOperatorType.setName("BBOX");
-        spatialOperatorsType.getSpatialOperator().add(spatialOperatorType);
+        spatialOperatorBBOXType.setGeometryOperands(geometryOperandsType);
+        spatialOperatorIntersectsType.setGeometryOperands(geometryOperandsType);
+        spatialOperatorBBOXType.setName(BOX);
+        spatialOperatorIntersectsType.setName(INTERSECTS);
+        spatialOperatorsType.getSpatialOperator().add(spatialOperatorBBOXType);
+        spatialOperatorsType.getSpatialOperator().add(spatialOperatorIntersectsType);
         spatialCapabilities.setSpatialOperators(spatialOperatorsType);
+
+        QName afterQname = new QName(WFSConstant.FES_NAMESPACE_URI, AFTER);
+        QName beforeQname = new QName(WFSConstant.FES_NAMESPACE_URI, BEFORE);
+        QName duringQname = new QName(WFSConstant.FES_NAMESPACE_URI, DURING);
+        TemporalCapabilitiesType temporalCapabilities = wfsHandler.fesFactory.createTemporalCapabilitiesType();
+        TemporalOperandsType allTemporalOperandsType = new TemporalOperandsType();
+        TemporalOperatorsType temporalOperatorsType = new TemporalOperatorsType();
+
+        addTemporalOperator(temporalOperatorsType,afterQname,allTemporalOperandsType);
+        addTemporalOperator(temporalOperatorsType,beforeQname,allTemporalOperandsType);
+        addTemporalOperator(temporalOperatorsType,duringQname,allTemporalOperandsType);
+
+        temporalCapabilities.setTemporalOperands(allTemporalOperandsType);
+        temporalCapabilities.setTemporalOperators(temporalOperatorsType);
+
+        filterCapabilities.setTemporalCapabilities(temporalCapabilities);
         filterCapabilities.setSpatialCapabilities(spatialCapabilities);
         filterCapabilities.setIdCapabilities(idCapabilitiesType);
         filterCapabilities.setConformance(fesConformanceType);
         getCapabilitiesType.setFilterCapabilities(filterCapabilities);
 
 
+    }
+
+    private void addSection(String sectionName,DomainType sections){
+        ValueType serviceIdentification = new ValueType();
+        serviceIdentification.setValue(sectionName);
+        sections.getAllowedValues().getValueOrRange().add(serviceIdentification);
+    }
+
+    private void addOperation(String operationName,OperationsMetadata operationsMetadata,DomainType... parameters){
+        DCP dcp = new DCP();
+        HTTP http = new HTTP();
+        dcp.setHTTP(http);
+        Operation operation = new Operation();
+        operation.setName(operationName);
+        operation.getDCP().add(dcp);
+        Arrays.asList(parameters).forEach(parameter->operation.getParameter().add(parameter));
+        operationsMetadata.getOperation().add(operation);
+    }
+
+    private void addTemporalOperator(TemporalOperatorsType temporalOperatorsType, QName qNameOperand,TemporalOperandsType allTemporalOperandsType){
+        TemporalOperatorType temporalOperatorType = new TemporalOperatorType();
+        TemporalOperandsType.TemporalOperand operand = new TemporalOperandsType.TemporalOperand();
+        operand.setName(qNameOperand);
+        temporalOperatorType.setName(qNameOperand.getLocalPart());
+        TemporalOperandsType temporalOperandsType = new TemporalOperandsType();
+        temporalOperandsType.getTemporalOperand().add(operand);
+        allTemporalOperandsType.getTemporalOperand().add(operand);
+        temporalOperatorType.setTemporalOperands(temporalOperandsType);
+        temporalOperatorsType.getTemporalOperator().add(temporalOperatorType);
     }
 
     private void addConformanceType(ConformanceType conformanceType, String name, ValueType value) {
@@ -261,8 +292,11 @@ public class GetCapabilitiesHandler {
         addConformanceType(conformanceType, "ImplementsResourceId", trueValueType);
         addConformanceType(conformanceType, "ImplementsMinStandardFilter", trueValueType);
         addConformanceType(conformanceType, "ImplementsStandardFilter", trueValueType);
+        addConformanceType(conformanceType, "ImplementsSpatialFilter", trueValueType);
+        addConformanceType(conformanceType, "ImplementsTemporalFilter", falseValueType);
         addConformanceType(conformanceType, "ImplementsMinSpatialFilter", trueValueType);
         addConformanceType(conformanceType, "ImplementsSorting", trueValueType);
+        addConformanceType(conformanceType, "ImplementsMinTemporalFilter", falseValueType);
         addConformanceType(conformanceType, "ImplementsMinimumXPath", trueValueType);
         addConformanceType(conformanceType, "ImplementsLockingWFS", falseValueType);
         addConformanceType(conformanceType, "ImplementsInheritance", falseValueType);

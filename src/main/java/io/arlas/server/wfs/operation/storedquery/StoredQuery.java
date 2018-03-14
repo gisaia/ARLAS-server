@@ -31,11 +31,9 @@ import java.util.Set;
 public class StoredQuery {
 
     private final StoredQueryDescriptionType description;
-    private final StoredQueryManager manager;
 
-    StoredQuery(StoredQueryDescriptionType description, StoredQueryManager manager) {
+    StoredQuery(StoredQueryDescriptionType description) {
         this.description = description;
-        this.manager = manager;
     }
 
     public String getId() {
@@ -50,8 +48,11 @@ public class StoredQuery {
         Set<QName> featureTypeNames = new HashSet<>();
         for (QueryExpressionTextType queryExpression : description.getQueryExpressionText())
             featureTypeNames.addAll(queryExpression.getReturnFeatureTypes());
-
         return new ArrayList<>(featureTypeNames);
+    }
+
+    public void setFeatureType(QName featureQname){
+        description.getQueryExpressionText().forEach(queryExpressionTextType -> queryExpressionTextType.getReturnFeatureTypes().add(featureQname));
     }
 
     public StoredQueryDescriptionType getStoredQueryDescription() {

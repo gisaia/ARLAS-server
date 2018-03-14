@@ -104,7 +104,7 @@ docker run --rm \
 
 docker run --rm \
      --net arlas_default \
-     --env ID="50-50"\
+     --env ID="ID__170__20DI"\
      --env WFS_GETCAPABILITIES_URL="http://arlas-server:9999/arlas/wfs/geodata/?request=GetCapabilities&service=WFS&version=2.0.0" \
      gisaia/ets-wfs20
 
