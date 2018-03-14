@@ -26,12 +26,12 @@ import io.restassured.RestAssured;
 
 import java.util.Optional;
 
-public abstract class AbstractTest {
-    static Logger LOGGER = LoggerFactory.getLogger(AbstractTest.class);
+public abstract class AbstractTestContext {
+    static Logger LOGGER = LoggerFactory.getLogger(AbstractTestContext.class);
     
     protected String arlasPrefix;
     
-    public AbstractTest() {
+    public AbstractTestContext() {
         arlasPrefix = Optional.ofNullable(System.getenv("ARLAS_PREFIX")).orElse("/arlas/");
     }
 

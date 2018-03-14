@@ -20,6 +20,7 @@ services:
     environment:
       - "ARLAS_ELASTIC_CLUSTER=docker-cluster"
       - "ARLAS_ELASTIC_HOST=elasticsearch"
+      - "ARLAS_SERVICE_WFS_ENABLE=true"
     ports:
       - 19999:9999
     command: ["/opt/app/wait-for-elasticsearch.sh", "elasticsearch", "9300"]

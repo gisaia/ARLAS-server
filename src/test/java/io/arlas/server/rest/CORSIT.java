@@ -19,13 +19,13 @@
 
 package io.arlas.server.rest;
 
-import io.arlas.server.AbstractTest;
+import io.arlas.server.AbstractTestContext;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
 
-public class CORSIT extends AbstractTest {
+public class CORSIT extends AbstractTestContext {
 
     @Test
     public void testCORS() throws Exception {
