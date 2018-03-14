@@ -21,7 +21,6 @@ package io.arlas.server.exceptions;
 
 
 import io.arlas.server.wfs.utils.WFSConstant;
-import javax.ws.rs.ext.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +29,11 @@ public class WFSException extends ArlasException  {
 
     private List<WFSExceptionMessage> exceptionMessages = new ArrayList<>();
     private final String LANGUAGE = "en";
+
+    public WFSException(String exceptionText) {
+        super(exceptionText);
+        exceptionMessages.add(new WFSExceptionMessage(WFSExceptionCode.NO_APPLICABLE_CODE, exceptionText));
+    }
 
     public WFSException(WFSExceptionCode exceptionCode, String exceptionText, String locator) {
         super(exceptionText);
@@ -44,12 +48,19 @@ public class WFSException extends ArlasException  {
         return exceptionMessages;
     }
 
+    public WFSException(List<WFSExceptionMessage> exceptionMessages) {
+        this.exceptionMessages = exceptionMessages;
+    }
+
     public String getVersion() {
-        return WFSConstant.DEFAULT_WFS_VERSION;
+        return WFSConstant.SUPPORTED_WFS_VERSION;
+    }
+
+    public WFSException(WFSExceptionMessage exceptionMessage) {
+        exceptionMessages.add(exceptionMessage);
     }
 
     public String getLanguage() {
         return LANGUAGE;
     }
-
 }

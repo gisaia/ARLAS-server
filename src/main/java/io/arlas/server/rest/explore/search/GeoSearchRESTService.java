@@ -462,22 +462,22 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
         for (SearchHit hit : results) {
             Feature feature = new Feature();
-            Map<String, Object> source = hit.getSource();
+            Map<String, Object> source = hit.getSourceAsMap();
             if (collectionReference.params.geometryPath != null) {
                 Object geometry = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
                 if (geometry!=null) {
                     feature.setGeometry(GeoTypeMapper.getGeoJsonObject(geometry));
-                    feature.setProperties(hit.getSource());
+                    feature.setProperties(hit.getSourceAsMap());
                 } else {
-                    feature.setProperties(hit.getSource());
+                    feature.setProperties(hit.getSourceAsMap());
                 }
             } else if (collectionReference.params.centroidPath != null) {
                 Object centroid = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
                 if (centroid!=null) {
                     feature.setGeometry(GeoTypeMapper.getGeoJsonObject(centroid));
-                    feature.setProperties(hit.getSource());
+                    feature.setProperties(hit.getSourceAsMap());
                 } else {
-                    feature.setProperties(hit.getSource());
+                    feature.setProperties(hit.getSourceAsMap());
                 }
             }
             fc.add(feature);

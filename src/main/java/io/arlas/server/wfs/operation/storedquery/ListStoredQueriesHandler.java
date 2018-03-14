@@ -22,8 +22,8 @@ package io.arlas.server.wfs.operation.storedquery;
 import io.arlas.server.wfs.WFSHandler;
 import net.opengis.wfs._2.ListStoredQueriesResponseType;
 import net.opengis.wfs._2.StoredQueryListItemType;
-
 import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 import java.util.List;
 
 public class ListStoredQueriesHandler {
@@ -44,6 +44,18 @@ public class ListStoredQueriesHandler {
                 listStoredQueriesResponseType.getStoredQuery().add(storedQueryListItemType);
             }
         });
+    }
+
+    public void setFeatureType(QName featureQname){
+        listStoredQueriesResponseType
+                .getStoredQuery()
+                .forEach(storedQueryListItemType -> {
+                            if (storedQueryListItemType.getReturnFeatureType().indexOf(featureQname) < 0) {
+                                storedQueryListItemType.getReturnFeatureType().add(featureQname);
+                            }
+                        }
+                );
+
     }
 
     public JAXBElement<ListStoredQueriesResponseType> getListStoredQueriesResponse() {

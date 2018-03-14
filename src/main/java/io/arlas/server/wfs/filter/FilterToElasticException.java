@@ -17,20 +17,18 @@
  * under the License.
  */
 
-package io.arlas.server.exceptions;
+package io.arlas.server.wfs.filter;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import io.arlas.server.rest.ResponseFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class FilterToElasticException extends RuntimeException {
 
-public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentException> {
-    Logger logger = LoggerFactory.getLogger(ArlasExceptionMapper.class);
+    private static final long serialVersionUID = 1819999351118120451L;
 
-    @Override
-    public Response toResponse(IllegalArgumentException e) {
-        logger.error("Error occurred", e);
-        return ResponseFormatter.getErrorResponse(e, Response.Status.BAD_REQUEST, e.getMessage());
+    public FilterToElasticException(String message) {
+        super(message);
     }
+
+    public FilterToElasticException(String msg, Throwable exp) {
+        super(msg, exp);
+    }
+
 }

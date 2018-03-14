@@ -45,7 +45,7 @@ public class ElasticDocument {
                 .getHits();
         Map<String,Object> response = null;
         if(hits.getHits().length>0){
-            response = hits.getAt(0).getSource();
+            response = hits.getAt(0).getSourceAsMap();
         }
         return response;
     }

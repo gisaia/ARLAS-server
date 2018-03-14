@@ -19,25 +19,24 @@
 
 package io.arlas.server.wfs.utils;
 
-import org.deegree.protocol.wfs.WFSRequestType;
+import io.arlas.server.exceptions.WFSException;
+import io.arlas.server.exceptions.WFSExceptionCode;
 import java.util.Arrays;
 
 public class RequestUtils {
 
-    private static final String[] supportedRequest = {
-            "GetCapabilities"
-            ,"DescribeFeatureType",
-            "ListStoredQueries",
-            "DescribeStoredQueries",
-            "GetFeature",
-            "GetPropertyValue"
-    };
-    public static WFSRequestType getRequestTypeByName(String requestName) {
-        if (Arrays.asList(supportedRequest).indexOf(requestName)<0 ) {
-            return null;
-        }else if(WFSRequestType.valueOf(requestName)==null){
-            String msg = "Request type '" + requestName + "' is not supported.";
-            return null;
+    public static WFSRequestType getRequestTypeByName(String requestName ) throws WFSException {
+        String msg = "Request type '" + requestName + "' is not supported.";
+        WFSRequestType wfsRequestType;
+        try{
+            wfsRequestType =WFSRequestType.valueOf(requestName);
+        }catch (IllegalArgumentException e){
+            throw  new WFSException(WFSExceptionCode.OPERATION_NOT_SUPPORTED,msg,"request");
+        }catch (NullPointerException e){
+            throw  new WFSException(WFSExceptionCode.OPERATION_NOT_SUPPORTED,msg,"request");
+        }
+        if (Arrays.asList(WFSConstant.SUPPORTED_WFS_REQUESTYPE).indexOf(wfsRequestType)<0 ) {
+            throw  new WFSException(WFSExceptionCode.OPERATION_NOT_SUPPORTED,msg,"request");
         }
         return WFSRequestType.valueOf(requestName);
     }

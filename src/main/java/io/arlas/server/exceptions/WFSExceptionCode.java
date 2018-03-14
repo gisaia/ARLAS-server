@@ -29,20 +29,12 @@ public class WFSExceptionCode {
     public static final WFSExceptionCode OPERATION_NOT_SUPPORTED = new WFSExceptionCode("OperationNotSupported", HttpServletResponse.SC_NOT_IMPLEMENTED);
     public static final WFSExceptionCode MISSING_PARAMETER_VALUE = new WFSExceptionCode("MissingParameterValue", HttpServletResponse.SC_BAD_REQUEST);
     public static final WFSExceptionCode INVALID_PARAMETER_VALUE = new WFSExceptionCode("InvalidParameterValue", HttpServletResponse.SC_BAD_REQUEST);
-    public static final WFSExceptionCode VERSION_NEGOTIATION_FAILED = new WFSExceptionCode("VersionNegotiationFailed", HttpServletResponse.SC_BAD_REQUEST);
-    public static final WFSExceptionCode OPTION_NOT_SUPPORTED = new WFSExceptionCode("OptionNotSupported", HttpServletResponse.SC_NOT_IMPLEMENTED);
     public static final WFSExceptionCode NO_APPLICABLE_CODE = new WFSExceptionCode("NoApplicableCode", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
     // WFS 2.0 exception codes
-
-    public static final WFSExceptionCode OPERATION_PARSING_FAILED = new WFSExceptionCode("OperationParsingFailed", HttpServletResponse.SC_BAD_REQUEST);
-    public static final WFSExceptionCode OPERATION_PROCESSING_FAILED = new WFSExceptionCode("OperationProcessingFailed", HttpServletResponse.SC_FORBIDDEN);
-    public static final WFSExceptionCode RESPONSE_CACHE_EXPIRED = new WFSExceptionCode("ResponseCacheExpired", HttpServletResponse.SC_FORBIDDEN);
+    public static final WFSExceptionCode OPERATION_PROCESSING_FAILED = new WFSExceptionCode("OperationProcessingFailed", HttpServletResponse.SC_BAD_REQUEST);
     public static final WFSExceptionCode NOT_FOUND = new WFSExceptionCode("NotFound", HttpServletResponse.SC_NOT_FOUND);
-
     // Server exception codes
     public static final WFSExceptionCode INTERNAL_SERVER_ERROR = new WFSExceptionCode("InternalServerError", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-    public static final WFSExceptionCode SERVICE_UNAVAILABLE = new WFSExceptionCode("ServiceUnavailable", HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 
     public WFSExceptionCode(String value, Integer httpStatusCode) {
         this.value = value;

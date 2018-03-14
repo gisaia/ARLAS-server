@@ -95,8 +95,9 @@ public class DataSetTool {
         for(int i=-170; i<=170;i+=10){
             for(int j=-80; j<=80;j+=10){
                 data=new Data();
-                data.id= i+"-"+j;
+                data.id= String.valueOf("ID_"+i+"_"+j+"DI").replace("-","_");
                 data.fullname="My name is "+data.id;
+                data.params.age = Math.abs(i*j);
                 data.params.startdate=1l*(i+1000)*(j+1000);
                 data.geo_params.centroid=j+","+i;
                 data.params.job=jobs[((Math.abs(i)+Math.abs(j))/10)%(jobs.length-1)];

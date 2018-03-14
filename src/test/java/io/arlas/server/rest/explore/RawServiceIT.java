@@ -32,13 +32,13 @@ public class RawServiceIT extends AbstractTestWithCollection {
     public void testGetArlasHit() throws Exception {
 
         // GET existing document
-        when().get(getUrlPath(COLLECTION_NAME)+"/0-0")
+        when().get(getUrlPath(COLLECTION_NAME)+"/ID__170__20DI")
         .then().statusCode(200)
-            .body("md.id", equalTo("0-0"))
-            .body("data.geo_params.centroid", equalTo("0,0"))
-            .body("data.id", equalTo("0-0"))
-            .body("data.fullname", equalTo("My name is 0-0"))
-            .body("data.params.startdate", equalTo(1000000));
+            .body("md.id", equalTo("ID__170__20DI"))
+            .body("data.geo_params.centroid", equalTo("-20,-170"))
+            .body("data.id", equalTo("ID__170__20DI"))
+            .body("data.fullname", equalTo("My name is ID__170__20DI"))
+            .body("data.params.startdate", equalTo(813400));
 
         // GET invalid collection
         when().get(getUrlPath("foo")+"/0-0")
