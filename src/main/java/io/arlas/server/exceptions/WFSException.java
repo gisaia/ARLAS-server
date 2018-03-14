@@ -30,6 +30,30 @@ public class WFSException extends ArlasException  {
     private List<WFSExceptionMessage> exceptionMessages = new ArrayList<>();
     private final String LANGUAGE = "en";
 
+    public WFSException() {}
+
+    public WFSException(String message, Throwable cause) {
+        this(WFSExceptionCode.NO_APPLICABLE_CODE, message, cause);
+    }
+
+    public WFSException(WFSExceptionCode exceptionCode, String exceptionText, String locator, Throwable cause) {
+        super(exceptionText, cause);
+        WFSExceptionMessage exceptionMessage = new WFSExceptionMessage(exceptionCode);
+        exceptionMessage.addExceptionText(exceptionText);
+
+        String causeMessage = null;
+        while (cause != null && (causeMessage = cause.getMessage()) == null)
+            cause = cause.getCause();
+
+        exceptionMessage.addExceptionText(causeMessage);
+        exceptionMessage.setLocator(locator);
+        exceptionMessages.add(exceptionMessage);
+    }
+
+    public WFSException(WFSExceptionCode exceptionCode, String message, Throwable cause) {
+        this(exceptionCode, message, null, cause);
+    }
+
     public WFSException(String exceptionText) {
         super(exceptionText);
         exceptionMessages.add(new WFSExceptionMessage(WFSExceptionCode.NO_APPLICABLE_CODE, exceptionText));
@@ -41,7 +65,7 @@ public class WFSException extends ArlasException  {
     }
 
     public WFSException(WFSExceptionCode exceptionCode, String exceptionText) {
-        this(exceptionCode, exceptionText, null);
+        this(exceptionCode, exceptionText, "null");
     }
 
     public List<WFSExceptionMessage> getExceptionMessages() {
