@@ -22,12 +22,19 @@ package io.arlas.server.wfs.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.WFSException;
 import io.arlas.server.exceptions.WFSExceptionCode;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.request.Filter;
+import io.arlas.server.model.request.Search;
 import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.utils.ParamsParser;
 import io.arlas.server.wfs.utils.WFSCheckParam;
 import io.arlas.server.wfs.utils.WFSConstant;
 import io.arlas.server.wfs.utils.WFSRequestType;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -52,15 +59,28 @@ public class WFSQueryBuilder {
     private String filter;
     private String resourceid;
     private String storedquery_id;
+    private String partitionFilter;
+    private ExploreServices exploreServices;
     private CollectionReferenceDescription collectionReferenceDescription;
 
-    public WFSQueryBuilder(WFSRequestType requestType, String id,String bbox, String filter, String resourceid, String storedquery_id, CollectionReferenceDescription collectionReferenceDescription) throws ArlasException, IOException, ParserConfigurationException, SAXException {
+    public WFSQueryBuilder(WFSRequestType requestType,
+                           String id,
+                           String bbox,
+                           String filter,
+                           String resourceid,
+                           String storedquery_id,
+                           CollectionReferenceDescription collectionReferenceDescription,
+                           String partitionFilter,
+                           ExploreServices exploreServices)
+            throws ArlasException, IOException, ParserConfigurationException, SAXException {
         this.requestType=requestType;
         this.id=id;
         this.bbox=bbox;
         this.filter =filter;
         this.resourceid=resourceid;
         this.storedquery_id=storedquery_id;
+        this.partitionFilter=partitionFilter;
+        this.exploreServices=exploreServices;
         this.collectionReferenceDescription=collectionReferenceDescription;
 
         if (filter != null) {
@@ -71,6 +91,9 @@ public class WFSQueryBuilder {
             buildRessourceIdQuery();
         } else if (storedquery_id != null) {
             buildStoredQueryIdQuery();
+        }
+        if(partitionFilter!=null){
+            addPartitionFilter();
         }
     }
 
@@ -126,6 +149,15 @@ public class WFSQueryBuilder {
             isStoredQuey = true;
         }
     }
+
+    private void addPartitionFilter() throws ArlasException, IOException {
+        FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
+        fluidSearch.setCollectionReference(collectionReferenceDescription);
+        Filter headerFilter = ParamsParser.getFilter(partitionFilter);
+        exploreServices.applyFilter(headerFilter,fluidSearch);
+        wfsQuery.filter(fluidSearch.getBoolQueryBuilder());
+    }
+
     private BoolQueryBuilder getBBoxBoolQueryBuilder(String bbox, String centroidPath) throws WFSException {
         double[] tlbr = toDoubles(bbox);
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
