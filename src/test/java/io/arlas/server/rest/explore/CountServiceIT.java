@@ -30,7 +30,7 @@ public class CountServiceIT extends AbstractFilteredTest {
     
     @Override
     public String getUrlPath(String collection) {
-        return arlasPrefix + "explore/"+collection+"/_count";
+        return arlasPath + "explore/"+collection+"/_count";
     }    
     
     @Override

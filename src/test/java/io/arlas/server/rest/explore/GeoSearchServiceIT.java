@@ -34,7 +34,7 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     
     @Override
     public String getUrlPath(String collection) {
-        return arlasPrefix + "explore/"+collection+"/_geosearch";
+        return arlasPath + "explore/"+collection+"/_geosearch";
     }
 
     @Override

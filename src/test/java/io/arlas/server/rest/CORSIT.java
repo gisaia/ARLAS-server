@@ -35,7 +35,7 @@ public class CORSIT extends AbstractTestContext {
                 .header("Origin","http://example.com")
                 .header("Access-Control-Request-Method","GET")
                 .header("Access-Control-Request-Headers","X-Requested-With")
-        .when().get(arlasPrefix+"collections/")
+        .when().get(arlasPath + "collections/")
                 .then()
                 .header(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "http://example.com")
                 .header(CrossOriginFilter.ACCESS_CONTROL_EXPOSE_HEADERS_HEADER, "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location")

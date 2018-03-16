@@ -42,7 +42,7 @@ public class CollectionAutoDiscoverIT extends AbstractTestWithDataSet {
         .then().statusCode(200);
 
         // GET collection
-        when().get(arlasPrefix+"collections/"+DataSetTool.DATASET_INDEX_NAME+"-"+DataSetTool.DATASET_TYPE_NAME)
+        when().get(arlasPath+"collections/"+DataSetTool.DATASET_INDEX_NAME+"-"+DataSetTool.DATASET_TYPE_NAME)
         .then().statusCode(200)
             .body("collection_name", equalTo(DataSetTool.DATASET_INDEX_NAME+"-"+DataSetTool.DATASET_TYPE_NAME))
             .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
@@ -58,12 +58,12 @@ public class CollectionAutoDiscoverIT extends AbstractTestWithDataSet {
         .then().statusCode(200);
 
         // GET all collections
-        when().get(arlasPrefix+"collections/")
+        when().get(arlasPath+"collections/")
         .then().statusCode(200)
             .body("collection_name", hasSize(1));
         
         // DELETE collection
-        when().delete(arlasPrefix+"collections/"+DataSetTool.DATASET_INDEX_NAME+"-"+DataSetTool.DATASET_TYPE_NAME)
+        when().delete(arlasPath+"collections/"+DataSetTool.DATASET_INDEX_NAME+"-"+DataSetTool.DATASET_TYPE_NAME)
         .then().statusCode(200);
     }
 }

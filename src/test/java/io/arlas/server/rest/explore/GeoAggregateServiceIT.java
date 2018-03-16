@@ -32,7 +32,7 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     
     @Override
     protected String getUrlPath(String collection) {
-        return arlasPrefix + "explore/"+collection+"/_geoaggregate";
+        return arlasPath + "explore/"+collection+"/_geoaggregate";
     }
 
     @Override

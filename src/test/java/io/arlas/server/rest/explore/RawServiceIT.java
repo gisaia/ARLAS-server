@@ -51,6 +51,6 @@ public class RawServiceIT extends AbstractTestWithCollection {
 
     @Override
     protected String getUrlPath(String collection) {
-        return arlasPrefix + "explore/"+collection;
+        return arlasPath + "explore/"+collection;
     }
 }

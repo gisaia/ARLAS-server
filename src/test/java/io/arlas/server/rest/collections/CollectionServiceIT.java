@@ -41,11 +41,11 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
         // PUT new collection
         given().contentType("application/json").body(jsonAsMap)
-        .when().put(arlasPrefix+"collections/foo")
+        .when().put(arlasPath+"collections/foo")
         .then().statusCode(200);
 
         // GET collection
-        when().get(arlasPrefix+"collections/foo")
+        when().get(arlasPath+"collections/foo")
         .then().statusCode(200)
             .body("collection_name", equalTo("foo"))
             .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
@@ -58,7 +58,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
         // PUT SCHEMA JSON
         given().multiPart("json_schema_file", DataSetTool.jsonSchema.toString() )
-                .when().put(arlasPrefix+"collections/foo/_import_json_schema")
+                .when().put(arlasPath+"collections/foo/_import_json_schema")
                 .then().statusCode(200)
                 .body("collection_name", equalTo("foo"))
                 .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
@@ -76,7 +76,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
 
         // GET collection
-        when().get(arlasPrefix+"collections/foo")
+        when().get(arlasPath+"collections/foo")
                 .then().statusCode(200)
                 .body("collection_name", equalTo("foo"))
                 .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
@@ -93,11 +93,11 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
 
         // DELETE collection
-        when().delete(arlasPrefix+"collections/foo")
+        when().delete(arlasPath+"collections/foo")
         .then().statusCode(200);
 
         // GET deleted collection
-        when().get(arlasPrefix+"collections/foo")
+        when().get(arlasPath+"collections/foo")
         .then().statusCode(404);
     }
 
@@ -107,17 +107,17 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
         // PUT new collection 1
         given().contentType("application/json").body(jsonAsMap)
-                .when().put(arlasPrefix+"collections/collection1")
+                .when().put(arlasPath+"collections/collection1")
                 .then().statusCode(200);
 
         // GET all collections
         getAllCollections(hasItems(equalTo(COLLECTION_NAME), equalTo("collection1")));
 
         // DELETE collection 1
-        when().delete(arlasPrefix+"collections/collection1")
+        when().delete(arlasPath+"collections/collection1")
                 .then().statusCode(200);
         // GET deleted collection
-        when().get(arlasPrefix+"collections/collection1")
+        when().get(arlasPath+"collections/collection1")
                 .then().statusCode(404);
     }
 
@@ -125,7 +125,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         int cpt = 0;
         while(cpt > 0 && cpt < 5) {
             try {
-                when().get(arlasPrefix + "collections/")
+                when().get(arlasPath + "collections/")
                         .then().statusCode(200)
                         .body("collection_name", matcher);
                 cpt = -1;
@@ -143,19 +143,19 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         getAllCollections(everyItem(equalTo(COLLECTION_NAME)));
 
         // EXPORT all collections
-        String jsonExport = get(arlasPrefix+"collections/_export").asString();
+        String jsonExport = get(arlasPath+"collections/_export").asString();
 
         // DELETE collection
-        when().delete(arlasPrefix+"collections/"+COLLECTION_NAME)
+        when().delete(arlasPath+"collections/"+COLLECTION_NAME)
                 .then().statusCode(200);
 
         // GET deleted collection
-        when().get(arlasPrefix+"collections/"+COLLECTION_NAME)
+        when().get(arlasPath+"collections/"+COLLECTION_NAME)
                 .then().statusCode(404);
 
         // IMPORT all collections
         given().multiPart("file", jsonExport)
-                .when().post(arlasPrefix+"collections/_import")
+                .when().post(arlasPath+"collections/_import")
                 .then().statusCode(200)
                 .body("collection_name", everyItem(equalTo(COLLECTION_NAME)));
 
@@ -167,7 +167,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
         // IMPORT existing collections
         given().multiPart("file", jsonExport)
-                .when().post(arlasPrefix+"collections/_import")
+                .when().post(arlasPath+"collections/_import")
                 .then().statusCode(200)
                 .body("collection_name", everyItem(equalTo(COLLECTION_NAME)));
 
@@ -176,7 +176,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
         // IMPORT a new collection
         given().multiPart("file", jsonExport.replaceAll(COLLECTION_NAME, "foo"))
-                .when().post(arlasPrefix+"collections/_import")
+                .when().post(arlasPath+"collections/_import")
                 .then().statusCode(200)
                 .body("collection_name", hasItems(equalTo("foo")));
 
@@ -184,7 +184,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         getAllCollections(hasItems(equalTo("foo"),equalTo(COLLECTION_NAME)));
 
         // DELETE new collection
-        when().delete(arlasPrefix+"collections/foo")
+        when().delete(arlasPath+"collections/foo")
                 .then().statusCode(200);
     }
 
@@ -202,7 +202,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         handleInvalidCollectionParameters(put(jsonAsMap));
 
         // GET uncreated collection foo
-        when().get(arlasPrefix+"collections/foo")
+        when().get(arlasPath+"collections/foo")
                 .then().statusCode(404);
     }
 
@@ -222,7 +222,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         handleNotFoundCollectionParameters(put(jsonAsMap));
 
         // GET uncreated collection foo
-        when().get(arlasPrefix+"collections/foo")
+        when().get(arlasPath+"collections/foo")
                 .then().statusCode(404);
     }
 
@@ -237,7 +237,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
     private ValidatableResponse put(Map<String, Object> jsonAsMap){
         return given().contentType("application/json").body(jsonAsMap)
-                .when().put(arlasPrefix+"collections/foo")
+                .when().put(arlasPath+"collections/foo")
                 .then();
     }
 
@@ -253,6 +253,6 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     }
     @Override
     protected String getUrlPath(String collection) {
-        return arlasPrefix + "/collections/"+collection;
+        return arlasPath + "/collections/"+collection;
     }
 }
