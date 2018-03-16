@@ -97,6 +97,7 @@ zipkin: # The ZIPIN configuration, not active by default
 ########################################################
 arlas-wfs:
   featureNamespace: ${ARLAS_WFS_FEATURE_NAMESPACE:-arlas}
+  replaceChar: ${ARLAS_WFS_REPLACE_CHAR:-_}
   queryMaxFeature: ${ARLAS_WFS_QUERY_MAX_FEATURE:-1000}
   serverUri: ${ARLAS_WFS_SERVER_URI:-http://arlas-server:9999/arlas/}
   serviceProviderName: ${ARLAS_WFS_SERVICE_PROVIDER_NAME:-ARLAS}

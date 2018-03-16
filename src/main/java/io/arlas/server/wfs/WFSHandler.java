@@ -25,6 +25,7 @@ import io.arlas.server.wfs.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.wfs.operation.getfeature.GetFeatureHandler;
 import io.arlas.server.wfs.operation.storedquery.ListStoredQueriesHandler;
 import io.arlas.server.wfs.operation.storedquery.StoredQueryManager;
+import io.arlas.server.wfs.utils.XmlUtils;
 import net.opengis.wfs._2.ObjectFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -46,5 +47,6 @@ public class WFSHandler {
         describeFeatureTypeHandler = new DescribeFeatureTypeHandler(this);
         listStoredQueriesHandler = new ListStoredQueriesHandler(this);
         getFeatureHandler = new GetFeatureHandler(this);
+        XmlUtils.pointPathSubstitute=wfsConfiguration.replaceChar;
     }
 }

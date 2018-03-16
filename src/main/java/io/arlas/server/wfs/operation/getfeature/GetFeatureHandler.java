@@ -20,14 +20,10 @@
 package io.arlas.server.wfs.operation.getfeature;
 
 import io.arlas.server.app.WFSConfiguration;
-import io.arlas.server.model.CollectionReference;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.response.CollectionReferenceDescription;
-import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
-import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
-import io.arlas.server.utils.TimestampTypeMapper;
 import io.arlas.server.wfs.WFSHandler;
 import io.arlas.server.wfs.utils.Version;
 import io.arlas.server.wfs.utils.WFSConstant;
@@ -199,7 +195,7 @@ public class GetFeatureHandler {
             writeNamespaceIfNotBound(xmlStream, WFSConstant.GML_PREFIX, WFSConstant.GML_NAMESPACE_URI);
             xmlStream.writeAttribute(WFSConstant.GML_NAMESPACE_URI, "id", id);
             //Write polygon
-            xmlStream.writeStartElement(featureNamespace, geometryPath, uri);
+            xmlStream.writeStartElement(featureNamespace, XmlUtils.replacePointPath((geometryPath)), uri);
             writeNamespaceIfNotBound(xmlStream, featureNamespace, uri);
             xmlStream.writeStartElement(WFSConstant.GML_NAMESPACE_URI, "Polygon");
             xmlStream.writeAttribute(WFSConstant.GML_NAMESPACE_URI, "id", "Polygon_" + id);

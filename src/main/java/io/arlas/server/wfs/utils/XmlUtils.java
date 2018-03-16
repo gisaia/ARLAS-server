@@ -31,6 +31,9 @@ import java.util.Stack;
 
 public class XmlUtils {
 
+
+    public static String pointPathSubstitute;
+
     public static final String ELEMENT = "element";
     public static final String NAME = "name";
     public static final String TYPE = "type";
@@ -66,6 +69,21 @@ public class XmlUtils {
             namespace.pop();
         }
     }
+    //Function used to avoid point in XML name element, replace point in path property of object json
+    public static  String replacePointPath(String originalName){
+        if(pointPathSubstitute==null){
+            pointPathSubstitute="_";
+        }
+        return originalName.replace(pointPathSubstitute,pointPathSubstitute.concat(pointPathSubstitute)).replace(".",pointPathSubstitute);
+    }
+    //Function used to retrieve original path property of object json after replacePointPath
+    public static String retrievePointPath(String originalName){
+        if(pointPathSubstitute==null){
+            pointPathSubstitute="_";
+        }
+        return originalName.replace(pointPathSubstitute,".").replace("..",pointPathSubstitute);
+    }
+
 
     private static void writeEmptyElement(XMLStreamWriter writer, String nameToDisplay, String type, Integer minoccurs) throws XMLStreamException {
         writer.writeEmptyElement(WFSConstant.XSNS, ELEMENT);
@@ -75,6 +93,7 @@ public class XmlUtils {
     }
 
     private static void writeElementForType(XMLStreamWriter writer, String nameToDisplay, ElasticType type) throws XMLStreamException {
+        nameToDisplay=replacePointPath(nameToDisplay);
         switch (type){
             case KEYWORD:
             case TEXT:
@@ -98,6 +117,7 @@ public class XmlUtils {
     }
 
     private static void writeElement(XMLStreamWriter xmlStream, String nameToDisplay, String value,String uri,String prefix) throws XMLStreamException {
+        nameToDisplay=replacePointPath(nameToDisplay);
         xmlStream.writeStartElement(prefix, nameToDisplay, uri);
         xmlStream.writeCharacters(value);
         xmlStream.writeEndElement();
