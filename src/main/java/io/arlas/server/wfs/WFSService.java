@@ -20,31 +20,24 @@
 package io.arlas.server.wfs;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.app.WFSConfiguration;
 import io.arlas.server.core.ElasticAdmin;
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.*;
 import io.arlas.server.model.response.Error;
+import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.exceptions.WFSException;
 import io.arlas.server.exceptions.WFSExceptionCode;
 import io.arlas.server.utils.MapExplorer;
-import io.arlas.server.wfs.filter.FilterToElastic;
 import io.arlas.server.wfs.filter.WFSQueryBuilder;
 import io.arlas.server.wfs.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.wfs.utils.*;
 import io.swagger.annotations.*;
 import net.opengis.wfs._2.*;
-import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.geotools.filter.v2_0.FESConfiguration;
-import org.geotools.xml.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +47,6 @@ import javax.xml.bind.*;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -63,19 +55,18 @@ import org.xml.sax.SAXException;
 
 @Path("/wfs")
 @Api(value = "/wfs")
-public class WFSService {
+public class WFSService extends ExploreRESTServices {
     Logger LOGGER = LoggerFactory.getLogger(WFSService.class);
 
     public WFSHandler wfsHandler;
-    public ExploreServices exploreServices;
     private WFSConfiguration wfsConfiguration;
     private String serverUrl;
 
     //TODO extends and create a wfsexploreService not inject it
     public WFSService(ExploreServices exploreServices, WFSHandler wfsHandler) {
+        super(exploreServices);
         this.wfsHandler = wfsHandler;
         this.wfsConfiguration = wfsHandler.wfsConfiguration;
-        this.exploreServices = exploreServices;
         this.serverUrl = wfsConfiguration.serverUri;
     }
 
@@ -201,7 +192,7 @@ public class WFSService {
         String serviceUrl = serverUrl + "wfs/" + collectionName + "/?";
         QName featureQname = new QName(serviceUrl, collectionName, wfsConfiguration.featureNamespace);
         WFSCheckParam.checkTypeNames(collectionName, typenames);
-        WFSQueryBuilder wfsQueryBuilder = new WFSQueryBuilder(requestType,id,bbox,filter,resourceid,storedquery_id,collectionReferenceDescription);
+        WFSQueryBuilder wfsQueryBuilder = new WFSQueryBuilder(requestType,id,bbox,filter,resourceid,storedquery_id,collectionReferenceDescription,partitionFilter,exploreServices);
 
         switch (requestType) {
             case GetCapabilities:

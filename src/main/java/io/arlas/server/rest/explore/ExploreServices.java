@@ -118,7 +118,7 @@ public class ExploreServices {
     }
 
 
-    protected void applyFilter (Filter filter, FluidSearch fluidSearch) throws ArlasException, IOException{
+    public void applyFilter(Filter filter, FluidSearch fluidSearch) throws ArlasException, IOException{
         if (filter !=null) {
             CheckParams.checkFilter(filter);
             if (filter.f != null && !filter.f.isEmpty()) {

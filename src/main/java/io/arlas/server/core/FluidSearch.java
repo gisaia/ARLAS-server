@@ -128,6 +128,10 @@ public class FluidSearch {
         boolQueryBuilder = QueryBuilders.boolQuery();
     }
 
+    public BoolQueryBuilder getBoolQueryBuilder() {
+        return boolQueryBuilder;
+    }
+
     public SearchResponse exec() throws ArlasException {
         searchRequestBuilder.setQuery(boolQueryBuilder);
 
