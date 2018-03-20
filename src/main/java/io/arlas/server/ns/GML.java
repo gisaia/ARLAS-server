@@ -17,18 +17,9 @@
  * under the License.
  */
 
-package io.arlas.server.wfs.filter;
+package io.arlas.server.ns;
 
-public class FilterToElasticException extends RuntimeException {
-
-    private static final long serialVersionUID = 1819999351118120451L;
-
-    public FilterToElasticException(String message) {
-        super(message);
-    }
-
-    public FilterToElasticException(String msg, Throwable exp) {
-        super(msg, exp);
-    }
-
+public class GML {
+    public static final String XML_PREFIX="gml";
+    public static final String XML_NS="http://www.opengis.net/gml/3.2";
 }

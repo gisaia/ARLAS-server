@@ -25,6 +25,7 @@ import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.wfs.WFSHandler;
+import io.arlas.server.wfs.utils.GeoFormat;
 import io.arlas.server.wfs.utils.Version;
 import io.arlas.server.wfs.utils.WFSConstant;
 import io.arlas.server.wfs.utils.XmlUtils;
@@ -197,30 +198,12 @@ public class GetFeatureHandler {
             //Write polygon
             xmlStream.writeStartElement(featureNamespace, XmlUtils.replacePointPath((geometryPath)), uri);
             writeNamespaceIfNotBound(xmlStream, featureNamespace, uri);
-            xmlStream.writeStartElement(WFSConstant.GML_NAMESPACE_URI, "Polygon");
-            xmlStream.writeAttribute(WFSConstant.GML_NAMESPACE_URI, "id", "Polygon_" + id);
-            xmlStream.writeAttribute("srsName", "http://www.opengis.net/def/crs/epsg/0/4326");
-            xmlStream.writeStartElement(WFSConstant.GML_NAMESPACE_URI, "exterior");
-            xmlStream.writeStartElement(WFSConstant.GML_NAMESPACE_URI, "LinearRing");
-            xmlStream.writeStartElement(WFSConstant.GML_NAMESPACE_URI, "posList");
-            String posList = "";
-            for (LngLatAlt lnglnglat : ((Polygon) geometry).getExteriorRing()) {
-                posList = posList.concat(" ");
-                posList = posList.concat(String.valueOf(lnglnglat.getLatitude()));
-                posList = posList.concat(" ");
-                posList = posList.concat(String.valueOf(lnglnglat.getLongitude()));
-            }
-            xmlStream.writeCharacters(posList.trim());
-            xmlStream.writeEndElement();
-            xmlStream.writeEndElement();
-            xmlStream.writeEndElement();
-            xmlStream.writeEndElement();
+            GeoFormat.geojson2gml(geometry,xmlStream,"Geom_"+id);
             xmlStream.writeEndElement();
             //Write Attributes
-            XmlUtils.parsePropertiesXml(collectionReference.properties,xmlStream,new Stack<String>(),uri,source,featureNamespace);
+            XmlUtils.parsePropertiesXml(collectionReference.properties,xmlStream,new Stack<>(),uri,source,featureNamespace);
             xmlStream.writeEndElement();
         }
-
     }
 
     public static void writeNamespaceIfNotBound(XMLStreamWriter xmlStream, String prefix, String nsUri) throws XMLStreamException {
