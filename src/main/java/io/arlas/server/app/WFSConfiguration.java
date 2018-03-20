@@ -30,6 +30,9 @@ public class WFSConfiguration {
     @JsonProperty("featureNamespace")
     public String featureNamespace;
 
+    @JsonProperty("replaceChar")
+    public String replaceChar;
+
     @JsonProperty("queryMaxFeature")
     public Number queryMaxFeature;
 

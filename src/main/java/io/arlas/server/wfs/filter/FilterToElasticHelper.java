@@ -26,10 +26,10 @@ import java.util.Map;
 
 import javax.measure.unit.SI;
 
-
 import io.arlas.server.exceptions.WFSException;
 import io.arlas.server.exceptions.WFSExceptionCode;
 import io.arlas.server.exceptions.WFSExceptionMessage;
+import io.arlas.server.wfs.utils.XmlUtils;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.JTS;
 import org.locationtech.spatial4j.shape.SpatialRelation;
@@ -127,7 +127,7 @@ class FilterToElasticHelper {
             Object extraData) {
 
         property.accept(delegate, extraData);
-        key = (String) delegate.field;
+        key =  XmlUtils.retrievePointPath(key);
         if(!key.equals(delegate.collectionReference.params.geometryPath)){
             List<WFSExceptionMessage> wfsExceptionMessages = new ArrayList<>();
             wfsExceptionMessages.add(new WFSExceptionMessage(WFSExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
@@ -231,7 +231,7 @@ class FilterToElasticHelper {
 
         if (shapeRelation != null) {
             e1.accept(delegate, extraData);
-            key = (String) delegate.field;
+            key =  XmlUtils.retrievePointPath((String)delegate.field);
             if(key.contains(":")){
                 key=key.split(":")[1];
             }
@@ -262,7 +262,7 @@ class FilterToElasticHelper {
             boolean swapped, Object extraData) {
 
         e1.accept(delegate, extraData);
-        key = (String) delegate.field;
+        key =  XmlUtils.retrievePointPath((String)delegate.field);
         if(key.contains(":")){
             key=key.split(":")[1];
         }

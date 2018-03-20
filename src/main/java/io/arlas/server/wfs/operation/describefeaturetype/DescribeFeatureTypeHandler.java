@@ -113,7 +113,7 @@ public class DescribeFeatureTypeHandler {
         writer.writeStartElement(WFSConstant.XSNS, "sequence");
 
         writer.writeEmptyElement(WFSConstant.XSNS, "element");
-        writer.writeAttribute("name", geometryPath);
+        writer.writeAttribute("name", XmlUtils.replacePointPath((geometryPath)));
         writer.writeAttribute(XmlUtils.TYPE, WFSConstant.GML_PREFIX + ":GeometryPropertyType");
         writer.writeAttribute("minOccurs", "1");
         writer.writeAttribute("maxOccurs", "1");

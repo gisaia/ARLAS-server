@@ -28,6 +28,7 @@ import io.arlas.server.exceptions.WFSExceptionMessage;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.wfs.utils.WFSCheckParam;
+import io.arlas.server.wfs.utils.XmlUtils;
 import org.elasticsearch.common.joda.Joda;
 import org.geotools.data.Query;
 import org.geotools.factory.CommonFactoryFinder;
@@ -361,7 +362,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         }
 
         att.accept(this, extraData);
-        key = (String) field;
+        key = (String) XmlUtils.retrievePointPath((String) field);
         if(!WFSCheckParam.isFieldInMapping(collectionReference,key)){
             List<WFSExceptionMessage> wfsExceptionMessages = new ArrayList<>();
             wfsExceptionMessages.add(new WFSExceptionMessage(WFSExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
@@ -603,7 +604,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
         } else {
             right.accept( this, null);
-            key = (String) field;
+            key = (String) XmlUtils.retrievePointPath((String) field);
             if(!WFSCheckParam.isFieldInMapping(collectionReference,key)){
                 List<WFSExceptionMessage> wfsExceptionMessages = new ArrayList<>();
                 wfsExceptionMessages.add(new WFSExceptionMessage(WFSExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
