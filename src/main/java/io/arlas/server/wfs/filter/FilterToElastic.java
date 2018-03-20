@@ -26,11 +26,9 @@ import io.arlas.server.exceptions.WFSException;
 import io.arlas.server.exceptions.WFSExceptionCode;
 import io.arlas.server.exceptions.WFSExceptionMessage;
 import io.arlas.server.model.response.CollectionReferenceDescription;
-import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.wfs.utils.WFSCheckParam;
 import io.arlas.server.wfs.utils.XmlUtils;
 import org.elasticsearch.common.joda.Joda;
-import org.geotools.data.Query;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.filter.Capabilities;
@@ -91,7 +89,6 @@ import org.opengis.filter.temporal.TContains;
 import org.opengis.filter.temporal.TEquals;
 import org.opengis.filter.temporal.TOverlaps;
 import org.opengis.temporal.Period;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.common.collect.ImmutableList;
@@ -177,11 +174,16 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     private DateTimeFormatter dateFormatter;
 
+    public static final String NESTED = "nested";
+    public static final String ANALYZED = "analyzed";
+    public static final String DATE_FORMAT = "date_format";
+
+
 
     public CollectionReferenceDescription collectionReference;
 
     public FilterToElastic( CollectionReferenceDescription collectionReference) {
-        queryBuilder = ElasticConstants.MATCH_ALL;
+        queryBuilder = FilterToElasticHelper.MATCH_ALL;
         nativeQueryBuilder = ImmutableMap.of("match_all", Collections.EMPTY_MAP);
         this.collectionReference = collectionReference;
         helper = new FilterToElasticHelper(this);
@@ -193,27 +195,14 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      *
      * @param filter the Filter to be encoded.
      *
-     * @throws FilterToElasticException If there were io problems.
      */
-    public void encode(Filter filter) throws FilterToElasticException {
+    public void encode(Filter filter) {
         fullySupported = getCapabilities().fullySupports(filter);
         filter.accept(this, null);
 
     }
 
-    /**
-     * Performs the encoding.
-     * If SQL View parameters are provided in the query hints, they will be used
-     * to define and/or update the query.
-     *
-     * @param query the Query to be encoded.
-     *
-     * @throws FilterToElasticException If there were io problems.
-     */
-    public void encode(Query query) throws FilterToElasticException {
-        encode(query.getFilter());
-        addViewParams(query);
-    }
+
 
     /**
      * Sets the featuretype the encoder is encoding for.
@@ -265,7 +254,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      * @param filter the filter to be visited
      */
     public Object visit(ExcludeFilter filter, Object extraData) {
-        queryBuilder = ImmutableMap.of("bool", ImmutableMap.of("must_not", ElasticConstants.MATCH_ALL));
+        queryBuilder = ImmutableMap.of("bool", ImmutableMap.of("must_not", FilterToElasticHelper.MATCH_ALL));
         return extraData;
     }
 
@@ -276,7 +265,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      *  
      */
     public Object visit(IncludeFilter filter, Object extraData) {
-        queryBuilder = ElasticConstants.MATCH_ALL;
+        queryBuilder = FilterToElasticHelper.MATCH_ALL;
         return extraData;
     }
 
@@ -298,8 +287,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         AttributeDescriptor attType = (AttributeDescriptor)expr.evaluate(featureType);
         if (attType != null) {
             context = attType.getType().getBinding();
-            if (attType.getUserData().containsKey(ElasticConstants.NESTED)) {
-                nested = (Boolean) attType.getUserData().get(ElasticConstants.NESTED);
+            if (attType.getUserData().containsKey(NESTED)) {
+                nested = (Boolean) attType.getUserData().get(NESTED);
             }
             if (Date.class.isAssignableFrom(context)) {
                 updateDateFormatter(attType);
@@ -350,11 +339,11 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         analyzed = false;
         nested = false;
         if (attType != null) {
-            if (attType.getUserData().containsKey(ElasticConstants.ANALYZED)) {
-                analyzed = (Boolean) attType.getUserData().get(ElasticConstants.ANALYZED);
+            if (attType.getUserData().containsKey(ANALYZED)) {
+                analyzed = (Boolean) attType.getUserData().get(ANALYZED);
             }
-            if (attType.getUserData().containsKey(ElasticConstants.NESTED)) {
-                nested = (Boolean) attType.getUserData().get(ElasticConstants.NESTED);
+            if (attType.getUserData().containsKey(NESTED)) {
+                nested = (Boolean) attType.getUserData().get(NESTED);
             }
             if (Date.class.isAssignableFrom(attType.getType().getBinding())) {
                 updateDateFormatter(attType);
@@ -573,8 +562,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
         nested = false;
         if (attType != null) {
-            if (attType.getUserData().containsKey(ElasticConstants.NESTED)) {
-                nested = (Boolean) attType.getUserData().get(ElasticConstants.NESTED);
+            if (attType.getUserData().containsKey(NESTED)) {
+                nested = (Boolean) attType.getUserData().get(NESTED);
             }
             if (Date.class.isAssignableFrom(attType.getType().getBinding())) {
                 updateDateFormatter(attType);
@@ -792,8 +781,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         nested = false;
         if (attType != null) {
             typeContext = attType.getType().getBinding();
-            if (attType.getUserData().containsKey(ElasticConstants.NESTED)) {
-                nested = (Boolean) attType.getUserData().get(ElasticConstants.NESTED);
+            if (attType.getUserData().containsKey(NESTED)) {
+                nested = (Boolean) attType.getUserData().get(NESTED);
             }
             updateDateFormatter(attType);
         }
@@ -990,7 +979,6 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      * @param expression
      * the Literal to export
      *
-     * @throws FilterToElasticException If there were io problems.
      */
     @Override
     public Object visit(Literal expression, Object context) {
@@ -1181,7 +1169,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     protected void updateDateFormatter(AttributeDescriptor attType) {
         dateFormatter = DEFAULT_DATE_FORMATTER;
         if (attType != null) {
-            final String format = (String) attType.getUserData().get(ElasticConstants.DATE_FORMAT);
+            final String format = (String) attType.getUserData().get(DATE_FORMAT);
             if (format != null) {
                 dateFormatter = Joda.forPattern(format).printer();
             }
@@ -1194,55 +1182,6 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     Number safeConvertToNumber(Expression expression, Class<?> target) {
         return (Number) Converters.convert(expression.evaluate(null), target, 
                 new Hints(ConverterFactory.SAFE_CONVERSION, true));
-    }
-
-    @SuppressWarnings("unchecked")
-    protected void addViewParams(Query query) {
-        if (query.getHints() != null && query.getHints().get(Hints.VIRTUAL_TABLE_PARAMETERS) != null) {
-            parameters = (Map<String, String>) query.getHints().get(Hints.VIRTUAL_TABLE_PARAMETERS);
-
-            nativeOnly = false;
-            for (final Map.Entry<String, String> entry : parameters.entrySet()) {
-                if (entry.getKey().equalsIgnoreCase("native-only")) {
-                    nativeOnly = Boolean.valueOf(entry.getValue());
-                }
-            }
-            if (nativeOnly) {
-                LOGGER.debug("Ignoring GeoServer filter (Elasticsearch native query/post filter only)");
-                queryBuilder = ElasticConstants.MATCH_ALL;
-            }
-
-            for (final Map.Entry<String, String> entry : parameters.entrySet()) {
-                if (entry.getKey().equalsIgnoreCase("q")) {
-                    final String value = entry.getValue();
-                    try {
-                        nativeQueryBuilder = mapReader.readValue(value);
-                    } catch (Exception e) {
-                        // retry with decoded value
-                        try {
-                            nativeQueryBuilder = mapReader.readValue(ElasticParserUtil.urlDecode(value));
-                        } catch (Exception e2) {
-                            throw new FilterToElasticException("Unable to parse native query", e);
-                        }
-                    }
-                }
-                if (entry.getKey().equalsIgnoreCase("a")) {
-                    final ObjectMapper mapper = new ObjectMapper();
-                    final TypeReference<Map<String, Map<String,Map<String,Object>>>> type;
-                    type = new TypeReference<Map<String, Map<String,Map<String,Object>>>>() {};
-                    final String value = entry.getValue();
-                    try {
-                        this.aggregations = mapper.readValue(value, type);
-                    } catch (Exception e) {
-                        try {
-                            this.aggregations = mapper.readValue(ElasticParserUtil.urlDecode(value), type);
-                        } catch (Exception e2) {
-                            throw new FilterToElasticException("Unable to parse aggregation", e);
-                        }
-                    }
-                }
-            }
-        }
     }
 
     public static String convertToQueryString(char escape, char multi, char single, 
@@ -1311,9 +1250,9 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     public Map<String,Object> getQueryBuilder() {
         final Map<String,Object> queryBuilder;
-        if (nativeQueryBuilder.equals(ElasticConstants.MATCH_ALL)) {
+        if (nativeQueryBuilder.equals(FilterToElasticHelper.MATCH_ALL)) {
             queryBuilder = this.queryBuilder;
-        } else if (this.queryBuilder.equals(ElasticConstants.MATCH_ALL)) {
+        } else if (this.queryBuilder.equals(FilterToElasticHelper.MATCH_ALL)) {
             queryBuilder = nativeQueryBuilder;
         } else {
             queryBuilder = ImmutableMap.of("bool", 
