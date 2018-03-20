@@ -17,18 +17,10 @@
  * under the License.
  */
 
-package io.arlas.server.model.response;
+package io.arlas.server.ns;
 
-import io.dropwizard.jackson.JsonSnakeCase;
-import org.geojson.GeoJsonObject;
-
-@JsonSnakeCase
-public class MD {
-    public String id;
-
-    public Long timestamp;
-
-    public GeoJsonObject geometry;
-
-    public GeoJsonObject centroid;
+public class ATOM {
+    public static final String XML_PREFIX="atom";
+    public static final String XML_NS="http://www.w3.org/2005/Atom";
+    public static final String APPLICATION_ATOM_XML = "application/atom+xml";
 }

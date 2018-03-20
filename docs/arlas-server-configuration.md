@@ -68,7 +68,7 @@ docker run -ti -d \
 | ARLAS_SERVICE_COLLECTIONS_ENABLE    | arlas-service-collections-enabled    | true     | Whether the collection service is enabled or not |
 | ARLAS_SERVICE_EXPLORE_ENABLE    | arlas-service-explore-enabled    | true     | Whether the explore service is enabled or not |
 | ARLAS_SERVICE_WFS_ENABLE    | arlas-service-wfs-enabled    | false     | Whether the WFS service is enabled or not |
-
+| ARLAS_SERVICE_OPENSEARCH_ENABLE    | arlas-service-opensearch-enabled    | true     | Whether the opensearch service is enabled or not |
 
 ### Datasource
 

@@ -242,3 +242,7 @@ The `sort` url part allows the following parameters to be specified:
 Fields can be provided several times by separating them with a comma. The order matters. For a descending sort, precede the field with '-'. The sort will be ascending otherwise. For aggregation, provide the `agg` keyword as the `{field}`. For a geodistance sort, specify the point, from which the distances are calculated, as follow : `geodistance:lat lon`  | false (separate fields with comma in the same parameter) |
 
 > Example: `sort=-country,city,geodistance:-50 -110`
+
+## OpenSearch
+
+If enabled, ARLAS offers an Opensearch Description document (`/arlas/explore/{collection}/_opensearch`).

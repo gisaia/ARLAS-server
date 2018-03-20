@@ -19,9 +19,15 @@
 
 package io.arlas.server.wfs.filter;
 
-import java.io.IOException;
-import java.util.*;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 import io.arlas.server.exceptions.WFSException;
 import io.arlas.server.exceptions.WFSExceptionCode;
 import io.arlas.server.exceptions.WFSExceptionMessage;
@@ -38,56 +44,11 @@ import org.geotools.util.Converters;
 import org.joda.time.format.DateTimeFormatter;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.filter.And;
-import org.opengis.filter.BinaryComparisonOperator;
-import org.opengis.filter.BinaryLogicOperator;
-import org.opengis.filter.ExcludeFilter;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.FilterVisitor;
-import org.opengis.filter.Id;
-import org.opengis.filter.IncludeFilter;
-import org.opengis.filter.Not;
-import org.opengis.filter.Or;
-import org.opengis.filter.PropertyIsBetween;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.PropertyIsGreaterThan;
-import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
-import org.opengis.filter.PropertyIsLessThan;
-import org.opengis.filter.PropertyIsLessThanOrEqualTo;
-import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.PropertyIsNil;
-import org.opengis.filter.PropertyIsNotEqualTo;
-import org.opengis.filter.PropertyIsNull;
+import org.opengis.filter.*;
 import org.opengis.filter.expression.*;
 import org.opengis.filter.identity.Identifier;
-import org.opengis.filter.spatial.BBOX;
-import org.opengis.filter.spatial.Beyond;
-import org.opengis.filter.spatial.BinarySpatialOperator;
-import org.opengis.filter.spatial.Contains;
-import org.opengis.filter.spatial.Crosses;
-import org.opengis.filter.spatial.DWithin;
-import org.opengis.filter.spatial.Disjoint;
-import org.opengis.filter.spatial.Equals;
-import org.opengis.filter.spatial.Intersects;
-import org.opengis.filter.spatial.Overlaps;
-import org.opengis.filter.spatial.Touches;
-import org.opengis.filter.spatial.Within;
-import org.opengis.filter.temporal.After;
-import org.opengis.filter.temporal.AnyInteracts;
-import org.opengis.filter.temporal.Before;
-import org.opengis.filter.temporal.Begins;
-import org.opengis.filter.temporal.BegunBy;
-import org.opengis.filter.temporal.BinaryTemporalOperator;
-import org.opengis.filter.temporal.During;
-import org.opengis.filter.temporal.EndedBy;
-import org.opengis.filter.temporal.Ends;
-import org.opengis.filter.temporal.Meets;
-import org.opengis.filter.temporal.MetBy;
-import org.opengis.filter.temporal.OverlappedBy;
-import org.opengis.filter.temporal.TContains;
-import org.opengis.filter.temporal.TEquals;
-import org.opengis.filter.temporal.TOverlaps;
+import org.opengis.filter.spatial.*;
+import org.opengis.filter.temporal.*;
 import org.opengis.temporal.Period;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -98,6 +59,9 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.*;
 
 
 /**

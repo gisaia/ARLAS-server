@@ -17,18 +17,26 @@
  * under the License.
  */
 
-package io.arlas.server.model.response;
+package io.arlas.server.rest.explore.opensearch.model;
 
-import io.dropwizard.jackson.JsonSnakeCase;
-import org.geojson.GeoJsonObject;
+import javax.xml.bind.annotation.XmlAttribute;
 
-@JsonSnakeCase
-public class MD {
-    public String id;
+public class Url {
 
-    public Long timestamp;
+    public static enum REL {results, suggestions, self, collection};
+    
+    @XmlAttribute(name = "template")
+    public String template="";
 
-    public GeoJsonObject geometry;
+    @XmlAttribute(name = "type")
+    public String type="";
 
-    public GeoJsonObject centroid;
+    @XmlAttribute(name = "rel")
+    public REL rel;
+
+    @XmlAttribute(name = "indexOffset")
+    public String indexOffset="";
+
+    @XmlAttribute(name = "pageOffset")
+    public String pageOffset="";
 }

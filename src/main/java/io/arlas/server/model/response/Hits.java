@@ -21,13 +21,24 @@ package io.arlas.server.model.response;
 
 import java.util.List;
 
+import io.arlas.server.model.CollectionReference;
 import io.dropwizard.jackson.JsonSnakeCase;
 
 @JsonSnakeCase
 public class Hits {
+    public String collection;
     public List<Hit> hits;
-
     public long nbhits;
-
     public long totalnb;
+
+    public  Hits(String collection){
+        this.collection = collection;
+    }
+
+    public  Hits(String collection, List<Hit> hits, long totalnb){
+        this.collection = collection;
+        this.hits = hits;
+        this.nbhits = hits.size();
+        this.totalnb = totalnb;
+    }
 }

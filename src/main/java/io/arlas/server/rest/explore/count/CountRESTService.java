@@ -31,7 +31,6 @@ import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.utils.ParamsParser;
-import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -209,8 +208,8 @@ public class CountRESTService extends ExploreRESTServices {
 
     protected Hits getArlasHits(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().count(request,collectionReference);
-        Hits hits = new Hits();
-        hits.totalnb = searchHits.totalHits;
+        Hits hits = new Hits(collectionReference.collectionName);
+        hits.totalnb = searchHits.totalHits();
         hits.nbhits = searchHits.getHits().length;
         return hits;
     }

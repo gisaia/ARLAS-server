@@ -41,7 +41,7 @@ public class GeoFormat {
             writer.writeAttribute("srsName", srsName);
             if(g.getCoordinates()!=null){
                 writer.writeStartElement(GML.XML_NS, "pos");
-                writer.writeCharacters(g.getCoordinates().getLatitude()+" "+g.getCoordinates().getLongitude());
+                writer.writeCharacters(g.getCoordinates().getLongitude()+" "+g.getCoordinates().getLatitude());
                 writer.writeEndElement();
             }
             writer.writeEndElement();
@@ -68,6 +68,7 @@ public class GeoFormat {
             return;
         }
 
+
         if(geojson instanceof Polygon) {
             Polygon p = (Polygon)geojson;
             writer.writeStartElement(GML.XML_NS, "Polygon");
@@ -75,10 +76,11 @@ public class GeoFormat {
             writer.writeAttribute("srsName", srsName);
             if(p.getCoordinates()!=null && p.getCoordinates().size()>0){
                 {
-                    writer.writeStartElement(GML.XML_NS, "exterior");
-                    writer.writeStartElement(GML.XML_NS, "LinearRing");
-                    writer.writeStartElement(GML.XML_NS, "posList");
-                    String posList = "";
+
+                writer.writeStartElement(GML.XML_NS, "exterior");
+                writer.writeStartElement(GML.XML_NS, "LinearRing");
+                writer.writeStartElement(GML.XML_NS, "posList");
+                String posList = "";
                     for (LngLatAlt lnglnglat : p.getExteriorRing()) {
                         posList+=String.valueOf(lnglnglat.getLatitude()) + " " + String.valueOf(lnglnglat.getLongitude())+ " ";
                     }
