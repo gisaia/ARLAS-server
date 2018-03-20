@@ -141,20 +141,21 @@ BASEDIR=$PWD
 docker run --rm \
 	-v $PWD:/opt/gen \
 	-v $HOME/.m2:/root/.m2 \
-	gisaia/swagger-codegen:2.2.3
+	gisaia/swagger-codegen:2.3.1
 
 echo "=> Build Typescript API "${FULL_API_VERSION}
-cd ${BASEDIR}/target/tmp/typescript-angular2/
+cd ${BASEDIR}/target/tmp/typescript-fetch/
 cp ${BASEDIR}/conf/npm/package-build.json package.json
 cp ${BASEDIR}/conf/npm/tsconfig-build.json .
 npm version --no-git-tag-version ${FULL_API_VERSION}
 npm install
 npm run build-release
+npm run prepublish
 cd ${BASEDIR}
 
 echo "=> Publish Typescript API "
-cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/target/tmp/typescript-angular2/dist/package.json
-cd ${BASEDIR}/target/tmp/typescript-angular2/dist
+cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/target/tmp/typescript-fetch/dist/package.json
+cd ${BASEDIR}/target/tmp/typescript-fetch/dist
 npm version --no-git-tag-version ${FULL_API_VERSION}
 
 npm publish || echo "Publishing on npm failed ... continue ..."
