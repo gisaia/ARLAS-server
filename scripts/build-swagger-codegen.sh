@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SWAGGER_VERSION="2.2.3"
+SWAGGER_VERSION="2.3.1"
 
 # GO TO PROJECT PATH
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
