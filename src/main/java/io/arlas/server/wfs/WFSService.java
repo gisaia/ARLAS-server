@@ -23,13 +23,13 @@ import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.app.WFSConfiguration;
 import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.WFSException;
+import io.arlas.server.exceptions.WFSExceptionCode;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.response.*;
+import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
-import io.arlas.server.exceptions.WFSException;
-import io.arlas.server.exceptions.WFSExceptionCode;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.wfs.filter.WFSQueryBuilder;
 import io.arlas.server.wfs.operation.getcapabilities.GetCapabilitiesHandler;
@@ -40,18 +40,20 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import javax.xml.bind.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-
-import org.xml.sax.SAXException;
 
 @Path("/wfs")
 @Api(value = "/wfs")

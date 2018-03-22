@@ -19,36 +19,33 @@
 
 package io.arlas.server.rest.explore.search;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-
-import io.arlas.server.model.request.MixedRequest;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-
 import com.codahale.metrics.annotation.Timed;
-
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Hit;
 import io.arlas.server.model.response.Hits;
+import io.arlas.server.ns.ATOM;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.utils.ParamsParser;
 import io.dropwizard.jersey.params.IntParam;
-import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class SearchRESTService extends ExploreRESTServices {
 
@@ -59,9 +56,9 @@ public class SearchRESTService extends ExploreRESTServices {
     @Timed
     @Path("{collection}/_search")
     @GET
-    @Produces(UTF8JSON)
+    @Produces({UTF8JSON, ATOM.APPLICATION_ATOM_XML})
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Search", produces = UTF8JSON, notes = Documentation.SEARCH_OPERATION, consumes = UTF8JSON, response = Hits.class)
+    @ApiOperation(value = "Search", produces = UTF8JSON+","+ATOM.APPLICATION_ATOM_XML, notes = Documentation.SEARCH_OPERATION, consumes = UTF8JSON, response = Hits.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Hits.class, responseContainer = "ArlasHits" ),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
     public Response search(
@@ -270,8 +267,8 @@ public class SearchRESTService extends ExploreRESTServices {
     protected Hits getArlasHits(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().search(request,collectionReference);
 
-        Hits hits = new Hits();
-        hits.totalnb = searchHits.totalHits;
+        Hits hits = new Hits(collectionReference.collectionName);
+        hits.totalnb = searchHits.totalHits();
         hits.nbhits = searchHits.getHits().length;
         hits.hits = new ArrayList<>((int) hits.nbhits);
         for (SearchHit hit : searchHits.getHits()) {

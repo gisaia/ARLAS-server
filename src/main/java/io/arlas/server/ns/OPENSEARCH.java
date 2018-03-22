@@ -17,18 +17,9 @@
  * under the License.
  */
 
-package io.arlas.server.model.response;
+package io.arlas.server.ns;
 
-import io.dropwizard.jackson.JsonSnakeCase;
-import org.geojson.GeoJsonObject;
-
-@JsonSnakeCase
-public class MD {
-    public String id;
-
-    public Long timestamp;
-
-    public GeoJsonObject geometry;
-
-    public GeoJsonObject centroid;
+public class OPENSEARCH {
+    public static final String XML_PREFIX="opensearch";
+    public static final String XML_NS="http://a9.com/-/spec/opensearch/1.1/";
 }

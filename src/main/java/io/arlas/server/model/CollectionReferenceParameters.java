@@ -57,7 +57,13 @@ public class CollectionReferenceParameters {
     public Map<String,String> customParams = null;
 
     @JsonProperty(value = "json_schema", required = false)
-    public ObjectNode jsonSchema = null;
+    public Object jsonSchema = null;
+
+    @JsonProperty(value = "atom_feed", required = false)
+    public Feed atomFeed = null;
+
+    @JsonProperty(value = "open_search", required = false)
+    public OpenSearch openSearch = null;
 
     public CollectionReferenceParameters() {
     }

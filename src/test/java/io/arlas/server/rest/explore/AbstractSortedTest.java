@@ -8,9 +8,6 @@ import io.restassured.response.ValidatableResponse;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-
 public abstract class AbstractSortedTest extends AbstractProjectedTest {
     @Before
     public void setUpSearch() {
@@ -47,7 +44,4 @@ public abstract class AbstractSortedTest extends AbstractProjectedTest {
     protected abstract void handleSortParameter(ValidatableResponse then, String firstElement) throws Exception;
     protected abstract void handleGeoSortParameter(ValidatableResponse then, String firstElement) throws Exception;
     protected abstract void handleInvalidGeoSortParameter(ValidatableResponse then) throws Exception;
-
-
-
 }
