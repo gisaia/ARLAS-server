@@ -118,7 +118,7 @@ echo "=> Wait for arlas-server up and running"
 i=1; until nc -w 2 ${DOCKER_IP} 19999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 
 echo "=> Get swagger documentation"
-mkdir target/tmp || echo "target/tmp exists"
+mkdir -p target/tmp || echo "target/tmp exists"
 i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.json -o target/tmp/swagger.json; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.yaml -o target/tmp/swagger.yaml; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 
