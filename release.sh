@@ -150,7 +150,7 @@ cp ${BASEDIR}/conf/npm/tsconfig-build.json .
 npm version --no-git-tag-version ${FULL_API_VERSION}
 npm install
 npm run build-release
-npm run prepublish
+npm run postbuild
 cd ${BASEDIR}
 
 echo "=> Publish Typescript API "

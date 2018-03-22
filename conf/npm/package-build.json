@@ -4,7 +4,7 @@
   "license": "Apache 2.0",
   "scripts": {
     "build-release": "tsc -p tsconfig-build.json",
-    "prepublish": "mkdir dist && mv *.js.map *.js *.d.ts ./dist/"
+    "postbuild": "mkdir dist && mv *.js.map *.js *.d.ts ./dist/"
   },
   "private": true,
   "dependencies": {
