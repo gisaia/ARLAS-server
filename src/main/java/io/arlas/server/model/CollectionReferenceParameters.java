@@ -53,6 +53,9 @@ public class CollectionReferenceParameters {
     @JsonProperty(value = "exclude_fields", required = false)
     public String excludeFields = null;
 
+    @JsonProperty(value = "exclude_wfs_fields", required = false)
+    public String excludeWfsFields = null;
+
     @JsonProperty(value = "custom_params", required = false)
     public Map<String,String> customParams = null;
 
