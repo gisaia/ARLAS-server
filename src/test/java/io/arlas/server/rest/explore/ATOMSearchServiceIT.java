@@ -42,7 +42,7 @@ public class ATOMSearchServiceIT extends AbstractSortedTest {
 
     @Override
     public String getUrlPath(String collection) {
-        return arlasPrefix + "explore/" + collection + "/_search";
+        return arlasPath + "explore/" + collection + "/_search";
     }
 
     @Override
