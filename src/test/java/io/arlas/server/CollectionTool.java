@@ -47,7 +47,8 @@ public class CollectionTool extends AbstractTestContext {
         jsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_EXCLUDE_FIELDS);
 
         // PUT new collection
-        given().contentType("application/json").body(jsonAsMap).when().put("/arlas/collections/" + COLLECTION_NAME).then().statusCode(200);
+        System.out.println( getUrlPath() );
+        given().contentType("application/json").body(jsonAsMap).when().put(getUrlPath()).then().statusCode(200);
 
         try {
             Thread.sleep(10000);
@@ -59,12 +60,16 @@ public class CollectionTool extends AbstractTestContext {
     public static void delete() throws IOException {
         DataSetTool.clearDataSet();
         //DELETE collection
-        when().delete("/arlas/collections/" + COLLECTION_NAME).then().statusCode(200);
+        when().delete(getUrlPath()).then().statusCode(200);
     }
 
     @Override
     protected String getUrlPath(String collection) {
-        return arlasPrefix + "/collections/" + COLLECTION_NAME;
+        return getUrlPath();
+    }
+
+    protected static String getUrlPath() {
+        return arlasPath + "collections/" + COLLECTION_NAME;
     }
 }
 

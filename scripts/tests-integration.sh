@@ -3,6 +3,9 @@ set -e
 
 export ARLAS_VERSION=`xmlstarlet sel -t -v /_:project/_:version pom.xml`
 export ELASTIC_VERSION="5.6.5"
+export ARLAS_PREFIX="/arlastest"
+export ARLAS_APP_PATH="/pathtest"
+export ARLAS_WFS_SERVER_URI="http://arlas-server:9999/pathtest/arlastest/"
 
 function clean_docker {
     echo "===> stop arlas-server stack"
@@ -81,7 +84,8 @@ docker run --rm \
 	-v $HOME/.m2:/root/.m2 \
 	-e ARLAS_HOST="arlas-server" \
 	-e ARLAS_PORT="9999" \
-	-e ARLAS_PREFIX="/arlas/" \
+	-e ARLAS_PREFIX=${ARLAS_PREFIX} \
+    -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
 	-e ARLAS_ELASTIC_HOST="elasticsearch" \
 	-e ARLAS_ELASTIC_PORT="9300" \
 	--net arlas_default \
@@ -95,7 +99,8 @@ docker run --rm \
     -v $HOME/.m2:/root/.m2 \
     -e ARLAS_HOST="arlas-server" \
     -e ARLAS_PORT="9999" \
-    -e ARLAS_PREFIX="/arlas/" \
+    -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+    -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
     -e ARLAS_ELASTIC_HOST="elasticsearch" \
     -e ARLAS_ELASTIC_PORT="9300" \
     --net arlas_default \
@@ -105,7 +110,7 @@ docker run --rm \
 docker run --rm \
      --net arlas_default \
      --env ID="ID__170__20DI"\
-     --env WFS_GETCAPABILITIES_URL="http://arlas-server:9999/arlas/wfs/geodata/?request=GetCapabilities&service=WFS&version=2.0.0" \
+     --env WFS_GETCAPABILITIES_URL="http://arlas-server:9999/pathtest/arlastest/wfs/geodata/?request=GetCapabilities&service=WFS&version=2.0.0" \
      gisaia/ets-wfs20
 
 docker run --rm \
@@ -114,7 +119,8 @@ docker run --rm \
     -v $HOME/.m2:/root/.m2 \
     -e ARLAS_HOST="arlas-server" \
     -e ARLAS_PORT="9999" \
-    -e ARLAS_PREFIX="/arlas/" \
+    -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+    -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
     -e ARLAS_ELASTIC_HOST="elasticsearch" \
     -e ARLAS_ELASTIC_PORT="9300" \
     --net arlas_default \

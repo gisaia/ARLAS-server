@@ -32,7 +32,7 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     
     @Override
     protected String getUrlPath(String collection) {
-        return arlasPrefix + "explore/"+collection+"/_aggregate";
+        return arlasPath + "explore/"+collection+"/_aggregate";
     }
     
     //----------------------------------------------------------------

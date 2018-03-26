@@ -28,11 +28,10 @@ import java.util.Optional;
 
 public abstract class AbstractTestContext {
     static Logger LOGGER = LoggerFactory.getLogger(AbstractTestContext.class);
-    
-    protected String arlasPrefix;
+
+    protected static String arlasPath;
     
     public AbstractTestContext() {
-        arlasPrefix = Optional.ofNullable(System.getenv("ARLAS_PREFIX")).orElse("/arlas/");
     }
 
     static {
@@ -42,6 +41,16 @@ public abstract class AbstractTestContext {
         RestAssured.port = arlasPort;
         RestAssured.basePath = "";
         LOGGER.info(arlasHost+":"+arlasPort);
+        String arlasPrefix = Optional.ofNullable(System.getenv("ARLAS_PREFIX")).orElse("/arlas/");
+        String arlasAppPath = Optional.ofNullable(System.getenv("ARLAS_APP_PATH")).orElse("/");
+        if(arlasAppPath.endsWith("/"))
+            arlasAppPath = arlasAppPath.substring(0,arlasAppPath.length()-1);
+        arlasPath = arlasAppPath + arlasPrefix;
+        if(arlasAppPath.endsWith("//"))
+            arlasPath = arlasPath.substring(0,arlasPath.length()-1);
+        if(!arlasAppPath.endsWith("/"))
+            arlasPath = arlasPath + "/";
+
     }
 
     protected abstract String getUrlPath(String collection);
