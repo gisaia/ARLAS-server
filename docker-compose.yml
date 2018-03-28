@@ -15,6 +15,9 @@ services:
       - 19200:9200
       - 19300:9300
   arlas-server:
+    build:
+      context: .
+      dockerfile: Dockerfile-package-only
     image: arlas-server:${ARLAS_VERSION:-latest}
     container_name: arlas-server
     environment:

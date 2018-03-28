@@ -48,7 +48,6 @@ public class CollectionTool extends AbstractTestContext {
         jsonAsMap.put(CollectionReference.EXCLUDE_WFS_FIELDS, DataSetTool.DATASET_EXCLUDE_WFS_FIELDS);
 
         // PUT new collection
-        System.out.println( getUrlPath() );
         given().contentType("application/json").body(jsonAsMap).when().put(getUrlPath()).then().statusCode(200);
 
         try {

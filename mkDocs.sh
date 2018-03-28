@@ -1,17 +1,20 @@
 #!/bin/bash
 set -e
 
-export ARLAS_VERSION=`xmlstarlet sel -t -v /_:project/_:version pom.xml`
-export ELASTIC_VERSION="5.6.5"
-
 function clean_docker {
-    echo "===> stop arlas-server stack"
-    docker-compose --project-name arlas down
+    ./scripts/docker-clean.sh
+    echo "===> clean maven repository"
+	docker run --rm \
+		-w /opt/maven \
+		-v $PWD:/opt/maven \
+		-v $HOME/.m2:/root/.m2 \
+		maven:3.5.0-jdk-8 \
+		mvn clean
 }
 
 function clean_exit {
     ARG=$?
-	echo "===> Exit status = ${ARG}"
+	echo "===> Exit stage ${STAGE} = ${ARG}"
     clean_docker
     exit $ARG
 }
@@ -21,30 +24,10 @@ trap clean_exit EXIT
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 cd ${SCRIPT_PATH}
 
-# CLEAN
-echo "===> kill/rm old containers if needed"
-clean_docker
-
-# PACKAGE
-echo "===> compile arlas-server"
-docker run --rm \
-    -w /opt/maven \
-	-v $PWD:/opt/maven \
-	-v $HOME/.m2:/root/.m2 \
-	maven:3.5.0-jdk-8 \
-	mvn clean install
-echo "arlas-server:${ARLAS_VERSION}"
-
-# BUILD
-echo "===> build arlas-server docker image"
-docker build --tag=arlas-server:${ARLAS_VERSION} -f Dockerfile-package-only .
-
-echo "=> Start arlas-server stack"
-docker-compose --project-name arlas up -d
+# START ARLAS STACK
+./scripts/docker-clean.sh
+./scripts/docker-run.sh
 DOCKER_IP=$(docker-machine ip || echo "localhost")
-
-echo "=> Wait for arlas-server up and running"
-i=1; until nc -w 2 ${DOCKER_IP} 19999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 
 echo "=> Get swagger documentation"
 docker run --rm \
