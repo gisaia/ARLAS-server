@@ -1,0 +1,54 @@
+# Default values for arlas-server.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Base path of the administration API
+adminPath: /admin
+
+# Pod affinity with kubernetes worker nodes
+affinity: {}
+
+# Port on which the arlas-server application will listen inside its container
+containerPort: 9999
+
+# deployment:
+#   name: my-custom-name
+#   labels:
+#     my-custom-label: my-custom-value
+
+# # Any environment variables can be passed here.
+# # Full list of environment variables supported by arlas-server: http://arlas.io/arlas-tech/current/arlas-server-configuration/
+# environmentVariables:
+#   ARLAS_ELASTIC_CLUSTER: docker-cluster
+#   ARLAS_ELASTIC_HOST: elasticsearch.default
+#   ARLAS_XMX: <...>
+
+image:
+  repository: gisaia/arlas-server
+  # Container's "imagePullPolicy", see https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.10/#container-v1-core
+  pullPolicy: Always
+
+# # "imagePullSecret" for the pod, to allow it to pull from private docker registries
+# # See https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry
+# imagePullSecrets:
+#   - name: mydockersecret
+
+# namespace: default
+
+nodeSelector: {}
+
+replicaCount: 1
+
+# revisionHistoryLimit: 5
+
+# # Resource requests & limits for the pod
+# # See https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+resources: {}
+
+service:
+  type: ClusterIP
+  port: 9999
+  # labels:
+  #   my-custom-label: my-custom-value
+
+tolerations: []
