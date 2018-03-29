@@ -51,9 +51,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -136,12 +135,26 @@ public class FluidSearch {
         searchRequestBuilder.setQuery(boolQueryBuilder);
 
         //apply include and exclude filters
-        if (include.isEmpty() && collectionReference.params.includeFields != null && !collectionReference.params.includeFields.isEmpty()) {
-            include(collectionReference.params.includeFields);
+        if (collectionReference.params.includeFields != null && !collectionReference.params.includeFields.isEmpty()) {
+            if(include.isEmpty()){
+                include(collectionReference.params.includeFields);
+            }else{
+                String[] collectionReferenceInclude =  collectionReference.params.includeFields.split(",");
+                //TODO intersect include with matching pattern
+
+            }
         }
-        if (exclude.isEmpty() && collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
-            exclude(collectionReference.params.excludeFields);
+        if (collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
+            if(exclude.isEmpty()){
+                exclude(collectionReference.params.excludeFields);
+            }else{
+                Set<String> excludeSet = new HashSet<>();
+                excludeSet.addAll(exclude);
+                excludeSet.addAll(Arrays.asList(collectionReference.params.excludeFields.split(",")));
+                exclude = new ArrayList<>(excludeSet);
+            }
         }
+
         List<String> includeFieldList = new ArrayList<>();
         if(!include.isEmpty()) {
             for (String includeField : include) {
@@ -159,6 +172,7 @@ public class FluidSearch {
                 }
             }
         }
+
         String[] includeFields = includeFieldList.toArray(new String[includeFieldList.size()]);
         if(includeFields.length == 0) {
             includeFields = new String[]{"*"};

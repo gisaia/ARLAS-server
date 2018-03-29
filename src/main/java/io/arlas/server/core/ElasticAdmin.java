@@ -48,10 +48,15 @@ public class ElasticAdmin {
         collectionReferenceDescription.collectionName = collectionReference.collectionName;
         GetMappingsResponse response;
         response = client.admin().indices()
-                .prepareGetMappings(collectionReferenceDescription.params.indexName).setTypes(collectionReferenceDescription.params.typeName).get();
+                .prepareGetMappings(collectionReferenceDescription.params.indexName)
+                .setTypes(collectionReferenceDescription.params.typeName)
+                .get();
         LinkedHashMap fields = (LinkedHashMap)response.getMappings()
-                .get(collectionReferenceDescription.params.indexName).get(collectionReferenceDescription.params.typeName).sourceAsMap().get("properties");
+                .get(collectionReferenceDescription.params.indexName)
+                .get(collectionReferenceDescription.params.typeName)
+                .sourceAsMap().get("properties");
         Map<String,CollectionReferenceDescriptionProperty> properties = getFromSource(fields);
+
         collectionReferenceDescription.properties = properties;
         return collectionReferenceDescription;
     }

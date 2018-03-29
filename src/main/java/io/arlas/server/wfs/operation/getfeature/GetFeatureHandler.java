@@ -25,6 +25,7 @@ import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.wfs.WFSHandler;
+import io.arlas.server.wfs.filter.WFSQueryBuilder;
 import io.arlas.server.wfs.utils.GeoFormat;
 import io.arlas.server.wfs.utils.Version;
 import io.arlas.server.wfs.utils.WFSConstant;
@@ -55,13 +56,14 @@ public class GetFeatureHandler {
         this.featureNamespace=wfsHandler.wfsConfiguration.featureNamespace;
     }
 
-    public StreamingOutput getFeatureResponse(WFSConfiguration configuration, CollectionReferenceDescription collectionReference, Integer start, Integer count, List<Object> rs, String uri) {
+    public StreamingOutput getFeatureResponse(WFSConfiguration configuration, CollectionReferenceDescription collectionReference, Integer start, Integer count,
+                                              List<Object> rs, String uri, WFSQueryBuilder wfsQueryBuilder) {
 
         StreamingOutput streamingOutput = new StreamingOutput() {
             @Override
             public void write(OutputStream outputStream) throws WebApplicationException {
                 try {
-                    doGetFeatureResults(configuration, outputStream, start, count, rs, collectionReference, uri);
+                    doGetFeatureResults(configuration, outputStream, start, count, rs, collectionReference, uri,wfsQueryBuilder);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -71,13 +73,13 @@ public class GetFeatureHandler {
         return streamingOutput;
     }
 
-    public StreamingOutput getFeatureByIdResponse(Object rs, CollectionReferenceDescription collectionReference, String uri) {
+    public StreamingOutput getFeatureByIdResponse(Object rs, CollectionReferenceDescription collectionReference, String uri,WFSQueryBuilder wfsQueryBuilder) {
 
         StreamingOutput streamingOutput = new StreamingOutput() {
             @Override
             public void write(OutputStream outputStream) throws WebApplicationException {
                 try {
-                    doGetFeatureByIdResults(outputStream, rs, collectionReference, uri);
+                    doGetFeatureByIdResults(outputStream, rs, collectionReference, uri,wfsQueryBuilder);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -87,16 +89,16 @@ public class GetFeatureHandler {
         return streamingOutput;
     }
 
-    public void doGetFeatureByIdResults(OutputStream outputStream, Object rs, CollectionReferenceDescription collectionReference, String uri) throws XMLStreamException, ArlasException {
+    public void doGetFeatureByIdResults(OutputStream outputStream, Object rs, CollectionReferenceDescription collectionReference, String uri,WFSQueryBuilder wfsQueryBuilder) throws XMLStreamException, ArlasException {
 
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(outputStream);
-        writeFeature(rs, writer, collectionReference, uri);
+        writeFeature(rs, writer, collectionReference, uri,wfsQueryBuilder);
         writer.flush();
     }
 
     public void doGetFeatureResults(WFSConfiguration configuration, OutputStream outputStream, Integer start, Integer count, List<Object> rs,
-                                    CollectionReferenceDescription collectionReference, String uri)
+                                    CollectionReferenceDescription collectionReference, String uri,WFSQueryBuilder wfsQueryBuilder)
             throws Exception {
 
         Version version = Version.parseVersion(WFSConstant.SUPPORTED_WFS_VERSION);
@@ -128,7 +130,7 @@ public class GetFeatureHandler {
         int startIndex = 0;
         if (start != null) startIndex = start;
 
-        writeFeatureMembersStream(writer, rs, returnMaxFeatures, startIndex, memberElementName, collectionReference, uri);
+        writeFeatureMembersStream(writer, rs, returnMaxFeatures, startIndex, memberElementName, collectionReference, uri,wfsQueryBuilder);
         writer.flush();
 
 
@@ -143,7 +145,7 @@ public class GetFeatureHandler {
 
     private void writeFeatureMembersStream(XMLStreamWriter xmlStream, List<Object> rs,
                                            int maxFeatures, int startIndex,
-                                           QName featureMemberEl, CollectionReferenceDescription collectionReference, String uri)
+                                           QName featureMemberEl, CollectionReferenceDescription collectionReference, String uri,WFSQueryBuilder wfsQueryBuilder)
             throws XMLStreamException, FactoryConfigurationError, ArlasException {
 
             xmlStream.writeAttribute("numberMatched", String.valueOf(rs.size()));
@@ -156,23 +158,23 @@ public class GetFeatureHandler {
                     // limit the number of features written to maxfeatures
                     break;
                 }
-                    writeMemberFeature(member, xmlStream, featureMemberEl, collectionReference, uri);
+                    writeMemberFeature(member, xmlStream, featureMemberEl, collectionReference, uri,wfsQueryBuilder);
                     featuresAdded++;
             }
         }
         xmlStream.writeEndElement();
     }
 
-    protected void writeMemberFeature(Object member, XMLStreamWriter xmlStream, QName featureMemberEl, CollectionReferenceDescription collectionReference, String uri)
+    protected void writeMemberFeature(Object member, XMLStreamWriter xmlStream, QName featureMemberEl, CollectionReferenceDescription collectionReference, String uri, WFSQueryBuilder wfsQueryBuilder)
             throws XMLStreamException, ArlasException {
         xmlStream.writeStartElement(featureMemberEl.getNamespaceURI(), featureMemberEl.getLocalPart());
-        writeFeature(member, xmlStream, collectionReference, uri);
+        writeFeature(member, xmlStream, collectionReference, uri,wfsQueryBuilder);
         xmlStream.writeEndElement();
     }
 
 
     protected void writeFeature(Object member, XMLStreamWriter xmlStream, CollectionReferenceDescription
-            collectionReference, String uri) throws XMLStreamException, ArlasException {
+            collectionReference, String uri, WFSQueryBuilder wfsQueryBuilder) throws XMLStreamException, ArlasException {
 
         String collectionName = collectionReference.collectionName;
         String idPath = collectionReference.params.idPath;
@@ -201,7 +203,7 @@ public class GetFeatureHandler {
             GeoFormat.geojson2gml(geometry,xmlStream,"Geom_"+id);
             xmlStream.writeEndElement();
             //Write Attributes
-            XmlUtils.parsePropertiesXml(collectionReference.properties,xmlStream,new Stack<>(),uri,source,featureNamespace);
+            XmlUtils.parsePropertiesXml(collectionReference.properties,xmlStream,new Stack<>(),uri,source,featureNamespace,wfsQueryBuilder.excludeFields,wfsQueryBuilder.includeFields);
             xmlStream.writeEndElement();
         }
     }

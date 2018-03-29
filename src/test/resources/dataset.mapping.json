@@ -21,6 +21,12 @@
         "job": {
           "type": "keyword"
         },
+        "city": {
+          "type": "keyword"
+        },
+        "country": {
+          "type": "keyword"
+        },
         "startdate": {
           "type": "date",
           "format": "epoch_millis"

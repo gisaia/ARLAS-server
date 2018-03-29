@@ -12,7 +12,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 
 public class WFSServiceIT extends AbstractTestWithCollection {
 
@@ -47,14 +47,35 @@ public class WFSServiceIT extends AbstractTestWithCollection {
         );
     }
 
+    @Test
+    public void testDescribeFeature() throws Exception {
+        handleDescribeFeature(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),new Filter())
+        );
+    }
+
     public void handleHeaderFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-                .body("wfs:FeatureCollection.@numberReturned",equalTo("2"));
+                .body("wfs:FeatureCollection.@numberReturned",equalTo("2"))
+                .body("wfs:FeatureCollection.member[1].geodata.params_job", equalTo("Architect"))
+                .body("wfs:FeatureCollection.member[1].geodata.params_country.size()",equalTo(0))
+                .body("wfs:FeatureCollection.member[1].geodata.params_city.size()",equalTo(0));
     }
 
     public void handleNoHeaderFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-                .body("wfs:FeatureCollection.@numberReturned",equalTo("595"));
+                .body("wfs:FeatureCollection.@numberReturned",equalTo("595"))
+                .body("wfs:FeatureCollection.member[1].geodata.params_job", equalTo("Dancer"))
+                .body("wfs:FeatureCollection.member[1].geodata.params_country.size()",equalTo(0))
+                .body("wfs:FeatureCollection.member[1].geodata.params_city.size()",equalTo(0));
+    }
+
+    public void handleDescribeFeature(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+                .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(6));
     }
 
     protected RequestSpecification givenFilterableRequestParams() {
