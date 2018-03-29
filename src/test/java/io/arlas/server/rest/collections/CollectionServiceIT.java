@@ -54,7 +54,12 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
             .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
             .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
             .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+            .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+            .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
             .body("params.custom_params.timestamp_format", equalTo(DataSetTool.DATASET_TIMESTAMP_FORMAT));
+
+
+
 
         // PUT SCHEMA JSON
         given().multiPart("json_schema_file", DataSetTool.jsonSchema.toString() )
@@ -85,6 +90,8 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
                 .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
                 .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
                 .body("params.custom_params.timestamp_format", equalTo(DataSetTool.DATASET_TIMESTAMP_FORMAT))
                 .body("params.json_schema.required",hasSize(2))
                 .body("params.json_schema.properties.md.required",hasSize(4))
@@ -249,6 +256,9 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         jsonAsMap.put(CollectionReference.GEOMETRY_PATH, DataSetTool.DATASET_GEOMETRY_PATH);
         jsonAsMap.put(CollectionReference.CENTROID_PATH, DataSetTool.DATASET_CENTROID_PATH);
         jsonAsMap.put(CollectionReference.TIMESTAMP_PATH , DataSetTool.DATASET_TIMESTAMP_PATH);
+        jsonAsMap.put(CollectionReference.INCLUDE_FIELDS, DataSetTool.DATASET_INCLUDE_FIELDS);
+        jsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_EXCLUDE_FIELDS);
+        jsonAsMap.put(CollectionReference.EXCLUDE_WFS_FIELDS, DataSetTool.DATASET_EXCLUDE_WFS_FIELDS);
         return jsonAsMap;
     }
     @Override

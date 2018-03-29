@@ -24,6 +24,7 @@ import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.wfs.WFSHandler;
+import io.arlas.server.wfs.filter.WFSQueryBuilder;
 import io.arlas.server.wfs.utils.WFSConstant;
 import io.arlas.server.wfs.utils.XmlUtils;
 
@@ -47,13 +48,13 @@ public class DescribeFeatureTypeHandler {
         this.wfsHandler=wfsHandler;
     }
 
-    public StreamingOutput getDescribeFeatureTypeResponse(CollectionReference collectionReference, String uri) {
+    public StreamingOutput getDescribeFeatureTypeResponse(CollectionReference collectionReference, String uri,WFSQueryBuilder wfsQueryBuilder) {
 
         StreamingOutput streamingOutput = new StreamingOutput() {
             @Override
             public void write(OutputStream outputStream) throws WebApplicationException {
                 try {
-                    writeArlasFeatureSchema(outputStream, collectionReference,uri);
+                    writeArlasFeatureSchema(outputStream, collectionReference,uri,wfsQueryBuilder);
 
                 } catch (XMLStreamException e) {
                     e.printStackTrace();
@@ -65,7 +66,7 @@ public class DescribeFeatureTypeHandler {
 
 
 
-    public void writeArlasFeatureSchema(OutputStream outputStream, CollectionReference collectionReference, String uri)throws XMLStreamException {
+    public void writeArlasFeatureSchema(OutputStream outputStream, CollectionReference collectionReference, String uri,WFSQueryBuilder wfsQueryBuilder)throws XMLStreamException {
 
         String collectionName = collectionReference.collectionName;
         String geometryPath = collectionReference.params.geometryPath;
@@ -118,7 +119,7 @@ public class DescribeFeatureTypeHandler {
         writer.writeAttribute("minOccurs", "1");
         writer.writeAttribute("maxOccurs", "1");
 
-        XmlUtils.parsePropertiesXsd(((CollectionReferenceDescription) collectionReference).properties,writer, new Stack<String>());
+        XmlUtils.parsePropertiesXsd(((CollectionReferenceDescription) collectionReference).properties,writer, new Stack<String>(),wfsQueryBuilder.excludeFields,wfsQueryBuilder.includeFields);
 
         writer.writeEndElement();
         writer.writeEndElement();

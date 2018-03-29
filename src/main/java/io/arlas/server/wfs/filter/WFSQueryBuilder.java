@@ -22,19 +22,15 @@ package io.arlas.server.wfs.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.WFSException;
 import io.arlas.server.exceptions.WFSExceptionCode;
-import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Search;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.utils.ParamsParser;
 import io.arlas.server.wfs.utils.WFSCheckParam;
 import io.arlas.server.wfs.utils.WFSConstant;
 import io.arlas.server.wfs.utils.WFSRequestType;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -47,12 +43,19 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class WFSQueryBuilder {
 
     public BoolQueryBuilder wfsQuery = QueryBuilders.boolQuery();
     public Boolean isStoredQuey = false;
+    public String[] includeFields;
+    public String[] excludeFields;
+
+    private List<String> include = new ArrayList<>();
+    private List<String> exclude = new ArrayList<>();
     private WFSRequestType requestType;
     private String id;
     private String bbox;
@@ -94,6 +97,42 @@ public class WFSQueryBuilder {
         }
         if(partitionFilter!=null){
             addPartitionFilter();
+        }
+
+        //apply include and exclude filters
+        if (collectionReferenceDescription.params.includeFields != null && !collectionReferenceDescription.params.includeFields.isEmpty()) {
+            include(collectionReferenceDescription.params.includeFields);
+        }
+        if (collectionReferenceDescription.params.excludeFields != null && !collectionReferenceDescription.params.excludeFields.isEmpty()) {
+            exclude(collectionReferenceDescription.params.excludeFields);
+        }
+        if (collectionReferenceDescription.params.excludeWfsFields != null && !collectionReferenceDescription.params.excludeWfsFields.isEmpty()) {
+            exclude(collectionReferenceDescription.params.excludeWfsFields);
+        }
+        List<String> includeFieldList = new ArrayList<>();
+        if(!include.isEmpty()) {
+            for (String includeField : include) {
+                includeFieldList.add(includeField);
+            }
+            for (String path : getCollectionPaths()) {
+                boolean alreadyIncluded = false;
+                for (String includeField : include) {
+                    if (includeField.equals("*") || path.startsWith(includeField)) {
+                        alreadyIncluded = true;
+                    }
+                }
+                if (!alreadyIncluded) {
+                    includeFieldList.add(path);
+                }
+            }
+        }
+        includeFields = includeFieldList.toArray(new String[includeFieldList.size()]);
+        if(includeFields.length == 0) {
+            includeFields = new String[]{"*"};
+        }
+        excludeFields = exclude.toArray(new String[exclude.size()]);
+        if(excludeFields.length == 0) {
+            excludeFields = null;
         }
     }
 
@@ -177,6 +216,31 @@ public class WFSQueryBuilder {
             return Arrays.stream(bbox.split(",")).limit(4).mapToDouble(Double::parseDouble).toArray();
         } catch (Exception e) {
             throw new WFSException(WFSExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "BBOX");
+        }
+    }
+
+    private List<String> getCollectionPaths() {
+        return Arrays.asList(collectionReferenceDescription.params.idPath,
+                collectionReferenceDescription.params.geometryPath,
+                collectionReferenceDescription.params.centroidPath,
+                collectionReferenceDescription.params.timestampPath);
+    }
+
+    private void include(String include) {
+        if (include != null) {
+            String includeFieldArray[] = include.split(",");
+            for(String field : includeFieldArray) {
+                this.include.add(field);
+            }
+        }
+    }
+
+    private void exclude(String exclude) {
+        if (exclude != null) {
+            String excludeFieldArray[] = exclude.split(",");
+            for(String field : excludeFieldArray) {
+                this.exclude.add(field);
+            }
         }
     }
 }

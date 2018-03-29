@@ -204,7 +204,7 @@ public class WFSService extends ExploreRESTServices {
                 JAXBElement<WFSCapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getWFSCapabilitiesResponse();
                 return Response.ok(getCapabilitiesResponse).type(MediaType.APPLICATION_XML).build();
             case DescribeFeatureType:
-                StreamingOutput describeFeatureTypeResponse = wfsHandler.describeFeatureTypeHandler.getDescribeFeatureTypeResponse(collectionReferenceDescription, serviceUrl);
+                StreamingOutput describeFeatureTypeResponse = wfsHandler.describeFeatureTypeHandler.getDescribeFeatureTypeResponse(collectionReferenceDescription, serviceUrl,wfsQueryBuilder);
                 return Response.ok(describeFeatureTypeResponse).type(MediaType.APPLICATION_XML).build();
             case ListStoredQueries:
                 wfsHandler.listStoredQueriesHandler.setFeatureType(featureQname);
@@ -225,6 +225,7 @@ public class WFSService extends ExploreRESTServices {
                 if (wfsQueryBuilder.isStoredQuey) {
                     hitsGetFeature = exploreServices.getClient()
                             .prepareSearch(collectionReference.params.indexName)
+                            .setFetchSource(wfsQueryBuilder.includeFields, wfsQueryBuilder.excludeFields)
                             .setQuery(wfsQueryBuilder.wfsQuery)
                             .execute()
                             .get()
@@ -235,12 +236,13 @@ public class WFSService extends ExploreRESTServices {
                     } else {
                         throw new WFSException(WFSExceptionCode.NOT_FOUND, "Data not found", "resourceid");
                     }
-                    getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureByIdResponse(response, collectionReferenceDescription, serviceUrl);
+                    getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureByIdResponse(response, collectionReferenceDescription, serviceUrl,wfsQueryBuilder);
 
                 } else {
                     hitsGetFeature = exploreServices
                             .getClient()
                             .prepareSearch(collectionReference.params.indexName)
+                            .setFetchSource(wfsQueryBuilder.includeFields, wfsQueryBuilder.excludeFields)
                             .setQuery(wfsQueryBuilder.wfsQuery)
                             .setFrom(startindex)
                             .setSize(count)
@@ -251,16 +253,18 @@ public class WFSService extends ExploreRESTServices {
                     for (int i = 0; i < hitsGetFeature.getHits().length; i++) {
                         featureList.add(hitsGetFeature.getAt(i));
                     }
-                    getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureResponse(wfsHandler.wfsConfiguration, collectionReferenceDescription, startindex, count, featureList, serviceUrl);
+                    getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureResponse(wfsHandler.wfsConfiguration, collectionReferenceDescription, startindex, count, featureList, serviceUrl,wfsQueryBuilder);
                 }
                 return Response.ok(getFeatureResponse).type(MediaType.APPLICATION_XML).build();
 
             case GetPropertyValue:
                 String include = WFSCheckParam.formatValueReference(valuereference, collectionReferenceDescription);
+                String[] includeField = new String[1];
+                includeField[0] = include;
                 ValueCollectionType valueCollectionType = new ValueCollectionType();
                 SearchHits hitsGetPropertyValue = exploreServices.getClient()
                         .prepareSearch(collectionReference.params.indexName)
-                        .setFetchSource(include, null)
+                        .setFetchSource(includeField, wfsQueryBuilder.excludeFields)
                         .setQuery(wfsQueryBuilder.wfsQuery)
                         .setFrom(startindex)
                         .setSize(count)
