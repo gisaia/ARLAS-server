@@ -47,8 +47,13 @@ public class GeoTypeMapper {
         GeoJsonObject geoObject = null;
         if(elasticsearchGeoField instanceof String) {
             //Standard lat/lon or geohash geo_point field
-            GeoPoint geoPoint = new GeoPoint(elasticsearchGeoField.toString());
-            geoObject = new Point(geoPoint.getLon(),geoPoint.getLat());
+            try {
+                GeoPoint geoPoint = new GeoPoint(elasticsearchGeoField.toString());
+                geoObject = new Point(geoPoint.getLon(),geoPoint.getLat());
+            } catch (Exception e) {
+                LOGGER.error("unable to parse geo_point from "+elasticsearchGeoField.getClass()+" :" + elasticsearchGeoField,e);
+                throw new NotImplementedException("Not supported geo_point format found.");
+            }
         } else if(elasticsearchGeoField instanceof ArrayList
                 && ((ArrayList)elasticsearchGeoField).size()==2) {
             //Standard lon/lat array as geo_point field

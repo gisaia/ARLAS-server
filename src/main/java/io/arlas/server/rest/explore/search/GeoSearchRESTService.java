@@ -56,6 +56,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.geojson.GeoJsonObject;
 
 public class GeoSearchRESTService extends ExploreRESTServices {
 
@@ -463,22 +464,36 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         for (SearchHit hit : results) {
             Feature feature = new Feature();
             Map<String, Object> source = hit.getSourceAsMap();
-            if (collectionReference.params.geometryPath != null) {
-                Object geometry = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
-                if (geometry!=null) {
-                    feature.setGeometry(GeoTypeMapper.getGeoJsonObject(geometry));
-                    feature.setProperties(hit.getSourceAsMap());
-                } else {
-                    feature.setProperties(hit.getSourceAsMap());
-                }
-            } else if (collectionReference.params.centroidPath != null) {
-                Object centroid = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
-                if (centroid!=null) {
-                    feature.setGeometry(GeoTypeMapper.getGeoJsonObject(centroid));
-                    feature.setProperties(hit.getSourceAsMap());
-                } else {
-                    feature.setProperties(hit.getSourceAsMap());
-                }
+
+            //Check geometry and centroid value
+            GeoJsonObject geometryGeoJson = null;
+            GeoJsonObject centroidGeoJson = null;
+            try {
+                Object geometry = collectionReference.params.geometryPath != null?
+                        MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source):null;
+                geometryGeoJson = geometry != null?
+                        GeoTypeMapper.getGeoJsonObject(geometry):null;
+            } catch (ArlasException e) {
+                e.printStackTrace();
+            }
+            try {
+                Object centroid = (geometryGeoJson == null && collectionReference.params.centroidPath != null)?
+                        MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source):null;
+                centroidGeoJson = centroid != null?
+                        GeoTypeMapper.getGeoJsonObject(centroid):null;
+            } catch (ArlasException e) {
+                e.printStackTrace();
+            }
+
+            //Apply geometry or centroid to geo json feature
+            if (geometryGeoJson!=null) {
+                feature.setGeometry(geometryGeoJson);
+                feature.setProperties(hit.getSourceAsMap());
+            } else if (centroidGeoJson!=null) {
+                feature.setGeometry(centroidGeoJson);
+                feature.setProperties(hit.getSourceAsMap());
+            } else  {
+                feature.setProperties(hit.getSourceAsMap());
             }
             fc.add(feature);
         }
