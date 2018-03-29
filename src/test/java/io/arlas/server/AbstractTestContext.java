@@ -41,7 +41,7 @@ public abstract class AbstractTestContext {
         RestAssured.port = arlasPort;
         RestAssured.basePath = "";
         LOGGER.info(arlasHost+":"+arlasPort);
-        String arlasPrefix = Optional.ofNullable(System.getenv("ARLAS_PREFIX")).orElse("/arlas/");
+        String arlasPrefix = Optional.ofNullable(System.getenv("ARLAS_PREFIX")).orElse("/arlas");
         String arlasAppPath = Optional.ofNullable(System.getenv("ARLAS_APP_PATH")).orElse("/");
         if(arlasAppPath.endsWith("/"))
             arlasAppPath = arlasAppPath.substring(0,arlasAppPath.length()-1);
