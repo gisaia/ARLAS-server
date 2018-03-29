@@ -36,9 +36,10 @@ public class ElasticDocument {
     }
     
     public Map<String,Object> getSource (CollectionReference collectionReference, String identifier) throws  ExecutionException, InterruptedException {
-        
+        String[] excludes = collectionReference.params.excludeFields.split(",");
         SearchHits hits = client
                 .prepareSearch(collectionReference.params.indexName)
+                .setFetchSource(null,excludes)
                 .setQuery(QueryBuilders.matchQuery(collectionReference.params.idPath,identifier))
                 .execute()
                 .get()
