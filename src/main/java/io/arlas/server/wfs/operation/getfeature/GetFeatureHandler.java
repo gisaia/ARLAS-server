@@ -43,6 +43,7 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
 import java.util.*;
 import java.text.SimpleDateFormat;
+import java.util.regex.Pattern;
 
 
 public class GetFeatureHandler {
@@ -201,7 +202,13 @@ public class GetFeatureHandler {
             GeoFormat.geojson2gml(geometry,xmlStream,"Geom_"+id);
             xmlStream.writeEndElement();
             //Write Attributes
-            XmlUtils.parsePropertiesXml(collectionReference.properties,xmlStream,new Stack<>(),uri,source,featureNamespace);
+            ArrayList<Pattern> excludeFields = new ArrayList<>();
+            if(collectionReference.params.excludeWfsFields!=null){
+                Arrays.asList(collectionReference.params.excludeWfsFields.split(",")).forEach(field->{
+                    excludeFields.add(Pattern.compile("^" + field.replace(".","\\.").replace("*",".*") + "$"));
+                });
+            }
+            XmlUtils.parsePropertiesXml(collectionReference.properties,xmlStream,new Stack<>(),uri,source,featureNamespace,excludeFields);
             xmlStream.writeEndElement();
         }
     }

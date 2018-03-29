@@ -21,7 +21,6 @@ package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
 public class CollectionReference {
 
     public static final String COLLECTION_NAME = "collection_name";

@@ -34,8 +34,10 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 public class DescribeFeatureTypeHandler {
 
@@ -117,8 +119,13 @@ public class DescribeFeatureTypeHandler {
         writer.writeAttribute(XmlUtils.TYPE, WFSConstant.GML_PREFIX + ":GeometryPropertyType");
         writer.writeAttribute("minOccurs", "1");
         writer.writeAttribute("maxOccurs", "1");
-
-        XmlUtils.parsePropertiesXsd(((CollectionReferenceDescription) collectionReference).properties,writer, new Stack<String>());
+        ArrayList<Pattern> excludeFields = new ArrayList<>();
+        if(collectionReference.params.excludeWfsFields!=null){
+            Arrays.asList(collectionReference.params.excludeWfsFields.split(",")).forEach(field->{
+                excludeFields.add(Pattern.compile("^" + field.replace(".","\\.").replace("*",".*") + "$"));
+            });
+        }
+        XmlUtils.parsePropertiesXsd(((CollectionReferenceDescription) collectionReference).properties,writer, new Stack<String>(),excludeFields);
 
         writer.writeEndElement();
         writer.writeEndElement();
