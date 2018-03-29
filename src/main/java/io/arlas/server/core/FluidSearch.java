@@ -135,10 +135,6 @@ public class FluidSearch {
     public SearchResponse exec() throws ArlasException {
         searchRequestBuilder.setQuery(boolQueryBuilder);
 
-        //apply include and exclude filters
-        if (include.isEmpty() && collectionReference.params.includeFields != null && !collectionReference.params.includeFields.isEmpty()) {
-            include(collectionReference.params.includeFields);
-        }
         if (exclude.isEmpty() && collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
             exclude(collectionReference.params.excludeFields);
         }

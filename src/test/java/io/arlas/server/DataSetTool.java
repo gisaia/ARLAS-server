@@ -50,7 +50,6 @@ public class DataSetTool {
     public final static String DATASET_GEOMETRY_PATH="geo_params.geometry";
     public final static String DATASET_CENTROID_PATH="geo_params.centroid";
     public final static String DATASET_TIMESTAMP_PATH="params.startdate";
-    public final static String DATASET_INCLUDE_FIELDS=null;
     public final static String DATASET_EXCLUDE_FIELDS=null;
     public final static String DATASET_EXCLUDE_WFS_FIELDS=null;
     public final static String DATASET_TIMESTAMP_FORMAT="epoch_millis";

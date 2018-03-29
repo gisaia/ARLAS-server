@@ -47,9 +47,6 @@ public class CollectionReferenceParameters {
     @JsonProperty(value = "timestamp_path", required = true)
     public String timestampPath;
 
-    @JsonProperty(value = "include_fields", required = false)
-    public String includeFields = null;
-
     @JsonProperty(value = "exclude_fields", required = false)
     public String excludeFields = null;
 

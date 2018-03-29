@@ -108,7 +108,8 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     private CollectionReference getCollectionReferenceFromES(String ref) throws ArlasException {
         CollectionReference collection = new CollectionReference(ref);
-        GetResponse hit = client.prepareGet(arlasIndex, "collection", ref).get();
+        //Exclude old include_fields for support old collection
+        GetResponse hit = client.prepareGet(arlasIndex, "collection", ref).setFetchSource(null,"include_fields").get();
         String source = hit.getSourceAsString();
         if (source != null) {
             try {
@@ -137,7 +138,8 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
         try {
             QueryBuilder qb = QueryBuilders.matchAllQuery();
-            SearchResponse scrollResp = client.prepareSearch(arlasIndex)
+            //Exclude old include_fields for support old collection
+            SearchResponse scrollResp = client.prepareSearch(arlasIndex).setFetchSource(null,"include_fields")
                     .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC).setScroll(new TimeValue(60000))
                     .setQuery(qb).setSize(100).get(); // max of 100 hits will be returned for each scroll
             do {
