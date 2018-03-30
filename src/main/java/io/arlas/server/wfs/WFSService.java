@@ -195,6 +195,10 @@ public class WFSService extends ExploreRESTServices {
         QName featureQname = new QName(serviceUrl, collectionName, wfsConfiguration.featureNamespace);
         WFSCheckParam.checkTypeNames(collectionName, typenames);
         WFSQueryBuilder wfsQueryBuilder = new WFSQueryBuilder(requestType,id,bbox,filter,resourceid,storedquery_id,collectionReferenceDescription,partitionFilter,exploreServices);
+        String[] exludes = null;
+        if(collectionReference.params.excludeWfsFields!=null){
+            exludes = collectionReference.params.excludeWfsFields.split(",");
+        }
 
         switch (requestType) {
             case GetCapabilities:
@@ -225,6 +229,7 @@ public class WFSService extends ExploreRESTServices {
                 if (wfsQueryBuilder.isStoredQuey) {
                     hitsGetFeature = exploreServices.getClient()
                             .prepareSearch(collectionReference.params.indexName)
+                            .setFetchSource(null,exludes)
                             .setQuery(wfsQueryBuilder.wfsQuery)
                             .execute()
                             .get()
@@ -241,6 +246,7 @@ public class WFSService extends ExploreRESTServices {
                     hitsGetFeature = exploreServices
                             .getClient()
                             .prepareSearch(collectionReference.params.indexName)
+                            .setFetchSource(null,exludes)
                             .setQuery(wfsQueryBuilder.wfsQuery)
                             .setFrom(startindex)
                             .setSize(count)
@@ -260,7 +266,7 @@ public class WFSService extends ExploreRESTServices {
                 ValueCollectionType valueCollectionType = new ValueCollectionType();
                 SearchHits hitsGetPropertyValue = exploreServices.getClient()
                         .prepareSearch(collectionReference.params.indexName)
-                        .setFetchSource(include, null)
+                        .setFetchSource(new String[] {include}, exludes)
                         .setQuery(wfsQueryBuilder.wfsQuery)
                         .setFrom(startindex)
                         .setSize(count)
