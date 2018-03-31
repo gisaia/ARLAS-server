@@ -33,6 +33,7 @@ import org.elasticsearch.common.collect.ImmutableOpenMap;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class ElasticAdmin {
 
@@ -43,6 +44,12 @@ public class ElasticAdmin {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public CollectionReferenceDescription describeCollection (CollectionReference collectionReference) throws IOException {
+        ArrayList<Pattern> excludeFields = new ArrayList<>();
+        if(collectionReference.params.excludeFields!=null){
+            Arrays.asList(collectionReference.params.excludeFields.split(",")).forEach(field->{
+                excludeFields.add(Pattern.compile("^" + field.replace(".","\\.").replace("*",".*") + "$"));
+            });
+        }
         CollectionReferenceDescription collectionReferenceDescription = new CollectionReferenceDescription();
         collectionReferenceDescription.params = collectionReference.params;
         collectionReferenceDescription.collectionName = collectionReference.collectionName;
@@ -51,34 +58,41 @@ public class ElasticAdmin {
                 .prepareGetMappings(collectionReferenceDescription.params.indexName).setTypes(collectionReferenceDescription.params.typeName).get();
         LinkedHashMap fields = (LinkedHashMap)response.getMappings()
                 .get(collectionReferenceDescription.params.indexName).get(collectionReferenceDescription.params.typeName).sourceAsMap().get("properties");
-        Map<String,CollectionReferenceDescriptionProperty> properties = getFromSource(fields);
+        Map<String,CollectionReferenceDescriptionProperty> properties = getFromSource(fields,new Stack<>(),excludeFields);
         collectionReferenceDescription.properties = properties;
         return collectionReferenceDescription;
     }
 
-    private Map<String,CollectionReferenceDescriptionProperty> getFromSource(Map source) {
+    private Map<String,CollectionReferenceDescriptionProperty> getFromSource(Map source,Stack<String> namespace,ArrayList<Pattern> excludeFields) {
         Map<String,CollectionReferenceDescriptionProperty> ret = new HashMap<>();
         for(Object key : source.keySet()) {
-            if(source.get(key) instanceof Map) {
-                Map property = (Map) source.get(key);
-                CollectionReferenceDescriptionProperty collectionProperty = new CollectionReferenceDescriptionProperty();
-                if (property.containsKey("type")) {
-                    collectionProperty.type = ElasticType.getType(property.get("type"));
-                } else {
-                    collectionProperty.type = ElasticType.OBJECT;
-                }
-                if (property.containsKey("format")) {
-                    String format = property.get("format").toString();
-                    if (format == null && collectionProperty.type.equals(ElasticType.DATE)) {
-                        format = CollectionReference.DEFAULT_TIMESTAMP_FORMAT;
+            namespace.push(key.toString());
+            String path = String.join(".",new ArrayList<>(namespace));
+            boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
+            if(!excludePath){
+                if(source.get(key) instanceof Map) {
+                    Map property = (Map) source.get(key);
+                    CollectionReferenceDescriptionProperty collectionProperty = new CollectionReferenceDescriptionProperty();
+                    if (property.containsKey("type")) {
+                        collectionProperty.type = ElasticType.getType(property.get("type"));
+                    } else {
+                        collectionProperty.type = ElasticType.OBJECT;
                     }
-                    collectionProperty.format = format;
+                    if (property.containsKey("format")) {
+                        String format = property.get("format").toString();
+                        if (format == null && collectionProperty.type.equals(ElasticType.DATE)) {
+                            format = CollectionReference.DEFAULT_TIMESTAMP_FORMAT;
+                        }
+                        collectionProperty.format = format;
+                    }
+                    if (property.containsKey("properties") && property.get("properties") instanceof Map) {
+                        collectionProperty.properties = getFromSource((Map) property.get("properties"),namespace,excludeFields);
+                    }
+                    ret.put(key.toString(), collectionProperty);
+
                 }
-                if (property.containsKey("properties") && property.get("properties") instanceof Map) {
-                    collectionProperty.properties = getFromSource((Map) property.get("properties"));
-                }
-                ret.put(key.toString(), collectionProperty);
             }
+            namespace.pop();
         }
         return ret;
     }

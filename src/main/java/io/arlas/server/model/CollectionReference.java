@@ -21,7 +21,6 @@ package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
 public class CollectionReference {
 
     public static final String COLLECTION_NAME = "collection_name";
@@ -33,7 +32,6 @@ public class CollectionReference {
     public static final String TIMESTAMP_PATH = "timestamp_path";
     public static final String TIMESTAMP_FORMAT = "timestamp_format";
     public static final String DEFAULT_TIMESTAMP_FORMAT = "strict_date_optional_time||epoch_millis";
-    public static final String INCLUDE_FIELDS = "include_fields";
     public static final String EXCLUDE_FIELDS = "exclude_fields";
     public static final String EXCLUDE_WFS_FIELDS = "exclude_wfs_fields";
     public static final String CUSTOM_PARAMS = "custom_params";

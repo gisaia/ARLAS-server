@@ -21,6 +21,7 @@ package io.arlas.server.rest.explore;
 
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
 
 import org.junit.Test;
 
@@ -38,7 +39,9 @@ public class RawServiceIT extends AbstractTestWithCollection {
             .body("data.geo_params.centroid", equalTo("-20,-170"))
             .body("data.id", equalTo("ID__170__20DI"))
             .body("data.fullname", equalTo("My name is ID__170__20DI"))
-            .body("data.params.startdate", equalTo(813400));
+            .body("data.params.startdate", equalTo(813400))
+            .body("data.params.city", isEmptyOrNullString());
+
 
         // GET invalid collection
         when().get(getUrlPath("foo")+"/0-0")

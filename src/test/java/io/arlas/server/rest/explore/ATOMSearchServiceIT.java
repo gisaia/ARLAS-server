@@ -80,11 +80,15 @@ public class ATOMSearchServiceIT extends AbstractSortedTest {
                     .body(ATOM.XML_PREFIX + ":feed.entry[0].content.params.job", equalTo("Architect"))
                     .body(ATOM.XML_PREFIX + ":feed.entry[0].content.params.startdate", equalTo("1009800"))
                     .body(ATOM.XML_PREFIX + ":feed.entry[0].content.geo_params.centroid", equalTo("20,-10"))
+                    .body(ATOM.XML_PREFIX + ":feed.entry[0].content.params.city.size()", equalTo(0))
+
                     .body(ATOM.XML_PREFIX + ":feed.entry[0].update", equalTo(AtomHitsMessageBodyWriter.dateFormater.format(new Date(1009800))));
         } else {
             then.statusCode(200)
                     .body("totalnb", equalTo(1))
                     .body("hits[0].data.params.job", equalTo("Architect"))
+                    .body("hits[0].data.params.city", isEmptyOrNullString())
+
                     .body("hits[0].data.params.startdate", equalTo(1009800))
                     .body("hits[0].data.geo_params.centroid", equalTo("20,-10"))
                     .body("hits[0].md.timestamp", equalTo(1009800));

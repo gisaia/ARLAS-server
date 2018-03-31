@@ -64,6 +64,8 @@ public class SearchServiceIT extends AbstractSortedTest {
         .body("totalnb", equalTo(1))
         .body("hits[0].data.params.job", equalTo("Architect"))
         .body("hits[0].data.params.startdate", equalTo(1009800))
+        .body("hits[0].data.params.city", isEmptyOrNullString())
+        .body("hits[0].data.params.country", equalTo("Andorra"))
         .body("hits[0].data.geo_params.centroid", equalTo("20,-10"))
         .body("hits[0].md.timestamp",equalTo(1009800));
     }
