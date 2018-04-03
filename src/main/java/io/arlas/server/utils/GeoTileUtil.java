@@ -27,16 +27,17 @@ public class GeoTileUtil {
     public static BoundingBox bboxIntersects(BoundingBox bbox, String bboxCorners) throws ArlasException {
         BoundingBox ret = null;
         if(bbox != null && bboxCorners != null) {
-            double topBboxCorner = Double.parseDouble(bboxCorners.split(",")[0].trim());
-            double leftBboxCorner = Double.parseDouble(bboxCorners.split(",")[1].trim());
-            double bottomBboxCorner = Double.parseDouble(bboxCorners.split(",")[2].trim());
-            double rightBboxCorner = Double.parseDouble(bboxCorners.split(",")[3].trim());
+            // west, south, east, north
+            double topBboxCorner = Double.parseDouble(bboxCorners.split(",")[3].trim());
+            double leftBboxCorner = Double.parseDouble(bboxCorners.split(",")[0].trim());
+            double bottomBboxCorner = Double.parseDouble(bboxCorners.split(",")[1].trim());
+            double rightBboxCorner = Double.parseDouble(bboxCorners.split(",")[2].trim());
             if (leftBboxCorner < rightBboxCorner) {
                 // If the bbox is in Paris region
-                ret = new BoundingBox(Math.min(bbox.getNorth(), Double.parseDouble(bboxCorners.split(",")[0].trim())),
-                        Math.max(bbox.getSouth(), Double.parseDouble(bboxCorners.split(",")[2].trim())),
+                ret = new BoundingBox(Math.min(bbox.getNorth(), topBboxCorner),
+                        Math.max(bbox.getSouth(), bottomBboxCorner),
                         Math.max(bbox.getWest(), leftBboxCorner),
-                        Math.min(bbox.getEast(), Double.parseDouble(bboxCorners.split(",")[3].trim())));
+                        Math.min(bbox.getEast(), rightBboxCorner));
                 if (ret.getWest() > ret.getEast()) {
                     ret = null;
                 }

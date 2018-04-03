@@ -26,22 +26,22 @@ public abstract class AbstractXYZTiledTest extends AbstractSortedTest {
         handleXYZ(xyzTileGet(null, null, 2, 2, 1), "0,0", "66.6,90");
         handleXYZ(xyzTileGet(null, null, 2, 3, 0), "66.6,90", "86,180");
 
-        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("80,-30,60,50"));
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-30,60,50,80"));
         handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()), 2, 2, 0), "66.5,0", "80,50");
 
-        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-5,180,-67,-1"));
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("180,-67,-1,-5"));
         // inverted the order of bottomLeft and topRight parameters because of the negative values
         handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()), 2, 1, 2), "-10,-10", "-60,-90");
 
-        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("20,-5,5,15", "5,-5,-5,15")));
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("-5,5,15,20", "-5,-5,15,5")));
         handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()+";"+search.filter.pwithin.get(0).get(1).toString()),
                 4, 8, 7), "0,0", "20,10");
 
-        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("20,-5,-5,15")), new MultiValueFilter<>(Arrays.asList("5,-5,-5,15")));
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("-5,-5,15,20")), new MultiValueFilter<>(Arrays.asList("-5,-5,15,5")));
         handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString(),search.filter.pwithin.get(1).get(0).toString()),
                 4, 8, 7), "0,0", "0,10");
 
-        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("5,-5,0,0"));
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-5,0,0,5"));
         handleXYZDisjointFromPwithin(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()), 2, 2, 0));
         search.filter.pwithin = null;
 

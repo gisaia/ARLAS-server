@@ -61,7 +61,8 @@ public class CheckParams {
             for(MultiValueFilter<String> multiPwithin : filter.pwithin) {
                 for(String pw : multiPwithin) {
                     double[] tlbr = CheckParams.toDoubles(pw);
-                    if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
+                    // west, south, east, north
+                    if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
                         throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
                     }
                 }
@@ -71,7 +72,8 @@ public class CheckParams {
             for(MultiValueFilter<String> multiNotPwithin : filter.notpwithin) {
                 for(String npw : multiNotPwithin) {
                     double[] tlbr = CheckParams.toDoubles(npw);
-                    if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[0] > tlbr[2]) && tlbr[1] != tlbr[3]) {
+                    // west, south, east, north
+                    if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
                         throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
                     }
                 }
@@ -222,9 +224,10 @@ public class CheckParams {
         }
     }
 
-    private static boolean isBboxLatLonInCorrectRanges(double[] tlbr) {
-        return tlbr[0] >= -90 && tlbr[2] >= -90 && tlbr[0] <= 90 && tlbr[2] <= 90 &&
-                tlbr[1] >= -180 && tlbr[3] >= -180 && tlbr[1] <= 180 && tlbr[3] <= 180;
+    public static boolean isBboxLatLonInCorrectRanges(double[] tlbr) {
+        // west, south, east, north
+        return tlbr[1] >= -90 && tlbr[3] >= -90 && tlbr[1] <= 90 && tlbr[3] <= 90 &&
+                tlbr[0] >= -180 && tlbr[2] >= -180 && tlbr[0] <= 180 && tlbr[2] <= 180;
     }
 
     private static boolean isIntegerInXYZRange(int n, int z) {

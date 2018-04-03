@@ -361,7 +361,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
         BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x,y,z));
-        String pwithinBbox = bbox.getNorth() + "," + bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast();
+        // west, south, east, north
+
+        String pwithinBbox = bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth();
 
         //check if every pwithin param has a value that intersects bbox
         List<String> simplifiedPwithin = ParamsParser.simplifyPwithinAgainstBbox(pwithin, bbox);

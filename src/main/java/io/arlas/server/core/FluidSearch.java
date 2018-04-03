@@ -343,10 +343,10 @@ public class FluidSearch {
         return this;
     }
 
-    private GeoBoundingBoxQueryBuilder filterPWithin(double top, double left, double bottom, double right)
+    private GeoBoundingBoxQueryBuilder filterPWithin(double west, double south, double east, double north)
             throws ArlasException, IOException {
-        GeoPoint topLeft = new GeoPoint(top, left);
-        GeoPoint bottomRight = new GeoPoint(bottom, right);
+        GeoPoint topLeft = new GeoPoint(north, west);
+        GeoPoint bottomRight = new GeoPoint(south, east);
         return QueryBuilders
                 .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft, bottomRight);
     }
@@ -363,10 +363,10 @@ public class FluidSearch {
         return this;
     }
 
-    private GeoBoundingBoxQueryBuilder filterNotPWithin(double top, double left, double bottom, double right)
+    private GeoBoundingBoxQueryBuilder filterNotPWithin(double west, double south, double east, double north)
             throws ArlasException, IOException {
-        GeoPoint topLeft = new GeoPoint(top, left);
-        GeoPoint bottomRight = new GeoPoint(bottom, right);
+        GeoPoint topLeft = new GeoPoint(north, west);
+        GeoPoint bottomRight = new GeoPoint(south, east);
         return QueryBuilders
                 .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft, bottomRight);
     }
