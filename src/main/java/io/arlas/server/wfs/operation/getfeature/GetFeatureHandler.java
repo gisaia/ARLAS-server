@@ -32,6 +32,7 @@ import io.arlas.server.wfs.utils.XmlUtils;
 import org.elasticsearch.search.SearchHit;
 import org.geojson.GeoJsonObject;
 import org.geojson.LngLatAlt;
+import org.geojson.Point;
 import org.geojson.Polygon;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
@@ -92,7 +93,7 @@ public class GetFeatureHandler {
 
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(outputStream);
-        writeFeature(rs, writer, collectionReference, uri);
+        writeFeature(rs, writer, collectionReference, uri,true);
         writer.flush();
     }
 
@@ -100,17 +101,18 @@ public class GetFeatureHandler {
                                     CollectionReferenceDescription collectionReference, String uri)
             throws Exception {
 
-        Version version = Version.parseVersion(WFSConstant.SUPPORTED_WFS_VERSION);
 
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(outputStream);
 
         writer.setPrefix(WFSConstant.WFS_PREFIX, WFSConstant.WFS_NAMESPACE_URI);
         writer.writeStartElement(WFSConstant.WFS_NAMESPACE_URI, "FeatureCollection");
-        writeNamespaceIfNotBound(writer, "xsi", "http://www.w3.org/2001/XMLSchema-instance");
-        writer.writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd http://www.opengis.net/gml/3.2 http://schemas.opengis.net/gml/3.2.1/gml.xsd");
         writer.writeNamespace(WFSConstant.WFS_PREFIX, WFSConstant.WFS_NAMESPACE_URI);
         writer.writeNamespace(featureNamespace, uri);
+        writeNamespaceIfNotBound(writer, "xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        writer.writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "schemaLocation",
+                uri + " "+ uri +"service=WFS&version=2.0.0&request=DescribeFeatureType http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd http://www.opengis.net/gml/3.2 http://schemas.opengis.net/gml/3.2.1/gml.xsd");
+
 
         writer.writeAttribute("timeStamp", getCurrentDateTimeWithoutMilliseconds());
         QName memberElementName = new QName(WFSConstant.WFS_NAMESPACE_URI, "member", WFSConstant.WFS_PREFIX);
@@ -167,13 +169,13 @@ public class GetFeatureHandler {
     protected void writeMemberFeature(Object member, XMLStreamWriter xmlStream, QName featureMemberEl, CollectionReferenceDescription collectionReference, String uri)
             throws XMLStreamException, ArlasException {
         xmlStream.writeStartElement(featureMemberEl.getNamespaceURI(), featureMemberEl.getLocalPart());
-        writeFeature(member, xmlStream, collectionReference, uri);
+        writeFeature(member, xmlStream, collectionReference, uri,false);
         xmlStream.writeEndElement();
     }
 
 
     protected void writeFeature(Object member, XMLStreamWriter xmlStream, CollectionReferenceDescription
-            collectionReference, String uri) throws XMLStreamException, ArlasException {
+            collectionReference, String uri, Boolean isByID) throws XMLStreamException, ArlasException {
 
         String collectionName = collectionReference.collectionName;
         String idPath = collectionReference.params.idPath;
@@ -193,14 +195,20 @@ public class GetFeatureHandler {
         }
         if (id != null & geometry != null) {
             xmlStream.writeStartElement(featureNamespace, collectionName, uri);
-            xmlStream.writeNamespace(featureNamespace, uri);
+            if(isByID){
+                xmlStream.writeNamespace(featureNamespace, uri);
+
+            }
+            writeNamespaceIfNotBound(xmlStream,featureNamespace, uri);
             writeNamespaceIfNotBound(xmlStream, WFSConstant.GML_PREFIX, WFSConstant.GML_NAMESPACE_URI);
             xmlStream.writeAttribute(WFSConstant.GML_NAMESPACE_URI, "id", id);
+
             //Write polygon
             xmlStream.writeStartElement(featureNamespace, XmlUtils.replacePointPath((geometryPath)), uri);
             writeNamespaceIfNotBound(xmlStream, featureNamespace, uri);
             GeoFormat.geojson2gml(geometry,xmlStream,"Geom_"+id);
             xmlStream.writeEndElement();
+
             //Write Attributes
             ArrayList<Pattern> excludeFields = new ArrayList<>();
             if(collectionReference.params.excludeWfsFields!=null){

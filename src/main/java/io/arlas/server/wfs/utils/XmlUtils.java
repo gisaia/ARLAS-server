@@ -69,11 +69,10 @@ public class XmlUtils {
                     parsePropertiesXml(property.properties, writer, namespace, uri, source, prefix, excludeFields);
                 } else {
                     Object valueObject = MapExplorer.getObjectFromPath(String.join(".", new ArrayList<>(namespace)), source);
-                    String value = "null";
-                    if (valueObject != null) {
-                        value = valueObject.toString();
+                    if(valueObject!=null && property.type!= ElasticType.GEO_POINT&& property.type!= ElasticType.GEO_SHAPE){
+                        String value = valueObject.toString();
+                        writeElement(writer, String.join(".", new ArrayList<>(namespace)), value, uri, prefix);
                     }
-                    writeElement(writer, String.join(".", new ArrayList<>(namespace)), value, uri, prefix);
                 }
             }
             namespace.pop();
