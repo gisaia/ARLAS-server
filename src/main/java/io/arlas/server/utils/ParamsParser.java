@@ -272,7 +272,8 @@ public class ParamsParser {
                     if(simplifiedBbox != null && simplifiedBbox.getNorth() > simplifiedBbox.getSouth()) {
                         if(buff.length()>0)
                             buff.append(";");
-                        buff.append(simplifiedBbox.getNorth() + "," + simplifiedBbox.getWest() + "," + simplifiedBbox.getSouth() + "," + simplifiedBbox.getEast());
+                        // west, south, east, north
+                        buff.append(simplifiedBbox.getWest() + "," + simplifiedBbox.getSouth() + "," + simplifiedBbox.getEast() + "," + simplifiedBbox.getNorth());
                     }
                 }
                 if(buff.length()>0) {

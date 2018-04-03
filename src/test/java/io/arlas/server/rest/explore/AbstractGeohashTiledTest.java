@@ -22,20 +22,20 @@ public abstract class AbstractGeohashTiledTest extends AbstractAggregatedTest {
         // precision > geohashLength  ==> we could have more than one feature
         handleGeohashTileLessThanPrecision(geohashTileGet("geohash:geo_params.centroid:interval-3", "yn"), 2, "yn");
 
-        String pwithin = "81,98,79,101";
+        String pwithin = "98,79,101,81";
         handleGeohashTileLessThanPrecision(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", Arrays.asList(pwithin),"yn"), 1, "yn");
 
-        pwithin = "81,98,79,101;81,108,79,111";
+        pwithin = "98,79,101,81;108,79,111,81";
         handleGeohashTileLessThanPrecision(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", Arrays.asList(pwithin),"y"), 2, "yn");
 
-        pwithin = "81,98,79,101";
-        String pwithin2 = "81,98,79,111";
+        pwithin = "98,79,101,81";
+        String pwithin2 = "98,79,111,81";
         handleGeohashTileLessThanPrecision(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", Arrays.asList(pwithin,pwithin2),"y"), 1, "yn");
 
-        pwithin = "5,180,0,-165";
+        pwithin = "180,0,-165,5";
         handleGeohashTileLessThanPrecision(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", Arrays.asList(pwithin),"80"), 1, "80");
 
-        pwithin = "5,-5,0,0";
+        pwithin = "-5,0,0,5";
         handleGeohashTileDisjointFromPwithin(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", Arrays.asList(pwithin),"yn"));
 
     }

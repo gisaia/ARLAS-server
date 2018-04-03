@@ -269,7 +269,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             geohash=geohash.substring(1,geohash.length());
         }
         BoundingBox bbox = GeoTileUtil.getBoundingBox(geohash);
-        String pwithinBbox = bbox.getNorth() + "," + bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast();
+        String pwithinBbox = bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth();
 
         //check if every pwithin param has a value that intersects bbox
         List<String> simplifiedPwithin = ParamsParser.simplifyPwithinAgainstBbox(pwithin, bbox);

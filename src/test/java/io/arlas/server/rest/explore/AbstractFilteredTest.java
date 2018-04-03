@@ -203,22 +203,22 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     
     @Test
     public void testPwithinFilter() throws Exception {
-        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("5,-5,-5,5"));
+        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-5,-5,5,5"));
         handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(get("pwithin",request.filter.pwithin.get(0).get(0)), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
 
-        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("5,180,0,-165"));
+        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("180,0,-165,5"));
         handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo( "0,-170")));
         handleMatchingGeometryFilter(get("pwithin",request.filter.pwithin.get(0).get(0)), 1, everyItem(equalTo( "0,-170")));
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo( "0,-170")));
 
-        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("90,175,85,180"));
+        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("175,85,180,90"));
         handleNotMatchingPwithinFilter(post(request));
         handleNotMatchingPwithinFilter(get("pwithin",request.filter.pwithin.get(0).get(0)));
         handleNotMatchingPwithinFilter(header(request.filter));
 
-        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("50,-5,-50,180"), new MultiValueFilter<>("50,-180,-50,5"));
+        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-5,-50,180,50"), new MultiValueFilter<>("-180,-50,5,50"));
         handleMatchingGeometryFilter(post(request),10, everyItem(endsWith("0")));
         handleMatchingGeometryFilter(
                 get(Arrays.asList(new ImmutablePair<>("pwithin", request.filter.pwithin.get(0).get(0)),
@@ -226,23 +226,23 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 10, everyItem(endsWith("0")));
         handleMatchingGeometryFilter(header(request.filter),10, everyItem(endsWith("0")));
 
-        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("5,-5,-5,5","15,5,5,15")));
+        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("-5,-5,5,5","5,5,15,15")));
         handleMatchingGeometryFilter(post(request), 2, everyItem(isOneOf("0,0","10,10")));
         handleMatchingGeometryFilter(get("pwithin",request.filter.pwithin.get(0).get(0)+";"+request.filter.pwithin.get(0).get(1)), 2, everyItem(isOneOf("0,0","10,10")));
         handleMatchingGeometryFilter(header(request.filter), 2, everyItem(isOneOf("0,0","10,10")));
 
         request.filter.pwithin = null;
-        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("85,-170,-85,175"));
+        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("-170,-85,175,85"));
         handleMatchingGeometryFilter(post(request), 17, everyItem(endsWith("170")));
         handleMatchingGeometryFilter(get("notpwithin",request.filter.notpwithin.get(0).get(0)), 17, everyItem(endsWith("170")));
         handleMatchingGeometryFilter(header(request.filter), 17, everyItem(endsWith("170")));
 
-        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("85,-175,-85,175"));
+        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("-175,-85,175,85"));
         handleNotMatchingNotPwithinFilter(post(request));
         handleNotMatchingNotPwithinFilter(get("notpwithin",request.filter.notpwithin.get(0).get(0)));
         handleNotMatchingNotPwithinFilter(header(request.filter));
 
-        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("90,-180,-90,-5"), new MultiValueFilter<>("90,5,-90,180"));
+        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("-180,-90,-5,90"), new MultiValueFilter<>("5,-90,180,90"));
         handleMatchingGeometryFilter(post(request),17, everyItem(endsWith("0")));
         handleMatchingGeometryFilter(
                 get(Arrays.asList(new ImmutablePair<>("notpwithin", request.filter.notpwithin.get(0).get(0)),
@@ -250,14 +250,14 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 17, everyItem(endsWith("0")));
         handleMatchingGeometryFilter(header(request.filter),17, everyItem(endsWith("0")));
 
-        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("90,-180,-90,-5","90,5,-90,180")));
+        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("-180,-90,-5,90","5,-90,180,90")));
         handleMatchingGeometryFilter(post(request), 595, everyItem(notNullValue()));
         handleMatchingGeometryFilter(get("notpwithin",request.filter.notpwithin.get(0).get(0)+";"+request.filter.notpwithin.get(0).get(1)), 595, notNullValue());
         handleMatchingGeometryFilter(header(request.filter), 595, everyItem(notNullValue()));
 
         //TODO support correct 10,-10,-10,10 bounding box
-        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("11,-11,-11,11"));
-        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("5,-5,-5,5"));
+        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-11,-11,11,11"));
+        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("-5,-5,5,5"));
         handleMatchingGeometryFilter(post(request),8,hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
         handleMatchingGeometryFilter(
                 givenFilterableRequestParams().param("pwithin", request.filter.pwithin.get(0).get(0))
@@ -266,8 +266,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .then(),8,hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
         handleMatchingGeometryFilter(header(request.filter),8,hasItems("10,0","10,-10","10,10","10,10","10,0","10,-10","0,10","0,-10"));
 
-        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("6,-6,-6,6"));
-        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("5,-5,-5,5"));
+        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-6,-6,6,6"));
+        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("-5,-5,5,5"));
         handleNotMatchingPwithinComboFilter(post(request));
         handleNotMatchingPwithinComboFilter(
                 givenFilterableRequestParams().param("pwithin", request.filter.pwithin.get(0).get(0))
@@ -437,8 +437,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     public void testComplexFilter() throws Exception {
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),//"job:eq:Architect"
                 new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1009799<1009801]")));
-        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("50,-50,-50,50"));
-        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("50,20,-50,60"));
+        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-50,-50,50,50"));
+        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("20,-50,60,50"));
         request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((30 30,30 -30,-30 -30,-30 30,30 30))"));
         request.filter.notgwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))"));
         request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((-20 20, 20 20, 20 -20, -20 -20, -20 20))"));
@@ -463,13 +463,15 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     public void testMixedFilter() throws Exception {
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, "Architect")),//"job:eq:Architect"
                 new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1009799<2000000]")));
-        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("50,-50,-50,50"));
+        // valid bbox from WFS OGC SPEC = lower longitude , lower latitude , upper longitude  , upper latitude
+        // valid bbox for ARLAS classic bbox = lat top,  long left,  lat bottom,  long right
+        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-50,-50,50,50"));
         request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((30 30,30 -30,-30 -30,-30 30,30 30))"));
         request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((-20 20, 20 20, 20 -20, -20 -20, -20 20))"));
 
         Filter filterHeader = new Filter();
         filterHeader.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[0<1009801]")));
-        filterHeader.notpwithin = Arrays.asList(new MultiValueFilter<>("50,20,-50,60"));
+        filterHeader.notpwithin = Arrays.asList(new MultiValueFilter<>("20,-50,60,50"));
         filterHeader.notgwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))"));
         filterHeader.notgintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((-30 -10,30 10, 30 -30, -30 -30,-30 -10))"));
         handleComplexFilter(
@@ -555,7 +557,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.q = null;
         
         //PWITHIN
-        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-5,-5,5,5"));
+        request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-5,5,5,-5"));
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("pwithin",request.filter.pwithin.get(0).get(0)));
         handleInvalidParameters(header(request.filter));
@@ -566,7 +568,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleInvalidParameters(header(request.filter));
         request.filter.pwithin = null;
 
-        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("-5,-5,5,5"));
+        request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("-5,5,5,-5"));
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("notpwithin",request.filter.notpwithin.get(0).get(0)));
         handleInvalidParameters(header(request.filter));

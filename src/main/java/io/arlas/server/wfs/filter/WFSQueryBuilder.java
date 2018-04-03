@@ -49,6 +49,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import static io.arlas.server.utils.CheckParams.isBboxLatLonInCorrectRanges;
+
 public class WFSQueryBuilder {
 
     public BoolQueryBuilder wfsQuery = QueryBuilders.boolQuery();
@@ -119,10 +121,8 @@ public class WFSQueryBuilder {
     }
 
     private void buildBboxQuery() throws WFSException {
-        // valid bbox from WFS OGC SPEC = lower longitude , lower latitude , upper longitude  , upper latitude
-        // valid bbox for ARLAS classic bbox = lat top,  long left,  lat bottom,  long right
         double[] tlbr = toDoubles(bbox);
-        if (!(WFSCheckParam.isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
+        if (!(isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
             throw new WFSException(WFSExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "bbox");
         }
         wfsQuery.filter(getBBoxBoolQueryBuilder(bbox, collectionReferenceDescription.params.centroidPath));

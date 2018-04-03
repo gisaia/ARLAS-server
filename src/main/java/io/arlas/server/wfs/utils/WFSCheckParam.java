@@ -105,11 +105,4 @@ public class WFSCheckParam {
             }
             return valuereference;
     }
-
-    public static boolean isBboxLatLonInCorrectRanges(double[] tlbr) {
-        return tlbr[0] >= -90 && tlbr[2] >= -90 && tlbr[0] <= 90 && tlbr[2] <= 90 &&
-                tlbr[1] >= -180 && tlbr[3] >= -180 && tlbr[1] <= 180 && tlbr[3] <= 180;
-    }
-
-
 }
