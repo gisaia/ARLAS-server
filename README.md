@@ -29,12 +29,9 @@ You need a Java Runtime (JRE) 8 and an ElasticSearch server running. ARLAS is co
 
 | ElasticSearch Version |
 |  ---  |
-| 5.0.2 |
-| 5.1.2 |
-| 5.2.2 |
-| 5.3.3 |
-| 5.4.3 |
-| 5.5.1 |
+| 6.0.1 |
+| 6.1.3 |
+| 6.2.3 |
 
 ## Build
 
@@ -66,6 +63,12 @@ Then, go to `http://localhost:9999/arlas/swagger` for exploring and testing the 
 
 ```sh
 docker run arlas-server:latest
+```
+
+or
+
+```sh
+docker-compose up
 ```
 
 ## Configuration
@@ -117,7 +120,7 @@ You can find more examples about how to use ARLAS-server in [examples/EXAMPLE.md
 #### with docker containers
 
 ```sh
-./tests-integration/tests-integration.sh
+./scripts/tests-integration.sh
 ```
 
 Make sure to have docker installed and running on your system and you might need to install some dependencies :
@@ -160,13 +163,13 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 We use our own versioning schema which looks like ```1.5.6``` where :
 
-- `1` : represents ARLAS-server API version
-- `5` : represents Elasticsearch compliance (see below for value correspondence)
-- `6` : represents ARLAS-server incremental version
+- `2` : represents ARLAS-server API version
+- `6` : represents Elasticsearch compliance (see below for value correspondence)
+- `0` : represents ARLAS-server incremental version
 
 For Elasticsearch compliance, values currently supported are :
 
-- `5` : indicates that this version is compliant with Elasticsearch from version 5.0 to 5.5
+- `6` : indicates that this version is compliant with Elasticsearch 6.x
 
 For the versions available, see the [tags](https://gitlab.com/GISAIA.ARLAS/ARLAS-server/tags) on this repository.
 

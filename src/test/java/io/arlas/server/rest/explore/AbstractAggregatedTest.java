@@ -401,16 +401,16 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).collectField = "geo_params.centroid";
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
         handleMatchingAggregateWithGeocentroidCollect(post(aggregationRequest),
-                DataSetTool.jobs.length-1, 58, 64, "geocentroid", -8.381903171539307e-7F, -4.1909515857696533e-7F, -5.029141902923584e-7F, -2.514570951461792e-7F);
+                DataSetTool.jobs.length-1, 58, 64, "geocentroid", -1F, -1F, 0F, 0F);
         handleMatchingAggregateWithGeocentroidCollect(get("term:params.job:collect_field-geo_params.centroid:collect_fct-geocentroid"),
-                DataSetTool.jobs.length-1, 58, 64, "geocentroid", -8.381903171539307e-7F, -4.1909515857696533e-7F, -5.029141902923584e-7F, -2.514570951461792e-7F);
+                DataSetTool.jobs.length-1, 58, 64, "geocentroid", -1F, -1F, 0F, 0F);
 
         aggregationRequest.aggregations.get(0).collectField = null;
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOBBOX;
         handleMatchingAggregateWithGeoBboxCollect(post(aggregationRequest),
-                DataSetTool.jobs.length-1, 58, 64, "geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+                DataSetTool.jobs.length-1, 58, 64, "geobbox", -171F, -81F, 170F, 80F);
         handleMatchingAggregateWithGeoBboxCollect(get("term:params.job:collect_fct-geobbox"),
-                DataSetTool.jobs.length-1, 58, 64, "geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+                DataSetTool.jobs.length-1, 58, 64, "geobbox", -171F, -81F, 170F, 80F);
 
         aggregationRequest.aggregations.get(0).collectFct = null;
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;

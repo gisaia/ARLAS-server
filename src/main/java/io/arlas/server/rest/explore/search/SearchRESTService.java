@@ -268,7 +268,7 @@ public class SearchRESTService extends ExploreRESTServices {
         SearchHits searchHits = this.getExploreServices().search(request,collectionReference);
 
         Hits hits = new Hits(collectionReference.collectionName);
-        hits.totalnb = searchHits.totalHits();
+        hits.totalnb = searchHits.getTotalHits();
         hits.nbhits = searchHits.getHits().length;
         hits.hits = new ArrayList<>((int) hits.nbhits);
         for (SearchHit hit : searchHits.getHits()) {

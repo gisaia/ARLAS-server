@@ -19,14 +19,31 @@
 
 package io.arlas.server.app;
 
+import java.net.InetAddress;
+import java.util.EnumSet;
+import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import io.arlas.server.exceptions.*;
+import io.arlas.server.health.ElasticsearchHealthCheck;
+import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
+import io.dropwizard.assets.AssetsBundle;
+import io.arlas.server.wfs.WFSHandler;
+import io.arlas.server.wfs.WFSService;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.kristofa.brave.Brave;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
-import io.arlas.server.exceptions.*;
-import io.arlas.server.health.ElasticsearchHealthCheck;
 import io.arlas.server.rest.PrettyPrintFilter;
 import io.arlas.server.rest.collections.ElasticCollectionService;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -42,11 +59,7 @@ import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
 import io.arlas.server.task.CollectionAutoDiscover;
-import io.arlas.server.wfs.WFSHandler;
-import io.arlas.server.wfs.WFSService;
-import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
 import io.dropwizard.Application;
-import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
@@ -54,23 +67,12 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
-import java.net.InetAddress;
-import java.util.EnumSet;
-import java.util.Optional;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class ArlasServer extends Application<ArlasServerConfiguration> {
     Logger LOGGER = LoggerFactory.getLogger(ArlasServer.class);
@@ -113,7 +115,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         }
 
         Client client = new PreBuiltTransportClient(settings)
-                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(configuration.elastichost),
+                .addTransportAddress(new TransportAddress(InetAddress.getByName(configuration.elastichost),
                         configuration.elasticport));
 
         if (configuration.zipkinConfiguration != null) {

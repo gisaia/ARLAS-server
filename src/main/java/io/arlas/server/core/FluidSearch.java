@@ -24,6 +24,7 @@ import com.vividsolutions.jts.io.WKTReader;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.TimestampType;
+import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ParamsParser;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -36,14 +37,13 @@ import org.elasticsearch.common.geo.builders.*;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoGridAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -64,7 +64,6 @@ import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.exceptions.NotImplementedException;
-import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 
 
 public class FluidSearch {
@@ -723,8 +722,7 @@ public class FluidSearch {
         if (order != null && on != null) {
             if (!(aggregationBuilder instanceof GeoGridAggregationBuilder)) {
                 Boolean asc;
-                Histogram.Order histogramOrder = null;
-                Terms.Order termsOrder = null;
+                BucketOrder bucketOrder = null;
                 if (order.equals(AggregationOrderEnum.asc))
                     asc = true;
                 else if (order.equals(AggregationOrderEnum.desc))
@@ -733,23 +731,14 @@ public class FluidSearch {
                     throw new InvalidParameterException(INVALID_ORDER_VALUE + order);
 
                 if (on.equals(AggregationOnEnum.field)) {
-                    termsOrder = Terms.Order.term(asc);
-                    if (asc)
-                        histogramOrder = Histogram.Order.KEY_ASC;
-                    else
-                        histogramOrder = Histogram.Order.KEY_DESC;
+                    bucketOrder = BucketOrder.key(asc);
                 } else if (on.equals(AggregationOnEnum.count)) {
-                    termsOrder = Terms.Order.count(asc);
-                    if (asc)
-                        histogramOrder = Histogram.Order.COUNT_ASC;
-                    else
-                        histogramOrder = Histogram.Order.COUNT_DESC;
+                    bucketOrder = BucketOrder.count(asc);
                 } else if (on.equals(AggregationOnEnum.result)) {
                     if (metricAggregation != null) {
                         // ORDER ON RESULT IS NOT ALLOWED ON COORDINATES (CENTROID) OR BOUNDING BOX
                         if (!metricAggregation.getName().equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase()) && !metricAggregation.getName().equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase())) {
-                            termsOrder = Terms.Order.aggregation(metricAggregation.getName(), asc);
-                            histogramOrder = Histogram.Order.aggregation(metricAggregation.getName(), asc);
+                            bucketOrder = BucketOrder.aggregation(metricAggregation.getName(), asc);
                         } else {
                             throw new BadRequestException(ORDER_ON_GEO_RESULT_NOT_ALLOWED);
                         }
@@ -761,13 +750,13 @@ public class FluidSearch {
                 }
                 switch (aggregationBuilder.getName()) {
                     case DATEHISTOGRAM_AGG:
-                        aggregationBuilder = ((DateHistogramAggregationBuilder) aggregationBuilder).order(histogramOrder);
+                        aggregationBuilder = ((DateHistogramAggregationBuilder) aggregationBuilder).order(bucketOrder);
                         break;
                     case HISTOGRAM_AGG:
-                        aggregationBuilder = ((HistogramAggregationBuilder) aggregationBuilder).order(histogramOrder);
+                        aggregationBuilder = ((HistogramAggregationBuilder) aggregationBuilder).order(bucketOrder);
                         break;
                     case TERM_AGG:
-                        aggregationBuilder = ((TermsAggregationBuilder) aggregationBuilder).order(termsOrder);
+                        aggregationBuilder = ((TermsAggregationBuilder) aggregationBuilder).order(bucketOrder);
                         break;
                     default:
                         throw new NotAllowedException(NO_ORDER_ON_TO_SPECIFY);

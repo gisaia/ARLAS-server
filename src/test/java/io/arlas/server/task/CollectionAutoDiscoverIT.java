@@ -23,6 +23,7 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
+import org.hamcrest.Matcher;
 import org.junit.Test;
 
 import io.arlas.server.AbstractTestWithDataSet;
@@ -58,12 +59,25 @@ public class CollectionAutoDiscoverIT extends AbstractTestWithDataSet {
         .then().statusCode(200);
 
         // GET all collections
-        when().get(arlasPath+"collections/")
-        .then().statusCode(200)
-            .body("collection_name", hasSize(1));
+        getAllCollections(hasSize(1));
         
         // DELETE collection
         when().delete(arlasPath+"collections/"+DataSetTool.DATASET_INDEX_NAME+"-"+DataSetTool.DATASET_TYPE_NAME)
         .then().statusCode(200);
+    }
+
+    private void getAllCollections(Matcher matcher) throws InterruptedException {
+        int cpt = 0;
+        while(cpt > 0 && cpt < 5) {
+            try {
+                when().get(arlasPath + "collections/")
+                        .then().statusCode(200)
+                        .body("collection_name", matcher);
+                cpt = -1;
+            } catch(Exception e) {
+                cpt ++;
+                Thread.sleep(1000);
+            }
+        }
     }
 }

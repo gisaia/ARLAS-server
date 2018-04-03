@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ELASTIC_RANGE=("5.0.2" "5.1.2" "5.2.2" "5.3.3" "5.4.3" "5.5.3" "5.6.3")
+ELASTIC_RANGE=("6.0.1","6.1.3","6.2.3")
 
 for i in "${ELASTIC_RANGE[@]}"
 do
