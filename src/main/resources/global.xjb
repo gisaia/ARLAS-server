@@ -1,4 +1,5 @@
 <jxb:bindings version="2.0" xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+               xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
     xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <jxb:bindings schemaLocation="http://www.w3.org/1999/xlink.xsd"
         node="/xs:schema">
@@ -12,6 +13,94 @@
                 <jxb:property name="title2" />
             </jxb:bindings>
         </jxb:bindings>
-
     </jxb:bindings>
+    <jxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.2.1/geometryPrimitives.xsd" node="/xs:schema">
+    	<jxb:bindings>
+    		<jxb:bindings node="//xs:group[@name='PointGrid']/xs:sequence/xs:element[@name='rows']">
+    			<!-- ** Backwards incompatible -->
+    			<jxb:property name="PointGridRows"/>
+    		</jxb:bindings>
+    	</jxb:bindings>
+    </jxb:bindings>
+    <jxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.2.1/datums.xsd" node="/xs:schema">
+    	<jxb:bindings>
+    		<jxb:bindings node="//xs:element[@name='secondDefiningParameter']">
+    			<jxb:class name="SecondDefiningParameterPropertyElement"/>
+    		</jxb:bindings>
+    		<jxb:bindings node="//xs:element[@name='ellipsoid']">
+    			<jxb:factoryMethod name="EllipsoidPropertyElement"/>
+    		</jxb:bindings>
+    		<jxb:bindings node="//xs:element[@name='primeMeridian']">
+    			<jxb:factoryMethod name="PrimeMeridianPropertyElement"/>
+    		</jxb:bindings>
+    	</jxb:bindings>
+    </jxb:bindings>
+    <jxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.2.1/coordinateReferenceSystems.xsd" node="/xs:schema">
+        <jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='userDefinedCS']">
+                <jxb:factoryMethod name="UserDefinedCSPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='cartesianCS']">
+                <jxb:factoryMethod name="CartesianCSPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='sphericalCS']">
+                <jxb:factoryMethod name="SphericalCSPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='polarCS']">
+                <jxb:factoryMethod name="PolarCSPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='linearCS']">
+                <jxb:factoryMethod name="LinearCSPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='verticalCS']">
+                <jxb:factoryMethod name="VerticalCSPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='cylindricalCS']">
+                <jxb:factoryMethod name="CylindricalCSPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='ellipsoidalCS']">
+                <jxb:factoryMethod name="EllipsoidalCSPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='affineCS']">
+                <jxb:factoryMethod name="AffineCSPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='timeCS']">
+                <jxb:factoryMethod name="TimeCSPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='imageDatum']">
+                <jxb:factoryMethod name="ImageDatumPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='geodeticDatum']">
+                <jxb:factoryMethod name="GeodeticDatumPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='temporalDatum']">
+                <jxb:factoryMethod name="TemporalDatumPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='engineeringDatum']">
+                <jxb:factoryMethod name="EngineeringDatumPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='verticalDatum']">
+                <jxb:factoryMethod name="VerticalDatumPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='conversion']">
+                <jxb:factoryMethod name="ConversionPropertyElement"/>
+            </jxb:bindings>
+        </jxb:bindings>
+    </jxb:bindings>
+    <jxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.2.1/coordinateOperations.xsd" node="/xs:schema">
+        <jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='coordinateOperationAccuracy']//xs:element[@ref='gmd:AbstractDQ_PositionalAccuracy']">
+                <xjc:dom/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='parameterValue']">
+                <jxb:factoryMethod name="ParameterValuePropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='operationParameter']">
+                <jxb:factoryMethod name="OperationParameterPropertyElement"/>
+            </jxb:bindings>
+            <jxb:bindings node="//xs:element[@name='formulaCitation']//xs:element[@ref='gmd:CI_Citation']">
+                <xjc:dom/>
+            </jxb:bindings>
+        </jxb:bindings>
+     </jxb:bindings>
 </jxb:bindings>

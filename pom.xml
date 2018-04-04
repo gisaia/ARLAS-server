@@ -177,7 +177,8 @@
                         <xjbSource>src/main/resources/global.xjb</xjbSource>
                     </xjbSources>
                     <sources>
-                        <source>src/main/resources/schema.xsd</source>
+                        <source>src/main/resources/wfs-2.0.xsd</source>
+                        <source>src/main/resources/csw/cswAll.xsd</source>
                     </sources>
                 </configuration>
             </plugin>
