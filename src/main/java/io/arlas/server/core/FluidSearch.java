@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
@@ -134,9 +135,9 @@ public class FluidSearch {
         searchRequestBuilder.setQuery(boolQueryBuilder);
 
         if (collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
-            if(exclude.isEmpty()){
+            if (exclude.isEmpty()) {
                 exclude(collectionReference.params.excludeFields);
-            }else{
+            } else {
                 Set<String> excludeSet = new HashSet<>();
                 excludeSet.addAll(exclude);
                 excludeSet.addAll(Arrays.asList(collectionReference.params.excludeFields.split(",")));
@@ -144,7 +145,7 @@ public class FluidSearch {
             }
         }
         List<String> includeFieldList = new ArrayList<>();
-        if(!include.isEmpty()) {
+        if (!include.isEmpty()) {
             for (String includeField : include) {
                 includeFieldList.add(includeField);
             }
@@ -161,11 +162,11 @@ public class FluidSearch {
             }
         }
         String[] includeFields = includeFieldList.toArray(new String[includeFieldList.size()]);
-        if(includeFields.length == 0) {
+        if (includeFields.length == 0) {
             includeFields = new String[]{"*"};
         }
         String[] excludeFields = exclude.toArray(new String[exclude.size()]);
-        if(excludeFields.length == 0) {
+        if (excludeFields.length == 0) {
             excludeFields = null;
         }
         searchRequestBuilder = searchRequestBuilder.setFetchSource(includeFields, excludeFields);
@@ -262,9 +263,9 @@ public class FluidSearch {
 
     public String getFieldFromFieldAliases(String fieldAlias) throws ArlasException {
         boolean isAlias = fieldAlias.startsWith(RANGE_ALIASES_CHARACTER);
-        if(isAlias) {
+        if (isAlias) {
             String alias = fieldAlias.substring(1, fieldAlias.length());
-            if(alias.equals(TIMESTAMP_ALIAS)) {
+            if (alias.equals(TIMESTAMP_ALIAS)) {
                 return collectionReference.params.timestampPath;
             } else {
                 throw new BadRequestException(BAD_FIELD_ALIAS);
@@ -284,24 +285,24 @@ public class FluidSearch {
     public RangeQueryBuilder getRangeQueryBuilder(String field, String value) throws ArlasException {
         boolean incMin = value.startsWith("[");
         boolean incMax = value.endsWith("]");
-        Object min = value.substring(1,value.lastIndexOf("<"));
-        Object max = value.substring(value.lastIndexOf("<")+1,value.length()-1);
+        Object min = value.substring(1, value.lastIndexOf("<"));
+        Object max = value.substring(value.lastIndexOf("<") + 1, value.length() - 1);
         if (field.equals(collectionReference.params.timestampPath)) {
             try {
-                min = Long.parseLong((String)min);
-                max = Long.parseLong((String)max);
-                ParamsParser.formatRangeValues((Long)min, (Long)max, collectionReference);
-            }catch (NumberFormatException e){
+                min = Long.parseLong((String) min);
+                max = Long.parseLong((String) max);
+                ParamsParser.formatRangeValues((Long) min, (Long) max, collectionReference);
+            } catch (NumberFormatException e) {
                 throw new InvalidParameterException(INVALID_TIMESTAMP_RANGE);
             }
         }
         RangeQueryBuilder ret = QueryBuilders.rangeQuery(field);
-        if(incMin) {
+        if (incMin) {
             ret = ret.gte(min);
         } else {
             ret = ret.gt(min);
         }
-        if(incMax) {
+        if (incMax) {
             ret = ret.lte(max);
         } else {
             ret = ret.lt(max);
@@ -422,7 +423,7 @@ public class FluidSearch {
     public FluidSearch include(String include) {
         if (include != null) {
             String includeFieldArray[] = include.split(",");
-            for(String field : includeFieldArray) {
+            for (String field : includeFieldArray) {
                 this.include.add(field);
             }
         }
@@ -432,7 +433,7 @@ public class FluidSearch {
     public FluidSearch exclude(String exclude) {
         if (exclude != null) {
             String excludeFieldArray[] = exclude.split(",");
-            for(String field : excludeFieldArray) {
+            for (String field : excludeFieldArray) {
                 this.exclude.add(field);
             }
         }
@@ -515,7 +516,7 @@ public class FluidSearch {
     private DateHistogramAggregationBuilder buildDateHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
         CheckParams.checkNullityOfAggregationIncludeParameter(aggregationModel.include);
         CheckParams.checkNullityOfAggregationIntervalParameter(aggregationModel.interval);
-        if(Strings.isNullOrEmpty(aggregationModel.field)) {
+        if (Strings.isNullOrEmpty(aggregationModel.field)) {
             aggregationModel.field = collectionReference.params.timestampPath;
         }
         DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram(DATEHISTOGRAM_AGG);
@@ -706,7 +707,7 @@ public class FluidSearch {
         return aggregationBuilder;
     }
 
-    private void setGeoMetricAggregationCollectField( Aggregation aggregationModel) throws ArlasException {
+    private void setGeoMetricAggregationCollectField(Aggregation aggregationModel) throws ArlasException {
         if (aggregationModel.collectField == null) {
             aggregationModel.collectField = collectionReference.params.centroidPath;
         } else {
@@ -795,6 +796,16 @@ public class FluidSearch {
         return new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.LEFT);
     }
 
+    private PolygonBuilder createPolygonBuilder(double[] bbox) {
+        CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
+        coordinatesBuilder.coordinate(bbox[2], bbox[1]);
+        coordinatesBuilder.coordinate(bbox[2], bbox[3]);
+        coordinatesBuilder.coordinate(bbox[0], bbox[3]);
+        coordinatesBuilder.coordinate(bbox[0], bbox[1]);
+        coordinatesBuilder.coordinate(bbox[2], bbox[1]);
+        return new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.LEFT);
+    }
+
     private MultiPolygonBuilder createMultiPolygonBuilder(MultiPolygon multiPolygon) {
         MultiPolygonBuilder multiPolygonBuilder = new MultiPolygonBuilder(ShapeBuilder.Orientation.LEFT);
         for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
@@ -816,24 +827,36 @@ public class FluidSearch {
     }
 
     private ShapeBuilder getShapeBuilder(String geometry) throws ArlasException {
-        // TODO: multilinestring
-        Geometry wktGeometry = readWKT(geometry);
-        if (wktGeometry != null) {
-            String geometryType = wktGeometry.getGeometryType().toUpperCase();
-            switch (geometryType) {
-                case "POLYGON":
-                    return createPolygonBuilder((Polygon) wktGeometry);
-                case "MULTIPOLYGON":
-                    return createMultiPolygonBuilder((MultiPolygon) wktGeometry);
-                case "LINESTRING":
-                    return createLineStringBuilder((LineString) wktGeometry);
-                case "POINT":
-                    return createPointBuilder((Point) wktGeometry);
-                default:
-                    throw new InvalidParameterException("The given geometry is not handled.");
+        // test if geometry is west, south, east, north commat separated
+        if (isBboxMatch(geometry)) {
+            CheckParams.checkBbox(geometry);
+            return createPolygonBuilder((double[]) CheckParams.toDoubles(geometry));
+        } else {
+            // TODO: multilinestring
+            Geometry wktGeometry = readWKT(geometry);
+            if (wktGeometry != null) {
+                String geometryType = wktGeometry.getGeometryType().toUpperCase();
+                switch (geometryType) {
+                    case "POLYGON":
+                        return createPolygonBuilder((Polygon) wktGeometry);
+                    case "MULTIPOLYGON":
+                        return createMultiPolygonBuilder((MultiPolygon) wktGeometry);
+                    case "LINESTRING":
+                        return createLineStringBuilder((LineString) wktGeometry);
+                    case "POINT":
+                        return createPointBuilder((Point) wktGeometry);
+                    default:
+                        throw new InvalidParameterException("The given geometry is not handled.");
+                }
             }
+            throw new InvalidParameterException("The given geometry is invalid.");
         }
-        throw new InvalidParameterException("The given geometry is invalid.");
+    }
+
+    private boolean isBboxMatch(String geometry) {
+        String floatPattern = "[-+]?[0-9]*\\.?[0-9]+";
+        String bboxPattern = floatPattern + "," + floatPattern + "," + floatPattern + "," + floatPattern;
+        return Pattern.compile("^" + bboxPattern + "$").matcher(geometry).matches();
     }
 
     public void setCollectionReference(CollectionReference collectionReference) {
