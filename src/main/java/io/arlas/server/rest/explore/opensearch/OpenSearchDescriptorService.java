@@ -123,6 +123,12 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             description.tags = os.tags;
         }
         addURLs(prefix, description.url, admin.describeCollection(cr).properties, new Stack<>());
+        List<Url> urls = new ArrayList<>();
+        description.url.forEach(url -> {
+            urls.add(url(url.template+"&gintersect={geo:box?}"));
+            urls.add(url(url.template+"&gintersect={geo:geometry?}"));
+        });
+        description.url=urls;
         return cache(Response.ok(description), maxagecache);
     }
 
