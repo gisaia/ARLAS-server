@@ -132,11 +132,11 @@ The `filter` url part allows the following parameters to be specified:
 | **f**             | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **`:eq:`** and **`:range:`** filters, values can be comma separated (field`:eq:`v1,v2) which stands for an **OR**. For the **`:ne:`**  filter, values can be comma separated (field`:ne:`v1,v2) which stands for an **AND** | true     |
 | **q**             | None          | `{text}` or `{fieldname}:{text}` | A full text search. Optionally, it's possible to search the text on a specific field                       | false    |
 | **pwithin**       | None          | geometry                       | Any element having its centroid contained within the given BBOX : `west, south, east, north`| false    |
-| **gwithin**       | None          | geometry                       | Any element having its geometry contained within the given geometry | false    |
-| **gintersect**    | None          | geometry                       | Any element having its geometry intersecting the given geometry (WKT) | false    |
+| **gwithin**       | None          | geometry                       | Any element having its geometry contained within the given geometry (WKT) or the given BBOX : `west, south, east, north` | false    |
+| **gintersect**    | None          | geometry                       | Any element having its geometry intersecting the given geometry (WKT) or the given BBOX : `west, south, east, north` | false    |
 | **notpwithin**    | None          | geometry                       | Any element having its centroid outside the given BBOX : `west, south, east, north` | false    |
-| **notgwithin**    | None          | geometry                       | Any element having its geometry not contained within the given geometry | false    |
-| **notgintersect** | None          | geometry                       | Any element having its geometry not intersecting the given geometry (WKT) | false    |
+| **notgwithin**    | None          | geometry                       | Any element having its geometry not contained within the given geometry (WKT) or the given BBOX : `west, south, east, north` | false    |
+| **notgintersect** | None          | geometry                       | Any element having its geometry not intersecting the given geometry (WKT) or the given BBOX : `west, south, east, north` | false    |
 
 #### Filter parameters algebra
 

@@ -60,24 +60,24 @@ public class CheckParams {
         if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
             for(MultiValueFilter<String> multiPwithin : filter.pwithin) {
                 for(String pw : multiPwithin) {
-                    double[] tlbr = CheckParams.toDoubles(pw);
-                    // west, south, east, north
-                    if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
-                        throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
-                    }
+                    checkBbox(pw);
                 }
             }
         }
         if (filter.notpwithin != null && !filter.notpwithin.isEmpty()) {
             for(MultiValueFilter<String> multiNotPwithin : filter.notpwithin) {
                 for(String npw : multiNotPwithin) {
-                    double[] tlbr = CheckParams.toDoubles(npw);
-                    // west, south, east, north
-                    if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
-                        throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
-                    }
+                    checkBbox(npw);
                 }
             }
+        }
+    }
+
+    public static void checkBbox(String bbox) throws InvalidParameterException {
+        double[] tlbr = CheckParams.toDoubles(bbox);
+        // west, south, east, north
+        if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
+            throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
         }
     }
 
