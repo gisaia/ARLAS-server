@@ -25,12 +25,14 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import io.arlas.server.ogc.csw.CSWHandler;
+import io.arlas.server.ogc.csw.CSWService;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.health.ElasticsearchHealthCheck;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
 import io.dropwizard.assets.AssetsBundle;
-import io.arlas.server.wfs.WFSHandler;
-import io.arlas.server.wfs.WFSService;
+import io.arlas.server.ogc.wfs.WFSHandler;
+import io.arlas.server.ogc.wfs.WFSService;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
@@ -155,7 +157,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         }
         if(configuration.arlasServiceWFSEnabled){
             LOGGER.info("WFS Service enabled");
-            WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration);
+            WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration,configuration.ogcConfiguration);
             environment.jersey().register(new WFSService(exploration, wfsHandler));
         }else{
             LOGGER.info("WFS Service disabled");
@@ -165,6 +167,13 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             environment.jersey().register(new OpenSearchDescriptorService(exploration));
         }else{
             LOGGER.info("OPENSEARCH Service disabled");
+        }
+        if(configuration.arlasServiceCSWEnabled){
+            LOGGER.info("CSW Service enabled");
+            CSWHandler cswHandler = new CSWHandler(configuration.ogcConfiguration);
+            environment.jersey().register(new CSWService(cswHandler));
+        }else{
+            LOGGER.info("CSW Service disabled");
         }
         //filters
         environment.jersey().register(PrettyPrintFilter.class);

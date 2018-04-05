@@ -17,36 +17,22 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.ogc.csw;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.arlas.server.exceptions.ArlasConfigurationException;
-import org.elasticsearch.common.Strings;
-import java.util.Arrays;
-import java.util.List;
+import io.arlas.server.app.OGCConfiguration;
+import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
+import net.opengis.cat.csw._3.ObjectFactory;
 
-public class WFSConfiguration {
+public class CSWHandler {
 
-    @JsonProperty("featureNamespace")
-    public String featureNamespace;
+    public GetCapabilitiesHandler getCapabilitiesHandler;
+    public OGCConfiguration ogcConfiguration;
 
-    @JsonProperty("replaceChar")
-    public String replaceChar;
+    public ObjectFactory cswFactory = new ObjectFactory();
+    public net.opengis.ows._2.ObjectFactory owsFactory = new net.opengis.ows._2.ObjectFactory();
 
-    @JsonProperty("queryMaxFeature")
-    public Number queryMaxFeature;
-
-    public String getFeatureNamespace() {
-        return featureNamespace;
+    public CSWHandler(OGCConfiguration ogcConfiguration)  {
+        this.ogcConfiguration=ogcConfiguration;
+        getCapabilitiesHandler = new GetCapabilitiesHandler(this);
     }
-
-    public Number getQueryMaxFeature()  {
-        return queryMaxFeature;
-    }
-
-    public String getReplaceChar() {
-        return replaceChar;
-    }
-
-
 }

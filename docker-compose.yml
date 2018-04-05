@@ -26,7 +26,7 @@ services:
       - "ARLAS_SERVICE_WFS_ENABLE=true"
       - "ARLAS_PREFIX=${ARLAS_PREFIX:-/arlas}"
       - "ARLAS_APP_PATH=${ARLAS_APP_PATH:-/}"
-      - "ARLAS_WFS_SERVER_URI=${ARLAS_WFS_SERVER_URI:-http://arlas-server:9999/arlas/}"
+      - "ARLAS_OGC_SERVER_URI=${ARLAS_OGC_SERVER_URI:-http://arlas-server:9999/arlas/}"
     ports:
       - 19999:9999
     command: ["/opt/app/wait-for-elasticsearch.sh", "elasticsearch", "9300"]

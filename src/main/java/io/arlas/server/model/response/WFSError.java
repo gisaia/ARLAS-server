@@ -19,8 +19,8 @@
 
 package io.arlas.server.model.response;
 
-import io.arlas.server.exceptions.WFSException;
-import io.arlas.server.exceptions.WFSExceptionMessage;
+import io.arlas.server.exceptions.OGCException;
+import io.arlas.server.exceptions.OGCExceptionMessage;
 import net.opengis.ows._1.ExceptionReport;
 import net.opengis.ows._1.ExceptionType;
 import net.opengis.ows._1.ObjectFactory;
@@ -29,12 +29,12 @@ public class WFSError {
 
     public ExceptionReport exceptionReport;
 
-    public WFSError(WFSException e){
+    public WFSError(OGCException e){
         ObjectFactory owsFactory = new ObjectFactory();
         ExceptionReport exceptionReport = owsFactory.createExceptionReport();
         exceptionReport.setLang(e.getLanguage());
         exceptionReport.setVersion(e.getVersion());
-        for (WFSExceptionMessage message : e.getExceptionMessages()) {
+        for (OGCExceptionMessage message : e.getExceptionMessages()) {
             ExceptionType exceptionType = owsFactory.createExceptionType();
             exceptionType.setExceptionCode(message.getExceptionCode().getValue());
             exceptionType.setLocator(message.getLocator());

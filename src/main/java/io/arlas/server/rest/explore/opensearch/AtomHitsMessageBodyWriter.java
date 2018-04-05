@@ -28,9 +28,9 @@ import io.arlas.server.ns.ATOM;
 import io.arlas.server.ns.GEORSS;
 import io.arlas.server.ns.GML;
 import io.arlas.server.ns.OPENSEARCH;
+import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.utils.MapExplorer;
-import io.arlas.server.wfs.utils.GeoFormat;
 import org.elasticsearch.common.Strings;
 
 import javax.ws.rs.Produces;
