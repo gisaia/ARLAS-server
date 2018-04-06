@@ -23,8 +23,8 @@ import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.swagger.annotations.ApiOperation;
@@ -48,33 +48,33 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(value = "Describe", produces = UTF8JSON, notes = "Describe the structure and the content of the given collection. ", consumes = UTF8JSON, response = CollectionReferenceDescription.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReferenceDescription.class, responseContainer = "CollectionReferenceDescription" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReferenceDescription.class, responseContainer = "CollectionReferenceDescription"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
     public Response describe(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
             @ApiParam(
                     name = "collection",
-                    value="collection",
+                    value = "collection",
                     allowMultiple = false,
-                    required=true)
+                    required = true)
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value="Pretty print",
+            @ApiParam(name = "pretty", value = "Pretty print",
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty,
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
-            @ApiParam(value="max-age-cache", required=false)
-            @QueryParam(value="max-age-cache") Integer maxagecache
+            @ApiParam(value = "max-age-cache", required = false)
+            @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
@@ -84,6 +84,6 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
 
         ElasticAdmin elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
         CollectionReferenceDescription collectionReferenceDescription = elasticAdmin.describeCollection(collectionReference);
-        return cache(Response.ok(collectionReferenceDescription),maxagecache);
+        return cache(Response.ok(collectionReferenceDescription), maxagecache);
     }
 }

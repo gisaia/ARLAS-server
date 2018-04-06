@@ -19,13 +19,13 @@
 
 package io.arlas.server.exceptions;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.arlas.server.rest.ResponseFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
 
 public class JsonProcessingExceptionMapper implements ExceptionMapper<JsonProcessingException> {
     Logger logger = LoggerFactory.getLogger(ArlasExceptionMapper.class);

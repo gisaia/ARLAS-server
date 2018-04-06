@@ -28,10 +28,10 @@ public enum TimestampType {
     basic_date(ISODateTimeFormat.basicDate()), basic_date_time(ISODateTimeFormat.basicDateTime()),
     basic_date_time_no_millis(ISODateTimeFormat.basicDateTimeNoMillis()),
 
-    basic_ordinal_date(ISODateTimeFormat.basicOrdinalDate()),  basic_ordinal_date_time(ISODateTimeFormat.basicOrdinalDateTime()),
+    basic_ordinal_date(ISODateTimeFormat.basicOrdinalDate()), basic_ordinal_date_time(ISODateTimeFormat.basicOrdinalDateTime()),
     basic_ordinal_date_time_no_millis(ISODateTimeFormat.basicOrdinalDateTimeNoMillis()),
 
-    basic_time(ISODateTimeFormat.basicTime()),  basic_time_no_millis(ISODateTimeFormat.basicTimeNoMillis()),
+    basic_time(ISODateTimeFormat.basicTime()), basic_time_no_millis(ISODateTimeFormat.basicTimeNoMillis()),
 
     basic_t_time(ISODateTimeFormat.basicTTime()), basic_t_time_no_millis(ISODateTimeFormat.basicTTimeNoMillis()),
 
@@ -96,8 +96,8 @@ public enum TimestampType {
 
     public static TimestampType getElasticsearchPatternName(String name) {
         TimestampType ret = UNKNOWN;
-        for(TimestampType t : TimestampType.values()) {
-            if(t.name().equals(name)) {
+        for (TimestampType t : TimestampType.values()) {
+            if (t.name().equals(name)) {
                 ret = t;
                 break;
             }

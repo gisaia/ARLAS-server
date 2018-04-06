@@ -29,7 +29,7 @@ public class WFSError {
 
     public ExceptionReport exceptionReport;
 
-    public WFSError(OGCException e){
+    public WFSError(OGCException e) {
         ObjectFactory owsFactory = new ObjectFactory();
         ExceptionReport exceptionReport = owsFactory.createExceptionReport();
         exceptionReport.setLang(e.getLanguage());
@@ -43,6 +43,6 @@ public class WFSError {
             }
             exceptionReport.getException().add(exceptionType);
         }
-        this.exceptionReport=exceptionReport;
+        this.exceptionReport = exceptionReport;
     }
 }

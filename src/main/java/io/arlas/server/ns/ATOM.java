@@ -20,7 +20,7 @@
 package io.arlas.server.ns;
 
 public class ATOM {
-    public static final String XML_PREFIX="atom";
-    public static final String XML_NS="http://www.w3.org/2005/Atom";
+    public static final String XML_PREFIX = "atom";
+    public static final String XML_NS = "http://www.w3.org/2005/Atom";
     public static final String APPLICATION_ATOM_XML = "application/atom+xml";
 }

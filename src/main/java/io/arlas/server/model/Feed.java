@@ -22,81 +22,81 @@ package io.arlas.server.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Feed {
-    @JsonProperty(value="author", required = false)
+    @JsonProperty(value = "author", required = false)
     public Person author;
 
-    @JsonProperty(value="contributor", required = false)
+    @JsonProperty(value = "contributor", required = false)
     public Person contributor;
 
-    @JsonProperty(value="icon", required = false)
+    @JsonProperty(value = "icon", required = false)
     public String icon;
 
-    @JsonProperty(value="logo", required = false)
+    @JsonProperty(value = "logo", required = false)
     public String logo;
 
-    @JsonProperty(value="rights", required = false)
+    @JsonProperty(value = "rights", required = false)
     public String rights;
 
-    @JsonProperty(value="subtitle", required = false)
+    @JsonProperty(value = "subtitle", required = false)
     public String subtitle;
 
-    @JsonProperty(value="generator", required = false)
+    @JsonProperty(value = "generator", required = false)
     public Generator generator;
 
     public class Entry {
-        @JsonProperty(value="title_path", required = false)
+        @JsonProperty(value = "title_path", required = false)
         public String titlePath;
 
-        @JsonProperty(value="author_name_path", required = false)
+        @JsonProperty(value = "author_name_path", required = false)
         public String authorNamePath;
 
-        @JsonProperty(value="author_email_path", required = false)
+        @JsonProperty(value = "author_email_path", required = false)
         public String authorEmailPath;
 
-        @JsonProperty(value="contributor_name_path", required = false)
+        @JsonProperty(value = "contributor_name_path", required = false)
         public String contributorNamePath;
 
-        @JsonProperty(value="contributor_email_path", required = false)
+        @JsonProperty(value = "contributor_email_path", required = false)
         public String contributorEmailPath;
 
-        @JsonProperty(value="id_path", required = false)
+        @JsonProperty(value = "id_path", required = false)
         public String idPath;
 
-        @JsonProperty(value="updated_path", required = false)
+        @JsonProperty(value = "updated_path", required = false)
         public String updatedPath;
 
-        @JsonProperty(value="published_path", required = false)
+        @JsonProperty(value = "published_path", required = false)
         public String publishedPath;
 
-        @JsonProperty(value="rights_path", required = false)
+        @JsonProperty(value = "rights_path", required = false)
         public String rightsPath;
 
-        @JsonProperty(value="includes", required = false)
+        @JsonProperty(value = "includes", required = false)
         public String includes;
 
-        @JsonProperty(value="excludes", required = false)
+        @JsonProperty(value = "excludes", required = false)
         public String excludes;
     }
 
     public class Person {
-        @JsonProperty(value="name", required = false)
+        @JsonProperty(value = "name", required = false)
         public String name;
 
-        @JsonProperty(value="email", required = false)
+        @JsonProperty(value = "email", required = false)
         public String email;
 
-        @JsonProperty(value="uri", required = false)
+        @JsonProperty(value = "uri", required = false)
         public String uri;
     }
 
-    public class Generator{
-        @JsonProperty(value="name", required = false)
+    public class Generator {
+        @JsonProperty(value = "name", required = false)
         public String name;
 
-        @JsonProperty(value="version", required = false)
+        @JsonProperty(value = "version", required = false)
         public String version;
 
-        @JsonProperty(value="uri", required = false)
+        @JsonProperty(value = "uri", required = false)
         public String uri;
     }
 }

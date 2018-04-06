@@ -19,32 +19,32 @@
 
 package io.arlas.server;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
-
+import io.arlas.server.model.request.Filter;
+import io.arlas.server.model.request.Request;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Request;
+import java.io.IOException;
+import java.net.UnknownHostException;
 
 public abstract class AbstractTestWithDataSet extends AbstractTestContext {
 
     protected static Request request = new Request();
-    static{
+
+    static {
         request.filter = new Filter();
     }
 
     @BeforeClass
     public static void beforeClass() {
         try {
-           DataSetTool.loadDataSet();
+            DataSetTool.loadDataSet();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {

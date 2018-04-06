@@ -22,6 +22,7 @@ package io.arlas.server.ogc.wfs.operation.storedquery;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import net.opengis.wfs._2.ListStoredQueriesResponseType;
 import net.opengis.wfs._2.StoredQueryListItemType;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.util.List;
@@ -31,7 +32,7 @@ public class ListStoredQueriesHandler {
     public ListStoredQueriesResponseType listStoredQueriesResponseType;
     private WFSHandler wfsHandler;
 
-    public ListStoredQueriesHandler(WFSHandler wfsHandler){
+    public ListStoredQueriesHandler(WFSHandler wfsHandler) {
         this.wfsHandler = wfsHandler;
         listStoredQueriesResponseType = wfsHandler.wfsFactory.createListStoredQueriesResponseType();
         List<StoredQuery> storedQueries = wfsHandler.storedQueryManager.listStoredQueries();
@@ -40,13 +41,13 @@ public class ListStoredQueriesHandler {
             storedQueryListItemType.setId(sq.getId());
             sq.getTitle().forEach(title -> storedQueryListItemType.getTitle().add(title));
             sq.getReturnFeatureTypeNames().forEach(ftn -> storedQueryListItemType.getReturnFeatureType().add(ftn));
-            if(listStoredQueriesResponseType.getStoredQuery().indexOf(storedQueryListItemType)<0){
+            if (listStoredQueriesResponseType.getStoredQuery().indexOf(storedQueryListItemType) < 0) {
                 listStoredQueriesResponseType.getStoredQuery().add(storedQueryListItemType);
             }
         });
     }
 
-    public void setFeatureType(QName featureQname){
+    public void setFeatureType(QName featureQname) {
         listStoredQueriesResponseType
                 .getStoredQuery()
                 .forEach(storedQueryListItemType -> {
@@ -59,6 +60,6 @@ public class ListStoredQueriesHandler {
     }
 
     public JAXBElement<ListStoredQueriesResponseType> getListStoredQueriesResponse() {
-        return  wfsHandler.wfsFactory.createListStoredQueriesResponse(listStoredQueriesResponseType);
+        return wfsHandler.wfsFactory.createListStoredQueriesResponse(listStoredQueriesResponseType);
     }
 }

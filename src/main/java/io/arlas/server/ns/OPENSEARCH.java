@@ -20,6 +20,6 @@
 package io.arlas.server.ns;
 
 public class OPENSEARCH {
-    public static final String XML_PREFIX="opensearch";
-    public static final String XML_NS="http://a9.com/-/spec/opensearch/1.1/";
+    public static final String XML_PREFIX = "opensearch";
+    public static final String XML_NS = "http://a9.com/-/spec/opensearch/1.1/";
 }

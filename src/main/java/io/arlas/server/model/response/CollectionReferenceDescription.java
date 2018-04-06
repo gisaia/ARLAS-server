@@ -26,13 +26,13 @@ import java.util.Map;
 
 @JsonSnakeCase
 public class CollectionReferenceDescription extends CollectionReference {
-    public Map<String,CollectionReferenceDescriptionProperty> properties;
+    public Map<String, CollectionReferenceDescriptionProperty> properties;
 
     @Override
     public boolean equals(Object obj) {
         boolean ret = false;
-        if(obj instanceof CollectionReferenceDescription) {
-            CollectionReferenceDescription collection = (CollectionReferenceDescription)obj;
+        if (obj instanceof CollectionReferenceDescription) {
+            CollectionReferenceDescription collection = (CollectionReferenceDescription) obj;
             ret = collection.params.indexName.equals(this.params.indexName)
                     && collection.params.typeName.equals(this.params.typeName);
         }

@@ -7,11 +7,11 @@ public class Tile {
     int yTile;
     int zTile;
 
-    public Tile(int x, int y, int z) throws ArlasException{
+    public Tile(int x, int y, int z) throws ArlasException {
         CheckParams.checkXYZTileValidity(x, y, z);
-        this.xTile=x;
-        this.yTile=y;
-        this.zTile=z;
+        this.xTile = x;
+        this.yTile = y;
+        this.zTile = z;
     }
 
     public int getxTile() {

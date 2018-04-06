@@ -33,7 +33,6 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import java.util.Stack;
 import java.util.regex.Pattern;
 
@@ -42,7 +41,7 @@ public class DescribeFeatureTypeHandler {
     private WFSHandler wfsHandler;
 
     public DescribeFeatureTypeHandler(WFSHandler wfsHandler) {
-        this.wfsHandler=wfsHandler;
+        this.wfsHandler = wfsHandler;
     }
 
     public StreamingOutput getDescribeFeatureTypeResponse(CollectionReference collectionReference, String uri) {
@@ -51,7 +50,7 @@ public class DescribeFeatureTypeHandler {
             @Override
             public void write(OutputStream outputStream) throws WebApplicationException {
                 try {
-                    writeArlasFeatureSchema(outputStream, collectionReference,uri);
+                    writeArlasFeatureSchema(outputStream, collectionReference, uri);
 
                 } catch (XMLStreamException e) {
                     e.printStackTrace();
@@ -61,7 +60,7 @@ public class DescribeFeatureTypeHandler {
         return streamingOutput;
     }
 
-    public void writeArlasFeatureSchema(OutputStream outputStream, CollectionReference collectionReference, String uri)throws XMLStreamException {
+    public void writeArlasFeatureSchema(OutputStream outputStream, CollectionReference collectionReference, String uri) throws XMLStreamException {
 
         String collectionName = collectionReference.collectionName;
         String geometryPath = collectionReference.params.geometryPath;
@@ -74,7 +73,7 @@ public class DescribeFeatureTypeHandler {
         writer.writeNamespace(WFSConstant.XS_PREFIX, WFSConstant.XSNS);
         writer.writeAttribute("attributeFormDefault", "unqualified");
         writer.writeAttribute("elementFormDefault", "qualified");
-        writer.writeAttribute("targetNamespace",uri);
+        writer.writeAttribute("targetNamespace", uri);
         writer.writeNamespace(WFSConstant.WFS_PREFIX, WFSConstant.WFS_NAMESPACE_URI);
         writer.writeNamespace(WFSConstant.GML_PREFIX, WFSConstant.GML_NAMESPACE_URI);
         writer.writeNamespace(wfsHandler.wfsConfiguration.featureNamespace, uri);
@@ -94,7 +93,7 @@ public class DescribeFeatureTypeHandler {
         writer.writeStartElement(WFSConstant.XSNS, "element");
         writer.writeAttribute("name", collectionName);
 
-        writer.writeAttribute("type", "arlas:" + collectionName +"FeatureType");
+        writer.writeAttribute("type", "arlas:" + collectionName + "FeatureType");
         writer.writeAttribute("substitutionGroup", parentElement);
         writer.writeEndElement();
 
@@ -114,12 +113,12 @@ public class DescribeFeatureTypeHandler {
         writer.writeAttribute("minOccurs", "1");
         writer.writeAttribute("maxOccurs", "1");
         ArrayList<Pattern> excludeFields = new ArrayList<>();
-        if(collectionReference.params.excludeWfsFields!=null){
-            Arrays.asList(collectionReference.params.excludeWfsFields.split(",")).forEach(field->{
-                excludeFields.add(Pattern.compile("^" + field.replace(".","\\.").replace("*",".*") + "$"));
+        if (collectionReference.params.excludeWfsFields != null) {
+            Arrays.asList(collectionReference.params.excludeWfsFields.split(",")).forEach(field -> {
+                excludeFields.add(Pattern.compile("^" + field.replace(".", "\\.").replace("*", ".*") + "$"));
             });
         }
-        XmlUtils.parsePropertiesXsd(((CollectionReferenceDescription) collectionReference).properties,writer, new Stack<String>(),excludeFields);
+        XmlUtils.parsePropertiesXsd(((CollectionReferenceDescription) collectionReference).properties, writer, new Stack<String>(), excludeFields);
 
         writer.writeEndElement();
         writer.writeEndElement();

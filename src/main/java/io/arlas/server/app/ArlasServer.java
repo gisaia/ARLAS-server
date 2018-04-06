@@ -19,33 +19,18 @@
 
 package io.arlas.server.app;
 
-import java.net.InetAddress;
-import java.util.EnumSet;
-import java.util.Optional;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import io.arlas.server.ogc.csw.CSWHandler;
-import io.arlas.server.ogc.csw.CSWService;
-import io.arlas.server.exceptions.*;
-import io.arlas.server.health.ElasticsearchHealthCheck;
-import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
-import io.dropwizard.assets.AssetsBundle;
-import io.arlas.server.ogc.wfs.WFSHandler;
-import io.arlas.server.ogc.wfs.WFSService;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.kristofa.brave.Brave;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
+import io.arlas.server.exceptions.*;
+import io.arlas.server.health.ElasticsearchHealthCheck;
+import io.arlas.server.ogc.csw.CSWHandler;
+import io.arlas.server.ogc.csw.CSWService;
+import io.arlas.server.ogc.wfs.WFSHandler;
+import io.arlas.server.ogc.wfs.WFSService;
 import io.arlas.server.rest.PrettyPrintFilter;
 import io.arlas.server.rest.collections.ElasticCollectionService;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -61,7 +46,9 @@ import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
 import io.arlas.server.task.CollectionAutoDiscover;
+import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
@@ -69,15 +56,27 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
+import java.net.InetAddress;
+import java.util.EnumSet;
+import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ArlasServer extends Application<ArlasServerConfiguration> {
     Logger LOGGER = LoggerFactory.getLogger(ArlasServer.class);
+
     public static void main(String... args) throws Exception {
         new ArlasServer().run(args);
     }
@@ -105,9 +104,9 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
     @Override
     public void run(ArlasServerConfiguration configuration, Environment environment) throws Exception {
-        LOGGER.info("Raw configuration: "+ (new ObjectMapper()).writer().writeValueAsString(configuration));
+        LOGGER.info("Raw configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
         configuration.check();
-        LOGGER.info("Checked configuration: "+ (new ObjectMapper()).writer().writeValueAsString(configuration));
+        LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
 
         Settings settings;
         if (Strings.isNullOrEmpty(configuration.elasticcluster)) {
@@ -135,7 +134,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new ElasticsearchExceptionMapper());
         environment.jersey().register(new AtomHitsMessageBodyWriter(exploration));
 
-        if(configuration.arlasServiceExploreEnabled){
+        if (configuration.arlasServiceExploreEnabled) {
             environment.jersey().register(new CountRESTService(exploration));
             environment.jersey().register(new SearchRESTService(exploration));
             environment.jersey().register(new AggregateRESTService(exploration));
@@ -146,33 +145,33 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             environment.jersey().register(new RawRESTService(exploration));
             environment.jersey().register(new DescribeCollectionRESTService(exploration));
             LOGGER.info("Explore API enabled");
-        }else{
+        } else {
             LOGGER.info("Explore API disabled");
         }
-        if(configuration.arlasServiceCollectionsEnabled) {
+        if (configuration.arlasServiceCollectionsEnabled) {
             LOGGER.info("Collection API enabled");
             environment.jersey().register(new ElasticCollectionService(client, configuration));
-        }else{
+        } else {
             LOGGER.info("Collection API disabled");
         }
-        if(configuration.arlasServiceWFSEnabled){
+        if (configuration.arlasServiceWFSEnabled) {
             LOGGER.info("WFS Service enabled");
-            WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration,configuration.ogcConfiguration);
+            WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration, configuration.ogcConfiguration);
             environment.jersey().register(new WFSService(exploration, wfsHandler));
-        }else{
+        } else {
             LOGGER.info("WFS Service disabled");
         }
-        if(configuration.arlasServiceOPENSEARCHEnabled){
+        if (configuration.arlasServiceOPENSEARCHEnabled) {
             LOGGER.info("OPENSEARCH Service enabled");
             environment.jersey().register(new OpenSearchDescriptorService(exploration));
-        }else{
+        } else {
             LOGGER.info("OPENSEARCH Service disabled");
         }
-        if(configuration.arlasServiceCSWEnabled){
+        if (configuration.arlasServiceCSWEnabled) {
             LOGGER.info("CSW Service enabled");
             CSWHandler cswHandler = new CSWHandler(configuration.ogcConfiguration);
             environment.jersey().register(new CSWService(cswHandler));
-        }else{
+        } else {
             LOGGER.info("CSW Service disabled");
         }
         //filters
@@ -182,7 +181,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         //tasks
         environment.admin().addTask(new CollectionAutoDiscover(client, configuration));
         int scheduleAutoDiscover = configuration.collectionAutoDiscoverConfiguration.schedule;
-        if(scheduleAutoDiscover > 0) {
+        if (scheduleAutoDiscover > 0) {
             String nameFormat = "collection-auto-discover-%d";
             ScheduledExecutorServiceBuilder sesBuilder = environment.lifecycle().scheduledExecutorService(nameFormat);
             ScheduledExecutorService ses = sesBuilder.build();
@@ -194,7 +193,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.healthChecks().register("elasticsearch", new ElasticsearchHealthCheck(client));
 
         //cors
-        if(configuration.arlascorsenabled) {
+        if (configuration.arlascorsenabled) {
             configureCors(environment);
         }
     }

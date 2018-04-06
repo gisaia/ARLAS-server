@@ -23,20 +23,22 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 public class Url {
 
-    public static enum REL {results, suggestions, self, collection};
-    
+    public static enum REL {results, suggestions, self, collection}
+
+    ;
+
     @XmlAttribute(name = "template")
-    public String template="";
+    public String template = "";
 
     @XmlAttribute(name = "type")
-    public String type="";
+    public String type = "";
 
     @XmlAttribute(name = "rel")
     public REL rel;
 
     @XmlAttribute(name = "indexOffset")
-    public String indexOffset="";
+    public String indexOffset = "";
 
     @XmlAttribute(name = "pageOffset")
-    public String pageOffset="";
+    public String pageOffset = "";
 }

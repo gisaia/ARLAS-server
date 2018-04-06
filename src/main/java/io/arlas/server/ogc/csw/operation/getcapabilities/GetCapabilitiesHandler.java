@@ -32,13 +32,13 @@ import java.util.Arrays;
 
 public class GetCapabilitiesHandler {
 
-    private static final String TRUE ="TRUE";
-    private static final String FALSE ="FALSE";
-    private static final String[] SECTION_NAMES = {"ServiceIdentification","ServiceProvider","Filter_Capabilities"};
+    private static final String TRUE = "TRUE";
+    private static final String FALSE = "FALSE";
+    private static final String[] SECTION_NAMES = {"ServiceIdentification", "ServiceProvider", "Filter_Capabilities"};
     private static final String SECTION_DOMAIN_NAME = "Sections";
-    private static final String ACCEPT_VERSIONS_DOMAIN_NAME ="AcceptVersions";
-    private static final String RESOLVE_DOMAIN_NAME ="resolve";
-    private static final String LOCAL_VALUE ="local";
+    private static final String ACCEPT_VERSIONS_DOMAIN_NAME = "AcceptVersions";
+    private static final String RESOLVE_DOMAIN_NAME = "resolve";
+    private static final String LOCAL_VALUE = "local";
 
 
     public CSWHandler cswHandler;
@@ -48,7 +48,6 @@ public class GetCapabilitiesHandler {
 
     protected ValueType trueValueType = new ValueType();
     protected ValueType falseValueType = new ValueType();
-
 
 
     public GetCapabilitiesHandler(CSWHandler cswHandler) {
@@ -109,20 +108,20 @@ public class GetCapabilitiesHandler {
         });
     }
 
-    private void addSection(String sectionName,DomainType sections){
+    private void addSection(String sectionName, DomainType sections) {
         ValueType serviceIdentification = new ValueType();
         serviceIdentification.setValue(sectionName);
         sections.getAllowedValues().getValueOrRange().add(serviceIdentification);
     }
 
-    private void addOperation(String operationName,OperationsMetadata operationsMetadata,DomainType... parameters){
+    private void addOperation(String operationName, OperationsMetadata operationsMetadata, DomainType... parameters) {
         DCP dcp = new DCP();
         HTTP http = new HTTP();
         dcp.setHTTP(http);
         Operation operation = new Operation();
         operation.setName(operationName);
         operation.getDCP().add(dcp);
-        Arrays.asList(parameters).forEach(parameter->operation.getParameter().add(parameter));
+        Arrays.asList(parameters).forEach(parameter -> operation.getParameter().add(parameter));
         operationsMetadata.getOperation().add(operation);
     }
 
@@ -141,7 +140,7 @@ public class GetCapabilitiesHandler {
         sections.setName(SECTION_DOMAIN_NAME);
         sections.setAllowedValues(new AllowedValues());
         //add sections
-        Arrays.asList(SECTION_NAMES).forEach(sectionName->addSection(sectionName,sections));
+        Arrays.asList(SECTION_NAMES).forEach(sectionName -> addSection(sectionName, sections));
         //create resolve parameter for GetFeature and GetPropertyValue operation
         DomainType resolve = new DomainType();
         resolve.setName(RESOLVE_DOMAIN_NAME);
@@ -150,10 +149,10 @@ public class GetCapabilitiesHandler {
         local.setValue(LOCAL_VALUE);
         resolve.getAllowedValues().getValueOrRange().add(local);
         //add  operations
-        DomainType[] getCapabilitiesParameters = {acceptVersions,sections};
-        addOperation(CSWRequestType.GetCapabilities.name(),operationsMetadata,getCapabilitiesParameters);
-        addOperation(CSWRequestType.GetRecords.name(),operationsMetadata,noParameters);
-        addOperation(CSWRequestType.GetRecordById.name(),operationsMetadata,noParameters);
+        DomainType[] getCapabilitiesParameters = {acceptVersions, sections};
+        addOperation(CSWRequestType.GetCapabilities.name(), operationsMetadata, getCapabilitiesParameters);
+        addOperation(CSWRequestType.GetRecords.name(), operationsMetadata, noParameters);
+        addOperation(CSWRequestType.GetRecordById.name(), operationsMetadata, noParameters);
 
         //add  conformance
         getCapabilitiesType.setOperationsMetadata(operationsMetadata);

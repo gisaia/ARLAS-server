@@ -20,10 +20,6 @@
 package io.arlas.server.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.arlas.server.exceptions.ArlasConfigurationException;
-import org.elasticsearch.common.Strings;
-import java.util.Arrays;
-import java.util.List;
 
 public class WFSConfiguration {
 
@@ -40,7 +36,7 @@ public class WFSConfiguration {
         return featureNamespace;
     }
 
-    public Number getQueryMaxFeature()  {
+    public Number getQueryMaxFeature() {
         return queryMaxFeature;
     }
 

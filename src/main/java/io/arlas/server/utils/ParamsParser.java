@@ -135,7 +135,7 @@ public class ParamsParser {
     }
 
     public static Filter getFilter(String serializedFilter) throws InvalidParameterException {
-        if(serializedFilter!=null) {
+        if (serializedFilter != null) {
             try {
                 return objectMapper.readValue(serializedFilter, Filter.class);
             } catch (IOException e) {
@@ -152,15 +152,15 @@ public class ParamsParser {
 
         for (String multiF : filters) {
             MultiValueFilter<Expression> multiFilter = new MultiValueFilter<>();
-            for(String f : getMultiFiltersFromSemiColonsSeparatedString(multiF)) {
+            for (String f : getMultiFiltersFromSemiColonsSeparatedString(multiF)) {
                 if (!Strings.isNullOrEmpty(f)) {
                     String operands[] = f.split(":");
                     StringBuffer value = new StringBuffer();
                     if (operands.length < 3) {
                         throw new InvalidParameterException(FluidSearch.INVALID_PARAMETER_F + ": '" + f + "'");
                     } else {
-                        for(int i = 2; i < operands.length; i++) {
-                            if(value.length()>0)
+                        for (int i = 2; i < operands.length; i++) {
+                            if (value.length() > 0)
                                 value.append(":");
                             value.append(operands[i]);
                         }
@@ -182,7 +182,7 @@ public class ParamsParser {
 
     public static List<MultiValueFilter<String>> getStringMultiFilter(List<String> filters) {
         List<MultiValueFilter<String>> ret = null;
-        if(filters != null && !filters.isEmpty()) {
+        if (filters != null && !filters.isEmpty()) {
             ret = new ArrayList<>();
             for (String multiFilterString : filters) {
                 MultiValueFilter<String> multiFilter = new MultiValueFilter<>();
@@ -231,7 +231,7 @@ public class ParamsParser {
         if (geoSortLatLon.length > 1) {
             Double lat = tryParseDouble(geoSortLatLon[0]);
             Double lon = tryParseDouble(geoSortLatLon[1]);
-            if (lat != null && lon != null ) {
+            if (lat != null && lon != null) {
                 return new GeoPoint(lat, lon);
             } else {
                 throw new InvalidParameterException(FluidSearch.INVALID_GEOSORT_LAT_LON);
@@ -261,22 +261,22 @@ public class ParamsParser {
         TimestampTypeMapper.formatDate(max, format);
     }
 
-    public static List<String> simplifyPwithinAgainstBbox(List<String>  pwithin, BoundingBox bbox) throws ArlasException {
+    public static List<String> simplifyPwithinAgainstBbox(List<String> pwithin, BoundingBox bbox) throws ArlasException {
         List<String> simplifiedPwithin = new ArrayList<>();
         List<MultiValueFilter<String>> pwithinFilters = ParamsParser.getStringMultiFilter(pwithin);
-        if(pwithinFilters != null && !pwithinFilters.isEmpty()){
-            for(MultiValueFilter<String> pws : pwithinFilters) {
+        if (pwithinFilters != null && !pwithinFilters.isEmpty()) {
+            for (MultiValueFilter<String> pws : pwithinFilters) {
                 StringBuffer buff = new StringBuffer();
-                for(String pw : pws) {
+                for (String pw : pws) {
                     BoundingBox simplifiedBbox = GeoTileUtil.bboxIntersects(bbox, pw);
-                    if(simplifiedBbox != null && simplifiedBbox.getNorth() > simplifiedBbox.getSouth()) {
-                        if(buff.length()>0)
+                    if (simplifiedBbox != null && simplifiedBbox.getNorth() > simplifiedBbox.getSouth()) {
+                        if (buff.length() > 0)
                             buff.append(";");
                         // west, south, east, north
                         buff.append(simplifiedBbox.getWest() + "," + simplifiedBbox.getSouth() + "," + simplifiedBbox.getEast() + "," + simplifiedBbox.getNorth());
                     }
                 }
-                if(buff.length()>0) {
+                if (buff.length() > 0) {
                     simplifiedPwithin.add(buff.toString());
                 }
             }

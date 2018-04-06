@@ -70,15 +70,15 @@ public class WFSQueryBuilder {
                            String partitionFilter,
                            ExploreServices exploreServices)
             throws ArlasException, IOException, ParserConfigurationException, SAXException {
-        this.requestType=requestType;
-        this.id=id;
-        this.bbox=bbox;
-        this.filter =filter;
-        this.resourceid=resourceid;
-        this.storedquery_id=storedquery_id;
-        this.partitionFilter=partitionFilter;
-        this.exploreServices=exploreServices;
-        this.collectionReferenceDescription=collectionReferenceDescription;
+        this.requestType = requestType;
+        this.id = id;
+        this.bbox = bbox;
+        this.filter = filter;
+        this.resourceid = resourceid;
+        this.storedquery_id = storedquery_id;
+        this.partitionFilter = partitionFilter;
+        this.exploreServices = exploreServices;
+        this.collectionReferenceDescription = collectionReferenceDescription;
 
         if (filter != null) {
             buildFilterQuery();
@@ -89,7 +89,7 @@ public class WFSQueryBuilder {
         } else if (storedquery_id != null) {
             buildStoredQueryIdQuery();
         }
-        if(partitionFilter!=null){
+        if (partitionFilter != null) {
             addPartitionFilter();
         }
     }
@@ -123,7 +123,7 @@ public class WFSQueryBuilder {
         wfsQuery.filter(getBBoxBoolQueryBuilder(bbox, collectionReferenceDescription.params.centroidPath));
     }
 
-    private void buildRessourceIdQuery(){
+    private void buildRessourceIdQuery() {
         if (resourceid.contains(",")) {
             BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
             for (String resourceIdValue : Arrays.asList(resourceid.split(","))) {
@@ -149,7 +149,7 @@ public class WFSQueryBuilder {
         FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
         fluidSearch.setCollectionReference(collectionReferenceDescription);
         Filter headerFilter = ParamsParser.getFilter(partitionFilter);
-        exploreServices.applyFilter(headerFilter,fluidSearch);
+        exploreServices.applyFilter(headerFilter, fluidSearch);
         wfsQuery.filter(fluidSearch.getBoolQueryBuilder());
     }
 

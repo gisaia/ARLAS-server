@@ -19,33 +19,33 @@
 
 package io.arlas.server.core;
 
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import org.elasticsearch.client.Client;
-
 import io.arlas.server.model.CollectionReference;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
+
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class ElasticDocument {
 
     public Client client;
 
-    public ElasticDocument(Client client){
+    public ElasticDocument(Client client) {
         this.client = client;
     }
-    
-    public Map<String,Object> getSource (CollectionReference collectionReference, String identifier) throws  ExecutionException, InterruptedException {
+
+    public Map<String, Object> getSource(CollectionReference collectionReference, String identifier) throws ExecutionException, InterruptedException {
         String[] excludes = collectionReference.params.excludeFields.split(",");
         SearchHits hits = client
                 .prepareSearch(collectionReference.params.indexName)
-                .setFetchSource(null,excludes)
-                .setQuery(QueryBuilders.matchQuery(collectionReference.params.idPath,identifier))
+                .setFetchSource(null, excludes)
+                .setQuery(QueryBuilders.matchQuery(collectionReference.params.idPath, identifier))
                 .execute()
                 .get()
                 .getHits();
-        Map<String,Object> response = null;
-        if(hits.getHits().length>0){
+        Map<String, Object> response = null;
+        if (hits.getHits().length > 0) {
             response = hits.getAt(0).getSourceAsMap();
         }
         return response;

@@ -20,19 +20,19 @@
 package io.arlas.server.ogc.wfs.utils;
 
 
-public  enum WFSRequestType {
+public enum WFSRequestType {
 
-        GetCapabilities,
-        DescribeFeatureType,
-        GetFeature,
-        Transaction,
-        GetFeatureWithLock,
-        GetGmlObject,
-        LockFeature,
-        GetPropertyValue,
-        CreateStoredQuery,
-        DropStoredQuery,
-        ListStoredQueries,
-        DescribeStoredQueries;
+    GetCapabilities,
+    DescribeFeatureType,
+    GetFeature,
+    Transaction,
+    GetFeatureWithLock,
+    GetGmlObject,
+    LockFeature,
+    GetPropertyValue,
+    CreateStoredQuery,
+    DropStoredQuery,
+    ListStoredQueries,
+    DescribeStoredQueries;
 
 }

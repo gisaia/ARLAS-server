@@ -19,10 +19,6 @@
 
 package io.arlas.server.rest.explore;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.hasKey;
-
 import io.arlas.server.model.request.MultiValueFilter;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
@@ -31,23 +27,26 @@ import org.hamcrest.Matcher;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
+
 public class SearchServiceIT extends AbstractSortedTest {
-    
+
     @Override
     public String getUrlPath(String collection) {
-        return arlasPath + "explore/"+collection+"/_search";
+        return arlasPath + "explore/" + collection + "/_search";
     }
-    
+
     @Override
     protected void handleNotMatchingRequest(ValidatableResponse then) {
         then.statusCode(200)
-        .body("totalnb", equalTo(0));
+                .body("totalnb", equalTo(0));
     }
-    
+
     //----------------------------------------------------------------
     //----------------------- FILTER PART ----------------------------
     //----------------------------------------------------------------
-    
+
     @Override
     protected RequestSpecification givenFilterableRequestParams() {
         return given();
@@ -57,17 +56,17 @@ public class SearchServiceIT extends AbstractSortedTest {
     protected RequestSpecification givenFilterableRequestBody() {
         return given().contentType("application/json");
     }
-    
+
     @Override
     public void handleComplexFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-        .body("totalnb", equalTo(1))
-        .body("hits[0].data.params.job", equalTo("Architect"))
-        .body("hits[0].data.params.startdate", equalTo(1009800))
-        .body("hits[0].data.params.city", isEmptyOrNullString())
-        .body("hits[0].data.params.country", equalTo("Andorra"))
-        .body("hits[0].data.geo_params.centroid", equalTo("20,-10"))
-        .body("hits[0].md.timestamp",equalTo(1009800));
+                .body("totalnb", equalTo(1))
+                .body("hits[0].data.params.job", equalTo("Architect"))
+                .body("hits[0].data.params.startdate", equalTo(1009800))
+                .body("hits[0].data.params.city", isEmptyOrNullString())
+                .body("hits[0].data.params.country", equalTo("Andorra"))
+                .body("hits[0].data.geo_params.centroid", equalTo("20,-10"))
+                .body("hits[0].md.timestamp", equalTo(1009800));
     }
 
     @Override
@@ -76,7 +75,7 @@ public class SearchServiceIT extends AbstractSortedTest {
                 .body("totalnb", equalTo(nbResults))
                 .body("hits.data.params.job", everyItem(isOneOf(values)));
     }
-    
+
     //----------------------------------------------------------------
     //----------------------- TEXT QUERY -----------------------------
     //----------------------------------------------------------------
@@ -84,23 +83,23 @@ public class SearchServiceIT extends AbstractSortedTest {
     @Override
     protected void handleMatchingQueryFilter(ValidatableResponse then, int nbResults) throws Exception {
         then.statusCode(200)
-        .body("totalnb", equalTo(nbResults));
+                .body("totalnb", equalTo(nbResults));
     }
 
     @Override
     protected void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end, int size) throws Exception {
         then.statusCode(200)
-        .body("totalnb", equalTo(size))
-        .body("hits.data.params.startdate", everyItem(greaterThan(start)))
-        .body("hits.data.params.startdate", everyItem(lessThan(end)));
+                .body("totalnb", equalTo(size))
+                .body("hits.data.params.startdate", everyItem(greaterThan(start)))
+                .body("hits.data.params.startdate", everyItem(lessThan(end)));
     }
 
     @Override
     protected void handleMatchingStringRangeFilter(ValidatableResponse then, String start, String end, int size) throws Exception {
         then.statusCode(200)
-        .body("totalnb", equalTo(size))
-        .body("hits.data.params.job", everyItem(greaterThan(start)))
-        .body("hits.data.params.job", everyItem(lessThan(end)));
+                .body("totalnb", equalTo(size))
+                .body("hits.data.params.job", everyItem(greaterThan(start)))
+                .body("hits.data.params.job", everyItem(lessThan(end)));
     }
 
     protected void handleMatchingGeometryFilter(ValidatableResponse then, int nbResults, Matcher<?> centroidMatcher) throws Exception {
@@ -127,16 +126,16 @@ public class SearchServiceIT extends AbstractSortedTest {
     protected int getBigSizedResponseSize() {
         return 595;
     }
-    
+
     @Override
     protected void handleSizeParameter(ValidatableResponse then, int size) throws Exception {
-        if(size > 0) {
+        if (size > 0) {
             then.statusCode(200)
-                .body("nbhits", equalTo(size))
-                .body("hits.size()", equalTo(size));
+                    .body("nbhits", equalTo(size))
+                    .body("hits.size()", equalTo(size));
         } else {
             then.statusCode(200)
-            .body("nbhits", equalTo(size));
+                    .body("nbhits", equalTo(size));
         }
     }
 
@@ -147,11 +146,11 @@ public class SearchServiceIT extends AbstractSortedTest {
     @Override
     protected void handleHiddenParameter(ValidatableResponse then, List<String> hidden) throws Exception {
         then.statusCode(200);
-        for(String key : hidden) {
+        for (String key : hidden) {
             String path = "hits.data";
             String lastKey = key;
-            if(key.contains(".")) {
-                path += ("."+key.substring(0, key.lastIndexOf(".")));
+            if (key.contains(".")) {
+                path += ("." + key.substring(0, key.lastIndexOf(".")));
                 lastKey = key.substring(key.lastIndexOf(".") + 1, key.length());
             }
             then.body(path, everyItem(not(hasKey(lastKey))));
@@ -161,11 +160,11 @@ public class SearchServiceIT extends AbstractSortedTest {
     @Override
     protected void handleDisplayedParameter(ValidatableResponse then, List<String> displayed) throws Exception {
         then.statusCode(200);
-        for(String key : displayed) {
+        for (String key : displayed) {
             String path = "hits.data";
             String lastKey = key;
-            if(key.contains(".")) {
-                path += ("."+key.substring(0, key.lastIndexOf(".")));
+            if (key.contains(".")) {
+                path += ("." + key.substring(0, key.lastIndexOf(".")));
                 lastKey = key.substring(key.lastIndexOf(".") + 1, key.length());
             }
             then.body(path, everyItem(hasKey(lastKey)));

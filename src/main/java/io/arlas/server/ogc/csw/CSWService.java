@@ -38,7 +38,10 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import net.opengis.cat.csw._3.CapabilitiesType;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
@@ -52,7 +55,7 @@ public class CSWService extends CollectionRESTServices {
 
     private String serverUrl;
 
-    public CSWService( CSWHandler cswHandler) {
+    public CSWService(CSWHandler cswHandler) {
 
         this.cswHandler = cswHandler;
         this.ogcConfiguration = cswHandler.ogcConfiguration;
@@ -93,22 +96,22 @@ public class CSWService extends CollectionRESTServices {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value= Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty
     ) throws OGCException {
 
         Version requestVersion = VersionUtils.getVersion(version);
-        VersionUtils.checkVersion(requestVersion,CSWConstant.SUPPORTED_CSW_VERSION);
+        VersionUtils.checkVersion(requestVersion, CSWConstant.SUPPORTED_CSW_VERSION);
         RequestUtils.checkRequestTypeByName(request, CSWConstant.SUPPORTED_CSW_REQUESTYPE);
         CSWRequestType requestType = CSWRequestType.valueOf(request);
 
-        switch (requestType){
+        switch (requestType) {
             case GetCapabilities:
                 GetCapabilitiesHandler getCapabilitiesHandler = cswHandler.getCapabilitiesHandler;
-                getCapabilitiesHandler.setOperationsUrl(serverUrl+"collections/csw/?");
+                getCapabilitiesHandler.setOperationsUrl(serverUrl + "collections/csw/?");
                 JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse();
                 return Response.ok(getCapabilitiesResponse).type(MediaType.APPLICATION_XML).build();
             case GetRecords:

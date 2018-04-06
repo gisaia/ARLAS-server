@@ -29,12 +29,12 @@ public class CollectionReferenceDescriptionProperty {
 
     public CollectionReferenceDescriptionProperty() {
     }
-    
+
     public ElasticType type;
 
     public String format;
 
-    public Map<String,CollectionReferenceDescriptionProperty> properties;
+    public Map<String, CollectionReferenceDescriptionProperty> properties;
 
     @Override
     public String toString() {

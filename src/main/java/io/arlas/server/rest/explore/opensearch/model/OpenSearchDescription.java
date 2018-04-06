@@ -27,45 +27,45 @@ import java.util.List;
 @XmlRootElement(name = "OpenSearchDescription")
 public class OpenSearchDescription {
 
-    @XmlElement( name = "shortName")
-    public String shortName="";
+    @XmlElement(name = "shortName")
+    public String shortName = "";
 
-    @XmlElement( name = "Description")
-    public String description="";
+    @XmlElement(name = "Description")
+    public String description = "";
 
-    @XmlElement( name = "Url")
+    @XmlElement(name = "Url")
     public List<Url> url = new ArrayList<>();
 
-    @XmlElement( name = "Contact")
-    public String contact="";
+    @XmlElement(name = "Contact")
+    public String contact = "";
 
-    @XmlElement( name = "Tags")
-    public String tags="";
+    @XmlElement(name = "Tags")
+    public String tags = "";
 
-    @XmlElement( name = "LongName")
-    public String longName="";
+    @XmlElement(name = "LongName")
+    public String longName = "";
 
-    @XmlElement( name = "Image")
+    @XmlElement(name = "Image")
     public Image image;
 
-    @XmlElement( name = "Developer")
-    public String developer="";
+    @XmlElement(name = "Developer")
+    public String developer = "";
 
-    @XmlElement( name = "Attribution")
-    public String attribution="";
+    @XmlElement(name = "Attribution")
+    public String attribution = "";
 
-    @XmlElement( name = "SyndicationRight")
+    @XmlElement(name = "SyndicationRight")
     public String syndicationRight;
 
-    @XmlElement( name = "AdultContent")
-    public String adultContent="";
+    @XmlElement(name = "AdultContent")
+    public String adultContent = "";
 
-    @XmlElement( name = "Language")
-    public String language="";
+    @XmlElement(name = "Language")
+    public String language = "";
 
-    @XmlElement( name = "InputEncoding")
-    public String inputEncoding="";
+    @XmlElement(name = "InputEncoding")
+    public String inputEncoding = "";
 
-    @XmlElement( name = "OutputEncoding")
-    public String outputEncoding="";
+    @XmlElement(name = "OutputEncoding")
+    public String outputEncoding = "";
 }

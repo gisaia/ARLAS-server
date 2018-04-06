@@ -24,15 +24,17 @@ public class Expression {
     public OperatorEnum op;
     public String value;
 
-    public Expression(){}
-    public Expression(String field, OperatorEnum op, String value){
-        this.field=field;
-        this.op=op;
-        this.value=value;
+    public Expression() {
+    }
+
+    public Expression(String field, OperatorEnum op, String value) {
+        this.field = field;
+        this.op = op;
+        this.value = value;
     }
 
     @Override
     public String toString() {
-        return field+":"+op.name()+":"+value;
+        return field + ":" + op.name() + ":" + value;
     }
 }

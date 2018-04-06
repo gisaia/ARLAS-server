@@ -19,25 +19,26 @@
 
 package io.arlas.server;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.Request;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
 import java.io.IOException;
 
 public abstract class AbstractTestWithCollection extends AbstractTestContext {
-    
+
     public static String COLLECTION_NAME = CollectionTool.COLLECTION_NAME;
 
     protected static Request request = new Request();
-    static{
+
+    static {
         request.filter = new Filter();
     }
 
     @BeforeClass
     public static void beforeClass() {
-       CollectionTool.load();
+        CollectionTool.load();
     }
 
     @AfterClass

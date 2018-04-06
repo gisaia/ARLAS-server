@@ -19,13 +19,13 @@
 
 package io.arlas.server.rest;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Success;
 import io.arlas.server.model.response.WFSError;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 public class ResponseFormatter {
 
@@ -40,7 +40,7 @@ public class ResponseFormatter {
 
     public static Response getFileResponse(Object object, String fileName) {
         return Response.ok(object).type(MediaType.APPLICATION_JSON)
-                .header("Content-Disposition", "attachment; filename="+fileName).build();
+                .header("Content-Disposition", "attachment; filename=" + fileName).build();
     }
 
     public static Response getErrorResponse(Exception e, Response.Status status, String message) {
@@ -48,7 +48,7 @@ public class ResponseFormatter {
                 .type(MediaType.APPLICATION_JSON).build();
     }
 
-    public static Response getWFSErrorResponse(OGCException e){
+    public static Response getWFSErrorResponse(OGCException e) {
         WFSError wfsError = new WFSError(e);
         Response response = Response.status(e.getExceptionMessages().get(0).getExceptionCode().getHttpStatusCode())
                 .entity(wfsError.exceptionReport)

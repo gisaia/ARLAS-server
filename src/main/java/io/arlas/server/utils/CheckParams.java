@@ -26,7 +26,6 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.request.*;
-import io.arlas.server.model.request.AggregationTypeEnum;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.Arrays;
@@ -48,25 +47,25 @@ public class CheckParams {
     public CheckParams() {
     }
 
-    public static void checkAggregationRequest(Request request) throws ArlasException{
-        if (request == null ||  !(request instanceof AggregationsRequest) || ((AggregationsRequest)request).aggregations == null)
+    public static void checkAggregationRequest(Request request) throws ArlasException {
+        if (request == null || !(request instanceof AggregationsRequest) || ((AggregationsRequest) request).aggregations == null)
             throw new BadRequestException("Aggregation should not be null");
-        else if (request !=null){
-            checkAggregation((AggregationsRequest)request);
+        else if (request != null) {
+            checkAggregation((AggregationsRequest) request);
         }
     }
 
-    public static void checkFilter (Filter filter) throws ArlasException{
+    public static void checkFilter(Filter filter) throws ArlasException {
         if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
-            for(MultiValueFilter<String> multiPwithin : filter.pwithin) {
-                for(String pw : multiPwithin) {
+            for (MultiValueFilter<String> multiPwithin : filter.pwithin) {
+                for (String pw : multiPwithin) {
                     checkBbox(pw);
                 }
             }
         }
         if (filter.notpwithin != null && !filter.notpwithin.isEmpty()) {
-            for(MultiValueFilter<String> multiNotPwithin : filter.notpwithin) {
-                for(String npw : multiNotPwithin) {
+            for (MultiValueFilter<String> multiNotPwithin : filter.notpwithin) {
+                for (String npw : multiNotPwithin) {
                     checkBbox(npw);
                 }
             }
@@ -88,41 +87,40 @@ public class CheckParams {
     }
 
     public static void checkNullityOfAggregationIntervalParameter(Interval interval) throws ArlasException {
-        if(interval==null || interval.value==null){
+        if (interval == null || interval.value == null) {
             throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
         }
     }
 
-    public static void checkSize (Size size) throws ArlasException{
+    public static void checkSize(Size size) throws ArlasException {
         if (size.size != null && size.size > 0) {
             if (size.from != null) {
-                if(size.from < 0) {
+                if (size.from < 0) {
                     throw new InvalidParameterException(FluidSearch.INVALID_FROM);
                 }
             } else {
                 //Default Value
                 size.from = 0;
             }
-        } else if (size.size == null){
+        } else if (size.size == null) {
             size.size = 10;
             if (size.from != null) {
-                if(size.from < 0) {
+                if (size.from < 0) {
                     throw new InvalidParameterException(FluidSearch.INVALID_FROM);
                 }
             } else {
                 //Default Value
                 size.from = 0;
             }
-        }
-        else {
+        } else {
             throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
         }
     }
 
     public static void checkRangeValidity(String range) throws ArlasException {
-        if((range.isEmpty() || !(range.startsWith("[") || range.startsWith("]")) ||
-                        !(range.endsWith("[") || range.endsWith("]")) ||
-                        !(range.contains("<")))) {
+        if ((range.isEmpty() || !(range.startsWith("[") || range.startsWith("]")) ||
+                !(range.endsWith("[") || range.endsWith("]")) ||
+                !(range.contains("<")))) {
             throw new java.security.InvalidParameterException(FluidSearch.INVALID_PARAMETER_F);
         }
     }
@@ -168,10 +166,10 @@ public class CheckParams {
     public static Boolean isAggregationParamValid(String agg) throws ArlasException {
         String[] aggParts = agg.split(":");
         if (aggParts.length > 1) {
-            try{
+            try {
                 AggregationTypeEnum.valueOf(aggParts[0]);
                 return true;
-            }catch(Exception e){
+            } catch (Exception e) {
                 throw new InvalidParameterException(INVALID_AGGREGATION_TYPE);
             }
         } else {
@@ -179,11 +177,11 @@ public class CheckParams {
         }
     }
 
-    private static void checkAggregation(AggregationsRequest aggregations) throws ArlasException{
-        if (aggregations != null && aggregations.aggregations != null && aggregations.aggregations.size()>0){
-            for (Aggregation aggregationModel : aggregations.aggregations){
-                if ( aggregationModel.type == null ||
-                        (aggregationModel.field == null && aggregationModel.type != AggregationTypeEnum.datehistogram)){
+    private static void checkAggregation(AggregationsRequest aggregations) throws ArlasException {
+        if (aggregations != null && aggregations.aggregations != null && aggregations.aggregations.size() > 0) {
+            for (Aggregation aggregationModel : aggregations.aggregations) {
+                if (aggregationModel.type == null ||
+                        (aggregationModel.field == null && aggregationModel.type != AggregationTypeEnum.datehistogram)) {
                     throw new InvalidParameterException(INVALID_AGGREGATION);
                 }
             }
@@ -214,9 +212,9 @@ public class CheckParams {
         return null;
     }
 
-    public static void checkXYZTileValidity (int x, int y, int z) throws ArlasException {
-        if (z>=0 && z<=22) {
-            if (!isIntegerInXYZRange(x, z) || !isIntegerInXYZRange(x, z)){
+    public static void checkXYZTileValidity(int x, int y, int z) throws ArlasException {
+        if (z >= 0 && z <= 22) {
+            if (!isIntegerInXYZRange(x, z) || !isIntegerInXYZRange(x, z)) {
                 throw new InvalidParameterException(INVALID_XYZ_PARAMETER);
             }
         } else {
@@ -232,8 +230,8 @@ public class CheckParams {
 
     private static boolean isIntegerInXYZRange(int n, int z) {
         long minRange = 0;
-        long maxRange = (long)(Math.pow(2,z) - 1);
-        return (n>=minRange && n<=maxRange);
+        long maxRange = (long) (Math.pow(2, z) - 1);
+        return (n >= minRange && n <= maxRange);
     }
 
     private static Integer tryParseInteger(String text) {

@@ -20,43 +20,33 @@
 package io.arlas.server.rest.explore.search;
 
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import io.arlas.server.exceptions.NotImplementedException;
-import io.arlas.server.model.request.MixedRequest;
-import io.arlas.server.model.request.MultiValueFilter;
-import io.arlas.server.model.response.Error;
-import io.arlas.server.utils.*;
-import org.apache.logging.log4j.util.Strings;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.geojson.Feature;
-import org.geojson.FeatureCollection;
-
 import com.codahale.metrics.annotation.Timed;
-
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Search;
+import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.utils.*;
 import io.dropwizard.jersey.params.IntParam;
-import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.geojson.Feature;
+import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class GeoSearchRESTService extends ExploreRESTServices {
 
@@ -70,8 +60,8 @@ public class GeoSearchRESTService extends ExploreRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(value = "GeoSearch", produces = UTF8JSON, notes = Documentation.GEOSEARCH_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
     public Response geosearch(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -127,7 +117,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @QueryParam(value = "notgintersect") List<String> notgintersect,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value="Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -200,7 +190,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect);
         search.size = ParamsParser.getSize(size, from);
         search.sort = ParamsParser.getSort(sort);
-        search.projection = ParamsParser.getProjection(include,exclude);
+        search.projection = ParamsParser.getProjection(include, exclude);
 
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
@@ -209,11 +199,8 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.headerRequest = searchHeader;
 
         FeatureCollection fc = getFeatures(collectionReference, request);
-        return cache(Response.ok(fc),maxagecache);
+        return cache(Response.ok(fc), maxagecache);
     }
-
-
-
 
 
     @Timed
@@ -222,8 +209,8 @@ public class GeoSearchRESTService extends ExploreRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(value = "Tiled GeoSearch", produces = UTF8JSON, notes = Documentation.TILED_GEOSEARCH_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
     public Response tiledgeosearch(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -297,7 +284,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @QueryParam(value = "notgintersect") List<String> notgintersect,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value="Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -360,7 +347,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
-        BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x,y,z));
+        BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x, y, z));
         // west, south, east, north
 
         String pwithinBbox = bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth();
@@ -370,7 +357,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
         if (bbox != null && bbox.getNorth() > bbox.getSouth()
                 // if sizes are not equals, it means one multi-value pwithin does not intersects bbox => no results
-                && pwithin.size()==simplifiedPwithin.size()) {
+                && pwithin.size() == simplifiedPwithin.size()) {
             simplifiedPwithin.add(pwithinBbox);
             return this.geosearch(
                     collection,
@@ -402,8 +389,8 @@ public class GeoSearchRESTService extends ExploreRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(value = "GeoSearch", produces = UTF8JSON, notes = Documentation.GEOSEARCH_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
     public Response geosearchPost(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -425,16 +412,16 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value="Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty,
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
@@ -455,7 +442,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.headerRequest = searchHeader;
 
         FeatureCollection fc = getFeatures(collectionReference, request);
-        return cache(Response.ok(fc),maxagecache);
+        return cache(Response.ok(fc), maxagecache);
     }
 
     protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
@@ -471,30 +458,30 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             GeoJsonObject geometryGeoJson = null;
             GeoJsonObject centroidGeoJson = null;
             try {
-                Object geometry = collectionReference.params.geometryPath != null?
-                        MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source):null;
-                geometryGeoJson = geometry != null?
-                        GeoTypeMapper.getGeoJsonObject(geometry):null;
+                Object geometry = collectionReference.params.geometryPath != null ?
+                        MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source) : null;
+                geometryGeoJson = geometry != null ?
+                        GeoTypeMapper.getGeoJsonObject(geometry) : null;
             } catch (ArlasException e) {
                 e.printStackTrace();
             }
             try {
-                Object centroid = (geometryGeoJson == null && collectionReference.params.centroidPath != null)?
-                        MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source):null;
-                centroidGeoJson = centroid != null?
-                        GeoTypeMapper.getGeoJsonObject(centroid):null;
+                Object centroid = (geometryGeoJson == null && collectionReference.params.centroidPath != null) ?
+                        MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source) : null;
+                centroidGeoJson = centroid != null ?
+                        GeoTypeMapper.getGeoJsonObject(centroid) : null;
             } catch (ArlasException e) {
                 e.printStackTrace();
             }
 
             //Apply geometry or centroid to geo json feature
-            if (geometryGeoJson!=null) {
+            if (geometryGeoJson != null) {
                 feature.setGeometry(geometryGeoJson);
                 feature.setProperties(hit.getSourceAsMap());
-            } else if (centroidGeoJson!=null) {
+            } else if (centroidGeoJson != null) {
                 feature.setGeometry(centroidGeoJson);
                 feature.setProperties(hit.getSourceAsMap());
-            } else  {
+            } else {
                 feature.setProperties(hit.getSourceAsMap());
             }
             fc.add(feature);

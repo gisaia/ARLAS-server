@@ -19,10 +19,9 @@
 
 package io.arlas.server;
 
+import io.restassured.RestAssured;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.restassured.RestAssured;
 
 import java.util.Optional;
 
@@ -30,25 +29,25 @@ public abstract class AbstractTestContext {
     static Logger LOGGER = LoggerFactory.getLogger(AbstractTestContext.class);
 
     protected static String arlasPath;
-    
+
     public AbstractTestContext() {
     }
 
     static {
         String arlasHost = Optional.ofNullable(System.getenv("ARLAS_HOST")).orElse("localhost");
         int arlasPort = Integer.valueOf(Optional.ofNullable(System.getenv("ARLAS_PORT")).orElse("9999"));
-        RestAssured.baseURI = "http://"+arlasHost;
+        RestAssured.baseURI = "http://" + arlasHost;
         RestAssured.port = arlasPort;
         RestAssured.basePath = "";
-        LOGGER.info(arlasHost+":"+arlasPort);
+        LOGGER.info(arlasHost + ":" + arlasPort);
         String arlasPrefix = Optional.ofNullable(System.getenv("ARLAS_PREFIX")).orElse("/arlas");
         String arlasAppPath = Optional.ofNullable(System.getenv("ARLAS_APP_PATH")).orElse("/");
-        if(arlasAppPath.endsWith("/"))
-            arlasAppPath = arlasAppPath.substring(0,arlasAppPath.length()-1);
+        if (arlasAppPath.endsWith("/"))
+            arlasAppPath = arlasAppPath.substring(0, arlasAppPath.length() - 1);
         arlasPath = arlasAppPath + arlasPrefix;
-        if(arlasAppPath.endsWith("//"))
-            arlasPath = arlasPath.substring(0,arlasPath.length()-1);
-        if(!arlasAppPath.endsWith("/"))
+        if (arlasAppPath.endsWith("//"))
+            arlasPath = arlasPath.substring(0, arlasPath.length() - 1);
+        if (!arlasAppPath.endsWith("/"))
             arlasPath = arlasPath + "/";
 
     }

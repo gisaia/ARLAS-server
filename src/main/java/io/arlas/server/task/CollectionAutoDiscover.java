@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class CollectionAutoDiscover extends Task implements Runnable {
-    
+
     private ElasticAdmin admin;
     private CollectionReferenceDao collectionDao;
     private CollectionAutoDiscoverConfiguration configuration;
@@ -73,8 +73,8 @@ public class CollectionAutoDiscover extends Task implements Runnable {
                     }
                 }
             }
-        } catch(ArlasConfigurationException e) {
-            LOGGER.error(e.getMessage(),e);
+        } catch (ArlasConfigurationException e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -83,39 +83,39 @@ public class CollectionAutoDiscover extends Task implements Runnable {
         List<String> timestampPaths = configuration.getPreferredTimestampFieldNames();
         List<String> centroidPaths = configuration.getPreferredCentroidFieldNames();
         List<String> geometryPaths = configuration.getPreferredGeometryFieldNames();
-        for(String path : idPaths) {
-            Object field = MapExplorer.getObjectFromPath(path,collection.properties);
-            if(field != null && field instanceof CollectionReferenceDescriptionProperty) {
+        for (String path : idPaths) {
+            Object field = MapExplorer.getObjectFromPath(path, collection.properties);
+            if (field != null && field instanceof CollectionReferenceDescriptionProperty) {
                 collection.params.idPath = path;
                 break;
             }
         }
-        for(String path : timestampPaths) {
-            Object field = MapExplorer.getObjectFromPath(path,collection.properties);
-            if(field != null && field instanceof CollectionReferenceDescriptionProperty) {
+        for (String path : timestampPaths) {
+            Object field = MapExplorer.getObjectFromPath(path, collection.properties);
+            if (field != null && field instanceof CollectionReferenceDescriptionProperty) {
                 collection.params.timestampPath = path;
-                if (((CollectionReferenceDescriptionProperty)field).format != null){
+                if (((CollectionReferenceDescriptionProperty) field).format != null) {
                     collection.params.customParams = new HashMap<>();
-                    collection.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT,((CollectionReferenceDescriptionProperty)field).format);
+                    collection.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT, ((CollectionReferenceDescriptionProperty) field).format);
                 }
                 break;
             }
         }
-        for(String path : centroidPaths) {
-            Object field = MapExplorer.getObjectFromPath(path,collection.properties);
-            if(field != null && field instanceof CollectionReferenceDescriptionProperty) {
+        for (String path : centroidPaths) {
+            Object field = MapExplorer.getObjectFromPath(path, collection.properties);
+            if (field != null && field instanceof CollectionReferenceDescriptionProperty) {
                 collection.params.centroidPath = path;
                 break;
             }
         }
-        for(String path : geometryPaths) {
-            Object field = MapExplorer.getObjectFromPath(path,collection.properties);
-            if(field != null && field instanceof CollectionReferenceDescriptionProperty) {
+        for (String path : geometryPaths) {
+            Object field = MapExplorer.getObjectFromPath(path, collection.properties);
+            if (field != null && field instanceof CollectionReferenceDescriptionProperty) {
                 collection.params.geometryPath = path;
                 break;
             }
         }
-        if(collection.params.idPath == null || collection.params.idPath.isEmpty()
+        if (collection.params.idPath == null || collection.params.idPath.isEmpty()
                 || collection.params.centroidPath == null || collection.params.centroidPath.isEmpty()
                 || collection.params.geometryPath == null || collection.params.geometryPath.isEmpty()
                 || collection.params.timestampPath == null || collection.params.timestampPath.isEmpty())
@@ -126,7 +126,7 @@ public class CollectionAutoDiscover extends Task implements Runnable {
     @Override
     public void run() {
         try {
-            execute(null,null);
+            execute(null, null);
         } catch (Exception e) {
             LOGGER.debug("Unable to run scheduled task " + this.getClass().getCanonicalName());
         }

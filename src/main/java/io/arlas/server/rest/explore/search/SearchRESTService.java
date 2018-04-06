@@ -58,9 +58,9 @@ public class SearchRESTService extends ExploreRESTServices {
     @GET
     @Produces({UTF8JSON, ATOM.APPLICATION_ATOM_XML})
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Search", produces = UTF8JSON+","+ATOM.APPLICATION_ATOM_XML, notes = Documentation.SEARCH_OPERATION, consumes = UTF8JSON, response = Hits.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Hits.class, responseContainer = "ArlasHits" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
+    @ApiOperation(value = "Search", produces = UTF8JSON + "," + ATOM.APPLICATION_ATOM_XML, notes = Documentation.SEARCH_OPERATION, consumes = UTF8JSON, response = Hits.class)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Hits.class, responseContainer = "ArlasHits"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
     public Response search(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -75,53 +75,53 @@ public class SearchRESTService extends ExploreRESTServices {
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
             @ApiParam(name = "f",
-                    value= Documentation.FILTER_PARAM_F,
+                    value = Documentation.FILTER_PARAM_F,
                     allowMultiple = true,
                     required = false)
             @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name = "q", value=Documentation.FILTER_PARAM_Q,
+            @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
                     allowMultiple = true,
                     required = false)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "pwithin", value=Documentation.FILTER_PARAM_PWITHIN,
+            @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
                     allowMultiple = true,
                     required = false)
             @QueryParam(value = "pwithin") List<String> pwithin,
 
-            @ApiParam(name = "gwithin", value=Documentation.FILTER_PARAM_GWITHIN,
+            @ApiParam(name = "gwithin", value = Documentation.FILTER_PARAM_GWITHIN,
                     allowMultiple = true,
                     required = false)
             @QueryParam(value = "gwithin") List<String> gwithin,
 
-            @ApiParam(name = "gintersect", value=Documentation.FILTER_PARAM_GINTERSECT,
+            @ApiParam(name = "gintersect", value = Documentation.FILTER_PARAM_GINTERSECT,
                     allowMultiple = true,
                     required = false)
             @QueryParam(value = "gintersect") List<String> gintersect,
 
-            @ApiParam(name = "notpwithin", value=Documentation.FILTER_PARAM_NOTPWITHIN,
+            @ApiParam(name = "notpwithin", value = Documentation.FILTER_PARAM_NOTPWITHIN,
                     allowMultiple = true,
                     required = false)
             @QueryParam(value = "notpwithin") List<String> notpwithin,
 
-            @ApiParam(name = "notgwithin", value=Documentation.FILTER_PARAM_NOTGWITHIN,
+            @ApiParam(name = "notgwithin", value = Documentation.FILTER_PARAM_NOTGWITHIN,
                     allowMultiple = true,
                     required = false)
             @QueryParam(value = "notgwithin") List<String> notgwithin,
 
-            @ApiParam(name = "notgintersect", value=Documentation.FILTER_PARAM_NOTGINTERSECT,
+            @ApiParam(name = "notgintersect", value = Documentation.FILTER_PARAM_NOTGINTERSECT,
                     allowMultiple = true,
                     required = false)
             @QueryParam(value = "notgintersect") List<String> notgintersect,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value="Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value=Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
                     required = false)
@@ -187,10 +187,10 @@ public class SearchRESTService extends ExploreRESTServices {
         }
 
         Search search = new Search();
-        search.filter = ParamsParser.getFilter(f,q,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
+        search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect);
         search.size = ParamsParser.getSize(size, from);
         search.sort = ParamsParser.getSort(sort);
-        search.projection = ParamsParser.getProjection(include,exclude);
+        search.projection = ParamsParser.getProjection(include, exclude);
 
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
@@ -199,7 +199,7 @@ public class SearchRESTService extends ExploreRESTServices {
         request.headerRequest = searchHeader;
 
         Hits hits = getArlasHits(request, collectionReference);
-        return cache(Response.ok(hits),maxagecache);
+        return cache(Response.ok(hits), maxagecache);
     }
 
 
@@ -209,8 +209,8 @@ public class SearchRESTService extends ExploreRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(value = "Search", produces = UTF8JSON, notes = Documentation.SEARCH_OPERATION, consumes = UTF8JSON, response = Hits.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Hits.class, responseContainer = "ArlasHits" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Hits.class, responseContainer = "ArlasHits"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
     public Response searchPost(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -231,16 +231,16 @@ public class SearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value="Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty,
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
@@ -261,18 +261,18 @@ public class SearchRESTService extends ExploreRESTServices {
         request.headerRequest = searchHeader;
 
         Hits hits = getArlasHits(request, collectionReference);
-        return cache(Response.ok(hits),maxagecache);
+        return cache(Response.ok(hits), maxagecache);
     }
 
     protected Hits getArlasHits(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
-        SearchHits searchHits = this.getExploreServices().search(request,collectionReference);
+        SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
 
         Hits hits = new Hits(collectionReference.collectionName);
         hits.totalnb = searchHits.getTotalHits();
         hits.nbhits = searchHits.getHits().length;
         hits.hits = new ArrayList<>((int) hits.nbhits);
         for (SearchHit hit : searchHits.getHits()) {
-            hits.hits.add(new Hit(collectionReference,hit.getSourceAsMap()));
+            hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap()));
         }
         return hits;
     }

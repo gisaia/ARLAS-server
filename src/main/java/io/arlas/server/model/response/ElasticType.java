@@ -33,22 +33,22 @@ public enum ElasticType {
     UNKNOWN("unknown");
 
     public final String elasticType;
-    
+
     ElasticType(String elasticType) {
         this.elasticType = elasticType;
     }
-    
+
     public static ElasticType getType(Object type) {
         ElasticType ret = UNKNOWN;
-        for(ElasticType t : ElasticType.values()) {
-            if(t.elasticType.equals(type.toString())) {
+        for (ElasticType t : ElasticType.values()) {
+            if (t.elasticType.equals(type.toString())) {
                 ret = t;
                 break;
             }
         }
         return ret;
     }
-    
+
     @Override
     public String toString() {
         return elasticType.toString();

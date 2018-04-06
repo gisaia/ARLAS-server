@@ -89,14 +89,14 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     @Override
-    public void initCollectionDatabase()  {
+    public void initCollectionDatabase() {
         try {
             client.admin().indices().prepareGetIndex().setIndices(arlasIndex).get();
         } catch (IndexNotFoundException e) {
             try {
                 createArlasIndex();
             } catch (IOException e1) {
-                new InternalServerErrorException("Can not initialize the collection database",e);
+                new InternalServerErrorException("Can not initialize the collection database", e);
             }
         }
     }
@@ -109,7 +109,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     private CollectionReference getCollectionReferenceFromES(String ref) throws ArlasException {
         CollectionReference collection = new CollectionReference(ref);
         //Exclude old include_fields for support old collection
-        GetResponse hit = client.prepareGet(arlasIndex, "collection", ref).setFetchSource(null,"include_fields").get();
+        GetResponse hit = client.prepareGet(arlasIndex, "collection", ref).setFetchSource(null, "include_fields").get();
         String source = hit.getSourceAsString();
         if (source != null) {
             try {
@@ -139,7 +139,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         try {
             QueryBuilder qb = QueryBuilders.matchAllQuery();
             //Exclude old include_fields for support old collection
-            SearchResponse scrollResp = client.prepareSearch(arlasIndex).setFetchSource(null,"include_fields")
+            SearchResponse scrollResp = client.prepareSearch(arlasIndex).setFetchSource(null, "include_fields")
                     .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC).setScroll(new TimeValue(60000))
                     .setQuery(qb).setSize(100).get(); // max of 100 hits will be returned for each scroll
             do {
@@ -170,7 +170,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             response = client.prepareIndex(arlasIndex, "collection", collectionReference.collectionName)
                     .setSource(mapper.writeValueAsString(collectionReference.params), XContentType.JSON).get();
         } catch (JsonProcessingException e) {
-            new InternalServerErrorException("Can not put collection "+collectionReference.collectionName,e);
+            new InternalServerErrorException("Can not put collection " + collectionReference.collectionName, e);
         }
 
         if (response.status().getStatus() != RestStatus.OK.getStatus()
@@ -204,47 +204,46 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         try {
             //check index
             response = client.admin().indices().prepareGetMappings(collectionReference.params.indexName).setTypes(collectionReference.params.typeName).get();
-            if(response.getMappings().isEmpty()
+            if (response.getMappings().isEmpty()
                     || !response.getMappings().get(collectionReference.params.indexName).containsKey(collectionReference.params.typeName)) {
-                throw new NotFoundException("Type "+collectionReference.params.typeName+" does not exist in "+collectionReference.params.indexName+".");
+                throw new NotFoundException("Type " + collectionReference.params.typeName + " does not exist in " + collectionReference.params.indexName + ".");
             }
 
             //check type
             Object properties = response.getMappings().get(collectionReference.params.indexName).get(collectionReference.params.typeName).sourceAsMap().get("properties");
-            if(properties == null) {
-                throw new NotFoundException("Unable to find properties from "+collectionReference.params.typeName+" in "+collectionReference.params.indexName+".");
+            if (properties == null) {
+                throw new NotFoundException("Unable to find properties from " + collectionReference.params.typeName + " in " + collectionReference.params.indexName + ".");
             }
 
             //check fields
             List<String> fields = new ArrayList<>();
-            if(collectionReference.params.idPath != null)
+            if (collectionReference.params.idPath != null)
                 fields.add(collectionReference.params.idPath);
-            if(collectionReference.params.geometryPath != null)
+            if (collectionReference.params.geometryPath != null)
                 fields.add(collectionReference.params.geometryPath);
-            if(collectionReference.params.centroidPath != null)
+            if (collectionReference.params.centroidPath != null)
                 fields.add(collectionReference.params.centroidPath);
-            if(collectionReference.params.timestampPath != null)
+            if (collectionReference.params.timestampPath != null)
                 fields.add(collectionReference.params.timestampPath);
-            if(!fields.isEmpty())
+            if (!fields.isEmpty())
                 checkIndexMappingFields(collectionReference.params, fields.toArray(new String[fields.size()]));
         } catch (ArlasException e) {
             throw e;
         } catch (IndexNotFoundException e) {
-            throw new NotFoundException("Index "+collectionReference.params.indexName+" does not exist.");
+            throw new NotFoundException("Index " + collectionReference.params.indexName + " does not exist.");
         } catch (Exception e) {
-            throw new NotFoundException("Unable to access "+collectionReference.params.typeName+" in "+collectionReference.params.indexName+".");
+            throw new NotFoundException("Unable to access " + collectionReference.params.typeName + " in " + collectionReference.params.indexName + ".");
         }
     }
 
-    private void checkIndexMappingFields(CollectionReferenceParameters collectionRefParams , String... fields) throws ArlasException {
+    private void checkIndexMappingFields(CollectionReferenceParameters collectionRefParams, String... fields) throws ArlasException {
         GetFieldMappingsResponse response = client.admin().indices().prepareGetFieldMappings(collectionRefParams.indexName).setTypes(collectionRefParams.typeName).setFields(fields).get();
-        for(String field : fields) {
+        for (String field : fields) {
             GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(collectionRefParams.indexName, collectionRefParams.typeName, field);
-            if(data == null || data.isNull()) {
-                throw new NotFoundException("Unable to find "+field+" from "+collectionRefParams.typeName+" in "+collectionRefParams.indexName+".");
-            }
-            else {
-                if (field.equals(collectionRefParams.timestampPath)){
+            if (data == null || data.isNull()) {
+                throw new NotFoundException("Unable to find " + field + " from " + collectionRefParams.typeName + " in " + collectionRefParams.indexName + ".");
+            } else {
+                if (field.equals(collectionRefParams.timestampPath)) {
                     setTimestampFormat(collectionRefParams, data, field);
                 }
             }
@@ -252,9 +251,9 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     private void setTimestampFormat(CollectionReferenceParameters collectionRefParams, GetFieldMappingsResponse.FieldMappingMetaData data, String fieldPath) {
-        String[] fields =  fieldPath.split("\\.");
-        String field = fields[fields.length-1];
-        LinkedHashMap<String, Object> timestampMD = (LinkedHashMap)data.sourceAsMap().get(field);
+        String[] fields = fieldPath.split("\\.");
+        String field = fields[fields.length - 1];
+        LinkedHashMap<String, Object> timestampMD = (LinkedHashMap) data.sourceAsMap().get(field);
         collectionRefParams.customParams = new HashMap<>();
         if (timestampMD.keySet().contains("format")) {
             collectionRefParams.customParams.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());

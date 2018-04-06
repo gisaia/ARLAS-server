@@ -20,7 +20,6 @@
 package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.Map;
@@ -28,14 +27,14 @@ import java.util.Map;
 public class CollectionReferenceParameters {
 
     @NotEmpty
-    @JsonProperty(value="index_name", required = true)
+    @JsonProperty(value = "index_name", required = true)
     public String indexName;
 
     @NotEmpty
-    @JsonProperty(value="type_name", required = true)
+    @JsonProperty(value = "type_name", required = true)
     public String typeName;
 
-    @JsonProperty(value="id_path", required = true)
+    @JsonProperty(value = "id_path", required = true)
     public String idPath;
 
     @JsonProperty(value = "geometry_path", required = true)
@@ -54,7 +53,7 @@ public class CollectionReferenceParameters {
     public String excludeWfsFields = null;
 
     @JsonProperty(value = "custom_params", required = false)
-    public Map<String,String> customParams = null;
+    public Map<String, String> customParams = null;
 
     @JsonProperty(value = "json_schema", required = false)
     public Object jsonSchema = null;
@@ -69,7 +68,7 @@ public class CollectionReferenceParameters {
     }
 
     public CollectionReferenceParameters(String indexName, String typeName, String idPath, String geometryPath,
-            String centroidPath, String timestampPath) {
+                                         String centroidPath, String timestampPath) {
         this.indexName = indexName;
         this.typeName = typeName;
         this.idPath = idPath;

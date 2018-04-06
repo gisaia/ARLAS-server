@@ -38,16 +38,17 @@ import java.util.regex.Pattern;
 public class ElasticAdmin {
 
     public Client client;
-    public ElasticAdmin(Client client){
+
+    public ElasticAdmin(Client client) {
         this.client = client;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public CollectionReferenceDescription describeCollection (CollectionReference collectionReference) throws IOException {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public CollectionReferenceDescription describeCollection(CollectionReference collectionReference) throws IOException {
         ArrayList<Pattern> excludeFields = new ArrayList<>();
-        if(collectionReference.params.excludeFields!=null){
-            Arrays.asList(collectionReference.params.excludeFields.split(",")).forEach(field->{
-                excludeFields.add(Pattern.compile("^" + field.replace(".","\\.").replace("*",".*") + "$"));
+        if (collectionReference.params.excludeFields != null) {
+            Arrays.asList(collectionReference.params.excludeFields.split(",")).forEach(field -> {
+                excludeFields.add(Pattern.compile("^" + field.replace(".", "\\.").replace("*", ".*") + "$"));
             });
         }
         CollectionReferenceDescription collectionReferenceDescription = new CollectionReferenceDescription();
@@ -56,21 +57,21 @@ public class ElasticAdmin {
         GetMappingsResponse response;
         response = client.admin().indices()
                 .prepareGetMappings(collectionReferenceDescription.params.indexName).setTypes(collectionReferenceDescription.params.typeName).get();
-        LinkedHashMap fields = (LinkedHashMap)response.getMappings()
+        LinkedHashMap fields = (LinkedHashMap) response.getMappings()
                 .get(collectionReferenceDescription.params.indexName).get(collectionReferenceDescription.params.typeName).sourceAsMap().get("properties");
-        Map<String,CollectionReferenceDescriptionProperty> properties = getFromSource(fields,new Stack<>(),excludeFields);
+        Map<String, CollectionReferenceDescriptionProperty> properties = getFromSource(fields, new Stack<>(), excludeFields);
         collectionReferenceDescription.properties = properties;
         return collectionReferenceDescription;
     }
 
-    private Map<String,CollectionReferenceDescriptionProperty> getFromSource(Map source,Stack<String> namespace,ArrayList<Pattern> excludeFields) {
-        Map<String,CollectionReferenceDescriptionProperty> ret = new HashMap<>();
-        for(Object key : source.keySet()) {
+    private Map<String, CollectionReferenceDescriptionProperty> getFromSource(Map source, Stack<String> namespace, ArrayList<Pattern> excludeFields) {
+        Map<String, CollectionReferenceDescriptionProperty> ret = new HashMap<>();
+        for (Object key : source.keySet()) {
             namespace.push(key.toString());
-            String path = String.join(".",new ArrayList<>(namespace));
+            String path = String.join(".", new ArrayList<>(namespace));
             boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
-            if(!excludePath){
-                if(source.get(key) instanceof Map) {
+            if (!excludePath) {
+                if (source.get(key) instanceof Map) {
                     Map property = (Map) source.get(key);
                     CollectionReferenceDescriptionProperty collectionProperty = new CollectionReferenceDescriptionProperty();
                     if (property.containsKey("type")) {
@@ -86,7 +87,7 @@ public class ElasticAdmin {
                         collectionProperty.format = format;
                     }
                     if (property.containsKey("properties") && property.get("properties") instanceof Map) {
-                        collectionProperty.properties = getFromSource((Map) property.get("properties"),namespace,excludeFields);
+                        collectionProperty.properties = getFromSource((Map) property.get("properties"), namespace, excludeFields);
                     }
                     ret.put(key.toString(), collectionProperty);
 
@@ -97,24 +98,24 @@ public class ElasticAdmin {
         return ret;
     }
 
-    public List<CollectionReferenceDescription> describeAllCollections (List<CollectionReference> collectionReferenceList) throws IOException, ArlasException {
+    public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList) throws IOException, ArlasException {
         List<CollectionReferenceDescription> collectionReferenceDescriptionList = new ArrayList<>();
-        for (CollectionReference collectionReference : collectionReferenceList){
+        for (CollectionReference collectionReference : collectionReferenceList) {
             collectionReferenceDescriptionList.add(describeCollection(collectionReference));
         }
         return collectionReferenceDescriptionList;
     }
-    
+
     public List<CollectionReferenceDescription> getAllIndecesAsCollections() throws IOException {
         List<CollectionReferenceDescription> collections = new ArrayList<CollectionReferenceDescription>();
         ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> indices = client.admin().indices().getMappings(new GetMappingsRequest()).actionGet().getMappings();
-        for(Iterator<String> indexNames = indices.keysIt(); indexNames.hasNext();) {
+        for (Iterator<String> indexNames = indices.keysIt(); indexNames.hasNext(); ) {
             String indexName = indexNames.next();
             ImmutableOpenMap<String, MappingMetaData> mappings = indices.get(indexName);
-            for(Iterator<String> mappingNames = mappings.keysIt(); mappingNames.hasNext();) {
+            for (Iterator<String> mappingNames = mappings.keysIt(); mappingNames.hasNext(); ) {
                 String mappingName = mappingNames.next();
                 CollectionReference collection = new CollectionReference();
-                collection.collectionName = indexName+"-"+mappingName;
+                collection.collectionName = indexName + "-" + mappingName;
                 collection.params = new CollectionReferenceParameters();
                 collection.params.indexName = indexName;
                 collection.params.typeName = mappingName;

@@ -1,20 +1,18 @@
 package io.arlas.server.utils;
 
-import static org.junit.Assert.assertTrue;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.arlas.server.exceptions.ArlasException;
+import org.geojson.Point;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.geojson.Point;
-import org.junit.Test;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import io.arlas.server.exceptions.ArlasException;
+import static org.junit.Assert.assertTrue;
 
 public class GeoTypeMapperTest {
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void testGetGeoJsonObject() throws ArlasException, JsonProcessingException {
         String pointStringLatLon = "41.12,-71.34";
@@ -25,8 +23,8 @@ public class GeoTypeMapperTest {
         HashMap pointMap = new HashMap();
         pointMap.put("lat", 41.12);
         pointMap.put("lon", -71.34);
-        
-        Point refPoint = new Point(-71.34,41.12);
+
+        Point refPoint = new Point(-71.34, 41.12);
         assertTrue(GeoTypeMapper.getGeoJsonObject(pointStringLatLon).equals(refPoint));
         assertTrue(GeoTypeMapper.getGeoJsonObject(pointStringGeohash) instanceof Point);
         assertTrue(GeoTypeMapper.getGeoJsonObject(pointArray).equals(refPoint));

@@ -37,10 +37,10 @@ public class CollectionReference {
     public static final String CUSTOM_PARAMS = "custom_params";
     public static final String JSON_SCHEMA = "json_schema";
 
-    @JsonProperty(value="collection_name", required = true)
+    @JsonProperty(value = "collection_name", required = true)
     public String collectionName;
 
-    @JsonProperty(value="params", required = true)
+    @JsonProperty(value = "params", required = true)
     public CollectionReferenceParameters params;
 
     public CollectionReference() {
