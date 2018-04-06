@@ -10,6 +10,7 @@ import org.elasticsearch.common.geo.GeoHashUtils;
 public class GeoTileUtil {
 
     public static final String INVALID_GEOHASH = "Invalid geohash";
+
     public static BoundingBox getBoundingBox(final Tile tile) {
         return getBoundingBox(tile.getxTile(), tile.getyTile(), tile.getzTile());
     }
@@ -26,7 +27,7 @@ public class GeoTileUtil {
 
     public static BoundingBox bboxIntersects(BoundingBox bbox, String bboxCorners) throws ArlasException {
         BoundingBox ret = null;
-        if(bbox != null && bboxCorners != null) {
+        if (bbox != null && bboxCorners != null) {
             // west, south, east, north
             double topBboxCorner = Double.parseDouble(bboxCorners.split(",")[3].trim());
             double leftBboxCorner = Double.parseDouble(bboxCorners.split(",")[0].trim());
@@ -47,7 +48,7 @@ public class GeoTileUtil {
                     throw new NotImplementedException(FluidSearch.NOT_SUPPORTED_BBOX_INTERSECTION);
                 } else {
                     // If there is one intersection
-                    ret = new BoundingBox(Math.min(bbox.getNorth(), topBboxCorner),Math.max(bbox.getSouth(), bottomBboxCorner),bbox.getWest(),bbox.getEast());
+                    ret = new BoundingBox(Math.min(bbox.getNorth(), topBboxCorner), Math.max(bbox.getSouth(), bottomBboxCorner), bbox.getWest(), bbox.getEast());
                     // if only leftBboxCorner is "lefter" than the east of the tile ==> (rightBboxCorner < west of bbox)
                     if (bbox.getEast() > leftBboxCorner) {
                         ret.setWest(Math.max(bbox.getWest(), leftBboxCorner));
@@ -83,24 +84,24 @@ public class GeoTileUtil {
     }
 
     static int getXTile(final double lat, final double lon, final int zoom) {
-        int xtile = (int)Math.floor( (lon + 180) / 360 * (1<<zoom) );
+        int xtile = (int) Math.floor((lon + 180) / 360 * (1 << zoom));
         if (xtile < 0)
-            xtile=0;
-        if (xtile >= (1<<zoom))
-            xtile=((1<<zoom)-1);
+            xtile = 0;
+        if (xtile >= (1 << zoom))
+            xtile = ((1 << zoom) - 1);
         return xtile;
     }
 
     static int getYTile(final double lat, final double lon, final int zoom) {
-        int ytile = (int)Math.floor( (1 - Math.log(Math.tan(Math.toRadians(lat)) + 1 / Math.cos(Math.toRadians(lat))) / Math.PI) / 2 * (1<<zoom) ) ;
+        int ytile = (int) Math.floor((1 - Math.log(Math.tan(Math.toRadians(lat)) + 1 / Math.cos(Math.toRadians(lat))) / Math.PI) / 2 * (1 << zoom));
         if (ytile < 0)
-            ytile=0;
-        if (ytile >= (1<<zoom))
-            ytile=((1<<zoom)-1);
+            ytile = 0;
+        if (ytile >= (1 << zoom))
+            ytile = ((1 << zoom) - 1);
         return ytile;
     }
 
-    public static Tile getTile(final double lat, final double lon, final int zoom) throws ArlasException{
-        return new Tile(getXTile(lat,lon,zoom),getYTile(lat,lon,zoom),zoom);
+    public static Tile getTile(final double lat, final double lon, final int zoom) throws ArlasException {
+        return new Tile(getXTile(lat, lon, zoom), getYTile(lat, lon, zoom), zoom);
     }
 }

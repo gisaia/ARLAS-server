@@ -19,14 +19,19 @@
 
 package io.arlas.server.rest.explore;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.core.FluidSearch;
+import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
+import io.arlas.server.model.response.AggregationMetric;
+import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.rest.ResponseCacheManager;
-import org.apache.lucene.geo.Rectangle;
 import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
+import io.arlas.server.utils.CheckParams;
+import org.apache.lucene.geo.Rectangle;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -36,20 +41,14 @@ import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.InternalAggregation;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
-
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.core.FluidSearch;
-import io.arlas.server.dao.CollectionReferenceDao;
-import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.response.AggregationResponse;
-import io.arlas.server.model.response.AggregationMetric;
-import io.arlas.server.utils.CheckParams;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.geobounds.GeoBounds;
 import org.elasticsearch.search.aggregations.metrics.geocentroid.GeoCentroid;
 import org.geojson.*;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExploreServices {
     private Client client;
@@ -85,152 +84,151 @@ public class ExploreServices {
     public SearchHits count(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(request.basicRequest.filter,fluidSearch);
-        applyFilter(request.headerRequest.filter,fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch);
+        applyFilter(request.headerRequest.filter, fluidSearch);
         return fluidSearch.exec().getHits();
     }
 
-    public SearchHits search(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException{
+    public SearchHits search(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(request.basicRequest.filter,fluidSearch);
-        applyFilter(request.headerRequest.filter,fluidSearch);
-        applySize(((Search)request.basicRequest).size,fluidSearch);
-        applySort(((Search)request.basicRequest).sort,fluidSearch);
-        applyProjection(((Search)request.basicRequest).projection,fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch);
+        applyFilter(request.headerRequest.filter, fluidSearch);
+        applySize(((Search) request.basicRequest).size, fluidSearch);
+        applySort(((Search) request.basicRequest).sort, fluidSearch);
+        applyProjection(((Search) request.basicRequest).projection, fluidSearch);
         return fluidSearch.exec().getHits();
     }
 
-    public SearchResponse aggregate(MixedRequest request, CollectionReference collectionReference, Boolean isGeoAggregation) throws ArlasException,IOException{
+    public SearchResponse aggregate(MixedRequest request, CollectionReference collectionReference, Boolean isGeoAggregation) throws ArlasException, IOException {
         CheckParams.checkAggregationRequest(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(request.basicRequest.filter,fluidSearch);
-        applyFilter(request.headerRequest.filter,fluidSearch);
-        applyAggregation(((AggregationsRequest)request.basicRequest).aggregations,fluidSearch,isGeoAggregation);
+        applyFilter(request.basicRequest.filter, fluidSearch);
+        applyFilter(request.headerRequest.filter, fluidSearch);
+        applyAggregation(((AggregationsRequest) request.basicRequest).aggregations, fluidSearch, isGeoAggregation);
         return fluidSearch.exec();
     }
 
-    protected void applyAggregation(List<Aggregation> aggregations, FluidSearch fluidSearch, Boolean isGeoAggregation) throws ArlasException{
-        if (aggregations != null && aggregations !=null && !aggregations.isEmpty()){
-            fluidSearch = fluidSearch.aggregate(aggregations,isGeoAggregation);
+    protected void applyAggregation(List<Aggregation> aggregations, FluidSearch fluidSearch, Boolean isGeoAggregation) throws ArlasException {
+        if (aggregations != null && aggregations != null && !aggregations.isEmpty()) {
+            fluidSearch = fluidSearch.aggregate(aggregations, isGeoAggregation);
         }
     }
 
 
-    public void applyFilter(Filter filter, FluidSearch fluidSearch) throws ArlasException, IOException{
-        if (filter !=null) {
+    public void applyFilter(Filter filter, FluidSearch fluidSearch) throws ArlasException, IOException {
+        if (filter != null) {
             CheckParams.checkFilter(filter);
             if (filter.f != null && !filter.f.isEmpty()) {
-                for(MultiValueFilter<Expression> f : filter.f) {
+                for (MultiValueFilter<Expression> f : filter.f) {
                     fluidSearch = fluidSearch.filter(f);
                 }
             }
             if (filter.q != null && !filter.q.isEmpty()) {
-                for(MultiValueFilter<String> q : filter.q) {
+                for (MultiValueFilter<String> q : filter.q) {
                     fluidSearch = fluidSearch.filterQ(q);
                 }
             }
             if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
-                for(MultiValueFilter<String> pw : filter.pwithin) {
+                for (MultiValueFilter<String> pw : filter.pwithin) {
                     fluidSearch = fluidSearch.filterPWithin(pw);
                 }
             }
             if (filter.gwithin != null && !filter.gwithin.isEmpty()) {
-                for(MultiValueFilter<String> gw : filter.gwithin) {
+                for (MultiValueFilter<String> gw : filter.gwithin) {
                     fluidSearch = fluidSearch.filterGWithin(gw);
                 }
             }
             if (filter.gintersect != null && !filter.gintersect.isEmpty()) {
-                for(MultiValueFilter<String> gi : filter.gintersect) {
+                for (MultiValueFilter<String> gi : filter.gintersect) {
                     fluidSearch = fluidSearch.filterGIntersect(gi);
                 }
             }
             if (filter.notpwithin != null && !filter.notpwithin.isEmpty()) {
-                for(MultiValueFilter<String> npw : filter.notpwithin) {
+                for (MultiValueFilter<String> npw : filter.notpwithin) {
                     fluidSearch = fluidSearch.filterNotPWithin(npw);
                 }
             }
             if (filter.notgwithin != null && !filter.notgwithin.isEmpty()) {
-                for(MultiValueFilter<String> ngw : filter.notgwithin) {
+                for (MultiValueFilter<String> ngw : filter.notgwithin) {
                     fluidSearch = fluidSearch.filterNotGWithin(ngw);
                 }
             }
             if (filter.notgintersect != null && !filter.notgintersect.isEmpty()) {
-                for(MultiValueFilter<String> ngi : filter.notgintersect) {
+                for (MultiValueFilter<String> ngi : filter.notgintersect) {
                     fluidSearch = fluidSearch.filterNotGIntersect(ngi);
                 }
             }
         }
     }
 
-    protected void applySize(Size size, FluidSearch fluidSearch) throws ArlasException, IOException{
-        if (size != null){
+    protected void applySize(Size size, FluidSearch fluidSearch) throws ArlasException, IOException {
+        if (size != null) {
             CheckParams.checkSize(size);
-            if (size.size != null && size.from != null){
-                fluidSearch = fluidSearch.filterSize(size.size,size.from);
+            if (size.size != null && size.from != null) {
+                fluidSearch = fluidSearch.filterSize(size.size, size.from);
             }
         }
     }
 
-    protected void applySort(Sort sort, FluidSearch fluidSearch) throws ArlasException, IOException{
-        if (sort != null && sort.sort != null){
+    protected void applySort(Sort sort, FluidSearch fluidSearch) throws ArlasException, IOException {
+        if (sort != null && sort.sort != null) {
             fluidSearch = fluidSearch.sort(sort.sort);
         }
     }
 
     protected void applyProjection(Projection projection, FluidSearch fluidSearch) {
-        if (projection!= null && !Strings.isNullOrEmpty(projection.includes)) {
+        if (projection != null && !Strings.isNullOrEmpty(projection.includes)) {
             fluidSearch = fluidSearch.include(projection.includes);
         }
-        if (projection!= null && !Strings.isNullOrEmpty(projection.excludes)) {
+        if (projection != null && !Strings.isNullOrEmpty(projection.excludes)) {
             fluidSearch = fluidSearch.exclude(projection.excludes);
         }
     }
 
-    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse){
+    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse) {
         aggregationResponse.name = aggregation.getName();
         if (aggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
-            aggregationResponse.sumotherdoccounts = ((Terms)aggregation).getSumOfOtherDocCounts();
+            aggregationResponse.sumotherdoccounts = ((Terms) aggregation).getSumOfOtherDocCounts();
         }
 
         aggregationResponse.elements = new ArrayList<AggregationResponse>();
-        List<MultiBucketsAggregation.Bucket> buckets = (List<MultiBucketsAggregation.Bucket>)aggregation.getBuckets();
+        List<MultiBucketsAggregation.Bucket> buckets = (List<MultiBucketsAggregation.Bucket>) aggregation.getBuckets();
         buckets.forEach(bucket -> {
             AggregationResponse element = new AggregationResponse();
             element.keyAsString = bucket.getKeyAsString();
-            if(aggregationResponse.name.equals(FluidSearch.GEOHASH_AGG)) {
+            if (aggregationResponse.name.equals(FluidSearch.GEOHASH_AGG)) {
                 element.key = getGeohashCentre(element.keyAsString.toString());
             } else {
                 element.key = bucket.getKey();
             }
             element.count = bucket.getDocCount();
             element.elements = new ArrayList<AggregationResponse>();
-            if (bucket.getAggregations().asList().size() == 0){
+            if (bucket.getAggregations().asList().size() == 0) {
                 element.elements = null;
                 aggregationResponse.elements.add(element);
-            }
-            else {
+            } else {
                 bucket.getAggregations().forEach(subAggregation -> {
                     AggregationResponse subAggregationResponse = new AggregationResponse();
                     subAggregationResponse.name = subAggregation.getName();
                     if (subAggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
-                        subAggregationResponse.sumotherdoccounts = ((Terms)subAggregation).getSumOfOtherDocCounts();
+                        subAggregationResponse.sumotherdoccounts = ((Terms) subAggregation).getSumOfOtherDocCounts();
                     }
-                    if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) ||subAggregation.getName().equals(FluidSearch.TERM_AGG)){
-                        subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation)subAggregation), subAggregationResponse);
-                    } else{
+                    if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
+                        subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse);
+                    } else {
                         subAggregationResponse.elements = null;
                         AggregationMetric aggregationMetric = new AggregationMetric();
                         aggregationMetric.type = subAggregation.getName();
                         if (!aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase()) && !aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase())
                                 && !aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase() + "-bucket") && !aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase() + "-bucket")) {
-                            aggregationMetric.value = (((InternalAggregation)subAggregation).getProperty("value"));
+                            aggregationMetric.value = (((InternalAggregation) subAggregation).getProperty("value"));
                         } else {
                             FeatureCollection fc = new FeatureCollection();
                             Feature feature = new Feature();
                             if (aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase()) || aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase() + "-bucket")) {
-                                Polygon box = createBox((GeoBounds)subAggregation);
+                                Polygon box = createBox((GeoBounds) subAggregation);
                                 GeoJsonObject g = box;
                                 if (aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase() + "-bucket")) {
                                     element.BBOX = box;
@@ -238,10 +236,10 @@ public class ExploreServices {
                                 feature.setGeometry(g);
                                 fc.add(feature);
                             } else if (aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase()) || aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase() + "-bucket")) {
-                                GeoPoint centroid = ((GeoCentroid)subAggregation).centroid();
+                                GeoPoint centroid = ((GeoCentroid) subAggregation).centroid();
                                 GeoJsonObject g = new Point(centroid.getLon(), centroid.getLat());
                                 if (aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase() + "-bucket")) {
-                                    element.centroid = (Point)g;
+                                    element.centroid = (Point) g;
                                 }
                                 feature.setGeometry(g);
                                 fc.add(feature);
@@ -278,6 +276,7 @@ public class ExploreServices {
 
         return new GeoPoint(lat, lon);
     }
+
     private Polygon createBox(GeoBounds subAggregation) {
         Polygon box = new Polygon();
         GeoPoint topLeft = subAggregation.topLeft();

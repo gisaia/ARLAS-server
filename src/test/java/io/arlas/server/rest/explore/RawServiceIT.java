@@ -19,13 +19,12 @@
 
 package io.arlas.server.rest.explore;
 
+import io.arlas.server.AbstractTestWithCollection;
+import org.junit.Test;
+
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
-
-import org.junit.Test;
-
-import io.arlas.server.AbstractTestWithCollection;
 
 public class RawServiceIT extends AbstractTestWithCollection {
 
@@ -33,27 +32,27 @@ public class RawServiceIT extends AbstractTestWithCollection {
     public void testGetArlasHit() throws Exception {
 
         // GET existing document
-        when().get(getUrlPath(COLLECTION_NAME)+"/ID__170__20DI")
-        .then().statusCode(200)
-            .body("md.id", equalTo("ID__170__20DI"))
-            .body("data.geo_params.centroid", equalTo("-20,-170"))
-            .body("data.id", equalTo("ID__170__20DI"))
-            .body("data.fullname", equalTo("My name is ID__170__20DI"))
-            .body("data.params.startdate", equalTo(813400))
-            .body("data.params.city", isEmptyOrNullString());
+        when().get(getUrlPath(COLLECTION_NAME) + "/ID__170__20DI")
+                .then().statusCode(200)
+                .body("md.id", equalTo("ID__170__20DI"))
+                .body("data.geo_params.centroid", equalTo("-20,-170"))
+                .body("data.id", equalTo("ID__170__20DI"))
+                .body("data.fullname", equalTo("My name is ID__170__20DI"))
+                .body("data.params.startdate", equalTo(813400))
+                .body("data.params.city", isEmptyOrNullString());
 
 
         // GET invalid collection
-        when().get(getUrlPath("foo")+"/0-0")
-        .then().statusCode(404);
-        
+        when().get(getUrlPath("foo") + "/0-0")
+                .then().statusCode(404);
+
         // GET invalid identifier
-        when().get(getUrlPath(COLLECTION_NAME)+"/foo")
-        .then().statusCode(404);
+        when().get(getUrlPath(COLLECTION_NAME) + "/foo")
+                .then().statusCode(404);
     }
 
     @Override
     protected String getUrlPath(String collection) {
-        return arlasPath + "explore/"+collection;
+        return arlasPath + "explore/" + collection;
     }
 }

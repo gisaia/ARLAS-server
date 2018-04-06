@@ -21,12 +21,15 @@ package io.arlas.server.exceptions;
 
 public class NotAllowedException extends ArlasException {
     private static final long serialVersionUID = 1L;
+
     public NotAllowedException() {
         super();
     }
+
     public NotAllowedException(String message) {
         super(message);
     }
+
     public NotAllowedException(String message, Throwable cause) {
         super(message, cause);
     }

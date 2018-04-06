@@ -19,10 +19,11 @@
 
 package io.arlas.server.model.response;
 
-import java.util.List;
 import io.dropwizard.jackson.JsonSnakeCase;
 import org.geojson.Point;
 import org.geojson.Polygon;
+
+import java.util.List;
 
 @JsonSnakeCase
 public class AggregationResponse extends OperationInfo {

@@ -19,13 +19,10 @@
 
 package io.arlas.server.rest.collections;
 
-import io.arlas.server.exceptions.ArlasException;
-import org.elasticsearch.client.Client;
-
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
-
-import java.io.IOException;
+import io.arlas.server.exceptions.ArlasException;
+import org.elasticsearch.client.Client;
 
 public class ElasticCollectionService extends CollectionService {
 

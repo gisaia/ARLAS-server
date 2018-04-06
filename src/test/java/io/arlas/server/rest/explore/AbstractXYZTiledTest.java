@@ -9,8 +9,6 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.restassured.RestAssured.given;
-
 public abstract class AbstractXYZTiledTest extends AbstractSortedTest {
     @Before
     public void setUpSearch() {
@@ -34,11 +32,11 @@ public abstract class AbstractXYZTiledTest extends AbstractSortedTest {
         handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()), 2, 1, 2), "-10,-10", "-60,-90");
 
         search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("-5,5,15,20", "-5,-5,15,5")));
-        handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()+";"+search.filter.pwithin.get(0).get(1).toString()),
+        handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString() + ";" + search.filter.pwithin.get(0).get(1).toString()),
                 4, 8, 7), "0,0", "20,10");
 
         search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("-5,-5,15,20")), new MultiValueFilter<>(Arrays.asList("-5,-5,15,5")));
-        handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString(),search.filter.pwithin.get(1).get(0).toString()),
+        handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString(), search.filter.pwithin.get(1).get(0).toString()),
                 4, 8, 7), "0,0", "0,10");
 
         search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-5,0,0,5"));
@@ -54,18 +52,20 @@ public abstract class AbstractXYZTiledTest extends AbstractSortedTest {
     }
 
     protected abstract void handleXYZ(ValidatableResponse then, String bottomLeft, String topRight) throws Exception;
+
     protected abstract void handleXYZDisjointFromPwithin(ValidatableResponse then) throws Exception;
+
     protected abstract void handleInvalidXYZ(ValidatableResponse then) throws Exception;
 
-    private ValidatableResponse xyzTileGet(String param, List<Object> paramValues, int z, int x, int y){
+    private ValidatableResponse xyzTileGet(String param, List<Object> paramValues, int z, int x, int y) {
         if (param == null && paramValues == null) {
             return givenFilterableRequestParams()
                     .when().get(getXYZUrlPath("geodata", z, x, y))
                     .then();
         } else {
             RequestSpecification req = givenFilterableRequestParams();
-            for(Object paramValue : paramValues) {
-                req = req.param(param,paramValue);
+            for (Object paramValue : paramValues) {
+                req = req.param(param, paramValue);
             }
             return req.when().get(getXYZUrlPath("geodata", z, x, y))
                     .then();

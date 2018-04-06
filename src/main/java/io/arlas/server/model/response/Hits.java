@@ -19,10 +19,9 @@
 
 package io.arlas.server.model.response;
 
-import java.util.List;
-
-import io.arlas.server.model.CollectionReference;
 import io.dropwizard.jackson.JsonSnakeCase;
+
+import java.util.List;
 
 @JsonSnakeCase
 public class Hits {
@@ -31,11 +30,11 @@ public class Hits {
     public long nbhits;
     public long totalnb;
 
-    public  Hits(String collection){
+    public Hits(String collection) {
         this.collection = collection;
     }
 
-    public  Hits(String collection, List<Hit> hits, long totalnb){
+    public Hits(String collection, List<Hit> hits, long totalnb) {
         this.collection = collection;
         this.hits = hits;
         this.nbhits = hits.size();

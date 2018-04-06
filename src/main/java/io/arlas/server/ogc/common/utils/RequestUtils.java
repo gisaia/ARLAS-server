@@ -26,10 +26,10 @@ import java.util.Arrays;
 
 public class RequestUtils {
 
-    public  static void checkRequestTypeByName(String requestName,String[] requestTypes) throws OGCException {
+    public static void checkRequestTypeByName(String requestName, String[] requestTypes) throws OGCException {
         String msg = "Request type '" + requestName + "' is not supported.";
-        if (Arrays.asList(requestTypes).indexOf(requestName)<0 ) {
-            throw  new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED,msg,"request");
+        if (Arrays.asList(requestTypes).indexOf(requestName) < 0) {
+            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, msg, "request");
         }
     }
 }

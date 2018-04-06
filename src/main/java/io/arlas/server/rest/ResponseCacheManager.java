@@ -31,8 +31,8 @@ public class ResponseCacheManager {
     }
 
     public Response cache(Response.ResponseBuilder response, Integer maxagecache) {
-        if(defaultMaxAgeCache > 0 || maxagecache != null){
-            if(maxagecache == null){
+        if (defaultMaxAgeCache > 0 || maxagecache != null) {
+            if (maxagecache == null) {
                 maxagecache = defaultMaxAgeCache;// defaultMaxAgeCache is defined in ARLAS configuration file
             }
 

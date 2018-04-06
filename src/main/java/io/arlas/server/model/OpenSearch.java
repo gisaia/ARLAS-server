@@ -22,54 +22,54 @@ package io.arlas.server.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class OpenSearch {
-    @JsonProperty(value="short_name", required = false)
-    public String shortName="";
+    @JsonProperty(value = "short_name", required = false)
+    public String shortName = "";
 
-    @JsonProperty(value="description", required = false)
-    public String description="";
+    @JsonProperty(value = "description", required = false)
+    public String description = "";
 
-    @JsonProperty(value="contact", required = false)
-    public String contact="";
+    @JsonProperty(value = "contact", required = false)
+    public String contact = "";
 
-    @JsonProperty(value="tags", required = false)
-    public String tags="";
+    @JsonProperty(value = "tags", required = false)
+    public String tags = "";
 
-    @JsonProperty(value="long_name", required = false)
-    public String longName="";
+    @JsonProperty(value = "long_name", required = false)
+    public String longName = "";
 
-    @JsonProperty(value="image_height", required = false)
-    public String imageHeight="";
+    @JsonProperty(value = "image_height", required = false)
+    public String imageHeight = "";
 
-    @JsonProperty(value="image_width", required = false)
-    public String imageWidth="";
+    @JsonProperty(value = "image_width", required = false)
+    public String imageWidth = "";
 
-    @JsonProperty(value="image_type", required = false)
-    public String imageType="";
+    @JsonProperty(value = "image_type", required = false)
+    public String imageType = "";
 
-    @JsonProperty(value="image_url", required = false)
+    @JsonProperty(value = "image_url", required = false)
     public String imageUrl;
 
-    @JsonProperty(value="developer", required = false)
-    public String developer="";
+    @JsonProperty(value = "developer", required = false)
+    public String developer = "";
 
-    @JsonProperty(value="attribution", required = false)
-    public String attribution="";
+    @JsonProperty(value = "attribution", required = false)
+    public String attribution = "";
 
-    @JsonProperty(value="syndication_right", required = false)
+    @JsonProperty(value = "syndication_right", required = false)
     public String syndicationRight;
 
-    @JsonProperty(value="adult_content", required = false)
-    public String adultContent="";
+    @JsonProperty(value = "adult_content", required = false)
+    public String adultContent = "";
 
-    @JsonProperty(value="language", required = false)
-    public String language="";
+    @JsonProperty(value = "language", required = false)
+    public String language = "";
 
-    @JsonProperty(value="input_encoding", required = false)
-    public String inputEncoding="";
+    @JsonProperty(value = "input_encoding", required = false)
+    public String inputEncoding = "";
 
-    @JsonProperty(value="output_encoding", required = false)
-    public String outputEncoding="";
+    @JsonProperty(value = "output_encoding", required = false)
+    public String outputEncoding = "";
 
-    @JsonProperty(value="url_template_prefix", required = false)
-    public String urlTemplatePrefix="";
+    @JsonProperty(value = "url_template_prefix", required = false)
+    public String urlTemplatePrefix = "";
 }

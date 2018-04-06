@@ -20,6 +20,6 @@
 package io.arlas.server.ns;
 
 public class GML {
-    public static final String XML_PREFIX="gml";
-    public static final String XML_NS="http://www.opengis.net/gml/3.2";
+    public static final String XML_PREFIX = "gml";
+    public static final String XML_NS = "http://www.opengis.net/gml/3.2";
 }

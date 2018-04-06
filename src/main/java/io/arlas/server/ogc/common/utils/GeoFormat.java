@@ -29,36 +29,38 @@ import java.util.List;
 public class GeoFormat {
 
     public static void geojson2gml(GeoJsonObject geojson, XMLStreamWriter writer, String id) throws XMLStreamException {
-        geojson2gml(geojson,writer, id, "urn:ogc:def:crs:EPSG::4326");
+        geojson2gml(geojson, writer, id, "urn:ogc:def:crs:EPSG::4326");
     }
 
     public static void geojson2gml(GeoJsonObject geojson, XMLStreamWriter writer, String id, String srsName) throws XMLStreamException {
-        if(geojson==null){return;}
-        if(geojson instanceof Point){
-            Point g = (Point)geojson;
+        if (geojson == null) {
+            return;
+        }
+        if (geojson instanceof Point) {
+            Point g = (Point) geojson;
             writer.writeStartElement(GML.XML_NS, "Point");
             writer.writeAttribute(GML.XML_NS, "id", id);
             writer.writeAttribute("srsName", srsName);
-            if(g.getCoordinates()!=null){
+            if (g.getCoordinates() != null) {
                 writer.writeStartElement(GML.XML_NS, "pos");
-                writer.writeCharacters(g.getCoordinates().getLongitude()+" "+g.getCoordinates().getLatitude());
+                writer.writeCharacters(g.getCoordinates().getLongitude() + " " + g.getCoordinates().getLatitude());
                 writer.writeEndElement();
             }
             writer.writeEndElement();
             return;
         }
 
-        if(geojson instanceof LineString) {
-            LineString p = (LineString)geojson;
+        if (geojson instanceof LineString) {
+            LineString p = (LineString) geojson;
             writer.writeStartElement(GML.XML_NS, "LineString");
             writer.writeAttribute(GML.XML_NS, "id", id);
             writer.writeAttribute("srsName", srsName);
-            if(p.getCoordinates()!=null && p.getCoordinates().size()>0){
+            if (p.getCoordinates() != null && p.getCoordinates().size() > 0) {
                 {
                     writer.writeStartElement(GML.XML_NS, "posList");
                     String posList = "";
                     for (LngLatAlt lnglnglat : p.getCoordinates()) {
-                        posList+=String.valueOf(lnglnglat.getLatitude()) + " " + String.valueOf(lnglnglat.getLongitude())+ " ";
+                        posList += String.valueOf(lnglnglat.getLatitude()) + " " + String.valueOf(lnglnglat.getLongitude()) + " ";
                     }
                     writer.writeCharacters(posList.trim());
                     writer.writeEndElement();
@@ -69,20 +71,20 @@ public class GeoFormat {
         }
 
 
-        if(geojson instanceof Polygon) {
-            Polygon p = (Polygon)geojson;
+        if (geojson instanceof Polygon) {
+            Polygon p = (Polygon) geojson;
             writer.writeStartElement(GML.XML_NS, "Polygon");
             writer.writeAttribute(GML.XML_NS, "id", id);
             writer.writeAttribute("srsName", srsName);
-            if(p.getCoordinates()!=null && p.getCoordinates().size()>0){
+            if (p.getCoordinates() != null && p.getCoordinates().size() > 0) {
                 {
 
-                writer.writeStartElement(GML.XML_NS, "exterior");
-                writer.writeStartElement(GML.XML_NS, "LinearRing");
-                writer.writeStartElement(GML.XML_NS, "posList");
-                String posList = "";
+                    writer.writeStartElement(GML.XML_NS, "exterior");
+                    writer.writeStartElement(GML.XML_NS, "LinearRing");
+                    writer.writeStartElement(GML.XML_NS, "posList");
+                    String posList = "";
                     for (LngLatAlt lnglnglat : p.getExteriorRing()) {
-                        posList+=String.valueOf(lnglnglat.getLatitude()) + " " + String.valueOf(lnglnglat.getLongitude())+ " ";
+                        posList += String.valueOf(lnglnglat.getLatitude()) + " " + String.valueOf(lnglnglat.getLongitude()) + " ";
                     }
                     writer.writeCharacters(posList.trim());
                     writer.writeEndElement();
@@ -90,18 +92,18 @@ public class GeoFormat {
                     writer.writeEndElement();
                     writer.writeEndElement();
                 }
-                for(List<LngLatAlt> ring:p.getInteriorRings()){
+                for (List<LngLatAlt> ring : p.getInteriorRings()) {
                     writer.writeStartElement(GML.XML_NS, "interior");
                     writer.writeStartElement(GML.XML_NS, "LinearRing");
                     writer.writeStartElement(GML.XML_NS, "posList");
                     String posList = "";
-                    for(LngLatAlt lnglnglat: ring){
-                        posList+=String.valueOf(lnglnglat.getLatitude()) + " " + String.valueOf(lnglnglat.getLongitude())+ " ";
+                    for (LngLatAlt lnglnglat : ring) {
+                        posList += String.valueOf(lnglnglat.getLatitude()) + " " + String.valueOf(lnglnglat.getLongitude()) + " ";
                     }
                 }
             }
             return;
         }
-        throw new RuntimeException("Unsupported geometry type for "+geojson.toString());
+        throw new RuntimeException("Unsupported geometry type for " + geojson.toString());
     }
 }

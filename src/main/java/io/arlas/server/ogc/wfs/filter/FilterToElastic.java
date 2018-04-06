@@ -61,10 +61,14 @@ import java.util.*;
  */
 public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
-    /** Standard java logger */
+    /**
+     * Standard java logger
+     */
     org.slf4j.Logger LOGGER = LoggerFactory.getLogger(FilterToElastic.class);
 
-    /** filter factory */
+    /**
+     * filter factory
+     */
     private static FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory(null);
 
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -73,25 +77,29 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     private static final DateTimeFormatter DEFAULT_DATE_FORMATTER = Joda.forPattern("date_optional_time").printer();
 
-    /** The filter types that this class can encode */
+    /**
+     * The filter types that this class can encode
+     */
     private Capabilities capabilities = null;
 
-    /** the schmema the encoder will use */
+    /**
+     * the schmema the encoder will use
+     */
     SimpleFeatureType featureType;
 
     Geometry currentGeometry;
 
     Object field;
 
-    Map<String,Object> currentShapeBuilder;
+    Map<String, Object> currentShapeBuilder;
 
     Boolean fullySupported;
 
-    Map<String,Object> queryBuilder;
+    Map<String, Object> queryBuilder;
 
-    Map<String,Object> nativeQueryBuilder;
+    Map<String, Object> nativeQueryBuilder;
 
-    Map<String,Map<String,Map<String,Object>>> aggregations;
+    Map<String, Map<String, Map<String, Object>>> aggregations;
 
     public OGCException wfsException;
 
@@ -123,7 +131,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     private Object end;
 
-    private Map<String,String> parameters;
+    private Map<String, String> parameters;
 
     private Boolean nativeOnly;
 
@@ -134,10 +142,9 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     public static final String DATE_FORMAT = "date_format";
 
 
-
     public CollectionReferenceDescription collectionReference;
 
-    public FilterToElastic( CollectionReferenceDescription collectionReference) {
+    public FilterToElastic(CollectionReferenceDescription collectionReference) {
         queryBuilder = FilterToElasticHelper.MATCH_ALL;
         nativeQueryBuilder = ImmutableMap.of("match_all", Collections.EMPTY_MAP);
         this.collectionReference = collectionReference;
@@ -149,7 +156,6 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      * Performs the encoding.
      *
      * @param filter the Filter to be encoded.
-     *
      */
     public void encode(Filter filter) {
         fullySupported = getCapabilities().fullySupports(filter);
@@ -158,13 +164,12 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     }
 
 
-
     /**
      * Sets the featuretype the encoder is encoding for.
      * <p>
-     * This is used for context for attribute expressions. 
+     * This is used for context for attribute expressions.
      * </p>
-     * 
+     *
      * @param featureType
      */
     public void setFeatureType(SimpleFeatureType featureType) {
@@ -182,12 +187,12 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     /**
      * Describes the capabilities of this encoder.
-     * 
+     * <p>
      * <p>
      * Performs lazy creation of capabilities.
      * </p>
-     * 
-     * If you're extending this class, override {@link #createCapabilities()} to declare which capabilities you 
+     * <p>
+     * If you're extending this class, override {@link #createCapabilities()} to declare which capabilities you
      * support.  Don't use this method.
      *
      * @return The capabilities supported by this encoder.
@@ -205,7 +210,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     /**
      * Writes the FilterBuilder for the ExcludeFilter.
-     * 
+     *
      * @param filter the filter to be visited
      */
     public Object visit(ExcludeFilter filter, Object extraData) {
@@ -215,9 +220,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     /**
      * Writes the FilterBuilder for the IncludeFilter.
-     * 
+     *
      * @param filter the filter to be visited
-     *  
      */
     public Object visit(IncludeFilter filter, Object extraData) {
         queryBuilder = FilterToElasticHelper.MATCH_ALL;
@@ -228,18 +232,17 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      * Writes the FilterBuilder for the PropertyIsBetween Filter.
      *
      * @param filter the Filter to be visited.
-     *
      */
     public Object visit(PropertyIsBetween filter, Object extraData) {
         LOGGER.debug("exporting PropertyIsBetween");
 
         Expression expr = filter.getExpression();
-        Expression lowerbounds =  filter.getLowerBoundary();
-        Expression upperbounds =  filter.getUpperBoundary();
+        Expression lowerbounds = filter.getLowerBoundary();
+        Expression upperbounds = filter.getUpperBoundary();
 
         Class<?> context;
         nested = false;
-        AttributeDescriptor attType = (AttributeDescriptor)expr.evaluate(featureType);
+        AttributeDescriptor attType = (AttributeDescriptor) expr.evaluate(featureType);
         if (attType != null) {
             context = attType.getType().getBinding();
             if (attType.getUserData().containsKey(NESTED)) {
@@ -253,18 +256,18 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             context = String.class;
         }
 
-        expr.accept( this, extraData);
+        expr.accept(this, extraData);
         key = (String) field;
         lowerbounds.accept(this, context);
         lower = field;
-        upperbounds.accept( this, context);
+        upperbounds.accept(this, context);
         upper = field;
-        if(nested) {
+        if (nested) {
             path = extractNestedPath(key);
         }
 
         queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("gte", lower, "lte", upper)));
-        if(nested) {
+        if (nested) {
             queryBuilder = ImmutableMap.of("nested", ImmutableMap.of("path", path, "query", queryBuilder));
         }
 
@@ -276,7 +279,6 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      * Writes the FilterBuilder for the Like Filter.
      *
      * @param filter the filter to be visited
-     *
      */
     public Object visit(PropertyIsLike filter, Object extraData) {
         char esc = filter.getEscape().charAt(0);
@@ -307,10 +309,10 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
         att.accept(this, extraData);
         key = (String) XmlUtils.retrievePointPath((String) field);
-        if(!WFSCheckParam.isFieldInMapping(collectionReference,key)){
+        if (!WFSCheckParam.isFieldInMapping(collectionReference, key)) {
             List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
             wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
-            wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE,"Unable to find "+field+"  in "+collectionReference.collectionName+".","filter"));
+            wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
             wfsException = new OGCException(wfsExceptionMessages);
             throw new RuntimeException();
         }
@@ -342,31 +344,29 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     /**
      * Write the FilterBuilder for an And filter
-     * 
-     * @param filter the filter to visit
+     *
+     * @param filter    the filter to visit
      * @param extraData extra data (unused by this method)
-     * 
      */
     public Object visit(And filter, Object extraData) {
-        return visit((BinaryLogicOperator)filter, "AND");
+        return visit((BinaryLogicOperator) filter, "AND");
     }
 
     /**
      * Write the FilterBuilder for a Not filter
-     * 
-     * @param filter the filter to visit
+     *
+     * @param filter    the filter to visit
      * @param extraData extra data (unused by this method)
-     * 
      */
     public Object visit(Not filter, Object extraData) {
-        if(filter.getFilter() instanceof PropertyIsNull) {
+        if (filter.getFilter() instanceof PropertyIsNull) {
             Expression expr = ((PropertyIsNull) filter.getFilter()).getExpression();
-            expr.accept( this, extraData);
+            expr.accept(this, extraData);
         } else {
             filter.getFilter().accept(this, extraData);
         }
 
-        if(filter.getFilter() instanceof PropertyIsNull) {
+        if (filter.getFilter() instanceof PropertyIsNull) {
             queryBuilder = ImmutableMap.of("exists", ImmutableMap.of("field", field));
         } else {
             queryBuilder = ImmutableMap.of("bool", ImmutableMap.of("must_not", queryBuilder));
@@ -376,26 +376,25 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     /**
      * Write the FilterBuilder for an Or filter
-     * 
-     * @param filter the filter to visit
+     *
+     * @param filter    the filter to visit
      * @param extraData extra data (unused by this method)
-     * 
      */
     public Object visit(Or filter, Object extraData) {
-        return visit((BinaryLogicOperator)filter, "OR");
+        return visit((BinaryLogicOperator) filter, "OR");
     }
 
     /**
      * Common implementation for BinaryLogicOperator filters.  This way
      * they're all handled centrally.
      *
-     * @param filter the logic statement.
+     * @param filter    the logic statement.
      * @param extraData extra filter data.  Not modified directly by this method.
      */
     protected Object visit(BinaryLogicOperator filter, Object extraData) {
         LOGGER.debug("exporting LogicFilter");
 
-        final List<Map<String,Object>> filters = new ArrayList<>();
+        final List<Map<String, Object>> filters = new ArrayList<>();
         for (final Filter child : filter.getChildren()) {
             child.accept(this, extraData);
             filters.add(queryBuilder);
@@ -409,76 +408,69 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     }
 
 
-
     /**
      * Write the FilterBuilder for this kind of filter
-     * 
-     * @param filter the filter to visit
+     *
+     * @param filter    the filter to visit
      * @param extraData extra data (unused by this method)
-     * 
      */
     public Object visit(PropertyIsEqualTo filter, Object extraData) {
-        visitBinaryComparisonOperator((BinaryComparisonOperator)filter, "=");
+        visitBinaryComparisonOperator((BinaryComparisonOperator) filter, "=");
         return extraData;
     }
 
     /**
      * Write the FilterBuilder for this kind of filter
-     * 
-     * @param filter the filter to visit
+     *
+     * @param filter    the filter to visit
      * @param extraData extra data (unused by this method)
-     * 
      */
     public Object visit(PropertyIsGreaterThanOrEqualTo filter, Object extraData) {
-        visitBinaryComparisonOperator((BinaryComparisonOperator)filter, ">=");
+        visitBinaryComparisonOperator((BinaryComparisonOperator) filter, ">=");
         return extraData;
     }
 
     /**
      * Write the FilterBuilder for this kind of filter
-     * 
-     * @param filter the filter to visit
+     *
+     * @param filter    the filter to visit
      * @param extraData extra data (unused by this method)
-     * 
      */
     public Object visit(PropertyIsGreaterThan filter, Object extraData) {
-        visitBinaryComparisonOperator((BinaryComparisonOperator)filter, ">");
+        visitBinaryComparisonOperator((BinaryComparisonOperator) filter, ">");
         return extraData;
     }
 
     /**
      * Write the FilterBuilder for this kind of filter
-     * 
-     * @param filter the filter to visit
+     *
+     * @param filter    the filter to visit
      * @param extraData extra data (unused by this method)
-     * 
      */
     public Object visit(PropertyIsLessThan filter, Object extraData) {
-        visitBinaryComparisonOperator((BinaryComparisonOperator)filter, "<");
+        visitBinaryComparisonOperator((BinaryComparisonOperator) filter, "<");
         return extraData;
     }
 
     /**
      * Write the FilterBuilder for this kind of filter
-     * 
-     * @param filter the filter to visit
+     *
+     * @param filter    the filter to visit
      * @param extraData extra data (unused by this method)
-     * 
      */
     public Object visit(PropertyIsLessThanOrEqualTo filter, Object extraData) {
-        visitBinaryComparisonOperator((BinaryComparisonOperator)filter, "<=");
+        visitBinaryComparisonOperator((BinaryComparisonOperator) filter, "<=");
         return extraData;
     }
 
     /**
      * Write the FilterBuilder for this kind of filter
-     * 
-     * @param filter the filter to visit
+     *
+     * @param filter    the filter to visit
      * @param extraData extra data (unused by this method)
-     * 
      */
     public Object visit(PropertyIsNotEqualTo filter, Object extraData) {
-        visitBinaryComparisonOperator((BinaryComparisonOperator)filter, "!=");
+        visitBinaryComparisonOperator((BinaryComparisonOperator) filter, "!=");
         return extraData;
     }
 
@@ -486,9 +478,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      * Common implementation for BinaryComparisonOperator filters.
      *
      * @param filter the comparison.
-     *
      */
-    protected void visitBinaryComparisonOperator(BinaryComparisonOperator filter, Object extraData)  {
+    protected void visitBinaryComparisonOperator(BinaryComparisonOperator filter, Object extraData) {
         LOGGER.debug("exporting FilterBuilder ComparisonFilter");
 
         Expression left = filter.getExpression1();
@@ -502,14 +493,14 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         if (left instanceof PropertyName) {
             // It's a propertyname, we should get the class and pass it in
             // as context to the tree walker.
-            attType = (AttributeDescriptor)left.evaluate(featureType);
+            attType = (AttributeDescriptor) left.evaluate(featureType);
             if (attType != null) {
                 rightContext = attType.getType().getBinding();
             }
         }
 
         if (right instanceof PropertyName) {
-            attType = (AttributeDescriptor)right.evaluate(featureType);
+            attType = (AttributeDescriptor) right.evaluate(featureType);
             if (attType != null) {
                 leftContext = attType.getType().getBinding();
             }
@@ -526,13 +517,13 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         }
 
         //case sensitivity
-        if ( !filter.isMatchingCase() ) {
+        if (!filter.isMatchingCase()) {
             //we only do for = and !=
-            if ( filter instanceof PropertyIsEqualTo || 
-                    filter instanceof PropertyIsNotEqualTo ) {
+            if (filter instanceof PropertyIsEqualTo ||
+                    filter instanceof PropertyIsNotEqualTo) {
                 //and only for strings
-                if ( String.class.equals( leftContext ) 
-                        || String.class.equals( rightContext ) ) {
+                if (String.class.equals(leftContext)
+                        || String.class.equals(rightContext)) {
                     //matchCase = false;
                     LOGGER.debug("Case insensitive filter not supported");
                 }
@@ -547,21 +538,22 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             right.accept(this, rightContext);
 
         } else {
-            right.accept( this, null);
+            right.accept(this, null);
             key = (String) XmlUtils.retrievePointPath((String) field);
-            if(!WFSCheckParam.isFieldInMapping(collectionReference,key)){
+            if (!WFSCheckParam.isFieldInMapping(collectionReference, key)) {
                 List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
-                wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE,"Unable to find "+field+"  in "+collectionReference.collectionName+".","filter"));
+                wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
                 wfsException = new OGCException(wfsExceptionMessages);
                 throw new RuntimeException();
-            }            left.accept(this, leftContext);
+            }
+            left.accept(this, leftContext);
         }
         if (nested) {
             path = extractNestedPath(key);
         }
 
-        if(field.equals("")){
+        if (field.equals("")) {
             wfsException = new OGCException(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter");
             throw new RuntimeException();
         }
@@ -596,7 +588,6 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      * Writes the FilterBuilder for the Null Filter.
      *
      * @param filter the null filter.
-     *
      */
     public Object visit(PropertyIsNull filter, Object extraData) {
         LOGGER.debug("exporting NullFilter");
@@ -618,7 +609,6 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      * Encodes an Id filter
      *
      * @param filter the
-     *
      */
     public Object visit(Id filter, Object extraData) {
         final List<String> idList = new ArrayList<>();
@@ -633,41 +623,51 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     }
 
     public Object visit(BBOX filter, Object extraData) {
-        return visitBinarySpatialOperator((BinarySpatialOperator)filter, extraData);
+        return visitBinarySpatialOperator((BinarySpatialOperator) filter, extraData);
     }
+
     public Object visit(Beyond filter, Object extraData) {
-        return visitBinarySpatialOperator((BinarySpatialOperator)filter, extraData);
+        return visitBinarySpatialOperator((BinarySpatialOperator) filter, extraData);
     }
+
     public Object visit(Contains filter, Object extraData) {
-        return visitBinarySpatialOperator((BinarySpatialOperator)filter, extraData);
+        return visitBinarySpatialOperator((BinarySpatialOperator) filter, extraData);
     }
+
     public Object visit(Crosses filter, Object extraData) {
-        return visitBinarySpatialOperator((BinarySpatialOperator)filter, extraData);
+        return visitBinarySpatialOperator((BinarySpatialOperator) filter, extraData);
     }
+
     public Object visit(Disjoint filter, Object extraData) {
-        return visitBinarySpatialOperator((BinarySpatialOperator)filter, extraData);
+        return visitBinarySpatialOperator((BinarySpatialOperator) filter, extraData);
     }
+
     public Object visit(DWithin filter, Object extraData) {
-        return visitBinarySpatialOperator((BinarySpatialOperator)filter, extraData);
+        return visitBinarySpatialOperator((BinarySpatialOperator) filter, extraData);
     }
+
     public Object visit(Equals filter, Object extraData) {
-        return visitBinarySpatialOperator((BinarySpatialOperator)filter, extraData);
+        return visitBinarySpatialOperator((BinarySpatialOperator) filter, extraData);
     }
+
     public Object visit(Intersects filter, Object extraData) {
-        return visitBinarySpatialOperator((BinarySpatialOperator)filter, extraData);
+        return visitBinarySpatialOperator((BinarySpatialOperator) filter, extraData);
     }
+
     public Object visit(Overlaps filter, Object extraData) {
-        return visitBinarySpatialOperator((BinarySpatialOperator)filter, extraData);
+        return visitBinarySpatialOperator((BinarySpatialOperator) filter, extraData);
     }
+
     public Object visit(Touches filter, Object extraData) {
-        return visitBinarySpatialOperator((BinarySpatialOperator)filter, extraData);
+        return visitBinarySpatialOperator((BinarySpatialOperator) filter, extraData);
     }
+
     public Object visit(Within filter, Object extraData) {
-        return visitBinarySpatialOperator((BinarySpatialOperator)filter, extraData);
+        return visitBinarySpatialOperator((BinarySpatialOperator) filter, extraData);
     }
 
     protected Object visitBinarySpatialOperator(BinarySpatialOperator filter,
-            Object extraData) {
+                                                Object extraData) {
         // basic checks
         if (filter == null)
             throw new NullPointerException(
@@ -685,10 +685,9 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
         if (e1 instanceof PropertyName && e2 instanceof Literal) {
             //call the "regular" method
-            return visitBinarySpatialOperator(filter, (PropertyName)e1, (Literal)e2, filter
+            return visitBinarySpatialOperator(filter, (PropertyName) e1, (Literal) e2, filter
                     .getExpression1() instanceof Literal, extraData);
-        }
-        else {
+        } else {
             //call the join version
             return visitBinarySpatialOperator(filter, e1, e2, extraData);
         }
@@ -696,7 +695,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     }
 
     protected Object visitBinaryTemporalOperator(BinaryTemporalOperator filter,
-            Object extraData) {
+                                                 Object extraData) {
         if (filter == null) {
             throw new NullPointerException("Null filter");
         }
@@ -711,10 +710,9 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
         if (e1 instanceof PropertyName && e2 instanceof Literal) {
             //call the "regular" method
-            return visitBinaryTemporalOperator(filter, (PropertyName)e1, (Literal)e2, 
+            return visitBinaryTemporalOperator(filter, (PropertyName) e1, (Literal) e2,
                     filter.getExpression1() instanceof Literal, extraData);
-        }
-        else {
+        } else {
             //call the join version
             return visitBinaryTemporalOperator(filter, e1, e2, extraData);
         }
@@ -723,14 +721,14 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     /**
      * Handles the common case of a PropertyName,Literal geometry binary temporal operator.
      * <p>
-     * Subclasses should override if they support more temporal operators than what is handled in 
-     * this base class. 
+     * Subclasses should override if they support more temporal operators than what is handled in
+     * this base class.
      * </p>
      */
-    protected Object visitBinaryTemporalOperator(BinaryTemporalOperator filter, 
-            PropertyName property, Literal temporal, boolean swapped, Object extraData) { 
+    protected Object visitBinaryTemporalOperator(BinaryTemporalOperator filter,
+                                                 PropertyName property, Literal temporal, boolean swapped, Object extraData) {
 
-        AttributeDescriptor attType = (AttributeDescriptor)property.evaluate(featureType);
+        AttributeDescriptor attType = (AttributeDescriptor) property.evaluate(featureType);
 
         Class<?> typeContext = null;
         nested = false;
@@ -761,11 +759,11 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         }
 
         //ensure the time period is the correct argument
-        if ((filter instanceof Begins || filter instanceof Ends || filter instanceof During) && 
+        if ((filter instanceof Begins || filter instanceof Ends || filter instanceof During) &&
                 swapped) {
             throw new IllegalArgumentException("Time period must be second argument of Filter");
         }
-        if ((filter instanceof BegunBy || filter instanceof EndedBy || filter instanceof TContains) && 
+        if ((filter instanceof BegunBy || filter instanceof EndedBy || filter instanceof TContains) &&
                 !swapped) {
             throw new IllegalArgumentException("Time period must be first argument of Filter");
         }
@@ -775,44 +773,39 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             op = filter instanceof After ? " > " : " < ";
 
             if (period != null) {
-                property.accept( this, extraData);
+                property.accept(this, extraData);
                 key = (String) field;
 
                 visitBegin(period, extraData);
                 begin = field;
                 visitEnd(period, extraData);
                 end = field;
-            }
-            else {
-                property.accept( this, extraData);
+            } else {
+                property.accept(this, extraData);
                 key = (String) field;
-                temporal.accept( this, typeContext);
+                temporal.accept(this, typeContext);
             }
-        }
-        else if (filter instanceof Begins || filter instanceof Ends || 
-                filter instanceof BegunBy || filter instanceof EndedBy ) {
-            property.accept( this, extraData);
+        } else if (filter instanceof Begins || filter instanceof Ends ||
+                filter instanceof BegunBy || filter instanceof EndedBy) {
+            property.accept(this, extraData);
             key = (String) field;
 
             if (filter instanceof Begins || filter instanceof BegunBy) {
                 visitBegin(period, extraData);
-            }
-            else {
+            } else {
                 visitEnd(period, extraData);
             }
-        }
-        else if (filter instanceof During || filter instanceof TContains){
-            property.accept( this, extraData);
+        } else if (filter instanceof During || filter instanceof TContains) {
+            property.accept(this, extraData);
             key = (String) field;
 
             visitBegin(period, extraData);
             lower = field;
             visitEnd(period, extraData);
-        }
-        else if (filter instanceof TEquals) {
-            property.accept( this, extraData);
+        } else if (filter instanceof TEquals) {
+            property.accept(this, extraData);
             key = (String) field;
-            temporal.accept( this, typeContext);
+            temporal.accept(this, typeContext);
         }
         if (nested) {
             path = extractNestedPath(key);
@@ -825,24 +818,20 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
                 } else {
                     queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("lt", begin)));
                 }
-            }
-            else {
+            } else {
                 if (op.equals(" < ") || swapped) {
                     queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("lt", field)));
                 } else {
                     queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("gt", field)));
                 }
             }
-        }
-        else if (filter instanceof Begins || filter instanceof Ends || 
-                filter instanceof BegunBy || filter instanceof EndedBy ) {
+        } else if (filter instanceof Begins || filter instanceof Ends ||
+                filter instanceof BegunBy || filter instanceof EndedBy) {
 
             queryBuilder = ImmutableMap.of("term", ImmutableMap.of(key, field));
-        }
-        else if (filter instanceof During || filter instanceof TContains){
+        } else if (filter instanceof During || filter instanceof TContains) {
             queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("gt", lower, "lt", field)));
-        }
-        else if (filter instanceof TEquals) {
+        } else if (filter instanceof TEquals) {
             queryBuilder = ImmutableMap.of("term", ImmutableMap.of(key, field));
         }
 
@@ -864,18 +853,19 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     /**
      * Handles the general case of two expressions in a binary temporal filter.
      * <p>
-     * Subclasses should override if they support more temporal operators than what is handled in 
-     * this base class. 
+     * Subclasses should override if they support more temporal operators than what is handled in
+     * this base class.
      * </p>
      */
-    protected Object visitBinaryTemporalOperator(BinaryTemporalOperator filter, Expression e1, 
-            Expression e2, Object extraData) {
+    protected Object visitBinaryTemporalOperator(BinaryTemporalOperator filter, Expression e1,
+                                                 Expression e2, Object extraData) {
         throw new UnsupportedOperationException("Join version of binary temporal operator not supported");
     }
 
     /**
      * Encodes a null filter value.  The current implementation
      * does exactly nothing.
+     *
      * @param extraData extra data to be used to evaluate the filter
      * @return the untouched extraData parameter
      */
@@ -890,9 +880,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     /**
      * Writes the FilterBuilder for the attribute Expression.
-     * 
-     * @param expression the attribute.
      *
+     * @param expression the attribute.
      */
     @Override
     public Object visit(PropertyName expression, Object extraData) {
@@ -901,17 +890,17 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         SimpleFeatureType featureType = this.featureType;
 
         Class<?> target = null;
-        if(extraData instanceof Class) {
+        if (extraData instanceof Class) {
             target = (Class<?>) extraData;
         }
 
         //first evaluate expression against feature type get the attribute, 
         AttributeDescriptor attType = (AttributeDescriptor) expression.evaluate(featureType);
 
-        String encodedField; 
-        if ( attType != null ) {
+        String encodedField;
+        if (attType != null) {
             encodedField = attType.getLocalName();
-            if(target != null && target.isAssignableFrom(attType.getType().getBinding())) {
+            if (target != null && target.isAssignableFrom(attType.getType().getBinding())) {
                 // no need for casting, it's already the right type
                 target = null;
             }
@@ -931,52 +920,48 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     /**
      * Export the contents of a Literal Expresion
      *
-     * @param expression
-     * the Literal to export
-     *
+     * @param expression the Literal to export
      */
     @Override
     public Object visit(Literal expression, Object context) {
         // type to convert the literal to
         Class<?> target = null;
-        if ( context instanceof Class ) {
+        if (context instanceof Class) {
             target = (Class<?>) context;
         }
-            //evaluate the expression
-            Object literal = evaluateLiteral( expression, target );
-            // handle geometry case
-            if (literal instanceof Geometry) {
-                // call this method for backwards compatibility with subclasses
-                try {
-                    visitLiteralGeometry(filterFactory.literal(literal));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        //evaluate the expression
+        Object literal = evaluateLiteral(expression, target);
+        // handle geometry case
+        if (literal instanceof Geometry) {
+            // call this method for backwards compatibility with subclasses
+            try {
+                visitLiteralGeometry(filterFactory.literal(literal));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            else {
-                // write out the literal allowing subclasses to override this
-                // behaviour (for writing out dates and the like using the BDMS custom functions)
-                writeLiteral(literal);
-            }
+        } else {
+            // write out the literal allowing subclasses to override this
+            // behaviour (for writing out dates and the like using the BDMS custom functions)
+            writeLiteral(literal);
+        }
         return context;
     }
 
-    protected Object evaluateLiteral(Literal expression, Class<?> target )  {
+    protected Object evaluateLiteral(Literal expression, Class<?> target) {
         Object literal = null;
 
         // HACK: let expression figure out the right value for numbers,
         // since the context is almost always improperly set and the
         // numeric converters try to force floating points to integrals
         // JD: the above is no longer true, so instead do a safe conversion
-        if(target != null) {
+        if (target != null) {
             // use the target type
             if (Number.class.isAssignableFrom(target)) {
                 literal = safeConvertToNumber(expression, target);
                 if (literal == null) {
                     literal = safeConvertToNumber(expression, Number.class);
                 }
-            }
-            else {
+            } else {
                 literal = expression.evaluate(null, target);
             }
         }
@@ -985,7 +970,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         if (target == null) {
             // we don't know the target type, check for a conversion to a number
             Number number = safeConvertToNumber(expression, Number.class);
-            if (number != null && !String.valueOf(number).equals("") ) {
+            if (number != null && !String.valueOf(number).equals("")) {
                 literal = number;
             }
         }
@@ -993,11 +978,11 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         // if the target was not known, of the conversion failed, try the
         // type guessing dance literal expression does only for the following
         // method call
-        if(literal == null)
+        if (literal == null)
             literal = expression.evaluate(null);
 
         // if that failed as well, grab the value as is
-        if(literal == null)
+        if (literal == null)
             literal = expression.getValue();
         return literal;
     }
@@ -1007,6 +992,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      * null, numeric and booleans (true|false), and turns everything else into a string.
      * Subclasses are expected to override this shall they need a different treatment
      * (e.g. for dates)
+     *
      * @param literal
      */
     protected void writeLiteral(Object literal) {
@@ -1015,7 +1001,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         if (Date.class.isAssignableFrom(literal.getClass())) {
             field = dateFormatter.print(((Date) literal).getTime());
         }
-    } 
+    }
 
     protected void visitLiteralTimePeriod(Period expression) {
         throw new UnsupportedOperationException("Time periods not supported, subclasses must implement this " +
@@ -1025,12 +1011,15 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     public Object visit(Add expression, Object extraData) {
         throw new UnsupportedOperationException("Add expressions not supported");
     }
+
     public Object visit(Divide expression, Object extraData) {
         throw new UnsupportedOperationException("Divide expressions not supported");
     }
+
     public Object visit(Multiply expression, Object extraData) {
         throw new UnsupportedOperationException("Multiply expressions not supported");
     }
+
     public Object visit(Subtract expression, Object extraData) {
         throw new UnsupportedOperationException("Subtract expressions not supported");
     }
@@ -1044,51 +1033,64 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     public Object visit(After after, Object extraData) {
         return visitBinaryTemporalOperator(after, extraData);
     }
+
     public Object visit(AnyInteracts anyInteracts, Object extraData) {
         return visitBinaryTemporalOperator(anyInteracts, extraData);
     }
+
     public Object visit(Before before, Object extraData) {
         return visitBinaryTemporalOperator(before, extraData);
     }
+
     public Object visit(Begins begins, Object extraData) {
         return visitBinaryTemporalOperator(begins, extraData);
     }
+
     public Object visit(BegunBy begunBy, Object extraData) {
         return visitBinaryTemporalOperator(begunBy, extraData);
     }
+
     public Object visit(During during, Object extraData) {
         return visitBinaryTemporalOperator(during, extraData);
     }
+
     public Object visit(EndedBy endedBy, Object extraData) {
         return visitBinaryTemporalOperator(endedBy, extraData);
     }
+
     public Object visit(Ends ends, Object extraData) {
         return visitBinaryTemporalOperator(ends, extraData);
     }
+
     public Object visit(Meets meets, Object extraData) {
         return visitBinaryTemporalOperator(meets, extraData);
     }
+
     public Object visit(MetBy metBy, Object extraData) {
         return visitBinaryTemporalOperator(metBy, extraData);
     }
+
     public Object visit(OverlappedBy overlappedBy, Object extraData) {
         return visitBinaryTemporalOperator(overlappedBy, extraData);
     }
+
     public Object visit(TContains contains, Object extraData) {
         return visitBinaryTemporalOperator(contains, extraData);
     }
+
     public Object visit(TEquals equals, Object extraData) {
         return visitBinaryTemporalOperator(equals, extraData);
     }
+
     public Object visit(TOverlaps contains, Object extraData) {
         return visitBinaryTemporalOperator(contains, extraData);
     }
 
     protected void visitLiteralGeometry(Literal expression) throws IOException {
         // evaluate the literal and store it for later
-        currentGeometry  = (Geometry) evaluateLiteral(expression, Geometry.class);
+        currentGeometry = (Geometry) evaluateLiteral(expression, Geometry.class);
 
-        if ( currentGeometry instanceof LinearRing ) {
+        if (currentGeometry instanceof LinearRing) {
             // convert LinearRing to LineString
             final GeometryFactory factory = currentGeometry.getFactory();
             final LinearRing linearRing = (LinearRing) currentGeometry;
@@ -1103,14 +1105,14 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     }
 
     protected Object visitBinarySpatialOperator(BinarySpatialOperator filter,
-            PropertyName property, Literal geometry, boolean swapped,
-            Object extraData) {
+                                                PropertyName property, Literal geometry, boolean swapped,
+                                                Object extraData) {
         return helper.visitBinarySpatialOperator(filter, property, geometry,
                 swapped, extraData);
     }
 
-    protected Object visitBinarySpatialOperator(BinarySpatialOperator filter, Expression e1, 
-            Expression e2, Object extraData) {
+    protected Object visitBinarySpatialOperator(BinarySpatialOperator filter, Expression e1,
+                                                Expression e2, Object extraData) {
         return helper.visitBinarySpatialOperator(filter, e1, e2, extraData);
     }
 
@@ -1135,28 +1137,28 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      * helper to do a safe convesion of expression to a number
      */
     Number safeConvertToNumber(Expression expression, Class<?> target) {
-        return (Number) Converters.convert(expression.evaluate(null), target, 
+        return (Number) Converters.convert(expression.evaluate(null), target,
                 new Hints(ConverterFactory.SAFE_CONVERSION, true));
     }
 
-    public static String convertToQueryString(char escape, char multi, char single, 
-            boolean matchCase, String pattern ) {
+    public static String convertToQueryString(char escape, char multi, char single,
+                                              boolean matchCase, String pattern) {
 
-        StringBuffer result = new StringBuffer(pattern.length()+5);
+        StringBuffer result = new StringBuffer(pattern.length() + 5);
         for (int i = 0; i < pattern.length(); i++) {
             char chr = pattern.charAt(i);
             if (chr == escape) {
                 // emit the next char and skip it
-                if (i!= (pattern.length()-1) ) {
+                if (i != (pattern.length() - 1)) {
                     result.append("\\");
-                    result.append( pattern.charAt(i+1) );
+                    result.append(pattern.charAt(i + 1));
                 }
                 i++; // skip next char
             } else if (chr == single) {
                 result.append('?');
             } else if (chr == multi) {
                 result.append('*');
-            } else { 
+            } else {
                 result.append(chr);
             }
         }
@@ -1164,24 +1166,24 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         return result.toString();
     }
 
-    public static String convertToRegex(char escape, char multi, char single, 
-            boolean matchCase, String pattern) {
+    public static String convertToRegex(char escape, char multi, char single,
+                                        boolean matchCase, String pattern) {
 
-        StringBuffer result = new StringBuffer(pattern.length()+5);
+        StringBuffer result = new StringBuffer(pattern.length() + 5);
         for (int i = 0; i < pattern.length(); i++) {
             char chr = pattern.charAt(i);
             if (chr == escape) {
                 // emit the next char and skip it
-                if (i!= (pattern.length()-1) ) {
+                if (i != (pattern.length() - 1)) {
                     result.append("\\");
-                    result.append( pattern.charAt(i+1) );
+                    result.append(pattern.charAt(i + 1));
                 }
                 i++; // skip next char
             } else if (chr == single) {
                 result.append('.');
             } else if (chr == multi) {
                 result.append(".*");
-            } else { 
+            } else {
                 result.append(chr);
             }
         }
@@ -1191,7 +1193,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     private static String extractNestedPath(String field) {
         final String[] parts = field.split("\\.");
-        final String base = parts[parts.length-1];
+        final String base = parts[parts.length - 1];
         return field.replace("." + base, "");
     }
 
@@ -1199,24 +1201,24 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         return fullySupported;
     }
 
-    public Map<String,Object> getNativeQueryBuilder() {
+    public Map<String, Object> getNativeQueryBuilder() {
         return nativeQueryBuilder;
     }
 
-    public Map<String,Object> getQueryBuilder() {
-        final Map<String,Object> queryBuilder;
+    public Map<String, Object> getQueryBuilder() {
+        final Map<String, Object> queryBuilder;
         if (nativeQueryBuilder.equals(FilterToElasticHelper.MATCH_ALL)) {
             queryBuilder = this.queryBuilder;
         } else if (this.queryBuilder.equals(FilterToElasticHelper.MATCH_ALL)) {
             queryBuilder = nativeQueryBuilder;
         } else {
-            queryBuilder = ImmutableMap.of("bool", 
+            queryBuilder = ImmutableMap.of("bool",
                     ImmutableMap.of("must", ImmutableList.of(nativeQueryBuilder, this.queryBuilder)));
         }
         return queryBuilder;
     }
 
-    public Map<String,Map<String,Map<String,Object>>> getAggregations() {
+    public Map<String, Map<String, Map<String, Object>>> getAggregations() {
         return aggregations;
     }
 

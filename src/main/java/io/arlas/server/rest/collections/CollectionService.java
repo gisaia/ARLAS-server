@@ -57,30 +57,30 @@ import java.util.concurrent.ExecutionException;
 public abstract class CollectionService extends CollectionRESTServices {
 
     protected CollectionReferenceDao dao = null;
-    
+
     @Timed
     @Path("/")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="Get all collection references",
-            produces=UTF8JSON,
+            value = "Get all collection references",
+            produces = UTF8JSON,
             notes = "Get all collection references in ARLAS",
-            consumes=UTF8JSON
+            consumes = UTF8JSON
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class, responseContainer = "List" ),
-	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     public Response getAll(
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         List<CollectionReference> collections = dao.getAllCollectionReferences();
         return ResponseFormatter.getResultResponse(collections);
@@ -92,19 +92,19 @@ public abstract class CollectionService extends CollectionRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="Get all collection references as a json file",
-            produces=UTF8JSON,
+            value = "Get all collection references as a json file",
+            produces = UTF8JSON,
             notes = "Get all collection references in ARLAS as json file",
-            consumes=UTF8JSON
+            consumes = UTF8JSON
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class, responseContainer = "List" ),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     public Response exportCollections() throws InterruptedException, ExecutionException, IOException, ArlasException {
         List<CollectionReference> collections = dao.getAllCollectionReferences();
         String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
         String fileName = "arlas-collections-export_" + date + ".json";
-        return ResponseFormatter.getFileResponse(collections,fileName);
+        return ResponseFormatter.getFileResponse(collections, fileName);
     }
 
     @Timed
@@ -113,12 +113,12 @@ public abstract class CollectionService extends CollectionRESTServices {
     @Produces(UTF8JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation(
-            value="Add collection references from a json file",
-            produces=UTF8JSON,
+            value = "Add collection references from a json file",
+            produces = UTF8JSON,
             notes = "Add collection references in ARLAS from a json file",
-            consumes= MediaType.MULTIPART_FORM_DATA
+            consumes = MediaType.MULTIPART_FORM_DATA
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = String.class ),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = String.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response importCollections(
             @FormDataParam("file") InputStream inputStream,
@@ -126,7 +126,7 @@ public abstract class CollectionService extends CollectionRESTServices {
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         List<CollectionReference> collections = getCollectionsFromInputStream(inputStream);
         List<CollectionReference> savedCollections = new ArrayList<>();
-        for(CollectionReference collection : collections) {
+        for (CollectionReference collection : collections) {
             try {
                 savedCollections.add(save(collection.collectionName, collection.params));
             } catch (Exception e) {
@@ -153,33 +153,33 @@ public abstract class CollectionService extends CollectionRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="Get a collection reference",
-            produces=UTF8JSON,
+            value = "Get a collection reference",
+            produces = UTF8JSON,
             notes = "Get a collection reference in ARLAS",
-            consumes=UTF8JSON,
+            consumes = UTF8JSON,
             response = CollectionReference.class
 
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
-	    @ApiResponse(code = 404, message = "Collection not found.", response = Error.class),
-	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
+            @ApiResponse(code = 404, message = "Collection not found.", response = Error.class),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     public Response get(
             @ApiParam(
                     name = "collection",
                     value = "collection",
                     allowMultiple = false,
-                    required=true)
+                    required = true)
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value= Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         CollectionReference cr = dao.getCollectionReference(collection);
         return ResponseFormatter.getResultResponse(cr);
@@ -191,36 +191,36 @@ public abstract class CollectionService extends CollectionRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="Add a collection reference",
-            produces=UTF8JSON,
+            value = "Add a collection reference",
+            produces = UTF8JSON,
             notes = "Add a collection reference in ARLAS",
-            consumes=UTF8JSON,
+            consumes = UTF8JSON,
             response = CollectionReference.class
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
-	    @ApiResponse(code = 400, message = "JSON parameter malformed.", response = Error.class),
-	    @ApiResponse(code = 404, message = "Not Found Error.", response = Error.class),
-	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
+            @ApiResponse(code = 400, message = "JSON parameter malformed.", response = Error.class),
+            @ApiResponse(code = 404, message = "Not Found Error.", response = Error.class),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response put(
             @ApiParam(
                     name = "collection",
                     value = "collection",
                     allowMultiple = false,
-                    required=true)
+                    required = true)
             @PathParam(value = "collection") String collection,
             @ApiParam(name = "collectionParams",
-                        value="collectionParams",
-                        required=true)
+                    value = "collectionParams",
+                    required = true)
             @NotNull @Valid CollectionReferenceParameters collectionReferenceParameters,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty
 
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         return ResponseFormatter.getResultResponse(save(collection, collectionReferenceParameters));
@@ -237,31 +237,31 @@ public abstract class CollectionService extends CollectionRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(
-            value="Delete a collection reference",
-            produces=UTF8JSON,
+            value = "Delete a collection reference",
+            produces = UTF8JSON,
             notes = "Delete a collection reference in ARLAS",
-            consumes=UTF8JSON
+            consumes = UTF8JSON
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = Success.class),
-	    @ApiResponse(code = 404, message = "Collection not found.", response = Error.class),
-	    @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Success.class),
+            @ApiResponse(code = 404, message = "Collection not found.", response = Error.class),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     public Response delete(
             @ApiParam(
                     name = "collection",
                     value = "collection",
                     allowMultiple = false,
-                    required=true)
+                    required = true)
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         dao.deleteCollectionReference(collection);
         return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
@@ -274,19 +274,19 @@ public abstract class CollectionService extends CollectionRESTServices {
     @Produces(UTF8JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation(
-            value="Add JSON schema to the collection references from a json file",
-            produces=UTF8JSON,
+            value = "Add JSON schema to the collection references from a json file",
+            produces = UTF8JSON,
             notes = "Add JSON schema to the collection references from a json file",
-            consumes= MediaType.MULTIPART_FORM_DATA
+            consumes = MediaType.MULTIPART_FORM_DATA
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = String.class ),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = String.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response importSchemaJson(
             @ApiParam(
                     name = "collection",
                     value = "collection",
                     allowMultiple = false,
-                    required=true)
+                    required = true)
             @PathParam(value = "collection") String collection,
             @FormDataParam("json_schema_file") InputStream inputStream,
             @FormDataParam("json_schema_file") FormDataContentDisposition fileDetail
@@ -295,7 +295,7 @@ public abstract class CollectionService extends CollectionRESTServices {
         CollectionReference cr = dao.getCollectionReference(collection);
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonNodes = objectMapper.readValue(inputStream, ObjectNode.class);
-        cr.params.jsonSchema=jsonNodes;
+        cr.params.jsonSchema = jsonNodes;
 
         return ResponseFormatter.getResultResponse(save(collection, cr.params));
     }

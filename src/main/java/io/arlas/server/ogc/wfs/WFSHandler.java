@@ -28,6 +28,7 @@ import io.arlas.server.ogc.wfs.operation.storedquery.ListStoredQueriesHandler;
 import io.arlas.server.ogc.wfs.operation.storedquery.StoredQueryManager;
 import io.arlas.server.ogc.wfs.utils.XmlUtils;
 import net.opengis.wfs._2.ObjectFactory;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 public class WFSHandler {
@@ -44,13 +45,13 @@ public class WFSHandler {
     public net.opengis.fes._2.ObjectFactory fesFactory = new net.opengis.fes._2.ObjectFactory();
     public StoredQueryManager storedQueryManager = new StoredQueryManager();
 
-    public WFSHandler(WFSConfiguration wfsconfiguration, OGCConfiguration ogcConfiguration) throws  ParserConfigurationException {
-        this.wfsConfiguration =wfsconfiguration;
-        this.ogcConfiguration =ogcConfiguration;
-        getCapabilitiesHandler = new GetCapabilitiesHandler(wfsconfiguration,ogcConfiguration,this);
+    public WFSHandler(WFSConfiguration wfsconfiguration, OGCConfiguration ogcConfiguration) throws ParserConfigurationException {
+        this.wfsConfiguration = wfsconfiguration;
+        this.ogcConfiguration = ogcConfiguration;
+        getCapabilitiesHandler = new GetCapabilitiesHandler(wfsconfiguration, ogcConfiguration, this);
         describeFeatureTypeHandler = new DescribeFeatureTypeHandler(this);
         listStoredQueriesHandler = new ListStoredQueriesHandler(this);
         getFeatureHandler = new GetFeatureHandler(this);
-        XmlUtils.pointPathSubstitute=wfsConfiguration.replaceChar;
+        XmlUtils.pointPathSubstitute = wfsConfiguration.replaceChar;
     }
 }

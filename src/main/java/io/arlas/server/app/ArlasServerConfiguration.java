@@ -48,13 +48,13 @@ public class ArlasServerConfiguration extends Configuration {
 
     @JsonProperty("elastic-cluster")
     public String elasticcluster;
- 
+
     @JsonProperty("arlas-index")
     public String arlasindex;
-    
+
     @JsonProperty("arlas-cache-size")
     public int arlascachesize;
-    
+
     @JsonProperty("arlas-cache-timeout")
     public int arlascachetimeout;
 
@@ -83,43 +83,43 @@ public class ArlasServerConfiguration extends Configuration {
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 
     public void check() throws ArlasConfigurationException {
-        if(Strings.isNullOrEmpty(elastichost) || elasticport<1) {
+        if (Strings.isNullOrEmpty(elastichost) || elasticport < 1) {
             throw new ArlasConfigurationException("Elastic search configuration missing in config file.");
         }
-        if(zipkinConfiguration == null) {
+        if (zipkinConfiguration == null) {
             throw new ArlasConfigurationException("Zipkin configuration missing in config file.");
         }
-        if(swaggerBundleConfiguration == null) {
+        if (swaggerBundleConfiguration == null) {
             throw new ArlasConfigurationException("Swagger configuration missing in config file.");
         }
-        if(Strings.isNullOrEmpty(arlasindex)) {
+        if (Strings.isNullOrEmpty(arlasindex)) {
             arlasindex = ".arlas";
         }
-        if(arlascachesize<0) {
+        if (arlascachesize < 0) {
             arlascachesize = 1000;
         }
-        if(arlascachetimeout<0) {
+        if (arlascachetimeout < 0) {
             arlascachetimeout = 60;
         }
-        if(arlascorsenabled==null) {
+        if (arlascorsenabled == null) {
             arlascorsenabled = false;
         }
-        if(arlasServiceCollectionsEnabled==null){
-            arlasServiceCollectionsEnabled=true;
+        if (arlasServiceCollectionsEnabled == null) {
+            arlasServiceCollectionsEnabled = true;
         }
-        if(arlasServiceExploreEnabled==null){
-            arlasServiceExploreEnabled=true;
+        if (arlasServiceExploreEnabled == null) {
+            arlasServiceExploreEnabled = true;
         }
-        if(arlasServiceWFSEnabled==null){
-            arlasServiceWFSEnabled=false;
+        if (arlasServiceWFSEnabled == null) {
+            arlasServiceWFSEnabled = false;
         }
-        if(arlasServiceOPENSEARCHEnabled==null){
-            arlasServiceOPENSEARCHEnabled=true;
+        if (arlasServiceOPENSEARCHEnabled == null) {
+            arlasServiceOPENSEARCHEnabled = true;
         }
-        if(arlasServiceCSWEnabled==null){
-            arlasServiceCSWEnabled=false;
+        if (arlasServiceCSWEnabled == null) {
+            arlasServiceCSWEnabled = false;
         }
-        if(collectionAutoDiscoverConfiguration == null) {
+        if (collectionAutoDiscoverConfiguration == null) {
             collectionAutoDiscoverConfiguration = new CollectionAutoDiscoverConfiguration();
             collectionAutoDiscoverConfiguration.schedule = 0;
         }

@@ -23,8 +23,7 @@ public class CSWConstant {
 
     public static final String CSW = "CSW";
     public static final String SUPPORTED_CSW_VERSION = "3.0.0";
-    public static final String[] SUPPORTED_CSW_REQUESTYPE = {"GetCapabilities","GetRecords","GetRecordById"};
-
+    public static final String[] SUPPORTED_CSW_REQUESTYPE = {"GetCapabilities", "GetRecords", "GetRecordById"};
 
 
 }

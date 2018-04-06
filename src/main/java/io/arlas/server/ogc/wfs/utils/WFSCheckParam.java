@@ -32,26 +32,26 @@ import java.util.Arrays;
 public class WFSCheckParam {
 
 
-    public static boolean isFieldInMapping(CollectionReferenceDescription collectionReference,String... fields) throws RuntimeException {
-        String[] cleanField = new  String[ fields.length] ;
-        boolean isFieldInMapping =true;
-        for(int i=0; i<fields.length;i++){
-            if(fields.clone()[i].contains(":")){
+    public static boolean isFieldInMapping(CollectionReferenceDescription collectionReference, String... fields) throws RuntimeException {
+        String[] cleanField = new String[fields.length];
+        boolean isFieldInMapping = true;
+        for (int i = 0; i < fields.length; i++) {
+            if (fields.clone()[i].contains(":")) {
                 cleanField[i] = fields.clone()[i].split(":")[1];
-            }else{
+            } else {
                 cleanField[i] = fields.clone()[i];
             }
         }
-        for(String field : cleanField) {
-            Object data = MapExplorer.getObjectFromPath(field,collectionReference.properties);
-            if(data == null) {
-                isFieldInMapping= false;
+        for (String field : cleanField) {
+            Object data = MapExplorer.getObjectFromPath(field, collectionReference.properties);
+            if (data == null) {
+                isFieldInMapping = false;
             }
         }
         return isFieldInMapping;
     }
 
-    public static void checkQuerySyntax(String service, String bbox,String resourceid, String filter,WFSRequestType requestType,Version requestVersion) throws OGCException {
+    public static void checkQuerySyntax(String service, String bbox, String resourceid, String filter, WFSRequestType requestType, Version requestVersion) throws OGCException {
 
         if (bbox != null && resourceid != null) {
             throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "BBOX and RESOURCEID can't be used together", "bbox,resourceid");
@@ -66,7 +66,7 @@ public class WFSCheckParam {
                 String msg = "Missing version parameter.";
                 throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, msg, "version");
             }
-            VersionUtils.checkVersion(requestVersion,WFSConstant.SUPPORTED_WFS_VERSION);
+            VersionUtils.checkVersion(requestVersion, WFSConstant.SUPPORTED_WFS_VERSION);
         } else {
             if (service == null || !service.equals("WFS")) {
                 String msg = "Missing service parameter.";
@@ -75,7 +75,7 @@ public class WFSCheckParam {
         }
     }
 
-    public static void checkTypeNames(String collectionName,String typenames) throws OGCException {
+    public static void checkTypeNames(String collectionName, String typenames) throws OGCException {
         if (typenames != null) {
             if (!typenames.contains(collectionName)) {
                 throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "FeatureType " + typenames + " not exist", "typenames");
@@ -97,14 +97,14 @@ public class WFSCheckParam {
         }
     }
 
-    public static String formatValueReference(String valuereference,CollectionReferenceDescription collectionReferenceDescription) throws OGCException {
-            if (valuereference == null || valuereference.equals("")) {
-                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid valuereference value", "valuereference");
-            }else if(valuereference.equals("@gml:id")){
-                valuereference=collectionReferenceDescription.params.idPath;
-            }else if(!WFSCheckParam.isFieldInMapping(collectionReferenceDescription,valuereference)){
-                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid valuereference value, " + valuereference + " is not in queryable", "valuereference");
-            }
-            return valuereference;
+    public static String formatValueReference(String valuereference, CollectionReferenceDescription collectionReferenceDescription) throws OGCException {
+        if (valuereference == null || valuereference.equals("")) {
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid valuereference value", "valuereference");
+        } else if (valuereference.equals("@gml:id")) {
+            valuereference = collectionReferenceDescription.params.idPath;
+        } else if (!WFSCheckParam.isFieldInMapping(collectionReferenceDescription, valuereference)) {
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid valuereference value, " + valuereference + " is not in queryable", "valuereference");
+        }
+        return valuereference;
     }
 }

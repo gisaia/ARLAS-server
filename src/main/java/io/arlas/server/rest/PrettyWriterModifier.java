@@ -19,12 +19,13 @@
 
 package io.arlas.server.rest;
 
-import java.io.IOException;
-import javax.ws.rs.core.MultivaluedMap;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.jaxrs.cfg.EndpointConfigBase;
 import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterModifier;
+
+import javax.ws.rs.core.MultivaluedMap;
+import java.io.IOException;
 
 public class PrettyWriterModifier extends ObjectWriterModifier {
 

@@ -29,18 +29,17 @@ import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.Error;
+import io.arlas.server.ogc.common.utils.RequestUtils;
 import io.arlas.server.ogc.common.utils.Version;
+import io.arlas.server.ogc.common.utils.VersionUtils;
 import io.arlas.server.ogc.wfs.filter.WFSQueryBuilder;
 import io.arlas.server.ogc.wfs.operation.getcapabilities.GetCapabilitiesHandler;
-import io.arlas.server.ogc.common.utils.RequestUtils;
-import io.arlas.server.ogc.common.utils.VersionUtils;
 import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.utils.MapExplorer;
-
 import io.swagger.annotations.*;
 import net.opengis.wfs._2.*;
 import org.elasticsearch.search.SearchHit;
@@ -205,9 +204,9 @@ public class WFSService extends ExploreRESTServices {
         String serviceUrl = serverUrl + "wfs/" + collectionName + "/?";
         QName featureQname = new QName(serviceUrl, collectionName, wfsConfiguration.featureNamespace);
         WFSCheckParam.checkTypeNames(collectionName, typenames);
-        WFSQueryBuilder wfsQueryBuilder = new WFSQueryBuilder(requestType,id,bbox,filter,resourceid,storedquery_id,collectionReferenceDescription,partitionFilter,exploreServices);
+        WFSQueryBuilder wfsQueryBuilder = new WFSQueryBuilder(requestType, id, bbox, filter, resourceid, storedquery_id, collectionReferenceDescription, partitionFilter, exploreServices);
         String[] exludes = null;
-        if(collectionReference.params.excludeWfsFields!=null){
+        if (collectionReference.params.excludeWfsFields != null) {
             exludes = collectionReference.params.excludeWfsFields.split(",");
         }
 
@@ -240,7 +239,7 @@ public class WFSService extends ExploreRESTServices {
                 if (wfsQueryBuilder.isStoredQuey) {
                     hitsGetFeature = exploreServices.getClient()
                             .prepareSearch(collectionReference.params.indexName)
-                            .setFetchSource(null,exludes)
+                            .setFetchSource(null, exludes)
                             .setQuery(wfsQueryBuilder.wfsQuery)
                             .execute()
                             .get()
@@ -257,7 +256,7 @@ public class WFSService extends ExploreRESTServices {
                     hitsGetFeature = exploreServices
                             .getClient()
                             .prepareSearch(collectionReference.params.indexName)
-                            .setFetchSource(null,exludes)
+                            .setFetchSource(null, exludes)
                             .setQuery(wfsQueryBuilder.wfsQuery)
                             .setFrom(startindex)
                             .setSize(count)
@@ -277,7 +276,7 @@ public class WFSService extends ExploreRESTServices {
                 ValueCollectionType valueCollectionType = new ValueCollectionType();
                 SearchHits hitsGetPropertyValue = exploreServices.getClient()
                         .prepareSearch(collectionReference.params.indexName)
-                        .setFetchSource(new String[] {include}, exludes)
+                        .setFetchSource(new String[]{include}, exludes)
                         .setQuery(wfsQueryBuilder.wfsQuery)
                         .setFrom(startindex)
                         .setSize(count)

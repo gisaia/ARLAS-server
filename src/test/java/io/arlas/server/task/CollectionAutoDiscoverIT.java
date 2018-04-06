@@ -19,63 +19,62 @@
 
 package io.arlas.server.task;
 
-import static io.restassured.RestAssured.when;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-
+import io.arlas.server.AbstractTestWithDataSet;
+import io.arlas.server.DataSetTool;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
-import io.arlas.server.AbstractTestWithDataSet;
-import io.arlas.server.DataSetTool;
+import static io.restassured.RestAssured.when;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 
 public class CollectionAutoDiscoverIT extends AbstractTestWithDataSet {
 
     @Override
     protected String getUrlPath(String task) {
-        return "/admin/tasks/"+task;
+        return "/admin/tasks/" + task;
     }
-    
+
     @Test
     public void testCollectionAutoDiscover() throws Exception {
         // discover collections
         when().post(getUrlPath("collection-auto-discover"))
-        .then().statusCode(200);
+                .then().statusCode(200);
 
         // GET collection
-        when().get(arlasPath+"collections/"+DataSetTool.DATASET_INDEX_NAME+"-"+DataSetTool.DATASET_TYPE_NAME)
-        .then().statusCode(200)
-            .body("collection_name", equalTo(DataSetTool.DATASET_INDEX_NAME+"-"+DataSetTool.DATASET_TYPE_NAME))
-            .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
-            .body("params.type_name", equalTo(DataSetTool.DATASET_TYPE_NAME))
-            .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
-            .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
-            .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
-            .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
-            .body("params.custom_params.timestamp_format",equalTo(DataSetTool.DATASET_TIMESTAMP_FORMAT));
+        when().get(arlasPath + "collections/" + DataSetTool.DATASET_INDEX_NAME + "-" + DataSetTool.DATASET_TYPE_NAME)
+                .then().statusCode(200)
+                .body("collection_name", equalTo(DataSetTool.DATASET_INDEX_NAME + "-" + DataSetTool.DATASET_TYPE_NAME))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.type_name", equalTo(DataSetTool.DATASET_TYPE_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.custom_params.timestamp_format", equalTo(DataSetTool.DATASET_TIMESTAMP_FORMAT));
 
         // discover collections
         when().post(getUrlPath("collection-auto-discover"))
-        .then().statusCode(200);
+                .then().statusCode(200);
 
         // GET all collections
         getAllCollections(hasSize(1));
-        
+
         // DELETE collection
-        when().delete(arlasPath+"collections/"+DataSetTool.DATASET_INDEX_NAME+"-"+DataSetTool.DATASET_TYPE_NAME)
-        .then().statusCode(200);
+        when().delete(arlasPath + "collections/" + DataSetTool.DATASET_INDEX_NAME + "-" + DataSetTool.DATASET_TYPE_NAME)
+                .then().statusCode(200);
     }
 
     private void getAllCollections(Matcher matcher) throws InterruptedException {
         int cpt = 0;
-        while(cpt > 0 && cpt < 5) {
+        while (cpt > 0 && cpt < 5) {
             try {
                 when().get(arlasPath + "collections/")
                         .then().statusCode(200)
                         .body("collection_name", matcher);
                 cpt = -1;
-            } catch(Exception e) {
-                cpt ++;
+            } catch (Exception e) {
+                cpt++;
                 Thread.sleep(1000);
             }
         }

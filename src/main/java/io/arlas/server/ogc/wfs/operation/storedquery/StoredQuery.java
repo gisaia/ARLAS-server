@@ -22,6 +22,7 @@ package io.arlas.server.ogc.wfs.operation.storedquery;
 import net.opengis.wfs._2.QueryExpressionTextType;
 import net.opengis.wfs._2.StoredQueryDescriptionType;
 import net.opengis.wfs._2.Title;
+
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -51,7 +52,7 @@ public class StoredQuery {
         return new ArrayList<>(featureTypeNames);
     }
 
-    public void setFeatureType(QName featureQname){
+    public void setFeatureType(QName featureQname) {
         description.getQueryExpressionText().forEach(queryExpressionTextType -> queryExpressionTextType.getReturnFeatureTypes().add(featureQname));
     }
 

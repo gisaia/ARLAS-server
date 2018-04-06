@@ -94,13 +94,13 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         OpenSearchDescription description = new OpenSearchDescription();
-        String prefix = uri.getBaseUri().toURL().toString() + uri.getPath().toString()+"/../_search";
+        String prefix = uri.getBaseUri().toURL().toString() + uri.getPath().toString() + "/../_search";
 
         //[scheme:][//authority][path][?query][#fragment]
         if (cr.params.openSearch != null) {
             OpenSearch os = cr.params.openSearch;
             if (!Strings.isNullOrEmpty(os.urlTemplatePrefix)) {
-                prefix=os.urlTemplatePrefix;
+                prefix = os.urlTemplatePrefix;
             }
             description.adultContent = os.adultContent;
             description.attribution = os.attribution;
@@ -125,10 +125,10 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
         addURLs(prefix, description.url, admin.describeCollection(cr).properties, new Stack<>());
         List<Url> urls = new ArrayList<>();
         description.url.forEach(url -> {
-            urls.add(url(url.template+"&gintersect={geo:box?}"));
-            urls.add(url(url.template+"&gintersect={geo:geometry?}"));
+            urls.add(url(url.template + "&gintersect={geo:box?}"));
+            urls.add(url(url.template + "&gintersect={geo:geometry?}"));
         });
-        description.url=urls;
+        description.url = urls;
         return cache(Response.ok(description), maxagecache);
     }
 
@@ -175,12 +175,12 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
 
     private void addNumberUrls(List<Url> urls, String templatePrefix, String fieldPath, String type) {
         urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{" + type + "?}"));
-        urls.add(url(templatePrefix + "?f=" + fieldPath + ":ne:{"+type+"?}"));
-        urls.add(url(templatePrefix + "?f=" + fieldPath + ":gte:{"+type+"?}"));
-        urls.add(url(templatePrefix + "?f=" + fieldPath + ":gt:{"+type+"?}"));
-        urls.add(url(templatePrefix + "?f=" + fieldPath + ":lt:{"+type+"?}"));
-        urls.add(url(templatePrefix + "?f=" + fieldPath + ":lte:{"+type+"?}"));
-        urls.add(url(templatePrefix + "?f=" + fieldPath + ":range:{"+type+"?},{"+type+"?}"));
+        urls.add(url(templatePrefix + "?f=" + fieldPath + ":ne:{" + type + "?}"));
+        urls.add(url(templatePrefix + "?f=" + fieldPath + ":gte:{" + type + "?}"));
+        urls.add(url(templatePrefix + "?f=" + fieldPath + ":gt:{" + type + "?}"));
+        urls.add(url(templatePrefix + "?f=" + fieldPath + ":lt:{" + type + "?}"));
+        urls.add(url(templatePrefix + "?f=" + fieldPath + ":lte:{" + type + "?}"));
+        urls.add(url(templatePrefix + "?f=" + fieldPath + ":range:{" + type + "?},{" + type + "?}"));
     }
 
     private Url url(String path) {

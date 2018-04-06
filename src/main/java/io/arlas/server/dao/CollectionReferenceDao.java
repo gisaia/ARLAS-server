@@ -19,20 +19,13 @@
 
 package io.arlas.server.dao;
 
-import java.io.IOException;
-import java.util.List;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InternalServerErrorException;
-import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.CollectionReferenceParameters;
+
+import java.util.List;
 
 /**
  * DAO interface for collection references
- *
  */
 public interface CollectionReferenceDao {
     public void initCollectionDatabase() throws ArlasException;

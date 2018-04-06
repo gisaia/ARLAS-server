@@ -19,25 +19,24 @@
 
 package io.arlas.server.rest.explore;
 
-import static io.restassured.RestAssured.given;
-
 import io.arlas.server.DataSetTool;
 import io.arlas.server.model.request.*;
 import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
+import io.restassured.response.ValidatableResponse;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.restassured.response.ValidatableResponse;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static io.restassured.RestAssured.given;
 
 public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
     protected static AggregationsRequest aggregationRequest;
     protected static Aggregation aggregationModel;
 
     @Before
-    public void setUpAggregationRequest(){
+    public void setUpAggregationRequest() {
         aggregationRequest = new AggregationsRequest();
         aggregationRequest.filter = new Filter();
         aggregationRequest.aggregations = new ArrayList<>();
@@ -45,6 +44,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.add(aggregationModel);
         request = aggregationRequest;
     }
+
     //----------------------------------------------------------------
     //----------------------- SUCCESS TESTS --------------------------
     //----------------------------------------------------------------
@@ -58,12 +58,12 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingGeohashAggregate(get("geohash:geo_params.centroid:interval-3"), 595, 1, 1);
 
         aggregationRequest.aggregations.get(0).interval = new Interval(1, null); //"1";
-        handleMatchingGeohashAggregate(post(aggregationRequest),32, 16, 25);
-        handleMatchingGeohashAggregate(get("geohash:geo_params.centroid:interval-1"),32, 16, 25);
+        handleMatchingGeohashAggregate(post(aggregationRequest), 32, 16, 25);
+        handleMatchingGeohashAggregate(get("geohash:geo_params.centroid:interval-1"), 32, 16, 25);
 
         aggregationRequest.aggregations.get(0).interval = new Interval(1, null); //"1";
-        handleMatchingGeohashAggregateCenter(post(aggregationRequest),32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
-        handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1"),32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
+        handleMatchingGeohashAggregateCenter(post(aggregationRequest), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
+        handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1"), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.AVG;
@@ -112,7 +112,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).collectFct = null;
         aggregationRequest.aggregations.get(0).withGeoCentroid = true;
         handleMatchingGeohashAggregateWithGeocentroidBucket(post(aggregationRequest),
-                32, 16, 25, 0,  -155.00000031664968F, -65.00000014901161F, 154.99999981373549F, 64.99999981373549F);
+                32, 16, 25, 0, -155.00000031664968F, -65.00000014901161F, 154.99999981373549F, 64.99999981373549F);
         handleMatchingGeohashAggregateWithGeocentroidBucket(get("geohash:geo_params.centroid:interval-1:withGeoCentroid-true"),
                 32, 16, 25, 0, -155.00000031664968F, -65.00000014901161F, 154.99999981373549F, 64.99999981373549F);
 
@@ -136,9 +136,9 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
 
 
     }
-    
+
     @Test
-    public void testDateHistogramAggregate() throws Exception {        
+    public void testDateHistogramAggregate() throws Exception {
         //DATEHISTOGRAM
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.datehistogram;
 
@@ -198,7 +198,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).collectField = null;
         aggregationRequest.aggregations.get(0).collectFct = null;
         aggregationRequest.aggregations.get(0).format = "yyyyMMdd";
-        handleMatchingAggregate(post(aggregationRequest),10, 1, 104,"19700101");
+        handleMatchingAggregate(post(aggregationRequest), 10, 1, 104, "19700101");
         handleMatchingAggregate(get("datehistogram:interval-1minute:format-yyyyMMdd"),
                 10, 1, 104, "19700101");
 
@@ -206,57 +206,57 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
-                10, 1, 104,"1970-01-01-00:21:00");
+                10, 1, 104, "1970-01-01-00:21:00");
         handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:order-asc:on-count"),
-                10, 1, 104,"1970-01-01-00:21:00");
+                10, 1, 104, "1970-01-01-00:21:00");
 
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.field;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
-                10, 1, 104,"1970-01-01-00:21:00");
+                10, 1, 104, "1970-01-01-00:21:00");
         handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:order-desc:on-field"),
-                10, 1, 104,"1970-01-01-00:21:00");
+                10, 1, 104, "1970-01-01-00:21:00");
 
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
-                10, 1, 104,"1970-01-01-00:12:00");
+                10, 1, 104, "1970-01-01-00:12:00");
         handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:order-asc:on-field"),
-                10, 1, 104,"1970-01-01-00:12:00");
+                10, 1, 104, "1970-01-01-00:12:00");
 
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
 
         handleMatchingAggregateWithOrder(post(aggregationRequest),
-                10, 1, 104,"1970-01-01-00:21:00");
+                10, 1, 104, "1970-01-01-00:21:00");
         handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:order-asc:on-count:collect_fct-geocentroid"),
-                10, 1, 104,"1970-01-01-00:21:00");
+                10, 1, 104, "1970-01-01-00:21:00");
 
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.result;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.SUM;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
-                10, 1, 104,"1970-01-01-00:16:00");
+                10, 1, 104, "1970-01-01-00:16:00");
         handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-sum:order-desc:on-result"),
-                10, 1, 104,"1970-01-01-00:16:00");
+                10, 1, 104, "1970-01-01-00:16:00");
 
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
-                10, 1, 104,"1970-01-01-00:21:00");
+                10, 1, 104, "1970-01-01-00:21:00");
 
         handleMatchingAggregateWithOrder(get("datehistogram:interval-1minute:collect_field-params.startdate:collect_fct-sum:order-asc:on-result"),
-                10, 1, 104,"1970-01-01-00:21:00");
+                10, 1, 104, "1970-01-01-00:21:00");
 
         aggregationRequest.aggregations.get(0).field = "params.startdate";
         aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.day); // "1day";
         handleMatchingAggregate(post(aggregationRequest), 1, 595, 595);
-        handleMatchingAggregate(get("datehistogram:params.startdate:interval-1day"), 1, 595,595);
+        handleMatchingAggregate(get("datehistogram:params.startdate:interval-1day"), 1, 595, 595);
 
     }
-    
+
     @Test
-    public void testHistogramAggregate() throws Exception {        
+    public void testHistogramAggregate() throws Exception {
         //HISTOGRAM
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.histogram;
         aggregationRequest.aggregations.get(0).field = "params.startdate";
@@ -266,8 +266,8 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleSumOtherCountsExistence(get("histogram:params.startdate:interval-2000000"), 1, 595, 595);
 
         aggregationRequest.aggregations.get(0).interval = new Interval(100000, null);
-        handleSumOtherCountsExistence(post(aggregationRequest),6, 14, 176, -1);
-        handleSumOtherCountsExistence(get("histogram:params.startdate:interval-100000"),6, 14, 176);
+        handleSumOtherCountsExistence(post(aggregationRequest), 6, 14, 176, -1);
+        handleSumOtherCountsExistence(get("histogram:params.startdate:interval-100000"), 6, 14, 176);
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.AVG;
@@ -319,53 +319,53 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
-                6, 14, 176,"700000");
+                6, 14, 176, "700000");
         handleMatchingAggregateWithOrder(get("histogram:params.startdate:interval-100000:order-asc:on-count"),
-                6, 14, 176,"700000");
+                6, 14, 176, "700000");
 
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.field;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
-                6, 14, 176,"1200000");
+                6, 14, 176, "1200000");
         handleMatchingAggregateWithOrder(get("histogram:params.startdate:interval-100000:order-desc:on-field"),
-                6, 14, 176,"1200000");
+                6, 14, 176, "1200000");
 
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
-                6, 14, 176,"700000");
+                6, 14, 176, "700000");
         handleMatchingAggregateWithOrder(get("histogram:params.startdate:interval-100000:order-asc:on-field"),
-                6, 14, 176,"700000");
+                6, 14, 176, "700000");
 
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
         handleMatchingAggregateWithOrder(post(aggregationRequest),
-                6, 14, 176,"700000");
+                6, 14, 176, "700000");
         handleMatchingAggregateWithOrder(get("histogram:params.startdate:interval-100000:order-asc:on-count:collect_fct-geocentroid"),
-                6, 14, 176,"700000");
+                6, 14, 176, "700000");
 
 
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.result;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.SUM;
-        handleMatchingAggregateWithOrder(post(aggregationRequest),6, 14, 176,"1000000");
+        handleMatchingAggregateWithOrder(post(aggregationRequest), 6, 14, 176, "1000000");
         handleMatchingAggregateWithOrder(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-sum:order-desc:on-result"),
-                6, 14, 176,"1000000");
+                6, 14, 176, "1000000");
 
         handleMatchingAggregateWithOrder(
                 given().param("agg", "histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-sum:order-asc:on-result")
-                .when().get(getUrlPath("geodata"))
-                .then(),6, 14, 176,"700000");
+                        .when().get(getUrlPath("geodata"))
+                        .then(), 6, 14, 176, "700000");
     }
-    
+
     @Test
-    public void testTermAggregate() throws Exception {        
+    public void testTermAggregate() throws Exception {
         //TERM
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
         aggregationRequest.aggregations.get(0).field = "params.job";
-        handleSumOtherCountsExistence(post(aggregationRequest), DataSetTool.jobs.length-1, 58, 64, 0);
-        handleSumOtherCountsExistence(get("term:params.job"), DataSetTool.jobs.length-1, 58, 64, 0);
+        handleSumOtherCountsExistence(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, 0);
+        handleSumOtherCountsExistence(get("term:params.job"), DataSetTool.jobs.length - 1, 58, 64, 0);
 
         aggregationRequest.aggregations.get(0).size = "5";
         handleSumOtherCountsExistence(post(aggregationRequest), 5, 58, 64, 290);
@@ -379,67 +379,67 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.AVG;
-        handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "avg", 1000000F, 1000000F);
-        handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-avg"),DataSetTool.jobs.length-1, 58, 64, "avg", 1000000F, 1000000F);
+        handleMatchingAggregateWithCollect(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, "avg", 1000000F, 1000000F);
+        handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-avg"), DataSetTool.jobs.length - 1, 58, 64, "avg", 1000000F, 1000000F);
 
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.CARDINALITY;
-        handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "cardinality", 44F, 49F);
-        handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-cardinality"),DataSetTool.jobs.length-1, 58, 64, "cardinality", 44F, 49F);
+        handleMatchingAggregateWithCollect(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, "cardinality", 44F, 49F);
+        handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-cardinality"), DataSetTool.jobs.length - 1, 58, 64, "cardinality", 44F, 49F);
 
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.MAX;
-        handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "max", 1166400F, 1263600F);
-        handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-max"),DataSetTool.jobs.length-1, 58, 64, "max", 1166400F, 1263600F);
+        handleMatchingAggregateWithCollect(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, "max", 1166400F, 1263600F);
+        handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-max"), DataSetTool.jobs.length - 1, 58, 64, "max", 1166400F, 1263600F);
 
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.MIN;
-        handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "min", 763600F, 840000F);
-        handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-min"),DataSetTool.jobs.length-1, 58, 64, "min", 763600F, 840000F);
+        handleMatchingAggregateWithCollect(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, "min", 763600F, 840000F);
+        handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-min"), DataSetTool.jobs.length - 1, 58, 64, "min", 763600F, 840000F);
 
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.SUM;
-        handleMatchingAggregateWithCollect(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64, "sum", 58000000F, 640000000F);
-        handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-sum"),DataSetTool.jobs.length-1, 58, 64, "sum", 58000000F, 640000000F);
+        handleMatchingAggregateWithCollect(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, "sum", 58000000F, 640000000F);
+        handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.startdate:collect_fct-sum"), DataSetTool.jobs.length - 1, 58, 64, "sum", 58000000F, 640000000F);
 
         aggregationRequest.aggregations.get(0).collectField = "geo_params.centroid";
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
         handleMatchingAggregateWithGeocentroidCollect(post(aggregationRequest),
-                DataSetTool.jobs.length-1, 58, 64, "geocentroid", -1F, -1F, 0F, 0F);
+                DataSetTool.jobs.length - 1, 58, 64, "geocentroid", -1F, -1F, 0F, 0F);
         handleMatchingAggregateWithGeocentroidCollect(get("term:params.job:collect_field-geo_params.centroid:collect_fct-geocentroid"),
-                DataSetTool.jobs.length-1, 58, 64, "geocentroid", -1F, -1F, 0F, 0F);
+                DataSetTool.jobs.length - 1, 58, 64, "geocentroid", -1F, -1F, 0F, 0F);
 
         aggregationRequest.aggregations.get(0).collectField = null;
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOBBOX;
         handleMatchingAggregateWithGeoBboxCollect(post(aggregationRequest),
-                DataSetTool.jobs.length-1, 58, 64, "geobbox", -171F, -81F, 170F, 80F);
+                DataSetTool.jobs.length - 1, 58, 64, "geobbox", -171F, -81F, 170F, 80F);
         handleMatchingAggregateWithGeoBboxCollect(get("term:params.job:collect_fct-geobbox"),
-                DataSetTool.jobs.length-1, 58, 64, "geobbox", -171F, -81F, 170F, 80F);
+                DataSetTool.jobs.length - 1, 58, 64, "geobbox", -171F, -81F, 170F, 80F);
 
         aggregationRequest.aggregations.get(0).collectFct = null;
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
-        handleMatchingAggregateWithOrder(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64,"Cost Estimator");
-        handleMatchingAggregateWithOrder(get("term:params.job:order-desc:on-count"),DataSetTool.jobs.length-1, 58, 64,"Cost Estimator");
+        handleMatchingAggregateWithOrder(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, "Cost Estimator");
+        handleMatchingAggregateWithOrder(get("term:params.job:order-desc:on-count"), DataSetTool.jobs.length - 1, 58, 64, "Cost Estimator");
 
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.field;
-        handleMatchingAggregateWithOrder(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64,"Dancer");
-        handleMatchingAggregateWithOrder(get("term:params.job:order-desc:on-field"),DataSetTool.jobs.length-1, 58, 64,"Dancer");
+        handleMatchingAggregateWithOrder(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, "Dancer");
+        handleMatchingAggregateWithOrder(get("term:params.job:order-desc:on-field"), DataSetTool.jobs.length - 1, 58, 64, "Dancer");
 
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
-        handleMatchingAggregateWithOrder(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64,"Actor");
-        handleMatchingAggregateWithOrder(get("term:params.job:order-asc:on-field"),DataSetTool.jobs.length-1, 58, 64,"Actor");
+        handleMatchingAggregateWithOrder(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, "Actor");
+        handleMatchingAggregateWithOrder(get("term:params.job:order-asc:on-field"), DataSetTool.jobs.length - 1, 58, 64, "Actor");
 
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.GEOCENTROID;
-        handleMatchingAggregateWithOrder(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64,"Cost Estimator");
-        handleMatchingAggregateWithOrder(get("term:params.job:order-desc:on-count:collect_fct-geocentroid"),DataSetTool.jobs.length-1, 58, 64,"Cost Estimator");
+        handleMatchingAggregateWithOrder(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, "Cost Estimator");
+        handleMatchingAggregateWithOrder(get("term:params.job:order-desc:on-count:collect_fct-geocentroid"), DataSetTool.jobs.length - 1, 58, 64, "Cost Estimator");
 
         aggregationRequest.aggregations.get(0).collectField = "params.startdate";
         aggregationRequest.aggregations.get(0).collectFct = MetricAggregationEnum.SUM;
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.result;
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.desc;
-        handleMatchingAggregateWithOrder(post(aggregationRequest),DataSetTool.jobs.length-1, 58, 64,"Cost Estimator");
-        handleMatchingAggregateWithOrder(get("term:params.job:collect_field-params.startdate:collect_fct-sum:order-desc:on-result"),DataSetTool.jobs.length-1, 58, 64,"Cost Estimator");
+        handleMatchingAggregateWithOrder(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, "Cost Estimator");
+        handleMatchingAggregateWithOrder(get("term:params.job:collect_field-params.startdate:collect_fct-sum:order-desc:on-result"), DataSetTool.jobs.length - 1, 58, 64, "Cost Estimator");
     }
-    
+
     @Test
     public void testMultiAggregate() throws Exception {
         Aggregation aggregationModelSub = new Aggregation();
@@ -451,12 +451,12 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
 
         aggregationRequest.aggregations.get(1).type = AggregationTypeEnum.term;
         aggregationRequest.aggregations.get(1).field = "params.job";
-        handleMultiMatchingGeohashAggregate(post(aggregationRequest),32);
+        handleMultiMatchingGeohashAggregate(post(aggregationRequest), 32);
         handleMultiMatchingGeohashAggregate(
                 given().param("agg", "geohash:geo_params.centroid:interval-1")
-                .param("agg", "term:params.job")
-                .when().get(getUrlPath("geodata"))
-                .then(),32);
+                        .param("agg", "term:params.job")
+                        .when().get(getUrlPath("geodata"))
+                        .then(), 32);
 
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.histogram;
         aggregationRequest.aggregations.get(0).field = "params.startdate";
@@ -465,18 +465,18 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(1).type = AggregationTypeEnum.datehistogram;
         aggregationRequest.aggregations.get(1).field = "params.startdate";
         aggregationRequest.aggregations.get(1).interval = new Interval(1, UnitEnum.minute); //"1minute";
-        handleMultiMatchingAggregate(post(aggregationRequest),6);
+        handleMultiMatchingAggregate(post(aggregationRequest), 6);
         handleMultiMatchingAggregate(
                 given().param("agg", "histogram:params.startdate:interval-100000")
-                .param("agg", "datehistogram:interval-1minute")
-                .when().get(getUrlPath("geodata"))
-                .then(),6);
+                        .param("agg", "datehistogram:interval-1minute")
+                        .when().get(getUrlPath("geodata"))
+                        .then(), 6);
     }
-    
+
     //----------------------------------------------------------------
     //------------------------- ERROR TESTS --------------------------
     //----------------------------------------------------------------
-    
+
     @Test
     public void testInvalidAggregateParameters() throws Exception {
         //INVALID TYPE
@@ -489,7 +489,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         invalidAggregationRequest.invalidAggregations.get(0).type = "foobar";
         invalidAggregationRequest.invalidAggregations.get(0).field = "params.job";
         handleInvalidParameters(post(invalidAggregationRequest));
-        
+
         //INVALID GEOHASH
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.geohash;
         handleInvalidParameters(post(aggregationRequest));
@@ -504,15 +504,15 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(get("geohash:params.job:interval-1"));
 
         aggregationRequest.aggregations.get(0).field = "geo_centroid";
-        aggregationRequest.aggregations.get(0).interval  = new Interval(0, null);
+        aggregationRequest.aggregations.get(0).interval = new Interval(0, null);
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-0"));
 
-        aggregationRequest.aggregations.get(0).interval  = new Interval(13, null);
+        aggregationRequest.aggregations.get(0).interval = new Interval(13, null);
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-13"));
 
-        aggregationRequest.aggregations.get(0).interval =  new Interval(1, null);
+        aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
         aggregationRequest.aggregations.get(0).order = AggregationOrderEnum.asc;
         aggregationRequest.aggregations.get(0).on = AggregationOnEnum.count;
         handleInvalidParameters(post(aggregationRequest));
@@ -550,8 +550,9 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
 
         invalidAggregationRequest.invalidAggregations.get(0).type = "geohash";
         invalidAggregationRequest.invalidAggregations.get(0).field = "geo_params.centroid";
-        invalidAggregationRequest.invalidAggregations.get(0).interval = new Interval(1, null);;
-        invalidAggregationRequest.invalidAggregations.get(0).collectField="foo";
+        invalidAggregationRequest.invalidAggregations.get(0).interval = new Interval(1, null);
+        ;
+        invalidAggregationRequest.invalidAggregations.get(0).collectField = "foo";
         invalidAggregationRequest.invalidAggregations.get(0).collectFct = "bar";
         handleInvalidParameters(post(invalidAggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-foo:collect_fct-bar"));
@@ -571,7 +572,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
 
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.datehistogram;
         aggregationRequest.aggregations.get(0).field = "params.job";
-        aggregationRequest.aggregations.get(0).interval = new Interval(1,UnitEnum.day);// TODO: was incorrect (iday), was it on purpose?
+        aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.day);// TODO: was incorrect (iday), was it on purpose?
         aggregationRequest.aggregations.get(0).collectFct = null;
         aggregationRequest.aggregations.get(0).collectField = null;
         handleInvalidParameters(post(aggregationRequest));
@@ -591,7 +592,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
 
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.histogram;
         aggregationRequest.aggregations.get(0).field = "params.startdate";
-        aggregationRequest.aggregations.get(0).interval  = new Interval(100000, null);
+        aggregationRequest.aggregations.get(0).interval = new Interval(100000, null);
         aggregationRequest.aggregations.get(0).format = "yyyyMMdd";
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("histogram:params.startdate:interval-100000:format-yyyyMMdd"));
@@ -607,7 +608,6 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).include = null;
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("histogram:params.job"));
-
 
 
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
@@ -632,39 +632,52 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleNotImplementedParameters(post(aggregationRequest));
         handleNotImplementedParameters(get("geohash:geo_params.centroid:interval-1:size-1"));
     }
-    
+
     //----------------------------------------------------------------
     //---------------------- SPECIFIC BEHAVIORS ----------------------
     //----------------------------------------------------------------
-    
+
     protected abstract void handleMatchingGeohashAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception;
+
     protected abstract void handleMatchingGeohashAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin, float featureCollectMax) throws Exception;
+
     protected abstract void handleMatchingGeohashAggregateCenter(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
 
     protected abstract void handleMatchingGeohashAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
+
     protected abstract void handleMatchingGeohashAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float left, float bottom, float right, float top) throws Exception;
+
     protected abstract void handleMatchingGeohashAggregateWithGeocentroidBucket(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int elementsSize, float left, float bottom, float right, float top) throws Exception;
+
     protected abstract void handleMatchingGeohashAggregateWithGeoBboxBucket(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int elementsSize, float left, float bottom, float right, float top) throws Exception;
+
     protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception;
+
     protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String keyAsString) throws Exception;
+
     protected abstract void handleMatchingAggregateWithOrder(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String firstKey) throws Exception;
+
     protected abstract void handleMatchingAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin, float featureCollectMax) throws Exception;
+
     protected abstract void handleMatchingAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
+
     protected abstract void handleMatchingAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float left, float bottom, float right, float top) throws Exception;
 
     protected abstract void handleSumOtherCountsExistence(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception;
+
     protected abstract void handleSumOtherCountsExistence(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int sumOtherDocCounts) throws Exception;
 
     protected abstract void handleMultiMatchingAggregate(ValidatableResponse then, int featuresSize) throws Exception;
+
     protected abstract void handleMultiMatchingGeohashAggregate(ValidatableResponse then, int featuresSize) throws Exception;
 
-    private ValidatableResponse post(Request request){
+    private ValidatableResponse post(Request request) {
         return given().contentType("application/json;charset=utf-8").body(request)
                 .when().post(getUrlPath("geodata"))
                 .then();
     }
 
-    private ValidatableResponse get(Object paramValue){
+    private ValidatableResponse get(Object paramValue) {
         return given().param("agg", paramValue)
                 .when().get(getUrlPath("geodata"))
                 .then();

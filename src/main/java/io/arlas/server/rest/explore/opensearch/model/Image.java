@@ -23,13 +23,13 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 public class Image {
     @XmlAttribute(name = "height")
-    public String height="";
+    public String height = "";
 
     @XmlAttribute(name = "width")
-    public String width="";
+    public String width = "";
 
     @XmlAttribute(name = "type")
-    public String type="";
+    public String type = "";
 
     public String content;
 }

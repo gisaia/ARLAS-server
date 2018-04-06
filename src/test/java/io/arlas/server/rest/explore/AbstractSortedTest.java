@@ -42,6 +42,8 @@ public abstract class AbstractSortedTest extends AbstractProjectedTest {
     }
 
     protected abstract void handleSortParameter(ValidatableResponse then, String firstElement) throws Exception;
+
     protected abstract void handleGeoSortParameter(ValidatableResponse then, String firstElement) throws Exception;
+
     protected abstract void handleInvalidGeoSortParameter(ValidatableResponse then) throws Exception;
 }

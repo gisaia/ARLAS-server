@@ -20,6 +20,6 @@
 package io.arlas.server.ns;
 
 public class GEORSS {
-    public static final String XML_PREFIX="georss";
-    public static final String XML_NS="http://www.georss.org/georss";
+    public static final String XML_PREFIX = "georss";
+    public static final String XML_NS = "http://www.georss.org/georss";
 }

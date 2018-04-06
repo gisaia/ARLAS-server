@@ -19,8 +19,6 @@
 
 package io.arlas.server.ogc.wfs.utils;
 
-import static io.arlas.server.ogc.wfs.utils.WFSRequestType.*;
-
 public class WFSConstant {
 
     public static final String GET_FEATURE_BY_ID_NAME = "urn:ogc:def:query:OGC-WFS::GetFeatureById";
@@ -34,8 +32,8 @@ public class WFSConstant {
     public static final String XSNS = "http://www.w3.org/2001/XMLSchema";
     public static final String WFS = "WFS";
     public static final String SUPPORTED_WFS_VERSION = "2.0.0";
-    public static final String[] SUPPORTED_CRS = {"http://www.opengis.net/def/crs/epsg/0/4326","urn:ogc:def:crs:EPSG::4326"};
-    public static final String[] FEATURE_GML_FORMAT = {"application/gml+xml; version=3.2","text/xml; subtype=gml/3.2"};
+    public static final String[] SUPPORTED_CRS = {"http://www.opengis.net/def/crs/epsg/0/4326", "urn:ogc:def:crs:EPSG::4326"};
+    public static final String[] FEATURE_GML_FORMAT = {"application/gml+xml; version=3.2", "text/xml; subtype=gml/3.2"};
 
-    public static final String[] SUPPORTED_WFS_REQUESTYPE = {"GetCapabilities","DescribeFeatureType","GetFeature","GetPropertyValue","ListStoredQueries","DescribeStoredQueries"};
+    public static final String[] SUPPORTED_WFS_REQUESTYPE = {"GetCapabilities", "DescribeFeatureType", "GetFeature", "GetPropertyValue", "ListStoredQueries", "DescribeStoredQueries"};
 }

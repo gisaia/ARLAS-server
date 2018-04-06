@@ -19,11 +19,8 @@
 
 package io.arlas.server.ogc.wfs.filter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.ImmutableMap;
+import com.vividsolutions.jts.geom.*;
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.exceptions.OGCExceptionMessage;
@@ -34,25 +31,18 @@ import org.locationtech.spatial4j.shape.SpatialRelation;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.spatial.BBOX;
-import org.opengis.filter.spatial.BinarySpatialOperator;
-import org.opengis.filter.spatial.Contains;
-import org.opengis.filter.spatial.Disjoint;
-import org.opengis.filter.spatial.Intersects;
-import org.opengis.filter.spatial.Within;
-
-import com.google.common.collect.ImmutableMap;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateFilter;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryComponentFilter;
+import org.opengis.filter.spatial.*;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 class FilterToElasticHelper {
     org.slf4j.Logger LOGGER = LoggerFactory.getLogger(FilterToElasticHelper.class);
 
-    public static final Map<String,Object> MATCH_ALL = ImmutableMap.of("match_all", Collections.EMPTY_MAP);
+    public static final Map<String, Object> MATCH_ALL = ImmutableMap.of("match_all", Collections.EMPTY_MAP);
 
 
     private String key;
@@ -61,9 +51,9 @@ class FilterToElasticHelper {
 
     private SpatialRelation shapeRelation;
 
-    private Map<String,Object> shapeBuilder;
+    private Map<String, Object> shapeBuilder;
 
-    private Boolean isCoordInvert =false;
+    private Boolean isCoordInvert = false;
 
 
     protected static final Envelope WORLD = new Envelope(-180, 180, -90, 90);
@@ -75,39 +65,39 @@ class FilterToElasticHelper {
     }
 
     protected Object visitBinarySpatialOperator(BinarySpatialOperator filter,
-            PropertyName property, Literal geometry, boolean swapped,
-            Object extraData) {
-            visitComparisonSpatialOperator(filter, property, geometry,
-                    swapped, extraData);
+                                                PropertyName property, Literal geometry, boolean swapped,
+                                                Object extraData) {
+        visitComparisonSpatialOperator(filter, property, geometry,
+                swapped, extraData);
         return extraData;
     }
 
     protected Object visitBinarySpatialOperator(BinarySpatialOperator filter, Expression e1,
-            Expression e2, Object extraData) {
+                                                Expression e2, Object extraData) {
 
         visitBinarySpatialOperator(filter, e1, e2, false, extraData);
         return extraData;
     }
 
     void visitComparisonSpatialOperator(BinarySpatialOperator filter,
-            PropertyName property, Literal geometry, boolean swapped, Object extraData) {
+                                        PropertyName property, Literal geometry, boolean swapped, Object extraData) {
 
         // if geography case, sanitize geometry first
         this.geometry = geometry;
-        if(isCurrentGeography()) {
+        if (isCurrentGeography()) {
             this.geometry = clipToWorld(geometry);
         }
 
-        visitBinarySpatialOperator(filter, (Expression)property, (Expression)this.geometry, swapped, extraData);
+        visitBinarySpatialOperator(filter, (Expression) property, (Expression) this.geometry, swapped, extraData);
 
         // if geography case, sanitize geometry first
-        if(isCurrentGeography()) {
-            if(isWorld(this.geometry)) {
+        if (isCurrentGeography()) {
+            if (isWorld(this.geometry)) {
                 // nothing to filter in this case
                 delegate.queryBuilder = MATCH_ALL;
                 return;
-            } else if(isEmpty(this.geometry)) {
-                if(!(filter instanceof Disjoint)) {
+            } else if (isEmpty(this.geometry)) {
+                if (!(filter instanceof Disjoint)) {
                     delegate.queryBuilder = ImmutableMap.of("bool", ImmutableMap.of("must_not", MATCH_ALL));
                 } else {
                     delegate.queryBuilder = MATCH_ALL;
@@ -116,18 +106,18 @@ class FilterToElasticHelper {
             }
         }
 
-        visitBinarySpatialOperator(filter, (Expression)property, (Expression)this.geometry, swapped, extraData);
+        visitBinarySpatialOperator(filter, (Expression) property, (Expression) this.geometry, swapped, extraData);
     }
 
-    void visitBinarySpatialOperator(BinarySpatialOperator filter, Expression e1, Expression e2, 
-            boolean swapped, Object extraData) {
+    void visitBinarySpatialOperator(BinarySpatialOperator filter, Expression e1, Expression e2,
+                                    boolean swapped, Object extraData) {
 
         visitGeoShapeBinarySpatialOperator(filter, e1, e2, swapped, extraData);
 
     }
 
-    void visitGeoShapeBinarySpatialOperator(BinarySpatialOperator filter, Expression e1, Expression e2, 
-            boolean swapped, Object extraData) {
+    void visitGeoShapeBinarySpatialOperator(BinarySpatialOperator filter, Expression e1, Expression e2,
+                                            boolean swapped, Object extraData) {
 
         if (filter instanceof Disjoint) {
             shapeRelation = SpatialRelation.DISJOINT;
@@ -144,17 +134,17 @@ class FilterToElasticHelper {
 
         if (shapeRelation != null) {
             e1.accept(delegate, extraData);
-            key =  XmlUtils.retrievePointPath((String)delegate.field);
-            if(key.contains(":")){
-                key=key.split(":")[1];
+            key = XmlUtils.retrievePointPath((String) delegate.field);
+            if (key.contains(":")) {
+                key = key.split(":")[1];
             }
-            if(key.equals("")){
+            if (key.equals("")) {
                 key = delegate.collectionReference.params.geometryPath;
             }
-            if(!key.equals(delegate.collectionReference.params.geometryPath)){
+            if (!key.equals(delegate.collectionReference.params.geometryPath)) {
                 List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
-                wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE,key +" is not a valid geom field","filter"));
+                wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, key + " is not a valid geom field", "filter"));
                 delegate.wfsException = new OGCException(wfsExceptionMessages);
                 throw new RuntimeException();
             }
@@ -164,7 +154,7 @@ class FilterToElasticHelper {
 
         if (shapeRelation != null && shapeBuilder != null) {
             delegate.queryBuilder = ImmutableMap.of("bool", ImmutableMap.of("must", MATCH_ALL,
-                    "filter", ImmutableMap.of("geo_shape", 
+                    "filter", ImmutableMap.of("geo_shape",
                             ImmutableMap.of(key, ImmutableMap.of("shape", shapeBuilder, "relation", shapeRelation)))));
         } else {
             delegate.queryBuilder = MATCH_ALL;
@@ -176,13 +166,13 @@ class FilterToElasticHelper {
     }
 
     protected Literal clipToWorld(Literal geometry) {
-        if(geometry != null) {
+        if (geometry != null) {
             Geometry g = geometry.evaluate(null, Geometry.class);
-            if(g != null) {
+            if (g != null) {
                 g.apply(new GeometryComponentFilter() {
                     @Override
                     public void filter(Geometry geom) {
-                        if(!isCoordInvert){
+                        if (!isCoordInvert) {
                             geom.apply(new CoordinateFilter() {
                                 @Override
                                 public void filter(Coordinate coord) {
@@ -193,7 +183,7 @@ class FilterToElasticHelper {
                                 }
                             });
                         }
-                        isCoordInvert=true;
+                        isCoordInvert = true;
                     }
                 });
                 geometry = CommonFactoryFinder.getFilterFactory(null).literal(g);
@@ -204,8 +194,8 @@ class FilterToElasticHelper {
     }
 
     protected double clipLon(double lon) {
-        double x = Math.signum(lon)*(Math.abs(lon)%360);
-        return x = x>180 ? x-360 : (x<-180 ? x+360 : x);
+        double x = Math.signum(lon) * (Math.abs(lon) % 360);
+        return x = x > 180 ? x - 360 : (x < -180 ? x + 360 : x);
     }
 
     protected double clipLat(double lat) {
@@ -214,14 +204,15 @@ class FilterToElasticHelper {
 
     /**
      * Returns true if the geometry covers the entire world
+     *
      * @param geometry
      * @return
      */
     protected boolean isWorld(Literal geometry) {
         boolean result = false;
-        if(geometry != null) {
+        if (geometry != null) {
             Geometry g = geometry.evaluate(null, Geometry.class);
-            if(g != null) {
+            if (g != null) {
                 result = JTS.toGeometry(WORLD).equalsTopo(g.union());
             }
         }
@@ -230,12 +221,13 @@ class FilterToElasticHelper {
 
     /**
      * Returns true if the geometry is fully empty
+     *
      * @param geometry
      * @return
      */
     protected boolean isEmpty(Literal geometry) {
         boolean result = false;
-        if(geometry != null) {
+        if (geometry != null) {
             Geometry g = geometry.evaluate(null, Geometry.class);
             result = g == null || g.isEmpty();
         }

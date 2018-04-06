@@ -21,16 +21,18 @@ package io.arlas.server.exceptions;
 
 
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class OGCException extends ArlasException  {
+public class OGCException extends ArlasException {
     private static final long serialVersionUID = 1L;
 
     private List<OGCExceptionMessage> exceptionMessages = new ArrayList<>();
     private final String LANGUAGE = "en";
 
-    public OGCException() {}
+    public OGCException() {
+    }
 
     public OGCException(String message, Throwable cause) {
         this(OGCExceptionCode.NO_APPLICABLE_CODE, message, cause);

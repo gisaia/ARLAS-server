@@ -30,30 +30,31 @@ import net.opengis.wfs._2.FeatureTypeListType;
 import net.opengis.wfs._2.FeatureTypeType;
 import net.opengis.wfs._2.OutputFormatListType;
 import net.opengis.wfs._2.WFSCapabilitiesType;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.util.Arrays;
 
 public class GetCapabilitiesHandler {
 
-    private static final String[] SECTION_NAMES = {"ServiceIdentification","ServiceProvider","FeatureTypeList","Filter_Capabilities"};
+    private static final String[] SECTION_NAMES = {"ServiceIdentification", "ServiceProvider", "FeatureTypeList", "Filter_Capabilities"};
     private static final String SECTION_DOMAIN_NAME = "Sections";
-    private static final String ACCEPT_VERSIONS_DOMAIN_NAME ="AcceptVersions";
-    private static final String RESOLVE_DOMAIN_NAME ="resolve";
-    private static final String LOCAL_VALUE ="local";
-    private static final String TRUE ="TRUE";
-    private static final String FALSE ="FALSE";
-    private static final String IMPLEMENTS_BASIC_WFS ="ImplementsBasicWFS";
-    private static final String IMPLEMENTS_TRANSACTIONAL_WFS ="ImplementsTransactionalWFS";
-    private static final String KVP_ENCODING ="KVPEncoding";
-    private static final String RESOURCE_ID ="ResourceId";
-    private static final String BOX ="BBOX";
-    private static final String INTERSECTS ="Intersects";
-    private static final String ENVELOPE ="Envelope";
-    private static final String POLYGON ="Polygon";
-    private static final String AFTER ="After";
-    private static final String BEFORE ="Before";
-    private static final String DURING ="During";
+    private static final String ACCEPT_VERSIONS_DOMAIN_NAME = "AcceptVersions";
+    private static final String RESOLVE_DOMAIN_NAME = "resolve";
+    private static final String LOCAL_VALUE = "local";
+    private static final String TRUE = "TRUE";
+    private static final String FALSE = "FALSE";
+    private static final String IMPLEMENTS_BASIC_WFS = "ImplementsBasicWFS";
+    private static final String IMPLEMENTS_TRANSACTIONAL_WFS = "ImplementsTransactionalWFS";
+    private static final String KVP_ENCODING = "KVPEncoding";
+    private static final String RESOURCE_ID = "ResourceId";
+    private static final String BOX = "BBOX";
+    private static final String INTERSECTS = "Intersects";
+    private static final String ENVELOPE = "Envelope";
+    private static final String POLYGON = "Polygon";
+    private static final String AFTER = "After";
+    private static final String BEFORE = "Before";
+    private static final String DURING = "During";
 
     public WFSHandler wfsHandler;
     public WFSCapabilitiesType getCapabilitiesType = new WFSCapabilitiesType();
@@ -135,7 +136,7 @@ public class GetCapabilitiesHandler {
         sections.setName(SECTION_DOMAIN_NAME);
         sections.setAllowedValues(new AllowedValues());
         //add sections
-        Arrays.asList(SECTION_NAMES).forEach(sectionName->addSection(sectionName,sections));
+        Arrays.asList(SECTION_NAMES).forEach(sectionName -> addSection(sectionName, sections));
         //create resolve parameter for GetFeature and GetPropertyValue operation
         DomainType resolve = new DomainType();
         resolve.setName(RESOLVE_DOMAIN_NAME);
@@ -144,13 +145,13 @@ public class GetCapabilitiesHandler {
         local.setValue(LOCAL_VALUE);
         resolve.getAllowedValues().getValueOrRange().add(local);
         //add  operations
-        DomainType[] getCapabilitiesParameters = {acceptVersions,sections};
-        addOperation(WFSRequestType.GetCapabilities.name(),operationsMetadata,getCapabilitiesParameters);
-        addOperation(WFSRequestType.DescribeFeatureType.name(),operationsMetadata,noParameters);
-        addOperation(WFSRequestType.ListStoredQueries.name(),operationsMetadata,noParameters);
-        addOperation(WFSRequestType.DescribeStoredQueries.name(),operationsMetadata,noParameters);
-        addOperation(WFSRequestType.GetFeature.name(),operationsMetadata,resolve);
-        addOperation(WFSRequestType.GetPropertyValue.name(),operationsMetadata,resolve);
+        DomainType[] getCapabilitiesParameters = {acceptVersions, sections};
+        addOperation(WFSRequestType.GetCapabilities.name(), operationsMetadata, getCapabilitiesParameters);
+        addOperation(WFSRequestType.DescribeFeatureType.name(), operationsMetadata, noParameters);
+        addOperation(WFSRequestType.ListStoredQueries.name(), operationsMetadata, noParameters);
+        addOperation(WFSRequestType.DescribeStoredQueries.name(), operationsMetadata, noParameters);
+        addOperation(WFSRequestType.GetFeature.name(), operationsMetadata, resolve);
+        addOperation(WFSRequestType.GetPropertyValue.name(), operationsMetadata, resolve);
         //add  conformance
         addConformanceType(operationsMetadata, IMPLEMENTS_BASIC_WFS, trueValueType);
         addConformanceType(operationsMetadata, IMPLEMENTS_TRANSACTIONAL_WFS, falseValueType);
@@ -159,14 +160,14 @@ public class GetCapabilitiesHandler {
         getCapabilitiesType.setOperationsMetadata(operationsMetadata);
     }
 
-    public void setFeatureTypeListType(String name,String uri) {
+    public void setFeatureTypeListType(String name, String uri) {
         FeatureTypeListType featureTypeListType = new FeatureTypeListType();
         FeatureTypeType featureTypeType = new FeatureTypeType();
         featureTypeType.setDefaultCRS(WFSConstant.SUPPORTED_CRS[0]);
-        QName qname = new QName(uri, name,wfsConfiguration.featureNamespace);
+        QName qname = new QName(uri, name, wfsConfiguration.featureNamespace);
         featureTypeType.setName(qname);
         OutputFormatListType outputFormatListType = new OutputFormatListType();
-        Arrays.asList(WFSConstant.FEATURE_GML_FORMAT).forEach(format->outputFormatListType.getFormat().add(format));
+        Arrays.asList(WFSConstant.FEATURE_GML_FORMAT).forEach(format -> outputFormatListType.getFormat().add(format));
         featureTypeType.setOutputFormats(outputFormatListType);
         featureTypeListType.getFeatureType().add(featureTypeType);
         getCapabilitiesType.setFeatureTypeList(featureTypeListType);
@@ -192,8 +193,8 @@ public class GetCapabilitiesHandler {
         SpatialOperatorType spatialOperatorIntersectsType = new SpatialOperatorType();
         GeometryOperandsType.GeometryOperand envGeometryOperand = new GeometryOperandsType.GeometryOperand();
         GeometryOperandsType.GeometryOperand polyGeometryOperand = new GeometryOperandsType.GeometryOperand();
-        QName envQname = new QName(WFSConstant.GML_NAMESPACE_URI, ENVELOPE,WFSConstant.GML_PREFIX);
-        QName polyQname = new QName(WFSConstant.GML_NAMESPACE_URI, POLYGON,WFSConstant.GML_PREFIX);
+        QName envQname = new QName(WFSConstant.GML_NAMESPACE_URI, ENVELOPE, WFSConstant.GML_PREFIX);
+        QName polyQname = new QName(WFSConstant.GML_NAMESPACE_URI, POLYGON, WFSConstant.GML_PREFIX);
         envGeometryOperand.setName(envQname);
         polyGeometryOperand.setName(polyQname);
         geometryOperandsType.getGeometryOperand().add(envGeometryOperand);
@@ -214,9 +215,9 @@ public class GetCapabilitiesHandler {
         TemporalOperandsType allTemporalOperandsType = new TemporalOperandsType();
         TemporalOperatorsType temporalOperatorsType = new TemporalOperatorsType();
 
-        addTemporalOperator(temporalOperatorsType,afterQname,allTemporalOperandsType);
-        addTemporalOperator(temporalOperatorsType,beforeQname,allTemporalOperandsType);
-        addTemporalOperator(temporalOperatorsType,duringQname,allTemporalOperandsType);
+        addTemporalOperator(temporalOperatorsType, afterQname, allTemporalOperandsType);
+        addTemporalOperator(temporalOperatorsType, beforeQname, allTemporalOperandsType);
+        addTemporalOperator(temporalOperatorsType, duringQname, allTemporalOperandsType);
 
         temporalCapabilities.setTemporalOperands(allTemporalOperandsType);
         temporalCapabilities.setTemporalOperators(temporalOperatorsType);
@@ -230,24 +231,24 @@ public class GetCapabilitiesHandler {
 
     }
 
-    private void addSection(String sectionName,DomainType sections){
+    private void addSection(String sectionName, DomainType sections) {
         ValueType serviceIdentification = new ValueType();
         serviceIdentification.setValue(sectionName);
         sections.getAllowedValues().getValueOrRange().add(serviceIdentification);
     }
 
-    private void addOperation(String operationName,OperationsMetadata operationsMetadata,DomainType... parameters){
+    private void addOperation(String operationName, OperationsMetadata operationsMetadata, DomainType... parameters) {
         DCP dcp = new DCP();
         HTTP http = new HTTP();
         dcp.setHTTP(http);
         Operation operation = new Operation();
         operation.setName(operationName);
         operation.getDCP().add(dcp);
-        Arrays.asList(parameters).forEach(parameter->operation.getParameter().add(parameter));
+        Arrays.asList(parameters).forEach(parameter -> operation.getParameter().add(parameter));
         operationsMetadata.getOperation().add(operation);
     }
 
-    private void addTemporalOperator(TemporalOperatorsType temporalOperatorsType, QName qNameOperand,TemporalOperandsType allTemporalOperandsType){
+    private void addTemporalOperator(TemporalOperatorsType temporalOperatorsType, QName qNameOperand, TemporalOperandsType allTemporalOperandsType) {
         TemporalOperatorType temporalOperatorType = new TemporalOperatorType();
         TemporalOperandsType.TemporalOperand operand = new TemporalOperandsType.TemporalOperand();
         operand.setName(qNameOperand);

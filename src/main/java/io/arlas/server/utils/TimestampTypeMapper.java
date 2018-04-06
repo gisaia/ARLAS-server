@@ -21,14 +21,11 @@ package io.arlas.server.utils;
 
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.response.TimestampType;
-import org.apache.logging.log4j.util.Strings;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 public class TimestampTypeMapper {
@@ -42,10 +39,9 @@ public class TimestampTypeMapper {
             else if (formatList.contains(TimestampType.epoch_second.name()))
                 timestamp = (Long) elasticsearchTimestampField * 1000;
         } else if (elasticsearchTimestampField instanceof Integer) {
-            if (formatList.contains(TimestampType.epoch_millis.name())){
+            if (formatList.contains(TimestampType.epoch_millis.name())) {
                 timestamp = ((Integer) elasticsearchTimestampField).longValue();
-            }
-            else if (formatList.contains(TimestampType.epoch_second.name())){
+            } else if (formatList.contains(TimestampType.epoch_second.name())) {
                 timestamp = ((Integer) elasticsearchTimestampField).longValue() * 1000;
             }
         } else if (elasticsearchTimestampField instanceof String) {
@@ -63,25 +59,24 @@ public class TimestampTypeMapper {
 
     public static void formatDate(Object timestamp, String elasticsearchDateFormat) {
         List<String> formatList = Arrays.asList(elasticsearchDateFormat.split("\\|\\|"));
-        DateTime timestampDate = new DateTime((Long)timestamp);
+        DateTime timestampDate = new DateTime((Long) timestamp);
         DateTimeFormatter dtf = null;
 
         if (formatList.size() == 1) {
             String format = formatList.get(0);
             TimestampType type = TimestampType.getElasticsearchPatternName(format);
             if (!type.name().equals(TimestampType.epoch_second.name()) && !type.name().equals(TimestampType.epoch_millis.name())) {
-                if (type.name().equals("UNKNOWN")){
+                if (type.name().equals("UNKNOWN")) {
                     dtf = DateTimeFormat.forPattern(format);
-                }
-                else {
+                } else {
                     dtf = type.dateTimeFormatter;
                 }
-                if (dtf != null){
+                if (dtf != null) {
                     timestamp = timestampDate.toString(dtf);
                 }
             } else {
                 if (type.name().equals(TimestampType.epoch_second.name())) {
-                    timestamp = (Long)timestamp / 1000;
+                    timestamp = (Long) timestamp / 1000;
                 }
             }
         }
@@ -89,20 +84,18 @@ public class TimestampTypeMapper {
         // ==> no formatting needed
     }
 
-    private static Long parseDate(String format, String timestampPath){
+    private static Long parseDate(String format, String timestampPath) {
         DateTimeFormatter dtf = null;
         TimestampType type = TimestampType.getElasticsearchPatternName(format);
-        if (type.name().equals("UNKNOWN")){
+        if (type.name().equals("UNKNOWN")) {
             dtf = DateTimeFormat.forPattern(format);
-        }
-        else {
+        } else {
             dtf = type.dateTimeFormatter;
         }
-        if (dtf != null){
+        if (dtf != null) {
             DateTime jodatime = dtf.parseDateTime(timestampPath);
             return jodatime.getMillis();
-        }
-        else {
+        } else {
             return null;
         }
     }

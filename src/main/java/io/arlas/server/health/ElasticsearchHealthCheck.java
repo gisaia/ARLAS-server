@@ -32,7 +32,7 @@ public class ElasticsearchHealthCheck extends HealthCheck {
 
     @Override
     protected HealthCheck.Result check() throws Exception {
-        if(checkElasticsearch()) {
+        if (checkElasticsearch()) {
             return Result.healthy();
         } else {
             return Result.unhealthy("Cannot connect to elasticsearch cluster");

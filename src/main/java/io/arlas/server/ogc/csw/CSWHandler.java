@@ -31,8 +31,8 @@ public class CSWHandler {
     public ObjectFactory cswFactory = new ObjectFactory();
     public net.opengis.ows._2.ObjectFactory owsFactory = new net.opengis.ows._2.ObjectFactory();
 
-    public CSWHandler(OGCConfiguration ogcConfiguration)  {
-        this.ogcConfiguration=ogcConfiguration;
+    public CSWHandler(OGCConfiguration ogcConfiguration) {
+        this.ogcConfiguration = ogcConfiguration;
         getCapabilitiesHandler = new GetCapabilitiesHandler(this);
     }
 }

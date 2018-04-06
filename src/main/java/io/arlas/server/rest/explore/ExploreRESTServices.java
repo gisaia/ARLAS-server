@@ -20,7 +20,6 @@
 package io.arlas.server.rest.explore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.rest.ResponseCacheManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -19,13 +19,7 @@
 
 package io.arlas.server;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.index.IndexResponse;
@@ -37,10 +31,15 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class DataSetTool {
 
@@ -55,7 +54,8 @@ public class DataSetTool {
     public final static String DATASET_TIMESTAMP_PATH = "params.startdate";
     public final static String DATASET_INCLUDE_FIELDS = null;
     public final static String DATASET_EXCLUDE_FIELDS = "params.ci*";
-    public final static String DATASET_EXCLUDE_WFS_FIELDS = "params.country";;
+    public final static String DATASET_EXCLUDE_WFS_FIELDS = "params.country";
+    ;
     public final static String DATASET_TIMESTAMP_FORMAT = "epoch_millis";
     public static final String[] jobs = {"Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter"};
     public static final String[] cities = {"Paris", "London", "New York", "Tokyo", "Toulouse", "Marseille", "Lyon", "Bordeaux", "Lille", "Albi", "Calais"};
@@ -104,7 +104,7 @@ public class DataSetTool {
     public static void loadDataSet() throws IOException {
         String mapping = IOUtils.toString(new InputStreamReader(DataSetTool.class.getClassLoader().getResourceAsStream("dataset.mapping.json")));
         try {
-	        adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
+            adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
         } catch (Exception e) {
         }
         adminClient.indices().prepareCreate(DATASET_INDEX_NAME).addMapping(DATASET_TYPE_NAME, mapping, XContentType.JSON).get();

@@ -21,8 +21,6 @@ package io.arlas.server.ogc.common.utils;
 
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
-import io.arlas.server.ogc.common.utils.Version;
-import io.arlas.server.ogc.wfs.utils.WFSConstant;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -35,22 +33,22 @@ public class VersionUtils {
         try {
             offeredVersions.add(getVersion(supportedVersion));
         } catch (OGCException e) {
-            new OGCException( OGCExceptionCode.INVALID_PARAMETER_VALUE,"INVALID VERSION", "version" );
+            new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "INVALID VERSION", "version");
         }
-        if ( !offeredVersions.contains( version ) ) {
-            new OGCException( OGCExceptionCode.INVALID_PARAMETER_VALUE,"INVALID VERSION", "version" );
+        if (!offeredVersions.contains(version)) {
+            new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "INVALID VERSION", "version");
         }
         return version;
     }
 
-    public static Version getVersion( String versionString ) throws OGCException {
+    public static Version getVersion(String versionString) throws OGCException {
         Version version = null;
-        if ( versionString != null && !"".equals( versionString ) ) {
+        if (versionString != null && !"".equals(versionString)) {
             try {
-                version = Version.parseVersion( versionString );
+                version = Version.parseVersion(versionString);
 
-            } catch ( OGCException e ) {
-                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE,e.getMessage(), "version" );
+            } catch (OGCException e) {
+                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, e.getMessage(), "version");
             }
         }
         return version;

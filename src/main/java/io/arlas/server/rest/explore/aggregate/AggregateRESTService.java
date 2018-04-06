@@ -30,7 +30,6 @@ import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
 import io.arlas.server.utils.ParamsParser;
-import io.dropwizard.jersey.params.LongParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -59,84 +58,84 @@ public class AggregateRESTService extends ExploreRESTServices {
     @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = Documentation.AGGREGATION_OPERATION, consumes = UTF8JSON, response = AggregationResponse.class
 
     )
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = AggregationResponse.class, responseContainer = "ArlasAggregation" ),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = AggregationResponse.class, responseContainer = "ArlasAggregation"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
     public Response aggregate(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
             @ApiParam(
                     name = "collection",
-                    value="collection",
+                    value = "collection",
                     allowMultiple = false,
-                    required=true)
+                    required = true)
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="agg",
-                    value=Documentation.AGGREGATION_PARAM_AGG
+            @ApiParam(name = "agg",
+                    value = Documentation.AGGREGATION_PARAM_AGG
                     ,
                     allowMultiple = false,
-                    required=true)
-            @QueryParam(value="agg") List<String> agg,
+                    required = true)
+            @QueryParam(value = "agg") List<String> agg,
 
             // --------------------------------------------------------
             // ----------------------- FILTER -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="f",
-                    value= Documentation.FILTER_PARAM_F,
+            @ApiParam(name = "f",
+                    value = Documentation.FILTER_PARAM_F,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="f") List<String> f,
+                    required = false)
+            @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name ="q", value=Documentation.FILTER_PARAM_Q,
+            @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="q") List<String> q,
+                    required = false)
+            @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name ="pwithin", value=Documentation.FILTER_PARAM_PWITHIN,
+            @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="pwithin") List<String> pwithin,
+                    required = false)
+            @QueryParam(value = "pwithin") List<String> pwithin,
 
-            @ApiParam(name ="gwithin", value=Documentation.FILTER_PARAM_GWITHIN,
+            @ApiParam(name = "gwithin", value = Documentation.FILTER_PARAM_GWITHIN,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="gwithin") List<String> gwithin,
+                    required = false)
+            @QueryParam(value = "gwithin") List<String> gwithin,
 
-            @ApiParam(name ="gintersect", value=Documentation.FILTER_PARAM_GINTERSECT,
+            @ApiParam(name = "gintersect", value = Documentation.FILTER_PARAM_GINTERSECT,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="gintersect") List<String> gintersect,
+                    required = false)
+            @QueryParam(value = "gintersect") List<String> gintersect,
 
-            @ApiParam(name ="notpwithin", value=Documentation.FILTER_PARAM_NOTPWITHIN,
+            @ApiParam(name = "notpwithin", value = Documentation.FILTER_PARAM_NOTPWITHIN,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="notpwithin") List<String> notpwithin,
+                    required = false)
+            @QueryParam(value = "notpwithin") List<String> notpwithin,
 
-            @ApiParam(name ="notgwithin", value=Documentation.FILTER_PARAM_NOTGWITHIN,
+            @ApiParam(name = "notgwithin", value = Documentation.FILTER_PARAM_NOTGWITHIN,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="notgwithin") List<String> notgwithin,
+                    required = false)
+            @QueryParam(value = "notgwithin") List<String> notgwithin,
 
-            @ApiParam(name ="notgintersect", value=Documentation.FILTER_PARAM_NOTGINTERSECT,
+            @ApiParam(name = "notgintersect", value = Documentation.FILTER_PARAM_NOTGINTERSECT,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="notgintersect") List<String> notgintersect,
+                    required = false)
+            @QueryParam(value = "notgintersect") List<String> notgintersect,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value="Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty,
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
@@ -151,7 +150,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
-        aggregationsRequest.filter = ParamsParser.getFilter(f,q,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
+        aggregationsRequest.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
@@ -159,9 +158,9 @@ public class AggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
 
-        AggregationResponse aggregationResponse = getArlasAggregation(request,collectionReference);
+        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference);
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
-        return cache(Response.ok(aggregationResponse),maxagecache);
+        return cache(Response.ok(aggregationResponse), maxagecache);
     }
 
     @Timed
@@ -170,9 +169,9 @@ public class AggregateRESTService extends ExploreRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = Documentation.AGGREGATION_OPERATION, consumes = UTF8JSON, response = AggregationResponse.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = AggregationResponse.class, responseContainer = "ArlasAggregation" ),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = AggregationResponse.class, responseContainer = "ArlasAggregation"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class),
-            @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
+            @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
     public Response aggregatePost(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
@@ -193,16 +192,16 @@ public class AggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value="Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty,
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
@@ -223,18 +222,18 @@ public class AggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
 
-        AggregationResponse aggregationResponse = getArlasAggregation(request,collectionReference);
+        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference);
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
 
-        return cache(Response.ok(aggregationResponse),maxagecache);
+        return cache(Response.ok(aggregationResponse), maxagecache);
     }
 
-    public AggregationResponse getArlasAggregation(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException{
+    public AggregationResponse getArlasAggregation(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         AggregationResponse aggregationResponse = new AggregationResponse();
         Long startQuery = System.nanoTime();
-        SearchResponse response = this.getExploreServices().aggregate(request,collectionReference,false);
+        SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, false);
         MultiBucketsAggregation aggregation;
-        aggregation = (MultiBucketsAggregation)response.getAggregations().asList().get(0);
+        aggregation = (MultiBucketsAggregation) response.getAggregations().asList().get(0);
         aggregationResponse.totalnb = response.getHits().getTotalHits();
         aggregationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
         aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse);

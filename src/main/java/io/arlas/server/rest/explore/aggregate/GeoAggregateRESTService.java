@@ -30,13 +30,13 @@ import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
-import io.arlas.server.utils.*;
-import io.dropwizard.jersey.params.LongParam;
+import io.arlas.server.utils.BoundingBox;
+import io.arlas.server.utils.GeoTileUtil;
+import io.arlas.server.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.logging.log4j.util.Strings;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
@@ -48,7 +48,10 @@ import org.geojson.Point;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
@@ -63,7 +66,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(value = "GeoAggregate", produces = UTF8JSON, notes = Documentation.GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection" ),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
             @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
     public Response geoaggregate(
@@ -72,75 +75,75 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(
                     name = "collection",
-                    value="collection",
+                    value = "collection",
                     allowMultiple = false,
-                    required=true)
+                    required = true)
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="agg",
-                    value= Documentation.GEOAGGREGATION_PARAM_AGG,
+            @ApiParam(name = "agg",
+                    value = Documentation.GEOAGGREGATION_PARAM_AGG,
                     allowMultiple = false,
-                    required=true)
-            @QueryParam(value="agg") List<String> agg,
+                    required = true)
+            @QueryParam(value = "agg") List<String> agg,
 
             // --------------------------------------------------------
             // ----------------------- FILTER -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="f",
-                    value= Documentation.FILTER_PARAM_F,
+            @ApiParam(name = "f",
+                    value = Documentation.FILTER_PARAM_F,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="f") List<String> f,
+                    required = false)
+            @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name ="q", value=Documentation.FILTER_PARAM_Q,
+            @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="q") List<String> q,
+                    required = false)
+            @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name ="pwithin", value=Documentation.FILTER_PARAM_PWITHIN,
+            @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="pwithin") List<String> pwithin,
+                    required = false)
+            @QueryParam(value = "pwithin") List<String> pwithin,
 
-            @ApiParam(name ="gwithin", value=Documentation.FILTER_PARAM_GWITHIN,
+            @ApiParam(name = "gwithin", value = Documentation.FILTER_PARAM_GWITHIN,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="gwithin") List<String> gwithin,
+                    required = false)
+            @QueryParam(value = "gwithin") List<String> gwithin,
 
-            @ApiParam(name ="gintersect", value=Documentation.FILTER_PARAM_GINTERSECT,
+            @ApiParam(name = "gintersect", value = Documentation.FILTER_PARAM_GINTERSECT,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="gintersect") List<String> gintersect,
+                    required = false)
+            @QueryParam(value = "gintersect") List<String> gintersect,
 
-            @ApiParam(name ="notpwithin", value=Documentation.FILTER_PARAM_NOTPWITHIN,
+            @ApiParam(name = "notpwithin", value = Documentation.FILTER_PARAM_NOTPWITHIN,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="notpwithin") List<String> notpwithin,
+                    required = false)
+            @QueryParam(value = "notpwithin") List<String> notpwithin,
 
-            @ApiParam(name ="notgwithin", value=Documentation.FILTER_PARAM_NOTGWITHIN,
+            @ApiParam(name = "notgwithin", value = Documentation.FILTER_PARAM_NOTGWITHIN,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="notgwithin") List<String> notgwithin,
+                    required = false)
+            @QueryParam(value = "notgwithin") List<String> notgwithin,
 
-            @ApiParam(name ="notgintersect", value=Documentation.FILTER_PARAM_NOTGINTERSECT,
+            @ApiParam(name = "notgintersect", value = Documentation.FILTER_PARAM_NOTGINTERSECT,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="notgintersect") List<String> notgintersect,
+                    required = false)
+            @QueryParam(value = "notgintersect") List<String> notgintersect,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value="Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty,
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
@@ -155,15 +158,15 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
-        aggregationsRequest.filter = ParamsParser.getFilter(f,q,pwithin,gwithin,gintersect,notpwithin,notgwithin,notgintersect);
+        aggregationsRequest.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
-        FeatureCollection fc = getFeatureCollection(request,collectionReference);
-        return cache(Response.ok(fc),maxagecache);
+        FeatureCollection fc = getFeatureCollection(request, collectionReference);
+        return cache(Response.ok(fc), maxagecache);
     }
 
 
@@ -173,7 +176,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(value = "GeoAggregate on a geohash", produces = UTF8JSON, notes = Documentation.GEOHASH_GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection" ),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
             @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
     public Response geohashgeoaggregate(
@@ -182,82 +185,82 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(
                     name = "collection",
-                    value="collection",
+                    value = "collection",
                     allowMultiple = false,
-                    required=true)
+                    required = true)
             @PathParam(value = "collection") String collection,
 
             @ApiParam(
                     name = "geohash",
-                    value="geohash",
+                    value = "geohash",
                     allowMultiple = false,
-                    required=true)
+                    required = true)
             @PathParam(value = "geohash") String geohash,
 
             // --------------------------------------------------------
             // ----------------------- AGGREGATION --------------------
             // --------------------------------------------------------
-            @ApiParam(name ="agg",
-                    value= Documentation.GEOAGGREGATION_PARAM_AGG,
+            @ApiParam(name = "agg",
+                    value = Documentation.GEOAGGREGATION_PARAM_AGG,
                     allowMultiple = false
             )
-            @QueryParam(value="agg") List<String> agg,
+            @QueryParam(value = "agg") List<String> agg,
 
             // --------------------------------------------------------
             // ----------------------- FILTER -------------------------
             // --------------------------------------------------------
-            @ApiParam(name ="f",
-                    value= Documentation.FILTER_PARAM_F,
+            @ApiParam(name = "f",
+                    value = Documentation.FILTER_PARAM_F,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="f") List<String> f,
+                    required = false)
+            @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name ="q", value=Documentation.FILTER_PARAM_Q,
+            @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="q") List<String> q,
+                    required = false)
+            @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name ="pwithin", value=Documentation.FILTER_PARAM_PWITHIN,
+            @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="pwithin") List<String> pwithin,
+                    required = false)
+            @QueryParam(value = "pwithin") List<String> pwithin,
 
-            @ApiParam(name ="gwithin", value=Documentation.FILTER_PARAM_GWITHIN,
+            @ApiParam(name = "gwithin", value = Documentation.FILTER_PARAM_GWITHIN,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="gwithin") List<String> gwithin,
+                    required = false)
+            @QueryParam(value = "gwithin") List<String> gwithin,
 
-            @ApiParam(name ="gintersect", value=Documentation.FILTER_PARAM_GINTERSECT,
+            @ApiParam(name = "gintersect", value = Documentation.FILTER_PARAM_GINTERSECT,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="gintersect") List<String> gintersect,
+                    required = false)
+            @QueryParam(value = "gintersect") List<String> gintersect,
 
-            @ApiParam(name ="notpwithin", value=Documentation.FILTER_PARAM_NOTPWITHIN,
+            @ApiParam(name = "notpwithin", value = Documentation.FILTER_PARAM_NOTPWITHIN,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="notpwithin") List<String> notpwithin,
+                    required = false)
+            @QueryParam(value = "notpwithin") List<String> notpwithin,
 
-            @ApiParam(name ="notgwithin", value=Documentation.FILTER_PARAM_NOTGWITHIN,
+            @ApiParam(name = "notgwithin", value = Documentation.FILTER_PARAM_NOTGWITHIN,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="notgwithin") List<String> notgwithin,
+                    required = false)
+            @QueryParam(value = "notgwithin") List<String> notgwithin,
 
-            @ApiParam(name ="notgintersect", value=Documentation.FILTER_PARAM_NOTGINTERSECT,
+            @ApiParam(name = "notgintersect", value = Documentation.FILTER_PARAM_NOTGINTERSECT,
                     allowMultiple = true,
-                    required=false)
-            @QueryParam(value="notgintersect") List<String> notgintersect,
+                    required = false)
+            @QueryParam(value = "notgintersect") List<String> notgintersect,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value="Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM ---------------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty,
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA --------------------------
@@ -265,8 +268,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException, JsonProcessingException {
-        if(geohash.startsWith("#")){
-            geohash=geohash.substring(1,geohash.length());
+        if (geohash.startsWith("#")) {
+            geohash = geohash.substring(1, geohash.length());
         }
         BoundingBox bbox = GeoTileUtil.getBoundingBox(geohash);
         String pwithinBbox = bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth();
@@ -280,13 +283,13 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
-        if(agg==null || agg.size()==0){
-            agg= Collections.singletonList("geohash:"+collectionReference.params.centroidPath+":interval-"+geohash.length());
+        if (agg == null || agg.size() == 0) {
+            agg = Collections.singletonList("geohash:" + collectionReference.params.centroidPath + ":interval-" + geohash.length());
         }
 
         if (bbox != null && bbox.getNorth() > bbox.getSouth()
                 // if sizes are not equals, it means one multi-value pwithin does not intersects bbox => no results
-                && pwithin.size()==simplifiedPwithin.size()) {
+                && pwithin.size() == simplifiedPwithin.size()) {
             simplifiedPwithin.add(pwithinBbox);
             return this.geoaggregate(
                     collection,
@@ -314,7 +317,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(value = "GeoAggregate", produces = UTF8JSON, notes = Documentation.GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection" ),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
             @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
     public Response geoaggregatePost(
@@ -337,16 +340,16 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value="Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name ="pretty", value=Documentation.FORM_PRETTY,
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
                     allowMultiple = false,
                     defaultValue = "false",
-                    required=false)
-            @QueryParam(value="pretty") Boolean pretty,
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
@@ -366,41 +369,41 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationRequest;
         request.headerRequest = aggregationsRequestHeader;
 
-        FeatureCollection fc = getFeatureCollection(request,collectionReference);
+        FeatureCollection fc = getFeatureCollection(request, collectionReference);
 
-        return cache(Response.ok(fc),maxagecache);
+        return cache(Response.ok(fc), maxagecache);
     }
 
-    private FeatureCollection getFeatureCollection(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException{
+    private FeatureCollection getFeatureCollection(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         FeatureCollection fc;
         AggregationResponse aggregationResponse = new AggregationResponse();
-        SearchResponse response = this.getExploreServices().aggregate(request,collectionReference,true);
+        SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, true);
         MultiBucketsAggregation aggregation;
-        aggregation = (MultiBucketsAggregation)response.getAggregations().asList().get(0);
+        aggregation = (MultiBucketsAggregation) response.getAggregations().asList().get(0);
         aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse);
         fc = toGeoJson(aggregationResponse);
         return fc;
     }
 
-    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse) throws IOException{
+    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse) throws IOException {
         FeatureCollection fc = new FeatureCollection();
         List<AggregationResponse> elements = aggregationResponse.elements;
-        if (elements != null && elements.size()>0){
-            for (AggregationResponse element : elements){
+        if (elements != null && elements.size() > 0) {
+            for (AggregationResponse element : elements) {
                 Feature feature = new Feature();
-                Map<String,Object> properties = new HashMap<>();
+                Map<String, Object> properties = new HashMap<>();
                 properties.put("count", element.count);
                 properties.put("geohash", element.keyAsString);
                 properties.put("elements", element.elements);
                 feature.setProperties(properties);
                 GeoJsonObject g;
-                if(element.BBOX != null) {
+                if (element.BBOX != null) {
                     g = element.BBOX;
-                } else if(element.centroid != null) {
+                } else if (element.centroid != null) {
                     g = element.centroid;
                 } else {
-                    GeoPoint geoPoint = (GeoPoint)element.key;
-                    g = new Point(geoPoint.getLon(),geoPoint.getLat());
+                    GeoPoint geoPoint = (GeoPoint) element.key;
+                    g = new Point(geoPoint.getLon(), geoPoint.getLat());
                 }
                 feature.setGeometry(g);
                 fc.add(feature);

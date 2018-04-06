@@ -47,13 +47,16 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
+import java.util.Stack;
 
 @Provider
 @Produces(ATOM.APPLICATION_ATOM_XML)
 public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
 
-    public  static final SimpleDateFormat dateFormater =
+    public static final SimpleDateFormat dateFormater =
             new SimpleDateFormat("yyyy-MM.dd'T'hh:mm:ssZ");
 
     private ExploreServices exploration;
@@ -82,18 +85,18 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
             writer.writeStartDocument();
 
 
-            writer.setPrefix(ATOM.XML_PREFIX,ATOM.XML_NS);
+            writer.setPrefix(ATOM.XML_PREFIX, ATOM.XML_NS);
             writer.writeStartElement(ATOM.XML_NS, "feed");
-            writer.writeNamespace(ATOM.XML_PREFIX,ATOM.XML_NS);
-            writer.writeNamespace(OPENSEARCH.XML_PREFIX,OPENSEARCH.XML_NS);
-            writer.writeNamespace(GEORSS.XML_PREFIX,GEORSS.XML_NS);
-            writer.writeNamespace(GML.XML_PREFIX,GML.XML_NS);
+            writer.writeNamespace(ATOM.XML_PREFIX, ATOM.XML_NS);
+            writer.writeNamespace(OPENSEARCH.XML_PREFIX, OPENSEARCH.XML_NS);
+            writer.writeNamespace(GEORSS.XML_PREFIX, GEORSS.XML_NS);
+            writer.writeNamespace(GML.XML_PREFIX, GML.XML_NS);
 
-            writeElement(writer, ATOM.XML_NS,"id", hits.collection);
-            writeElement(writer, ATOM.XML_NS,"title", hits.collection);
-            writeElement(writer, ATOM.XML_NS,"updated", dateFormater.format(new Date()));
+            writeElement(writer, ATOM.XML_NS, "id", hits.collection);
+            writeElement(writer, ATOM.XML_NS, "title", hits.collection);
+            writeElement(writer, ATOM.XML_NS, "updated", dateFormater.format(new Date()));
 
-            writeElement(writer, OPENSEARCH.XML_NS,"totalResults", ""+hits.totalnb);
+            writeElement(writer, OPENSEARCH.XML_NS, "totalResults", "" + hits.totalnb);
 
             CollectionReference cr = null;
             try {
@@ -132,18 +135,18 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
                 writeElement(writer, ATOM.XML_NS, "subtitle", feed.subtitle);
             }
             if (hits != null) {
-                for(Hit hit : hits.hits){
+                for (Hit hit : hits.hits) {
                     writer.writeStartElement(ATOM.XML_NS, "entry");
                     writeElement(writer, ATOM.XML_NS, "id", hit.md.id);
                     writeElement(writer, ATOM.XML_NS, "title", hit.md.id);
                     writeElement(writer, ATOM.XML_NS, "update", dateFormater.format(new Date(hit.md.timestamp)));
                     writer.writeStartElement(ATOM.XML_NS, "content");
-                    writeFields(writer, fields.properties, ATOM.XML_NS, new Stack<>(),hit.data);
+                    writeFields(writer, fields.properties, ATOM.XML_NS, new Stack<>(), hit.data);
                     writer.writeEndElement();
                     writer.writeStartElement(GEORSS.XML_NS, "where");
-                    if(hit.md.geometry!=null){
+                    if (hit.md.geometry != null) {
                         GeoFormat.geojson2gml(hit.md.geometry, writer, hit.md.id);
-                    }else{
+                    } else {
                         GeoFormat.geojson2gml(hit.md.centroid, writer, hit.md.id);
                     }
                     writer.writeEndElement();
@@ -158,25 +161,27 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
         }
     }
 
-    private void writeFields(XMLStreamWriter writer, Map<String,CollectionReferenceDescriptionProperty> properties, String xmlNamespace, Stack<String> namespace, Object data) throws XMLStreamException {
-        if(properties==null || data==null) {return;}
-        for(String key :properties.keySet()){
+    private void writeFields(XMLStreamWriter writer, Map<String, CollectionReferenceDescriptionProperty> properties, String xmlNamespace, Stack<String> namespace, Object data) throws XMLStreamException {
+        if (properties == null || data == null) {
+            return;
+        }
+        for (String key : properties.keySet()) {
             CollectionReferenceDescriptionProperty property = properties.get(key);
             namespace.push(key);
-            if(property.type== ElasticType.OBJECT){
+            if (property.type == ElasticType.OBJECT) {
                 writer.writeStartElement(xmlNamespace, key);
-                writeFields(writer, property.properties,xmlNamespace, namespace, data);
+                writeFields(writer, property.properties, xmlNamespace, namespace, data);
                 writer.writeEndElement();
-            }else{
-                String fieldPath = String.join(".",new ArrayList<>(namespace));
-                writeElement(writer, xmlNamespace,  key, toString(MapExplorer.getObjectFromPath(fieldPath, data)));
+            } else {
+                String fieldPath = String.join(".", new ArrayList<>(namespace));
+                writeElement(writer, xmlNamespace, key, toString(MapExplorer.getObjectFromPath(fieldPath, data)));
             }
             namespace.pop();
         }
     }
 
-    private String toString(Object o){
-        if(o==null) return null;
+    private String toString(Object o) {
+        if (o == null) return null;
         return o.toString();
     }
 

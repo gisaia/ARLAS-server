@@ -19,25 +19,25 @@
 
 package io.arlas.server.rest.explore;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
-
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+
 public class CountServiceIT extends AbstractFilteredTest {
-    
+
     @Override
     public String getUrlPath(String collection) {
-        return arlasPath + "explore/"+collection+"/_count";
-    }    
-    
+        return arlasPath + "explore/" + collection + "/_count";
+    }
+
     @Override
     protected void handleNotMatchingRequest(ValidatableResponse then) {
-        handleMatchingFilter(then,0);        
+        handleMatchingFilter(then, 0);
     }
-    
+
     //----------------------------------------------------------------
     //----------------------- FILTER PART ----------------------------
     //----------------------------------------------------------------
@@ -45,7 +45,7 @@ public class CountServiceIT extends AbstractFilteredTest {
         then.statusCode(200)
                 .body("totalnb", equalTo(nbResults));
     }
-    
+
     @Override
     protected RequestSpecification givenFilterableRequestParams() {
         return given();
@@ -55,34 +55,34 @@ public class CountServiceIT extends AbstractFilteredTest {
     protected RequestSpecification givenFilterableRequestBody() {
         return given().contentType("application/json;charset=utf-8");
     }
-    
+
     @Override
     public void handleComplexFilter(ValidatableResponse then) throws Exception {
-        handleMatchingFilter(then,1);
+        handleMatchingFilter(then, 1);
     }
 
     @Override
     protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
-        handleMatchingFilter(then,nbResults);
+        handleMatchingFilter(then, nbResults);
     }
-    
+
     @Override
     protected void handleMatchingQueryFilter(ValidatableResponse then, int nbResults) throws Exception {
-        handleMatchingFilter(then,nbResults);
+        handleMatchingFilter(then, nbResults);
     }
 
     @Override
     protected void handleMatchingTimestampRangeFilter(ValidatableResponse then, int start, int end, int size) throws Exception {
-        handleMatchingFilter(then,size);
+        handleMatchingFilter(then, size);
     }
 
     @Override
     protected void handleMatchingStringRangeFilter(ValidatableResponse then, String start, String end, int size) throws Exception {
-        handleMatchingFilter(then,size);
+        handleMatchingFilter(then, size);
     }
 
     @Override
     protected void handleMatchingGeometryFilter(ValidatableResponse then, int nbResults, Matcher<?> centroidMatcher) throws Exception {
-        handleMatchingFilter(then,nbResults);
+        handleMatchingFilter(then, nbResults);
     }
 }

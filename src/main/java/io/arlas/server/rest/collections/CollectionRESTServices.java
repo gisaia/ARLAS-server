@@ -19,17 +19,12 @@
 
 package io.arlas.server.rest.collections;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
-
+import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.Contact;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.License;
-import io.swagger.annotations.SwaggerDefinition;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
 
 @Path("/collections")
 @Api(value = "/collections")

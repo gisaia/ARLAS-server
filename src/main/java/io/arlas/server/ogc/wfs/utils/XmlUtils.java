@@ -26,7 +26,6 @@ import io.arlas.server.utils.MapExplorer;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Pattern;
@@ -69,7 +68,7 @@ public class XmlUtils {
                     parsePropertiesXml(property.properties, writer, namespace, uri, source, prefix, excludeFields);
                 } else {
                     Object valueObject = MapExplorer.getObjectFromPath(String.join(".", new ArrayList<>(namespace)), source);
-                    if(valueObject!=null && property.type!= ElasticType.GEO_POINT&& property.type!= ElasticType.GEO_SHAPE){
+                    if (valueObject != null && property.type != ElasticType.GEO_POINT && property.type != ElasticType.GEO_SHAPE) {
                         String value = valueObject.toString();
                         writeElement(writer, String.join(".", new ArrayList<>(namespace)), value, uri, prefix);
                     }

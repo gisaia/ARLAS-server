@@ -19,15 +19,14 @@
 
 package io.arlas.server.model.response;
 
-import java.util.Map;
-
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.GeoTypeMapper;
+import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.TimestampTypeMapper;
-
 import io.dropwizard.jackson.JsonSnakeCase;
+
+import java.util.Map;
 
 @JsonSnakeCase
 public class Hit {
@@ -36,9 +35,10 @@ public class Hit {
 
     public Object data;
 
-    public Hit() {}
-    
-    public Hit(CollectionReference collectionReference, Map<String,Object> source) throws ArlasException {
+    public Hit() {
+    }
+
+    public Hit(CollectionReference collectionReference, Map<String, Object> source) throws ArlasException {
         data = source;
         md = new MD();
         if (collectionReference.params.idPath != null) {
@@ -46,13 +46,13 @@ public class Hit {
         }
         if (collectionReference.params.centroidPath != null) {
             Object m = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
-            if(m != null) {
+            if (m != null) {
                 md.centroid = GeoTypeMapper.getGeoJsonObject(m);
             }
         }
         if (collectionReference.params.geometryPath != null) {
             Object m = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
-            if(m != null) {
+            if (m != null) {
                 md.geometry = GeoTypeMapper.getGeoJsonObject(m);
             }
         }
