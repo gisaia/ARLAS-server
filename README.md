@@ -5,17 +5,11 @@
 ARLAS-server provides a highly simplified **REST API** for exploring data collections available in **ElasticSearch**.
 **Enhanced capabilities** are provided for collections exposing a **geometry**, a **centroid** and a **timestamp**. A **Collection API** is also provided for managing collections.
 
-## API Reference
+## Documentation
 
-Collection API is used to link your Elasticsearch data to ARLAS-server ([documentation](doc/api/API-Collection-definition.md)).
-
-Exploration API provides various ways to explore your data ([documentation](doc/api/API-Explore-definition.md)).
-
-## Exploitation
-
-ARLAS-server provides some usefull exploitation features :
-
-* [Partition-Filter header](doc/api/API-Explore-definition.md#partition-filtering)
+* [Overview](doc/api/API-Explore-definition.md)
+* [Configuration](http://arlas.io/arlas-tech/current/arlas-server-configuration/)
+* [API](http://arlas.io/arlas-tech/current/arlas-api/)
 
 ## Prerequisites :
 
@@ -70,50 +64,6 @@ or
 ```sh
 docker-compose up
 ```
-
-## Configuration
-
-The configuration.yaml aggregate 4 configurations:
-- Swagger
-- The HTTP server and logging
-- ARLAS datasource
-- ARLAS cache
-- ARLAS collection auto discovery
-- ZIPKIN
-
-See the configuration for further details on how to configure ARLAS Server with configuration.yaml and how to run ARLAS Server within a docker container.
-
-## Examples
-
-To add a collection:
-
-```sh
-curl -X PUT --header 'Content-Type: application/json;charset=utf-8' --header 'Accept: application/json' -d '{ \
-   "index_name": "myindex", \
-   "type_name": "mytype", \
-   "id_path": "mydoc.id", \
-   "geometry_path": "mydoc.geometry", \
-   "centroid_path": "mydoc.centroid", \
-   "timestamp_path": "mydoc.timestamp" \
- }' 'http://localhost:9999/arlas/collections/mycollection'
-```
-
-To list the collections:
-```sh
-curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/collections'
-```
-
-To describe a collection:
-```sh
-curl -X GET --header 'Accept: application/json' 'http://localhost:9999/arlas/collections/mycollection'
-```
-
-To remove a collection:
-```sh
-curl -X DELETE --header 'Accept: application/json' 'http://localhost:9999/arlas/collections/mycollection'
-```
-
-You can find more examples about how to use ARLAS-server in [examples/EXAMPLE.md](examples/EXAMPLE.md)
 
 ## Running the tests
 ### Integration tests
@@ -171,7 +121,7 @@ For Elasticsearch compliance, values currently supported are :
 
 - `6` : indicates that this version is compliant with Elasticsearch 6.x
 
-For the versions available, see the [tags](https://gitlab.com/GISAIA.ARLAS/ARLAS-server/tags) on this repository.
+For the versions available, see the [releases](https://github.com/gisaia/ARLAS-server/releases) on this repository.
 
 ## Authors :
 
