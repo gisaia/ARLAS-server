@@ -108,11 +108,11 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         configuration.check();
         LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
 
-        Settings settings;
-        if (Strings.isNullOrEmpty(configuration.elasticcluster)) {
-            settings = Settings.EMPTY;
-        } else {
-            settings = Settings.builder().put("cluster.name", configuration.elasticcluster).build();
+        Settings settings = Settings.builder()
+                .put("client.transport.sniff", true).build();
+        if (!Strings.isNullOrEmpty(configuration.elasticcluster)) {
+            settings = Settings.builder().put("cluster.name", configuration.elasticcluster)
+                    .put("client.transport.sniff", true).build();
         }
 
         Client client = new PreBuiltTransportClient(settings)
