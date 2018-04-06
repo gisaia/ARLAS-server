@@ -73,7 +73,7 @@ function test_rest() {
 function test_wfs() {
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
-    export ARLAS_WFS_SERVER_URI="http://arlas-server:9999/pathtest/arlastest/"
+    export ARLAS_OGC_SERVER_URI="http://arlas-server:9999/pathtest/arlastest/"
     start_stack
     docker run --rm \
         -w /opt/maven \

@@ -69,6 +69,8 @@ docker run -ti -d \
 | ARLAS_SERVICE_EXPLORE_ENABLE    | arlas-service-explore-enabled    | true     | Whether the explore service is enabled or not |
 | ARLAS_SERVICE_WFS_ENABLE    | arlas-service-wfs-enabled    | false     | Whether the WFS service is enabled or not |
 | ARLAS_SERVICE_OPENSEARCH_ENABLE    | arlas-service-opensearch-enabled    | true     | Whether the opensearch service is enabled or not |
+| ARLAS_SERVICE_CSW_ENABLE    | arlas-service-csw-enabled    | true     | Whether the CSW service is enabled or not |
+
 
 ### Datasource
 
@@ -106,20 +108,25 @@ docker run -ti -d \
 | ARLAS_MIN_THREADS | server.minThreads | 8 |
 | ARLAS_MAX_QUEUED_REQUESTS | server.maxQueuedRequests | 1024 |
 
+### OGC
+
+| Environment variable | ARLAS OGC Server configuration variable | Default |
+| --- | --- | --- |
+| ARLAS_OGC_SERVER_URI | arlas-ogc.serverUri | http://localhost:9999/arlas/ |
+| ARLAS_OGC_SERVICE_PROVIDER_NAME | arlas-ogc.serviceProviderName | ARLAS |
+| ARLAS_OGC_SERVICE_PROVIDER_SITE | arlas-ogc.serviceProviderSite | www.gisaia.com |
+| ARLAS_OGC_SERVICE_PROVIDER_ROLE | arlas-ogc.serviceProviderRole | Developer |
+| ARLAS_OGC_SERVICE_CONTACT_NAME | arlas-ogc.serviceContactIndividualName | John Doe |
+| ARLAS_OGC_SERVICE_CONTACT_CITY | arlas-ogc.serviceContactAdressCity | Toulouse |
+| ARLAS_OGC_SERVICE_CONTACT_CODE | arlas-ogc.serviceContactAdressPostalCode | 31000 |
+| ARLAS_OGC_SERVICE_CONTACT_COUNTRY | arlas-ogc.serviceContactAdressCountry | France |
+
 ### WFS
 
 | Environment variable | ARLAS WFS Server configuration variable | Default |
 | --- | --- | --- |
 | ARLAS_WFS_FEATURE_NAMESPACE | arlas-wfs.queryMaxFeature | arlas |
 | ARLAS_WFS_QUERYMAXFEATURE | arlas-wfs.featureNamespace | 1000 |
-| ARLAS_WFS_SERVER_URI | arlas-wfs.serverUri | http://localhost:9999/arlas/ |
-| ARLAS_WFS_SERVICE_PROVIDER_NAME | arlas-wfs.serviceProviderName | ARLAS |
-| ARLAS_WFS_SERVICE_PROVIDER_SITE | arlas-wfs.serviceProviderSite | www.gisaia.com |
-| ARLAS_WFS_SERVICE_PROVIDER_ROLE | arlas-wfs.serviceProviderRole | Developer |
-| ARLAS_WFS_SERVICE_CONTACT_NAME | arlas-wfs.serviceContactIndividualName | John Doe |
-| ARLAS_WFS_SERVICE_CONTACT_CITY | arlas-wfs.serviceContactAdressCity | Toulouse |
-| ARLAS_WFS_SERVICE_CONTACT_CODE | arlas-wfs.serviceContactAdressPostalCode | 31000 |
-| ARLAS_WFS_SERVICE_CONTACT_COUNTRY | arlas-wfs.serviceContactAdressCountry | France |
 
 ### Logging
 

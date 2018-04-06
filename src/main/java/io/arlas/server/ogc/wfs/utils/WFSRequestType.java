@@ -17,36 +17,22 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.ogc.wfs.utils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.arlas.server.exceptions.ArlasConfigurationException;
-import org.elasticsearch.common.Strings;
-import java.util.Arrays;
-import java.util.List;
 
-public class WFSConfiguration {
+public  enum WFSRequestType {
 
-    @JsonProperty("featureNamespace")
-    public String featureNamespace;
-
-    @JsonProperty("replaceChar")
-    public String replaceChar;
-
-    @JsonProperty("queryMaxFeature")
-    public Number queryMaxFeature;
-
-    public String getFeatureNamespace() {
-        return featureNamespace;
-    }
-
-    public Number getQueryMaxFeature()  {
-        return queryMaxFeature;
-    }
-
-    public String getReplaceChar() {
-        return replaceChar;
-    }
-
+        GetCapabilities,
+        DescribeFeatureType,
+        GetFeature,
+        Transaction,
+        GetFeatureWithLock,
+        GetGmlObject,
+        LockFeature,
+        GetPropertyValue,
+        CreateStoredQuery,
+        DropStoredQuery,
+        ListStoredQueries,
+        DescribeStoredQueries;
 
 }

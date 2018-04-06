@@ -15,6 +15,8 @@ arlas-service-collections-enabled: ${ARLAS_SERVICE_COLLECTIONS_ENABLE:-true}
 arlas-service-explore-enabled: ${ARLAS_SERVICE_EXPLORE_ENABLE:-true}
 arlas-service-opensearch-enabled: ${ARLAS_SERVICE_OPENSEARCH_ENABLE:-true}
 arlas-service-wfs-enabled: ${ARLAS_SERVICE_WFS_ENABLE:-false}
+arlas-service-csw-enabled: ${ARLAS_SERVICE_CSW_ENABLE:-true}
+
 ########################################################
 ############ HTTP SERVER                 ###############
 ########################################################
@@ -100,11 +102,14 @@ arlas-wfs:
   featureNamespace: ${ARLAS_WFS_FEATURE_NAMESPACE:-arlas}
   replaceChar: ${ARLAS_WFS_REPLACE_CHAR:-_}
   queryMaxFeature: ${ARLAS_WFS_QUERY_MAX_FEATURE:-1000}
-  serverUri: ${ARLAS_WFS_SERVER_URI:-http://arlas-server:9999/arlas/}
-  serviceProviderName: ${ARLAS_WFS_SERVICE_PROVIDER_NAME:-ARLAS}
-  serviceProviderSite: ${ARLAS_WFS_SERVICE_PROVIDER_SITE:-www.gisaia.com}
-  serviceProviderRole: ${ARLAS_WFS_SERVICE_PROVIDER_ROLE:-Developer}
-  serviceContactIndividualName: ${ARLAS_WFS_SERVICE_CONTACT_NAME:-John Doe}
-  serviceContactAdressCity: ${ARLAS_WFS_SERVICE_CONTACT_CITY:-Toulouse}
-  serviceContactAdressPostalCode: ${ARLAS_WFS_SERVICE_CONTACT_CODE:-31000}
-  serviceContactAdressCountry: ${ARLAS_WFS_SERVICE_CONTACT_COUNTRY:-France}
+
+
+arlas-ogc:
+  serverUri: ${ARLAS_OGC_SERVER_URI:-http://arlas-server:9999/arlas/}
+  serviceProviderName: ${ARLAS_OGC_SERVICE_PROVIDER_NAME:-ARLAS}
+  serviceProviderSite: ${ARLAS_OGC_SERVICE_PROVIDER_SITE:-www.gisaia.com}
+  serviceProviderRole: ${ARLAS_OGC_SERVICE_PROVIDER_ROLE:-Developer}
+  serviceContactIndividualName: ${ARLAS_OGC_SERVICE_CONTACT_NAME:-John Doe}
+  serviceContactAdressCity: ${ARLAS_OGC_SERVICE_CONTACT_CITY:-Toulouse}
+  serviceContactAdressPostalCode: ${ARLAS_OGC_SERVICE_CONTACT_CODE:-31000}
+  serviceContactAdressCountry: ${ARLAS_OGC_SERVICE_CONTACT_COUNTRY:-France}

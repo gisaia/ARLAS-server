@@ -17,36 +17,14 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.ogc.common.utils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.arlas.server.exceptions.ArlasConfigurationException;
-import org.elasticsearch.common.Strings;
-import java.util.Arrays;
-import java.util.List;
+public class CSWConstant {
 
-public class WFSConfiguration {
+    public static final String CSW = "CSW";
+    public static final String SUPPORTED_CSW_VERSION = "3.0.0";
+    public static final String[] SUPPORTED_CSW_REQUESTYPE = {"GetCapabilities","GetRecords","GetRecordById"};
 
-    @JsonProperty("featureNamespace")
-    public String featureNamespace;
-
-    @JsonProperty("replaceChar")
-    public String replaceChar;
-
-    @JsonProperty("queryMaxFeature")
-    public Number queryMaxFeature;
-
-    public String getFeatureNamespace() {
-        return featureNamespace;
-    }
-
-    public Number getQueryMaxFeature()  {
-        return queryMaxFeature;
-    }
-
-    public String getReplaceChar() {
-        return replaceChar;
-    }
 
 
 }

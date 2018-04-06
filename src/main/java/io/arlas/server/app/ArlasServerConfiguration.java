@@ -31,6 +31,9 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("arlas-wfs")
     public WFSConfiguration wfsConfiguration;
 
+    @JsonProperty("arlas-ogc")
+    public OGCConfiguration ogcConfiguration;
+
     @JsonProperty("zipkin")
     public ZipkinFactory zipkinConfiguration;
 
@@ -73,6 +76,8 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("arlas-service-opensearch-enabled")
     public Boolean arlasServiceOPENSEARCHEnabled;
 
+    @JsonProperty("arlas-service-csw-enabled")
+    public Boolean arlasServiceCSWEnabled;
 
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
@@ -110,6 +115,9 @@ public class ArlasServerConfiguration extends Configuration {
         }
         if(arlasServiceOPENSEARCHEnabled==null){
             arlasServiceOPENSEARCHEnabled=true;
+        }
+        if(arlasServiceCSWEnabled==null){
+            arlasServiceCSWEnabled=false;
         }
         if(collectionAutoDiscoverConfiguration == null) {
             collectionAutoDiscoverConfiguration = new CollectionAutoDiscoverConfiguration();
