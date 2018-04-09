@@ -23,6 +23,7 @@ package io.arlas.server.ogc.wfs.utils;
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.Version;
 import io.arlas.server.ogc.common.utils.VersionUtils;
 import io.arlas.server.utils.MapExplorer;
@@ -54,23 +55,23 @@ public class WFSCheckParam {
     public static void checkQuerySyntax(String service, String bbox, String resourceid, String filter, WFSRequestType requestType, Version requestVersion) throws OGCException {
 
         if (bbox != null && resourceid != null) {
-            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "BBOX and RESOURCEID can't be used together", "bbox,resourceid");
+            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "BBOX and RESOURCEID can't be used together", "bbox,resourceid", Service.WFS);
         } else if (bbox != null && filter != null) {
-            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "BBOX and FILTER can't be used together", "bbox,filter");
+            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "BBOX and FILTER can't be used together", "bbox,filter", Service.WFS);
         } else if (resourceid != null && filter != null) {
-            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "RESOURCEID and FILTER can't be used together", "bbox,filter");
+            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "RESOURCEID and FILTER can't be used together", "bbox,filter", Service.WFS);
         }
 
         if (requestType != WFSRequestType.GetCapabilities) {
             if (requestVersion == null) {
                 String msg = "Missing version parameter.";
-                throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, msg, "version");
+                throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, msg, "version", Service.WFS);
             }
-            VersionUtils.checkVersion(requestVersion, WFSConstant.SUPPORTED_WFS_VERSION);
+            VersionUtils.checkVersion(requestVersion, WFSConstant.SUPPORTED_WFS_VERSION, Service.WFS);
         } else {
             if (service == null || !service.equals("WFS")) {
                 String msg = "Missing service parameter.";
-                throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, msg, "service");
+                throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, msg, "service", Service.WFS);
             }
         }
     }
@@ -78,7 +79,7 @@ public class WFSCheckParam {
     public static void checkTypeNames(String collectionName, String typenames) throws OGCException {
         if (typenames != null) {
             if (!typenames.contains(collectionName)) {
-                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "FeatureType " + typenames + " not exist", "typenames");
+                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "FeatureType " + typenames + " not exist", "typenames", Service.WFS);
             }
         }
     }
@@ -93,17 +94,17 @@ public class WFSCheckParam {
             isCrsUnSupported = false;
         }
         if (isCrsUnSupported) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid CRS :" + srsname, "srsname");
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid CRS :" + srsname, "srsname", Service.WFS);
         }
     }
 
     public static String formatValueReference(String valuereference, CollectionReferenceDescription collectionReferenceDescription) throws OGCException {
         if (valuereference == null || valuereference.equals("")) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid valuereference value", "valuereference");
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid valuereference value", "valuereference", Service.WFS);
         } else if (valuereference.equals("@gml:id")) {
             valuereference = collectionReferenceDescription.params.idPath;
         } else if (!WFSCheckParam.isFieldInMapping(collectionReferenceDescription, valuereference)) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid valuereference value, " + valuereference + " is not in queryable", "valuereference");
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid valuereference value, " + valuereference + " is not in queryable", "valuereference", Service.WFS);
         }
         return valuereference;
     }

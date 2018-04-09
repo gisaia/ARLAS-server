@@ -26,6 +26,7 @@ import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -118,7 +119,7 @@ public class WFSQueryBuilder {
     private void buildBboxQuery() throws OGCException {
         double[] tlbr = toDoubles(bbox);
         if (!(isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "bbox");
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "bbox",Service.WFS);
         }
         wfsQuery.filter(getBBoxBoolQueryBuilder(bbox, collectionReferenceDescription.params.centroidPath));
     }
@@ -137,7 +138,7 @@ public class WFSQueryBuilder {
 
     private void buildStoredQueryIdQuery() throws OGCException {
         if (!storedquery_id.equals(WFSConstant.GET_FEATURE_BY_ID_NAME)) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "StoredQuery " + storedquery_id + " not found", "storedquery_id");
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "StoredQuery " + storedquery_id + " not found", "storedquery_id", Service.WFS);
         }
         if (requestType.equals(WFSRequestType.GetFeature)) {
             wfsQuery.filter(QueryBuilders.matchQuery(collectionReferenceDescription.params.idPath, id));
@@ -171,7 +172,7 @@ public class WFSQueryBuilder {
         try {
             return Arrays.stream(bbox.split(",")).limit(4).mapToDouble(Double::parseDouble).toArray();
         } catch (Exception e) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "BBOX");
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "BBOX",Service.WFS);
         }
     }
 }

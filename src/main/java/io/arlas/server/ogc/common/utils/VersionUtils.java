@@ -21,34 +21,34 @@ package io.arlas.server.ogc.common.utils;
 
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
+import io.arlas.server.ogc.common.model.Service;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class VersionUtils {
 
-    public static Version checkVersion(Version requestedVersion, String supportedVersion) {
+    public static Version checkVersion(Version requestedVersion, String supportedVersion, Service service) {
         Version version = requestedVersion;
         SortedSet<Version> offeredVersions = new TreeSet<Version>();
         try {
-            offeredVersions.add(getVersion(supportedVersion));
+            offeredVersions.add(getVersion(supportedVersion, service));
         } catch (OGCException e) {
-            new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "INVALID VERSION", "version");
+            new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "INVALID VERSION", "version", service);
         }
         if (!offeredVersions.contains(version)) {
-            new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "INVALID VERSION", "version");
+            new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "INVALID VERSION", "version", service);
         }
         return version;
     }
 
-    public static Version getVersion(String versionString) throws OGCException {
+    public static Version getVersion(String versionString, Service service) throws OGCException {
         Version version = null;
         if (versionString != null && !"".equals(versionString)) {
             try {
-                version = Version.parseVersion(versionString);
-
+                version = Version.parseVersion(versionString, service);
             } catch (OGCException e) {
-                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, e.getMessage(), "version");
+                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, e.getMessage(), "version", service);
             }
         }
         return version;

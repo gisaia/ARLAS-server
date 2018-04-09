@@ -19,10 +19,12 @@
 
 package io.arlas.server.ogc.wfs.operation.storedquery;
 
-import io.arlas.server.exceptions.OGCException;
-import io.arlas.server.exceptions.OGCExceptionCode;
+
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import net.opengis.wfs._2.*;
+import io.arlas.server.exceptions.OGCException;
+import io.arlas.server.exceptions.OGCExceptionCode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -50,7 +52,7 @@ public class StoredQueryManager {
     public StoredQuery getStoredQuery(String id) throws OGCException {
         if (DEFAULT_QUERY.getId().equals(id))
             return DEFAULT_QUERY;
-        throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "A stored query with identifier '" + id + "' is not offered by this server.", "storedquery_id");
+        throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "A stored query with identifier '" + id + "' is not offered by this server.", "storedquery_id", Service.WFS);
     }
 
     private StoredQuery createDefaultStoredQuery() throws ParserConfigurationException {

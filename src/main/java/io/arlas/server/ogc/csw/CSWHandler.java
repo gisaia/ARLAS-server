@@ -21,18 +21,23 @@ package io.arlas.server.ogc.csw;
 
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
+import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
 import net.opengis.cat.csw._3.ObjectFactory;
 
 public class CSWHandler {
 
     public GetCapabilitiesHandler getCapabilitiesHandler;
+    public GetRecordsHandler getRecordsHandler;
+
     public OGCConfiguration ogcConfiguration;
 
     public ObjectFactory cswFactory = new ObjectFactory();
     public net.opengis.ows._2.ObjectFactory owsFactory = new net.opengis.ows._2.ObjectFactory();
+    public org.purl.dc.elements._1.ObjectFactory dcElementFactory = new org.purl.dc.elements._1.ObjectFactory();
 
     public CSWHandler(OGCConfiguration ogcConfiguration) {
         this.ogcConfiguration = ogcConfiguration;
         getCapabilitiesHandler = new GetCapabilitiesHandler(this);
+        getRecordsHandler = new GetRecordsHandler(this);
     }
 }

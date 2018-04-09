@@ -30,6 +30,8 @@ public class OGCExceptionCode {
     public static final OGCExceptionCode MISSING_PARAMETER_VALUE = new OGCExceptionCode("MissingParameterValue", HttpServletResponse.SC_BAD_REQUEST);
     public static final OGCExceptionCode INVALID_PARAMETER_VALUE = new OGCExceptionCode("InvalidParameterValue", HttpServletResponse.SC_BAD_REQUEST);
     public static final OGCExceptionCode NO_APPLICABLE_CODE = new OGCExceptionCode("NoApplicableCode", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    public static final OGCExceptionCode NO_APPLICABLE_CODE_400 = new OGCExceptionCode("NoApplicableCode", HttpServletResponse.SC_BAD_REQUEST);
+
     // WFS 2.0 exception codes
     public static final OGCExceptionCode OPERATION_PROCESSING_FAILED = new OGCExceptionCode("OperationProcessingFailed", HttpServletResponse.SC_BAD_REQUEST);
     public static final OGCExceptionCode NOT_FOUND = new OGCExceptionCode("NotFound", HttpServletResponse.SC_NOT_FOUND);

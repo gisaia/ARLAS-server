@@ -21,6 +21,7 @@ package io.arlas.server.ogc.common.utils;
 
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
+import io.arlas.server.ogc.common.model.Service;
 
 public class Version implements Comparable<Version> {
 
@@ -38,11 +39,11 @@ public class Version implements Comparable<Version> {
      * @param z minor sub version. Must be between 0 and 99.
      * @throws OGCException if a parameters exceed the allowed range
      */
-    public Version(int x, int y, int z) throws OGCException {
+    public Version(int x, int y, int z, Service service) throws OGCException {
 
         if (x < 0 || y < 0 || z < 0 || y > 99 || z > 99) {
             String msg = x + "." + y + "." + z + " is not a valid OGC/OWS version value.";
-            throw new OGCException(msg);
+            throw new OGCException(msg, service);
         }
 
         this.x = x;
@@ -60,12 +61,13 @@ public class Version implements Comparable<Version> {
      * @return a corresponding <code>Version</code> object
      * @throws OGCException if the string does not contain a parsable <code>Version</code>
      */
-    public static Version parseVersion(String s)
+
+    public static Version parseVersion(String s, Service service)
             throws OGCException {
         String[] parts = s.split("\\.");
         if (parts.length != 3) {
             String msg = "String '" + s + " is not a valid OGC/OWS version value.";
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, msg, "version");
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, msg, "version", service);
         }
 
         int x = -1;
@@ -78,9 +80,9 @@ public class Version implements Comparable<Version> {
             z = Integer.parseInt(parts[2]);
         } catch (NumberFormatException e) {
             String msg = "String '" + s + " is not a valid OGC/OWS version value.";
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, msg, "version");
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, msg, "version", service);
         }
-        return new Version(x, y, z);
+        return new Version(x, y, z, service);
     }
 
     public int compareTo(Version version) {
