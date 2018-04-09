@@ -42,13 +42,20 @@ done
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 cd ${SCRIPT_PATH}/..
 
+# CHECK ALV2 DISCLAIMER
+if [ $(find src -name "*.java" -exec grep -L Licensed {} \; | wc -l) -gt 0 ]; then
+    echo "ALv2 disclaimer is missing in the following files :"
+    find src -name "*.java" -exec grep -L Licensed {} \;
+    exit -1
+fi
+
+if [ -z ${STAGE+x} ]; then usage; else echo "Tests stage : ${STAGE}"; fi
+
 function start_stack() {
     # START ARLAS STACK
     ./scripts/docker-clean.sh
     ./scripts/docker-run.sh
 }
-
-if [ -z ${STAGE+x} ]; then usage; else echo "Tests stage : ${STAGE}"; fi
 
 # TEST
 function test_rest() {
