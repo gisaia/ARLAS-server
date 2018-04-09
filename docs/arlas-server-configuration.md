@@ -75,12 +75,14 @@ docker run -ti -d \
 
 ### Datasource
 
-| Environment variable | ARLAS Server configuration variable | Default | Description |
-| --- | --- | --- | --- |
-| ARLAS_ELASTIC_HOST    | elastic-host    | localhost     | hostname or ip address of the elasticsearch node that is used for storing ARLAS configuration |
-| ARLAS_ELASTIC_PORT    | elastic-port    | 9300          | port of the elasticsearch node that is used for storing ARLAS configuration  |
-| ARLAS_ELASTIC_CLUSTER | elastic-cluster | elasticsearch | clustername of the elasticsearch cluster that is used for storing ARLAS configuration |
-| ARLAS_ELASTIC_INDEX   | arlas-index     | .arlas        | name of the index that is used for storing ARLAS configuration |
+| Environment variable   | ARLAS Server configuration variable | Default | Description |
+| --- | --- | --- | ---  |
+| ARLAS_ELASTIC_NODES    | elastic-nodes    | localhost:9300 | coma separated list of elasticsearch nodes as host:port values |
+| ARLAS_ELASTIC_HOST     | elastic-host     | localhost      | (DEPRECATED) hostname or ip address of the elasticsearch node that is used for storing ARLAS configuration |
+| ARLAS_ELASTIC_PORT     | elastic-port     | 9300           | (DEPRECATED) port of the elasticsearch node that is used for storing ARLAS configuration  |
+| ARLAS_ELASTIC_SNIFFING | elastic-sniffing | false          | allow elasticsearch to dynamically add new hosts and remove old ones |
+| ARLAS_ELASTIC_CLUSTER  | elastic-cluster  | elasticsearch  | clustername of the elasticsearch cluster that is used for storing ARLAS configuration |
+| ARLAS_ELASTIC_INDEX    | arlas-index      | .arlas         | name of the index that is used for storing ARLAS configuration |
 
 ### Collection Cache & Disovery
 

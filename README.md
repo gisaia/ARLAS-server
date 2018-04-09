@@ -85,7 +85,7 @@ Have a look to the official [elasticsearch image documentation](https://www.elas
 
 ```sh
 export ARLAS_HOST="localhost"; export ARLAS_PORT="9999"; export ARLAS_PREFIX="/arlas/";
-export ARLAS_ELASTIC_HOST="localhost"; export ARLAS_ELASTIC_PORT=9300;
+export ARLAS_ELASTIC_NODES="localhost:9300";
 mvn clean install -DskipTests=false
 ```
 

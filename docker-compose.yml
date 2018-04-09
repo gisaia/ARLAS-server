@@ -22,7 +22,7 @@ services:
     container_name: arlas-server
     environment:
       - "ARLAS_ELASTIC_CLUSTER=docker-cluster"
-      - "ARLAS_ELASTIC_HOST=elasticsearch"
+      - "ARLAS_ELASTIC_NODES=elasticsearch:9300"
       - "ARLAS_SERVICE_WFS_ENABLE=true"
       - "ARLAS_PREFIX=${ARLAS_PREFIX:-/arlas}"
       - "ARLAS_APP_PATH=${ARLAS_APP_PATH:-/}"

@@ -59,6 +59,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
@@ -111,16 +112,21 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         configuration.check();
         LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
 
-        Settings settings = Settings.builder()
-                .put("client.transport.sniff", true).build();
-        if (!Strings.isNullOrEmpty(configuration.elasticcluster)) {
-            settings = Settings.builder().put("cluster.name", configuration.elasticcluster)
-                    .put("client.transport.sniff", true).build();
+        Settings.Builder settingsBuilder = Settings.builder();
+        if(configuration.elasticsniffing) {
+            settingsBuilder.put("client.transport.sniff", true);
         }
+        if(!Strings.isNullOrEmpty(configuration.elasticcluster)) {
+            settingsBuilder.put("cluster.name", configuration.elasticcluster);
+        }
+        Settings settings = settingsBuilder.build();
 
-        Client client = new PreBuiltTransportClient(settings)
-                .addTransportAddress(new TransportAddress(InetAddress.getByName(configuration.elastichost),
-                        configuration.elasticport));
+        PreBuiltTransportClient transportClient = new PreBuiltTransportClient(settings);
+        for(Pair<String,Integer> node : configuration.getElasticNodes()) {
+            transportClient.addTransportAddress(new TransportAddress(InetAddress.getByName(node.getLeft()),
+                    node.getRight()));
+        }
+        Client client = transportClient;
 
         if (configuration.zipkinConfiguration != null) {
             Optional<Brave> brave = configuration.zipkinConfiguration.build(environment);

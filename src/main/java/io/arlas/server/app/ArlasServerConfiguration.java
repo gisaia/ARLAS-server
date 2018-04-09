@@ -24,7 +24,13 @@ import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.exceptions.ArlasConfigurationException;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.common.Strings;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArlasServerConfiguration extends Configuration {
 
@@ -40,11 +46,17 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("swagger")
     public SwaggerBundleConfiguration swaggerBundleConfiguration;
 
+    @JsonProperty("elastic-nodes")
+    public String elasticnodes;
+
     @JsonProperty("elastic-host")
     public String elastichost;
 
     @JsonProperty("elastic-port")
     public Integer elasticport;
+
+    @JsonProperty("elastic-sniffing")
+    public Boolean elasticsniffing;
 
     @JsonProperty("elastic-cluster")
     public String elasticcluster;
@@ -86,8 +98,32 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 
+    public static List<Pair<String,Integer>> getElasticNodes(String esNodes) {
+        List<Pair<String,Integer>> elasticNodes = new ArrayList<>();
+        if(!Strings.isNullOrEmpty(esNodes)) {
+            String[] nodes = esNodes.split(",");
+            for(String node : nodes) {
+                String[] hostAndPort = node.split(":");
+                if(hostAndPort.length == 2 && StringUtils.isNumeric(hostAndPort[1])) {
+                    elasticNodes.add(new ImmutablePair<>(hostAndPort[0], Integer.parseInt(hostAndPort[1])));
+                }
+            }
+        }
+        return elasticNodes;
+    }
+
+    public List<Pair<String,Integer>> getElasticNodes() {
+        List<Pair<String,Integer>> elasticNodes = new ArrayList<>();
+        if(!Strings.isNullOrEmpty(elasticnodes)) {
+            elasticNodes.addAll(getElasticNodes(elasticnodes));
+        } else if(!Strings.isNullOrEmpty(elastichost) && elasticport > 0) {
+            elasticNodes.add(new ImmutablePair<>(elastichost, elasticport));
+        }
+        return elasticNodes;
+    }
+
     public void check() throws ArlasConfigurationException {
-        if (Strings.isNullOrEmpty(elastichost) || elasticport < 1) {
+        if (getElasticNodes().isEmpty()) {
             throw new ArlasConfigurationException("Elastic search configuration missing in config file.");
         }
         if (zipkinConfiguration == null) {
