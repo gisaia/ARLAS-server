@@ -17,7 +17,7 @@ services:
   arlas-server:
     build:
       context: .
-      dockerfile: Dockerfile-package-only
+      dockerfile: ${DOCKERFILE:-Dockerfile-package-only}
     image: arlas-server:${ARLAS_VERSION:-latest}
     container_name: arlas-server
     environment:
