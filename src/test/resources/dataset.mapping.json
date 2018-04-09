@@ -15,6 +15,9 @@
         "age": {
           "type": "integer"
         },
+        "tags": {
+          "type": "keyword"
+        },
         "job": {
           "type": "keyword"
         },

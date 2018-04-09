@@ -49,6 +49,12 @@ public class CollectionReferenceParameters {
     @JsonProperty(value = "exclude_fields", required = false)
     public String excludeFields = null;
 
+    @JsonProperty(value = "update_max_hits", required = false)
+    public int update_max_hits = Integer.MAX_VALUE;
+
+    @JsonProperty(value = "taggable_fields", required = false)
+    public String taggableFields = null;
+
     @JsonProperty(value = "exclude_wfs_fields", required = false)
     public String excludeWfsFields = null;
 
@@ -65,15 +71,5 @@ public class CollectionReferenceParameters {
     public OpenSearch openSearch = null;
 
     public CollectionReferenceParameters() {
-    }
-
-    public CollectionReferenceParameters(String indexName, String typeName, String idPath, String geometryPath,
-                                         String centroidPath, String timestampPath) {
-        this.indexName = indexName;
-        this.typeName = typeName;
-        this.idPath = idPath;
-        this.geometryPath = geometryPath;
-        this.centroidPath = centroidPath;
-        this.timestampPath = timestampPath;
     }
 }

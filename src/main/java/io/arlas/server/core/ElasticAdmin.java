@@ -25,6 +25,7 @@ import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
+import org.apache.logging.log4j.util.Strings;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.client.Client;
@@ -59,16 +60,16 @@ public class ElasticAdmin {
                 .prepareGetMappings(collectionReferenceDescription.params.indexName).setTypes(collectionReferenceDescription.params.typeName).get();
         LinkedHashMap fields = (LinkedHashMap) response.getMappings()
                 .get(collectionReferenceDescription.params.indexName).get(collectionReferenceDescription.params.typeName).sourceAsMap().get("properties");
-        Map<String, CollectionReferenceDescriptionProperty> properties = getFromSource(fields, new Stack<>(), excludeFields);
+        Map<String, CollectionReferenceDescriptionProperty> properties = getFromSource(collectionReference, fields, new Stack<>(), excludeFields);
         collectionReferenceDescription.properties = properties;
         return collectionReferenceDescription;
     }
 
-    private Map<String, CollectionReferenceDescriptionProperty> getFromSource(Map source, Stack<String> namespace, ArrayList<Pattern> excludeFields) {
+    private Map<String, CollectionReferenceDescriptionProperty> getFromSource(CollectionReference collectionReference,Map source, Stack<String> namespace, ArrayList<Pattern> excludeFields) {
         Map<String, CollectionReferenceDescriptionProperty> ret = new HashMap<>();
         for (Object key : source.keySet()) {
             namespace.push(key.toString());
-            String path = String.join(".", new ArrayList<>(namespace));
+            String path = Strings.join(namespace,'.');
             boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
             if (!excludePath) {
                 if (source.get(key) instanceof Map) {
@@ -87,10 +88,12 @@ public class ElasticAdmin {
                         collectionProperty.format = format;
                     }
                     if (property.containsKey("properties") && property.get("properties") instanceof Map) {
-                        collectionProperty.properties = getFromSource((Map) property.get("properties"), namespace, excludeFields);
+                        collectionProperty.properties = getFromSource(collectionReference, (Map) property.get("properties"), namespace, excludeFields);
+                    }
+                    if(collectionReference.params.taggableFields!=null) {
+                        collectionProperty.taggable = Arrays.stream(collectionReference.params.taggableFields.split(",")).anyMatch(taggable -> taggable.equals(path));
                     }
                     ret.put(key.toString(), collectionProperty);
-
                 }
             }
             namespace.pop();

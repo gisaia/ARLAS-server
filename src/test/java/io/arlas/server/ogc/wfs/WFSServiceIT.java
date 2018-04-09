@@ -99,7 +99,7 @@ public class WFSServiceIT extends AbstractTestWithCollection {
 
     public void handleDescribeFeature(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-                .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(6));
+                .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(7));
     }
 
     protected RequestSpecification givenFilterableRequestParams() {

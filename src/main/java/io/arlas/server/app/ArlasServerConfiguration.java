@@ -79,6 +79,10 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("arlas-service-csw-enabled")
     public Boolean arlasServiceCSWEnabled;
 
+    @JsonProperty("arlas-service-tag-enabled")
+    public Boolean arlasServiceTagEnabled;
+
+
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 
@@ -119,7 +123,10 @@ public class ArlasServerConfiguration extends Configuration {
         if (arlasServiceCSWEnabled == null) {
             arlasServiceCSWEnabled = false;
         }
-        if (collectionAutoDiscoverConfiguration == null) {
+        if(arlasServiceTagEnabled==null){
+            arlasServiceTagEnabled=false;
+        }
+        if(collectionAutoDiscoverConfiguration == null) {
             collectionAutoDiscoverConfiguration = new CollectionAutoDiscoverConfiguration();
             collectionAutoDiscoverConfiguration.schedule = 0;
         }

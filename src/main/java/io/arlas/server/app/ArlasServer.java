@@ -46,6 +46,8 @@ import io.arlas.server.rest.explore.raw.RawRESTService;
 import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
+import io.arlas.server.rest.tag.TagRESTService;
+import io.arlas.server.rest.tag.UpdateServices;
 import io.arlas.server.task.CollectionAutoDiscover;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
 import io.dropwizard.Application;
@@ -125,6 +127,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         }
 
         ExploreServices exploration = new ExploreServices(client, configuration);
+        UpdateServices updateServices = new UpdateServices(client, configuration);
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
         environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         environment.jersey().register(MultiPartFeature.class);
@@ -149,31 +152,42 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         } else {
             LOGGER.info("Explore API disabled");
         }
-        if (configuration.arlasServiceCollectionsEnabled) {
+
+        if(configuration.arlasServiceCollectionsEnabled) {
             LOGGER.info("Collection API enabled");
             environment.jersey().register(new ElasticCollectionService(client, configuration));
         } else {
             LOGGER.info("Collection API disabled");
         }
-        if (configuration.arlasServiceWFSEnabled) {
+
+        if(configuration.arlasServiceWFSEnabled){
             LOGGER.info("WFS Service enabled");
             WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration, configuration.ogcConfiguration);
             environment.jersey().register(new WFSService(exploration, wfsHandler));
         } else {
             LOGGER.info("WFS Service disabled");
         }
-        if (configuration.arlasServiceOPENSEARCHEnabled) {
+
+        if(configuration.arlasServiceOPENSEARCHEnabled){
             LOGGER.info("OPENSEARCH Service enabled");
             environment.jersey().register(new OpenSearchDescriptorService(exploration));
         } else {
             LOGGER.info("OPENSEARCH Service disabled");
         }
+
         if (configuration.arlasServiceCSWEnabled) {
             LOGGER.info("CSW Service enabled");
             CSWHandler cswHandler = new CSWHandler(configuration.ogcConfiguration);
             environment.jersey().register(new ElasticCSWService(cswHandler,client,configuration));
         } else {
             LOGGER.info("CSW Service disabled");
+        }
+
+        if(configuration.arlasServiceTagEnabled){
+            LOGGER.info("Tag Service enabled");
+            environment.jersey().register(new TagRESTService(updateServices));
+        }else{
+            LOGGER.info("Tag Service disabled");
         }
         //filters
         environment.jersey().register(PrettyPrintFilter.class);

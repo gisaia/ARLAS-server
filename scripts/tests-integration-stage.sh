@@ -61,6 +61,7 @@ function start_stack() {
 function test_rest() {
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
+    export ARLAS_SERVICE_TAG_ENABLE=true
     start_stack
     docker run --rm \
         -w /opt/maven \
@@ -70,6 +71,7 @@ function test_rest() {
         -e ARLAS_PORT="9999" \
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_SERVICE_TAG_ENABLE=${ARLAS_SERVICE_TAG_ENABLE} \
         -e ARLAS_ELASTIC_HOST="elasticsearch" \
         -e ARLAS_ELASTIC_PORT="9300" \
         --net arlas_default \

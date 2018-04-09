@@ -117,6 +117,8 @@ public class FluidSearch {
         boolQueryBuilder = QueryBuilders.boolQuery();
     }
 
+    protected Client getClient(){return client;}
+
     public BoolQueryBuilder getBoolQueryBuilder() {
         return boolQueryBuilder;
     }
@@ -272,7 +274,7 @@ public class FluidSearch {
         }
     }
 
-    public RangeQueryBuilder getRangeQueryBuilder(String field, String value) throws ArlasException {
+    protected RangeQueryBuilder getRangeQueryBuilder(String field, String value) throws ArlasException {
         boolean incMin = value.startsWith("[");
         boolean incMax = value.endsWith("]");
         Object min = value.substring(1, value.lastIndexOf("<"));

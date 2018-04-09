@@ -19,24 +19,26 @@
 
 package io.arlas.server.model.response;
 
+import io.arlas.server.rest.tag.UpdateServices;
 
-import io.dropwizard.jackson.JsonSnakeCase;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.Map;
+public class UpdateResponse {
+    public List<Failure> failures = new ArrayList<>();
+    public long failed = 0;
+    public long updated = 0;
+    public UpdateServices.ACTION action;
 
-@JsonSnakeCase
-public class CollectionReferenceDescriptionProperty {
-
-    public ElasticType type;
-    public String format;
-    public Map<String, CollectionReferenceDescriptionProperty> properties;
-    public boolean taggable=false;
-
-    public CollectionReferenceDescriptionProperty() {
-    }
-
-    @Override
-    public String toString() {
-        return "[type=" + type + ", format=" + format + ", properties=" + properties + "]";
+    public static class Failure{
+        public String id;
+        public String message;
+        public String type;
+        public  Failure(){}
+        public  Failure(String id, String message, String type){
+            this.id = id;
+            this.message = message;
+            this.type = type;
+        }
     }
 }

@@ -1,9 +1,11 @@
 # ARLAS API Overview
 
-The ARLAS Server offers 4 enpoints:
+The ARLAS Server offers 6 enpoints:
 
-- a collection API for [managing collections](arlas-api-collection.md)
-- an exploration API for [exploring](arlas-api-exploration.md), meaning searching and analyzing, spatial-temoral big data
+- a collection API for [managing collections](arlas-api-collection.md) (`http://.../arlas/collections/`)
+- an exploration API for [exploring](arlas-api-exploration.md), meaning searching and analyzing, spatial-temoral big data (`http://.../arlas/explore/`)
+- a [tagging](arlas-api-tagging.md) service (`http://.../arlas/write/{collection}/_tag`)
+- a WFS service (`http://.../arlas/wfs/{collection}?REQUEST=GetCapabilities&VERSION=2.0.0&SERVICE=WFS`)
 - an API for monitoring the server health and performances
 - an endpoints for testing the collection API  and the exploration API with swagger
 
