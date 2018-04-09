@@ -24,6 +24,7 @@ import com.vividsolutions.jts.geom.*;
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.exceptions.OGCExceptionMessage;
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.utils.XmlUtils;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.JTS;
@@ -145,7 +146,7 @@ class FilterToElasticHelper {
                 List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, key + " is not a valid geom field", "filter"));
-                delegate.wfsException = new OGCException(wfsExceptionMessages);
+                delegate.wfsException = new OGCException(wfsExceptionMessages, Service.WFS);
                 throw new RuntimeException();
             }
             e2.accept(delegate, extraData);

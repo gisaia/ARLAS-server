@@ -24,11 +24,14 @@ import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.model.response.Error;
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.CSWConstant;
 import io.arlas.server.ogc.common.utils.RequestUtils;
 import io.arlas.server.ogc.common.utils.Version;
 import io.arlas.server.ogc.common.utils.VersionUtils;
 import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
+import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
+import io.arlas.server.ogc.csw.utils.CSWCheckParam;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
 import io.arlas.server.rest.collections.CollectionRESTServices;
 import io.arlas.server.rest.explore.Documentation;
@@ -37,6 +40,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import net.opengis.cat.csw._3.CapabilitiesType;
+import net.opengis.cat.csw._3.GetRecordsResponseType;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -88,6 +92,18 @@ public class CSWService extends CollectionRESTServices {
                     required = true)
             @QueryParam(value = "service") String service,
             @ApiParam(
+                    name = "elementname",
+                    value = "elementname",
+                    allowMultiple = false,
+                    required = true)
+            @QueryParam(value = "elementname") String elementName,
+            @ApiParam(
+                    name = "elementsetname",
+                    value = "elementsetname",
+                    allowMultiple = false,
+                    required = true)
+            @QueryParam(value = "elementsetname") String elementSetName,
+            @ApiParam(
                     name = "request",
                     value = "request",
                     allowMultiple = false,
@@ -103,9 +119,10 @@ public class CSWService extends CollectionRESTServices {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws OGCException {
 
-        Version requestVersion = VersionUtils.getVersion(version);
-        VersionUtils.checkVersion(requestVersion, CSWConstant.SUPPORTED_CSW_VERSION);
-        RequestUtils.checkRequestTypeByName(request, CSWConstant.SUPPORTED_CSW_REQUESTYPE);
+        Version requestVersion = VersionUtils.getVersion(version, Service.CSW);
+        VersionUtils.checkVersion(requestVersion, CSWConstant.SUPPORTED_CSW_VERSION, Service.CSW);
+        RequestUtils.checkRequestTypeByName(request, CSWConstant.SUPPORTED_CSW_REQUESTYPE, Service.CSW);
+        CSWCheckParam.checkQuerySyntax(elementName, elementSetName);
         CSWRequestType requestType = CSWRequestType.valueOf(request);
 
         switch (requestType) {
@@ -115,11 +132,13 @@ public class CSWService extends CollectionRESTServices {
                 JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse();
                 return Response.ok(getCapabilitiesResponse).type(MediaType.APPLICATION_XML).build();
             case GetRecords:
-                return null;
+                GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
+                JAXBElement<GetRecordsResponseType> getRecordsResponse = getRecordsHandler.getCSWGetRecordsResponse();
+                return Response.ok(getRecordsResponse).type(MediaType.APPLICATION_XML).build();
             case GetRecordById:
-                return null;
+                return Response.ok("").type(MediaType.APPLICATION_XML).build();
             default:
-                throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.");
+                throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.CSW);
         }
     }
 }

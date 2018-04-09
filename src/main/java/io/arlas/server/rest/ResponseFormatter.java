@@ -21,8 +21,8 @@ package io.arlas.server.rest;
 
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.model.response.Error;
+import io.arlas.server.model.response.OGCError;
 import io.arlas.server.model.response.Success;
-import io.arlas.server.model.response.WFSError;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -49,9 +49,9 @@ public class ResponseFormatter {
     }
 
     public static Response getWFSErrorResponse(OGCException e) {
-        WFSError wfsError = new WFSError(e);
+        OGCError ogcError = new OGCError(e);
         Response response = Response.status(e.getExceptionMessages().get(0).getExceptionCode().getHttpStatusCode())
-                .entity(wfsError.exceptionReport)
+                .entity(ogcError.exceptionReport)
                 .type(MediaType.APPLICATION_XML).build();
         return response;
     }

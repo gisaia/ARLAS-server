@@ -17,20 +17,17 @@
  * under the License.
  */
 
-package io.arlas.server.ogc.common.utils;
+package io.arlas.server.ogc.csw.utils;
 
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.ogc.common.model.Service;
 
-import java.util.Arrays;
+public class CSWCheckParam {
 
-public class RequestUtils {
-
-    public static void checkRequestTypeByName(String requestName, String[] requestTypes, Service service) throws OGCException {
-        String msg = "Request type '" + requestName + "' is not supported.";
-        if (Arrays.asList(requestTypes).indexOf(requestName) < 0) {
-            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, msg, "request", service);
+    public static void checkQuerySyntax(String elementName, String elementSetName) throws OGCException {
+        if (elementName != null && elementSetName != null) {
+            throw new OGCException(OGCExceptionCode.NO_APPLICABLE_CODE_400, "elementName and elementSetName can't be used together", "elementName,elementSetName", Service.CSW);
         }
     }
 }

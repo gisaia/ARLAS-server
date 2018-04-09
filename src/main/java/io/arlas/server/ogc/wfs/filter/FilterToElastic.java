@@ -31,6 +31,7 @@ import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.exceptions.OGCExceptionMessage;
 import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
 import io.arlas.server.ogc.wfs.utils.XmlUtils;
 import org.elasticsearch.common.joda.Joda;
@@ -313,7 +314,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
             wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
             wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
-            wfsException = new OGCException(wfsExceptionMessages);
+            wfsException = new OGCException(wfsExceptionMessages, Service.WFS);
             throw new RuntimeException();
         }
 
@@ -544,17 +545,18 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
                 List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
-                wfsException = new OGCException(wfsExceptionMessages);
+                wfsException = new OGCException(wfsExceptionMessages, Service.WFS);
                 throw new RuntimeException();
             }
             left.accept(this, leftContext);
         }
+        
         if (nested) {
             path = extractNestedPath(key);
         }
 
         if (field.equals("")) {
-            wfsException = new OGCException(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter");
+            wfsException = new OGCException(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter", Service.WFS);
             throw new RuntimeException();
         }
 

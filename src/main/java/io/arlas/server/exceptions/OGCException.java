@@ -20,6 +20,7 @@
 package io.arlas.server.exceptions;
 
 
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 
 import java.util.ArrayList;
@@ -31,15 +32,22 @@ public class OGCException extends ArlasException {
     private List<OGCExceptionMessage> exceptionMessages = new ArrayList<>();
     private final String LANGUAGE = "en";
 
+    public Service ogcService;
+
     public OGCException() {
     }
 
-    public OGCException(String message, Throwable cause) {
-        this(OGCExceptionCode.NO_APPLICABLE_CODE, message, cause);
+    public OGCException(Service service) {
+        this.ogcService = service;
     }
 
-    public OGCException(OGCExceptionCode exceptionCode, String exceptionText, String locator, Throwable cause) {
+    public OGCException(String message, Throwable cause, Service service) {
+        this(OGCExceptionCode.NO_APPLICABLE_CODE, message, cause, service);
+    }
+
+    public OGCException(OGCExceptionCode exceptionCode, String exceptionText, String locator, Throwable cause, Service service) {
         super(exceptionText, cause);
+        this.ogcService = service;
         OGCExceptionMessage exceptionMessage = new OGCExceptionMessage(exceptionCode);
         exceptionMessage.addExceptionText(exceptionText);
 
@@ -52,29 +60,32 @@ public class OGCException extends ArlasException {
         exceptionMessages.add(exceptionMessage);
     }
 
-    public OGCException(OGCExceptionCode exceptionCode, String message, Throwable cause) {
-        this(exceptionCode, message, null, cause);
+    public OGCException(OGCExceptionCode exceptionCode, String message, Throwable cause, Service service) {
+        this(exceptionCode, message, null, cause, service);
     }
 
-    public OGCException(String exceptionText) {
+    public OGCException(String exceptionText, Service service) {
         super(exceptionText);
+        this.ogcService = service;
         exceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.NO_APPLICABLE_CODE, exceptionText));
     }
 
-    public OGCException(OGCExceptionCode exceptionCode, String exceptionText, String locator) {
+    public OGCException(OGCExceptionCode exceptionCode, String exceptionText, String locator, Service service) {
         super(exceptionText);
+        this.ogcService = service;
         exceptionMessages.add(new OGCExceptionMessage(exceptionCode, exceptionText, locator));
     }
 
-    public OGCException(OGCExceptionCode exceptionCode, String exceptionText) {
-        this(exceptionCode, exceptionText, "null");
+    public OGCException(OGCExceptionCode exceptionCode, String exceptionText, Service service) {
+        this(exceptionCode, exceptionText, "null", service);
     }
 
     public List<OGCExceptionMessage> getExceptionMessages() {
         return exceptionMessages;
     }
 
-    public OGCException(List<OGCExceptionMessage> exceptionMessages) {
+    public OGCException(List<OGCExceptionMessage> exceptionMessages, Service service) {
+        this.ogcService = service;
         this.exceptionMessages = exceptionMessages;
     }
 
@@ -82,7 +93,8 @@ public class OGCException extends ArlasException {
         return WFSConstant.SUPPORTED_WFS_VERSION;
     }
 
-    public OGCException(OGCExceptionMessage exceptionMessage) {
+    public OGCException(OGCExceptionMessage exceptionMessage, Service service) {
+        this.ogcService = service;
         exceptionMessages.add(exceptionMessage);
     }
 

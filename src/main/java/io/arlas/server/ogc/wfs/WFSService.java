@@ -29,6 +29,7 @@ import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.Error;
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.RequestUtils;
 import io.arlas.server.ogc.common.utils.Version;
 import io.arlas.server.ogc.common.utils.VersionUtils;
@@ -184,8 +185,8 @@ public class WFSService extends ExploreRESTServices {
             @HeaderParam(value = "Partition-Filter") String partitionFilter
     ) throws IOException, ArlasException, ParserConfigurationException, SAXException, ExecutionException, InterruptedException {
 
-        Version requestVersion = VersionUtils.getVersion(version);
-        RequestUtils.checkRequestTypeByName(request, WFSConstant.SUPPORTED_WFS_REQUESTYPE);
+        Version requestVersion = VersionUtils.getVersion(version, Service.WFS);
+        RequestUtils.checkRequestTypeByName(request, WFSConstant.SUPPORTED_WFS_REQUESTYPE, Service.WFS);
         WFSRequestType requestType = WFSRequestType.valueOf(request);
 
         WFSCheckParam.checkQuerySyntax(service, bbox, resourceid, filter, requestType, requestVersion);
@@ -195,7 +196,7 @@ public class WFSService extends ExploreRESTServices {
 
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
         if (collectionReference == null) {
-            throw new OGCException(OGCExceptionCode.NOT_FOUND, "Collection not found " + collection);
+            throw new OGCException(OGCExceptionCode.NOT_FOUND, "Collection not found " + collection, Service.WFS);
         }
         ElasticAdmin elasticAdmin = new ElasticAdmin(exploreServices.getClient());
         // TODO add cache in describeCollection method
@@ -248,7 +249,7 @@ public class WFSService extends ExploreRESTServices {
                     if (hitsGetFeature.getHits().length > 0) {
                         response = hitsGetFeature.getAt(0);
                     } else {
-                        throw new OGCException(OGCExceptionCode.NOT_FOUND, "Data not found", "resourceid");
+                        throw new OGCException(OGCExceptionCode.NOT_FOUND, "Data not found", "resourceid", Service.WFS);
                     }
                     getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureByIdResponse(response, collectionReferenceDescription, serviceUrl);
 
@@ -290,7 +291,7 @@ public class WFSService extends ExploreRESTServices {
                 }
                 return Response.ok(wfsHandler.wfsFactory.createValueCollection(valueCollectionType)).type(MediaType.APPLICATION_XML).build();
             default:
-                throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.");
+                throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.WFS);
         }
     }
 }

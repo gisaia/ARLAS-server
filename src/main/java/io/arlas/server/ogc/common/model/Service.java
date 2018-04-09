@@ -17,20 +17,9 @@
  * under the License.
  */
 
-package io.arlas.server.ogc.common.utils;
 
-import io.arlas.server.exceptions.OGCException;
-import io.arlas.server.exceptions.OGCExceptionCode;
-import io.arlas.server.ogc.common.model.Service;
+package io.arlas.server.ogc.common.model;
 
-import java.util.Arrays;
-
-public class RequestUtils {
-
-    public static void checkRequestTypeByName(String requestName, String[] requestTypes, Service service) throws OGCException {
-        String msg = "Request type '" + requestName + "' is not supported.";
-        if (Arrays.asList(requestTypes).indexOf(requestName) < 0) {
-            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, msg, "request", service);
-        }
-    }
+public enum Service {
+    WFS,CSW
 }
