@@ -29,6 +29,7 @@ import io.arlas.server.exceptions.*;
 import io.arlas.server.health.ElasticsearchHealthCheck;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.CSWService;
+import io.arlas.server.ogc.csw.ElasticCSWService;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.WFSService;
 import io.arlas.server.rest.PrettyPrintFilter;
@@ -170,7 +171,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         if (configuration.arlasServiceCSWEnabled) {
             LOGGER.info("CSW Service enabled");
             CSWHandler cswHandler = new CSWHandler(configuration.ogcConfiguration);
-            environment.jersey().register(new CSWService(cswHandler));
+            environment.jersey().register(new ElasticCSWService(cswHandler,client,configuration));
         } else {
             LOGGER.info("CSW Service disabled");
         }
