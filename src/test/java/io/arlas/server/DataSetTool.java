@@ -21,6 +21,8 @@ package io.arlas.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.arlas.server.app.ArlasServerConfiguration;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.AdminClient;
@@ -81,15 +83,14 @@ public class DataSetTool {
             ObjectMapper mapper = new ObjectMapper();
             jsonSchema = mapper.readValue(DataSetTool.class.getClassLoader().getResourceAsStream("dataset.schema.json"), ObjectNode.class);
             Settings settings = null;
-            String host = Optional.ofNullable(System.getenv("ARLAS_ELASTIC_HOST")).orElse("localhost");
-            Integer port = Integer.valueOf(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_PORT")).orElse("9300"));
-            if ("localhost".equals(host)) {
+            List<Pair<String,Integer>> nodes = ArlasServerConfiguration.getElasticNodes(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_NODES")).orElse("localhost:9300"));
+            if ("localhost".equals(nodes.get(0).getLeft())) {
                 settings = Settings.EMPTY;
             } else {
                 settings = Settings.builder().put("cluster.name", "docker-cluster").build();
             }
             client = new PreBuiltTransportClient(settings)
-                    .addTransportAddress(new TransportAddress(InetAddress.getByName(host), port));
+                    .addTransportAddress(new TransportAddress(InetAddress.getByName(nodes.get(0).getLeft()), nodes.get(0).getRight()));
             adminClient = client.admin();
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
