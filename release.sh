@@ -14,8 +14,15 @@ function clean_exit {
 	echo "=> Exit status = $ARG"
 	rm pom.xml.versionsBackup
 	rm -rf target/tmp || echo "target/tmp already removed"
-	git checkout -- .
 	clean_docker
+	if [ "$SIMULATE" == "NO" ]; then
+        git checkout -- .
+        mvn clean
+    else
+        echo "=> Skip discard changes";
+        git checkout -- pom.xml
+        sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
+    fi
     exit $ARG
 }
 trap clean_exit EXIT
@@ -26,13 +33,15 @@ usage(){
 	echo " -api-major|--api-version       release arlas-server API major version"
 	echo " -api-minor|--api-minor-version release arlas-server API minor version"
 	echo " -api-patch|--api-patch-version release arlas-server API patch version"
-	echo " -rel|--arlas-release        release arlas-server version"
-	echo " -dev|--arlas-dev            development arlas-server version (-SNAPSHOT qualifier will be automatically added)"
+	echo " -rel|--arlas-release           release arlas-server version"
+	echo " -dev|--arlas-dev               development arlas-server version (-SNAPSHOT qualifier will be automatically added)"
 	echo " --no-tests                     do not run integration tests"
+	echo " --simulate                     do not publish artifacts and git push local branches"
 	exit 1
 }
 
 TESTS="YES"
+SIMULATE="NO"
 for i in "$@"
 do
 case $i in
@@ -64,6 +73,10 @@ case $i in
     TESTS="NO"
     shift # past argument with no value
     ;;
+    --simulate)
+    SIMULATE="YES"
+    shift # past argument with no value
+    ;;
     *)
             # unknown option
     ;;
@@ -83,33 +96,47 @@ case $ELASTIC_RANGE in
 esac
 
 
-if [ -z ${ELASTIC_VERSIONS+x} ]; then usage;else echo "Elasticsearch versions support : ${ELASTIC_VERSIONS[*]}"; fi
-if [ -z ${API_MAJOR_VERSION+x} ]; then usage;  else    echo "API MAJOR version        : ${API_MAJOR_VERSION}"; fi
-if [ -z ${API_MINOR_VERSION+x} ]; then usage;  else    echo "API MINOR version        : ${API_MINOR_VERSION}"; fi
-if [ -z ${API_PATCH_VERSION+x} ]; then usage;  else    echo "API PATCH version        : ${API_PATCH_VERSION}"; fi
-if [ -z ${ARLAS_REL+x} ]; then usage;    else    echo "Release version                : ${ARLAS_REL}"; fi
-if [ -z ${ARLAS_DEV+x} ]; then usage;    else    echo "Next development version       : ${ARLAS_DEV}"; fi
-                                                 echo "Running tests                  : ${TESTS}"
+if [ -z ${ELASTIC_VERSIONS+x} ]; then usage;   else echo "Elasticsearch versions support : ${ELASTIC_VERSIONS[*]}"; fi
+if [ -z ${API_MAJOR_VERSION+x} ]; then usage;  else    echo "API MAJOR version           : ${API_MAJOR_VERSION}"; fi
+if [ -z ${API_MINOR_VERSION+x} ]; then usage;  else    echo "API MINOR version           : ${API_MINOR_VERSION}"; fi
+if [ -z ${API_PATCH_VERSION+x} ]; then usage;  else    echo "API PATCH version           : ${API_PATCH_VERSION}"; fi
+if [ -z ${ARLAS_REL+x} ]; then usage;          else    echo "Release version             : ${ARLAS_REL}"; fi
+if [ -z ${ARLAS_DEV+x} ]; then usage;          else    echo "Next development version    : ${ARLAS_DEV}"; fi
+                                                       echo "Running tests               : ${TESTS}"
+                                                       echo "Simulate mode               : ${SIMULATE}"
 
-VERSION="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_REL}"
-DEV="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_DEV}"
+export ARLAS_VERSION="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_REL}"
+ARLAS_DEV_VERSION="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_DEV}"
 FULL_API_VERSION=${API_MAJOR_VERSION}"."${API_MINOR_VERSION}"."${API_PATCH_VERSION}
+echo "Release : ${ARLAS_VERSION}"
+echo "API     : ${FULL_API_VERSION}"
+echo "Dev     : ${ARLAS_DEV_VERSION}"
 
 echo "=> Get develop branch"
-git checkout develop
-git pull origin develop
+if [ "$SIMULATE" == "NO" ]; then
+    git checkout develop
+    git pull origin develop
+else echo "=> Skip develop checkout"; fi
 
 echo "=> Update project version"
-mvn versions:set -DnewVersion=${VERSION}
-
+mvn clean
+mvn versions:set -DnewVersion=${ARLAS_VERSION}
 sed -i.bak 's/\"API_VERSION\"/\"'${FULL_API_VERSION}'\"/' src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
 
-docker build --tag arlas-server:${VERSION} --tag arlas-server:latest --tag gisaia/arlas-server:${VERSION} --tag gisaia/arlas-server:latest .
-docker push gisaia/arlas-server:${VERSION}
-docker push gisaia/arlas-server:latest
+if [ "$SIMULATE" == "NO" ]; then
+    export DOCKERFILE="Dockerfile"
+else
+    echo "=> Build arlas-server"
+    docker run --rm \
+        -w /opt/maven \
+	    -v $PWD:/opt/maven \
+	    -v $HOME/.m2:/root/.m2 \
+	    maven:3.5.0-jdk-8 \
+	    mvn clean install
+fi
 
 echo "=> Start arlas-server stack"
-docker-compose --project-name arlas up -d
+docker-compose --project-name arlas up -d --build
 DOCKER_IP=$(docker-machine ip || echo "localhost")
 
 echo "=> Wait for arlas-server up and running"
@@ -119,7 +146,6 @@ echo "=> Get swagger documentation"
 mkdir -p target/tmp || echo "target/tmp exists"
 i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.json -o target/tmp/swagger.json; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.yaml -o target/tmp/swagger.yaml; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
-
 
 echo "=> Stop arlas-server stack"
 docker-compose --project-name arlas down
@@ -135,6 +161,7 @@ if [ "$TESTS" == "YES" ]; then itests; else echo "=> Skip integration tests"; fi
 
 echo "=> Generate client APIs"
 BASEDIR=$PWD
+ls target/tmp/
 #@see scripts/build-swagger-codegen.sh if you need a fresher version of swagger codegen
 docker run --rm \
 	-v $PWD:/opt/gen \
@@ -156,27 +183,47 @@ cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/target/tmp/typescript-fet
 cd ${BASEDIR}/target/tmp/typescript-fetch/dist
 npm version --no-git-tag-version ${FULL_API_VERSION}
 
-npm publish || echo "Publishing on npm failed ... continue ..."
+if [ "$SIMULATE" == "NO" ]; then
+    npm publish || echo "Publishing on npm failed ... continue ..."
+else echo "=> Skip npm api publish"; fi
+
 cd ${BASEDIR}
 
-echo "=> Commit release version"
-git commit -a -m "release version ${VERSION}"
-git tag v${VERSION}
-git push origin v${VERSION}
-git push origin develop
+if [ "$SIMULATE" == "NO" ]; then
+    echo "=> Build arlas-server docker image"
+    docker tag arlas-server:${ARLAS_VERSION} gisaia/arlas-server:${ARLAS_VERSION}
+    docker tag arlas-server:${ARLAS_VERSION} gisaia/arlas-server:latest .
+    echo "=> Push arlas-server docker image"
+    docker push gisaia/arlas-server:${ARLAS_VERSION}
+    docker push gisaia/arlas-server:latest
+else echo "=> Skip docker push image"; fi
 
-echo "=> Merge develop into master"
-git checkout master
-git pull origin master
-git merge origin/develop
-git push origin master
+if [ "$SIMULATE" == "NO" ]; then
+    echo "=> Commit release version"
+    git commit -a -m "release version ${ARLAS_VERSION}"
+    git tag v${ARLAS_VERSION}
+    git push origin v${ARLAS_VERSION}
+    git push origin develop
+
+    echo "=> Merge develop into master"
+    git checkout master
+    git pull origin master
+    git merge origin/develop
+    git push origin master
+
+    echo "=> Rebase develop"
+    git checkout develop
+    git pull origin develop
+    git rebase origin/master
+else echo "=> Skip git push master"; fi
 
 echo "=> Update project version for develop"
-git checkout develop
-git pull origin develop
-git rebase origin/master
-mvn versions:set -DnewVersion=${DEV}-SNAPSHOT
+mvn versions:set -DnewVersion=${ARLAS_DEV_VERSION}-SNAPSHOT
+
 echo "=> Update REST API version in JAVA source code"
 sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
-git commit -a -m "development version ${DEV}-SNAPSHOT"
-git push origin develop
+
+if [ "$SIMULATE" == "NO" ]; then
+    git commit -a -m "development version ${ARLAS_DEV_VERSION}-SNAPSHOT"
+    git push origin develop
+else echo "=> Skip git push develop"; fi
