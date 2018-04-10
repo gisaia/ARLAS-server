@@ -34,6 +34,8 @@ public class CSWHandler {
     public ObjectFactory cswFactory = new ObjectFactory();
     public net.opengis.ows._2.ObjectFactory owsFactory = new net.opengis.ows._2.ObjectFactory();
     public org.purl.dc.elements._1.ObjectFactory dcElementFactory = new org.purl.dc.elements._1.ObjectFactory();
+    public net.opengis.fes._2.ObjectFactory fesFactory = new net.opengis.fes._2.ObjectFactory();
+
 
     public CSWHandler(OGCConfiguration ogcConfiguration) {
         this.ogcConfiguration = ogcConfiguration;

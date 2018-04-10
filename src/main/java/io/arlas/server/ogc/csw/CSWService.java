@@ -28,14 +28,13 @@ import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.Error;
+import io.arlas.server.ns.ATOM;
 import io.arlas.server.ogc.common.model.Service;
-import io.arlas.server.ogc.common.utils.CSWConstant;
 import io.arlas.server.ogc.common.utils.RequestUtils;
-import io.arlas.server.ogc.common.utils.Version;
-import io.arlas.server.ogc.common.utils.VersionUtils;
 import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
 import io.arlas.server.ogc.csw.utils.CSWCheckParam;
+import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
 import io.arlas.server.rest.collections.CollectionRESTServices;
@@ -46,7 +45,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import net.opengis.cat.csw._3.CapabilitiesType;
 import net.opengis.cat.csw._3.GetRecordsResponseType;
-import org.elasticsearch.client.Client;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -55,6 +53,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,10 +79,11 @@ public class CSWService extends CollectionRESTServices {
     @Timed
     @Path("/csw")
     @GET
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, ATOM.APPLICATION_ATOM_XML})
     @ApiOperation(
             value = "CSW",
-            produces = MediaType.APPLICATION_XML,
+
+            produces = MediaType.APPLICATION_XML + "," + MediaType.TEXT_XML + "," + ATOM.APPLICATION_ATOM_XML,
             notes = "CSW"
     )
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
@@ -95,6 +95,12 @@ public class CSWService extends CollectionRESTServices {
                     allowMultiple = false,
                     required = true)
             @QueryParam(value = "version") String version,
+            @ApiParam(
+                    name = "acceptversions",
+                    value = "acceptversions",
+                    allowMultiple = false,
+                    required = true)
+            @QueryParam(value = "acceptversions") String acceptVersions,
             @ApiParam(
                     name = "service",
                     value = "service",
@@ -137,6 +143,18 @@ public class CSWService extends CollectionRESTServices {
                     allowMultiple = false,
                     required = false)
             @QueryParam(value = "maxrecords") Integer maxRecords,
+            @ApiParam(
+                    name = "sections",
+                    value = "sections",
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "sections") String sections,
+            @ApiParam(
+                    name = "acceptformats",
+                    value = "acceptformats",
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "acceptformats") String acceptFormats,
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -147,10 +165,34 @@ public class CSWService extends CollectionRESTServices {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
 
-        Version requestVersion = VersionUtils.getVersion(version, Service.CSW);
-        VersionUtils.checkVersion(requestVersion, CSWConstant.SUPPORTED_CSW_VERSION, Service.CSW);
+        if (request == null & version == null & service == null) {
+            request = "GetCapabilities";
+            version = CSWConstant.SUPPORTED_CSW_VERSION;
+            service = CSWConstant.CSW;
+        }
+        String[] sectionList;
+        if (sections == null) {
+            sectionList = new String[]{"All"};
+        } else {
+            sectionList = sections.split(",");
+            for (String section : Arrays.asList(sectionList)) {
+                if (!Arrays.asList(CSWConstant.SECTION_NAMES).contains(section)) {
+                    throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid sections", "sections", Service.CSW);
+                }
+            }
+        }
+        String mediaType = MediaType.APPLICATION_XML;
+        if (acceptFormats != null) {
+            if (acceptFormats.equals("text/xml")) {
+                mediaType = MediaType.TEXT_XML;
+            } else if (acceptFormats.equals("application/xml")) {
+                mediaType = MediaType.APPLICATION_XML;
+            } else {
+                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid acceptFormats", "acceptFormats", Service.CSW);
+            }
+        }
         RequestUtils.checkRequestTypeByName(request, CSWConstant.SUPPORTED_CSW_REQUESTYPE, Service.CSW);
-        CSWCheckParam.checkQuerySyntax(elementName, elementSetName);
+        CSWCheckParam.checkQuerySyntax(elementName, elementSetName, acceptVersions, version, service);
         CSWRequestType requestType = CSWRequestType.valueOf(request);
 
         startPosition = Optional.ofNullable(startPosition).orElse(0);
@@ -159,17 +201,16 @@ public class CSWService extends CollectionRESTServices {
         switch (requestType) {
             case GetCapabilities:
                 GetCapabilitiesHandler getCapabilitiesHandler = cswHandler.getCapabilitiesHandler;
-                getCapabilitiesHandler.setOperationsUrl(serverUrl + "collections/csw/?");
-                JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse();
-                return Response.ok(getCapabilitiesResponse).type(MediaType.APPLICATION_XML).build();
+                JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse(Arrays.asList(sectionList), serverUrl + "collections/csw/?");
+                return Response.ok(getCapabilitiesResponse).type(mediaType).build();
             case GetRecords:
                 GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
-                List<CollectionReference> collections = dao.getCollectionReferences(null,null,maxRecords,startPosition);
+                List<CollectionReference> collections = dao.getCollectionReferences(null, null, maxRecords, startPosition);
                 JAXBElement<GetRecordsResponseType> getRecordsResponse = getRecordsHandler.getCSWGetRecordsResponse(collections,
-                        ElementSetName.valueOf(elementSetName),startPosition,maxRecords);
-                return Response.ok(getRecordsResponse).type(MediaType.APPLICATION_XML).build();
+                        ElementSetName.valueOf(elementSetName), startPosition, maxRecords);
+                return Response.ok(getRecordsResponse).type(mediaType).build();
             case GetRecordById:
-                return Response.ok("").type(MediaType.APPLICATION_XML).build();
+                return Response.ok("").type(mediaType).build();
             default:
                 throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.CSW);
         }
