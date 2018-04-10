@@ -19,13 +19,15 @@
 
 package io.arlas.server.ogc.csw.operation.getrecords;
 
+import io.arlas.server.model.CollectionReference;
 import io.arlas.server.ogc.csw.CSWHandler;
-import net.opengis.cat.csw._3.GetRecordsResponseType;
-import net.opengis.cat.csw._3.RecordType;
-import net.opengis.cat.csw._3.SearchResultsType;
+import io.arlas.server.ogc.csw.utils.ElementSetName;
+import net.opengis.cat.csw._3.*;
 import org.purl.dc.elements._1.SimpleLiteral;
 
 import javax.xml.bind.JAXBElement;
+import java.math.BigInteger;
+import java.util.List;
 
 public class GetRecordsHandler {
 
@@ -37,21 +39,76 @@ public class GetRecordsHandler {
 
     }
 
-    public JAXBElement<GetRecordsResponseType> getCSWGetRecordsResponse() {
+    public JAXBElement<GetRecordsResponseType> getCSWGetRecordsResponse(List<CollectionReference> collections,
+                                                                        ElementSetName elementSetName, int startPosition,int maxRecords) {
         GetRecordsResponseType getRecordsResponseType = new GetRecordsResponseType();
-
         SearchResultsType searchResultType = new SearchResultsType();
-        RecordType recordType = new RecordType();
+        switch (elementSetName){
+            case brief:
+                collections.forEach(collectionReference -> {
+                    JAXBElement<BriefRecordType> briefRecordTypeJAXBElement = getBriefResult(collectionReference);
+                    searchResultType.getAbstractRecord().add(briefRecordTypeJAXBElement);
+                    getRecordsResponseType.setSearchResults(searchResultType);
+                });
+                break;
+            case summary:
+                collections.forEach(collectionReference -> {
+                    JAXBElement<SummaryRecordType> summaryRecordTypeJAXBElement = getSummaryResult(collectionReference);
+                    searchResultType.getAbstractRecord().add(summaryRecordTypeJAXBElement);
+                    getRecordsResponseType.setSearchResults(searchResultType);
+                });
+                break;
+            case full:
+                collections.forEach(collectionReference -> {
+                    JAXBElement<RecordType> recordTypeJAXBElement = getFullResult(collectionReference);
+                    searchResultType.getAbstractRecord().add(recordTypeJAXBElement);
+                    getRecordsResponseType.setSearchResults(searchResultType);
+                });
+                break;
+            default:
+                collections.forEach(collectionReference -> {
+                    JAXBElement<SummaryRecordType> summaryRecordTypeJAXBElement = getSummaryResult(collectionReference);
+                    searchResultType.getAbstractRecord().add(summaryRecordTypeJAXBElement);
+                    getRecordsResponseType.setSearchResults(searchResultType);
+                });
+                break;
+        }
 
+        searchResultType.setNextRecord(BigInteger.valueOf(startPosition+maxRecords));
+        searchResultType.setNumberOfRecordsReturned(BigInteger.valueOf(collections.size()));
+        searchResultType.setNumberOfRecordsMatched(BigInteger.valueOf(collections.size()));
 
-        JAXBElement<RecordType> summaryRecord = cswHandler.cswFactory.createRecord(recordType);
-        SimpleLiteral simpleLiteral = new SimpleLiteral();
-        simpleLiteral.getContent().add("C-DIAS");
-        JAXBElement<SimpleLiteral> title= cswHandler.dcElementFactory.createTitle(simpleLiteral);
-        recordType.getDCElement().add(title);
-
-        searchResultType.getAbstractRecord().add(summaryRecord);
-        getRecordsResponseType.setSearchResults(searchResultType);
         return cswHandler.cswFactory.createGetRecordsResponse(getRecordsResponseType);
+    }
+
+    private JAXBElement<BriefRecordType> getBriefResult(CollectionReference collectionReference){
+        BriefRecordType briefRecord = new BriefRecordType();
+        JAXBElement<BriefRecordType> briefRecordType = cswHandler.cswFactory.createBriefRecord(briefRecord);
+        SimpleLiteral simpleLiteral = new SimpleLiteral();
+        simpleLiteral.getContent().add(collectionReference.collectionName);
+        JAXBElement<SimpleLiteral> title= cswHandler.dcElementFactory.createTitle(simpleLiteral);
+        briefRecordType.getValue().getTitle().add(title);
+        return  briefRecordType;
+
+    }
+
+    private JAXBElement<SummaryRecordType> getSummaryResult(CollectionReference collectionReference){
+        SummaryRecordType summaryRecord = new SummaryRecordType();
+        JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
+        SimpleLiteral simpleLiteral = new SimpleLiteral();
+        simpleLiteral.getContent().add(collectionReference.collectionName);
+        JAXBElement<SimpleLiteral> title= cswHandler.dcElementFactory.createTitle(simpleLiteral);
+        summaryRecordType.getValue().getTitle().add(title);
+        return  summaryRecordType;
+    }
+
+    private JAXBElement<RecordType> getFullResult(CollectionReference collectionReference){
+        RecordType record = new RecordType();
+        JAXBElement<RecordType> recordType = cswHandler.cswFactory.createRecord(record);
+        SimpleLiteral simpleLiteral = new SimpleLiteral();
+        simpleLiteral.getContent().add(collectionReference.collectionName);
+        JAXBElement<SimpleLiteral> title= cswHandler.dcElementFactory.createTitle(simpleLiteral);
+        recordType.getValue().getDCElement().add(title);
+        return  recordType;
     }
 }

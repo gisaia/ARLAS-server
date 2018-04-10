@@ -17,24 +17,19 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.ogc.csw;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
+import io.arlas.server.exceptions.ArlasException;
+import org.elasticsearch.client.Client;
 
-public class WFSConfiguration {
+public class ElasticCSWService extends CSWService {
 
-    @JsonProperty("featureNamespace")
-    public String featureNamespace;
-
-    @JsonProperty("replaceChar")
-    public String replaceChar;
-
-    public String getFeatureNamespace() {
-        return featureNamespace;
+    public ElasticCSWService(CSWHandler cswHandler , Client client, ArlasServerConfiguration configuration) throws ArlasException {
+        super(cswHandler,configuration);
+        this.dao = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
+        dao.initCollectionDatabase();
     }
 
-    public String getReplaceChar() {
-        return replaceChar;
-    }
-    
 }

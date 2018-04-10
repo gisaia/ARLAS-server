@@ -32,6 +32,9 @@ public interface CollectionReferenceDao {
 
     public CollectionReference getCollectionReference(String ref) throws ArlasException;
 
+    public List<CollectionReference> getCollectionReferences(String[] includes,String[]
+            excludes,int size, int from ) throws ArlasException;
+
     public List<CollectionReference> getAllCollectionReferences() throws ArlasException;
 
     public CollectionReference putCollectionReference(CollectionReference collectionReference)

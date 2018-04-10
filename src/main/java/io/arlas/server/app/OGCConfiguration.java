@@ -47,6 +47,9 @@ public class OGCConfiguration {
     @JsonProperty("serviceContactAdressCountry")
     public String serviceContactAdressCountry;
 
+    @JsonProperty("queryMaxFeature")
+    public Number queryMaxFeature;
+
     public String getServerUri() {
         return serverUri;
     }
@@ -78,4 +81,9 @@ public class OGCConfiguration {
     public String getServiceContactAdressCountry() {
         return serviceContactAdressCountry;
     }
+
+    public Number getQueryMaxFeature() {
+        return queryMaxFeature;
+    }
+
 }

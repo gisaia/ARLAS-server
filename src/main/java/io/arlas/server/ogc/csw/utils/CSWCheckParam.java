@@ -26,6 +26,17 @@ import io.arlas.server.ogc.common.model.Service;
 public class CSWCheckParam {
 
     public static void checkQuerySyntax(String elementName, String elementSetName) throws OGCException {
+        ElementSetName elementSetNameEnum ;
+        if(elementSetName!=null){
+            try{
+                elementSetNameEnum= ElementSetName.valueOf(elementSetName);
+            }catch (IllegalArgumentException e){
+                String msg = "Invalid elementSetName value, allowed values : " +
+                        ElementSetName.brief.name() + ", " + ElementSetName.summary.name()   + "or " + ElementSetName.full.name();
+                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid", "elementSetName", Service.CSW);
+            }
+        }
+
         if (elementName != null && elementSetName != null) {
             throw new OGCException(OGCExceptionCode.NO_APPLICABLE_CODE_400, "elementName and elementSetName can't be used together", "elementName,elementSetName", Service.CSW);
         }

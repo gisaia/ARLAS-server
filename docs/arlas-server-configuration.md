@@ -120,13 +120,14 @@ docker run -ti -d \
 | ARLAS_OGC_SERVICE_CONTACT_CITY | arlas-ogc.serviceContactAdressCity | Toulouse |
 | ARLAS_OGC_SERVICE_CONTACT_CODE | arlas-ogc.serviceContactAdressPostalCode | 31000 |
 | ARLAS_OGC_SERVICE_CONTACT_COUNTRY | arlas-ogc.serviceContactAdressCountry | France |
+| ARLAS_OGC_QUERYMAXFEATURE | arlas-ogc.featureNamespace | 1000 |
+
 
 ### WFS
 
 | Environment variable | ARLAS WFS Server configuration variable | Default |
 | --- | --- | --- |
 | ARLAS_WFS_FEATURE_NAMESPACE | arlas-wfs.queryMaxFeature | arlas |
-| ARLAS_WFS_QUERYMAXFEATURE | arlas-wfs.featureNamespace | 1000 |
 
 ### Logging
 

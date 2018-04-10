@@ -192,7 +192,7 @@ public class WFSService extends ExploreRESTServices {
         WFSCheckParam.checkQuerySyntax(service, bbox, resourceid, filter, requestType, requestVersion);
 
         startindex = Optional.ofNullable(startindex).orElse(0);
-        count = Optional.ofNullable(count).orElse(wfsConfiguration.queryMaxFeature.intValue());
+        count = Optional.ofNullable(count).orElse(ogcConfiguration.queryMaxFeature.intValue());
 
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
         if (collectionReference == null) {
@@ -268,7 +268,7 @@ public class WFSService extends ExploreRESTServices {
                     for (int i = 0; i < hitsGetFeature.getHits().length; i++) {
                         featureList.add(hitsGetFeature.getAt(i));
                     }
-                    getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureResponse(wfsHandler.wfsConfiguration, collectionReferenceDescription, startindex, count, featureList, serviceUrl);
+                    getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureResponse(wfsHandler.ogcConfiguration, collectionReferenceDescription, startindex, count, featureList, serviceUrl);
                 }
                 return Response.ok(getFeatureResponse).type(MediaType.APPLICATION_XML).build();
 

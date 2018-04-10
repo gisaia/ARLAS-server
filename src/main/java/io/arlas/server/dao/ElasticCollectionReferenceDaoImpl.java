@@ -133,6 +133,37 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     @Override
+    public List<CollectionReference> getCollectionReferences(String[] includes, String[] excludes, int size, int from) throws ArlasException {
+
+        List<CollectionReference> collections = new ArrayList<>();
+        //Exclude old include_fields for support old collection
+        if(excludes!=null){
+            excludes[excludes.length+1] = "include_fields";
+        }else{
+            excludes = new String[]{"include_fields"};
+        }
+        try {
+            QueryBuilder qb = QueryBuilders.matchAllQuery();
+            SearchResponse response = client.prepareSearch(arlasIndex)
+                    .setFetchSource(includes, excludes)
+                    .setFrom(from)
+                    .setSize(size)
+                    .setQuery(qb).get(); // max of 100 hits will be returned for each scroll
+                for (SearchHit hit : response.getHits().getHits()) {
+                    String source = hit.getSourceAsString();
+                    try {
+                        collections.add(new CollectionReference(hit.getId(), reader.readValue(source)));
+                    } catch (IOException e) {
+                        throw new InternalServerErrorException("Can not fetch collection", e);
+                    }
+                }
+        } catch (IndexNotFoundException e) {
+            throw new InternalServerErrorException("Unreachable collections", e);
+        }
+        return collections;
+    }
+
+    @Override
     public List<CollectionReference> getAllCollectionReferences() throws ArlasException {
         List<CollectionReference> collections = new ArrayList<>();
 

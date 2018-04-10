@@ -17,24 +17,10 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.ogc.csw.utils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class WFSConfiguration {
-
-    @JsonProperty("featureNamespace")
-    public String featureNamespace;
-
-    @JsonProperty("replaceChar")
-    public String replaceChar;
-
-    public String getFeatureNamespace() {
-        return featureNamespace;
-    }
-
-    public String getReplaceChar() {
-        return replaceChar;
-    }
-    
+public enum ElementSetName {
+    brief,
+    summary,
+    full
 }

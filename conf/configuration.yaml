@@ -101,7 +101,6 @@ zipkin: # The ZIPIN configuration, not active by default
 arlas-wfs:
   featureNamespace: ${ARLAS_WFS_FEATURE_NAMESPACE:-arlas}
   replaceChar: ${ARLAS_WFS_REPLACE_CHAR:-_}
-  queryMaxFeature: ${ARLAS_WFS_QUERY_MAX_FEATURE:-1000}
 
 
 arlas-ogc:
@@ -113,3 +112,4 @@ arlas-ogc:
   serviceContactAdressCity: ${ARLAS_OGC_SERVICE_CONTACT_CITY:-Toulouse}
   serviceContactAdressPostalCode: ${ARLAS_OGC_SERVICE_CONTACT_CODE:-31000}
   serviceContactAdressCountry: ${ARLAS_OGC_SERVICE_CONTACT_COUNTRY:-France}
+  queryMaxFeature: ${ARLAS_OGC_QUERY_MAX_FEATURE:-1000}
