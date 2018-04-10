@@ -19,6 +19,7 @@
 
 package io.arlas.server.ogc.wfs.operation.getfeature;
 
+import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.app.WFSConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.response.CollectionReferenceDescription;
@@ -54,7 +55,7 @@ public class GetFeatureHandler {
         this.featureNamespace = wfsHandler.wfsConfiguration.featureNamespace;
     }
 
-    public StreamingOutput getFeatureResponse(WFSConfiguration configuration, CollectionReferenceDescription collectionReference, Integer start, Integer count, List<Object> rs, String uri) {
+    public StreamingOutput getFeatureResponse(OGCConfiguration configuration, CollectionReferenceDescription collectionReference, Integer start, Integer count, List<Object> rs, String uri) {
 
         StreamingOutput streamingOutput = new StreamingOutput() {
             @Override
@@ -94,7 +95,7 @@ public class GetFeatureHandler {
         writer.flush();
     }
 
-    public void doGetFeatureResults(WFSConfiguration configuration, OutputStream outputStream, Integer start, Integer count, List<Object> rs,
+    public void doGetFeatureResults(OGCConfiguration configuration, OutputStream outputStream, Integer start, Integer count, List<Object> rs,
                                     CollectionReferenceDescription collectionReference, String uri)
             throws Exception {
 

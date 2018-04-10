@@ -20,9 +20,13 @@
 package io.arlas.server.ogc.csw;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.OGCConfiguration;
+import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
+import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.CSWConstant;
@@ -33,6 +37,7 @@ import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
 import io.arlas.server.ogc.csw.utils.CSWCheckParam;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
+import io.arlas.server.ogc.csw.utils.ElementSetName;
 import io.arlas.server.rest.collections.CollectionRESTServices;
 import io.arlas.server.rest.explore.Documentation;
 import io.swagger.annotations.ApiOperation;
@@ -41,6 +46,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import net.opengis.cat.csw._3.CapabilitiesType;
 import net.opengis.cat.csw._3.GetRecordsResponseType;
+import org.elasticsearch.client.Client;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -49,9 +55,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
+import java.util.List;
+import java.util.Optional;
 
 
 public class CSWService extends CollectionRESTServices {
+
+    protected CollectionReferenceDao dao = null;
 
 
     public CSWHandler cswHandler;
@@ -59,7 +69,7 @@ public class CSWService extends CollectionRESTServices {
 
     private String serverUrl;
 
-    public CSWService(CSWHandler cswHandler) {
+    public CSWService(CSWHandler cswHandler, ArlasServerConfiguration configuration) {
 
         this.cswHandler = cswHandler;
         this.ogcConfiguration = cswHandler.ogcConfiguration;
@@ -92,6 +102,12 @@ public class CSWService extends CollectionRESTServices {
                     required = true)
             @QueryParam(value = "service") String service,
             @ApiParam(
+                    name = "request",
+                    value = "request",
+                    allowMultiple = false,
+                    required = true)
+            @QueryParam(value = "request") String request,
+            @ApiParam(
                     name = "elementname",
                     value = "elementname",
                     allowMultiple = false,
@@ -104,11 +120,23 @@ public class CSWService extends CollectionRESTServices {
                     required = true)
             @QueryParam(value = "elementsetname") String elementSetName,
             @ApiParam(
-                    name = "request",
-                    value = "request",
+                    name = "filter",
+                    value = "filter",
                     allowMultiple = false,
                     required = true)
-            @QueryParam(value = "request") String request,
+            @QueryParam(value = "filter") String filter,
+            @ApiParam(
+                    name = "startposition",
+                    value = "startposition",
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "startposition") Integer startPosition,
+            @ApiParam(
+                    name = "maxrecords",
+                    value = "maxrecords",
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "maxrecords") Integer maxRecords,
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -117,13 +145,16 @@ public class CSWService extends CollectionRESTServices {
                     defaultValue = "false",
                     required = false)
             @QueryParam(value = "pretty") Boolean pretty
-    ) throws OGCException {
+    ) throws ArlasException {
 
         Version requestVersion = VersionUtils.getVersion(version, Service.CSW);
         VersionUtils.checkVersion(requestVersion, CSWConstant.SUPPORTED_CSW_VERSION, Service.CSW);
         RequestUtils.checkRequestTypeByName(request, CSWConstant.SUPPORTED_CSW_REQUESTYPE, Service.CSW);
         CSWCheckParam.checkQuerySyntax(elementName, elementSetName);
         CSWRequestType requestType = CSWRequestType.valueOf(request);
+
+        startPosition = Optional.ofNullable(startPosition).orElse(0);
+        maxRecords = Optional.ofNullable(maxRecords).orElse(ogcConfiguration.queryMaxFeature.intValue());
 
         switch (requestType) {
             case GetCapabilities:
@@ -133,7 +164,9 @@ public class CSWService extends CollectionRESTServices {
                 return Response.ok(getCapabilitiesResponse).type(MediaType.APPLICATION_XML).build();
             case GetRecords:
                 GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
-                JAXBElement<GetRecordsResponseType> getRecordsResponse = getRecordsHandler.getCSWGetRecordsResponse();
+                List<CollectionReference> collections = dao.getCollectionReferences(null,null,maxRecords,startPosition);
+                JAXBElement<GetRecordsResponseType> getRecordsResponse = getRecordsHandler.getCSWGetRecordsResponse(collections,
+                        ElementSetName.valueOf(elementSetName),startPosition,maxRecords);
                 return Response.ok(getRecordsResponse).type(MediaType.APPLICATION_XML).build();
             case GetRecordById:
                 return Response.ok("").type(MediaType.APPLICATION_XML).build();
