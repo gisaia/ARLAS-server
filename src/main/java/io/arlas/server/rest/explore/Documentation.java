@@ -24,6 +24,8 @@ public class Documentation {
     public static final String GEOSEARCH_OPERATION = "Search and return the elements found in the collection(s) as features, given the filters"; // TODO: different?
     public static final String TILED_GEOSEARCH_OPERATION = "Search and return the elements found in the collection(s) and localized in the given tile(x,y,z) as features, given the filters";
     public static final String SEARCH_OPERATION = "Search and return the elements found in the collection, given the filters";
+    public static final String TAG_OPERATION=   "Search and tag the elements found in the collection, given the filters";
+    public static final String UNTAG_OPERATION=   "Search and untag the elements found in the collection, given the filters";
     public static final String OPENSEARCH_OPERATION = "Access to the OpenSearch Description document for the given collection";
     public static final String PROJECTION_PARAM_INCLUDE = "List the name patterns of the field to be included in the result. Seperate patterns with a comma.";
     public static final String PROJECTION_PARAM_EXCLUDE = "List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.";

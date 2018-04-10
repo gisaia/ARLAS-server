@@ -16,7 +16,7 @@ arlas-service-explore-enabled: ${ARLAS_SERVICE_EXPLORE_ENABLE:-true}
 arlas-service-opensearch-enabled: ${ARLAS_SERVICE_OPENSEARCH_ENABLE:-true}
 arlas-service-wfs-enabled: ${ARLAS_SERVICE_WFS_ENABLE:-false}
 arlas-service-csw-enabled: ${ARLAS_SERVICE_CSW_ENABLE:-true}
-
+arlas-service-tag-enabled: ${ARLAS_SERVICE_TAG_ENABLE:-false}
 ########################################################
 ############ HTTP SERVER                 ###############
 ########################################################

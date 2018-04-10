@@ -64,6 +64,7 @@ public class CollectionTool extends AbstractTestContext {
         jsonAsMap.put(CollectionReference.TIMESTAMP_PATH, DataSetTool.DATASET_TIMESTAMP_PATH);
         jsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_EXCLUDE_FIELDS);
         jsonAsMap.put(CollectionReference.EXCLUDE_WFS_FIELDS, DataSetTool.DATASET_EXCLUDE_WFS_FIELDS);
+        jsonAsMap.put(CollectionReference.TAGGABLE_FIELDS, DataSetTool.DATASET_TAGGABLE_FIELDS);
 
         // PUT new collection
         given().contentType("application/json").body(jsonAsMap).when().put(getUrlPath()).then().statusCode(200);

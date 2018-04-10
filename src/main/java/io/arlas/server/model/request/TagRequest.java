@@ -17,26 +17,10 @@
  * under the License.
  */
 
-package io.arlas.server.model.response;
+package io.arlas.server.model.request;
 
+public class TagRequest {
 
-import io.dropwizard.jackson.JsonSnakeCase;
-
-import java.util.Map;
-
-@JsonSnakeCase
-public class CollectionReferenceDescriptionProperty {
-
-    public ElasticType type;
-    public String format;
-    public Map<String, CollectionReferenceDescriptionProperty> properties;
-    public boolean taggable=false;
-
-    public CollectionReferenceDescriptionProperty() {
-    }
-
-    @Override
-    public String toString() {
-        return "[type=" + type + ", format=" + format + ", properties=" + properties + "]";
-    }
+    public Search search;
+    public Tag tag;
 }

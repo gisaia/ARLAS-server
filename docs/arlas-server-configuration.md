@@ -22,7 +22,7 @@ ARLAS can run as a docker container. A rich set of properties of the configurati
 docker run -ti -d \
    --name arlas-server \
    -e "ARLAS_ELASTIC_CLUSTER=my-own-cluster" \
-   arlas-server:latest
+   gisaia/arlas-server:latest
 ```
 
 All supported environment variables are listed below.
@@ -39,7 +39,7 @@ The ARLAS Server container can start with a mounted configuration file thanks to
 docker run -ti -d \
    --name arlas-server \
    -v `pwd`/configuration.yaml:/opt/app/configuration.yaml \
-   arlas-server:latest
+   gisaia/arlas-server:latest
 ```
 
 #### URL
@@ -56,7 +56,7 @@ For instance, if the current directory of the host contains a `configuration.yam
 docker run -ti -d \
    --name arlas-server \
    -e ARLAS_CONFIGURATION_URL="http://somemachine/conf.yaml" \
-   arlas-server:latest
+   gisaia/arlas-server:latest
 ```
 
 ## ARLAS configuration properties
@@ -70,6 +70,7 @@ docker run -ti -d \
 | ARLAS_SERVICE_WFS_ENABLE    | arlas-service-wfs-enabled    | false     | Whether the WFS service is enabled or not |
 | ARLAS_SERVICE_OPENSEARCH_ENABLE    | arlas-service-opensearch-enabled    | true     | Whether the opensearch service is enabled or not |
 | ARLAS_SERVICE_CSW_ENABLE    | arlas-service-csw-enabled    | true     | Whether the CSW service is enabled or not |
+| ARLAS_SERVICE_TAG_ENABLE    | arlas-service-tag-enabled    | false     | Whether the tag service is enabled or not |
 
 
 ### Datasource

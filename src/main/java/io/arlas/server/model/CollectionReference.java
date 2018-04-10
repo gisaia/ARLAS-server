@@ -33,6 +33,8 @@ public class CollectionReference {
     public static final String TIMESTAMP_FORMAT = "timestamp_format";
     public static final String DEFAULT_TIMESTAMP_FORMAT = "strict_date_optional_time||epoch_millis";
     public static final String EXCLUDE_FIELDS = "exclude_fields";
+    public static final String TAGGABLE_FIELDS = "taggable_fields";
+    public static final String UPDATE_MAX_HITS = "update_max_hits";
     public static final String EXCLUDE_WFS_FIELDS = "exclude_wfs_fields";
     public static final String CUSTOM_PARAMS = "custom_params";
     public static final String JSON_SCHEMA = "json_schema";
