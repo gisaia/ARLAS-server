@@ -28,16 +28,16 @@ import java.util.TreeSet;
 
 public class VersionUtils {
 
-    public static Version checkVersion(Version requestedVersion, String supportedVersion, Service service) {
+    public static Version checkVersion(Version requestedVersion, String supportedVersion, Service service) throws OGCException {
         Version version = requestedVersion;
-        SortedSet<Version> offeredVersions = new TreeSet<Version>();
+        SortedSet<Version> offeredVersions = new TreeSet<>();
         try {
             offeredVersions.add(getVersion(supportedVersion, service));
         } catch (OGCException e) {
-            new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "INVALID VERSION", "version", service);
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "INVALID VERSION", "version", service);
         }
         if (!offeredVersions.contains(version)) {
-            new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "INVALID VERSION", "version", service);
+            throw new OGCException(OGCExceptionCode.VERSION_NEGOTIATION_FAILED, "INVALID acceptVersions", "acceptVersions", service);
         }
         return version;
     }
