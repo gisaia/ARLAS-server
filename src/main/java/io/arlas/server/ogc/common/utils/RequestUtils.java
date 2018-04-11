@@ -30,7 +30,12 @@ public class RequestUtils {
     public static void checkRequestTypeByName(String requestName, String[] requestTypes, Service service) throws OGCException {
         String msg = "Request type '" + requestName + "' is not supported.";
         if (Arrays.asList(requestTypes).indexOf(requestName) < 0) {
-            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, msg, "request", service);
+            switch (service){
+                case CSW:
+                    throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, msg, "request", service);
+                default:
+                    throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, msg, "request", service);
+            }
         }
     }
 }
