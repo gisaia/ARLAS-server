@@ -26,7 +26,6 @@ A Collection has the following structure :
    "include_fields": "string",
    "exclude_fields": "string",
    "custom_params": {},
-   "json_schema": {},
    "atom_feed": {
       ...
    },

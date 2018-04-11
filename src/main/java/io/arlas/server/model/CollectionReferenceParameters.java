@@ -61,9 +61,6 @@ public class CollectionReferenceParameters {
     @JsonProperty(value = "custom_params", required = false)
     public Map<String, String> customParams = null;
 
-    @JsonProperty(value = "json_schema", required = false)
-    public Object jsonSchema = null;
-
     @JsonProperty(value = "atom_feed", required = false)
     public Feed atomFeed = null;
 

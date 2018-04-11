@@ -57,42 +57,6 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
                 .body("params.custom_params.timestamp_format", equalTo(DataSetTool.DATASET_TIMESTAMP_FORMAT));
 
-
-        // PUT SCHEMA JSON
-        given().multiPart("json_schema_file", DataSetTool.jsonSchema.toString())
-                .when().put(arlasPath + "collections/foo/_import_json_schema")
-                .then().statusCode(200)
-                .body("collection_name", equalTo("foo"))
-                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
-                .body("params.type_name", equalTo(DataSetTool.DATASET_TYPE_NAME))
-                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
-                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
-                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
-                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
-                .body("params.custom_params.timestamp_format", equalTo(DataSetTool.DATASET_TIMESTAMP_FORMAT))
-                .body("params.json_schema.required", hasSize(2))
-                .body("params.json_schema.properties.md.required", hasSize(4))
-                .body("params.json_schema.properties.md.properties.geometry.properties.coordinates.items.items.items.type", equalTo("number"));
-
-
-        // GET collection
-        when().get(arlasPath + "collections/foo")
-                .then().statusCode(200)
-                .body("collection_name", equalTo("foo"))
-                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
-                .body("params.type_name", equalTo(DataSetTool.DATASET_TYPE_NAME))
-                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
-                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
-                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
-                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
-                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
-                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
-                .body("params.custom_params.timestamp_format", equalTo(DataSetTool.DATASET_TIMESTAMP_FORMAT))
-                .body("params.json_schema.required", hasSize(2))
-                .body("params.json_schema.properties.md.required", hasSize(4))
-                .body("params.json_schema.properties.md.properties.geometry.properties.coordinates.items.items.items.type", equalTo("number"));
-
-
         // DELETE collection
         when().delete(arlasPath + "collections/foo")
                 .then().statusCode(200);

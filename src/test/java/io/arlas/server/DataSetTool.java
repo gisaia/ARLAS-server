@@ -74,14 +74,11 @@ public class DataSetTool {
             "Austria"
     };
 
-    public static Object jsonSchema;
     public static AdminClient adminClient;
     public static Client client;
 
     static {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            jsonSchema = mapper.readValue(DataSetTool.class.getClassLoader().getResourceAsStream("dataset.schema.json"), ObjectNode.class);
             Settings settings = null;
             List<Pair<String,Integer>> nodes = ArlasServerConfiguration.getElasticNodes(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_NODES")).orElse("localhost:9300"));
             if ("localhost".equals(nodes.get(0).getLeft())) {
