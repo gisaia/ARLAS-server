@@ -512,7 +512,10 @@ public class FluidSearch {
             aggregationModel.field = collectionReference.params.timestampPath;
         }
         DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram(DATEHISTOGRAM_AGG);
-        if (aggregationModel.interval.unit.equals(UnitEnum.year) || aggregationModel.interval.unit.equals(UnitEnum.quarter) || aggregationModel.interval.unit.equals(UnitEnum.day)) {
+        if (aggregationModel.interval.unit.equals(UnitEnum.year)
+                || aggregationModel.interval.unit.equals(UnitEnum.month)
+                || aggregationModel.interval.unit.equals(UnitEnum.quarter)
+                || aggregationModel.interval.unit.equals(UnitEnum.week)) {
             if (aggregationModel.interval.value > 1)
                 throw new NotAllowedException("The size must be equal to 1 for the unit " + aggregationModel.interval.unit + ".");
         }
@@ -528,7 +531,7 @@ public class FluidSearch {
                 intervalUnit = DateHistogramInterval.MONTH;
                 break;
             case week:
-                intervalUnit = DateHistogramInterval.weeks(aggregationModel.interval.value);
+                intervalUnit = DateHistogramInterval.WEEK;
                 break;
             case day:
                 intervalUnit = DateHistogramInterval.days(aggregationModel.interval.value);

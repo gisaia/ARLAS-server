@@ -101,7 +101,7 @@ public class Documentation {
             "\n \n" +
             "- {interval} possible values depends on {type}. " +
             "\n \n" +
-            "       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). " +
+            "       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). Size value must be equal to 1 for year,quarter,month and week unities. " +
             "\n \n" +
             "       If {type} = histogram, then {interval} = {size}. " +
             "\n \n" +
@@ -158,7 +158,7 @@ public class Documentation {
             "\n \n" +
             "- {interval} possible values depends on {type}. " +
             "\n \n" +
-            "       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). " +
+            "       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). Size value must be equal to 1 for year,quarter,month and week unities. " +
             "\n \n" +
             "       If {type} = histogram, then {interval} = {size}. " +
             "\n \n" +

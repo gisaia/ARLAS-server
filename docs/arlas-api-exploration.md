@@ -94,7 +94,7 @@ The metrics `geobbox` and `geocentroid` are returned as features collections.
 
 | Service             | Aggregation type    | Interval                                 | Description                              |
 | ------------------- | ------------------- | ---------------------------------------- | ---------------------------------------- |
-| ***_aggregate***    | ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit). Size must be equal to 1 for year, quarter and month |
+| ***_aggregate***    | ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit). Size must be equal to 1 for year, quarter, month and week |
 | ***_geoaggregate*** | ***geohash***       | `{length}`                               | The geohash length: lower the length, greater is the surface of aggregation. See table below. |
 | ***_aggregate***    | ***histogram***     | `{size}`                                 | The interval size of the numeric aggregation |
 | ***_aggregate***    | ***term***          | None                                     | None                                     |
