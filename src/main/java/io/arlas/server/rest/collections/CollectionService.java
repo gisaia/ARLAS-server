@@ -266,37 +266,4 @@ public abstract class CollectionService extends CollectionRESTServices {
         dao.deleteCollectionReference(collection);
         return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
     }
-
-
-    @Timed
-    @Path("{collection}/_import_json_schema")
-    @PUT
-    @Produces(UTF8JSON)
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @ApiOperation(
-            value = "Add JSON schema to the collection references from a json file",
-            produces = UTF8JSON,
-            notes = "Add JSON schema to the collection references from a json file",
-            consumes = MediaType.MULTIPART_FORM_DATA
-    )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = String.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
-    public Response importSchemaJson(
-            @ApiParam(
-                    name = "collection",
-                    value = "collection",
-                    allowMultiple = false,
-                    required = true)
-            @PathParam(value = "collection") String collection,
-            @FormDataParam("json_schema_file") InputStream inputStream,
-            @FormDataParam("json_schema_file") FormDataContentDisposition fileDetail
-    ) throws ArlasException, IOException {
-
-        CollectionReference cr = dao.getCollectionReference(collection);
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode jsonNodes = objectMapper.readValue(inputStream, ObjectNode.class);
-        cr.params.jsonSchema = jsonNodes;
-
-        return ResponseFormatter.getResultResponse(save(collection, cr.params));
-    }
 }
