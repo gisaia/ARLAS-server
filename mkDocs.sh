@@ -69,3 +69,11 @@ docker run --rm \
         && cat /opt/maven/target/generated-docs/paths.md >> /opt/maven/target/generated-docs/reference.md \
         && cat /opt/maven/target/generated-docs/definitions.md >> /opt/maven/target/generated-docs/reference.md \
         && cat /opt/maven/target/generated-docs/security.md >> /opt/maven/target/generated-docs/reference.md'
+
+echo "=> Copy CHANGELOG.md"
+docker run --rm \
+    -v $PWD:/opt/maven \
+	-v $HOME/.m2:/root/.m2 \
+	busybox \
+        sh -c 'cp /opt/maven/CHANGELOG.md /opt/maven/target/generated-docs/CHANGELOG_ARLAS-server.md'
+

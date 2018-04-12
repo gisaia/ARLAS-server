@@ -193,13 +193,23 @@ cd ${BASEDIR}
 if [ "$SIMULATE" == "NO" ]; then
     echo "=> Build arlas-server docker image"
     docker tag arlas-server:${ARLAS_VERSION} gisaia/arlas-server:${ARLAS_VERSION}
-    docker tag arlas-server:${ARLAS_VERSION} gisaia/arlas-server:latest .
+    docker tag arlas-server:${ARLAS_VERSION} gisaia/arlas-server:latest
     echo "=> Push arlas-server docker image"
     docker push gisaia/arlas-server:${ARLAS_VERSION}
     docker push gisaia/arlas-server:latest
 else echo "=> Skip docker push image"; fi
 
 if [ "$SIMULATE" == "NO" ]; then
+    echo "=> Generate CHANGELOG.md"
+    #@see scripts/build-github-changelog-generator.sh if you need a fresher version of this tool
+    docker run -it --rm -v "$(pwd)":/usr/local/src/your-app gisaia/github-changelog-generator:latest github_changelog_generator \
+        -u gisaia -p ARLAS-server --token 479b4f9b9390acca5c931dd34e3b7efb21cbf6d0 \
+        --no-pr-wo-labels --no-issues-wo-labels --no-unreleased --issue-line-labels API,OGC,conf,security,documentation \
+        --exclude-labels type:duplicate,type:question,type:wontfix,type:invalid \
+        --bug-labels type:bug \
+        --enhancement-labels  type:enhancement \
+        --breaking-labels type:breaking \
+        --enhancement-label "**New stuff:**" --issues-label "**Miscellaneous:**" --since-tag v2.5.3
     echo "=> Commit release version"
     git commit -a -m "release version ${ARLAS_VERSION}"
     git tag v${ARLAS_VERSION}
