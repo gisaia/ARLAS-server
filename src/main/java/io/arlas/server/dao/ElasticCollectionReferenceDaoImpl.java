@@ -233,17 +233,12 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         GetMappingsResponse response;
         try {
             //check index
-            response = client.admin().indices().prepareGetMappings(collectionReference.params.indexName).setTypes(collectionReference.params.typeName).get();
-            if (response.getMappings().isEmpty()
-                    || !response.getMappings().get(collectionReference.params.indexName).containsKey(collectionReference.params.typeName)) {
-                throw new NotFoundException("Type " + collectionReference.params.typeName + " does not exist in " + collectionReference.params.indexName + ".");
+            response = client.admin().indices().prepareGetMappings(collectionReference.params.indexName)/*.setTypes(collectionReference.params.typeName)*/.get();
+            if (response.getMappings().isEmpty()) {
+                throw new NotFoundException("No types in " + collectionReference.params.indexName + ".");
             }
-            //check type
-            Object properties = response.getMappings().get(collectionReference.params.indexName).get(collectionReference.params.typeName).sourceAsMap().get("properties");
-            if (properties == null) {
-                throw new NotFoundException("Unable to find properties from " + collectionReference.params.typeName + " in " + collectionReference.params.indexName + ".");
-            }
-            //check fields
+
+            //get fields
             List<String> fields = new ArrayList<>();
             if (collectionReference.params.idPath != null)
                 fields.add(collectionReference.params.idPath);
@@ -253,9 +248,29 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 fields.add(collectionReference.params.centroidPath);
             if (collectionReference.params.timestampPath != null)
                 fields.add(collectionReference.params.timestampPath);
-            if (!fields.isEmpty())
-                checkIndexMappingFields(collectionReference.params, fields.toArray(new String[fields.size()]));
             checkExcludeField(collectionReference.params, fields);
+
+            Iterator<String> indeces = response.getMappings().keysIt();
+            while(indeces.hasNext()) {
+                String index = indeces.next();
+                //check type
+                try {
+                    if(!response.getMappings().get(index).containsKey(collectionReference.params.typeName)) {
+                        throw new NotFoundException("Type " + collectionReference.params.typeName + " does not exist in " + collectionReference.params.indexName + ".");
+                    }
+                    Object properties = response.getMappings().get(index).get(collectionReference.params.typeName).sourceAsMap().get("properties");
+                    if (properties == null) {
+                        throw new NotFoundException("Unable to find properties from " + collectionReference.params.typeName + " in " + index + ".");
+                    }
+                } catch (Exception e) {
+                    throw new NotFoundException("Unable to get " + collectionReference.params.typeName + " in " + index + ".");
+                }
+
+                //check fields
+                if (!fields.isEmpty())
+                    checkIndexMappingFields(index, collectionReference.params, fields.toArray(new String[fields.size()]));
+
+            }
         } catch (ArlasException e) {
             throw e;
         } catch (IndexNotFoundException e) {
@@ -264,7 +279,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             throw new NotFoundException("Unable to access " + collectionReference.params.typeName + " in " + collectionReference.params.indexName + ".");
         }
     }
-
+    
     private void checkExcludeField(CollectionReferenceParameters params, List<String> fields) throws NotAllowedException {
         if (params.excludeFields != null) {
             ArrayList<Pattern> excludeFields = new ArrayList<>();
@@ -280,12 +295,12 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         }
     }
 
-    private void checkIndexMappingFields(CollectionReferenceParameters collectionRefParams, String... fields) throws ArlasException {
-        GetFieldMappingsResponse response = client.admin().indices().prepareGetFieldMappings(collectionRefParams.indexName).setTypes(collectionRefParams.typeName).setFields(fields).get();
+    private void checkIndexMappingFields(String index, CollectionReferenceParameters collectionRefParams, String... fields) throws ArlasException {
+        GetFieldMappingsResponse response = client.admin().indices().prepareGetFieldMappings(index).setTypes(collectionRefParams.typeName).setFields(fields).get();
         for (String field : fields) {
-            GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(collectionRefParams.indexName, collectionRefParams.typeName, field);
+            GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(index, collectionRefParams.typeName, field);
             if (data == null || data.isNull()) {
-                throw new NotFoundException("Unable to find " + field + " from " + collectionRefParams.typeName + " in " + collectionRefParams.indexName + ".");
+                throw new NotFoundException("Unable to find " + field + " from " + collectionRefParams.typeName + " in " + index + ".");
             } else {
                 if (field.equals(collectionRefParams.timestampPath)) {
                     setTimestampFormat(collectionRefParams, data, field);

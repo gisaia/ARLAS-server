@@ -22,6 +22,7 @@ package io.arlas.server.wfs;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.AbstractTestWithCollection;
+import io.arlas.server.DataSetTool;
 import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.MultiValueFilter;
@@ -37,6 +38,8 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.isOneOf;
 
 public class WFSServiceIT extends AbstractTestWithCollection {
 
@@ -92,14 +95,19 @@ public class WFSServiceIT extends AbstractTestWithCollection {
     public void handleNoHeaderFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
                 .body("wfs:FeatureCollection.@numberReturned", equalTo("595"))
-                .body("wfs:FeatureCollection.member[1].geodata.params_job", equalTo("Dancer"))
+                .body("wfs:FeatureCollection.member[1].geodata.params_job", isOneOf(DataSetTool.jobs))
                 .body("wfs:FeatureCollection.member[1].geodata.params_country.size()", equalTo(0))
                 .body("wfs:FeatureCollection.member[1].geodata.params_city.size()", equalTo(0));
     }
 
     public void handleDescribeFeature(ValidatableResponse then) throws Exception {
-        then.statusCode(200)
-                .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(7));
+        if(!DataSetTool.ALIASED_COLLECTION) {
+            then.statusCode(200)
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(7));
+        } else {
+            then.statusCode(200)
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(9));
+        }
     }
 
     protected RequestSpecification givenFilterableRequestParams() {

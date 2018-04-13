@@ -19,6 +19,7 @@
 
 package io.arlas.server;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.app.ArlasServerConfiguration;
 import org.apache.commons.lang3.tuple.Pair;
@@ -75,6 +76,7 @@ public class DataSetTool {
 
     public static AdminClient adminClient;
     public static Client client;
+    public static boolean ALIASED_COLLECTION;
 
     static {
         try {
@@ -88,6 +90,8 @@ public class DataSetTool {
             client = new PreBuiltTransportClient(settings)
                     .addTransportAddress(new TransportAddress(InetAddress.getByName(nodes.get(0).getLeft()), nodes.get(0).getRight()));
             adminClient = client.admin();
+            ALIASED_COLLECTION = Optional.ofNullable(System.getenv("ALIASED_COLLECTION")).orElse("false").equals("true");
+            LOGGER.info("Load data in " + nodes.get(0).getLeft() + ":" + nodes.get(0).getRight() + " with ALIASED_COLLECTION=" + ALIASED_COLLECTION);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -98,22 +102,44 @@ public class DataSetTool {
     }
 
     public static void loadDataSet() throws IOException {
-        String mapping = IOUtils.toString(new InputStreamReader(DataSetTool.class.getClassLoader().getResourceAsStream("dataset.mapping.json")));
+        if(!ALIASED_COLLECTION) {
+            //Create a single index with all data
+            createIndex(DATASET_INDEX_NAME,"dataset.mapping.json");
+            fillIndex(DATASET_INDEX_NAME,-170,170,-80,80);
+            LOGGER.info("Index created : " + DATASET_INDEX_NAME);
+        } else {
+            //Create 2 indeces, split data between them and create an alias above these 2 indeces
+            createIndex(DATASET_INDEX_NAME+"_original","dataset.mapping.json");
+            fillIndex(DATASET_INDEX_NAME+"_original",-170,0,-80,80);
+            createIndex(DATASET_INDEX_NAME+"_alt","dataset.alternate.mapping.json");
+            fillIndex(DATASET_INDEX_NAME+"_alt",10,170,-80,80);
+            adminClient.indices().prepareAliases().addAlias(DATASET_INDEX_NAME+"*",DATASET_INDEX_NAME).get();
+            LOGGER.info("Indeces created : " + DATASET_INDEX_NAME + "_original," + DATASET_INDEX_NAME + "_alt");
+            LOGGER.info("Alias created : " + DATASET_INDEX_NAME);
+        }
+    }
+
+    private static void createIndex(String indexName, String mappingFileName) throws IOException {
+        String mapping = IOUtils.toString(new InputStreamReader(DataSetTool.class.getClassLoader().getResourceAsStream(mappingFileName)));
         try {
-            adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
+            adminClient.indices().prepareDelete(indexName).get();
         } catch (Exception e) {
         }
-        adminClient.indices().prepareCreate(DATASET_INDEX_NAME).addMapping(DATASET_TYPE_NAME, mapping, XContentType.JSON).get();
+        adminClient.indices().prepareCreate(indexName).addMapping(DATASET_TYPE_NAME, mapping, XContentType.JSON).get();
+    }
 
+    private static void fillIndex(String indexName, int lonMin, int lonMax, int latMin, int latMax) throws JsonProcessingException {
         Data data;
         ObjectMapper mapper = new ObjectMapper();
-        for (int i = -170; i <= 170; i += 10) {
-            for (int j = -80; j <= 80; j += 10) {
+
+        for (int i = lonMin; i <= lonMax; i += 10) {
+            for (int j = latMin; j <= latMax; j += 10) {
                 data = new Data();
                 data.id = String.valueOf("ID_" + i + "_" + j + "DI").replace("-", "_");
                 data.fullname = "My name is " + data.id;
                 data.params.age = Math.abs(i * j);
                 data.params.startdate = 1l * (i + 1000) * (j + 1000);
+                data.params.stopdate = 1l * (i + 1000) * (j + 1000) + 100;
                 data.geo_params.centroid = j + "," + i;
                 data.params.job = jobs[((Math.abs(i) + Math.abs(j)) / 10) % (jobs.length - 1)];
                 data.params.country = countries[((Math.abs(i) + Math.abs(j)) / 10) % (countries.length - 1)];
@@ -126,7 +152,7 @@ public class DataSetTool {
                 coords.add(new LngLatAlt(i - 1, j + 1));
                 data.geo_params.geometry = new Polygon(coords);
 
-                IndexResponse response = client.prepareIndex(DATASET_INDEX_NAME, DATASET_TYPE_NAME, "ES_ID_TEST" + data.id)
+                IndexResponse response = client.prepareIndex(indexName, DATASET_TYPE_NAME, "ES_ID_TEST" + data.id)
                         .setSource(mapper.writer().writeValueAsString(data), XContentType.JSON)
                         .get();
             }
@@ -134,7 +160,12 @@ public class DataSetTool {
     }
 
     public static void clearDataSet() {
-        adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
+        if(!ALIASED_COLLECTION) {
+            adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
+        } else {
+            adminClient.indices().prepareDelete(DATASET_INDEX_NAME+"_original").get();
+            adminClient.indices().prepareDelete(DATASET_INDEX_NAME+"_alt").get();
+        }
     }
 
     public static void close() {

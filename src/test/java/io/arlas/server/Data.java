@@ -33,6 +33,7 @@ public class Data {
         public String city;
         public String country;
         public Long startdate;
+        public Long stopdate;
     }
 
     public class GeometryParams {

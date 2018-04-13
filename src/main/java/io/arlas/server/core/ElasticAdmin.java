@@ -31,12 +31,16 @@ import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
 public class ElasticAdmin {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(ElasticAdmin.class);
 
     public Client client;
 
@@ -58,11 +62,32 @@ public class ElasticAdmin {
         GetMappingsResponse response;
         response = client.admin().indices()
                 .prepareGetMappings(collectionReferenceDescription.params.indexName).setTypes(collectionReferenceDescription.params.typeName).get();
-        LinkedHashMap fields = (LinkedHashMap) response.getMappings()
-                .get(collectionReferenceDescription.params.indexName).get(collectionReferenceDescription.params.typeName).sourceAsMap().get("properties");
-        Map<String, CollectionReferenceDescriptionProperty> properties = getFromSource(collectionReference, fields, new Stack<>(), excludeFields);
+        Iterator<String> indeces = response.getMappings().keysIt();
+
+        Map<String, CollectionReferenceDescriptionProperty> properties = new HashMap<>();
+        while(indeces.hasNext()) {
+            String index = indeces.next();
+            LinkedHashMap fields = (LinkedHashMap) response.getMappings()
+                    .get(index).get(collectionReferenceDescription.params.typeName).sourceAsMap().get("properties");
+            properties = union(properties, getFromSource(collectionReference, fields, new Stack<>(), excludeFields));
+        }
+
         collectionReferenceDescription.properties = properties;
         return collectionReferenceDescription;
+    }
+
+    private Map<String, CollectionReferenceDescriptionProperty> union(Map<String, CollectionReferenceDescriptionProperty> source, Map<String, CollectionReferenceDescriptionProperty> update) {
+        Map<String, CollectionReferenceDescriptionProperty> ret = new HashMap<>(source);
+        for (String key : update.keySet()) {
+            if(!ret.containsKey(key)) {
+                ret.put(key,update.get(key));
+            } else if(ret.get(key).properties instanceof Map && update.get(key).properties instanceof Map) {
+                ret.get(key).properties = union(ret.get(key).properties, update.get(key).properties);
+            } else {
+                LOGGER.warn("Cannot union fields [key " + key + "] for collection describe");
+            }
+        }
+        return ret;
     }
 
     private Map<String, CollectionReferenceDescriptionProperty> getFromSource(CollectionReference collectionReference,Map source, Stack<String> namespace, ArrayList<Pattern> excludeFields) {

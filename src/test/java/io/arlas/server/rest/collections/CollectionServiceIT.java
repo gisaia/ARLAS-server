@@ -126,9 +126,6 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
         // GET all collections
         getAllCollections(everyItem(equalTo(COLLECTION_NAME)));
-        /*when().get(arlasPrefix+"collections/")
-                .then().statusCode(200)
-                .body("collection_name", everyItem(equalTo(COLLECTION_NAME)));*/
 
         // IMPORT existing collections
         given().multiPart("file", jsonExport)

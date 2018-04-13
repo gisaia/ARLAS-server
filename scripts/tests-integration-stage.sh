@@ -73,6 +73,7 @@ function test_rest() {
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
         -e ARLAS_SERVICE_TAG_ENABLE=${ARLAS_SERVICE_TAG_ENABLE} \
         -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
         mvn install -DskipTests=false
@@ -92,6 +93,7 @@ function test_wfs() {
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
         -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
         mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="load"
@@ -111,6 +113,7 @@ function test_wfs() {
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
         -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
         mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="delete"
@@ -121,7 +124,10 @@ function test_doc() {
 }
 
 echo "===> run integration tests"
+export ALIASED_COLLECTION="false"
 if [ "$STAGE" == "REST" ]; then test_rest; fi
 if [ "$STAGE" == "WFS" ]; then test_wfs; fi
+if [ "$STAGE" == "REST_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_rest; fi
+if [ "$STAGE" == "WFS_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_wfs; fi
 if [ "$STAGE" == "DOC" ]; then test_doc; fi
 
