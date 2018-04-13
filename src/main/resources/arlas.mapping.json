@@ -2,8 +2,15 @@
   "_source": {
     "enabled": true
   },
-  "dynamic": true,
+  "dynamic": false,
   "properties": {
+    "internal": {
+      "properties": {
+        "fulltext": {
+          "type":"text"
+        }
+      }
+    },
     "index_name": {
       "type": "text"
     },
@@ -27,6 +34,46 @@
     },
     "exclude_fields": {
       "type": "text"
+    },
+    "dublin_core_element_name":{
+      "properties": {
+        "title": {
+          "type": "text",
+          "copy_to": ["internal.fulltext"]
+        },
+        "subject": {
+          "type": "text",
+          "copy_to": ["internal.fulltext"]
+        },
+        "description": {
+          "type": "text",
+          "copy_to": ["internal.fulltext"]
+        },
+        "date": {
+          "type": "date",
+          "format": "date_hour_minute_second",
+          "copy_to": ["internal.fulltext"]
+        },
+        "type": {
+          "type": "text",
+          "copy_to": ["internal.fulltext"]
+        },
+        "format": {
+          "type": "text",
+          "copy_to": ["internal.fulltext"]
+        },
+        "identifier": {
+          "type": "text",
+          "copy_to": ["internal.fulltext"]
+        },
+        "source": {
+          "type": "text",
+          "copy_to": ["internal.fulltext"]
+        },
+        "coverage": {
+          "type": "geo_shape"
+        }
+      }
     }
   }
 }

@@ -23,7 +23,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
