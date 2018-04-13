@@ -30,6 +30,6 @@ import javax.ws.rs.core.MediaType;
 @Api(value = "/collections")
 
 public abstract class CollectionRESTServices {
-    Logger LOGGER = LoggerFactory.getLogger(CollectionRESTServices.class);
+    public Logger LOGGER = LoggerFactory.getLogger(CollectionRESTServices.class);
     public static final String UTF8JSON = MediaType.APPLICATION_JSON + ";charset=utf-8";
 }

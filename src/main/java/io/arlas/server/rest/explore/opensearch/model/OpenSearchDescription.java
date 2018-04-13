@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement(name = "OpenSearchDescription")
+@XmlRootElement(name = "OpenSearchDescription", namespace ="http://a9.com/-/spec/opensearch/1.1/")
 public class OpenSearchDescription {
 
     @XmlElement(name = "shortName")
