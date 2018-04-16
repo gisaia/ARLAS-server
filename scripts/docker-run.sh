@@ -24,7 +24,7 @@ docker run --rm \
 echo "arlas-server:${ARLAS_VERSION}"
 
 echo "===> start arlas-server stack"
-docker-compose --project-name arlas up -d
+docker-compose --project-name arlas up -d --build
 
 echo "===> wait for arlas-server up and running"
 docker run --net arlas_default --rm busybox sh -c 'i=1; until nc -w 2 arlas-server 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'

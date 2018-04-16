@@ -20,7 +20,6 @@
 package io.arlas.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.arlas.server.app.ArlasServerConfiguration;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.core.util.IOUtils;
@@ -136,5 +135,9 @@ public class DataSetTool {
 
     public static void clearDataSet() {
         adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
+    }
+
+    public static void close() {
+        client.close();
     }
 }
