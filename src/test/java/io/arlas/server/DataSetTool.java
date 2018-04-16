@@ -49,10 +49,10 @@ public class DataSetTool {
     public final static String DATASET_INDEX_NAME="dataset";
     public final static String DATASET_TYPE_NAME="mytype";
     public final static String DATASET_ID_PATH="id";
+    public final static String DATASET_GEO_PARAMS="geo_params";
     public final static String DATASET_GEOMETRY_PATH="geo_params.geometry";
     public final static String DATASET_CENTROID_PATH="geo_params.centroid";
     public final static String DATASET_TIMESTAMP_PATH="params.startdate";
-    public final static String DATASET_INCLUDE_FIELDS=null;
     public final static String DATASET_EXCLUDE_FIELDS = "params.ci*";
     public final static String DATASET_TAGGABLE_FIELDS="params.tags,params.job";
     public final static String DATASET_EXCLUDE_WFS_FIELDS="params.country";

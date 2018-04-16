@@ -169,6 +169,19 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         // GET uncreated collection foo
         when().get(arlasPath + "collections/foo")
                 .then().statusCode(404);
+
+        // PUT new collection with id as exclude field
+        Map<String, Object> wrongJsonAsMap = getJsonAsMap();
+        wrongJsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_ID_PATH);
+        given().contentType("application/json").body(wrongJsonAsMap)
+                .when().put(arlasPath + "collections/foo")
+                .then().statusCode(400);
+
+        // PUT new collection with geoparams parent field as exclude field
+        wrongJsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_GEO_PARAMS);
+        given().contentType("application/json").body(wrongJsonAsMap)
+                .when().put(arlasPath + "collections/foo")
+                .then().statusCode(400);
     }
 
     @Test

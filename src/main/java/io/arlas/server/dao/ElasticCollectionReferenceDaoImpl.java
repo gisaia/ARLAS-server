@@ -28,6 +28,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
+import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
@@ -51,12 +52,10 @@ import org.elasticsearch.search.sort.SortOrder;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao {
 
@@ -137,9 +136,9 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
         List<CollectionReference> collections = new ArrayList<>();
         //Exclude old include_fields for support old collection
-        if(excludes!=null){
-            excludes[excludes.length+1] = "include_fields";
-        }else{
+        if (excludes != null) {
+            excludes[excludes.length + 1] = "include_fields";
+        } else {
             excludes = new String[]{"include_fields"};
         }
         try {
@@ -149,14 +148,14 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                     .setFrom(from)
                     .setSize(size)
                     .setQuery(qb).get(); // max of 100 hits will be returned for each scroll
-                for (SearchHit hit : response.getHits().getHits()) {
-                    String source = hit.getSourceAsString();
-                    try {
-                        collections.add(new CollectionReference(hit.getId(), reader.readValue(source)));
-                    } catch (IOException e) {
-                        throw new InternalServerErrorException("Can not fetch collection", e);
-                    }
+            for (SearchHit hit : response.getHits().getHits()) {
+                String source = hit.getSourceAsString();
+                try {
+                    collections.add(new CollectionReference(hit.getId(), reader.readValue(source)));
+                } catch (IOException e) {
+                    throw new InternalServerErrorException("Can not fetch collection", e);
                 }
+            }
         } catch (IndexNotFoundException e) {
             throw new InternalServerErrorException("Unreachable collections", e);
         }
@@ -239,13 +238,11 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                     || !response.getMappings().get(collectionReference.params.indexName).containsKey(collectionReference.params.typeName)) {
                 throw new NotFoundException("Type " + collectionReference.params.typeName + " does not exist in " + collectionReference.params.indexName + ".");
             }
-
             //check type
             Object properties = response.getMappings().get(collectionReference.params.indexName).get(collectionReference.params.typeName).sourceAsMap().get("properties");
             if (properties == null) {
                 throw new NotFoundException("Unable to find properties from " + collectionReference.params.typeName + " in " + collectionReference.params.indexName + ".");
             }
-
             //check fields
             List<String> fields = new ArrayList<>();
             if (collectionReference.params.idPath != null)
@@ -258,12 +255,28 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 fields.add(collectionReference.params.timestampPath);
             if (!fields.isEmpty())
                 checkIndexMappingFields(collectionReference.params, fields.toArray(new String[fields.size()]));
+            checkExcludeField(collectionReference.params, fields);
         } catch (ArlasException e) {
             throw e;
         } catch (IndexNotFoundException e) {
             throw new NotFoundException("Index " + collectionReference.params.indexName + " does not exist.");
         } catch (Exception e) {
             throw new NotFoundException("Unable to access " + collectionReference.params.typeName + " in " + collectionReference.params.indexName + ".");
+        }
+    }
+
+    private void checkExcludeField(CollectionReferenceParameters params, List<String> fields) throws NotAllowedException {
+        if (params.excludeFields != null) {
+            ArrayList<Pattern> excludeFields = new ArrayList<>();
+            Arrays.asList(params.excludeFields.split(",")).forEach(field -> {
+                excludeFields.add(Pattern.compile("^" + field.replace(".", "\\.").replace("*", ".*") + ".*$"));
+            });
+            boolean excludePath ;
+            for(String field : fields) {
+                excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(field).matches());
+                if (excludePath)
+                    throw new NotAllowedException("Unable to exclude field used for id, geometry, centroid or timestamp.");
+            }
         }
     }
 
