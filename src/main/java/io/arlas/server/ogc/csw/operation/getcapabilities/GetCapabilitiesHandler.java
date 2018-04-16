@@ -65,7 +65,7 @@ public class GetCapabilitiesHandler {
         trueValueType.setValue(TRUE);
         falseValueType.setValue(FALSE);
     }
-    public JAXBElement<CapabilitiesType> getCSWCapabilitiesResponse(List<String> sections,String url, String urlOpenSearch) {
+    public JAXBElement<CapabilitiesType> getCSWCapabilitiesResponse(List<String> sections, String url, String urlOpenSearch) {
         CapabilitiesType getCapabilitiesType = new CapabilitiesType();
         getCapabilitiesType.setVersion(CSWConstant.SUPPORTED_CSW_VERSION);
 

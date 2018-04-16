@@ -20,7 +20,7 @@
 package io.arlas.server.ogc.csw;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.app.CSWConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
@@ -40,19 +40,20 @@ import io.arlas.server.ogc.csw.utils.ElementSetName;
 import io.arlas.server.rest.collections.CollectionRESTServices;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.opensearch.model.OpenSearchDescription;
+import io.arlas.server.rest.explore.opensearch.model.Url;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import net.opengis.cat.csw._3.CapabilitiesType;
+import net.opengis.cat.csw._3.GetDomainResponseType;
 import net.opengis.cat.csw._3.GetRecordsResponseType;
 
+
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import javax.xml.bind.JAXBElement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -66,17 +67,18 @@ public class CSWService extends CollectionRESTServices {
 
     public CSWHandler cswHandler;
     private OGCConfiguration ogcConfiguration;
+    private CSWConfiguration cswConfiguration;
 
     private String serverUrl;
 
-    public CSWService(CSWHandler cswHandler, ArlasServerConfiguration configuration) {
-
+    public CSWService(CSWHandler cswHandler) {
         this.cswHandler = cswHandler;
         this.ogcConfiguration = cswHandler.ogcConfiguration;
+        this.cswConfiguration = cswHandler.cswConfiguration;
         this.serverUrl = ogcConfiguration.serverUri;
-
     }
-
+    @Context
+    UriInfo uri;
     @Timed
     @Path("/csw")
     @GET
@@ -156,6 +158,24 @@ public class CSWService extends CollectionRESTServices {
                     allowMultiple = false,
                     required = false)
             @QueryParam(value = "acceptformats") String acceptFormats,
+            @ApiParam(
+                    name = "q",
+                    value = "q",
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "q") String query,
+            @ApiParam(
+                    name = "bbox",
+                    value = "bbox",
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "bbox") String bbox,
+            @ApiParam(
+                    name = "outputformat",
+                    value = "outputformat",
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "outputformat") String outputFormat,
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -166,9 +186,20 @@ public class CSWService extends CollectionRESTServices {
             @QueryParam(value = "pretty") Boolean pretty,
             @Context HttpHeaders headers
     ) throws ArlasException {
+        LOGGER.info(uri.getRequestUri().toString());
         for(MediaType mediaType:headers.getAcceptableMediaTypes()){
             if(mediaType.getSubtype().contains("opensearchdescription")){
                 OpenSearchDescription description = new OpenSearchDescription();
+                description.description=cswConfiguration.openSearchDescription;
+                description.shortName=cswConfiguration.openSearchShortName;
+                Url url= new Url();
+                url.type = MediaType.APPLICATION_XML;
+                url.template = serverUrl + "collections/csw/?"+"request=GetRecords&service=CSW\n" +
+                        "&version=3.0&q={searchTerms}&maxRecords={count?}\n" +
+                        "&startPosition={startIndex?}&bbox={geo:box?}\n" +
+                        "&outputFormat=application/xml";
+                description.url = new ArrayList<Url>();
+                description.url.add(url);
                 return Response.ok(description).build();
             }
         }
@@ -238,6 +269,16 @@ public class CSWService extends CollectionRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws ArlasException {
         OpenSearchDescription description = new OpenSearchDescription();
+        description.description=cswConfiguration.openSearchDescription;
+        description.shortName=cswConfiguration.openSearchShortName;
+        Url url= new Url();
+        url.type = MediaType.APPLICATION_XML;
+        url.template = serverUrl + "collections/csw/?"+"request=GetRecords&service=CSW\n" +
+                "&version=3.0&q={searchTerms}&maxRecords={count?}\n" +
+                "&startPosition={startIndex?}&bbox={geo:box?}\n" +
+                "&outputFormat=application/xml";
+        description.url = new ArrayList<Url>();
+        description.url.add(url);
         return Response.ok(description).build();
     }
 }
