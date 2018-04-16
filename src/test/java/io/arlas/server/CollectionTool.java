@@ -37,16 +37,17 @@ public class CollectionTool extends AbstractTestContext {
     public static void main(String[] args) throws IOException {
         switch (args[0]) {
             case "load":
-                load();
+                load(0);
                 break;
             case "delete":
                 delete();
                 break;
         }
+        DataSetTool.close();
     }
 
     @Test
-    public static void load() {
+    public static void load(long sleepAfter) {
         try {
             DataSetTool.loadDataSet();
         } catch (UnknownHostException e) {
@@ -70,7 +71,7 @@ public class CollectionTool extends AbstractTestContext {
         given().contentType("application/json").body(jsonAsMap).when().put(getUrlPath()).then().statusCode(200);
 
         try {
-            Thread.sleep(10000);
+            Thread.sleep(sleepAfter);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

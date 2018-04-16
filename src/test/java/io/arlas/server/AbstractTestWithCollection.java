@@ -38,7 +38,7 @@ public abstract class AbstractTestWithCollection extends AbstractTestContext {
 
     @BeforeClass
     public static void beforeClass() {
-        CollectionTool.load();
+        CollectionTool.load(10000);
     }
 
     @AfterClass
