@@ -27,45 +27,45 @@ import java.util.List;
 @XmlRootElement(name = "OpenSearchDescription", namespace ="http://a9.com/-/spec/opensearch/1.1/")
 public class OpenSearchDescription {
 
-    @XmlElement(name = "shortName")
+    @XmlElement(name = "shortName", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String shortName = "";
 
-    @XmlElement(name = "Description")
+    @XmlElement(name = "Description", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String description = "";
 
-    @XmlElement(name = "Url")
+    @XmlElement(name = "Url", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public List<Url> url = new ArrayList<>();
 
-    @XmlElement(name = "Contact")
+    @XmlElement(name = "Contact", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String contact = "";
 
-    @XmlElement(name = "Tags")
+    @XmlElement(name = "Tags", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String tags = "";
 
-    @XmlElement(name = "LongName")
+    @XmlElement(name = "LongName", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String longName = "";
 
-    @XmlElement(name = "Image")
+    @XmlElement(name = "Image", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public Image image;
 
-    @XmlElement(name = "Developer")
+    @XmlElement(name = "Developer", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String developer = "";
 
-    @XmlElement(name = "Attribution")
+    @XmlElement(name = "Attribution", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String attribution = "";
 
-    @XmlElement(name = "SyndicationRight")
+    @XmlElement(name = "SyndicationRight", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String syndicationRight;
 
-    @XmlElement(name = "AdultContent")
+    @XmlElement(name = "AdultContent", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String adultContent = "";
 
-    @XmlElement(name = "Language")
+    @XmlElement(name = "Language", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String language = "";
 
-    @XmlElement(name = "InputEncoding")
+    @XmlElement(name = "InputEncoding", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String inputEncoding = "";
 
-    @XmlElement(name = "OutputEncoding")
+    @XmlElement(name = "OutputEncoding", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String outputEncoding = "";
 }
