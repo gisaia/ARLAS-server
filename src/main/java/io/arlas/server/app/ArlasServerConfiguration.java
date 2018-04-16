@@ -40,6 +40,9 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("arlas-ogc")
     public OGCConfiguration ogcConfiguration;
 
+    @JsonProperty("arlas-csw")
+    public CSWConfiguration cswConfiguration;
+
     @JsonProperty("zipkin")
     public ZipkinFactory zipkinConfiguration;
 
