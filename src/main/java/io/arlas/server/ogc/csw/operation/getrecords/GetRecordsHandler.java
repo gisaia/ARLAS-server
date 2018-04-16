@@ -40,10 +40,12 @@ public class GetRecordsHandler {
     }
 
     public JAXBElement<GetRecordsResponseType> getCSWGetRecordsResponse(List<CollectionReference> collections,
-                                                                        ElementSetName elementSetName, int startPosition,int maxRecords) {
+                                                                        ElementSetName elementSetName,
+                                                                        int startPosition,
+                                                                        int maxRecords) {
         GetRecordsResponseType getRecordsResponseType = new GetRecordsResponseType();
         SearchResultsType searchResultType = new SearchResultsType();
-        switch (elementSetName){
+        switch (elementSetName) {
             case brief:
                 collections.forEach(collectionReference -> {
                     JAXBElement<BriefRecordType> briefRecordTypeJAXBElement = getBriefResult(collectionReference);
@@ -74,41 +76,48 @@ public class GetRecordsHandler {
                 break;
         }
 
-        searchResultType.setNextRecord(BigInteger.valueOf(startPosition+maxRecords));
+        searchResultType.setNextRecord(BigInteger.valueOf(startPosition + maxRecords));
         searchResultType.setNumberOfRecordsReturned(BigInteger.valueOf(collections.size()));
         searchResultType.setNumberOfRecordsMatched(BigInteger.valueOf(collections.size()));
 
         return cswHandler.cswFactory.createGetRecordsResponse(getRecordsResponseType);
     }
 
-    private JAXBElement<BriefRecordType> getBriefResult(CollectionReference collectionReference){
+    private JAXBElement<BriefRecordType> getBriefResult(CollectionReference collectionReference) {
         BriefRecordType briefRecord = new BriefRecordType();
         JAXBElement<BriefRecordType> briefRecordType = cswHandler.cswFactory.createBriefRecord(briefRecord);
         SimpleLiteral simpleLiteral = new SimpleLiteral();
         simpleLiteral.getContent().add(collectionReference.collectionName);
-        JAXBElement<SimpleLiteral> title= cswHandler.dcElementFactory.createTitle(simpleLiteral);
+        JAXBElement<SimpleLiteral> title = cswHandler.dcElementFactory.createTitle(simpleLiteral);
         briefRecordType.getValue().getTitle().add(title);
-        return  briefRecordType;
+        return briefRecordType;
 
     }
 
-    private JAXBElement<SummaryRecordType> getSummaryResult(CollectionReference collectionReference){
+    private JAXBElement<SummaryRecordType> getSummaryResult(CollectionReference collectionReference) {
         SummaryRecordType summaryRecord = new SummaryRecordType();
         JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
         SimpleLiteral simpleLiteral = new SimpleLiteral();
         simpleLiteral.getContent().add(collectionReference.collectionName);
-        JAXBElement<SimpleLiteral> title= cswHandler.dcElementFactory.createTitle(simpleLiteral);
+        JAXBElement<SimpleLiteral> title = cswHandler.dcElementFactory.createTitle(simpleLiteral);
         summaryRecordType.getValue().getTitle().add(title);
-        return  summaryRecordType;
+        summaryRecordType.getValue().getSubject().add(simpleLiteral);
+
+        return summaryRecordType;
     }
 
-    private JAXBElement<RecordType> getFullResult(CollectionReference collectionReference){
+    private JAXBElement<RecordType> getFullResult(CollectionReference collectionReference) {
         RecordType record = new RecordType();
         JAXBElement<RecordType> recordType = cswHandler.cswFactory.createRecord(record);
         SimpleLiteral simpleLiteral = new SimpleLiteral();
         simpleLiteral.getContent().add(collectionReference.collectionName);
-        JAXBElement<SimpleLiteral> title= cswHandler.dcElementFactory.createTitle(simpleLiteral);
+        JAXBElement<SimpleLiteral> title = cswHandler.dcElementFactory.createTitle(simpleLiteral);
+        JAXBElement<SimpleLiteral> subject = cswHandler.dcElementFactory.createSubject(simpleLiteral);
         recordType.getValue().getDCElement().add(title);
-        return  recordType;
+        recordType.getValue().getDCElement().add(subject);
+        recordType.getValue().getDCElement().add(subject);
+
+
+        return recordType;
     }
 }
