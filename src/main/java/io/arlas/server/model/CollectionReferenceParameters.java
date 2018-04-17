@@ -68,7 +68,7 @@ public class CollectionReferenceParameters {
     public OpenSearch openSearch = null;
 
     @JsonProperty(value = "dublin_core_element_name", required = false)
-    public DublinCoreElementName dublinCoreElementName = null;
+    public DublinCoreElementName dublinCoreElementName = new DublinCoreElementName();
 
     public CollectionReferenceParameters() {
     }

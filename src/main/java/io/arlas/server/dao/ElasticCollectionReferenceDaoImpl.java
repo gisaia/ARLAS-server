@@ -266,13 +266,13 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     private void checkExcludeField(CollectionReferenceParameters params, List<String> fields) throws NotAllowedException {
-        if (params.excludeFields != null) {
+        if (params.excludeFields != null && params.excludeFields != "") {
             ArrayList<Pattern> excludeFields = new ArrayList<>();
             Arrays.asList(params.excludeFields.split(",")).forEach(field -> {
                 excludeFields.add(Pattern.compile("^" + field.replace(".", "\\.").replace("*", ".*") + ".*$"));
             });
-            boolean excludePath ;
-            for(String field : fields) {
+            boolean excludePath;
+            for (String field : fields) {
                 excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(field).matches());
                 if (excludePath)
                     throw new NotAllowedException("Unable to exclude field used for id, geometry, centroid or timestamp.");
