@@ -27,7 +27,7 @@ import org.elasticsearch.client.Client;
 public class ElasticCSWService extends CSWService {
 
     public ElasticCSWService(CSWHandler cswHandler , Client client, ArlasServerConfiguration configuration) throws ArlasException {
-        super(cswHandler,configuration);
+        super(cswHandler);
         this.dao = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
         dao.initCollectionDatabase();
     }

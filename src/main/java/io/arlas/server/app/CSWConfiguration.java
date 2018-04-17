@@ -17,19 +17,23 @@
  * under the License.
  */
 
-package io.arlas.server.rest.collections;
+package io.arlas.server.app;
 
-import io.swagger.annotations.Api;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
+public class CSWConfiguration {
 
-@Path("/collections")
-@Api(value = "/collections")
+    @JsonProperty("openSearchDescription")
+    public String openSearchDescription;
 
-public abstract class CollectionRESTServices {
-    public Logger LOGGER = LoggerFactory.getLogger(CollectionRESTServices.class);
-    public static final String UTF8JSON = MediaType.APPLICATION_JSON + ";charset=utf-8";
+    @JsonProperty("openSearchShortName")
+    public String openSearchShortName;
+
+    public String getOpenSearchDescription() {
+        return openSearchDescription;
+    }
+
+    public String getOpenSearchShortName() {
+        return openSearchShortName;
+    }
 }

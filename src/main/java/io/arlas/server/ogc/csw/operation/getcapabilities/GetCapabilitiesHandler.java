@@ -42,6 +42,7 @@ public class GetCapabilitiesHandler {
     private static final String OUTPUT_SCHEMA_DOMAIN_NAME = "OutputSchema";
     private static final String OUTPUT_FORMAT_DOMAIN_NAME = "OutputFormat";
     private static final String ACCEPT_FORMATS_DOMAIN_NAME = "AcceptFormats";
+    private static final String OPENSEARCH_DOMAIN_NAME = "OpenSearchDescriptionDocument";
     private static final String RESOLVE_DOMAIN_NAME = "resolve";
     private static final String LOCAL_VALUE = "local";
     private static final String BOX = "BBOX";
@@ -64,7 +65,7 @@ public class GetCapabilitiesHandler {
         trueValueType.setValue(TRUE);
         falseValueType.setValue(FALSE);
     }
-    public JAXBElement<CapabilitiesType> getCSWCapabilitiesResponse(List<String> sections,String url) {
+    public JAXBElement<CapabilitiesType> getCSWCapabilitiesResponse(List<String> sections, String url, String urlOpenSearch) {
         CapabilitiesType getCapabilitiesType = new CapabilitiesType();
         getCapabilitiesType.setVersion(CSWConstant.SUPPORTED_CSW_VERSION);
 
@@ -75,7 +76,7 @@ public class GetCapabilitiesHandler {
             setServiceProvider(getCapabilitiesType);
         }
         if(sections.contains("OperationsMetadata") || sections.contains("All")){
-            setOperations(getCapabilitiesType);
+            setOperations(getCapabilitiesType,urlOpenSearch);
             setOperationsUrl(getCapabilitiesType,url);
         }
         if(sections.contains("Filter_Capabilities") || sections.contains("All")){
@@ -135,7 +136,7 @@ public class GetCapabilitiesHandler {
         sections.getAllowedValues().getValueOrRange().add(serviceIdentification);
     }
 
-    private void addOperation(String operationName, OperationsMetadata operationsMetadata, DomainType... parameters) {
+    private void addOperation(String operationName, OperationsMetadata operationsMetadata ,DomainType[] parameters, DomainType[] constraints) {
         DCP dcp = new DCP();
         HTTP http = new HTTP();
         dcp.setHTTP(http);
@@ -143,10 +144,14 @@ public class GetCapabilitiesHandler {
         operation.setName(operationName);
         operation.getDCP().add(dcp);
         Arrays.asList(parameters).forEach(parameter -> operation.getParameter().add(parameter));
+        Arrays.asList(constraints).forEach(constraint -> operation.getConstraint().add(constraint));
+
         operationsMetadata.getOperation().add(operation);
     }
 
-    private void setOperations(CapabilitiesType getCapabilitiesType) {
+
+
+    private void setOperations(CapabilitiesType getCapabilitiesType, String url) {
         OperationsMetadata operationsMetadata = new OperationsMetadata();
         DomainType[] noParameters = {};
         //create AcceptVersions parameter for GetCapabilities operation
@@ -157,10 +162,13 @@ public class GetCapabilitiesHandler {
         version.setValue(CSWConstant.SUPPORTED_CSW_VERSION);
         acceptVersions.getAllowedValues().getValueOrRange().add(version);
         //create outputSchema parameter
-        DomainType outputSchema = addDomain(OUTPUT_SCHEMA_DOMAIN_NAME,CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA);
+        DomainType outputSchema = createDomain(OUTPUT_SCHEMA_DOMAIN_NAME,CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA);
         //create outputFormat parameter
-        DomainType outputFormat = addDomain(OUTPUT_FORMAT_DOMAIN_NAME,CSWConstant.SUPPORTED_CSW_OUTPUT_FORMAT);
-        DomainType acceptFormats = addDomain(ACCEPT_FORMATS_DOMAIN_NAME,CSWConstant.SUPPORTED_CSW_ACCEPT_FORMATS);
+        DomainType outputFormat = createDomain(OUTPUT_FORMAT_DOMAIN_NAME,CSWConstant.SUPPORTED_CSW_OUTPUT_FORMAT);
+        DomainType acceptFormats = createDomain(ACCEPT_FORMATS_DOMAIN_NAME,CSWConstant.SUPPORTED_CSW_ACCEPT_FORMATS);
+
+        DomainType opensearch = createDomain(OPENSEARCH_DOMAIN_NAME, new String[]{url});
+
         //create sections parameter for GetCapabilities operation
         DomainType sections = new DomainType();
         sections.setName(SECTION_DOMAIN_NAME);
@@ -176,11 +184,14 @@ public class GetCapabilitiesHandler {
         resolve.getAllowedValues().getValueOrRange().add(local);
         //add  operations
         DomainType[] getCapabilitiesParameters = {acceptVersions, sections,outputSchema,outputFormat,acceptFormats};
-        addOperation(CSWRequestType.GetCapabilities.name(), operationsMetadata, getCapabilitiesParameters);
-        addOperation(CSWRequestType.GetRecords.name(), operationsMetadata, noParameters);
-        addOperation(CSWRequestType.GetRecordById.name(), operationsMetadata, noParameters);
+        DomainType[] getRecordsConstraint = {opensearch};
+
+        addOperation(CSWRequestType.GetCapabilities.name() ,operationsMetadata, getCapabilitiesParameters,noParameters);
+        addOperation(CSWRequestType.GetRecords.name(), operationsMetadata,noParameters,getRecordsConstraint);
+        addOperation(CSWRequestType.GetRecordById.name(), operationsMetadata,noParameters,noParameters);
         //add  conformance
         addDefaultConformance(operationsMetadata);
+        operationsMetadata.getConstraint().add(opensearch);
         getCapabilitiesType.setOperationsMetadata(operationsMetadata);
     }
 
@@ -219,7 +230,7 @@ public class GetCapabilitiesHandler {
 
     }
 
-    private DomainType addDomain(String domainName, String[] domainValues){
+    private DomainType createDomain(String domainName, String[] domainValues){
 
         DomainType domain = new DomainType();
         domain.setName(domainName);
@@ -251,7 +262,7 @@ public class GetCapabilitiesHandler {
     }
 
     private void addDefaultConformance(OperationsMetadata operationsMetadata) {
-        addConformanceType(operationsMetadata, "OpenSearch", falseValueType);
+        addConformanceType(operationsMetadata, "OpenSearch", trueValueType);
         addConformanceType(operationsMetadata, "GetCapabilities-XML", falseValueType);
         addConformanceType(operationsMetadata, "GetRecordById-XML", falseValueType);
         addConformanceType(operationsMetadata, "GetRecords-Basic-XML", falseValueType);

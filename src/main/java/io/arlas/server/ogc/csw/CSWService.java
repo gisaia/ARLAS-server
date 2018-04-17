@@ -20,7 +20,7 @@
 package io.arlas.server.ogc.csw;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.app.CSWConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
@@ -39,20 +39,21 @@ import io.arlas.server.ogc.csw.utils.CSWRequestType;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
 import io.arlas.server.rest.collections.CollectionRESTServices;
 import io.arlas.server.rest.explore.Documentation;
+import io.arlas.server.rest.explore.opensearch.model.OpenSearchDescription;
+import io.arlas.server.rest.explore.opensearch.model.Url;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import net.opengis.cat.csw._3.CapabilitiesType;
+import net.opengis.cat.csw._3.GetDomainResponseType;
 import net.opengis.cat.csw._3.GetRecordsResponseType;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import javax.xml.bind.JAXBElement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -61,29 +62,31 @@ import java.util.Optional;
 public class CSWService extends CollectionRESTServices {
 
     protected CollectionReferenceDao dao = null;
+    public static final String MIME_TYPE__OPENSEARCH_XML = "application/opensearchdescription+xml";
 
 
     public CSWHandler cswHandler;
     private OGCConfiguration ogcConfiguration;
+    private CSWConfiguration cswConfiguration;
 
     private String serverUrl;
 
-    public CSWService(CSWHandler cswHandler, ArlasServerConfiguration configuration) {
-
+    public CSWService(CSWHandler cswHandler) {
         this.cswHandler = cswHandler;
         this.ogcConfiguration = cswHandler.ogcConfiguration;
+        this.cswConfiguration = cswHandler.cswConfiguration;
         this.serverUrl = ogcConfiguration.serverUri;
-
     }
-
+    @Context
+    UriInfo uri;
     @Timed
     @Path("/csw")
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, ATOM.APPLICATION_ATOM_XML})
+    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, ATOM.APPLICATION_ATOM_XML,MIME_TYPE__OPENSEARCH_XML})
     @ApiOperation(
             value = "CSW",
 
-            produces = MediaType.APPLICATION_XML + "," + MediaType.TEXT_XML + "," + ATOM.APPLICATION_ATOM_XML,
+            produces = MediaType.APPLICATION_XML + "," + MediaType.TEXT_XML + "," + ATOM.APPLICATION_ATOM_XML +","+MIME_TYPE__OPENSEARCH_XML,
             notes = "CSW"
     )
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
@@ -155,6 +158,24 @@ public class CSWService extends CollectionRESTServices {
                     allowMultiple = false,
                     required = false)
             @QueryParam(value = "acceptformats") String acceptFormats,
+            @ApiParam(
+                    name = "q",
+                    value = "q",
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "q") String query,
+            @ApiParam(
+                    name = "bbox",
+                    value = "bbox",
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "bbox") String bbox,
+            @ApiParam(
+                    name = "outputformat",
+                    value = "outputformat",
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "outputformat") String outputFormat,
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -162,9 +183,26 @@ public class CSWService extends CollectionRESTServices {
                     allowMultiple = false,
                     defaultValue = "false",
                     required = false)
-            @QueryParam(value = "pretty") Boolean pretty
+            @QueryParam(value = "pretty") Boolean pretty,
+            @Context HttpHeaders headers
     ) throws ArlasException {
-
+        LOGGER.info(uri.getRequestUri().toString());
+        for(MediaType mediaType:headers.getAcceptableMediaTypes()){
+            if(mediaType.getSubtype().contains("opensearchdescription")){
+                OpenSearchDescription description = new OpenSearchDescription();
+                description.description=cswConfiguration.openSearchDescription;
+                description.shortName=cswConfiguration.openSearchShortName;
+                Url url= new Url();
+                url.type = MediaType.APPLICATION_XML;
+                url.template = serverUrl + "collections/csw/?"+"request=GetRecords&service=CSW\n" +
+                        "&version=3.0&q={searchTerms}&maxRecords={count?}\n" +
+                        "&startPosition={startIndex?}&bbox={geo:box?}\n" +
+                        "&outputFormat=application/xml";
+                description.url = new ArrayList<Url>();
+                description.url.add(url);
+                return Response.ok(description).build();
+            }
+        }
         if (request == null & version == null & service == null) {
             request = "GetCapabilities";
             version = CSWConstant.SUPPORTED_CSW_VERSION;
@@ -201,7 +239,8 @@ public class CSWService extends CollectionRESTServices {
         switch (requestType) {
             case GetCapabilities:
                 GetCapabilitiesHandler getCapabilitiesHandler = cswHandler.getCapabilitiesHandler;
-                JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse(Arrays.asList(sectionList), serverUrl + "collections/csw/?");
+                JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse(Arrays.asList(sectionList),
+                        serverUrl + "collections/csw/?",serverUrl+"collections/csw/_opensearch");
                 return Response.ok(getCapabilitiesResponse).type(mediaType).build();
             case GetRecords:
                 GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
@@ -214,5 +253,32 @@ public class CSWService extends CollectionRESTServices {
             default:
                 throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.CSW);
         }
+    }
+    @Timed
+    @Path("/csw/_opensearch")
+    @GET
+    @Produces({MIME_TYPE__OPENSEARCH_XML})
+    @ApiOperation(value = "OpenSearch CSW Description Document", produces =MIME_TYPE__OPENSEARCH_XML, notes = Documentation.OPENSEARCH_CSW_OPERATION)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
+    public Response opensearch(
+            // --------------------------------------------------------
+            // -----------------------  EXTRA   -----------------------
+            // --------------------------------------------------------
+            @ApiParam(value = "max-age-cache", required = false)
+            @QueryParam(value = "max-age-cache") Integer maxagecache
+    ) throws ArlasException {
+        OpenSearchDescription description = new OpenSearchDescription();
+        description.description=cswConfiguration.openSearchDescription;
+        description.shortName=cswConfiguration.openSearchShortName;
+        Url url= new Url();
+        url.type = MediaType.APPLICATION_XML;
+        url.template = serverUrl + "collections/csw/?"+"request=GetRecords&service=CSW\n" +
+                "&version=3.0&q={searchTerms}&maxRecords={count?}\n" +
+                "&startPosition={startIndex?}&bbox={geo:box?}\n" +
+                "&outputFormat=application/xml";
+        description.url = new ArrayList<Url>();
+        description.url.add(url);
+        return Response.ok(description).build();
     }
 }

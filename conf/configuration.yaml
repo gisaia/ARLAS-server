@@ -104,7 +104,6 @@ arlas-wfs:
   featureNamespace: ${ARLAS_WFS_FEATURE_NAMESPACE:-arlas}
   replaceChar: ${ARLAS_WFS_REPLACE_CHAR:-_}
 
-
 arlas-ogc:
   serverUri: ${ARLAS_OGC_SERVER_URI:-http://arlas-server:9999/arlas/}
   serviceProviderName: ${ARLAS_OGC_SERVICE_PROVIDER_NAME:-ARLAS}
@@ -115,3 +114,7 @@ arlas-ogc:
   serviceContactAdressPostalCode: ${ARLAS_OGC_SERVICE_CONTACT_CODE:-31000}
   serviceContactAdressCountry: ${ARLAS_OGC_SERVICE_CONTACT_COUNTRY:-France}
   queryMaxFeature: ${ARLAS_OGC_QUERY_MAX_FEATURE:-1000}
+
+arlas-csw:
+  openSearchDescription: ${ARLAS_CSW_OPENSEARCH_DESCRIPTION:-Geo-BigData Collection Catalog}
+  openSearchShortName: ${ARLAS_CSW_OPENSEARCH_SHORTNAME:-Geo-BigData Collection Catalog}
