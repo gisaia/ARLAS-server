@@ -15,7 +15,7 @@
         "age": {
           "type": "integer"
         },
-        "tags": {
+        "keywords": {
           "type": "keyword"
         },
         "job": {
@@ -28,6 +28,10 @@
           "type": "keyword"
         },
         "startdate": {
+          "type": "date",
+          "format": "epoch_millis"
+        },
+        "stopdate": {
           "type": "date",
           "format": "epoch_millis"
         }
