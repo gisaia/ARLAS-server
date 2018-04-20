@@ -22,7 +22,6 @@
 
 - Add wfs exclude field in CollectionReferenceParameters [\#187](https://github.com/gisaia/ARLAS-server/issues/187) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
 -   Configuration: applicationContextPath can be customized in a container via an environment variable [\#158](https://github.com/gisaia/ARLAS-server/issues/158) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
-- speed up CI runs using parallelized jobs [\#220](https://github.com/gisaia/ARLAS-server/pull/220) ([sfalquier](https://github.com/sfalquier))
 
 **Fixed bugs:**
 
