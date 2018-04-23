@@ -17,10 +17,11 @@
  * under the License.
  */
 
-package io.arlas.server.ogc.csw.writer;
+package io.arlas.server.ogc.csw.writer.getrecords;
 
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.ns.ATOM;
+import io.arlas.server.ogc.csw.utils.AtomBuilder;
 import net.opengis.cat.csw._3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,6 @@ import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Period;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -81,15 +81,12 @@ public class AtomGetRecordsMessageBodyWriter implements MessageBodyWriter<GetRec
         JAXBElement<String> name = objectFactory.createName("Matthieu Barbet");
         personType.getNameOrUriOrEmail().add(name);
         feedType.getAuthor().add(personType);
-
         TextType title = objectFactory.createTextType();
         title.getContent().add(this.arlasServerConfiguration.cswConfiguration.openSearchShortName);
         feedType.setTitle(title);
-
         IdType idTypeValue = new IdType();
         idTypeValue.setValue(String.valueOf(this.arlasServerConfiguration.cswConfiguration.openSearchShortName.hashCode()));
         feedType.setId(idTypeValue);
-
         GregorianCalendar c = new GregorianCalendar();
         c.setTime(new Date());
         try {
@@ -101,8 +98,6 @@ public class AtomGetRecordsMessageBodyWriter implements MessageBodyWriter<GetRec
         } catch (DatatypeConfigurationException e) {
             e.printStackTrace();
         }
-
-
         com.a9.opensearch.ObjectFactory openSearchFactory = new com.a9.opensearch.ObjectFactory();
         BigInteger nextRecord = getRecordsResponseType.getSearchResults().getNextRecord() ;
         BigInteger totalResult= getRecordsResponseType.getSearchResults().getNumberOfRecordsReturned() ;
@@ -117,89 +112,10 @@ public class AtomGetRecordsMessageBodyWriter implements MessageBodyWriter<GetRec
 
         getRecordsResponseType.getSearchResults().getAbstractRecord().stream().forEach(jaxbElement -> {
             EntryType entryType = new EntryType();
-            setEntryType(jaxbElement.getValue(),feedType,entryType);
+            AtomBuilder.setEntryType(jaxbElement.getValue(),feedType,entryType);
             feedType.getEntry().add(entryType);
         });
 
         JAXB.marshal(objectFactory.createFeed(feedType),outputStream);
-    }
-
-    private void setEntryType(AbstractRecordType abstractRecordType,FeedType feedType,EntryType entryType){
-        String recordType = abstractRecordType.getClass().getSimpleName();
-        switch (recordType){
-            case "BriefRecordType":
-                setBriefRecordType((BriefRecordType)abstractRecordType,entryType);
-                break;
-            case "SummaryRecordType":
-                setSummaryRecordType((SummaryRecordType)abstractRecordType,entryType);
-                break;
-            case "RecordType":
-                setRecordType((RecordType)abstractRecordType,entryType);
-                break;
-        }
-    }
-
-    private void setRecordType(RecordType recordType, EntryType entryType) {
-        recordType.getDCElement().stream().forEach(simpleLiteralJAXBElement -> {
-            entryType.getOtherAttributes().put(
-                    simpleLiteralJAXBElement.getName(),simpleLiteralJAXBElement.getValue().toString());
-        });
-    }
-
-    private void setSummaryRecordType(SummaryRecordType summaryRecordType, EntryType entryType) {
-        ObjectFactory objectFactory = new ObjectFactory();
-        TextType title = objectFactory.createTextType();
-        summaryRecordType.getTitle().forEach(t->{
-            t.getValue().getContent().forEach(o->{
-                title.getContent().add(o);
-            });
-        });
-        IdType idTypeValue = new IdType();
-        summaryRecordType.getIdentifier().forEach(id->{
-            id.getValue().getContent().forEach(content->{
-                idTypeValue.setValue(content);
-            });
-        });
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        summaryRecordType.getModified().forEach(d->{
-            d.getContent().forEach(v->{
-                try {
-                    GregorianCalendar c = new GregorianCalendar();
-                    c.setTime(simpleDateFormat.parse(v));
-                    try {
-                        XMLGregorianCalendar date = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
-                        DateTimeType dateTimeType = new DateTimeType();
-                        dateTimeType.setValue(date);
-                        entryType.setUpdated(dateTimeType);
-                    } catch (DatatypeConfigurationException e) {
-                        e.printStackTrace();
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            });
-        });
-        entryType.setId(idTypeValue);
-        entryType.setTitle(title);
-
-
-    }
-
-    private void setBriefRecordType(BriefRecordType briefRecordType,EntryType entryType) {
-        ObjectFactory objectFactory = new ObjectFactory();
-        TextType title = objectFactory.createTextType();
-        briefRecordType.getTitle().forEach(t->{
-            t.getValue().getContent().forEach(o->{
-                title.getContent().add(o);
-            });
-        });
-        IdType idTypeValue = new IdType();
-        briefRecordType.getIdentifier().forEach(id->{
-            id.getValue().getContent().forEach(content->{
-                idTypeValue.setValue(content);
-            });
-        });
-        entryType.setId(idTypeValue);
-        entryType.setTitle(title);
     }
 }

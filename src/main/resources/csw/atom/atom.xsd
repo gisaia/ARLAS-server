@@ -20,6 +20,7 @@ Date: 12-03-2014
            xmlns:inspire_dls="http://inspire.ec.europa.eu/schemas/inspire_dls/1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:os="http://a9.com/-/spec/opensearch/1.1/"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
 
            xmlns:georss="http://www.georss.org/georss" targetNamespace="http://www.w3.org/2005/Atom" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <xs:annotation>
@@ -30,7 +31,8 @@ Date: 12-03-2014
   </xs:annotation>
   <xs:import namespace="http://inspire.ec.europa.eu/schemas/inspire_dls/1.0" schemaLocation="inspire_dls.xsd"/>
   <xs:import namespace="http://a9.com/-/spec/opensearch/1.1/" schemaLocation="opensearch.xsd"/>
-
+  <xs:import namespace="http://purl.org/dc/elements/1.1/"
+              schemaLocation="../rec-dcmes.xsd"/>
   <!--	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>-->
   <xs:import namespace="http://www.georss.org/georss" schemaLocation="./georss.xsd"/>
       <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
@@ -133,6 +135,7 @@ Date: 12-03-2014
 			</xs:documentation>
     </xs:annotation>
     <xs:sequence>
+      <xs:element ref="dc:identifier" minOccurs="1"/>
       <xs:element ref="inspire_dls:spatial_dataset_identifier_code" minOccurs="1"/>
       <xs:element ref="inspire_dls:spatial_dataset_identifier_namespace" minOccurs="0"/>
       <xs:element name="category" type="atom:categoryType" minOccurs="0" maxOccurs="unbounded"/>

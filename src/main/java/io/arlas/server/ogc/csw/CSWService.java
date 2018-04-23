@@ -34,6 +34,7 @@ import io.arlas.server.ns.ATOM;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.RequestUtils;
 import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
+import io.arlas.server.ogc.csw.operation.getrecordbyid.GetRecordsByIdHandler;
 import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
 import io.arlas.server.ogc.csw.utils.CSWCheckParam;
 import io.arlas.server.ogc.csw.utils.CSWConstant;
@@ -49,9 +50,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import net.opengis.cat.csw._3.CapabilitiesType;
-import net.opengis.cat.csw._3.GetDomainResponseType;
-import net.opengis.cat.csw._3.GetRecordsResponseType;
+import net.opengis.cat.csw._3.*;
 import org.w3._2005.atom.EntryType;
 import org.w3._2005.atom.FeedType;
 import org.w3._2005.atom.ObjectFactory;
@@ -220,6 +219,8 @@ public class CSWService extends CollectionRESTServices {
             @Context HttpHeaders headers
     ) throws ArlasException, DatatypeConfigurationException {
         LOGGER.info(uri.getRequestUri().toString());
+        String acceptFormatMediaType = MediaType.APPLICATION_XML;
+        String outputFormatMediaType = MediaType.APPLICATION_XML;
         for(MediaType mediaType:headers.getAcceptableMediaTypes()){
             if(mediaType.getSubtype().contains("opensearchdescription")){
                 OpenSearchDescription description = new OpenSearchDescription();
@@ -234,6 +235,8 @@ public class CSWService extends CollectionRESTServices {
                 description.url = new ArrayList<Url>();
                 description.url.add(url);
                 return Response.ok(description).build();
+            }else if(mediaType.getSubtype().contains("atom")){
+                outputFormatMediaType = MediaType.APPLICATION_ATOM_XML;
             }
         }
         if (request == null & version == null & service == null) {
@@ -252,7 +255,6 @@ public class CSWService extends CollectionRESTServices {
                 }
             }
         }
-        String acceptFormatMediaType = MediaType.APPLICATION_XML;
         if (acceptFormats != null) {
             if (acceptFormats.equals("text/xml")) {
                 acceptFormatMediaType = MediaType.TEXT_XML;
@@ -263,7 +265,6 @@ public class CSWService extends CollectionRESTServices {
             }
         }
 
-        String outputFormatMediaType = MediaType.APPLICATION_XML;
         if (outputFormat != null) {
             if (outputFormat.equals("application/xml")) {
                 outputFormatMediaType = MediaType.APPLICATION_XML;
@@ -310,7 +311,7 @@ public class CSWService extends CollectionRESTServices {
                 i++;
             }
         }
-
+        List<CollectionReference> collections = new ArrayList<>();
         switch (requestType) {
             case GetCapabilities:
                 GetCapabilitiesHandler getCapabilitiesHandler = cswHandler.getCapabilitiesHandler;
@@ -318,14 +319,19 @@ public class CSWService extends CollectionRESTServices {
                         serverUrl + "collections/csw/?",serverUrl+"collections/csw/_opensearch");
                 return Response.ok(getCapabilitiesResponse).type(acceptFormatMediaType).build();
             case GetRecords:
-            case GetRecordById:
                 GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
                 long recordsMatched = dao.countCollectionReferences(ids);
-                List<CollectionReference> collections = dao.getCollectionReferences(elements, null,
+                collections = dao.getCollectionReferences(elements, null,
                         maxRecords, startPosition,ids);
                 GetRecordsResponseType getRecordsResponse = getRecordsHandler.getCSWGetRecordsResponse(collections,
                         ElementSetName.valueOf(elementSetName), startPosition, recordsMatched,elements);
                 return Response.ok(getRecordsResponse).type(outputFormatMediaType).build();
+            case GetRecordById:
+                GetRecordsByIdHandler getRecordsByIdHandler = cswHandler.getRecordsByIdHandler;
+                collections = dao.getCollectionReferences(elements, null,
+                        maxRecords, startPosition,ids);
+                AbstractRecordType abstractRecordType = getRecordsByIdHandler.getAbstractRecordTypeResponse(collections,ElementSetName.valueOf(elementSetName));
+                return Response.ok(abstractRecordType).type(outputFormatMediaType).build();
             default:
                 throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.CSW);
         }

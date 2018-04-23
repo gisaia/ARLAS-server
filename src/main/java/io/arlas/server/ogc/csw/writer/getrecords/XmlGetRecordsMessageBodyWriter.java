@@ -18,7 +18,7 @@
  */
 
 
-package io.arlas.server.ogc.csw.writer;
+package io.arlas.server.ogc.csw.writer.getrecords;
 
 import net.opengis.cat.csw._3.GetRecordsResponseType;
 import net.opengis.cat.csw._3.ObjectFactory;
