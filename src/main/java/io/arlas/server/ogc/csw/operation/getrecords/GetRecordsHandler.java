@@ -52,7 +52,7 @@ public class GetRecordsHandler {
     public GetRecordsResponseType getCSWGetRecordsResponse(List<CollectionReference> collections,
                                                                         ElementSetName elementSetName,
                                                                         int startPosition,
-                                                                        int maxRecords, String[] elements) throws DatatypeConfigurationException {
+                                                                        long recordsMatched, String[] elements) throws DatatypeConfigurationException {
         GetRecordsResponseType getRecordsResponseType = new GetRecordsResponseType();
         SearchResultsType searchResultType = new SearchResultsType();
         RequestStatusType searchStatus = new RequestStatusType();
@@ -91,7 +91,7 @@ public class GetRecordsHandler {
 
         searchResultType.setNextRecord(BigInteger.valueOf(startPosition + collections.size()));
         searchResultType.setNumberOfRecordsReturned(BigInteger.valueOf(collections.size()));
-        searchResultType.setNumberOfRecordsMatched(BigInteger.valueOf(collections.size()));
+        searchResultType.setNumberOfRecordsMatched(BigInteger.valueOf(recordsMatched));
         return  getRecordsResponseType;
     }
 

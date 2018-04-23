@@ -166,6 +166,21 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         return collections;
     }
 
+    @Override
+    public long countCollectionReferences(String[] ids) throws ArlasException {
+        long count = 0;
+        try {
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            buildCollectionQuery(boolQuery, ids);
+            SearchResponse response = client.prepareSearch(arlasIndex)
+                    .setQuery(boolQuery).get();
+            count = response.getHits().getTotalHits();
+        } catch (IndexNotFoundException e) {
+            throw new InternalServerErrorException("Unreachable collections", e);
+        }
+        return count;
+    }
+
     private void buildCollectionQuery(BoolQueryBuilder boolQuery, String[] ids) {
         if (ids != null) {
             {

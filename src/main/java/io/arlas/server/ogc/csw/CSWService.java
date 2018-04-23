@@ -320,10 +320,11 @@ public class CSWService extends CollectionRESTServices {
             case GetRecords:
             case GetRecordById:
                 GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
+                long recordsMatched = dao.countCollectionReferences(ids);
                 List<CollectionReference> collections = dao.getCollectionReferences(elements, null,
                         maxRecords, startPosition,ids);
                 GetRecordsResponseType getRecordsResponse = getRecordsHandler.getCSWGetRecordsResponse(collections,
-                        ElementSetName.valueOf(elementSetName), startPosition, maxRecords,elements);
+                        ElementSetName.valueOf(elementSetName), startPosition, recordsMatched,elements);
                 return Response.ok(getRecordsResponse).type(outputFormatMediaType).build();
             default:
                 throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.CSW);
