@@ -21,6 +21,7 @@ package io.arlas.server.dao;
 
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.utils.BoundingBox;
 
 import java.util.List;
 
@@ -32,8 +33,8 @@ public interface CollectionReferenceDao {
 
     public CollectionReference getCollectionReference(String ref) throws ArlasException;
 
-    public List<CollectionReference> getCollectionReferences(String[] includes,String[]
-            excludes,int size, int from ) throws ArlasException;
+    public List<CollectionReference> getCollectionReferences(String[] includes, String[]
+            excludes, int size, int from, String[] ids) throws ArlasException;
 
     public List<CollectionReference> getAllCollectionReferences() throws ArlasException;
 

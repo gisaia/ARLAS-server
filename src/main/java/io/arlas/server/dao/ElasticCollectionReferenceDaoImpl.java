@@ -32,6 +32,7 @@ import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
+import io.arlas.server.utils.BoundingBox;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -43,6 +44,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.IndexNotFoundException;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
@@ -132,7 +134,8 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     @Override
-    public List<CollectionReference> getCollectionReferences(String[] includes, String[] excludes, int size, int from) throws ArlasException {
+    public List<CollectionReference> getCollectionReferences(String[] includes, String[] excludes, int size,
+                                                             int from, String[] ids) throws ArlasException {
 
         List<CollectionReference> collections = new ArrayList<>();
         //Exclude old include_fields for support old collection
@@ -142,12 +145,13 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             excludes = new String[]{"include_fields"};
         }
         try {
-            QueryBuilder qb = QueryBuilders.matchAllQuery();
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            buildCollectionQuery(boolQuery, ids);
             SearchResponse response = client.prepareSearch(arlasIndex)
                     .setFetchSource(includes, excludes)
                     .setFrom(from)
                     .setSize(size)
-                    .setQuery(qb).get(); // max of 100 hits will be returned for each scroll
+                    .setQuery(boolQuery).get();
             for (SearchHit hit : response.getHits().getHits()) {
                 String source = hit.getSourceAsString();
                 try {
@@ -160,6 +164,18 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             throw new InternalServerErrorException("Unreachable collections", e);
         }
         return collections;
+    }
+
+    private void buildCollectionQuery(BoolQueryBuilder boolQuery, String[] ids) {
+        if (ids != null) {
+            {
+                BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+                for (String resourceIdValue : Arrays.asList(ids)) {
+                    orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery("dublin_core_element_name.identifier", resourceIdValue));
+                    boolQuery = boolQuery.filter(orBoolQueryBuilder);
+                }
+            }
+        }
     }
 
     @Override
