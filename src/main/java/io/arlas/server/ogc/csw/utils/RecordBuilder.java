@@ -38,21 +38,15 @@ public class RecordBuilder {
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
         if (elements.length == 0 || elements == null) {
             // ADD ALL field
-            if(dublinCoreElementName.title!=""){
-                addTitle(briefRecord, dublinCoreElementName.title);
-            }else{
-                addTitle(briefRecord, collectionReference.collectionName);
-            }            addType(briefRecord, dublinCoreElementName.type);
+            addTitle(briefRecord, dublinCoreElementName.title);
+            addType(briefRecord, dublinCoreElementName.type);
             addBbox(briefRecord, dublinCoreElementName.bbox);
         } else {
             for (String element : Arrays.asList(elements)) {
                 switch (element.toLowerCase()) {
                     case CSWConstant.DC_FIELD_TITLE:
-                        if(dublinCoreElementName.title!=""){
-                            addTitle(briefRecord, dublinCoreElementName.title);
-                        }else{
-                            addTitle(briefRecord, collectionReference.collectionName);
-                        }                        break;
+                        addTitle(briefRecord, dublinCoreElementName.title);
+                      break;
                     case CSWConstant.DC_FIELD_TYPE:
                         addType(briefRecord, dublinCoreElementName.type);
                         break;
@@ -76,16 +70,8 @@ public class RecordBuilder {
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
         if (elements.length == 0) {
             // ADD ALL field
-            if(dublinCoreElementName.title!=""){
-                addTitle(summaryRecord, dublinCoreElementName.title);
-            }else{
-                addTitle(summaryRecord, collectionReference.collectionName);
-            }
-            if(dublinCoreElementName.subject!=""){
-                addSubject(summaryRecord, dublinCoreElementName.subject);
-            }else{
-                addSubject(summaryRecord, collectionReference.collectionName);
-            }
+            addTitle(summaryRecord, dublinCoreElementName.title);
+            addSubject(summaryRecord, dublinCoreElementName.subject);
             addType(summaryRecord, dublinCoreElementName.type);
             addBbox(summaryRecord, dublinCoreElementName.bbox);
             addModified(summaryRecord, dublinCoreElementName.getDate());
@@ -95,11 +81,8 @@ public class RecordBuilder {
             for (String element : Arrays.asList(elements)) {
                 switch (element.toLowerCase()) {
                     case CSWConstant.DC_FIELD_TITLE:
-                        if(dublinCoreElementName.title!=""){
-                            addTitle(summaryRecord, dublinCoreElementName.title);
-                        }else{
-                            addTitle(summaryRecord, collectionReference.collectionName);
-                        }                        break;
+                        addTitle(summaryRecord, dublinCoreElementName.title);
+                      break;
                     case CSWConstant.DC_FIELD_TYPE:
                         addType(summaryRecord, dublinCoreElementName.type);
                         break;
@@ -107,11 +90,7 @@ public class RecordBuilder {
                         addBbox(summaryRecord, dublinCoreElementName.bbox);
                         break;
                     case CSWConstant.DC_FIELD_SUBJECT:
-                        if(dublinCoreElementName.subject!=""){
-                            addSubject(summaryRecord, dublinCoreElementName.subject);
-                        }else{
-                            addSubject(summaryRecord, collectionReference.collectionName);
-                        }
+                        addSubject(summaryRecord, dublinCoreElementName.subject);
                         break;
                     case CSWConstant.DC_FIELD_MODIFIED:
                         addModified(summaryRecord, dublinCoreElementName.getDate());
@@ -125,11 +104,7 @@ public class RecordBuilder {
                 }
             }
         }
-        if(dublinCoreElementName.identifier!=""){
-            addIdentifier(summaryRecord, dublinCoreElementName.identifier);
-        }else{
-            addIdentifier(summaryRecord, String.valueOf(collectionReference.collectionName.hashCode()));
-        }
+        addIdentifier(summaryRecord, dublinCoreElementName.identifier);
         return summaryRecord;
     }
 
@@ -138,16 +113,8 @@ public class RecordBuilder {
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
         if (elements.length == 0 || elements == null) {
             // ADD ALL field
-            if(dublinCoreElementName.title!=""){
-                addTitle(record, dublinCoreElementName.title);
-            }else{
-                addTitle(record, collectionReference.collectionName);
-            }
-            if(dublinCoreElementName.subject!=""){
-                addSubject(record, dublinCoreElementName.subject);
-            }else{
-                addSubject(record, collectionReference.collectionName);
-            }
+            addTitle(record, dublinCoreElementName.title);
+            addSubject(record, dublinCoreElementName.subject);
             addType(record, dublinCoreElementName.type);
             addBbox(record, dublinCoreElementName.bbox);
             addModified(record, dublinCoreElementName.getDate());
@@ -157,11 +124,7 @@ public class RecordBuilder {
             for (String element : Arrays.asList(elements)) {
                 switch (element.toLowerCase()) {
                     case CSWConstant.DC_FIELD_TITLE:
-                        if(dublinCoreElementName.title!=""){
-                            addTitle(record, dublinCoreElementName.title);
-                        }else{
-                            addTitle(record, collectionReference.collectionName);
-                        }
+                        addTitle(record, dublinCoreElementName.title);
                         break;
                     case CSWConstant.DC_FIELD_TYPE:
                         addType(record, dublinCoreElementName.type);
@@ -170,11 +133,7 @@ public class RecordBuilder {
                         addBbox(record, dublinCoreElementName.bbox);
                         break;
                     case CSWConstant.DC_FIELD_SUBJECT:
-                        if(dublinCoreElementName.subject!=""){
-                            addSubject(record, dublinCoreElementName.subject);
-                        }else{
-                            addSubject(record, collectionReference.collectionName);
-                        }
+                        addSubject(record, dublinCoreElementName.subject);
                         break;
                     case CSWConstant.DC_FIELD_MODIFIED:
                         addModified(record, dublinCoreElementName.getDate());
@@ -188,11 +147,7 @@ public class RecordBuilder {
                 }
             }
         }
-        if(dublinCoreElementName.identifier!=""){
-            addIdentifier(record, dublinCoreElementName.identifier);
-        }else{
-            addIdentifier(record, String.valueOf(collectionReference.collectionName.hashCode()));
-        }
+        addIdentifier(record, dublinCoreElementName.identifier);
         return record;
     }
 

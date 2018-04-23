@@ -26,12 +26,11 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InternalServerErrorException;
-import io.arlas.server.exceptions.NotAllowedException;
-import io.arlas.server.exceptions.NotFoundException;
+import io.arlas.server.core.FluidSearch;
+import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
+import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.utils.BoundingBox;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
@@ -45,6 +44,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
@@ -135,7 +135,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     @Override
     public List<CollectionReference> getCollectionReferences(String[] includes, String[] excludes, int size,
-                                                             int from, String[] ids) throws ArlasException {
+                                                             int from, String[] ids, String q) throws ArlasException {
 
         List<CollectionReference> collections = new ArrayList<>();
         //Exclude old include_fields for support old collection
@@ -145,8 +145,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             excludes = new String[]{"include_fields"};
         }
         try {
-            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-            buildCollectionQuery(boolQuery, ids);
+            BoolQueryBuilder boolQuery =  buildCollectionQuery( ids, q);
             SearchResponse response = client.prepareSearch(arlasIndex)
                     .setFetchSource(includes, excludes)
                     .setFrom(from)
@@ -167,11 +166,10 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     @Override
-    public long countCollectionReferences(String[] ids) throws ArlasException {
+    public long countCollectionReferences(String[] ids, String q) throws ArlasException {
         long count = 0;
         try {
-            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-            buildCollectionQuery(boolQuery, ids);
+            BoolQueryBuilder boolQuery = buildCollectionQuery(ids, q);
             SearchResponse response = client.prepareSearch(arlasIndex)
                     .setQuery(boolQuery).get();
             count = response.getHits().getTotalHits();
@@ -181,16 +179,20 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         return count;
     }
 
-    private void buildCollectionQuery(BoolQueryBuilder boolQuery, String[] ids) {
+    private BoolQueryBuilder buildCollectionQuery(String[] ids, String q) {
+        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         if (ids != null) {
-            {
-                BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-                for (String resourceIdValue : Arrays.asList(ids)) {
-                    orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery("dublin_core_element_name.identifier", resourceIdValue));
-                    boolQuery = boolQuery.filter(orBoolQueryBuilder);
-                }
+            for (String resourceIdValue : Arrays.asList(ids)) {
+                orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery("dublin_core_element_name.identifier", resourceIdValue));
+                boolQuery = boolQuery.filter(orBoolQueryBuilder);
             }
+        } else if (q != null) {
+            orBoolQueryBuilder = orBoolQueryBuilder
+                    .should((QueryBuilders.simpleQueryStringQuery(q).defaultOperator(Operator.AND).field("internal.fulltext")));
+            boolQuery = boolQuery.filter(orBoolQueryBuilder);
         }
+        return  boolQuery;
     }
 
     @Override
@@ -282,11 +284,11 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             checkExcludeField(collectionReference.params, fields);
 
             Iterator<String> indeces = response.getMappings().keysIt();
-            while(indeces.hasNext()) {
+            while (indeces.hasNext()) {
                 String index = indeces.next();
                 //check type
                 try {
-                    if(!response.getMappings().get(index).containsKey(collectionReference.params.typeName)) {
+                    if (!response.getMappings().get(index).containsKey(collectionReference.params.typeName)) {
                         throw new NotFoundException("Type " + collectionReference.params.typeName + " does not exist in " + collectionReference.params.indexName + ".");
                     }
                     Object properties = response.getMappings().get(index).get(collectionReference.params.typeName).sourceAsMap().get("properties");
@@ -310,7 +312,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             throw new NotFoundException("Unable to access " + collectionReference.params.typeName + " in " + collectionReference.params.indexName + ".");
         }
     }
-    
+
     private void checkExcludeField(CollectionReferenceParameters params, List<String> fields) throws NotAllowedException {
         if (params.excludeFields != null && params.excludeFields != "") {
             ArrayList<Pattern> excludeFields = new ArrayList<>();

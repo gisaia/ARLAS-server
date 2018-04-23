@@ -320,16 +320,16 @@ public class CSWService extends CollectionRESTServices {
                 return Response.ok(getCapabilitiesResponse).type(acceptFormatMediaType).build();
             case GetRecords:
                 GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
-                long recordsMatched = dao.countCollectionReferences(ids);
+                long recordsMatched = dao.countCollectionReferences(ids,query);
                 collections = dao.getCollectionReferences(elements, null,
-                        maxRecords, startPosition,ids);
+                        maxRecords, startPosition,ids,query);
                 GetRecordsResponseType getRecordsResponse = getRecordsHandler.getCSWGetRecordsResponse(collections,
                         ElementSetName.valueOf(elementSetName), startPosition, recordsMatched,elements);
                 return Response.ok(getRecordsResponse).type(outputFormatMediaType).build();
             case GetRecordById:
                 GetRecordsByIdHandler getRecordsByIdHandler = cswHandler.getRecordsByIdHandler;
                 collections = dao.getCollectionReferences(elements, null,
-                        maxRecords, startPosition,ids);
+                        maxRecords, startPosition,ids,query);
                 AbstractRecordType abstractRecordType = getRecordsByIdHandler.getAbstractRecordTypeResponse(collections,ElementSetName.valueOf(elementSetName));
                 return Response.ok(abstractRecordType).type(outputFormatMediaType).build();
             default:
