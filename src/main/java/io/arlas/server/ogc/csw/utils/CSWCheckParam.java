@@ -33,12 +33,16 @@ import java.util.regex.Pattern;
 
 public class CSWCheckParam {
 
-    public static void checkQuerySyntax(String elementName, String elementSetName, String acceptVersions,
+    public static void checkQuerySyntax(CSWRequestType requestType,String elementName, String elementSetName, String acceptVersions,
                                         String version, String service, String outputSchema,String typeNames,
-                                        String bbox, String resourceid,String filter )throws OGCException {
+                                        String bbox, String resourceid,String filter,String id )throws OGCException {
         if(service==null){
             throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, "Missing service", "service", Service.CSW);
-
+        }
+        if(requestType.equals(CSWRequestType.GetRecordById)){
+            if(id==null){
+                throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, "Missing id", "id", Service.CSW);
+            }
         }
         if (bbox != null && resourceid != null) {
             throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "BBOX and RECORDIDS can't be used together", "bbox,recordIds", Service.WFS);

@@ -276,8 +276,8 @@ public class CSWService extends CollectionRESTServices {
         }
 
         RequestUtils.checkRequestTypeByName(request, CSWConstant.SUPPORTED_CSW_REQUESTYPE, Service.CSW);
-        CSWCheckParam.checkQuerySyntax(elementName, elementSetName, acceptVersions, version, service, outputSchema,typeNames,bbox,recordIds,query);
         CSWRequestType requestType = CSWRequestType.valueOf(request);
+        CSWCheckParam.checkQuerySyntax(requestType,elementName, elementSetName, acceptVersions, version, service, outputSchema,typeNames,bbox,recordIds,query,id);
 
         String[] ids = null;
         if(recordIds!=null){

@@ -19,7 +19,10 @@
 
 package io.arlas.server.ogc.csw.operation.getrecordbyid;
 
+import io.arlas.server.exceptions.OGCException;
+import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
 import io.arlas.server.ogc.csw.utils.RecordBuilder;
@@ -39,7 +42,7 @@ public class GetRecordsByIdHandler {
         this.cswHandler = cswHandler;
     }
 
-    public AbstractRecordType getAbstractRecordTypeResponse(List<CollectionReference> collections, ElementSetName elementSetName) {
+    public AbstractRecordType getAbstractRecordTypeResponse(List<CollectionReference> collections, ElementSetName elementSetName) throws OGCException {
         if (collections.size() > 0) {
             switch (elementSetName) {
                 case brief:
@@ -56,7 +59,7 @@ public class GetRecordsByIdHandler {
                     return summaryDefaultRecord;
             }
         }else{
-            return null;
+            throw new OGCException(OGCExceptionCode.NOT_FOUND, "Document not Found", "id", Service.CSW);
         }
     }
 }
