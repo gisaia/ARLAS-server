@@ -19,21 +19,48 @@
 
 package io.arlas.server.ogc.csw.utils;
 
+import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.Version;
 import io.arlas.server.ogc.common.utils.VersionUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class CSWCheckParam {
 
-    public static void checkQuerySyntax(String elementName, String elementSetName, String acceptVersions, String version, String service) throws OGCException {
+    public static void checkQuerySyntax(String elementName, String elementSetName, String acceptVersions,
+                                        String version, String service, String outputSchema,String typeNames,
+                                        String bbox, String resourceid,String filter )throws OGCException {
         if(service==null){
             throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, "Missing service", "service", Service.CSW);
 
+        }
+        if (bbox != null && resourceid != null) {
+            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "BBOX and RECORDIDS can't be used together", "bbox,recordIds", Service.WFS);
+        } else if (bbox != null && filter != null) {
+            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "BBOX and Q can't be used together", "bbox,q", Service.WFS);
+        } else if (resourceid != null && filter != null) {
+            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "RECORDIDS and Q can't be used together", "bbox,q", Service.WFS);
+        }
+        if(outputSchema != null){
+            boolean isValidOutputSchema = Arrays.asList(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA).contains(outputSchema);
+            if(!isValidOutputSchema) throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid outputSchema", "outputSchema", Service.CSW);
+
+        }
+        if (typeNames!= null){
+            ArrayList<Pattern> accepTypeName = new ArrayList<>();
+            Arrays.asList(CSWConstant.SUPPORTED_TYPE_NAME_PATTERN).forEach(field -> {
+                accepTypeName.add(Pattern.compile("^" + field +"$"));
+            });
+            for (String field : Arrays.asList(typeNames.split(","))) {
+                boolean validType = accepTypeName.stream().anyMatch(pattern -> pattern.matcher(field).matches());
+                if (!validType)  throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid typeNames", "typeNames", Service.CSW);
+            }
         }
         ElementSetName elementSetNameEnum ;
         if(elementSetName!=null){
