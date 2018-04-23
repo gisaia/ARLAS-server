@@ -45,11 +45,9 @@ public class CSWCheckParam {
             }
         }
         if (bbox != null && resourceid != null) {
-            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "BBOX and RECORDIDS can't be used together", "bbox,recordIds", Service.WFS);
-        } else if (bbox != null && filter != null) {
-            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "BBOX and Q can't be used together", "bbox,q", Service.WFS);
+            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "BBOX and RECORDIDS can't be used together", "bbox,recordIds", Service.CSW);
         } else if (resourceid != null && filter != null) {
-            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "RECORDIDS and Q can't be used together", "bbox,q", Service.WFS);
+            throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "RECORDIDS and Q can't be used together", "bbox,q", Service.CSW);
         }
         if(outputSchema != null){
             boolean isValidOutputSchema = Arrays.asList(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA).contains(outputSchema);

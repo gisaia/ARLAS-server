@@ -204,20 +204,20 @@ public class RecordBuilder {
 
     public static void addBbox(AbstractRecordType abstractRecordType, DublinCoreElementName.Bbox bbox) {
         WGS84BoundingBoxType boudingBox = new WGS84BoundingBoxType();
-        boudingBox.getLowerCorner().add(0d);
-        boudingBox.getLowerCorner().add(0d);
-        boudingBox.getUpperCorner().add(0d);
-        boudingBox.getUpperCorner().add(0d);
+        boudingBox.getLowerCorner().add(String.valueOf(bbox.south));
+        boudingBox.getLowerCorner().add(String.valueOf(bbox.west));
+        boudingBox.getUpperCorner().add(String.valueOf(bbox.north));
+        boudingBox.getUpperCorner().add(String.valueOf(bbox.east));
         JAXBElement<WGS84BoundingBoxType> JAXBElementBbox = owsObjectFactory.createWGS84BoundingBox(boudingBox);
         switch (abstractRecordType.getClass().getSimpleName()) {
             case "BriefRecordType":
-                //((BriefRecordType) abstractRecordType).getBoundingBox().add(JAXBElementBbox);
+                ((BriefRecordType) abstractRecordType).getBoundingBox().add(JAXBElementBbox);
                 break;
             case "SummaryRecordType":
-                //((SummaryRecordType) abstractRecordType).getBoundingBox().add(JAXBElementBbox);
+                ((SummaryRecordType) abstractRecordType).getBoundingBox().add(JAXBElementBbox);
                 break;
             case "RecordType":
-                //((RecordType) abstractRecordType).getBoundingBox().add(JAXBElementBbox);
+                ((RecordType) abstractRecordType).getBoundingBox().add(JAXBElementBbox);
                 break;
         }
     }
