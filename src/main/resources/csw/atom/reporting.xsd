@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2014 EUROPEAN UNION Licensed under the EUPL,
+Version 1.1  or - as soon they will be approved by the European Commission -
+subsequent versions of the EUPL (the "Licence"); You may not use this work
+except in compliance with the Licence. You may obtain a copy of the Licence
+at:
+
+http://ec.europa.eu/idabc/eupl
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the Licence is distributed on an "AS IS" basis, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+Licence for the specific language governing permissions and limitations under
+the Licence.
+
+Date: 12-03-2014
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://inspire.ec.europa.eu/schemas/common/1.0" targetNamespace="http://inspire.ec.europa.eu/schemas/common/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.1">
+  <!--Types-->
+  
+  <xs:simpleType name="geographicalScope">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="EUROPEAN"/>
+      <xs:enumeration value="NATIONAL"/>
+      <xs:enumeration value="REGIONAL"/>
+      <xs:enumeration value="LOCAL"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="environmentalDomain">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AIR"/>
+      <xs:enumeration value="CLIMATE_AND_CLIMATE_CHANGE"/>
+      <xs:enumeration value="HEALTH_PROTECTION"/>
+      <xs:enumeration value="LAND_USE"/>
+      <xs:enumeration value="NATURAL_RESOURCES"/>
+      <xs:enumeration value="NATURE_AND_BIODIVERSITY"/>
+      <xs:enumeration value="NOISE"/>
+      <xs:enumeration value="SOIL"/>
+      <xs:enumeration value="SUSTAINABLE_DEVELOPMENT"/>
+      <xs:enumeration value="WASTE"/>
+      <xs:enumeration value="WATER"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="legislation">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AIR_QUALITY_DIRECTIVE"/>
+      <xs:enumeration value="ENVIRONMENTAL_NOISE_DIRECTIVE"/>
+      <xs:enumeration value="FLOOD_DIRECTIVE"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="relationToLegislation">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="OFFICIAL_REPORTING"/>
+      <xs:enumeration value="SUPPORT_TO_REPORTING"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="compositeKeyword">
+    <xs:restriction base="xs:string">
+<xs:pattern value="INSPIRE-(EUR|NAT|REG|LOC)-(AIR|CLI|HEA|LAN|NAT|BIO|NOI|SOI|SUS|WAS|WAT)-(AIR|NOI|FLO)-(OFF|SUP)"/>  
+</xs:restriction>
+</xs:simpleType>
+
+
+<xs:element name="ReportingTag" type="compositeKeyword"/>
+</xs:schema>
+<!--
+1. Geographical scope (code list)
+European
+National
+Regional
+Local
+
+2. Environmental Domain (code list)
+http://inspire.ec.europa.eu/codelist/EnvironmentalDomain 
+AIR
+CLIMATE AND CLIMATE CHANGE
+HEALTH PROTECTION
+LAND USE
+NATURAL RESOURCES
+NATURE AND BIODIVERSITY
+NOISE
+SOIL
+SUSTAINABLE DEVELOPMENT
+WASTE
+WATER
+
+
+3. Legislation
+
+CELEX
+
+AIR http://eur-lex.europa.eu/legal-content/EN/TXT/?qid=1449848500205&uri=CELEX:32008L0050 
+NOI http://eur-lex.europa.eu/legal-content/EN/TXT/?qid=1449848763546&uri=CELEX:32002L0049 
+FLO http://eur-lex.europa.eu/legal-content/EN/TXT/?qid=1450189677491&uri=CELEX:32007L0060 
+
+4. Relation to the legislation (code list)
+
+Values: Official reporting, Support to reporting
+-->
+

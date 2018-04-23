@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2014 EUROPEAN UNION Licensed under the EUPL,
+Version 1.1  or - as soon they will be approved by the European Commission -
+subsequent versions of the EUPL (the "Licence"); You may not use this work
+except in compliance with the Licence. You may obtain a copy of the Licence
+at:
+
+http://ec.europa.eu/idabc/eupl
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the Licence is distributed on an "AS IS" basis, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+Licence for the specific language governing permissions and limitations under
+the Licence.
+
+Date: 12-03-2014
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://inspire.ec.europa.eu/schemas/common/1.0" targetNamespace="http://inspire.ec.europa.eu/schemas/common/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.1">
+	<xs:simpleType name="keywordValueInspireTheme_pol">
+		<xs:restriction base="keywordValueInspireTheme">
+			<xs:enumeration value="Systemy odniesienia za pomocą współrzędnych"/>
+			<xs:enumeration value="Systemy siatek geograficznych"/>
+			<xs:enumeration value="Nazwy geograficzne"/>
+			<xs:enumeration value="Jednostki administracyjne"/>
+			<xs:enumeration value="Adresy"/>
+			<xs:enumeration value="Działki katastralne"/>
+			<xs:enumeration value="Sieci transportowe"/>
+			<xs:enumeration value="Hydrografia"/>
+			<xs:enumeration value="Obszary chronione"/>
+			<xs:enumeration value="Ukształtowanie terenu"/>
+			<xs:enumeration value="Użytkowanie terenu"/>
+			<xs:enumeration value="Sporządzanie ortoobrazów"/>
+			<xs:enumeration value="Geologia"/>
+			<xs:enumeration value="Jednostki statystyczne"/>
+			<xs:enumeration value="Budynki"/>
+			<xs:enumeration value="Gleba"/>
+			<xs:enumeration value="Zagospodarowanie przestrzenne"/>
+			<xs:enumeration value="Zdrowie i bezpieczeństwo ludzi"/>
+			<xs:enumeration value="Usługi użyteczności publicznej i służby państwowe"/>
+			<xs:enumeration value="Urządzenia do monitorowania środowiska"/>
+			<xs:enumeration value="Obiekty produkcyjne i przemysłowe"/>
+			<xs:enumeration value="Obiekty rolnicze oraz akwakultury"/>
+			<xs:enumeration value="Rozmieszczenie ludności – demografia"/>
+			<xs:enumeration value="Gospodarowanie obszarem/strefy ograniczone/regulacyjne oraz jednostki sprawozdawcze"/>
+			<xs:enumeration value="Strefy zagrożenia naturalnego"/>
+			<xs:enumeration value="Warunki atmosferyczne"/>
+			<xs:enumeration value="Warunki meteorologiczno-geograficzne"/>
+			<xs:enumeration value="Warunki oceanograficzno-geograficzne"/>
+			<xs:enumeration value="Regiony morskie"/>
+			<xs:enumeration value="Regiony biogeograficzne"/>
+			<xs:enumeration value="Siedliska i obszary przyrodniczo jednorodne"/>
+			<xs:enumeration value="Rozmieszczenie gatunków"/>
+			<xs:enumeration value="Zasoby energetyczne"/>
+			<xs:enumeration value="Zasoby mineralne"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexI_pol">
+		<xs:restriction base="keywordValueInspireTheme_pol">
+			<xs:enumeration value="Systemy odniesienia za pomocą współrzędnych"/>
+			<xs:enumeration value="Systemy siatek geograficznych"/>
+			<xs:enumeration value="Nazwy geograficzne"/>
+			<xs:enumeration value="Jednostki administracyjne"/>
+			<xs:enumeration value="Adresy"/>
+			<xs:enumeration value="Działki katastralne"/>
+			<xs:enumeration value="Sieci transportowe"/>
+			<xs:enumeration value="Hydrografia"/>
+			<xs:enumeration value="Obszary chronione"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexII_pol">
+		<xs:restriction base="keywordValueInspireTheme_pol">
+			<xs:enumeration value="Ukształtowanie terenu"/>
+			<xs:enumeration value="Użytkowanie terenu"/>
+			<xs:enumeration value="Sporządzanie ortoobrazów"/>
+			<xs:enumeration value="Geologia"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexIII_pol">
+		<xs:restriction base="keywordValueInspireTheme_pol">
+			<xs:enumeration value="Jednostki statystyczne"/>
+			<xs:enumeration value="Budynki"/>
+			<xs:enumeration value="Gleba"/>
+			<xs:enumeration value="Zagospodarowanie przestrzenne"/>
+			<xs:enumeration value="Zdrowie i bezpieczeństwo ludzi"/>
+			<xs:enumeration value="Usługi użyteczności publicznej i służby państwowe"/>
+			<xs:enumeration value="Urządzenia do monitorowania środowiska"/>
+			<xs:enumeration value="Obiekty produkcyjne i przemysłowe"/>
+			<xs:enumeration value="Obiekty rolnicze oraz akwakultury"/>
+			<xs:enumeration value="Rozmieszczenie ludności – demografia"/>
+			<xs:enumeration value="Gospodarowanie obszarem/strefy ograniczone/regulacyjne oraz jednostki sprawozdawcze"/>
+			<xs:enumeration value="Strefy zagrożenia naturalnego"/>
+			<xs:enumeration value="Warunki atmosferyczne"/>
+			<xs:enumeration value="Warunki meteorologiczno-geograficzne"/>
+			<xs:enumeration value="Warunki oceanograficzno-geograficzne"/>
+			<xs:enumeration value="Regiony morskie"/>
+			<xs:enumeration value="Regiony biogeograficzne"/>
+			<xs:enumeration value="Siedliska i obszary przyrodniczo jednorodne"/>
+			<xs:enumeration value="Rozmieszczenie gatunków"/>
+			<xs:enumeration value="Zasoby energetyczne"/>
+			<xs:enumeration value="Zasoby mineralne"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="inspireTheme_pol">
+		<xs:complexContent>
+			<xs:restriction base="inspireTheme">
+				<xs:sequence>
+					<xs:element name="OriginatingControlledVocabulary" type="originatingControlledVocabularyGemetInspireThemes"/>
+					<xs:element name="KeywordValue" type="keywordValueInspireTheme_pol"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireDirective_pol">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:L:2007:108:SOM:PL:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireDirective_pol">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Dyrektywa 2007/2/WE Parlamentu Europejskiego i Rady z dnia 14 marca 2007 r. ustanawiająca infrastrukturę informacji przestrzennej we Wspólnocie Europejskiej (INSPIRE)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2007-04-25"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2007:108:SOM:PL:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireDirective_pol" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireMDRegulation_pol">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32008R1205:PL:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireMDRegulation_pol">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Rozporządzenie Komisji (WE) nr 1205/2008 z dnia 3 grudnia 2008 r. w sprawie wykonania dyrektywy 2007/2/WE Parlamentu Europejskiego i Rady w zakresie metadanych (Tekst mający znaczenie dla EOG)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2008-12-03"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32008R1205:PL:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireMDRegulation_pol" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireNSRegulation_pol">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32009R0976:PL:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireNSRegulation_pol">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Rozporządzenie Komisji (WE) nr 976/2009 z dnia 19 października 2009 r. w sprawie wykonania dyrektywy 2007/2/WE Parlamentu Europejskiego i Rady w zakresie usług sieciowych"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2009-10-19"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32009R0976:PL:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireNSRegulation_pol" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<!--Interoperability-->
+	<xs:complexType name="resLocInspireInteroperabilityRegulation_pol">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2010:323:0011:0102:PL:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireInteroperabilityRegulation_pol">
+		<xs:complexContent>
+			<xs:restriction base="citationConformity">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Rozporządzenie Komisji (UE) nr 1089/2010 z dnia 23 listopada 2010 r. w sprawie wykonania dyrektywy 2007/2/WE Parlamentu Europejskiego i Rady w zakresie interoperacyjności zbiorów i usług danych przestrzennych"/>
+								<xs:enumeration value="ROZPORZĄDZENIE KOMISJI (UE) NR 1089/2010 z dnia 23 listopada 2010 r. w sprawie wykonania dyrektywy 2007/2/WE Parlamentu Europejskiego i Rady w zakresie interoperacyjności zbiorów i usług danych przestrzennych"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2010-12-08"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2010:323:0011:0102:PL:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireInteroperabilityRegulation_pol" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

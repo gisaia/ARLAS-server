@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2014 EUROPEAN UNION Licensed under the EUPL,
+Version 1.1  or - as soon they will be approved by the European Commission -
+subsequent versions of the EUPL (the "Licence"); You may not use this work
+except in compliance with the Licence. You may obtain a copy of the Licence
+at:
+
+http://ec.europa.eu/idabc/eupl
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the Licence is distributed on an "AS IS" basis, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+Licence for the specific language governing permissions and limitations under
+the Licence.
+
+Date: 12-03-2014
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://inspire.ec.europa.eu/schemas/common/1.0" targetNamespace="http://inspire.ec.europa.eu/schemas/common/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.1">
+	<xs:simpleType name="keywordValueInspireTheme_lav">
+		<xs:restriction base="keywordValueInspireTheme">
+			<xs:enumeration value="Koordinātu atskaites sistēmas"/>
+			<xs:enumeration value="Ģeogrāfisko koordinātu tīklu sistēmas"/>
+			<xs:enumeration value="Toponīmi"/>
+			<xs:enumeration value="Administratīvas vienības"/>
+			<xs:enumeration value="Adreses"/>
+			<xs:enumeration value="Kadastrāli zemes gabali"/>
+			<xs:enumeration value="Transporta tīkli"/>
+			<xs:enumeration value="Hidrogrāfija"/>
+			<xs:enumeration value="Aizsargājamas teritorijas"/>
+			<xs:enumeration value="Augstums"/>
+			<xs:enumeration value="Zemes virsma"/>
+			<xs:enumeration value="Ortofotogrāfija"/>
+			<xs:enumeration value="Ģeoloģija"/>
+			<xs:enumeration value="Statistikas vienības"/>
+			<xs:enumeration value="Ēkas"/>
+			<xs:enumeration value="Augsne"/>
+			<xs:enumeration value="Zemes izmantošana"/>
+			<xs:enumeration value="Cilvēku veselība un drošība"/>
+			<xs:enumeration value="Komunālie un valsts dienesti"/>
+			<xs:enumeration value="Vides monitoringa iekārtas"/>
+			<xs:enumeration value="Ražošanas un rūpniecības iekārtas"/>
+			<xs:enumeration value="Lauksaimniecības un akvakultūras iekārtas"/>
+			<xs:enumeration value="Iedzīvotāju sadalījums – demogrāfija"/>
+			<xs:enumeration value="Apgabala pārvaldības/ierobežojumu/reglamentētas zonas un ziņošanas vienības"/>
+			<xs:enumeration value="Dabas apdraudējuma zonas"/>
+			<xs:enumeration value="Atmosfēras apstākļi"/>
+			<xs:enumeration value="Meteoroloģiski ģeogrāfiskie raksturlielumi"/>
+			<xs:enumeration value="Okeanogrāfiski ģeogrāfiskie raksturlielumi"/>
+			<xs:enumeration value="Jūru reģioni"/>
+			<xs:enumeration value="Bioģeogrāfiskie reģioni"/>
+			<xs:enumeration value="Dzīvotnes un biotopi"/>
+			<xs:enumeration value="Sugu izplatība"/>
+			<xs:enumeration value="Enerģijas resursi"/>
+			<xs:enumeration value="Derīgo izrakteņu resursi"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexI_lav">
+		<xs:restriction base="keywordValueInspireTheme_lav">
+			<xs:enumeration value="Koordinātu atskaites sistēmas"/>
+			<xs:enumeration value="Ģeogrāfisko koordinātu tīklu sistēmas"/>
+			<xs:enumeration value="Toponīmi"/>
+			<xs:enumeration value="Administratīvas vienības"/>
+			<xs:enumeration value="Adreses"/>
+			<xs:enumeration value="Kadastrāli zemes gabali"/>
+			<xs:enumeration value="Transporta tīkli"/>
+			<xs:enumeration value="Hidrogrāfija"/>
+			<xs:enumeration value="Aizsargājamas teritorijas"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexII_lav">
+		<xs:restriction base="keywordValueInspireTheme_lav">
+			<xs:enumeration value="Augstums"/>
+			<xs:enumeration value="Zemes virsma"/>
+			<xs:enumeration value="Ortofotogrāfija"/>
+			<xs:enumeration value="Ģeoloģija"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexIII_lav">
+		<xs:restriction base="keywordValueInspireTheme_lav">
+			<xs:enumeration value="Statistikas vienības"/>
+			<xs:enumeration value="Ēkas"/>
+			<xs:enumeration value="Augsne"/>
+			<xs:enumeration value="Zemes izmantošana"/>
+			<xs:enumeration value="Cilvēku veselība un drošība"/>
+			<xs:enumeration value="Komunālie un valsts dienesti"/>
+			<xs:enumeration value="Vides monitoringa iekārtas"/>
+			<xs:enumeration value="Ražošanas un rūpniecības iekārtas"/>
+			<xs:enumeration value="Lauksaimniecības un akvakultūras iekārtas"/>
+			<xs:enumeration value="Iedzīvotāju sadalījums – demogrāfija"/>
+			<xs:enumeration value="Apgabala pārvaldības/ierobežojumu/reglamentētas zonas un ziņošanas vienības"/>
+			<xs:enumeration value="Dabas apdraudējuma zonas"/>
+			<xs:enumeration value="Atmosfēras apstākļi"/>
+			<xs:enumeration value="Meteoroloģiski ģeogrāfiskie raksturlielumi"/>
+			<xs:enumeration value="Okeanogrāfiski ģeogrāfiskie raksturlielumi"/>
+			<xs:enumeration value="Jūru reģioni"/>
+			<xs:enumeration value="Bioģeogrāfiskie reģioni"/>
+			<xs:enumeration value="Dzīvotnes un biotopi"/>
+			<xs:enumeration value="Sugu izplatība"/>
+			<xs:enumeration value="Enerģijas resursi"/>
+			<xs:enumeration value="Derīgo izrakteņu resursi"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="inspireTheme_lav">
+		<xs:complexContent>
+			<xs:restriction base="inspireTheme">
+				<xs:sequence>
+					<xs:element name="OriginatingControlledVocabulary" type="originatingControlledVocabularyGemetInspireThemes"/>
+					<xs:element name="KeywordValue" type="keywordValueInspireTheme_lav"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireDirective_lav">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:L:2007:108:SOM:LV:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireDirective_lav">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Eiropas Parlamenta un Padomes Direktīva 2007/2/EK (2007. gada 14. marts), ar ko izveido Telpiskās informācijas infrastruktūru Eiropas Kopienā (INSPIRE)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2007-04-25"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2007:108:SOM:LV:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireDirective_lav" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireMDRegulation_lav">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32008R1205:LV:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireMDRegulation_lav">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Komisijas Regula (EK) Nr. 1205/2008 ( 2008. gada 3. decembris ) par Eiropas Parlamenta un Padomes Direktīvas 2007/2/EK īstenošanu attiecībā uz metadatiem (Dokuments attiecas uz EEZ)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2008-12-03"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32008R1205:LV:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireMDRegulation_lav" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireNSRegulation_lav">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32009R0976:LV:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireNSRegulation_lav">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Komisijas Regula (EK) Nr. 976/2009 ( 2009. gada 19. oktobris ), ar kuru īsteno Eiropas Parlamenta un Padomes Direktīvu 2007/2/EK attiecībā uz tīkla pakalpojumiem"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2009-10-19"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32009R0976:LV:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireNSRegulation_lav" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<!--Interoperability-->
+	<xs:complexType name="resLocInspireInteroperabilityRegulation_lav">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2010:323:0011:0102:LV:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireInteroperabilityRegulation_lav">
+		<xs:complexContent>
+			<xs:restriction base="citationConformity">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Komisijas Regula (ES) Nr. 1089/2010 ( 2010. gada 23. novembris ), ar kuru īsteno Eiropas Parlamenta un Padomes Direktīvu 2007/2/EK attiecībā uz telpisko datu kopu un telpisko datu pakalpojumu savstarpējo izmantojamību"/>
+								<xs:enumeration value="KOMISIJAS REGULA (ES) Nr. 1089/2010 (2010. gada 23. novembris), ar kuru īsteno Eiropas Parlamenta un Padomes Direktīvu 2007/2/EK attiecībā uz telpisko datu kopu un telpisko datu pakalpojumu savstarpējo izmantojamību"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2010-12-08"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2010:323:0011:0102:LV:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireInteroperabilityRegulation_lav" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

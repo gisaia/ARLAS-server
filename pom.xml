@@ -179,6 +179,8 @@
                     <sources>
                         <source>src/main/resources/wfs-2.0.xsd</source>
                         <source>src/main/resources/csw/cswAll.xsd</source>
+                        <source> src/main/resources/csw/atom/atom.xsd</source>
+                        <source> src/main/resources/csw/atom/opensearch.xsd</source>
                     </sources>
                 </configuration>
             </plugin>

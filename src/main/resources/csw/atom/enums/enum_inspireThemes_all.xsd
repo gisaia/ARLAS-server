@@ -1,0 +1,2834 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2014 EUROPEAN UNION Licensed under the EUPL,
+Version 1.1  or - as soon they will be approved by the European Commission -
+subsequent versions of the EUPL (the "Licence"); You may not use this work
+except in compliance with the Licence. You may obtain a copy of the Licence
+at:
+
+http://ec.europa.eu/idabc/eupl
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the Licence is distributed on an "AS IS" basis, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+Licence for the specific language governing permissions and limitations under
+the Licence.
+
+Date: 12-03-2014
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://inspire.ec.europa.eu/schemas/common/1.0" targetNamespace="http://inspire.ec.europa.eu/schemas/common/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.1">
+	<xs:simpleType name="keywordURIInspireTheme">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/rs"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/gg"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/gn"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/au"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/ad"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/cp"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/tn"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/hy"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/ps"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/el"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/lc"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/oi"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/ge"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/su"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/bu"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/so"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/lu"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/hh"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/us"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/ef"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/pf"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/af"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/pd"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/am"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/nz"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/ac"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/mf"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/of"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/sr"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/br"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/hb"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/sd"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/er"/>
+			<xs:enumeration value="http://inspire.ec.europa.eu/theme/mr"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireTheme">
+		<xs:restriction base="keywordValue">
+			<xs:enumeration value="Координатни справочни системи"/>
+			<xs:enumeration value="Географски координатни системи"/>
+			<xs:enumeration value="Географски наименования"/>
+			<xs:enumeration value="Административни единици"/>
+			<xs:enumeration value="Адреси"/>
+			<xs:enumeration value="Кадастрални парцели"/>
+			<xs:enumeration value="Транспортни мрежи"/>
+			<xs:enumeration value="Хидрография"/>
+			<xs:enumeration value="Защитени обекти"/>
+			<xs:enumeration value="Релеф"/>
+			<xs:enumeration value="Земна покривка"/>
+			<xs:enumeration value="Ортоизображение"/>
+			<xs:enumeration value="Геология"/>
+			<xs:enumeration value="Статистически единици"/>
+			<xs:enumeration value="Сгради"/>
+			<xs:enumeration value="Почва"/>
+			<xs:enumeration value="Ползване на земята"/>
+			<xs:enumeration value="Здраве и безопасност на човека"/>
+			<xs:enumeration value="Комунално-битови и обществени услуги"/>
+			<xs:enumeration value="Съоръжения за управление на околната среда"/>
+			<xs:enumeration value="Производствени и промишлени съоръжения"/>
+			<xs:enumeration value="Селскостопански и водностопански съоръжения"/>
+			<xs:enumeration value="Разпределение на населението — демография"/>
+			<xs:enumeration value="Управление на територията/ограничени/регулирани зони и отчетни единици"/>
+			<xs:enumeration value="Природни рискови зони"/>
+			<xs:enumeration value="Атмосферни условия"/>
+			<xs:enumeration value="Метеорологични географски характеристики"/>
+			<xs:enumeration value="Океанографски географски характеристики"/>
+			<xs:enumeration value="Морски региони"/>
+			<xs:enumeration value="Биогеографски региони"/>
+			<xs:enumeration value="Местообитания и биотопи"/>
+			<xs:enumeration value="Разпределение на видовете"/>
+			<xs:enumeration value="Енергийни източници"/>
+			<xs:enumeration value="Минерални ресурси"/>
+			<xs:enumeration value="Souřadnicové referenční systémy"/>
+			<xs:enumeration value="Zeměpisné soustavy souřadnicových sítí"/>
+			<xs:enumeration value="Zeměpisné názvy"/>
+			<xs:enumeration value="Správní jednotky"/>
+			<xs:enumeration value="Adresy"/>
+			<xs:enumeration value="Katastrální parcely"/>
+			<xs:enumeration value="Dopravní sítě"/>
+			<xs:enumeration value="Vodopis"/>
+			<xs:enumeration value="Chráněná území"/>
+			<xs:enumeration value="Nadmořská výška"/>
+			<xs:enumeration value="Krajinný pokryv"/>
+			<xs:enumeration value="Ortofotosnímky"/>
+			<xs:enumeration value="Geologie"/>
+			<xs:enumeration value="Statistické jednotky"/>
+			<xs:enumeration value="Budovy"/>
+			<xs:enumeration value="Půda"/>
+			<xs:enumeration value="Využití území"/>
+			<xs:enumeration value="Lidské zdraví a bezpečnost"/>
+			<xs:enumeration value="Veřejné služby a služby veřejné správy"/>
+			<xs:enumeration value="Zařízení pro sledování životního prostředí"/>
+			<xs:enumeration value="Výrobní a průmyslová zařízení"/>
+			<xs:enumeration value="Zemědělská a akvakulturní zařízení"/>
+			<xs:enumeration value="Rozložení obyvatelstva – demografie"/>
+			<xs:enumeration value="Správní oblasti/chráněná pásma/regulovaná území a jednotky podávající hlášení"/>
+			<xs:enumeration value="Oblasti ohrožené přírodními riziky"/>
+			<xs:enumeration value="Stav ovzduší"/>
+			<xs:enumeration value="Zeměpisné meteorologické prvky"/>
+			<xs:enumeration value="Zeměpisné oceánografické prvky"/>
+			<xs:enumeration value="Mořské oblasti"/>
+			<xs:enumeration value="Bioregiony"/>
+			<xs:enumeration value="Stanoviště a biotopy"/>
+			<xs:enumeration value="Rozložení druhů"/>
+			<xs:enumeration value="Energetické zdroje"/>
+			<xs:enumeration value="Nerostné suroviny"/>
+			<xs:enumeration value="Koordinatsystemer"/>
+			<xs:enumeration value="Geografiske kvadratnetsystemer"/>
+			<xs:enumeration value="Stednavne"/>
+			<xs:enumeration value="Administrative enheder"/>
+			<xs:enumeration value="Adresser"/>
+			<xs:enumeration value="Matrikulære parceller"/>
+			<xs:enumeration value="Transportnet"/>
+			<xs:enumeration value="Hydrograf"/>
+			<xs:enumeration value="Beskyttede lokaliteter"/>
+			<xs:enumeration value="Højde"/>
+			<xs:enumeration value="Arealdække"/>
+			<xs:enumeration value="Ortofoto"/>
+			<xs:enumeration value="Geologi"/>
+			<xs:enumeration value="Statistiske enheder"/>
+			<xs:enumeration value="Bygninger"/>
+			<xs:enumeration value="Jord"/>
+			<xs:enumeration value="Arealanvendelse"/>
+			<xs:enumeration value="Sikkerhed"/>
+			<xs:enumeration value="Offentlig forsyningsvirksomhed og offentlige tjenesteydelser"/>
+			<xs:enumeration value="Miljøovervågningsfaciliteter"/>
+			<xs:enumeration value="Produktions- og industrifaciliteter"/>
+			<xs:enumeration value="Landbrugs- og akvakulturanlæg"/>
+			<xs:enumeration value="Befolkningsfordeling — demografi"/>
+			<xs:enumeration value="Forvaltede og regulerede områder samt områder med brugsbegrænsning og indberetningsenheder"/>
+			<xs:enumeration value="Områder med naturlige risici"/>
+			<xs:enumeration value="Atmosfæriske forhold"/>
+			<xs:enumeration value="Meteorologisk-geografiske forhold"/>
+			<xs:enumeration value="Oceanografiske/geografiske forhold"/>
+			<xs:enumeration value="Havområder"/>
+			<xs:enumeration value="Biogeografiske regioner"/>
+			<xs:enumeration value="Levesteder og biotoper"/>
+			<xs:enumeration value="Artsfordeling"/>
+			<xs:enumeration value="Energiressourcer"/>
+			<xs:enumeration value="Mineralressourcer"/>
+			<xs:enumeration value="Systemen voor verwijzing door middel van coördinaten"/>
+			<xs:enumeration value="Geografisch rastersysteem"/>
+			<xs:enumeration value="Geografische namen"/>
+			<xs:enumeration value="Administratieve eenheden"/>
+			<xs:enumeration value="Adressen"/>
+			<xs:enumeration value="Kadastrale percelen"/>
+			<xs:enumeration value="Vervoersnetwerken"/>
+			<xs:enumeration value="Hydrografie"/>
+			<xs:enumeration value="Beschermde gebieden"/>
+			<xs:enumeration value="Hoogte"/>
+			<xs:enumeration value="Bodemgebruik"/>
+			<xs:enumeration value="Orthobeeldvorming"/>
+			<xs:enumeration value="Geologie"/>
+			<xs:enumeration value="Statistische eenheden"/>
+			<xs:enumeration value="Gebouwen"/>
+			<xs:enumeration value="Bodem"/>
+			<xs:enumeration value="Landgebruik"/>
+			<xs:enumeration value="Menselijke gezondheid en veiligheid"/>
+			<xs:enumeration value="Nutsdiensten en overheidsdiensten"/>
+			<xs:enumeration value="Milieubewakingsvoorzieningen"/>
+			<xs:enumeration value="Faciliteiten voor productie en industrie"/>
+			<xs:enumeration value="Faciliteiten voor landbouw en aquacultuur"/>
+			<xs:enumeration value="Spreiding van de bevolking — demografie"/>
+			<xs:enumeration value="Gebiedsbeheer, gebieden waar beperkingen gelden, gereguleerde gebieden en rapportage-eenheden"/>
+			<xs:enumeration value="Gebieden met natuurrisico's"/>
+			<xs:enumeration value="Atmosferische omstandigheden"/>
+			<xs:enumeration value="Meteorologische geografische kenmerken"/>
+			<xs:enumeration value="Oceanografische geografische kenmerken"/>
+			<xs:enumeration value="Zeegebieden"/>
+			<xs:enumeration value="Biogeografische gebieden"/>
+			<xs:enumeration value="Habitats en biotopen"/>
+			<xs:enumeration value="Spreiding van soorten"/>
+			<xs:enumeration value="Energiebronnen"/>
+			<xs:enumeration value="Minerale bronnen"/>
+			<xs:enumeration value="Koordinaatsüsteemid"/>
+			<xs:enumeration value="Geograafilised ruutvõrgud"/>
+			<xs:enumeration value="Geograafilised nimed"/>
+			<xs:enumeration value="Haldusüksused"/>
+			<xs:enumeration value="Aadressid"/>
+			<xs:enumeration value="Katastriüksused"/>
+			<xs:enumeration value="Transpordivõrgud"/>
+			<xs:enumeration value="Hüdrograafia"/>
+			<xs:enumeration value="Kaitsealused kohad"/>
+			<xs:enumeration value="Kõrgused"/>
+			<xs:enumeration value="Maakate"/>
+			<xs:enumeration value="Ortokujutised"/>
+			<xs:enumeration value="Geoloogia"/>
+			<xs:enumeration value="Statistilised üksused"/>
+			<xs:enumeration value="Ehitised"/>
+			<xs:enumeration value="Pinnas"/>
+			<xs:enumeration value="Maakasutus"/>
+			<xs:enumeration value="Inimeste tervis ja ohutus"/>
+			<xs:enumeration value="Kommunaal- ja riiklikud teenused"/>
+			<xs:enumeration value="Keskkonnaseirerajatised"/>
+			<xs:enumeration value="Tootmis- ja tööstusrajatised"/>
+			<xs:enumeration value="Põllumajandus- ja vesiviljelusrajatised"/>
+			<xs:enumeration value="Elanikkonna jaotumine – demograafia"/>
+			<xs:enumeration value="Üldplaneering/piirangu-/reguleeritud tsoonid ja aruandlusüksused"/>
+			<xs:enumeration value="Looduslikud ohutsoonid"/>
+			<xs:enumeration value="Atmosfääritingimused"/>
+			<xs:enumeration value="Meteoroloogilis-geograafilised tunnusjooned"/>
+			<xs:enumeration value="Okeanograafilis-geograafilised tunnusjooned"/>
+			<xs:enumeration value="Merepiirkonnad"/>
+			<xs:enumeration value="Bio-geograafilised piirkonnad"/>
+			<xs:enumeration value="Elupaigad ja biotoobid"/>
+			<xs:enumeration value="Liikide jaotumine"/>
+			<xs:enumeration value="Energiaressursid"/>
+			<xs:enumeration value="Maavarad"/>
+			<xs:enumeration value="Koordinaattijärjestelmät"/>
+			<xs:enumeration value="Paikannusruudustot"/>
+			<xs:enumeration value="Paikannimet"/>
+			<xs:enumeration value="Hallinnolliset yksiköt"/>
+			<xs:enumeration value="Osoitteet"/>
+			<xs:enumeration value="Kiinteistöt"/>
+			<xs:enumeration value="Liikenneverkot"/>
+			<xs:enumeration value="Hydrografia"/>
+			<xs:enumeration value="Suojellut alueet"/>
+			<xs:enumeration value="Korkeus"/>
+			<xs:enumeration value="Maanpeite"/>
+			<xs:enumeration value="Ortoilmakuvat"/>
+			<xs:enumeration value="Geologia"/>
+			<xs:enumeration value="Tilastoyksiköt"/>
+			<xs:enumeration value="Rakennukset"/>
+			<xs:enumeration value="Maaperä"/>
+			<xs:enumeration value="Maankäyttö"/>
+			<xs:enumeration value="Väestön terveys ja turvallisuus"/>
+			<xs:enumeration value="Yleishyödylliset ja muut julkiset palvelut"/>
+			<xs:enumeration value="Ympäristön tilan seurantalaitteet"/>
+			<xs:enumeration value="Tuotanto- ja teollisuuslaitokset"/>
+			<xs:enumeration value="Maatalous- ja vesiviljelylaitokset"/>
+			<xs:enumeration value="Väestöjakauma – demografia"/>
+			<xs:enumeration value="Aluesuunnittelun, rajoitusten ja sääntelyn piiriin kuuluvat alueet ja raportointiyksiköt"/>
+			<xs:enumeration value="Luonnonriskialueet"/>
+			<xs:enumeration value="Ilmakehän tila"/>
+			<xs:enumeration value="Ilmaston maantieteelliset ominaispiirteet"/>
+			<xs:enumeration value="Merentutkimuksen maantieteelliset ominaispiirteet"/>
+			<xs:enumeration value="Merialueet"/>
+			<xs:enumeration value="Biomaantieteelliset alueet"/>
+			<xs:enumeration value="Elinympäristöt ja biotoopit"/>
+			<xs:enumeration value="Lajien levinneisyys"/>
+			<xs:enumeration value="Energiavarat"/>
+			<xs:enumeration value="Mineraalivarat"/>
+			<xs:enumeration value="Référentiels de coordonnées"/>
+			<xs:enumeration value="Systèmes de maillage géographique"/>
+			<xs:enumeration value="Dénominations géographiques"/>
+			<xs:enumeration value="Unités administratives"/>
+			<xs:enumeration value="Adresses"/>
+			<xs:enumeration value="Parcelles cadastrales"/>
+			<xs:enumeration value="Réseaux de transport"/>
+			<xs:enumeration value="Hydrographie"/>
+			<xs:enumeration value="Sites protégés"/>
+			<xs:enumeration value="Altitude"/>
+			<xs:enumeration value="Occupation des terres"/>
+			<xs:enumeration value="Ortho-imagerie"/>
+			<xs:enumeration value="Géologie"/>
+			<xs:enumeration value="Unités statistiques"/>
+			<xs:enumeration value="Bâtiments"/>
+			<xs:enumeration value="Sols"/>
+			<xs:enumeration value="Usage des sols"/>
+			<xs:enumeration value="Santé et sécurité des personnes"/>
+			<xs:enumeration value="Services d'utilité publique et services publics"/>
+			<xs:enumeration value="Installations de suivi environnemental"/>
+			<xs:enumeration value="Lieux de production et sites industriels"/>
+			<xs:enumeration value="Installations agricoles et aquacoles"/>
+			<xs:enumeration value="Répartition de la population — démographie"/>
+			<xs:enumeration value="Zones de gestion, de restriction ou de réglementation et unités de déclaration"/>
+			<xs:enumeration value="Zones à risque naturel"/>
+			<xs:enumeration value="Conditions atmosphériques"/>
+			<xs:enumeration value="Caractéristiques géographiques météorologiques"/>
+			<xs:enumeration value="Caractéristiques géographiques océanographiques"/>
+			<xs:enumeration value="Régions maritimes"/>
+			<xs:enumeration value="Habitats et biotopes"/>
+			<xs:enumeration value="Régions biogéographiques"/>
+			<xs:enumeration value="Répartition des espèces"/>
+			<xs:enumeration value="Sources d'énergie"/>
+			<xs:enumeration value="Ressources minérales"/>
+			<xs:enumeration value="Koordinatenreferenzsysteme"/>
+			<xs:enumeration value="Geografische Gittersysteme"/>
+			<xs:enumeration value="Geografische Bezeichnungen"/>
+			<xs:enumeration value="Verwaltungseinheiten"/>
+			<xs:enumeration value="Adressen"/>
+			<xs:enumeration value="Flurstücke/Grundstücke (Katasterparzellen)"/>
+			<xs:enumeration value="Verkehrsnetze"/>
+			<xs:enumeration value="Gewässernetz"/>
+			<xs:enumeration value="Schutzgebiete"/>
+			<xs:enumeration value="Höhe"/>
+			<xs:enumeration value="Bodenbedeckung"/>
+			<xs:enumeration value="Orthofotografie"/>
+			<xs:enumeration value="Geologie"/>
+			<xs:enumeration value="Statistische Einheiten"/>
+			<xs:enumeration value="Gebäude"/>
+			<xs:enumeration value="Boden"/>
+			<xs:enumeration value="Bodennutzung"/>
+			<xs:enumeration value="Gesundheit und Sicherheit"/>
+			<xs:enumeration value="Versorgungswirtschaft und staatliche Dienste"/>
+			<xs:enumeration value="Umweltüberwachung"/>
+			<xs:enumeration value="Produktions- und Industrieanlagen"/>
+			<xs:enumeration value="Landwirtschaftliche Anlagen und Aquakulturanlagen"/>
+			<xs:enumeration value="Verteilung der Bevölkerung — Demografie"/>
+			<xs:enumeration value="Bewirtschaftungsgebiete/Schutzgebiete/geregelte Gebiete und Berichterstattungseinheiten"/>
+			<xs:enumeration value="Gebiete mit naturbedingten Risiken"/>
+			<xs:enumeration value="Atmosphärische Bedingungen"/>
+			<xs:enumeration value="Meteorologisch-geografische Kennwerte"/>
+			<xs:enumeration value="Ozeanografisch-geografische Kennwerte"/>
+			<xs:enumeration value="Meeresregionen"/>
+			<xs:enumeration value="Biogeografische Regionen"/>
+			<xs:enumeration value="Lebensräume und Biotope"/>
+			<xs:enumeration value="Verteilung der Arten"/>
+			<xs:enumeration value="Energiequellen"/>
+			<xs:enumeration value="Mineralische Bodenschätze"/>
+			<xs:enumeration value="Coordinate reference systems"/>
+			<xs:enumeration value="Geographical grid systems"/>
+			<xs:enumeration value="Geographical names"/>
+			<xs:enumeration value="Administrative units"/>
+			<xs:enumeration value="Addresses"/>
+			<xs:enumeration value="Cadastral parcels"/>
+			<xs:enumeration value="Transport networks"/>
+			<xs:enumeration value="Hydrography"/>
+			<xs:enumeration value="Protected sites"/>
+			<xs:enumeration value="Elevation"/>
+			<xs:enumeration value="Land cover"/>
+			<xs:enumeration value="Orthoimagery"/>
+			<xs:enumeration value="Geology"/>
+			<xs:enumeration value="Statistical units"/>
+			<xs:enumeration value="Buildings"/>
+			<xs:enumeration value="Soil"/>
+			<xs:enumeration value="Land use"/>
+			<xs:enumeration value="Human health and safety"/>
+			<xs:enumeration value="Utility and governmental services"/>
+			<xs:enumeration value="Environmental monitoring facilities"/>
+			<xs:enumeration value="Production and industrial facilities"/>
+			<xs:enumeration value="Agricultural and aquaculture facilities"/>
+			<xs:enumeration value="Population distribution — demography"/>
+			<xs:enumeration value="Area management/restriction/regulation zones and reporting units"/>
+			<xs:enumeration value="Natural risk zones"/>
+			<xs:enumeration value="Atmospheric conditions"/>
+			<xs:enumeration value="Meteorological geographical features"/>
+			<xs:enumeration value="Oceanographic geographical features"/>
+			<xs:enumeration value="Sea regions"/>
+			<xs:enumeration value="Bio-geographical regions"/>
+			<xs:enumeration value="Habitats and biotopes"/>
+			<xs:enumeration value="Species distribution"/>
+			<xs:enumeration value="Energy resources"/>
+			<xs:enumeration value="Mineral resources"/>
+			<xs:enumeration value="Συστήματα συντεταγμένων"/>
+			<xs:enumeration value="Συστήματα γεωγραφικού καννάβου"/>
+			<xs:enumeration value="Τοπωνύμια"/>
+			<xs:enumeration value="Διοικητικές ενότητες"/>
+			<xs:enumeration value="Διευθύνσεις"/>
+			<xs:enumeration value="Γεωτεμάχια κτηματολογίου"/>
+			<xs:enumeration value="Δίκτυα μεταφορών"/>
+			<xs:enumeration value="Υδρογραφία"/>
+			<xs:enumeration value="Προστατευόμενες τοποθεσίες"/>
+			<xs:enumeration value="Υψομετρία"/>
+			<xs:enumeration value="Κάλυψη γης"/>
+			<xs:enumeration value="Ορθοφωτογραφία"/>
+			<xs:enumeration value="Γεωλογία"/>
+			<xs:enumeration value="Στατιστικές μονάδες"/>
+			<xs:enumeration value="Κτίρια"/>
+			<xs:enumeration value="Έδαφος"/>
+			<xs:enumeration value="Χρήσεις γης"/>
+			<xs:enumeration value="Ανθρώπινη υγεία και ασφάλεια"/>
+			<xs:enumeration value="Επιχειρήσεις κοινής ωφελείας και κρατικές υπηρεσίες"/>
+			<xs:enumeration value="Εγκαταστάσεις παρακολούθησης του περιβάλλοντος"/>
+			<xs:enumeration value="Εγκαταστάσεις παραγωγής και βιομηχανικές εγκαταστάσεις"/>
+			<xs:enumeration value="Γεωργικές εγκαταστάσεις και εγκαταστάσεις υδατοκαλλιέργειας"/>
+			<xs:enumeration value="Κατανομή πληθυσμού — δημογραφία"/>
+			<xs:enumeration value="Ζώνες διαχείρισης/περιορισμού/ρύθμισης εκτάσεων και μονάδες αναφοράς"/>
+			<xs:enumeration value="Ζώνες φυσικών κινδύνων"/>
+			<xs:enumeration value="Ατμοσφαιρικές συνθήκες"/>
+			<xs:enumeration value="Μετεωρολογικά γεωγραφικά χαρακτηριστικά"/>
+			<xs:enumeration value="Ωκεανογραφικά γεωγραφικά χαρακτηριστικά"/>
+			<xs:enumeration value="Θαλάσσιες περιοχές"/>
+			<xs:enumeration value="Βιογεωγραφικές περιοχές"/>
+			<xs:enumeration value="Ενδιαιτήματα και βιότοποι"/>
+			<xs:enumeration value="Κατανομή ειδών"/>
+			<xs:enumeration value="Ενεργειακοί πόροι"/>
+			<xs:enumeration value="Ορυκτοί πόροι"/>
+			<xs:enumeration value="Koordinátarendszerek"/>
+			<xs:enumeration value="Földrajzi rácsrendszerek"/>
+			<xs:enumeration value="Földrajzi nevek"/>
+			<xs:enumeration value="Közigazgatási egységek"/>
+			<xs:enumeration value="Címek"/>
+			<xs:enumeration value="Kataszteri parcellák"/>
+			<xs:enumeration value="Közlekedési hálózatok"/>
+			<xs:enumeration value="Vízrajz"/>
+			<xs:enumeration value="Védett helyek"/>
+			<xs:enumeration value="Domborzat"/>
+			<xs:enumeration value="A felszín borítása"/>
+			<xs:enumeration value="Ortofotók"/>
+			<xs:enumeration value="Földtan"/>
+			<xs:enumeration value="Statisztikai egységek"/>
+			<xs:enumeration value="Épületek"/>
+			<xs:enumeration value="Talaj"/>
+			<xs:enumeration value="Földhasználat"/>
+			<xs:enumeration value="Emberi egészség és biztonság"/>
+			<xs:enumeration value="Közüzemi és közszolgáltatások"/>
+			<xs:enumeration value="Környezetvédelmi monitoringlétesítmények"/>
+			<xs:enumeration value="Termelő és ipari létesítmények"/>
+			<xs:enumeration value="Mezőgazdasági és akvakultúra-ágazati létesítmények"/>
+			<xs:enumeration value="A népesség eloszlása – demográfia"/>
+			<xs:enumeration value="Területgazdálkodási/-korlátozási/-szabályozási övezetek és adatszolgáltató egységek"/>
+			<xs:enumeration value="Természeti kockázati zónák"/>
+			<xs:enumeration value="Légköri viszonyok"/>
+			<xs:enumeration value="Meteorológiai földrajzi jellemzők"/>
+			<xs:enumeration value="Oceanográfiai földrajzi jellemzők"/>
+			<xs:enumeration value="Tengeri régiók"/>
+			<xs:enumeration value="Biogeográfiai régiók"/>
+			<xs:enumeration value="Élőhelyek és biotópok"/>
+			<xs:enumeration value="A fajok megoszlása"/>
+			<xs:enumeration value="Energiaforrások"/>
+			<xs:enumeration value="Ásványi nyersanyagok"/>
+			<xs:enumeration value="Sistemi di coordinate"/>
+			<xs:enumeration value="Sistemi di griglie geografiche"/>
+			<xs:enumeration value="Nomi geografici"/>
+			<xs:enumeration value="Unità amministrative"/>
+			<xs:enumeration value="Indirizzi"/>
+			<xs:enumeration value="Parcelle catastali"/>
+			<xs:enumeration value="Reti di trasporto"/>
+			<xs:enumeration value="Idrografia"/>
+			<xs:enumeration value="Siti protetti"/>
+			<xs:enumeration value="Elevazione"/>
+			<xs:enumeration value="Copertura del suolo"/>
+			<xs:enumeration value="Orto immagini"/>
+			<xs:enumeration value="Geologia"/>
+			<xs:enumeration value="Unità statistiche"/>
+			<xs:enumeration value="Edifici"/>
+			<xs:enumeration value="Suolo"/>
+			<xs:enumeration value="Utilizzo del territorio"/>
+			<xs:enumeration value="Salute umana e sicurezza"/>
+			<xs:enumeration value="Servizi di pubblica utilità e servizi amministrativi"/>
+			<xs:enumeration value="Impianti di monitoraggio ambientale"/>
+			<xs:enumeration value="Produzione e impianti industriali"/>
+			<xs:enumeration value="Impianti agricoli e di acquacoltura"/>
+			<xs:enumeration value="Distribuzione della popolazione — demografia"/>
+			<xs:enumeration value="Zone sottoposte a gestione/limitazioni/regolamentazione e unità con obbligo di comunicare dati"/>
+			<xs:enumeration value="Zone a rischio naturale"/>
+			<xs:enumeration value="Condizioni atmosferiche"/>
+			<xs:enumeration value="Elementi geografici meteorologici"/>
+			<xs:enumeration value="Elementi geografici oceanografici"/>
+			<xs:enumeration value="Regioni marine"/>
+			<xs:enumeration value="Regioni biogeografiche"/>
+			<xs:enumeration value="Habitat e biotopi"/>
+			<xs:enumeration value="Distribuzione delle specie"/>
+			<xs:enumeration value="Risorse energetiche"/>
+			<xs:enumeration value="Risorse minerarie"/>
+			<xs:enumeration value="Koordinātu atskaites sistēmas"/>
+			<xs:enumeration value="Ģeogrāfisko koordinātu tīklu sistēmas"/>
+			<xs:enumeration value="Toponīmi"/>
+			<xs:enumeration value="Administratīvas vienības"/>
+			<xs:enumeration value="Adreses"/>
+			<xs:enumeration value="Kadastrāli zemes gabali"/>
+			<xs:enumeration value="Transporta tīkli"/>
+			<xs:enumeration value="Hidrogrāfija"/>
+			<xs:enumeration value="Aizsargājamas teritorijas"/>
+			<xs:enumeration value="Augstums"/>
+			<xs:enumeration value="Zemes virsma"/>
+			<xs:enumeration value="Ortofotogrāfija"/>
+			<xs:enumeration value="Ģeoloģija"/>
+			<xs:enumeration value="Statistikas vienības"/>
+			<xs:enumeration value="Ēkas"/>
+			<xs:enumeration value="Augsne"/>
+			<xs:enumeration value="Zemes izmantošana"/>
+			<xs:enumeration value="Cilvēku veselība un drošība"/>
+			<xs:enumeration value="Komunālie un valsts dienesti"/>
+			<xs:enumeration value="Vides monitoringa iekārtas"/>
+			<xs:enumeration value="Ražošanas un rūpniecības iekārtas"/>
+			<xs:enumeration value="Lauksaimniecības un akvakultūras iekārtas"/>
+			<xs:enumeration value="Iedzīvotāju sadalījums – demogrāfija"/>
+			<xs:enumeration value="Apgabala pārvaldības/ierobežojumu/reglamentētas zonas un ziņošanas vienības"/>
+			<xs:enumeration value="Dabas apdraudējuma zonas"/>
+			<xs:enumeration value="Atmosfēras apstākļi"/>
+			<xs:enumeration value="Meteoroloģiski ģeogrāfiskie raksturlielumi"/>
+			<xs:enumeration value="Okeanogrāfiski ģeogrāfiskie raksturlielumi"/>
+			<xs:enumeration value="Jūru reģioni"/>
+			<xs:enumeration value="Bioģeogrāfiskie reģioni"/>
+			<xs:enumeration value="Dzīvotnes un biotopi"/>
+			<xs:enumeration value="Sugu izplatība"/>
+			<xs:enumeration value="Enerģijas resursi"/>
+			<xs:enumeration value="Derīgo izrakteņu resursi"/>
+			<xs:enumeration value="Koordinačių atskaitos sistemos"/>
+			<xs:enumeration value="Geografinio tinklelio sistemos"/>
+			<xs:enumeration value="Geografiniai pavadinimai"/>
+			<xs:enumeration value="Administraciniai vienetai"/>
+			<xs:enumeration value="Adresai"/>
+			<xs:enumeration value="Kadastro sklypai"/>
+			<xs:enumeration value="Transporto tinklai"/>
+			<xs:enumeration value="Hidrografija"/>
+			<xs:enumeration value="Saugomos teritorijos"/>
+			<xs:enumeration value="Aukštis"/>
+			<xs:enumeration value="Žemės danga"/>
+			<xs:enumeration value="Ortofotografinis vaizdavimas"/>
+			<xs:enumeration value="Geologija"/>
+			<xs:enumeration value="Statistiniai vienetai"/>
+			<xs:enumeration value="Pastatai"/>
+			<xs:enumeration value="Dirvožemis"/>
+			<xs:enumeration value="Žemės naudojimas"/>
+			<xs:enumeration value="Žmonių sveikata ir sauga"/>
+			<xs:enumeration value="Komunalinės įmonės ir valstybės tarnybos"/>
+			<xs:enumeration value="Aplinkos stebėsenos priemonės"/>
+			<xs:enumeration value="Gamybos ir pramonės įrenginiai"/>
+			<xs:enumeration value="Žemės ūkio ir akvakultūros infrastruktūra"/>
+			<xs:enumeration value="Gyventojų pasiskirstymas – demografija"/>
+			<xs:enumeration value="Tvarkomos teritorijos, ribojamos ir reglamentuojamos zonos bei vienetai, už kuriuos atsiskaitoma"/>
+			<xs:enumeration value="Gamtinių pavojų zonos"/>
+			<xs:enumeration value="Atmosferos sąlygos"/>
+			<xs:enumeration value="Meteorologinės geografinės sąlygos"/>
+			<xs:enumeration value="Okeanografinės geografinės sąlygos"/>
+			<xs:enumeration value="Jūrų regionai"/>
+			<xs:enumeration value="Biogeografiniai regionai"/>
+			<xs:enumeration value="Buveinės ir biotopai"/>
+			<xs:enumeration value="Rūšių pasiskirstymas"/>
+			<xs:enumeration value="Energijos ištekliai"/>
+			<xs:enumeration value="Naudingosios iškasenos"/>
+			<xs:enumeration value="Sistemi ta' referenza ta' koordinati"/>
+			<xs:enumeration value="Sistemi ta' grilji ġeografiċi"/>
+			<xs:enumeration value="Ismijiet ġeografiċi"/>
+			<xs:enumeration value="Unitajiet amministrattivi"/>
+			<xs:enumeration value="Indirizzi"/>
+			<xs:enumeration value="Pakketti katastali"/>
+			<xs:enumeration value="Networks tat-trasport"/>
+			<xs:enumeration value="Idrografija"/>
+			<xs:enumeration value="Siti protetti"/>
+			<xs:enumeration value="Elevazzjoni"/>
+			<xs:enumeration value="Kopertura ta' l-art"/>
+			<xs:enumeration value="Orthoimagery"/>
+			<xs:enumeration value="Ġeologija"/>
+			<xs:enumeration value="Unitajiet statistiċi"/>
+			<xs:enumeration value="Bini"/>
+			<xs:enumeration value="Ħamrija"/>
+			<xs:enumeration value="Użu ta' l-art"/>
+			<xs:enumeration value="Is-saħħa u s-siġurtà tal-bniedem"/>
+			<xs:enumeration value="Servizzi ta' utilità u tal-gvern"/>
+			<xs:enumeration value="Faċilitajiet ta' monitoraġġ ambjentali"/>
+			<xs:enumeration value="Faċilitajiet ta' produzzjoni u industrijali"/>
+			<xs:enumeration value="Faċilitajiet agrikoli u ta' l-akwakultura"/>
+			<xs:enumeration value="Distribuzzjoni tal-popolazzjoni – demografija"/>
+			<xs:enumeration value="Amministrazzjoni ta' żoni/restrizzjoni/żoni regolati u unitajiet ta' rapportar"/>
+			<xs:enumeration value="Żoni ta' riskju naturali"/>
+			<xs:enumeration value="Kondizzjonijiet atmosferiċi"/>
+			<xs:enumeration value="Karatteristiċi ġeografiċi meteoroloġiċi"/>
+			<xs:enumeration value="Karatteristiċi ġeografiċi oċeanografiċi"/>
+			<xs:enumeration value="Reġjuni tal-baħar"/>
+			<xs:enumeration value="Reġjuni bijo-ġeografiċi"/>
+			<xs:enumeration value="L-abitati naturali u l-bijotopi"/>
+			<xs:enumeration value="Distribuzzjoni ta' l-ispeċi"/>
+			<xs:enumeration value="Riżorsi ta' enerġija"/>
+			<xs:enumeration value="Riżorsi minerali"/>
+			<xs:enumeration value="Systemy odniesienia za pomocą współrzędnych"/>
+			<xs:enumeration value="Systemy siatek geograficznych"/>
+			<xs:enumeration value="Nazwy geograficzne"/>
+			<xs:enumeration value="Jednostki administracyjne"/>
+			<xs:enumeration value="Adresy"/>
+			<xs:enumeration value="Działki katastralne"/>
+			<xs:enumeration value="Sieci transportowe"/>
+			<xs:enumeration value="Hydrografia"/>
+			<xs:enumeration value="Obszary chronione"/>
+			<xs:enumeration value="Ukształtowanie terenu"/>
+			<xs:enumeration value="Użytkowanie terenu"/>
+			<xs:enumeration value="Sporządzanie ortoobrazów"/>
+			<xs:enumeration value="Geologia"/>
+			<xs:enumeration value="Jednostki statystyczne"/>
+			<xs:enumeration value="Budynki"/>
+			<xs:enumeration value="Gleba"/>
+			<xs:enumeration value="Zagospodarowanie przestrzenne"/>
+			<xs:enumeration value="Zdrowie i bezpieczeństwo ludzi"/>
+			<xs:enumeration value="Usługi użyteczności publicznej i służby państwowe"/>
+			<xs:enumeration value="Urządzenia do monitorowania środowiska"/>
+			<xs:enumeration value="Obiekty produkcyjne i przemysłowe"/>
+			<xs:enumeration value="Obiekty rolnicze oraz akwakultury"/>
+			<xs:enumeration value="Rozmieszczenie ludności – demografia"/>
+			<xs:enumeration value="Gospodarowanie obszarem/strefy ograniczone/regulacyjne oraz jednostki sprawozdawcze"/>
+			<xs:enumeration value="Strefy zagrożenia naturalnego"/>
+			<xs:enumeration value="Warunki atmosferyczne"/>
+			<xs:enumeration value="Warunki meteorologiczno-geograficzne"/>
+			<xs:enumeration value="Warunki oceanograficzno-geograficzne"/>
+			<xs:enumeration value="Regiony morskie"/>
+			<xs:enumeration value="Regiony biogeograficzne"/>
+			<xs:enumeration value="Siedliska i obszary przyrodniczo jednorodne"/>
+			<xs:enumeration value="Rozmieszczenie gatunków"/>
+			<xs:enumeration value="Zasoby energetyczne"/>
+			<xs:enumeration value="Zasoby mineralne"/>
+			<xs:enumeration value="Sistemas de referencia"/>
+			<xs:enumeration value="Sistemas de quadrículas geográficas"/>
+			<xs:enumeration value="Toponímia"/>
+			<xs:enumeration value="Unidades administrativas"/>
+			<xs:enumeration value="Endereços"/>
+			<xs:enumeration value="Parcelas cadastrais"/>
+			<xs:enumeration value="Redes de transporte"/>
+			<xs:enumeration value="Hidrografia"/>
+			<xs:enumeration value="Sítios protegidos"/>
+			<xs:enumeration value="Altitude"/>
+			<xs:enumeration value="Ocupação do solo"/>
+			<xs:enumeration value="Ortoimagens"/>
+			<xs:enumeration value="Geologia"/>
+			<xs:enumeration value="Unidades estatísticas"/>
+			<xs:enumeration value="Edifícios"/>
+			<xs:enumeration value="Solo"/>
+			<xs:enumeration value="Uso do solo"/>
+			<xs:enumeration value="Saúde humana e segurança"/>
+			<xs:enumeration value="Serviços de utilidade pública e do Estado"/>
+			<xs:enumeration value="Instalações de monitorização do ambiente"/>
+			<xs:enumeration value="Instalações industriais e de produção"/>
+			<xs:enumeration value="Instalações agrícolas e aquícolas"/>
+			<xs:enumeration value="Distribuição da população — demografia"/>
+			<xs:enumeration value="Zonas de gestão/restrição/regulamentação e unidades de referência"/>
+			<xs:enumeration value="Zonas de risco natural"/>
+			<xs:enumeration value="Condições atmosféricas"/>
+			<xs:enumeration value="Características geometeorológicas"/>
+			<xs:enumeration value="Características oceanográficas"/>
+			<xs:enumeration value="Regiões marinhas"/>
+			<xs:enumeration value="Regiões biogeográficas"/>
+			<xs:enumeration value="Habitats e biótopos"/>
+			<xs:enumeration value="Distribuição das espécies"/>
+			<xs:enumeration value="Recursos energéticos"/>
+			<xs:enumeration value="Recursos minerais"/>
+			<xs:enumeration value="Sisteme de coordonate de referință"/>
+			<xs:enumeration value="Sisteme de caroiaj geografic"/>
+			<xs:enumeration value="Denumiri geografice"/>
+			<xs:enumeration value="Unități administrative"/>
+			<xs:enumeration value="Adrese"/>
+			<xs:enumeration value="Parcele cadastrale"/>
+			<xs:enumeration value="Rețele de transport"/>
+			<xs:enumeration value="Hidrografie"/>
+			<xs:enumeration value="Zone protejate"/>
+			<xs:enumeration value="Elevație"/>
+			<xs:enumeration value="Acoperire terestră"/>
+			<xs:enumeration value="Ortoimagini"/>
+			<xs:enumeration value="Geologie"/>
+			<xs:enumeration value="Unități statistice"/>
+			<xs:enumeration value="Clădiri"/>
+			<xs:enumeration value="Soluri"/>
+			<xs:enumeration value="Utilizarea terenului"/>
+			<xs:enumeration value="Sănătate și siguranță umană"/>
+			<xs:enumeration value="Servicii de utilitate publică și servicii publice"/>
+			<xs:enumeration value="Instalații de supraveghere a mediului"/>
+			<xs:enumeration value="Instalații de producție și industriale"/>
+			<xs:enumeration value="Instalații agricole și pentru acvacultură"/>
+			<xs:enumeration value="Repartizarea populației – demografie"/>
+			<xs:enumeration value="Zone de administrare/restricție/reglementare și unități de raportare"/>
+			<xs:enumeration value="Zone de risc natural"/>
+			<xs:enumeration value="Condiții atmosferice"/>
+			<xs:enumeration value="Caracteristici geografice meteorologice"/>
+			<xs:enumeration value="Caracteristici geografice oceanografice"/>
+			<xs:enumeration value="Regiuni maritime"/>
+			<xs:enumeration value="Regiuni biogeografice"/>
+			<xs:enumeration value="Habitate și biotopuri"/>
+			<xs:enumeration value="Repartizarea speciilor"/>
+			<xs:enumeration value="Resurse energetice"/>
+			<xs:enumeration value="Resurse minerale"/>
+			<xs:enumeration value="Súradnicové referenčné systémy"/>
+			<xs:enumeration value="Geografické systémy sietí"/>
+			<xs:enumeration value="Zemepisné názvy"/>
+			<xs:enumeration value="Správne jednotky"/>
+			<xs:enumeration value="Adresy"/>
+			<xs:enumeration value="Katastrálne parcely"/>
+			<xs:enumeration value="Dopravné siete"/>
+			<xs:enumeration value="Hydrografia"/>
+			<xs:enumeration value="Chránené územia"/>
+			<xs:enumeration value="Výška"/>
+			<xs:enumeration value="Krajinná pokrývka (land cover)"/>
+			<xs:enumeration value="Ortometria"/>
+			<xs:enumeration value="Geológia"/>
+			<xs:enumeration value="Štatistické jednotky"/>
+			<xs:enumeration value="Stavby"/>
+			<xs:enumeration value="Pôda"/>
+			<xs:enumeration value="Využitie územia"/>
+			<xs:enumeration value="Ľudské zdravie a bezpečnosť"/>
+			<xs:enumeration value="Verejné a štátne služby"/>
+			<xs:enumeration value="Zariadenia na monitorovanie životného prostredia"/>
+			<xs:enumeration value="Výrobné a priemyselné zariadenia"/>
+			<xs:enumeration value="Poľnohospodárske zariadenia a zariadenia akvakultúry"/>
+			<xs:enumeration value="Rozmiestnenie obyvateľstva – demografia"/>
+			<xs:enumeration value="Spravované/obmedzené/regulované zóny a jednotky podávajúce správy"/>
+			<xs:enumeration value="Zóny prírodného rizika"/>
+			<xs:enumeration value="Atmosférické podmienky"/>
+			<xs:enumeration value="Meteorologické geografické prvky"/>
+			<xs:enumeration value="Oceánografické geografické prvky"/>
+			<xs:enumeration value="Morské regióny"/>
+			<xs:enumeration value="Biogeografické regióny"/>
+			<xs:enumeration value="Habitaty a biotopy"/>
+			<xs:enumeration value="Výskyt druhov"/>
+			<xs:enumeration value="Zdroje energie"/>
+			<xs:enumeration value="Zdroje nerastných surovín"/>
+			<xs:enumeration value="Referenčni koordinatni sistemi"/>
+			<xs:enumeration value="Geografska koordinatna mreža"/>
+			<xs:enumeration value="Zemljepisna imena"/>
+			<xs:enumeration value="Upravne enote"/>
+			<xs:enumeration value="Naslovi"/>
+			<xs:enumeration value="Katastrske parcele"/>
+			<xs:enumeration value="Prometna omrežja"/>
+			<xs:enumeration value="Hidrografija"/>
+			<xs:enumeration value="Zavarovana območja"/>
+			<xs:enumeration value="Digitalni model višin"/>
+			<xs:enumeration value="Pokrovnost tal"/>
+			<xs:enumeration value="Ortofoto"/>
+			<xs:enumeration value="Geologija"/>
+			<xs:enumeration value="Statistični okoliši"/>
+			<xs:enumeration value="Stavbe"/>
+			<xs:enumeration value="Tla"/>
+			<xs:enumeration value="Namenska raba tal"/>
+			<xs:enumeration value="Zdravje in varnost prebivalstva"/>
+			<xs:enumeration value="Komunalne in javne storitve"/>
+			<xs:enumeration value="Naprave in objekti za monitoring okolja"/>
+			<xs:enumeration value="Proizvodni in industrijski objekti in naprave"/>
+			<xs:enumeration value="Objekti in naprave za kmetijstvo in ribogojstvo"/>
+			<xs:enumeration value="Porazdelitev prebivalstva – demografski podatki"/>
+			<xs:enumeration value="Območja upravljanja/zaprta območja/regulirana območja in poročevalske enote"/>
+			<xs:enumeration value="Območja nevarnosti naravnih nesreč"/>
+			<xs:enumeration value="Ozračje"/>
+			<xs:enumeration value="Meteorološke značilnosti"/>
+			<xs:enumeration value="Oceanogeografske značilnosti"/>
+			<xs:enumeration value="Morske regije"/>
+			<xs:enumeration value="Biogeografske regije"/>
+			<xs:enumeration value="Habitati in biotopi"/>
+			<xs:enumeration value="Porazdelitev vrst"/>
+			<xs:enumeration value="Energetski viri"/>
+			<xs:enumeration value="Mineralni viri"/>
+			<xs:enumeration value="Sistemas de coordenadas de referencia"/>
+			<xs:enumeration value="Sistema de cuadrículas geográficas"/>
+			<xs:enumeration value="Nombres geográficos"/>
+			<xs:enumeration value="Unidades administrativas"/>
+			<xs:enumeration value="Direcciones"/>
+			<xs:enumeration value="Parcelas catastrales"/>
+			<xs:enumeration value="Redes de transporte"/>
+			<xs:enumeration value="Hidrografía"/>
+			<xs:enumeration value="Lugares protegidos"/>
+			<xs:enumeration value="Elevaciones"/>
+			<xs:enumeration value="Cubierta terrestre"/>
+			<xs:enumeration value="Ortoimágenes"/>
+			<xs:enumeration value="Geología"/>
+			<xs:enumeration value="Unidades estadísticas"/>
+			<xs:enumeration value="Edificios"/>
+			<xs:enumeration value="Suelo"/>
+			<xs:enumeration value="Uso del suelo"/>
+			<xs:enumeration value="Salud y seguridad humanas"/>
+			<xs:enumeration value="Servicios de utilidad pública y estatales"/>
+			<xs:enumeration value="Instalaciones de observación del medio ambiente"/>
+			<xs:enumeration value="Instalaciones de producción e industriales"/>
+			<xs:enumeration value="Instalaciones agrícolas y de acuicultura"/>
+			<xs:enumeration value="Distribución de la población — demografía"/>
+			<xs:enumeration value="Zonas sujetas a ordenación, a restricciones o reglamentaciones y unidades de notificación"/>
+			<xs:enumeration value="Zonas de riesgos naturales"/>
+			<xs:enumeration value="Condiciones atmosféricas"/>
+			<xs:enumeration value="Aspectos geográficos de carácter meteorológico"/>
+			<xs:enumeration value="Rasgos geográficos oceanográficos"/>
+			<xs:enumeration value="Regiones marinas"/>
+			<xs:enumeration value="Regiones biogeográficas"/>
+			<xs:enumeration value="Hábitats y biotopos"/>
+			<xs:enumeration value="Distribución de las especies"/>
+			<xs:enumeration value="Recursos energéticos"/>
+			<xs:enumeration value="Recursos minerales"/>
+			<xs:enumeration value="Referenskoordinatsystem"/>
+			<xs:enumeration value="Geografiska rutnätssystem"/>
+			<xs:enumeration value="Geografiska namn"/>
+			<xs:enumeration value="Administrativa enheter"/>
+			<xs:enumeration value="Adresser"/>
+			<xs:enumeration value="Fastighetsområden"/>
+			<xs:enumeration value="Transportnät"/>
+			<xs:enumeration value="Hydrografi"/>
+			<xs:enumeration value="Skyddade områden"/>
+			<xs:enumeration value="Höjd"/>
+			<xs:enumeration value="Landtäcke"/>
+			<xs:enumeration value="Ortofoto"/>
+			<xs:enumeration value="Geologi"/>
+			<xs:enumeration value="Statistiska enheter"/>
+			<xs:enumeration value="Byggnader"/>
+			<xs:enumeration value="Mark"/>
+			<xs:enumeration value="Markanvändning"/>
+			<xs:enumeration value="Människors hälsa och säkerhet"/>
+			<xs:enumeration value="Allmännyttiga och offentliga tjänster"/>
+			<xs:enumeration value="Anläggningar för miljöövervakning"/>
+			<xs:enumeration value="Produktions- och industrianläggningar"/>
+			<xs:enumeration value="Jordbruks- och vattenbruksanläggningar"/>
+			<xs:enumeration value="Befolkningsfördelning – demografi"/>
+			<xs:enumeration value="Områden med särskild förvaltning/begränsningar/reglering samt enheter för rapportering"/>
+			<xs:enumeration value="Naturliga riskområden"/>
+			<xs:enumeration value="Atmosfäriska förhållanden"/>
+			<xs:enumeration value="Geografiska meteorologiska förhållanden"/>
+			<xs:enumeration value="Geografiska oceanografiska förhållanden"/>
+			<xs:enumeration value="Havsområden"/>
+			<xs:enumeration value="Biogeografiska regioner"/>
+			<xs:enumeration value="Naturtyper och biotoper"/>
+			<xs:enumeration value="Arters utbredning"/>
+			<xs:enumeration value="Energiresurser"/>
+			<xs:enumeration value="Mineralfyndigheter"/>
+			<xs:enumeration value="Koordinatni referentni sustavi"/>
+			<xs:enumeration value="Sustavi geografskih mreža"/>
+			<xs:enumeration value="Geografska imena"/>
+			<xs:enumeration value="Upravne jedinice"/>
+			<xs:enumeration value="Adrese"/>
+			<xs:enumeration value="Katastarske čestice"/>
+			<xs:enumeration value="Prometne mreže"/>
+			<xs:enumeration value="Hidrografija"/>
+			<xs:enumeration value="Zaštićena područja"/>
+			<xs:enumeration value="Visine"/>
+			<xs:enumeration value="Pokrov zemljišta"/>
+			<xs:enumeration value="Ortofotosnimke"/>
+			<xs:enumeration value="Geologija"/>
+			<xs:enumeration value="Prostorne jedinice za statistiku"/>
+			<xs:enumeration value="Zgrade"/>
+			<xs:enumeration value="Tlo"/>
+			<xs:enumeration value="Korištenje zemljišta"/>
+			<xs:enumeration value="Ljudsko zdravlje i sigurnost"/>
+			<xs:enumeration value="Komunalne i javne usluge"/>
+			<xs:enumeration value="Sustavi za nadzor okoliša"/>
+			<xs:enumeration value="Proizvodna i industrijska postrojenja"/>
+			<xs:enumeration value="Sustavi za poljoprivredu i akvakulturu"/>
+			<xs:enumeration value="Rasprostranjenost stanovništva – demografija"/>
+			<xs:enumeration value="Područja upravljanja/zaštićena područja/uređena područja i jedinice za izvješćivanje"/>
+			<xs:enumeration value="Područja prirodnih opasnosti"/>
+			<xs:enumeration value="Atmosferski uvjeti"/>
+			<xs:enumeration value="Meteorološko-geografska obilježja"/>
+			<xs:enumeration value="Oceanografsko-geografska obilježja"/>
+			<xs:enumeration value="Morske regije"/>
+			<xs:enumeration value="Biogeografske regije"/>
+			<xs:enumeration value="Staništa i biotopi"/>
+			<xs:enumeration value="Rasprostranjenost vrsta"/>
+			<xs:enumeration value="Izvori energije"/>
+			<xs:enumeration value="Izvori minerala"/>
+			<xs:enumeration value="Koordinatbasert referansesystem"/>
+			<xs:enumeration value="Geografiske rutenettsystemer"/>
+			<xs:enumeration value="Stedsnavn"/>
+			<xs:enumeration value="Administrative enheter"/>
+			<xs:enumeration value="Adresser"/>
+			<xs:enumeration value="Eiendomsteiger"/>
+			<xs:enumeration value="Transportnett"/>
+			<xs:enumeration value="Hydrografi"/>
+			<xs:enumeration value="Vernede områder"/>
+			<xs:enumeration value="Høyde"/>
+			<xs:enumeration value="Arealdekke"/>
+			<xs:enumeration value="Ortofoto"/>
+			<xs:enumeration value="Geologi"/>
+			<xs:enumeration value="Statistiske enheter"/>
+			<xs:enumeration value="Bygninger"/>
+			<xs:enumeration value="Jordarter"/>
+			<xs:enumeration value="Arealbruk"/>
+			<xs:enumeration value="Menneskers helse og sikkerhet"/>
+			<xs:enumeration value="Allmennyttige og offentlige tjenester"/>
+			<xs:enumeration value="Anlegg for miljøovervåking"/>
+			<xs:enumeration value="Produksjons- og industrianlegg"/>
+			<xs:enumeration value="Anlegg for landbruk og akvakultur"/>
+			<xs:enumeration value="Befolkningsfordeling"/>
+			<xs:enumeration value="Rapporteringsenheter og områder med særlig forvaltning eller restriksjoner"/>
+			<xs:enumeration value="Områder med naturbetingede farer"/>
+			<xs:enumeration value="Atmosfæriske forhold"/>
+			<xs:enumeration value="Meteorologiske geografiske forhold"/>
+			<xs:enumeration value="Oseanografiske geografiske forhold"/>
+			<xs:enumeration value="Havområder"/>
+			<xs:enumeration value="Biogeografiske områder"/>
+			<xs:enumeration value="Habitater og biotoper"/>
+			<xs:enumeration value="Artsfordeling"/>
+			<xs:enumeration value="Energiressurser"/>
+			<xs:enumeration value="Mineralressurser"/>
+			<!--bul-->
+			<!--cze-->
+			<!--dan-->
+			<!--dut-->
+			<!--est-->
+			<!--fin-->
+			<!--fre-->
+			<!--ger-->
+			<!--eng + gle -->
+			<!--gre-->
+			<!--hun-->
+			<!--ita-->
+			<!--lav-->
+			<!--lit-->
+			<!-- mlt-->
+			<!--pol-->
+			<!--por-->
+			<!--rum-->
+			<!--slo-->
+			<!--slv-->
+			<!--spa-->
+			<!--swe -->
+			<!--hrv -->
+			<!--nor -->
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexI">
+		<xs:restriction base="keywordValueInspireTheme">
+			<xs:enumeration value="Координатни справочни системи"/>
+			<xs:enumeration value="Географски координатни системи"/>
+			<xs:enumeration value="Географски наименования"/>
+			<xs:enumeration value="Административни единици"/>
+			<xs:enumeration value="Адреси"/>
+			<xs:enumeration value="Кадастрални парцели"/>
+			<xs:enumeration value="Транспортни мрежи"/>
+			<xs:enumeration value="Хидрография"/>
+			<xs:enumeration value="Защитени обекти"/>
+			<xs:enumeration value="Souřadnicové referenční systémy"/>
+			<xs:enumeration value="Zeměpisné soustavy souřadnicových sítí"/>
+			<xs:enumeration value="Zeměpisné názvy"/>
+			<xs:enumeration value="Správní jednotky"/>
+			<xs:enumeration value="Adresy"/>
+			<xs:enumeration value="Katastrální parcely"/>
+			<xs:enumeration value="Dopravní sítě"/>
+			<xs:enumeration value="Vodopis"/>
+			<xs:enumeration value="Chráněná území"/>
+			<xs:enumeration value="Koordinatsystemer"/>
+			<xs:enumeration value="Geografiske kvadratnetsystemer"/>
+			<xs:enumeration value="Stednavne"/>
+			<xs:enumeration value="Administrative enheder"/>
+			<xs:enumeration value="Adresser"/>
+			<xs:enumeration value="Matrikulære parceller"/>
+			<xs:enumeration value="Transportnet"/>
+			<xs:enumeration value="Hydrograf"/>
+			<xs:enumeration value="Beskyttede lokaliteter"/>
+			<xs:enumeration value="Systemen voor verwijzing door middel van coördinaten"/>
+			<xs:enumeration value="Geografisch rastersysteem"/>
+			<xs:enumeration value="Geografische namen"/>
+			<xs:enumeration value="Administratieve eenheden"/>
+			<xs:enumeration value="Adressen"/>
+			<xs:enumeration value="Kadastrale percelen"/>
+			<xs:enumeration value="Vervoersnetwerken"/>
+			<xs:enumeration value="Hydrografie"/>
+			<xs:enumeration value="Beschermde gebieden"/>
+			<xs:enumeration value="Geograafilised ruutvõrgud"/>
+			<xs:enumeration value="Geograafilised nimed"/>
+			<xs:enumeration value="Haldusüksused"/>
+			<xs:enumeration value="Aadressid"/>
+			<xs:enumeration value="Katastriüksused"/>
+			<xs:enumeration value="Transpordivõrgud"/>
+			<xs:enumeration value="Hüdrograafia"/>
+			<xs:enumeration value="Kaitsealused kohad"/>
+			<xs:enumeration value="Koordinaattijärjestelmät"/>
+			<xs:enumeration value="Paikannusruudustot"/>
+			<xs:enumeration value="Paikannimet"/>
+			<xs:enumeration value="Hallinnolliset yksiköt"/>
+			<xs:enumeration value="Osoitteet"/>
+			<xs:enumeration value="Kiinteistöt"/>
+			<xs:enumeration value="Liikenneverkot"/>
+			<xs:enumeration value="Hydrografia"/>
+			<xs:enumeration value="Suojellut alueet"/>
+			<xs:enumeration value="Référentiels de coordonnées"/>
+			<xs:enumeration value="Systèmes de maillage géographique"/>
+			<xs:enumeration value="Dénominations géographiques"/>
+			<xs:enumeration value="Unités administratives"/>
+			<xs:enumeration value="Adresses"/>
+			<xs:enumeration value="Parcelles cadastrales"/>
+			<xs:enumeration value="Réseaux de transport"/>
+			<xs:enumeration value="Hydrographie"/>
+			<xs:enumeration value="Sites protégés"/>
+			<xs:enumeration value="Koordinatenreferenzsysteme"/>
+			<xs:enumeration value="Geografische Gittersysteme"/>
+			<xs:enumeration value="Geografische Bezeichnungen"/>
+			<xs:enumeration value="Verwaltungseinheiten"/>
+			<xs:enumeration value="Adressen"/>
+			<xs:enumeration value="Flurstücke/Grundstücke (Katasterparzellen)"/>
+			<xs:enumeration value="Verkehrsnetze"/>
+			<xs:enumeration value="Gewässernetz"/>
+			<xs:enumeration value="Schutzgebiete"/>
+			<xs:enumeration value="Coordinate reference systems"/>
+			<xs:enumeration value="Geographical grid systems"/>
+			<xs:enumeration value="Geographical names"/>
+			<xs:enumeration value="Administrative units"/>
+			<xs:enumeration value="Addresses"/>
+			<xs:enumeration value="Cadastral parcels"/>
+			<xs:enumeration value="Transport networks"/>
+			<xs:enumeration value="Hydrography"/>
+			<xs:enumeration value="Protected sites"/>
+			<xs:enumeration value="Συστήματα συντεταγμένων"/>
+			<xs:enumeration value="Συστήματα γεωγραφικού καννάβου"/>
+			<xs:enumeration value="Τοπωνύμια"/>
+			<xs:enumeration value="Διοικητικές ενότητες"/>
+			<xs:enumeration value="Διευθύνσεις"/>
+			<xs:enumeration value="Γεωτεμάχια κτηματολογίου"/>
+			<xs:enumeration value="Δίκτυα μεταφορών"/>
+			<xs:enumeration value="Υδρογραφία"/>
+			<xs:enumeration value="Προστατευόμενες τοποθεσίες"/>
+			<xs:enumeration value="Koordinátarendszerek"/>
+			<xs:enumeration value="Földrajzi rácsrendszerek"/>
+			<xs:enumeration value="Földrajzi nevek"/>
+			<xs:enumeration value="Közigazgatási egységek"/>
+			<xs:enumeration value="Címek"/>
+			<xs:enumeration value="Kataszteri parcellák"/>
+			<xs:enumeration value="Közlekedési hálózatok"/>
+			<xs:enumeration value="Vízrajz"/>
+			<xs:enumeration value="Védett helyek"/>
+			<xs:enumeration value="Sistemi di coordinate"/>
+			<xs:enumeration value="Sistemi di griglie geografiche"/>
+			<xs:enumeration value="Nomi geografici"/>
+			<xs:enumeration value="Unità amministrative"/>
+			<xs:enumeration value="Indirizzi"/>
+			<xs:enumeration value="Parcelle catastali"/>
+			<xs:enumeration value="Reti di trasporto"/>
+			<xs:enumeration value="Idrografia"/>
+			<xs:enumeration value="Siti protetti"/>
+			<xs:enumeration value="Koordinātu atskaites sistēmas"/>
+			<xs:enumeration value="Ģeogrāfisko koordinātu tīklu sistēmas"/>
+			<xs:enumeration value="Toponīmi"/>
+			<xs:enumeration value="Administratīvas vienības"/>
+			<xs:enumeration value="Adreses"/>
+			<xs:enumeration value="Kadastrāli zemes gabali"/>
+			<xs:enumeration value="Transporta tīkli"/>
+			<xs:enumeration value="Hidrogrāfija"/>
+			<xs:enumeration value="Aizsargājamas teritorijas"/>
+			<xs:enumeration value="Koordinačių atskaitos sistemos"/>
+			<xs:enumeration value="Geografinio tinklelio sistemos"/>
+			<xs:enumeration value="Geografiniai pavadinimai"/>
+			<xs:enumeration value="Administraciniai vienetai"/>
+			<xs:enumeration value="Adresai"/>
+			<xs:enumeration value="Kadastro sklypai"/>
+			<xs:enumeration value="Transporto tinklai"/>
+			<xs:enumeration value="Hidrografija"/>
+			<xs:enumeration value="Saugomos teritorijos"/>
+			<xs:enumeration value="Sistemi ta' referenza ta' koordinati"/>
+			<xs:enumeration value="Sistemi ta' grilji ġeografiċi"/>
+			<xs:enumeration value="Ismijiet ġeografiċi"/>
+			<xs:enumeration value="Unitajiet amministrattivi"/>
+			<xs:enumeration value="Indirizzi"/>
+			<xs:enumeration value="Pakketti katastali"/>
+			<xs:enumeration value="Networks tat-trasport"/>
+			<xs:enumeration value="Idrografija"/>
+			<xs:enumeration value="Siti protetti"/>
+			<xs:enumeration value="Systemy odniesienia za pomocą współrzędnych"/>
+			<xs:enumeration value="Systemy siatek geograficznych"/>
+			<xs:enumeration value="Nazwy geograficzne"/>
+			<xs:enumeration value="Jednostki administracyjne"/>
+			<xs:enumeration value="Adresy"/>
+			<xs:enumeration value="Działki katastralne"/>
+			<xs:enumeration value="Sieci transportowe"/>
+			<xs:enumeration value="Hydrografia"/>
+			<xs:enumeration value="Obszary chronione"/>
+			<xs:enumeration value="Sistemas de referencia"/>
+			<xs:enumeration value="Sistemas de quadrículas geográficas"/>
+			<xs:enumeration value="Toponímia"/>
+			<xs:enumeration value="Unidades administrativas"/>
+			<xs:enumeration value="Endereços"/>
+			<xs:enumeration value="Parcelas cadastrais"/>
+			<xs:enumeration value="Redes de transporte"/>
+			<xs:enumeration value="Hidrografia"/>
+			<xs:enumeration value="Sítios protegidos"/>
+			<xs:enumeration value="Sisteme de coordonate de referință"/>
+			<xs:enumeration value="Sisteme de caroiaj geografic"/>
+			<xs:enumeration value="Denumiri geografice"/>
+			<xs:enumeration value="Unități administrative"/>
+			<xs:enumeration value="Adrese"/>
+			<xs:enumeration value="Parcele cadastrale"/>
+			<xs:enumeration value="Rețele de transport"/>
+			<xs:enumeration value="Hidrografie"/>
+			<xs:enumeration value="Zone protejate"/>
+			<xs:enumeration value="Súradnicové referenčné systémy"/>
+			<xs:enumeration value="Geografické systémy sietí"/>
+			<xs:enumeration value="Zemepisné názvy"/>
+			<xs:enumeration value="Správne jednotky"/>
+			<xs:enumeration value="Adresy"/>
+			<xs:enumeration value="Katastrálne parcely"/>
+			<xs:enumeration value="Dopravné siete"/>
+			<xs:enumeration value="Hydrografia"/>
+			<xs:enumeration value="Chránené územia"/>
+			<xs:enumeration value="Referenčni koordinatni sistemi"/>
+			<xs:enumeration value="Geografska koordinatna mreža"/>
+			<xs:enumeration value="Zemljepisna imena"/>
+			<xs:enumeration value="Upravne enote"/>
+			<xs:enumeration value="Naslovi"/>
+			<xs:enumeration value="Katastrske parcele"/>
+			<xs:enumeration value="Prometna omrežja"/>
+			<xs:enumeration value="Hidrografija"/>
+			<xs:enumeration value="Zavarovana območja"/>
+			<xs:enumeration value="Sistemas de coordenadas de referencia"/>
+			<xs:enumeration value="Sistema de cuadrículas geográficas"/>
+			<xs:enumeration value="Nombres geográficos"/>
+			<xs:enumeration value="Unidades administrativas"/>
+			<xs:enumeration value="Direcciones"/>
+			<xs:enumeration value="Parcelas catastrales"/>
+			<xs:enumeration value="Redes de transporte"/>
+			<xs:enumeration value="Hidrografía"/>
+			<xs:enumeration value="Lugares protegidos"/>
+			<xs:enumeration value="Referenskoordinatsystem"/>
+			<xs:enumeration value="Geografiska rutnätssystem"/>
+			<xs:enumeration value="Geografiska namn"/>
+			<xs:enumeration value="Administrativa enheter"/>
+			<xs:enumeration value="Adresser"/>
+			<xs:enumeration value="Fastighetsområden"/>
+			<xs:enumeration value="Transportnät"/>
+			<xs:enumeration value="Hydrografi"/>
+			<xs:enumeration value="Skyddade områden"/>
+			<xs:enumeration value="Koordinatni referentni sustavi"/>
+			<xs:enumeration value="Sustavi geografskih mreža"/>
+			<xs:enumeration value="Geografska imena"/>
+			<xs:enumeration value="Upravne jedinice"/>
+			<xs:enumeration value="Adrese"/>
+			<xs:enumeration value="Katastarske čestice"/>
+			<xs:enumeration value="Prometne mreže"/>
+			<xs:enumeration value="Hidrografija"/>
+			<xs:enumeration value="Zaštićena područja"/>
+			<xs:enumeration value="Koordinatbasert referansesystem"/>
+			<xs:enumeration value="Geografiske rutenettsystemer"/>
+			<xs:enumeration value="Stedsnavn"/>
+			<xs:enumeration value="Administrative enheter"/>
+			<xs:enumeration value="Adresser"/>
+			<xs:enumeration value="Eiendomsteiger"/>
+			<xs:enumeration value="Transportnett"/>
+			<xs:enumeration value="Hydrografi"/>
+			<xs:enumeration value="Vernede områder"/>
+			<!--bul-->
+			<!--cze-->
+			<!--dan-->
+			<!--dut-->
+			<!--est-->
+			<!--fin-->
+			<!--fre-->
+			<!--ger-->
+			<!--eng + gle -->
+			<!--gre-->
+			<!--hun-->
+			<!--ita-->
+			<!--lav-->
+			<!--lit-->
+			<!-- mlt-->
+			<!--pol-->
+			<!--por-->
+			<!--rum-->
+			<!--slo-->
+			<!--slv-->
+			<!--spa-->
+			<!--swe -->
+			<!--hrv -->
+			<!--nor -->
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexII">
+		<xs:restriction base="keywordValueInspireTheme">
+			<xs:enumeration value="Релеф"/>
+			<xs:enumeration value="Земна покривка"/>
+			<xs:enumeration value="Ортоизображение"/>
+			<xs:enumeration value="Геология"/>
+			<xs:enumeration value="Nadmořská výška"/>
+			<xs:enumeration value="Krajinný pokryv"/>
+			<xs:enumeration value="Ortofotosnímky"/>
+			<xs:enumeration value="Geologie"/>
+			<xs:enumeration value="Højde"/>
+			<xs:enumeration value="Arealdække"/>
+			<xs:enumeration value="Ortofoto"/>
+			<xs:enumeration value="Geologi"/>
+			<xs:enumeration value="Hoogte"/>
+			<xs:enumeration value="Bodemgebruik"/>
+			<xs:enumeration value="Orthobeeldvorming"/>
+			<xs:enumeration value="Geologie"/>
+			<xs:enumeration value="Kõrgused"/>
+			<xs:enumeration value="Maakate"/>
+			<xs:enumeration value="Ortokujutised"/>
+			<xs:enumeration value="Geoloogia"/>
+			<xs:enumeration value="Statistilised üksused"/>
+			<xs:enumeration value="Korkeus"/>
+			<xs:enumeration value="Maanpeite"/>
+			<xs:enumeration value="Ortoilmakuvat"/>
+			<xs:enumeration value="Geologia"/>
+			<xs:enumeration value="Altitude"/>
+			<xs:enumeration value="Occupation des terres"/>
+			<xs:enumeration value="Ortho-imagerie"/>
+			<xs:enumeration value="Géologie"/>
+			<xs:enumeration value="Höhe"/>
+			<xs:enumeration value="Bodenbedeckung"/>
+			<xs:enumeration value="Orthofotografie"/>
+			<xs:enumeration value="Geologie"/>
+			<xs:enumeration value="Elevation"/>
+			<xs:enumeration value="Land cover"/>
+			<xs:enumeration value="Orthoimagery"/>
+			<xs:enumeration value="Geology"/>
+			<xs:enumeration value="Υψομετρία"/>
+			<xs:enumeration value="Κάλυψη γης"/>
+			<xs:enumeration value="Ορθοφωτογραφία"/>
+			<xs:enumeration value="Γεωλογία"/>
+			<xs:enumeration value="Domborzat"/>
+			<xs:enumeration value="A felszín borítása"/>
+			<xs:enumeration value="Ortofotók"/>
+			<xs:enumeration value="Földtan"/>
+			<xs:enumeration value="Elevazione"/>
+			<xs:enumeration value="Copertura del suolo"/>
+			<xs:enumeration value="Orto immagini"/>
+			<xs:enumeration value="Geologia"/>
+			<xs:enumeration value="Augstums"/>
+			<xs:enumeration value="Zemes virsma"/>
+			<xs:enumeration value="Ortofotogrāfija"/>
+			<xs:enumeration value="Ģeoloģija"/>
+			<xs:enumeration value="Aukštis"/>
+			<xs:enumeration value="Žemės danga"/>
+			<xs:enumeration value="Ortofotografinis vaizdavimas"/>
+			<xs:enumeration value="Geologija"/>
+			<xs:enumeration value="Elevazzjoni"/>
+			<xs:enumeration value="Kopertura ta' l-art"/>
+			<xs:enumeration value="Orthoimagery"/>
+			<xs:enumeration value="Ġeologija"/>
+			<xs:enumeration value="Ukształtowanie terenu"/>
+			<xs:enumeration value="Użytkowanie terenu"/>
+			<xs:enumeration value="Sporządzanie ortoobrazów"/>
+			<xs:enumeration value="Geologia"/>
+			<xs:enumeration value="Altitude"/>
+			<xs:enumeration value="Ocupação do solo"/>
+			<xs:enumeration value="Ortoimagens"/>
+			<xs:enumeration value="Geologia"/>
+			<xs:enumeration value="Elevație"/>
+			<xs:enumeration value="Acoperire terestră"/>
+			<xs:enumeration value="Ortoimagini"/>
+			<xs:enumeration value="Geologie"/>
+			<xs:enumeration value="Výška"/>
+			<xs:enumeration value="Krajinná pokrývka (land cover)"/>
+			<xs:enumeration value="Ortometria"/>
+			<xs:enumeration value="Geológia"/>
+			<xs:enumeration value="Digitalni model višin"/>
+			<xs:enumeration value="Pokrovnost tal"/>
+			<xs:enumeration value="Ortofoto"/>
+			<xs:enumeration value="Geologija"/>
+			<xs:enumeration value="Elevaciones"/>
+			<xs:enumeration value="Cubierta terrestre"/>
+			<xs:enumeration value="Ortoimágenes"/>
+			<xs:enumeration value="Geología"/>
+			<xs:enumeration value="Höjd"/>
+			<xs:enumeration value="Landtäcke"/>
+			<xs:enumeration value="Ortofoto"/>
+			<xs:enumeration value="Geologi"/>
+			<xs:enumeration value="Visine"/>
+			<xs:enumeration value="Pokrov zemljišta"/>
+			<xs:enumeration value="Ortofotosnimke"/>
+			<xs:enumeration value="Geologija"/>
+			<xs:enumeration value="Høyde"/>
+			<xs:enumeration value="Arealdekke"/>
+			<xs:enumeration value="Ortofoto"/>
+			<xs:enumeration value="Geologi"/>
+			<!--bul-->
+			<!--cze-->
+			<!--dan-->
+			<!--dut-->
+			<!--est-->
+			<!--fin-->
+			<!--fre-->
+			<!--ger-->
+			<!--eng + gle -->
+			<!--gre-->
+			<!--hun-->
+			<!--ita-->
+			<!--lav-->
+			<!--lit-->
+			<!-- mlt-->
+			<!--pol-->
+			<!--por-->
+			<!--rum-->
+			<!--slo-->
+			<!--slv-->
+			<!--spa-->
+			<!--swe -->
+			<!--hrv -->
+			<!--nor -->
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexIII">
+		<xs:restriction base="keywordValueInspireTheme">
+			<xs:enumeration value="Статистически единици"/>
+			<xs:enumeration value="Сгради"/>
+			<xs:enumeration value="Почва"/>
+			<xs:enumeration value="Ползване на земята"/>
+			<xs:enumeration value="Здраве и безопасност на човека"/>
+			<xs:enumeration value="Комунално-битови и обществени услуги"/>
+			<xs:enumeration value="Съоръжения за управление на околната среда"/>
+			<xs:enumeration value="Производствени и промишлени съоръжения"/>
+			<xs:enumeration value="Селскостопански и водностопански съоръжения"/>
+			<xs:enumeration value="Разпределение на населението — демография"/>
+			<xs:enumeration value="Управление на територията/ограничени/регулирани зони и отчетни единици"/>
+			<xs:enumeration value="Природни рискови зони"/>
+			<xs:enumeration value="Атмосферни условия"/>
+			<xs:enumeration value="Метеорологични географски характеристики"/>
+			<xs:enumeration value="Океанографски географски характеристики"/>
+			<xs:enumeration value="Морски региони"/>
+			<xs:enumeration value="Биогеографски региони"/>
+			<xs:enumeration value="Местообитания и биотопи"/>
+			<xs:enumeration value="Разпределение на видовете"/>
+			<xs:enumeration value="Енергийни източници"/>
+			<xs:enumeration value="Минерални ресурси"/>
+			<xs:enumeration value="Statistické jednotky"/>
+			<xs:enumeration value="Budovy"/>
+			<xs:enumeration value="Půda"/>
+			<xs:enumeration value="Využití území"/>
+			<xs:enumeration value="Lidské zdraví a bezpečnost"/>
+			<xs:enumeration value="Veřejné služby a služby veřejné správy"/>
+			<xs:enumeration value="Zařízení pro sledování životního prostředí"/>
+			<xs:enumeration value="Výrobní a průmyslová zařízení"/>
+			<xs:enumeration value="Zemědělská a akvakulturní zařízení"/>
+			<xs:enumeration value="Rozložení obyvatelstva – demografie"/>
+			<xs:enumeration value="Správní oblasti/chráněná pásma/regulovaná území a jednotky podávající hlášení"/>
+			<xs:enumeration value="Oblasti ohrožené přírodními riziky"/>
+			<xs:enumeration value="Stav ovzduší"/>
+			<xs:enumeration value="Zeměpisné meteorologické prvky"/>
+			<xs:enumeration value="Zeměpisné oceánografické prvky"/>
+			<xs:enumeration value="Mořské oblasti"/>
+			<xs:enumeration value="Bioregiony"/>
+			<xs:enumeration value="Stanoviště a biotopy"/>
+			<xs:enumeration value="Rozložení druhů"/>
+			<xs:enumeration value="Energetické zdroje"/>
+			<xs:enumeration value="Nerostné suroviny"/>
+			<xs:enumeration value="Statistiske enheder"/>
+			<xs:enumeration value="Bygninger"/>
+			<xs:enumeration value="Jord"/>
+			<xs:enumeration value="Arealanvendelse"/>
+			<xs:enumeration value="Sikkerhed"/>
+			<xs:enumeration value="Offentlig forsyningsvirksomhed og offentlige tjenesteydelser"/>
+			<xs:enumeration value="Miljøovervågningsfaciliteter"/>
+			<xs:enumeration value="Produktions- og industrifaciliteter"/>
+			<xs:enumeration value="Landbrugs- og akvakulturanlæg"/>
+			<xs:enumeration value="Befolkningsfordeling — demografi"/>
+			<xs:enumeration value="Forvaltede og regulerede områder samt områder med brugsbegrænsning og indberetningsenheder"/>
+			<xs:enumeration value="Områder med naturlige risici"/>
+			<xs:enumeration value="Atmosfæriske forhold"/>
+			<xs:enumeration value="Meteorologisk-geografiske forhold"/>
+			<xs:enumeration value="Oceanografiske/geografiske forhold"/>
+			<xs:enumeration value="Havområder"/>
+			<xs:enumeration value="Biogeografiske regioner"/>
+			<xs:enumeration value="Levesteder og biotoper"/>
+			<xs:enumeration value="Artsfordeling"/>
+			<xs:enumeration value="Energiressourcer"/>
+			<xs:enumeration value="Mineralressourcer"/>
+			<xs:enumeration value="Geologie"/>
+			<xs:enumeration value="Statistische eenheden"/>
+			<xs:enumeration value="Gebouwen"/>
+			<xs:enumeration value="Bodem"/>
+			<xs:enumeration value="Landgebruik"/>
+			<xs:enumeration value="Menselijke gezondheid en veiligheid"/>
+			<xs:enumeration value="Nutsdiensten en overheidsdiensten"/>
+			<xs:enumeration value="Milieubewakingsvoorzieningen"/>
+			<xs:enumeration value="Faciliteiten voor productie en industrie"/>
+			<xs:enumeration value="Faciliteiten voor landbouw en aquacultuur"/>
+			<xs:enumeration value="Spreiding van de bevolking — demografie"/>
+			<xs:enumeration value="Gebiedsbeheer, gebieden waar beperkingen gelden, gereguleerde gebieden en rapportage-eenheden"/>
+			<xs:enumeration value="Gebieden met natuurrisico's"/>
+			<xs:enumeration value="Atmosferische omstandigheden"/>
+			<xs:enumeration value="Meteorologische geografische kenmerken"/>
+			<xs:enumeration value="Oceanografische geografische kenmerken"/>
+			<xs:enumeration value="Zeegebieden"/>
+			<xs:enumeration value="Biogeografische gebieden"/>
+			<xs:enumeration value="Habitats en biotopen"/>
+			<xs:enumeration value="Spreiding van soorten"/>
+			<xs:enumeration value="Energiebronnen"/>
+			<xs:enumeration value="Minerale bronnen"/>
+			<xs:enumeration value="Ehitised"/>
+			<xs:enumeration value="Pinnas"/>
+			<xs:enumeration value="Maakasutus"/>
+			<xs:enumeration value="Inimeste tervis ja ohutus"/>
+			<xs:enumeration value="Kommunaal- ja riiklikud teenused"/>
+			<xs:enumeration value="Keskkonnaseirerajatised"/>
+			<xs:enumeration value="Tootmis- ja tööstusrajatised"/>
+			<xs:enumeration value="Põllumajandus- ja vesiviljelusrajatised"/>
+			<xs:enumeration value="Elanikkonna jaotumine – demograafia"/>
+			<xs:enumeration value="Üldplaneering/piirangu-/reguleeritud tsoonid ja aruandlusüksused"/>
+			<xs:enumeration value="Looduslikud ohutsoonid"/>
+			<xs:enumeration value="Atmosfääritingimused"/>
+			<xs:enumeration value="Meteoroloogilis-geograafilised tunnusjooned"/>
+			<xs:enumeration value="Okeanograafilis-geograafilised tunnusjooned"/>
+			<xs:enumeration value="Merepiirkonnad"/>
+			<xs:enumeration value="Bio-geograafilised piirkonnad"/>
+			<xs:enumeration value="Elupaigad ja biotoobid"/>
+			<xs:enumeration value="Liikide jaotumine"/>
+			<xs:enumeration value="Energiaressursid"/>
+			<xs:enumeration value="Maavarad"/>
+			<xs:enumeration value="Tilastoyksiköt"/>
+			<xs:enumeration value="Rakennukset"/>
+			<xs:enumeration value="Maaperä"/>
+			<xs:enumeration value="Maankäyttö"/>
+			<xs:enumeration value="Väestön terveys ja turvallisuus"/>
+			<xs:enumeration value="Yleishyödylliset ja muut julkiset palvelut"/>
+			<xs:enumeration value="Ympäristön tilan seurantalaitteet"/>
+			<xs:enumeration value="Tuotanto- ja teollisuuslaitokset"/>
+			<xs:enumeration value="Maatalous- ja vesiviljelylaitokset"/>
+			<xs:enumeration value="Väestöjakauma – demografia"/>
+			<xs:enumeration value="Aluesuunnittelun, rajoitusten ja sääntelyn piiriin kuuluvat alueet ja raportointiyksiköt"/>
+			<xs:enumeration value="Luonnonriskialueet"/>
+			<xs:enumeration value="Ilmakehän tila"/>
+			<xs:enumeration value="Ilmaston maantieteelliset ominaispiirteet"/>
+			<xs:enumeration value="Merentutkimuksen maantieteelliset ominaispiirteet"/>
+			<xs:enumeration value="Merialueet"/>
+			<xs:enumeration value="Biomaantieteelliset alueet"/>
+			<xs:enumeration value="Elinympäristöt ja biotoopit"/>
+			<xs:enumeration value="Lajien levinneisyys"/>
+			<xs:enumeration value="Energiavarat"/>
+			<xs:enumeration value="Mineraalivarat"/>
+			<xs:enumeration value="Unités statistiques"/>
+			<xs:enumeration value="Bâtiments"/>
+			<xs:enumeration value="Sols"/>
+			<xs:enumeration value="Usage des sols"/>
+			<xs:enumeration value="Santé et sécurité des personnes"/>
+			<xs:enumeration value="Services d'utilité publique et services publics"/>
+			<xs:enumeration value="Installations de suivi environnemental"/>
+			<xs:enumeration value="Lieux de production et sites industriels"/>
+			<xs:enumeration value="Installations agricoles et aquacoles"/>
+			<xs:enumeration value="Répartition de la population — démographie"/>
+			<xs:enumeration value="Zones de gestion, de restriction ou de réglementation et unités de déclaration"/>
+			<xs:enumeration value="Zones à risque naturel"/>
+			<xs:enumeration value="Conditions atmosphériques"/>
+			<xs:enumeration value="Caractéristiques géographiques météorologiques"/>
+			<xs:enumeration value="Caractéristiques géographiques océanographiques"/>
+			<xs:enumeration value="Régions maritimes"/>
+			<xs:enumeration value="Habitats et biotopes"/>
+			<xs:enumeration value="Régions biogéographiques"/>
+			<xs:enumeration value="Répartition des espèces"/>
+			<xs:enumeration value="Sources d'énergie"/>
+			<xs:enumeration value="Ressources minérales"/>
+			<xs:enumeration value="Statistische Einheiten"/>
+			<xs:enumeration value="Gebäude"/>
+			<xs:enumeration value="Boden"/>
+			<xs:enumeration value="Bodennutzung"/>
+			<xs:enumeration value="Gesundheit und Sicherheit"/>
+			<xs:enumeration value="Versorgungswirtschaft und staatliche Dienste"/>
+			<xs:enumeration value="Umweltüberwachung"/>
+			<xs:enumeration value="Produktions- und Industrieanlagen"/>
+			<xs:enumeration value="Landwirtschaftliche Anlagen und Aquakulturanlagen"/>
+			<xs:enumeration value="Verteilung der Bevölkerung — Demografie"/>
+			<xs:enumeration value="Bewirtschaftungsgebiete/Schutzgebiete/geregelte Gebiete und Berichterstattungseinheiten"/>
+			<xs:enumeration value="Gebiete mit naturbedingten Risiken"/>
+			<xs:enumeration value="Atmosphärische Bedingungen"/>
+			<xs:enumeration value="Meteorologisch-geografische Kennwerte"/>
+			<xs:enumeration value="Ozeanografisch-geografische Kennwerte"/>
+			<xs:enumeration value="Meeresregionen"/>
+			<xs:enumeration value="Biogeografische Regionen"/>
+			<xs:enumeration value="Lebensräume und Biotope"/>
+			<xs:enumeration value="Verteilung der Arten"/>
+			<xs:enumeration value="Energiequellen"/>
+			<xs:enumeration value="Mineralische Bodenschätze"/>
+			<xs:enumeration value="Statistical units"/>
+			<xs:enumeration value="Buildings"/>
+			<xs:enumeration value="Soil"/>
+			<xs:enumeration value="Land use"/>
+			<xs:enumeration value="Human health and safety"/>
+			<xs:enumeration value="Utility and governmental services"/>
+			<xs:enumeration value="Environmental monitoring facilities"/>
+			<xs:enumeration value="Production and industrial facilities"/>
+			<xs:enumeration value="Agricultural and aquaculture facilities"/>
+			<xs:enumeration value="Population distribution — demography"/>
+			<xs:enumeration value="Area management/restriction/regulation zones and reporting units"/>
+			<xs:enumeration value="Natural risk zones"/>
+			<xs:enumeration value="Atmospheric conditions"/>
+			<xs:enumeration value="Meteorological geographical features"/>
+			<xs:enumeration value="Oceanographic geographical features"/>
+			<xs:enumeration value="Sea regions"/>
+			<xs:enumeration value="Bio-geographical regions"/>
+			<xs:enumeration value="Habitats and biotopes"/>
+			<xs:enumeration value="Species distribution"/>
+			<xs:enumeration value="Energy resources"/>
+			<xs:enumeration value="Mineral resources"/>
+			<xs:enumeration value="Στατιστικές μονάδες"/>
+			<xs:enumeration value="Κτίρια"/>
+			<xs:enumeration value="Έδαφος"/>
+			<xs:enumeration value="Χρήσεις γης"/>
+			<xs:enumeration value="Ανθρώπινη υγεία και ασφάλεια"/>
+			<xs:enumeration value="Επιχειρήσεις κοινής ωφελείας και κρατικές υπηρεσίες"/>
+			<xs:enumeration value="Εγκαταστάσεις παρακολούθησης του περιβάλλοντος"/>
+			<xs:enumeration value="Εγκαταστάσεις παραγωγής και βιομηχανικές εγκαταστάσεις"/>
+			<xs:enumeration value="Γεωργικές εγκαταστάσεις και εγκαταστάσεις υδατοκαλλιέργειας"/>
+			<xs:enumeration value="Κατανομή πληθυσμού — δημογραφία"/>
+			<xs:enumeration value="Ζώνες διαχείρισης/περιορισμού/ρύθμισης εκτάσεων και μονάδες αναφοράς"/>
+			<xs:enumeration value="Ζώνες φυσικών κινδύνων"/>
+			<xs:enumeration value="Ατμοσφαιρικές συνθήκες"/>
+			<xs:enumeration value="Μετεωρολογικά γεωγραφικά χαρακτηριστικά"/>
+			<xs:enumeration value="Ωκεανογραφικά γεωγραφικά χαρακτηριστικά"/>
+			<xs:enumeration value="Θαλάσσιες περιοχές"/>
+			<xs:enumeration value="Βιογεωγραφικές περιοχές"/>
+			<xs:enumeration value="Ενδιαιτήματα και βιότοποι"/>
+			<xs:enumeration value="Κατανομή ειδών"/>
+			<xs:enumeration value="Ενεργειακοί πόροι"/>
+			<xs:enumeration value="Ορυκτοί πόροι"/>
+			<xs:enumeration value="Statisztikai egységek"/>
+			<xs:enumeration value="Épületek"/>
+			<xs:enumeration value="Talaj"/>
+			<xs:enumeration value="Földhasználat"/>
+			<xs:enumeration value="Emberi egészség és biztonság"/>
+			<xs:enumeration value="Közüzemi és közszolgáltatások"/>
+			<xs:enumeration value="Környezetvédelmi monitoringlétesítmények"/>
+			<xs:enumeration value="Termelő és ipari létesítmények"/>
+			<xs:enumeration value="Mezőgazdasági és akvakultúra-ágazati létesítmények"/>
+			<xs:enumeration value="A népesség eloszlása – demográfia"/>
+			<xs:enumeration value="Területgazdálkodási/-korlátozási/-szabályozási övezetek és adatszolgáltató egységek"/>
+			<xs:enumeration value="Természeti kockázati zónák"/>
+			<xs:enumeration value="Légköri viszonyok"/>
+			<xs:enumeration value="Meteorológiai földrajzi jellemzők"/>
+			<xs:enumeration value="Oceanográfiai földrajzi jellemzők"/>
+			<xs:enumeration value="Tengeri régiók"/>
+			<xs:enumeration value="Biogeográfiai régiók"/>
+			<xs:enumeration value="Élőhelyek és biotópok"/>
+			<xs:enumeration value="A fajok megoszlása"/>
+			<xs:enumeration value="Energiaforrások"/>
+			<xs:enumeration value="Ásványi nyersanyagok"/>
+			<xs:enumeration value="Unità statistiche"/>
+			<xs:enumeration value="Edifici"/>
+			<xs:enumeration value="Suolo"/>
+			<xs:enumeration value="Utilizzo del territorio"/>
+			<xs:enumeration value="Salute umana e sicurezza"/>
+			<xs:enumeration value="Servizi di pubblica utilità e servizi amministrativi"/>
+			<xs:enumeration value="Impianti di monitoraggio ambientale"/>
+			<xs:enumeration value="Produzione e impianti industriali"/>
+			<xs:enumeration value="Impianti agricoli e di acquacoltura"/>
+			<xs:enumeration value="Distribuzione della popolazione — demografia"/>
+			<xs:enumeration value="Zone sottoposte a gestione/limitazioni/regolamentazione e unità con obbligo di comunicare dati"/>
+			<xs:enumeration value="Zone a rischio naturale"/>
+			<xs:enumeration value="Condizioni atmosferiche"/>
+			<xs:enumeration value="Elementi geografici meteorologici"/>
+			<xs:enumeration value="Elementi geografici oceanografici"/>
+			<xs:enumeration value="Regioni marine"/>
+			<xs:enumeration value="Regioni biogeografiche"/>
+			<xs:enumeration value="Habitat e biotopi"/>
+			<xs:enumeration value="Distribuzione delle specie"/>
+			<xs:enumeration value="Risorse energetiche"/>
+			<xs:enumeration value="Risorse minerarie"/>
+			<xs:enumeration value="Statistikas vienības"/>
+			<xs:enumeration value="Ēkas"/>
+			<xs:enumeration value="Augsne"/>
+			<xs:enumeration value="Zemes izmantošana"/>
+			<xs:enumeration value="Cilvēku veselība un drošība"/>
+			<xs:enumeration value="Komunālie un valsts dienesti"/>
+			<xs:enumeration value="Vides monitoringa iekārtas"/>
+			<xs:enumeration value="Ražošanas un rūpniecības iekārtas"/>
+			<xs:enumeration value="Lauksaimniecības un akvakultūras iekārtas"/>
+			<xs:enumeration value="Iedzīvotāju sadalījums – demogrāfija"/>
+			<xs:enumeration value="Apgabala pārvaldības/ierobežojumu/reglamentētas zonas un ziņošanas vienības"/>
+			<xs:enumeration value="Dabas apdraudējuma zonas"/>
+			<xs:enumeration value="Atmosfēras apstākļi"/>
+			<xs:enumeration value="Meteoroloģiski ģeogrāfiskie raksturlielumi"/>
+			<xs:enumeration value="Okeanogrāfiski ģeogrāfiskie raksturlielumi"/>
+			<xs:enumeration value="Jūru reģioni"/>
+			<xs:enumeration value="Bioģeogrāfiskie reģioni"/>
+			<xs:enumeration value="Dzīvotnes un biotopi"/>
+			<xs:enumeration value="Sugu izplatība"/>
+			<xs:enumeration value="Enerģijas resursi"/>
+			<xs:enumeration value="Derīgo izrakteņu resursi"/>
+			<xs:enumeration value="Statistiniai vienetai"/>
+			<xs:enumeration value="Pastatai"/>
+			<xs:enumeration value="Dirvožemis"/>
+			<xs:enumeration value="Žemės naudojimas"/>
+			<xs:enumeration value="Žmonių sveikata ir sauga"/>
+			<xs:enumeration value="Komunalinės įmonės ir valstybės tarnybos"/>
+			<xs:enumeration value="Aplinkos stebėsenos priemonės"/>
+			<xs:enumeration value="Gamybos ir pramonės įrenginiai"/>
+			<xs:enumeration value="Žemės ūkio ir akvakultūros infrastruktūra"/>
+			<xs:enumeration value="Gyventojų pasiskirstymas – demografija"/>
+			<xs:enumeration value="Tvarkomos teritorijos, ribojamos ir reglamentuojamos zonos bei vienetai, už kuriuos atsiskaitoma"/>
+			<xs:enumeration value="Gamtinių pavojų zonos"/>
+			<xs:enumeration value="Atmosferos sąlygos"/>
+			<xs:enumeration value="Meteorologinės geografinės sąlygos"/>
+			<xs:enumeration value="Okeanografinės geografinės sąlygos"/>
+			<xs:enumeration value="Jūrų regionai"/>
+			<xs:enumeration value="Biogeografiniai regionai"/>
+			<xs:enumeration value="Buveinės ir biotopai"/>
+			<xs:enumeration value="Rūšių pasiskirstymas"/>
+			<xs:enumeration value="Energijos ištekliai"/>
+			<xs:enumeration value="Naudingosios iškasenos"/>
+			<xs:enumeration value="Unitajiet statistiċi"/>
+			<xs:enumeration value="Bini"/>
+			<xs:enumeration value="Ħamrija"/>
+			<xs:enumeration value="Użu ta' l-art"/>
+			<xs:enumeration value="Is-saħħa u s-siġurtà tal-bniedem"/>
+			<xs:enumeration value="Servizzi ta' utilità u tal-gvern"/>
+			<xs:enumeration value="Faċilitajiet ta' monitoraġġ ambjentali"/>
+			<xs:enumeration value="Faċilitajiet ta' produzzjoni u industrijali"/>
+			<xs:enumeration value="Faċilitajiet agrikoli u ta' l-akwakultura"/>
+			<xs:enumeration value="Distribuzzjoni tal-popolazzjoni – demografija"/>
+			<xs:enumeration value="Amministrazzjoni ta' żoni/restrizzjoni/żoni regolati u unitajiet ta' rapportar"/>
+			<xs:enumeration value="Żoni ta' riskju naturali"/>
+			<xs:enumeration value="Kondizzjonijiet atmosferiċi"/>
+			<xs:enumeration value="Karatteristiċi ġeografiċi meteoroloġiċi"/>
+			<xs:enumeration value="Karatteristiċi ġeografiċi oċeanografiċi"/>
+			<xs:enumeration value="Reġjuni tal-baħar"/>
+			<xs:enumeration value="Reġjuni bijo-ġeografiċi"/>
+			<xs:enumeration value="L-abitati naturali u l-bijotopi"/>
+			<xs:enumeration value="Distribuzzjoni ta' l-ispeċi"/>
+			<xs:enumeration value="Riżorsi ta' enerġija"/>
+			<xs:enumeration value="Riżorsi minerali"/>
+			<xs:enumeration value="Jednostki statystyczne"/>
+			<xs:enumeration value="Budynki"/>
+			<xs:enumeration value="Gleba"/>
+			<xs:enumeration value="Zagospodarowanie przestrzenne"/>
+			<xs:enumeration value="Zdrowie i bezpieczeństwo ludzi"/>
+			<xs:enumeration value="Usługi użyteczności publicznej i służby państwowe"/>
+			<xs:enumeration value="Urządzenia do monitorowania środowiska"/>
+			<xs:enumeration value="Obiekty produkcyjne i przemysłowe"/>
+			<xs:enumeration value="Obiekty rolnicze oraz akwakultury"/>
+			<xs:enumeration value="Rozmieszczenie ludności – demografia"/>
+			<xs:enumeration value="Gospodarowanie obszarem/strefy ograniczone/regulacyjne oraz jednostki sprawozdawcze"/>
+			<xs:enumeration value="Strefy zagrożenia naturalnego"/>
+			<xs:enumeration value="Warunki atmosferyczne"/>
+			<xs:enumeration value="Warunki meteorologiczno-geograficzne"/>
+			<xs:enumeration value="Warunki oceanograficzno-geograficzne"/>
+			<xs:enumeration value="Regiony morskie"/>
+			<xs:enumeration value="Regiony biogeograficzne"/>
+			<xs:enumeration value="Siedliska i obszary przyrodniczo jednorodne"/>
+			<xs:enumeration value="Rozmieszczenie gatunków"/>
+			<xs:enumeration value="Zasoby energetyczne"/>
+			<xs:enumeration value="Zasoby mineralne"/>
+			<xs:enumeration value="Unidades estatísticas"/>
+			<xs:enumeration value="Edifícios"/>
+			<xs:enumeration value="Solo"/>
+			<xs:enumeration value="Uso do solo"/>
+			<xs:enumeration value="Saúde humana e segurança"/>
+			<xs:enumeration value="Serviços de utilidade pública e do Estado"/>
+			<xs:enumeration value="Instalações de monitorização do ambiente"/>
+			<xs:enumeration value="Instalações industriais e de produção"/>
+			<xs:enumeration value="Instalações agrícolas e aquícolas"/>
+			<xs:enumeration value="Distribuição da população — demografia"/>
+			<xs:enumeration value="Zonas de gestão/restrição/regulamentação e unidades de referência"/>
+			<xs:enumeration value="Zonas de risco natural"/>
+			<xs:enumeration value="Condições atmosféricas"/>
+			<xs:enumeration value="Características geometeorológicas"/>
+			<xs:enumeration value="Características oceanográficas"/>
+			<xs:enumeration value="Regiões marinhas"/>
+			<xs:enumeration value="Regiões biogeográficas"/>
+			<xs:enumeration value="Habitats e biótopos"/>
+			<xs:enumeration value="Distribuição das espécies"/>
+			<xs:enumeration value="Recursos energéticos"/>
+			<xs:enumeration value="Recursos minerais"/>
+			<xs:enumeration value="Unități statistice"/>
+			<xs:enumeration value="Clădiri"/>
+			<xs:enumeration value="Soluri"/>
+			<xs:enumeration value="Utilizarea terenului"/>
+			<xs:enumeration value="Sănătate și siguranță umană"/>
+			<xs:enumeration value="Servicii de utilitate publică și servicii publice"/>
+			<xs:enumeration value="Instalații de supraveghere a mediului"/>
+			<xs:enumeration value="Instalații de producție și industriale"/>
+			<xs:enumeration value="Instalații agricole și pentru acvacultură"/>
+			<xs:enumeration value="Repartizarea populației – demografie"/>
+			<xs:enumeration value="Zone de administrare/restricție/reglementare și unități de raportare"/>
+			<xs:enumeration value="Zone de risc natural"/>
+			<xs:enumeration value="Condiții atmosferice"/>
+			<xs:enumeration value="Caracteristici geografice meteorologice"/>
+			<xs:enumeration value="Caracteristici geografice oceanografice"/>
+			<xs:enumeration value="Regiuni maritime"/>
+			<xs:enumeration value="Regiuni biogeografice"/>
+			<xs:enumeration value="Habitate și biotopuri"/>
+			<xs:enumeration value="Repartizarea speciilor"/>
+			<xs:enumeration value="Resurse energetice"/>
+			<xs:enumeration value="Resurse minerale"/>
+			<xs:enumeration value="Štatistické jednotky"/>
+			<xs:enumeration value="Stavby"/>
+			<xs:enumeration value="Pôda"/>
+			<xs:enumeration value="Využitie územia"/>
+			<xs:enumeration value="Ľudské zdravie a bezpečnosť"/>
+			<xs:enumeration value="Verejné a štátne služby"/>
+			<xs:enumeration value="Zariadenia na monitorovanie životného prostredia"/>
+			<xs:enumeration value="Výrobné a priemyselné zariadenia"/>
+			<xs:enumeration value="Poľnohospodárske zariadenia a zariadenia akvakultúry"/>
+			<xs:enumeration value="Rozmiestnenie obyvateľstva – demografia"/>
+			<xs:enumeration value="Spravované/obmedzené/regulované zóny a jednotky podávajúce správy"/>
+			<xs:enumeration value="Zóny prírodného rizika"/>
+			<xs:enumeration value="Atmosférické podmienky"/>
+			<xs:enumeration value="Meteorologické geografické prvky"/>
+			<xs:enumeration value="Oceánografické geografické prvky"/>
+			<xs:enumeration value="Morské regióny"/>
+			<xs:enumeration value="Biogeografické regióny"/>
+			<xs:enumeration value="Habitaty a biotopy"/>
+			<xs:enumeration value="Výskyt druhov"/>
+			<xs:enumeration value="Zdroje energie"/>
+			<xs:enumeration value="Zdroje nerastných surovín"/>
+			<xs:enumeration value="Statistični okoliši"/>
+			<xs:enumeration value="Stavbe"/>
+			<xs:enumeration value="Tla"/>
+			<xs:enumeration value="Namenska raba tal"/>
+			<xs:enumeration value="Zdravje in varnost prebivalstva"/>
+			<xs:enumeration value="Komunalne in javne storitve"/>
+			<xs:enumeration value="Naprave in objekti za monitoring okolja"/>
+			<xs:enumeration value="Proizvodni in industrijski objekti in naprave"/>
+			<xs:enumeration value="Objekti in naprave za kmetijstvo in ribogojstvo"/>
+			<xs:enumeration value="Porazdelitev prebivalstva – demografski podatki"/>
+			<xs:enumeration value="Območja upravljanja/zaprta območja/regulirana območja in poročevalske enote"/>
+			<xs:enumeration value="Območja nevarnosti naravnih nesreč"/>
+			<xs:enumeration value="Ozračje"/>
+			<xs:enumeration value="Meteorološke značilnosti"/>
+			<xs:enumeration value="Oceanogeografske značilnosti"/>
+			<xs:enumeration value="Morske regije"/>
+			<xs:enumeration value="Biogeografske regije"/>
+			<xs:enumeration value="Habitati in biotopi"/>
+			<xs:enumeration value="Porazdelitev vrst"/>
+			<xs:enumeration value="Energetski viri"/>
+			<xs:enumeration value="Mineralni viri"/>
+			<xs:enumeration value="Unidades estadísticas"/>
+			<xs:enumeration value="Edificios"/>
+			<xs:enumeration value="Suelo"/>
+			<xs:enumeration value="Uso del suelo"/>
+			<xs:enumeration value="Salud y seguridad humanas"/>
+			<xs:enumeration value="Servicios de utilidad pública y estatales"/>
+			<xs:enumeration value="Instalaciones de observación del medio ambiente"/>
+			<xs:enumeration value="Instalaciones de producción e industriales"/>
+			<xs:enumeration value="Instalaciones agrícolas y de acuicultura"/>
+			<xs:enumeration value="Distribución de la población — demografía"/>
+			<xs:enumeration value="Zonas sujetas a ordenación, a restricciones o reglamentaciones y unidades de notificación"/>
+			<xs:enumeration value="Zonas de riesgos naturales"/>
+			<xs:enumeration value="Condiciones atmosféricas"/>
+			<xs:enumeration value="Aspectos geográficos de carácter meteorológico"/>
+			<xs:enumeration value="Rasgos geográficos oceanográficos"/>
+			<xs:enumeration value="Regiones marinas"/>
+			<xs:enumeration value="Regiones biogeográficas"/>
+			<xs:enumeration value="Hábitats y biotopos"/>
+			<xs:enumeration value="Distribución de las especies"/>
+			<xs:enumeration value="Recursos energéticos"/>
+			<xs:enumeration value="Recursos minerales"/>
+			<xs:enumeration value="Statistiska enheter"/>
+			<xs:enumeration value="Byggnader"/>
+			<xs:enumeration value="Mark"/>
+			<xs:enumeration value="Markanvändning"/>
+			<xs:enumeration value="Människors hälsa och säkerhet"/>
+			<xs:enumeration value="Allmännyttiga och offentliga tjänster"/>
+			<xs:enumeration value="Anläggningar för miljöövervakning"/>
+			<xs:enumeration value="Produktions- och industrianläggningar"/>
+			<xs:enumeration value="Jordbruks- och vattenbruksanläggningar"/>
+			<xs:enumeration value="Befolkningsfördelning – demografi"/>
+			<xs:enumeration value="Områden med särskild förvaltning/begränsningar/reglering samt enheter för rapportering"/>
+			<xs:enumeration value="Naturliga riskområden"/>
+			<xs:enumeration value="Atmosfäriska förhållanden"/>
+			<xs:enumeration value="Geografiska meteorologiska förhållanden"/>
+			<xs:enumeration value="Geografiska oceanografiska förhållanden"/>
+			<xs:enumeration value="Havsområden"/>
+			<xs:enumeration value="Biogeografiska regioner"/>
+			<xs:enumeration value="Naturtyper och biotoper"/>
+			<xs:enumeration value="Arters utbredning"/>
+			<xs:enumeration value="Energiresurser"/>
+			<xs:enumeration value="Mineralfyndigheter"/>
+			<xs:enumeration value="Prostorne jedinice za statistiku"/>
+			<xs:enumeration value="Zgrade"/>
+			<xs:enumeration value="Tlo"/>
+			<xs:enumeration value="Korištenje zemljišta"/>
+			<xs:enumeration value="Ljudsko zdravlje i sigurnost"/>
+			<xs:enumeration value="Komunalne i javne usluge"/>
+			<xs:enumeration value="Sustavi za nadzor okoliša"/>
+			<xs:enumeration value="Proizvodna i industrijska postrojenja"/>
+			<xs:enumeration value="Sustavi za poljoprivredu i akvakulturu"/>
+			<xs:enumeration value="Rasprostranjenost stanovništva – demografija"/>
+			<xs:enumeration value="Područja upravljanja/zaštićena područja/uređena područja i jedinice za izvješćivanje"/>
+			<xs:enumeration value="Područja prirodnih opasnosti"/>
+			<xs:enumeration value="Atmosferski uvjeti"/>
+			<xs:enumeration value="Meteorološko-geografska obilježja"/>
+			<xs:enumeration value="Oceanografsko-geografska obilježja"/>
+			<xs:enumeration value="Morske regije"/>
+			<xs:enumeration value="Biogeografske regije"/>
+			<xs:enumeration value="Staništa i biotopi"/>
+			<xs:enumeration value="Rasprostranjenost vrsta"/>
+			<xs:enumeration value="Izvori energije"/>
+			<xs:enumeration value="Izvori minerala"/>
+			<xs:enumeration value="Statistiske enheter"/>
+			<xs:enumeration value="Bygninger"/>
+			<xs:enumeration value="Jordarter"/>
+			<xs:enumeration value="Arealbruk"/>
+			<xs:enumeration value="Menneskers helse og sikkerhet"/>
+			<xs:enumeration value="Allmennyttige og offentlige tjenester"/>
+			<xs:enumeration value="Anlegg for miljøovervåking"/>
+			<xs:enumeration value="Produksjons- og industrianlegg"/>
+			<xs:enumeration value="Anlegg for landbruk og akvakultur"/>
+			<xs:enumeration value="Befolkningsfordeling"/>
+			<xs:enumeration value="Rapporteringsenheter og områder med særlig forvaltning eller restriksjoner"/>
+			<xs:enumeration value="Områder med naturbetingede farer"/>
+			<xs:enumeration value="Atmosfæriske forhold"/>
+			<xs:enumeration value="Meteorologiske geografiske forhold"/>
+			<xs:enumeration value="Oseanografiske geografiske forhold"/>
+			<xs:enumeration value="Havområder"/>
+			<xs:enumeration value="Biogeografiske områder"/>
+			<xs:enumeration value="Habitater og biotoper"/>
+			<xs:enumeration value="Artsfordeling"/>
+			<xs:enumeration value="Energiressurser"/>
+			<xs:enumeration value="Mineralressurser"/>
+			<!--bul-->
+			<!--cze-->
+			<!--dan-->
+			<!--dut-->
+			<!--est-->
+			<!--fin-->
+			<!--fre-->
+			<!--ger-->
+			<!--eng + gle -->
+			<!--gre-->
+			<!--hun-->
+			<!--ita-->
+			<!--lav-->
+			<!--lit-->
+			<!-- mlt-->
+			<!--pol-->
+			<!--por-->
+			<!--rum-->
+			<!--slo-->
+			<!--slv-->
+			<!--spa-->
+			<!--swe -->
+			<!--hrv -->
+			<!--bul-->
+			<!--cze-->
+			<!--dan-->
+			<!--dut-->
+			<!--est-->
+			<!--fin-->
+			<!--fre-->
+			<!--ger-->
+			<!--eng + gle -->
+			<!--gre-->
+			<!--hun-->
+			<!--ita-->
+			<!--lav-->
+			<!--lit-->
+			<!-- mlt-->
+			<!--pol-->
+			<!--por-->
+			<!--rum-->
+			<!--slo-->
+			<!--slv-->
+			<!--spa-->
+			<!--swe -->
+			<!--hrv -->
+			<!--nor -->
+		</xs:restriction>
+	</xs:simpleType>
+	<!--
+	<xs:simpleType name="keywordValueInspireTheme_eng">
+		<xs:restriction base="keywordValueInspireTheme">
+			<xs:enumeration value="Coordinate reference systems"/>
+			<xs:enumeration value="Geographical grid systems"/>
+			<xs:enumeration value="Geographical names"/>
+			<xs:enumeration value="Administrative units"/>
+			<xs:enumeration value="Addresses"/>
+			<xs:enumeration value="Cadastral parcels"/>
+			<xs:enumeration value="Transport networks"/>
+			<xs:enumeration value="Hydrography"/>
+			<xs:enumeration value="Protected sites"/>
+			<xs:enumeration value="Elevation"/>
+			<xs:enumeration value="Land cover"/>
+			<xs:enumeration value="Orthoimagery"/>
+			<xs:enumeration value="Geology"/>
+			<xs:enumeration value="Statistical units"/>
+			<xs:enumeration value="Buildings"/>
+			<xs:enumeration value="Soil"/>
+			<xs:enumeration value="Land use"/>
+			<xs:enumeration value="Human health and safety"/>
+			<xs:enumeration value="Utility and governmental services"/>
+			<xs:enumeration value="Environmental monitoring facilities"/>
+			<xs:enumeration value="Production and industrial facilities"/>
+			<xs:enumeration value="Agricultural and aquaculture facilities"/>
+			<xs:enumeration value="Population distribution — demography"/>
+			<xs:enumeration value="Area management/restriction/regulation zones and reporting units"/>
+			<xs:enumeration value="Natural risk zones"/>
+			<xs:enumeration value="Atmospheric conditions"/>
+			<xs:enumeration value="Meteorological geographical features"/>
+			<xs:enumeration value="Oceanographic geographical features"/>
+			<xs:enumeration value="Sea regions"/>
+			<xs:enumeration value="Bio-geographical regions"/>
+			<xs:enumeration value="Habitats and biotopes"/>
+			<xs:enumeration value="Species distribution"/>
+			<xs:enumeration value="Energy resources"/>
+			<xs:enumeration value="Mineral resources"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexI_eng">
+		<xs:restriction base="keywordValueInspireTheme_eng">
+			<xs:enumeration value="Coordinate reference systems"/>
+			<xs:enumeration value="Geographical grid systems"/>
+			<xs:enumeration value="Geographical names"/>
+			<xs:enumeration value="Administrative units"/>
+			<xs:enumeration value="Addresses"/>
+			<xs:enumeration value="Cadastral parcels"/>
+			<xs:enumeration value="Transport networks"/>
+			<xs:enumeration value="Hydrography"/>
+			<xs:enumeration value="Protected sites"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexII_eng">
+		<xs:restriction base="keywordValueInspireTheme_eng">
+			<xs:enumeration value="Elevation"/>
+			<xs:enumeration value="Land cover"/>
+			<xs:enumeration value="Orthoimagery"/>
+			<xs:enumeration value="Geology"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexIII_eng">
+		<xs:restriction base="keywordValueInspireTheme_eng">
+			<xs:enumeration value="Statistical units"/>
+			<xs:enumeration value="Buildings"/>
+			<xs:enumeration value="Soil"/>
+			<xs:enumeration value="Land use"/>
+			<xs:enumeration value="Human health and safety"/>
+			<xs:enumeration value="Utility and governmental services"/>
+			<xs:enumeration value="Environmental monitoring facilities"/>
+			<xs:enumeration value="Production and industrial facilities"/>
+			<xs:enumeration value="Agricultural and aquaculture facilities"/>
+			<xs:enumeration value="Population distribution — demography"/>
+			<xs:enumeration value="Area management/restriction/regulation zones and reporting units"/>
+			<xs:enumeration value="Natural risk zones"/>
+			<xs:enumeration value="Atmospheric conditions"/>
+			<xs:enumeration value="Meteorological geographical features"/>
+			<xs:enumeration value="Oceanographic geographical features"/>
+			<xs:enumeration value="Sea regions"/>
+			<xs:enumeration value="Bio-geographical regions"/>
+			<xs:enumeration value="Habitats and biotopes"/>
+			<xs:enumeration value="Species distribution"/>
+			<xs:enumeration value="Energy resources"/>
+			<xs:enumeration value="Mineral resources"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="inspireTheme_eng">
+		<xs:complexContent>
+			<xs:restriction base="inspireTheme">
+				<xs:sequence>
+					<xs:element name="OriginatingControlledVocabulary" type="originatingControlledVocabularyGemetInspireThemes" minOccurs="1"/>
+					<xs:element name="KeywordValue" type="keywordValueInspireTheme"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireDirective_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:L:2007:108:SOM:EN:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocGEMETInspireThemes_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://www.eionet.europa.eu/gemet/inspire_themes?langcode=en"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationGEMETInspireThemes_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="GEMET - INSPIRE themes"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2008-06-01"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="0" maxOccurs="0"/>
+					<xs:element name="ResourceLocator" type="resLocGEMETInspireThemes_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationINSPDirective_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Directive 2007/2/EC of the European Parliament and of the Council of 14 March 2007 establishing an Infrastructure for Spatial Information in the European Community (INSPIRE)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2007-04-25"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2007:108:SOM:EN:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireDirective_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireMDRegulation_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32008R1205:EN:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationINSPMDRegulation_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Commission Regulation (EC) No 1205/2008 of 3 December 2008 implementing Directive 2007/2/EC of the European Parliament and of the Council as regards metadata"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2008-12-03"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32008R1205:EN:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireMDRegulation_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireNSRegulation_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32009R0976:EN:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationINSPNSRegulation_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Commission Regulation (EC) No 976/2009 of 19 October 2009 implementing Directive 2007/2/EC of the European Parliament and of the Council as regards the Network Services"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2009-10-19"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32009R0976:EN:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireNSRegulation_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="resLocInspireInteroperabilityRegulation_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2010:323:0011:0102:EN:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireInteroperabilityRegulation_eng">
+		<xs:complexContent>
+			<xs:restriction base="citationConformity">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="COMMISSION REGULATION (EU) No 1089/2010 of 23 November 2010 implementing Directive 2007/2/EC of the European Parliament and of the Council as regards interoperability of spatial data sets and services"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2010-12-08"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2010:323:0011:0102:EN:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireInteroperabilityRegulation_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocISO19139GMD2006_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://schemas.opengis.net/iso/19139/20060504/gmd/gmd.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/xml"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationISO19139GMD2006_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="19139 XSchemas TS RC (2006 May 4)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2006-05-04"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://schemas.opengis.net/iso/19139/20060504/"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocISO19139GMD2006_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocISO19139GMD2007_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://schemas.opengis.net/iso/19139/20070417/gmd/gmd.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/xml"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationISO19139GMD2007_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="ISO/TS 19139 Schemas (2007 April 17)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2007-04-17"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://schemas.opengis.net/iso/19139/20070417/"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocISO19139GMD2007_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocISO19139SRV2006_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://schemas.opengis.net/iso/19139/20060504/srv/srv.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/xml"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationISO19139SRV2006_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="19139 XSchemas TS RC (2006 May 4)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2006-05-04"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://schemas.opengis.net/iso/19139/20060504/"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocISO19139SRV2006_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocISO19139SRV2007_EDEN_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eden.ign.fr/xsd/isotc211/isofull/20090316/srv/srv.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/xml"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationISO19139SRV2006_EDEN_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="19139 XSchemas TS RC (2006 May 4)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2009-03-02"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eden.ign.fr/xsd/isotc211/isofull/20090316/"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocISO19139SRV2007_EDEN_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocOGCCSW202_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/xml"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationOGCCSW202_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="OpenGIS Catalogue Service Implementation Standard 2.0.2"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2007-04-30"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocOGCCSW202_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocOGCWMS130_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/xml"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationOGCWMS130_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="OpenGIS(r) Web Map Service Implementation Standard (WMS)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2005-11-22"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocOGCWMS130_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocINSPIREVS_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/xml"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationINSPIREVS_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="INSPIRE View Service for WMS 1.3.0"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2011-03-18"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocINSPIREVS_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocINSPIREVSOWS11_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://inspire.ec.europa.eu/schemas/inspire_vs_ows11/1.0/inspire_vs_ows_11.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/xml"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationINSPIREVSOWS11_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="INSPIRE View Service for OWS 1.1"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2011-03-18"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://inspire.ec.europa.eu/schemas/inspire_vs_ows11/1.0/inspire_vs_ows_11.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocINSPIREVSOWS11_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocINSPIREDS_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://inspire.ec.europa.eu/schemas/inspire_ds/1.0/inspire_ds.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/xml"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationINSPIREDS_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="INSPIRE Discovery Service for CSW 2.0.2"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2011-03-18"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://inspire.ec.europa.eu/schemas/inspire_ds/1.0/inspire_ds.xsd"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocINSPIREDS_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocTGMD1.2_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://inspire.jrc.ec.europa.eu/documents/Metadata/INSPIRE_MD_IR_and_ISO_v1_2_20100616.pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationMDTG1.2_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="INSPIRE Metadata Implementing Rules: Technical Guidelines based on EN ISO 19115 and EN ISO 19119 (Version 1.2)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfLastRevision">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2010-06-16"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="INSMDTG3.0"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocTGMD1.2_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocDSTG3.0_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://inspire.jrc.ec.europa.eu/documents/Network_Services/TechnicalGuidance_DiscoveryServices_v3.0.pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationDSTG3.0_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Technical Guidance for the implementation of INSPIRE Discovery Services (Version 3.0)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfLastRevision">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2011-03-30"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://inspire.jrc.ec.europa.eu/documents/Network_Services/TechnicalGuidance_DiscoveryServices_v3.0.pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocDSTG3.0_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocVSTG3.0_eng">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://inspire.jrc.ec.europa.eu/documents/Network_Services/TechnicalGuidance_ViewServices_v3.0.pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationVSTG3.0_eng">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Technical Guidance for the implementation of INSPIRE View Services (Version 3.0)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfLastRevision">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2011-03-30"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://inspire.jrc.ec.europa.eu/documents/Network_Services/TechnicalGuidance_ViewServices_v3.0.pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocVSTG3.0_eng" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	-->
+</xs:schema>
