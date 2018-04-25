@@ -1,5 +1,37 @@
 # Change Log
 
+## [v5.6.0](https://github.com/gisaia/ARLAS-server/tree/v5.6.0) (2018-04-20)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v4.6.0...v5.6.0)
+
+**Breaking changes:**
+
+- Add Dublin Core element name to a collection [\#251](https://github.com/gisaia/ARLAS-server/issues/251)
+
+**New stuff:**
+
+- Add cardinality aggregation to ARLAS server [\#148](https://github.com/gisaia/ARLAS-server/issues/148) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Add Csw GetCapabilities Operation [\#232](https://github.com/gisaia/ARLAS-server/issues/232) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
+- Enable ogc bbox for geo filter [\#225](https://github.com/gisaia/ARLAS-server/issues/225) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
+- Geo OPENSEARCH: allow bbox search [\#208](https://github.com/gisaia/ARLAS-server/issues/208) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
+- Add a new API that tags the result of a query [\#140](https://github.com/gisaia/ARLAS-server/issues/140) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Support elasticsearch aliases as collection's index name [\#259](https://github.com/gisaia/ARLAS-server/pull/259) ([sfalquier](https://github.com/sfalquier))
+- Allow multiple elasticsearch nodes configuration for TransportClient. [\#242](https://github.com/gisaia/ARLAS-server/pull/242) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)] ([sfalquier](https://github.com/sfalquier))
+- Enable sniffing for elasticsearch client [\#238](https://github.com/gisaia/ARLAS-server/pull/238) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)] ([sfalquier](https://github.com/sfalquier))
+
+**Fixed bugs:**
+
+- DateHistogram : day unit should not be limited to 1 but month and week units should be [\#245](https://github.com/gisaia/ARLAS-server/issues/245)
+
+**Miscellaneous:**
+
+- Check if exclude field contains md field [\#215](https://github.com/gisaia/ARLAS-server/issues/215)
+- release.sh : the building process of ARLAS server JAR must start with a clean [\#209](https://github.com/gisaia/ARLAS-server/issues/209)
+- Fake mode for release script [\#206](https://github.com/gisaia/ARLAS-server/issues/206)
+- Add License check in CI [\#203](https://github.com/gisaia/ARLAS-server/issues/203)
+- README.md: remove all the text that is provided in the documentation [\#200](https://github.com/gisaia/ARLAS-server/issues/200) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- Generate changelog based on the issues of the milestone [\#68](https://github.com/gisaia/ARLAS-server/issues/68) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
 ## [v4.6.0](https://github.com/gisaia/ARLAS-server/tree/v4.6.0) (2018-04-04)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v3.5.1...v4.6.0)
