@@ -38,7 +38,6 @@ import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
 public class AtomBuilder {
-    public static Logger LOGGER = LoggerFactory.getLogger(AtomBuilder.class);
 
     public static void setEntryType(AbstractRecordType abstractRecordType, FeedType feedType, EntryType entryType) {
         String recordType = abstractRecordType.getClass().getSimpleName();
@@ -58,7 +57,6 @@ public class AtomBuilder {
     public static void setRecordType(RecordType recordType, EntryType entryType) {
         org.purl.dc.elements._1.ObjectFactory objectFactory = new org.purl.dc.elements._1.ObjectFactory();
         recordType.getDCElement().stream().forEach(simpleLiteralJAXBElement -> {
-            LOGGER.info(simpleLiteralJAXBElement.getName().getLocalPart());
             String value = simpleLiteralJAXBElement.getValue().getContent().get(0);
             TextType textType = new TextType();
             textType.getContent().add(value);

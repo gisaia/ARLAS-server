@@ -26,11 +26,12 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import io.arlas.server.core.FluidSearch;
-import io.arlas.server.exceptions.*;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InternalServerErrorException;
+import io.arlas.server.exceptions.NotAllowedException;
+import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
-import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.utils.BoundingBox;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
@@ -40,6 +41,9 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
+import org.elasticsearch.common.geo.builders.PolygonBuilder;
+import org.elasticsearch.common.geo.builders.ShapeBuilder;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.IndexNotFoundException;
@@ -135,7 +139,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     @Override
     public List<CollectionReference> getCollectionReferences(String[] includes, String[] excludes, int size,
-                                                             int from, String[] ids, String q) throws ArlasException {
+                                                             int from, String[] ids, String q, BoundingBox boundingBox) throws ArlasException, IOException {
 
         List<CollectionReference> collections = new ArrayList<>();
         //Exclude old include_fields for support old collection
@@ -145,7 +149,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             excludes = new String[]{"include_fields"};
         }
         try {
-            BoolQueryBuilder boolQuery =  buildCollectionQuery( ids, q);
+            BoolQueryBuilder boolQuery = buildCollectionQuery(ids, q, boundingBox);
             SearchResponse response = client.prepareSearch(arlasIndex)
                     .setFetchSource(includes, excludes)
                     .setFrom(from)
@@ -166,10 +170,10 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     @Override
-    public long countCollectionReferences(String[] ids, String q) throws ArlasException {
+    public long countCollectionReferences(String[] ids, String q, BoundingBox boundingBox) throws ArlasException, IOException {
         long count = 0;
         try {
-            BoolQueryBuilder boolQuery = buildCollectionQuery(ids, q);
+            BoolQueryBuilder boolQuery = buildCollectionQuery(ids, q, boundingBox);
             SearchResponse response = client.prepareSearch(arlasIndex)
                     .setQuery(boolQuery).get();
             count = response.getHits().getTotalHits();
@@ -179,20 +183,35 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         return count;
     }
 
-    private BoolQueryBuilder buildCollectionQuery(String[] ids, String q) {
+    private BoolQueryBuilder buildCollectionQuery(String[] ids, String q, BoundingBox boundingBox) throws IOException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        if (ids != null) {
+        int minimumShouldMatch = 0;
+        if (ids != null && ids.length > 0) {
             for (String resourceIdValue : Arrays.asList(ids)) {
                 orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery("dublin_core_element_name.identifier", resourceIdValue));
-                boolQuery = boolQuery.filter(orBoolQueryBuilder);
             }
-        } else if (q != null) {
+            minimumShouldMatch = minimumShouldMatch + 1;
+        } else if (q != null && q.length() > 0) {
             orBoolQueryBuilder = orBoolQueryBuilder
                     .should((QueryBuilders.simpleQueryStringQuery(q).defaultOperator(Operator.AND).field("internal.fulltext")));
-            boolQuery = boolQuery.filter(orBoolQueryBuilder);
+            minimumShouldMatch = minimumShouldMatch + 1;
         }
-        return  boolQuery;
+        if (boundingBox != null) {
+            CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
+            coordinatesBuilder.coordinate(boundingBox.getEast(), boundingBox.getSouth());
+            coordinatesBuilder.coordinate(boundingBox.getEast(), boundingBox.getNorth());
+            coordinatesBuilder.coordinate(boundingBox.getWest(), boundingBox.getNorth());
+            coordinatesBuilder.coordinate(boundingBox.getWest(), boundingBox.getSouth());
+            coordinatesBuilder.coordinate(boundingBox.getEast(), boundingBox.getSouth());
+            PolygonBuilder polygonBuilder = new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.LEFT);
+            orBoolQueryBuilder = orBoolQueryBuilder
+                    .should(QueryBuilders.geoIntersectionQuery("dublin_core_element_name.coverage", polygonBuilder));
+            minimumShouldMatch = minimumShouldMatch + 1;
+        }
+        orBoolQueryBuilder.minimumShouldMatch(minimumShouldMatch);
+        boolQuery = boolQuery.filter(orBoolQueryBuilder);
+        return boolQuery;
     }
 
     @Override

@@ -19,14 +19,15 @@
 
 package io.arlas.server.ogc.csw.writer.getrecords;
 
+import com.a9.opensearch.QueryType;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.ns.ATOM;
+import io.arlas.server.ogc.csw.CSWService;
 import io.arlas.server.ogc.csw.utils.AtomBuilder;
-import net.opengis.cat.csw._3.*;
+import net.opengis.cat.csw._3.GetRecordsResponseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3._2005.atom.*;
-import org.w3._2005.atom.ObjectFactory;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -34,18 +35,19 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
-import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -94,28 +96,50 @@ public class AtomGetRecordsMessageBodyWriter implements MessageBodyWriter<GetRec
             DateTimeType dateTimeType = new DateTimeType();
             dateTimeType.setValue(date);
             feedType.setUpdated(dateTimeType);
-
         } catch (DatatypeConfigurationException e) {
             e.printStackTrace();
+            new WebApplicationException(e);
         }
+        LinkType linkType = new LinkType();
+        linkType.setType(CSWService.MIME_TYPE__OPENSEARCH_XML);
+        linkType.setHref(arlasServerConfiguration.ogcConfiguration.serverUri + "collections/csw/_opensearch");
+        linkType.setRel("search");
+        feedType.getLink().add(linkType);
         com.a9.opensearch.ObjectFactory openSearchFactory = new com.a9.opensearch.ObjectFactory();
         BigInteger nextRecord = getRecordsResponseType.getSearchResults().getNextRecord() ;
         BigInteger totalResult= getRecordsResponseType.getSearchResults().getNumberOfRecordsReturned() ;
         Long nextRecordLong = nextRecord.longValue();
         Long totalResultLong = totalResult.longValue();
-        JAXBElement<Long> startIndex = openSearchFactory.createStartIndex(nextRecordLong-totalResultLong);
+       JAXBElement<Long> startIndex = openSearchFactory.createStartIndex(nextRecordLong-totalResultLong);
         feedType.getAny().add(startIndex);
         JAXBElement<Long> totalResults = openSearchFactory.createTotalResults(totalResultLong);
         feedType.getAny().add(totalResults);
         JAXBElement<Long> itemPerPages = openSearchFactory.createItemsPerPage(totalResultLong);
         feedType.getAny().add(itemPerPages);
+        try {
+            JAXBContext jc = JAXBContext.newInstance(String.class,QueryType.class,FeedType.class);
+            Marshaller m = jc.createMarshaller();
+            QueryType queryType = new QueryType();
+            queryType.setRole("request");
+            QName _Query_QNAME = new QName("http://a9.com/-/spec/opensearch/1.1/", "Query");
+            JAXBElement<QueryType> query =  new JAXBElement<>(_Query_QNAME, QueryType.class, null, queryType);
+            feedType.getAny().add(query);
+            getRecordsResponseType.getSearchResults().getAbstractRecord().stream().forEach(jaxbElement -> {
+                EntryType entryType = new EntryType();
+                AtomBuilder.setEntryType(jaxbElement.getValue(),feedType,entryType);
+                feedType.getEntry().add(entryType);
+            });
+            try {
+                m.marshal(objectFactory.createFeed(feedType),outputStream);
+            } catch (JAXBException e) {
+                e.printStackTrace();
+                new WebApplicationException(e);
 
-        getRecordsResponseType.getSearchResults().getAbstractRecord().stream().forEach(jaxbElement -> {
-            EntryType entryType = new EntryType();
-            AtomBuilder.setEntryType(jaxbElement.getValue(),feedType,entryType);
-            feedType.getEntry().add(entryType);
-        });
+            }
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            new WebApplicationException(e);
 
-        JAXB.marshal(objectFactory.createFeed(feedType),outputStream);
+        }
     }
 }
