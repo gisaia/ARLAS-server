@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           xmlns:geo="http://a9.com/-/opensearch/extensions/geo/1.0/"
+
+           targetNamespace="http://a9.com/-/opensearch/extensions/geo1/1.0/">
+  <xs:import namespace="http://a9.com/-/opensearch/extensions/geo/1.0/" schemaLocation="geo.xsd"/>
+  <xs:attribute name="box" type="geo:geobox"/>
+  <xs:attribute name="geometry"/>
+  <xs:attribute name="uid"/>
+  <xs:attribute name="lat" type="xs:double"/>
+  <xs:attribute name="lon" type="xs:double"/>
+  <xs:attribute name="radius" type="xs:double"/>
+  <xs:attribute name="relation" type="geo:relation"/>
+  <xs:attribute name="name"/>
+  <xs:attributeGroup name="local">
+    <xs:anyAttribute namespace="##other" processContents="skip"/>
+  </xs:attributeGroup>
+
+</xs:schema>

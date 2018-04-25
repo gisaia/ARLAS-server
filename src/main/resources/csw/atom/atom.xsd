@@ -136,6 +136,9 @@ Date: 12-03-2014
     </xs:annotation>
     <xs:sequence>
       <xs:element ref="dc:identifier" minOccurs="1"/>
+      <xs:element ref="dc:subject" minOccurs="0"/>
+      <xs:element ref="dc:format" minOccurs="0"/>
+      <xs:element ref="dc:type" minOccurs="0"/>
       <xs:element ref="inspire_dls:spatial_dataset_identifier_code" minOccurs="1"/>
       <xs:element ref="inspire_dls:spatial_dataset_identifier_namespace" minOccurs="0"/>
       <xs:element name="category" type="atom:categoryType" minOccurs="0" maxOccurs="unbounded"/>
@@ -153,6 +156,8 @@ Date: 12-03-2014
       <xs:choice>
         <xs:element ref="georss:polygon"/>
         <xs:element ref="georss:point"/>
+        <xs:element ref="georss:box"/>
+
       </xs:choice>
       <!-- instead of box for INSPIRE DLS Atom feed/subfeed -->
       <!--						<xs:element ref="georss:where"  minOccurs="1" maxOccurs="1"/>-->

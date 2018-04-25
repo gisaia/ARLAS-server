@@ -24,6 +24,7 @@ import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.ogc.csw.operation.getrecordbyid.GetRecordsByIdHandler;
 import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
+import io.arlas.server.ogc.csw.operation.opensearch.OpenSearchHandler;
 import net.opengis.cat.csw._3.ObjectFactory;
 
 public class CSWHandler {
@@ -31,6 +32,7 @@ public class CSWHandler {
     public GetCapabilitiesHandler getCapabilitiesHandler;
     public GetRecordsHandler getRecordsHandler;
     public GetRecordsByIdHandler getRecordsByIdHandler;
+    public OpenSearchHandler openSearchHandler;
 
 
     public OGCConfiguration ogcConfiguration;
@@ -48,6 +50,7 @@ public class CSWHandler {
         getCapabilitiesHandler = new GetCapabilitiesHandler(this);
         getRecordsHandler = new GetRecordsHandler(this);
         getRecordsByIdHandler = new GetRecordsByIdHandler(this);
+        openSearchHandler = new OpenSearchHandler(this);
 
     }
 }

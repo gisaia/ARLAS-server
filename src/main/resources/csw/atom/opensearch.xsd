@@ -17,7 +17,16 @@ the Licence.
 Date: 12-03-2014
 -->
 
-<xs:schema xmlns="http://a9.com/-/spec/opensearch/1.1/" xmlns:mstns="http://a9.com/-/spec/opensearch/1.1/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:inspire_dls="http://inspire.ec.europa.eu/schemas/inspire_dls/1.0" targetNamespace="http://a9.com/-/spec/opensearch/1.1/" elementFormDefault="qualified"  xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"  jaxb:version="2.0">
+<xs:schema xmlns="http://a9.com/-/spec/opensearch/1.1/"
+		   xmlns:mstns="http://a9.com/-/spec/opensearch/1.1/"
+		   xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		   xmlns:inspire_dls="http://inspire.ec.europa.eu/schemas/inspire_dls/1.0"
+		   xmlns:geo1="http://a9.com/-/opensearch/extensions/geo1/1.0/"
+		   xmlns:geo="http://a9.com/-/opensearch/extensions/geo/1.0/"
+
+		   targetNamespace="http://a9.com/-/spec/opensearch/1.1/"
+		   elementFormDefault="qualified"
+		   xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"  jaxb:version="2.0">
 <xs:annotation><xs:appinfo>
     <jaxb:schemaBindings>
       <jaxb:package name="com.a9.opensearch"/>
@@ -27,6 +36,12 @@ Date: 12-03-2014
 	<xs:annotation>
 		<xs:documentation>Based on http://www.opensearch.org/Specifications/OpenSearch/1.1</xs:documentation>
 	</xs:annotation>
+	<xs:import namespace="http://a9.com/-/opensearch/extensions/geo1/1.0/" schemaLocation="geo1.xsd"/>
+	<xs:import namespace="http://a9.com/-/opensearch/extensions/geo/1.0/" schemaLocation="geo.xsd"/>
+
+	<xs:attributeGroup name="geo">
+		<xs:attributeGroup ref="geo1:local"/>
+	</xs:attributeGroup>
 	<xs:element name="Query" type="mstns:InspireQueryType">
 		<xs:annotation>
 			<xs:documentation>
@@ -240,6 +255,7 @@ Date: 12-03-2014
 					</xs:annotation>
 				</xs:element>
 			</xs:sequence>
+			<xs:attributeGroup ref="geo"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:complexType name="QueryType">

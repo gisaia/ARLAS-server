@@ -21,9 +21,14 @@ package io.arlas.server.ogc.csw.utils;
 
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.DublinCoreElementName;
-import net.opengis.cat.csw._3.*;
+import net.opengis.cat.csw._3.AbstractRecordType;
+import net.opengis.cat.csw._3.BriefRecordType;
+import net.opengis.cat.csw._3.RecordType;
+import net.opengis.cat.csw._3.SummaryRecordType;
 import net.opengis.ows._2.WGS84BoundingBoxType;
 import org.purl.dc.elements._1.SimpleLiteral;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBElement;
 import java.util.Arrays;
@@ -46,7 +51,7 @@ public class RecordBuilder {
                 switch (element.toLowerCase()) {
                     case CSWConstant.DC_FIELD_TITLE:
                         addTitle(briefRecord, dublinCoreElementName.title);
-                      break;
+                        break;
                     case CSWConstant.DC_FIELD_TYPE:
                         addType(briefRecord, dublinCoreElementName.type);
                         break;
@@ -56,9 +61,9 @@ public class RecordBuilder {
                 }
             }
         }
-        if(dublinCoreElementName.identifier!=""){
+        if (dublinCoreElementName.identifier != "") {
             addIdentifier(briefRecord, dublinCoreElementName.identifier);
-        }else{
+        } else {
             addIdentifier(briefRecord, String.valueOf(collectionReference.collectionName.hashCode()));
         }
         return briefRecord;
@@ -82,7 +87,7 @@ public class RecordBuilder {
                 switch (element.toLowerCase()) {
                     case CSWConstant.DC_FIELD_TITLE:
                         addTitle(summaryRecord, dublinCoreElementName.title);
-                      break;
+                        break;
                     case CSWConstant.DC_FIELD_TYPE:
                         addType(summaryRecord, dublinCoreElementName.type);
                         break;
@@ -155,15 +160,15 @@ public class RecordBuilder {
         SimpleLiteral simpleLiteral = new SimpleLiteral();
         simpleLiteral.getContent().add(title);
         JAXBElement<SimpleLiteral> JAXBElementTitle = dcObjectFactory.createTitle(simpleLiteral);
-        switch(abstractRecordType.getClass().getSimpleName()){
+        switch (abstractRecordType.getClass().getSimpleName()) {
             case "BriefRecordType":
-                ((BriefRecordType)abstractRecordType).getTitle().add(JAXBElementTitle);
+                ((BriefRecordType) abstractRecordType).getTitle().add(JAXBElementTitle);
                 break;
             case "SummaryRecordType":
-                ((SummaryRecordType)abstractRecordType).getTitle().add(JAXBElementTitle);
+                ((SummaryRecordType) abstractRecordType).getTitle().add(JAXBElementTitle);
                 break;
             case "RecordType":
-                ((RecordType)abstractRecordType).getDCElement().add(JAXBElementTitle);
+                ((RecordType) abstractRecordType).getDCElement().add(JAXBElementTitle);
                 break;
         }
     }
@@ -171,16 +176,16 @@ public class RecordBuilder {
     public static void addType(AbstractRecordType abstractRecordType, String type) {
         SimpleLiteral simpleLiteral = new SimpleLiteral();
         simpleLiteral.getContent().add(type);
-        switch(abstractRecordType.getClass().getSimpleName()){
+        switch (abstractRecordType.getClass().getSimpleName()) {
             case "BriefRecordType":
-                ((BriefRecordType)abstractRecordType).setType(simpleLiteral);
+                ((BriefRecordType) abstractRecordType).setType(simpleLiteral);
                 break;
             case "SummaryRecordType":
-                ((SummaryRecordType)abstractRecordType).setType(simpleLiteral);
+                ((SummaryRecordType) abstractRecordType).setType(simpleLiteral);
                 break;
             case "RecordType":
                 JAXBElement<SimpleLiteral> JAXBElementType = dcObjectFactory.createType(simpleLiteral);
-                ((RecordType)abstractRecordType).getDCElement().add(JAXBElementType);
+                ((RecordType) abstractRecordType).getDCElement().add(JAXBElementType);
                 break;
         }
     }

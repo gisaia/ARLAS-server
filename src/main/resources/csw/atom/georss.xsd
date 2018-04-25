@@ -96,7 +96,7 @@ Date: 12-03-2014
 	</xs:element>
 	<!-- ================================================= -->
 	<xs:simpleType name="boxType">
-		<xs:restriction base="georss:doubleList">
+		<xs:restriction base="georss:stringList">
 			<xs:minLength value="4"/>
 			<xs:maxLength value="4"/>
 		</xs:restriction>
@@ -160,6 +160,12 @@ Date: 12-03-2014
 			<xs:documentation>XML List based on XML Schema double type, identical to gml:doubleList.  An element of this type contains a space-separated list of double values</xs:documentation>
 		</xs:annotation>
 		<xs:list itemType="xs:double"/>
+	</xs:simpleType>
+	<xs:simpleType name="stringList">
+		<xs:annotation>
+			<xs:documentation>XML List based on XML Schema double type, identical to gml:doubleList.  An element of this type contains a space-separated list of double values</xs:documentation>
+		</xs:annotation>
+		<xs:list itemType="xs:string"/>
 	</xs:simpleType>
 	<!-- ================================================= -->
 </xs:schema>

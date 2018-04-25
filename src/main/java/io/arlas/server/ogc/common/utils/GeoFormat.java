@@ -19,11 +19,15 @@
 
 package io.arlas.server.ogc.common.utils;
 
+import io.arlas.server.exceptions.OGCException;
+import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.ns.GML;
+import io.arlas.server.ogc.common.model.Service;
 import org.geojson.*;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.util.Arrays;
 import java.util.List;
 
 public class GeoFormat {
@@ -105,5 +109,13 @@ public class GeoFormat {
             return;
         }
         throw new RuntimeException("Unsupported geometry type for " + geojson.toString());
+    }
+
+    public static double[] toDoubles(String bbox, Service service) throws OGCException {
+        try {
+            return Arrays.stream(bbox.split(",")).limit(4).mapToDouble(Double::parseDouble).toArray();
+        } catch (Exception e) {
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid BBOX", "BBOX", service);
+        }
     }
 }

@@ -27,6 +27,7 @@ import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
+import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
 import io.arlas.server.rest.explore.ExploreServices;
@@ -117,9 +118,9 @@ public class WFSQueryBuilder {
     }
 
     private void buildBboxQuery() throws OGCException {
-        double[] tlbr = toDoubles(bbox);
+        double[] tlbr = GeoFormat.toDoubles(bbox,Service.WFS);
         if (!(isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "bbox",Service.WFS);
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "bbox", Service.WFS);
         }
         wfsQuery.filter(getBBoxBoolQueryBuilder(bbox, collectionReferenceDescription.params.centroidPath));
     }
@@ -155,7 +156,7 @@ public class WFSQueryBuilder {
     }
 
     private BoolQueryBuilder getBBoxBoolQueryBuilder(String bbox, String centroidPath) throws OGCException {
-        double[] tlbr = toDoubles(bbox);
+        double[] tlbr = GeoFormat.toDoubles(bbox,Service.WFS);
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         GeoPoint topLeft = new GeoPoint(tlbr[3], tlbr[0]);
         GeoPoint bottomRight = new GeoPoint(tlbr[1], tlbr[2]);
@@ -168,11 +169,5 @@ public class WFSQueryBuilder {
         return boolQueryBuilder;
     }
 
-    private double[] toDoubles(String bbox) throws OGCException {
-        try {
-            return Arrays.stream(bbox.split(",")).limit(4).mapToDouble(Double::parseDouble).toArray();
-        } catch (Exception e) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "BBOX",Service.WFS);
-        }
-    }
+
 }

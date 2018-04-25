@@ -20,22 +20,16 @@
 package io.arlas.server.ogc.csw.operation.getrecords;
 
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.DublinCoreElementName;
 import io.arlas.server.ogc.csw.CSWHandler;
-import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
 import io.arlas.server.ogc.csw.utils.RecordBuilder;
 import net.opengis.cat.csw._3.*;
-import net.opengis.ows._2.BoundingBoxType;
-import net.opengis.ows._2.WGS84BoundingBoxType;
-import org.purl.dc.elements._1.SimpleLiteral;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -49,9 +43,9 @@ public class GetRecordsHandler {
     }
 
     public GetRecordsResponseType getCSWGetRecordsResponse(List<CollectionReference> collections,
-                                                                        ElementSetName elementSetName,
-                                                                        int startPosition,
-                                                                        long recordsMatched, String[] elements) throws DatatypeConfigurationException {
+                                                           ElementSetName elementSetName,
+                                                           int startPosition,
+                                                           long recordsMatched, String[] elements) throws DatatypeConfigurationException {
         GetRecordsResponseType getRecordsResponseType = new GetRecordsResponseType();
         SearchResultsType searchResultType = new SearchResultsType();
         RequestStatusType searchStatus = new RequestStatusType();
@@ -77,8 +71,8 @@ public class GetRecordsHandler {
                 break;
             case full:
                 collections.forEach(collectionReference -> {
-                    RecordType  record = RecordBuilder.getFullResult(collectionReference, elements);
-                    JAXBElement<RecordType> recordType  = cswHandler.cswFactory.createRecord(record);
+                    RecordType record = RecordBuilder.getFullResult(collectionReference, elements);
+                    JAXBElement<RecordType> recordType = cswHandler.cswFactory.createRecord(record);
                     searchResultType.getAbstractRecord().add(recordType);
                 });
                 break;
@@ -91,9 +85,9 @@ public class GetRecordsHandler {
                 break;
         }
         getRecordsResponseType.setSearchResults(searchResultType);
-        searchResultType.setNextRecord(BigInteger.valueOf(startPosition + collections.size()));
+        searchResultType.setNextRecord(BigInteger.valueOf(startPosition + collections.size() + 1));
         searchResultType.setNumberOfRecordsReturned(BigInteger.valueOf(collections.size()));
         searchResultType.setNumberOfRecordsMatched(BigInteger.valueOf(recordsMatched));
-        return  getRecordsResponseType;
+        return getRecordsResponseType;
     }
 }

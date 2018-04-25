@@ -19,7 +19,6 @@
 
 package io.arlas.server.ogc.csw.utils;
 
-import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.exceptions.OGCException;
 import io.arlas.server.exceptions.OGCExceptionCode;
 import io.arlas.server.ogc.common.model.Service;
@@ -35,7 +34,7 @@ public class CSWCheckParam {
 
     public static void checkQuerySyntax(CSWRequestType requestType,String elementName, String elementSetName, String acceptVersions,
                                         String version, String service, String outputSchema,String typeNames,
-                                        String bbox, String resourceid,String filter,String id )throws OGCException {
+                                        String bbox, String resourceid,String query,String id )throws OGCException {
         if(service==null){
             throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, "Missing service", "service", Service.CSW);
         }
@@ -46,7 +45,7 @@ public class CSWCheckParam {
         }
         if (bbox != null && resourceid != null) {
             throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "BBOX and RECORDIDS can't be used together", "bbox,recordIds", Service.CSW);
-        } else if (resourceid != null && filter != null) {
+        } else if (resourceid != null && query != null) {
             throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, "RECORDIDS and Q can't be used together", "bbox,q", Service.CSW);
         }
         if(outputSchema != null){
@@ -64,6 +63,14 @@ public class CSWCheckParam {
                 if (!validType)  throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid typeNames", "typeNames", Service.CSW);
             }
         }
+        if(bbox!=null){
+            if(bbox.split(",").length==5){
+                if(bbox.split(",")[4]!="urn:ogc:def:crs:EPSG::4326"){
+                    throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid BBOX", "BBOX", Service.CSW);
+                }
+            }
+        }
+
         ElementSetName elementSetNameEnum ;
         if(elementSetName!=null){
             try{
@@ -89,4 +96,11 @@ public class CSWCheckParam {
             VersionUtils.checkVersion(requestVersion, CSWConstant.SUPPORTED_CSW_VERSION, Service.CSW);
         }
     }
+
+    public static boolean isBboxLatLonInCorrectRanges(double[] tlbr) {
+        // west, south, east, north
+        return tlbr[0] >= -90 && tlbr[2] >= -90 && tlbr[0] <= 90 && tlbr[2] <= 90 &&
+                tlbr[1] >= -180 && tlbr[3] >= -180 && tlbr[1] <= 180 && tlbr[3] <= 180;
+    }
+
 }
