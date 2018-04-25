@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  -*- rnc -*-
+  RELAX NG Compact Syntax Grammar 
+  OpenSearch Query Element as defined in OGC 10-032 for the geo extension
+  
+  OGC OpenSearch Geo and Time Extensions 1.0 is an OGC Standard.
+  Copyright (c) 2014 Open Geospatial Consortium.
+  To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
+  
+  Version: 1.0.1
+  
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+           targetNamespace="http://a9.com/-/opensearch/extensions/geo/1.0/"
+           xmlns:geo="http://a9.com/-/opensearch/extensions/geo1/1.0/">
+
+  <xs:import namespace="http://a9.com/-/opensearch/extensions/geo1/1.0/" schemaLocation="geo1.xsd"/>
+
+  <xs:attributeGroup name="osQueryAttr">
+    <xs:attribute ref="geo:box"/>
+    <xs:attribute ref="geo:geometry"/>
+    <xs:attribute ref="geo:uid"/>
+    <xs:attribute ref="geo:lat"/>
+    <xs:attribute ref="geo:lon"/>
+    <xs:attribute ref="geo:radius"/>
+    <xs:attribute ref="geo:relation"/>
+    <xs:attribute ref="geo:name"/>
+    <xs:attribute name="role" use="required">
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="request">
+          <xs:annotation>
+            <xs:documentation>
+              Represents the search query that can be performed to retrieve the same set of search results.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:enumeration>
+        <xs:enumeration value="example">
+          <xs:annotation>
+            <xs:documentation>
+              Represents a search query that can be performed to demonstrate the search engine.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:enumeration>
+        <xs:enumeration value="related">
+          <xs:annotation>
+            <xs:documentation>
+              Represents a search query that can be performed to retrieve similar but different search results.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:enumeration>
+        <xs:enumeration value="correction">
+          <xs:annotation>
+            <xs:documentation>
+              Represents a search query that can be performed to improve the result set, such as with a spelling correction.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:enumeration>
+        <xs:enumeration value="subset">
+          <xs:annotation>
+            <xs:documentation>
+              Represents a search query that will narrow the current set of search results.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:enumeration>
+        <xs:enumeration value="superset">
+          <xs:annotation>
+            <xs:documentation>
+              Represents a search query that will broaden the current set of search results.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:enumeration>
+      </xs:restriction>
+    </xs:simpleType>
+    </xs:attribute>
+
+    <xs:attribute name="title">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="256"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="searchTerms"/>
+    <xs:attribute name="totalResults" type="xs:int"/>
+    <xs:attribute name="count"/>
+    <xs:attribute name="startIndex"/>
+    <xs:attribute name="startPage"/>
+    <xs:attribute name="inputEncoding"/>
+    <xs:attribute name="outputEncoding"/>
+    <xs:attribute name="language"/>
+  </xs:attributeGroup>
+  <xs:simpleType name="geobox">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[\+\-]?[\d]*(.[\d]+)?(,[\+\-]?[\d]*(.[\d]+)?){3}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="relation">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="intersects"/>
+      <xs:enumeration value="contains"/>
+      <xs:enumeration value="disjoint"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
+<!-- EOF -->
