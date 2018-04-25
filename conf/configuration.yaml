@@ -117,4 +117,4 @@ arlas-ogc:
 
 arlas-csw:
   openSearchDescription: ${ARLAS_CSW_OPENSEARCH_DESCRIPTION:-Geo-BigData Collection Catalog}
-  openSearchShortName: ${ARLAS_CSW_OPENSEARCH_SHORTNAME:-Geo-BigData Collection Catalog}
+  openSearchShortName: ${ARLAS_CSW_OPENSEARCH_SHORTNAME:-Geo-Catalog}
