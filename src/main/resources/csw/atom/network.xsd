@@ -1,0 +1,1177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2014 EUROPEAN UNION Licensed under the EUPL,
+Version 1.1  or - as soon they will be approved by the European Commission -
+subsequent versions of the EUPL (the "Licence"); You may not use this work
+except in compliance with the Licence. You may obtain a copy of the Licence
+at:
+
+http://ec.europa.eu/idabc/eupl
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the Licence is distributed on an "AS IS" basis, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+Licence for the specific language governing permissions and limitations under
+the Licence.
+
+Date: 12-03-2014
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://inspire.ec.europa.eu/schemas/common/1.0" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" targetNamespace="http://inspire.ec.europa.eu/schemas/common/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.1" jaxb:version="2.0">
+  <!--<xs:import namespace="http://www.w3.org/XML/1998/namespace"/>-->
+  <xs:complexType name="ExtendedCapabilitiesType">
+    <xs:annotation>
+      <xs:documentation>Extended capabilities for ISO 19128 , OGC CSW, OGC OWS services</xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <xs:sequence>
+        <xs:annotation>
+          <xs:documentation>Scenario 1: Mandatory MetadataUrl element pointing to an INSPIRE Compliant ISO metadata document plus language parameters </xs:documentation>
+        </xs:annotation>
+        <xs:element name="MetadataUrl" type="resourceLocatorType"/>
+        <xs:element name="SupportedLanguages" type="supportedLanguagesType"/>
+        <xs:element name="ResponseLanguage" type="languageElementISO6392B"/>
+      </xs:sequence>
+      <xs:sequence>
+        <xs:annotation>
+          <xs:documentation>Scenario 2: Mandatory (where appropriate) metadata elements not mapped to standard capabilities, plus mandatory language parameters, plus OPTIONAL MetadataUrl pointing to an INSPIRE Compliant ISO metadata document</xs:documentation>
+        </xs:annotation>
+        <xs:element name="ResourceLocator" type="resourceLocatorType" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">Mandatory linkage to the network service</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="ResourceType" type="resourceType"/>
+        <xs:element name="TemporalReference" type="temporalReference" maxOccurs="unbounded"/>
+        <xs:element name="Conformity" type="conformity" maxOccurs="unbounded"/>
+        <xs:element name="MetadataPointOfContact" type="metadataPointOfContact" maxOccurs="unbounded"/>
+        <xs:element name="MetadataDate" type="iso8601Date"/>
+        <xs:element name="SpatialDataServiceType" type="spatialDataServiceType"/>
+        <xs:element name="MandatoryKeyword" type="classificationOfSpatialDataService" maxOccurs="unbounded"/>
+        <xs:element name="Keyword" type="keyword" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">If the resource is a spatial data service, at least one keyword from Part D.4 shall be provided.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="QualityOfService" type="spatialDataServiceQualityOfService" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="Category" type="spatialDataServiceCategoryType" minOccurs="0"/>
+        <xs:element name="CoordinateReferenceSystemIdentifier" type="coordinateReferenceSystem" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="SupportedLanguages" type="supportedLanguagesType"/>
+        <xs:element name="ResponseLanguage" type="languageElementISO6392B"/>
+        <xs:element name="MetadataUrl" type="resourceLocatorType" minOccurs="0"/>
+      </xs:sequence>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="supportedLanguagesType">
+    <xs:sequence>
+      <xs:element name="DefaultLanguage" type="languageElementISO6392B"/>
+      <xs:element name="SupportedLanguage" type="languageElementISO6392B" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>It is not necessary to repeat the default
+language</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DiscoveryService" type="discoveryService"/>
+  <xs:element name="ViewService" type="viewService"/>
+  <xs:element name="DownloadService" type="downloadService"/>
+  <xs:element name="TransformationService" type="transformationService"/>
+  <xs:element name="InvokeService" type="invokeService"/>
+  <xs:element name="OtherService" type="otherService"/>
+  <!--	<xs:element name="ViewServiceClient" type="viewServiceClient"/> -->
+  <!--Type definitions-->
+  <xs:complexType name="networkService">
+    <xs:complexContent>
+      <xs:extension base="service">
+        <xs:sequence>
+          <xs:element name="OperationsMetadataParameters" type="operationsMetadataParameters"/>
+          <!--				
+2.2.2. Operations Metadata parameters
+The Operations Metadata parameter provides metadata about the operations implemented by the Discovery
+Service. These metadata parameters shall describe each operation. It shall at least provide the following:
+1. indicate for the Publish Metadata if the Pull Mechanism, the Push Mechanism or both are available;
+2. describe each operation, including as a minimum a description of the data exchanged and the network
+address.
+
+2.2.2. Operations Metadata parameters
+The Operation Metadata parameter describes the operations of the View Service and shall contain as a minimum a
+description of the data exchanged and the network address of each operation.
+
+2.2.2. Operations Metadata parameter
+The Operations metadata parameter provides metadata about the operations implemented by the Download Service. It shall at least provide a description of each operation, including as a minimum a description of the data exchanged and the network address.
+
+2.2.2. Operations Metadata parameter
+The Operations Metadata parameter provides metadata about the operations implemented by the Transformation Service.
+It shall describe each operation, including as a minimum a description of the data exchanged and the network address, and shall list the following:
+— the transformation categories accepted by the Transform operation,
+— the encoding for the input Spatial Data Set accepted by the Transform operation,
+— the Data Model languages accepted by the Transform operation,
+— the Model Mapping languages accepted by the Transform operation.
+
+-->
+          <xs:element name="SupportedLanguages" type="supportedLanguagesType"/>
+          <xs:element name="ResponseLanguage" type="languageElementISO6392B"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Discovery  Service-->
+  <xs:complexType name="discoverMetadataOperationMetadataParameters">
+    <xs:sequence>
+      <xs:element name="OperationNetworkAddress" type="resourceLocatorType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="discoveryServiceOperationsMetadataParameters">
+    <xs:complexContent>
+      <xs:extension base="operationsMetadataParameters">
+        <xs:sequence>
+          <xs:element name="DiscoverMetadataOperationMetadataParameters" type="discoverMetadataOperationMetadataParameters"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="discoveryService_ext">
+    <xs:complexContent>
+      <xs:extension base="networkService">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="discoveryService">
+    <xs:complexContent>
+      <xs:restriction base="discoveryService_ext">
+        <xs:sequence>
+          <xs:element name="ResourceTitle" type="notEmptyString"/>
+          <xs:element name="ResourceAbstract" type="anchorType"/>
+          <xs:element name="ResourceType" type="serviceSpatialDataResourceType"/>
+          <xs:element name="ResourceLocator" type="resourceLocatorType" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory if linkage to the service is available</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="MandatoryKeyword" type="classificationOfSpatialDataService" minOccurs="1" maxOccurs="unbounded"/>
+          <xs:element name="Keyword" type="keyword" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">If the resource is a spatial data service, at least one keyword from Part D.4 shall be provided.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="GeographicBoundingBox" type="geographicBoundingBox" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory for services with an explicit geographic extent.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TemporalReference" type="temporalReference" maxOccurs="unbounded"/>
+          <xs:element name="SpatialResolution" type="spatialResolution" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory when there is a restriction on the spatial resolution for this service.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Conformity" type="conformity" maxOccurs="unbounded"/>
+          <xs:element name="ConditionsForAccessAndUse" type="anchorType" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>The element must have values. If no conditions apply to the access and use of the resource, ‘no conditions apply’ shall be used. If conditions are unknown, ‘conditions unknown’ shall be used.
+			</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LimitationsOnPublicAccess" type="anchorType" maxOccurs="unbounded"/>
+          <xs:element name="ResponsibleOrganisation" type="responsibleOrganisation" maxOccurs="unbounded"/>
+          <xs:element name="MetadataPointOfContact" type="metadataPointOfContact" maxOccurs="unbounded"/>
+          <xs:element name="MetadataDate" type="iso8601Date"/>
+          <xs:element name="MetadataLanguage" type="metadataLanguageISO6392B"/>
+          <xs:element name="CoupledResource" type="uniqueResourceIdentifier" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory if linkage to data sets on which the service operates are available.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SpatialDataServiceType" type="discoverySpatialDataServiceType"/>
+          <xs:element name="Category" type="spatialDataServiceCategoryType" minOccurs="0"/>
+          <xs:element name="OperationsMetadataParameters" type="operationsMetadataParameters"/>
+          <xs:element name="SupportedLanguages" type="supportedLanguagesType"/>
+          <xs:element name="ResponseLanguage" type="languageElementISO6392B"/>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="style">
+    <xs:sequence>
+      <xs:element name="StyleTitle" type="xs:string"/>
+      <xs:element name="StyleUniqueResourceIdentifier" type="uniqueResourceIdentifier"/>
+      <!--OGC Specific-->
+      <xs:element name="StyleName" type="xs:string" minOccurs="0"/>
+      <xs:element name="StyleAbstract" type="xs:string" minOccurs="0"/>
+      <xs:element name="StyleFormat" type="xs:string" minOccurs="0"/>
+      <xs:element name="StyleURL" type="xs:anyURI" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="styles">
+    <xs:sequence>
+      <xs:element name="Style" type="style" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="dimensionPair">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string"/>
+      <xs:element name="Units" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="dimensionPairs">
+    <xs:sequence>
+      <xs:element name="DimensionPair" type="dimensionPair" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="legend">
+    <xs:sequence>
+      <xs:element name="StyleName" type="xs:string"/>
+      <xs:element name="LegendFormat" type="xs:string" minOccurs="0"/>
+      <xs:element name="LegendHeight" type="xs:positiveInteger" minOccurs="0"/>
+      <xs:element name="LegendWidth" type="xs:positiveInteger" minOccurs="0"/>
+      <xs:element name="LegendURL" type="xs:anyURI"/>
+      <xs:element name="DimensionPairName" type="xs:string" minOccurs="0"/>
+      <xs:element name="Language" type="languageISO6392B" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="legendURL">
+    <xs:sequence>
+      <xs:element name="Legend" type="legend" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="boundingBox">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Mandatory for services with an explicit geographic extent.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="CoordinateReferenceSystem" type="coordinateReferenceSystem"/>
+      <xs:element name="East" type="xs:double"/>
+      <xs:element name="West" type="xs:double"/>
+      <xs:element name="North" type="xs:double"/>
+      <xs:element name="South" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="tileMatrixSet">
+    <xs:annotation>
+      <xs:documentation>Not foreseen by INSPIRE Network Service Regulation</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Identifier" type="xs:string"/>
+      <xs:element name="BoundingBox" type="geographicBoundingBox" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="CoordinateReferenceSystem" type="coordinateReferenceSystem" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="AvailableImageFormat" type="imageFormatType" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="TileMatrix" type="tileMatrix" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="pointType">
+    <xs:annotation>
+      <xs:documentation>Not foreseen by INSPIRE Network Service Regulation. Taken from OGC specifications</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="lowerCorner"/>
+      <xs:enumeration value="upperCorner"/>
+      <xs:enumeration value="topLeftCorner"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="point">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">To express a WMTS Tile Matrix corner </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Latitude" type="geoBoxDigits"/>
+      <xs:element name="Longitude" type="geoBoxDigits"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="tileMatrix">
+    <xs:annotation>
+      <xs:documentation>Not foreseen by INSPIRE Network Service Regulation</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="MatrixIdentifier" type="xs:string"/>
+      <xs:element name="ScaleDenominator" type="xs:double"/>
+      <xs:element name="TopLeftCorner" type="point"/>
+      <xs:element name="TileWidth" type="xs:integer"/>
+      <xs:element name="TileHeight" type="xs:integer"/>
+      <xs:element name="MatrixWidth" type="xs:integer"/>
+      <xs:element name="MatrixHeight" type="xs:integer"/>
+      <xs:element name="LayerMinTileRow" type="xs:integer"/>
+      <xs:element name="LayerMaxTileRow" type="xs:integer"/>
+      <xs:element name="LayerMinTileCol" type="xs:integer"/>
+      <xs:element name="LayerMaxTileCol" type="xs:integer"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!--
+ RS	Coordinate reference systems and Geographical grid systems		TWG-RS	I
+ GN	Geographical names							TWG-GN	I
+ AU	Administrative units							TWG-AU	I
+ AD	Addresses								TWG-AD	I
+ CP	Cadastral parcels							TWG-CP	I
+ TN	Transport networks							TWG-TN	I
+ HY	Hydrography								TWG-HY	I
+ PS	Protected sites								TWG-PS	I
+ 
+ EL	Elevation								TWG-EL	II
+ LC	Land cover								TWG-LC	II
+ OR	Orthoimagery								TWG-OR	II
+ GE	Geology									TWG-GE	II
+ 
+ SU	Statistical units							TWG-SU	III
+ BU	Buildings								TWG-BU	III
+ SO	Soil									TWG-SO	III
+ LU	Land use								TWG-LU	III
+ HH	Human health and safety							TWG-HH	III
+ UT	Utility and governmental services					TWG-UT	III
+ EF	Environmental monitoring facilities					TWG-EF	III
+ PF	Production and industrial facilities					TWG-PF	III
+ AF	Agricultural and aquacultural facilities				TWG-AF	III
+ PD	Population distribution, demography					TWG-PD	III
+ AM	Area management/restriction/regulation zones and reporting units	TWG-AM	III
+ NR	Natural risk zones							TWG-NR	III
+ AC	Atmospheric conditions							TWG-AC	III
+ MF	Meteorological geographical features					TWG-MF	III
+ OF	Oceanographic geographical features					TWG-OF	III
+ SR	Sea regions								TWG-SR	III
+ BR	Bio-geographical regions						TWG-BR	III
+ HB	Habitats and biotopes							TWG-HB	III
+ SD	Species distribution							TWG-SD	III
+-->
+  <xs:simpleType name="harmonisedLayerName">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(RS|GN|AU|AD|CP|TN|HY|PS)\..+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="harmonisedLayerName_GN">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="harmonisedLayerName">
+          <xs:enumeration value="GN.GeographicalNames"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="harmonisedLayerName_AU">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="harmonisedLayerName">
+          <xs:enumeration value="AU.AdministrativeUnit"/>
+          <xs:enumeration value="AU.AdministrativeBoundary"/>
+          <xs:enumeration value="AU.Condominium"/>
+          <xs:enumeration value="AU.Baseline"/>
+          <xs:enumeration value="AU.MaritimeBoundary"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction base="harmonisedLayerName">
+          <xs:pattern value="(AU)\..+"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="harmonisedLayerName_AD">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="harmonisedLayerName">
+          <xs:enumeration value="AD.Address"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="harmonisedLayerTitle">
+    <xs:restriction base="notEmptyString">
+      <!--			<xs:pattern value="(RS|GN|AU|AD|CP|TN|HY|PS)\..+"/>-->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="harmonisedLayerTitle_eng">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="harmonisedLayerTitle">
+          <xs:enumeration value="Addresses"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="harmonisedLayerTitle_ita">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="harmonisedLayerTitle">
+          <xs:enumeration value="Indirizzi"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="harmonisedLayerTitle_eng_AD">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="harmonisedLayerTitle_eng">
+          <xs:enumeration value="Addresses"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="harmonisedLayerTitle_ita_AD">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="harmonisedLayerTitle_ita">
+          <xs:enumeration value="Indirizzi"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:complexType name="layer_labels">
+    <xs:sequence>
+      <xs:element name="Name" type="harmonisedLayerName">
+        <xs:annotation>
+          <xs:documentation>Harmonised name of the layer</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ResourceTitle" type="harmonisedLayerTitle">
+        <xs:annotation>
+          <xs:documentation>Harmonised name of the layer</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <!--
+	<xs:complexType name="layer_labels_eng">
+		<xs:complexContent>
+			<xs:restriction base="layer_labels">
+				<xs:sequence>
+					<xs:element name="Name" type="harmonisedLayerName">
+						<xs:annotation>
+							<xs:documentation>Harmonised name of the layer</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ResourceTitle" type="harmonisedLayerTitle_eng">
+						<xs:annotation>
+							<xs:documentation>Harmonised name of the layer</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>-->
+  <xs:group name="layer_labels_eng">
+    <xs:sequence>
+      <xs:element name="Name" type="harmonisedLayerName">
+        <xs:annotation>
+          <xs:documentation>Harmonised name of the layer</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ResourceTitle" type="harmonisedLayerTitle_eng">
+        <xs:annotation>
+          <xs:documentation>Harmonised name of the layer</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="layer_labels_ita">
+    <xs:sequence>
+      <xs:element name="Name" type="harmonisedLayerName">
+        <xs:annotation>
+          <xs:documentation>Harmonised name of the layer</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ResourceTitle" type="harmonisedLayerTitle_ita">
+        <xs:annotation>
+          <xs:documentation>Harmonised name of the layer</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="layer">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Harmonised name of the layer</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ResourceTitle" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Layer Title</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <!--		
+			<xs:choice>
+				<xs:group ref="layer_labels_eng"/>
+			</xs:choice>
+			-->
+      <xs:element name="ResourceAbstract" type="xs:string"/>
+      <xs:element name="Keyword" type="keyword" maxOccurs="unbounded"/>
+      <xs:element name="GeographicBoundingBox" type="boundingBox" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>In the Network Service regulation the geographic bounding box element of layers contains is expressed in all available Coordinate Reference Systems</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BoundingBox" type="geographicBoundingBox" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="UniqueResourceIdentifier" type="uniqueResourceIdentifier" maxOccurs="unbounded"/>
+      <xs:element name="CoordinateReferenceSystems" type="coordinateReferenceSystems"/>
+      <xs:element name="Styles" type="styles"/>
+      <xs:element name="DimensionPairs" type="dimensionPairs" minOccurs="0"/>
+      <xs:element name="LegendURL" type="legendURL"/>
+      <xs:element name="TileMatrixSet" type="tileMatrixSet" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Not foreseen by INSPIRE Network Service Regulation</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="layerName" type="xs:string"/>
+    <xs:attribute name="queryable" type="xs:boolean"/>
+  </xs:complexType>
+  <xs:complexType name="layers">
+    <xs:sequence>
+      <xs:element name="Layer" type="layer" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="operationsMetadataParameters" abstract="true"/>
+  <xs:simpleType name="imageFormatType">
+    <xs:annotation>
+      <xs:documentation>
+	Draft implementation to be refined
+	</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="mandatoryImageFormatType">
+    <xs:annotation>
+      <xs:documentation>
+	Draft implementation to be refined
+	</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="imageFormatType">
+      <xs:enumeration value="image/png"/>
+      <xs:enumeration value="image/gif"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="getMapOperationMetadataParameters">
+    <xs:sequence>
+      <xs:element name="OperationNetworkAddress" type="resourceLocatorType"/>
+      <xs:element name="MandatoryImageFormat" type="mandatoryImageFormatType" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="OtherImageFormat" type="imageFormatType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="viewServiceOperationsMetadataParameters">
+    <xs:complexContent>
+      <xs:extension base="operationsMetadataParameters">
+        <xs:sequence>
+          <xs:element name="GetMapOperationMetadataParameters" type="getMapOperationMetadataParameters"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="viewService_ext">
+    <xs:complexContent>
+      <xs:extension base="networkService">
+        <xs:sequence>
+          <xs:element name="Layers" type="layers"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="viewService">
+    <xs:complexContent>
+      <xs:restriction base="viewService_ext">
+        <xs:sequence>
+          <xs:element name="ResourceTitle" type="notEmptyString"/>
+          <xs:element name="ResourceAbstract" type="anchorType"/>
+          <xs:element name="ResourceType" type="serviceSpatialDataResourceType"/>
+          <xs:element name="ResourceLocator" type="resourceLocatorType" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory if linkage to the service is available</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="MandatoryKeyword" type="classificationOfSpatialDataService" minOccurs="1" maxOccurs="unbounded"/>
+          <xs:element name="Keyword" type="keyword" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">If the resource is a spatial data service, at least one keyword from Part D.4 shall be provided.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="GeographicBoundingBox" type="geographicBoundingBox" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory for services with an explicit geographic extent.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TemporalReference" type="temporalReference" maxOccurs="unbounded"/>
+          <xs:element name="SpatialResolution" type="spatialResolution" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory when there is a restriction on the spatial resolution for this service.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Conformity" type="conformity" maxOccurs="unbounded"/>
+          <xs:element name="ConditionsForAccessAndUse" type="anchorType" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>The element must have values. If no conditions apply to the access and use of the resource, ‘no conditions apply’
+shall be used. If conditions are unknown, ‘conditions unknown’ shall be used.
+			</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LimitationsOnPublicAccess" type="anchorType" maxOccurs="unbounded"/>
+          <xs:element name="ResponsibleOrganisation" type="responsibleOrganisation" maxOccurs="unbounded"/>
+          <xs:element name="MetadataPointOfContact" type="metadataPointOfContact" maxOccurs="unbounded"/>
+          <xs:element name="MetadataDate" type="iso8601Date"/>
+          <xs:element name="MetadataLanguage" type="metadataLanguageISO6392B"/>
+          <xs:element name="CoupledResource" type="uniqueResourceIdentifier" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory if linkage to data sets on which the service operates are available.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SpatialDataServiceType" type="viewSpatialDataServiceType"/>
+          <xs:element name="Category" type="spatialDataServiceCategoryType" minOccurs="0"/>
+          <xs:element name="OperationsMetadataParameters" type="operationsMetadataParameters"/>
+          <xs:element name="SupportedLanguages" type="supportedLanguagesType"/>
+          <xs:element name="ResponseLanguage" type="languageElementISO6392B"/>
+          <xs:element name="Layers" type="layers"/>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Download Service-->
+  <xs:complexType name="getDownloadServiceMetadataOperationMetadataParameters">
+    <xs:complexContent>
+      <xs:extension base="operationsMetadataParameters">
+        <xs:sequence>
+          <xs:element name="OperationNetworkAddress" type="resourceLocatorType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="downloadServiceMetadataOperationMetadataParameters">
+    <xs:sequence>
+      <xs:element name="DescriptionOfDataExchanged" type="resourceLocatorType"/>
+      <xs:element name="OperationNetworkAddress" type="resourceLocatorType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="downloadServiceOperationsMetadataParameters">
+    <xs:complexContent>
+      <xs:extension base="operationsMetadataParameters">
+        <xs:sequence>
+          <xs:element name="GetDownloadServiceMetadataOperationMetadataParameters" type="downloadServiceMetadataOperationMetadataParameters"/>
+          <xs:element name="GetSpatialDataSetOperationMetadataParameters" type="downloadServiceMetadataOperationMetadataParameters"/>
+          <xs:element name="DescribeSpatialDataSetOperationMetadataParameters" type="downloadServiceMetadataOperationMetadataParameters"/>
+          <xs:element name="LinkDownloadServiceOperationMetadataParameters" type="downloadServiceMetadataOperationMetadataParameters"/>
+        </xs:sequence>
+        <xs:attribute name="opensearchDescriptionDocumentURL"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="spatialDataSetMetadata">
+    <xs:sequence>
+      <xs:element name="SpatialDataSet" type="dataset"/>
+      <xs:element name="CoordinateReferenceSystem" type="coordinateReferenceSystem" minOccurs="1" maxOccurs="unbounded"/>
+      <!--			<xs:element name="SpatialObjectType" type="spatialObjectType" minOccurs="1" maxOccurs="unbounded"/>-->
+    </xs:sequence>
+    <xs:attribute name="subfeedUrl" type="xs:anyURI"/>
+  </xs:complexType>
+  <xs:complexType name="spatialDataSetsMetadataParameters">
+    <xs:sequence>
+      <xs:element name="SpatialDataSetMetadata" type="spatialDataSetMetadata" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!--
+	<xs:complexType name="getMapOperationMetadataParameters">
+		<xs:sequence>
+			<xs:element name="OperationNetworkAddress" type="resourceLocatorType"/>
+			<xs:element name="MandatoryImageFormat" type="mandatoryImageFormatType" minOccurs="1" maxOccurs="unbounded"/>
+			<xs:element name="OtherImageFormat" type="imageFormatType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="downloadServiceOperationsMetadataParameters">
+		<xs:complexContent>
+			<xs:extension base="operationsMetadataParameters">
+				<xs:sequence>
+					<xs:element name="GetMapOperationMetadataParameters" type="getMapOperationMetadataParameters"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+		-->
+  <xs:complexType name="downloadService_ext">
+    <xs:complexContent>
+      <xs:extension base="networkService">
+        <xs:sequence>
+          <xs:element name="SpatialDataSetsMetadataParameters" type="spatialDataSetsMetadataParameters"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="downloadService">
+    <xs:complexContent>
+      <xs:restriction base="downloadService_ext">
+        <xs:sequence>
+          <xs:element name="ResourceTitle" type="notEmptyString"/>
+          <xs:element name="ResourceAbstract" type="anchorType"/>
+          <xs:element name="ResourceType" type="serviceSpatialDataResourceType"/>
+          <xs:element name="ResourceLocator" type="resourceLocatorType" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory if linkage to the service is available</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="MandatoryKeyword" type="classificationOfSpatialDataService" minOccurs="1" maxOccurs="unbounded"/>
+          <xs:element name="Keyword" type="keyword" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">If the resource is a spatial data service, at least one keyword from Part D.4 shall be provided.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="GeographicBoundingBox" type="geographicBoundingBox" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory for services with an explicit geographic extent.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TemporalReference" type="temporalReference" maxOccurs="unbounded"/>
+          <xs:element name="SpatialResolution" type="spatialResolution" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory when there is a restriction on the spatial resolution for this service.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Conformity" type="conformity" maxOccurs="unbounded"/>
+          <xs:element name="ConditionsForAccessAndUse" type="anchorType" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>The element must have values. If no conditions apply to the access and use of the resource, ‘no conditions apply’
+shall be used. If conditions are unknown, ‘conditions unknown’ shall be used.
+			</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LimitationsOnPublicAccess" type="anchorType" maxOccurs="unbounded"/>
+          <xs:element name="ResponsibleOrganisation" type="responsibleOrganisation" maxOccurs="unbounded"/>
+          <xs:element name="MetadataPointOfContact" type="metadataPointOfContact" maxOccurs="unbounded"/>
+          <xs:element name="MetadataDate" type="iso8601Date"/>
+          <xs:element name="MetadataLanguage" type="metadataLanguageISO6392B"/>
+          <xs:element name="CoupledResource" type="uniqueResourceIdentifier" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory if linkage to data sets on which the service operates are available.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SpatialDataServiceType" type="downloadSpatialDataServiceType"/>
+          <xs:element name="Category" type="spatialDataServiceCategoryType" minOccurs="0"/>
+          <xs:element name="OperationsMetadataParameters" type="operationsMetadataParameters"/>
+          <xs:element name="SupportedLanguages" type="supportedLanguagesType"/>
+          <xs:element name="ResponseLanguage" type="languageElementISO6392B"/>
+          <xs:element name="SpatialDataSetsMetadataParameters" type="spatialDataSetsMetadataParameters"/>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="downloadMediaType">
+    <xs:restriction base="mediaType">
+      <xs:enumeration value="application/x-shapefile">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for Esri shapefiles. The file is a zip archive that contains at least the shp, shx and dbf files.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-filegdb">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for Esri file geodatabases. The file is a zip archive that contains the gdb directory.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="image/tiff">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for TIFF files. This includes GeoTIFF files. Inspect the TIFF file to determine, if GeoTIFF tags are present.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/gml+xml">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for GML files. The media type is currently in the IANA registration process.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-gmz">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for a zip archive that contains one or more GML documents.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/vnd.google-earth.kml+xml">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for KML files.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/vnd.google-earth.kmz">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for KMZ files (zip archive with KML and associated files).</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="image/jp2">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for JPEG 2000 as specified by ISO/IEC 15444-1.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-ecw">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for Enhanced Compressed Wavelet (ECW) files.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-ascii-grid">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for ASCII GRID files.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-oracledump">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for Oracle dumps. This media type is incomplete as it misses a reference to the specification of the format.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-las">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for the LASer file format (LAS).</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-laz">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for compressed LAS files. This media type is incomplete as it misses a reference to the specification of the format.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-tab">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for the MapInfo TAB format. The file is a zip archive that contains at least the tab, dat, map and id files.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-tab-raster">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for the MapInfo Raster TAB format. This media type is incomplete as it misses a reference to the specification of the format.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="text/csv">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for CSV files.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-worldfile">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for world files. The file extension usually depends on the format of the associated image, e.g. .jgw for JPEG (2000) oder .tfw for TIFF.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="downloadResourceLocatorType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">URL where the dataset or dataset part can be downloaded</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:restriction base="resourceLocatorType">
+        <xs:sequence>
+          <xs:element name="URL" type="urlType"/>
+          <xs:element name="RequestURL" type="urlType" minOccurs="0"/>
+          <xs:element name="MediaType" type="downloadMediaType" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="LinkDescription" type="resourceLocatorDescription" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="FileName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="ContentLengthBytes" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="ResourceLocatorProtocolHint" type="resourceLocatorAccessType" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="ResourceLocatorProtocol" type="resourceLocatorProtocol" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="InitialResponseMilliseconds" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="BytesTransferred" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="TimeElapsed" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="AverageBytesPerSecond" type="xs:double" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="ErrorMessage" type="resourceLocatorErrorMessageType" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="RequestBody" type="xs:string" minOccurs="0"/>
+      <xs:element name="EncryptedDigest" type="xs:string" minOccurs="0"/>
+      <xs:element name="AverageSpatialObjectsPerSecond" type="xs:double" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="AverageSpatialObjectDescriptionsPerSecond" type="xs:double" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    <xs:attribute name="originalEncodingReference" type="originalEncodingReferenceType"/>
+    <xs:attribute name="remoteIdentifier" type="xs:string"/>
+    <xs:attribute name="functionCode" type="resourceLocatorFunctionCodeType"/>
+    <xs:attribute name="functionCodeList" type="xs:string"/>
+    <xs:attribute name="expectedResourceLocatorProtocol" type="resourceLocatorProtocol"/>
+    <xs:attribute name="childHasErrors" type="xs:boolean"/>
+    <xs:attribute name="completenessIndicator" type="xs:double"/>
+    <xs:attribute name="creationDate" type="xs:dateTime"/>
+    <xs:attribute name="lastUpdateDate" type="xs:dateTime"/>
+    <xs:attribute name="createdBy" type="xs:string"/>
+    <xs:attribute name="lastUpdatedBy" type="xs:string"/>
+        
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Transformation  Service-->
+  <xs:complexType name="transformationService_ext">
+    <xs:complexContent>
+      <xs:extension base="networkService">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="transformationService">
+    <xs:complexContent>
+      <xs:restriction base="transformationService_ext">
+        <xs:sequence>
+          <xs:element name="ResourceTitle" type="notEmptyString"/>
+          <xs:element name="ResourceAbstract" type="anchorType"/>
+          <xs:element name="ResourceType" type="serviceSpatialDataResourceType"/>
+          <xs:element name="ResourceLocator" type="resourceLocatorType" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory if linkage to the service is available</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="MandatoryKeyword" type="classificationOfSpatialDataService" minOccurs="1" maxOccurs="unbounded"/>
+          <xs:element name="Keyword" type="keyword" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">If the resource is a spatial data service, at least one keyword from Part D.4 shall be provided.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="GeographicBoundingBox" type="geographicBoundingBox" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory for services with an explicit geographic extent.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TemporalReference" type="temporalReference" maxOccurs="unbounded"/>
+          <xs:element name="SpatialResolution" type="spatialResolution" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory when there is a restriction on the spatial resolution for this service.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Conformity" type="conformity" maxOccurs="unbounded"/>
+          <xs:element name="ConditionsForAccessAndUse" type="anchorType" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>The element must have values. If no conditions apply to the access and use of the resource, ‘no conditions apply’
+shall be used. If conditions are unknown, ‘conditions unknown’ shall be used.
+			</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LimitationsOnPublicAccess" type="anchorType" maxOccurs="unbounded"/>
+          <xs:element name="ResponsibleOrganisation" type="responsibleOrganisation" maxOccurs="unbounded"/>
+          <xs:element name="MetadataPointOfContact" type="metadataPointOfContact" maxOccurs="unbounded"/>
+          <xs:element name="MetadataDate" type="iso8601Date"/>
+          <xs:element name="MetadataLanguage" type="metadataLanguageISO6392B"/>
+          <xs:element name="CoupledResource" type="uniqueResourceIdentifier" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory if linkage to data sets on which the service operates are available.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SpatialDataServiceType" type="transformationSpatialDataServiceType"/>
+          <xs:element name="Category" type="spatialDataServiceCategoryType" minOccurs="0"/>
+          <xs:element name="OperationsMetadataParameters" type="operationsMetadataParameters"/>
+          <xs:element name="SupportedLanguages" type="supportedLanguagesType"/>
+          <xs:element name="ResponseLanguage" type="languageElementISO6392B"/>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Invoke Service-->
+  <xs:complexType name="invokeServiceOperationsMetadataParameters">
+    <xs:complexContent>
+      <xs:extension base="operationsMetadataParameters">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="invokeService_ext">
+    <xs:complexContent>
+      <xs:extension base="networkService">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="invokeService">
+    <xs:complexContent>
+      <xs:restriction base="invokeService_ext">
+        <xs:sequence>
+          <xs:element name="ResourceTitle" type="notEmptyString"/>
+          <xs:element name="ResourceAbstract" type="anchorType"/>
+          <xs:element name="ResourceType" type="serviceSpatialDataResourceType"/>
+          <xs:element name="ResourceLocator" type="resourceLocatorType" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory if linkage to the service is available</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="MandatoryKeyword" type="classificationOfSpatialDataService" minOccurs="1" maxOccurs="unbounded"/>
+          <xs:element name="Keyword" type="keyword" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">If the resource is a spatial data service, at least one keyword from Part D.4 shall be provided.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="GeographicBoundingBox" type="geographicBoundingBox" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory for services with an explicit geographic extent.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TemporalReference" type="temporalReference" maxOccurs="unbounded"/>
+          <xs:element name="SpatialResolution" type="spatialResolution" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory when there is a restriction on the spatial resolution for this service.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Conformity" type="conformity" maxOccurs="unbounded"/>
+          <xs:element name="ConditionsForAccessAndUse" type="anchorType" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>The element must have values. If no conditions apply to the access and use of the resource, ‘no conditions apply’
+shall be used. If conditions are unknown, ‘conditions unknown’ shall be used.
+			</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LimitationsOnPublicAccess" type="anchorType" maxOccurs="unbounded"/>
+          <xs:element name="ResponsibleOrganisation" type="responsibleOrganisation" maxOccurs="unbounded"/>
+          <xs:element name="MetadataPointOfContact" type="metadataPointOfContact" maxOccurs="unbounded"/>
+          <xs:element name="MetadataDate" type="iso8601Date"/>
+          <xs:element name="MetadataLanguage" type="metadataLanguageISO6392B"/>
+          <xs:element name="CoupledResource" type="uniqueResourceIdentifier" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory if linkage to data sets on which the service operates are available.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SpatialDataServiceType" type="invokeSpatialDataServiceType"/>
+          <xs:element name="Category" type="spatialDataServiceCategoryType" minOccurs="0"/>
+          <xs:element name="OperationsMetadataParameters" type="operationsMetadataParameters"/>
+          <xs:element name="SupportedLanguages" type="supportedLanguagesType"/>
+          <xs:element name="ResponseLanguage" type="languageElementISO6392B"/>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Other  Service-->
+  <xs:complexType name="otherService_ext">
+    <xs:complexContent>
+      <xs:extension base="networkService">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="otherService">
+    <xs:complexContent>
+      <xs:restriction base="otherService_ext">
+        <xs:sequence>
+          <xs:element name="ResourceTitle" type="notEmptyString"/>
+          <xs:element name="ResourceAbstract" type="anchorType"/>
+          <xs:element name="ResourceType" type="serviceSpatialDataResourceType"/>
+          <xs:element name="ResourceLocator" type="resourceLocatorType" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory if linkage to the service is available</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="MandatoryKeyword" type="classificationOfSpatialDataService" minOccurs="1" maxOccurs="unbounded"/>
+          <xs:element name="Keyword" type="keyword" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">If the resource is a spatial data service, at least one keyword from Part D.4 shall be provided.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="GeographicBoundingBox" type="geographicBoundingBox" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory for services with an explicit geographic extent.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TemporalReference" type="temporalReference" maxOccurs="unbounded"/>
+          <xs:element name="SpatialResolution" type="spatialResolution" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory when there is a restriction on the spatial resolution for this service.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Conformity" type="conformity" maxOccurs="unbounded"/>
+          <xs:element name="ConditionsForAccessAndUse" type="anchorType" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>The element must have values. If no conditions apply to the access and use of the resource, ‘no conditions apply’
+shall be used. If conditions are unknown, ‘conditions unknown’ shall be used.
+			</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LimitationsOnPublicAccess" type="anchorType" maxOccurs="unbounded"/>
+          <xs:element name="ResponsibleOrganisation" type="responsibleOrganisation" maxOccurs="unbounded"/>
+          <xs:element name="MetadataPointOfContact" type="metadataPointOfContact" maxOccurs="unbounded"/>
+          <xs:element name="MetadataDate" type="iso8601Date"/>
+          <xs:element name="MetadataLanguage" type="metadataLanguageISO6392B"/>
+          <xs:element name="CoupledResource" type="uniqueResourceIdentifier" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">Mandatory if linkage to data sets on which the service operates are available.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SpatialDataServiceType" type="otherSpatialDataServiceType"/>
+          <xs:element name="Category" type="spatialDataServiceCategoryType" minOccurs="0"/>
+          <xs:element name="OperationsMetadataParameters" type="operationsMetadataParameters"/>
+          <xs:element name="SupportedLanguages" type="supportedLanguagesType"/>
+          <xs:element name="ResponseLanguage" type="languageElementISO6392B"/>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="downloadServiceDatasetMediaType">
+    <xs:annotation>
+      <xs:documentation>
+As per the codelist published at http://inspire.jrc.ec.europa.eu/media-types/
+	</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="mediaType">
+      <xs:enumeration value="application/x-shapefile">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for Esri shapefiles. The file is a zip archive that contains at least the shp, shx and dbf files.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-filegdb">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for Esri file geodatabases. The file is a zip archive that contains the gdb directory.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="image/tiff">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for TIFF files. This includes GeoTIFF files. Inspect the TIFF file to determine, if GeoTIFF tags are present.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/gml+xml">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for GML files. The media type is currently in the IANA registration process.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/gml+xml;version=3.2">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for GML files. The media type is currently in the IANA registration process.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-gmz">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for a zip archive that contains one or more GML documents.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/vnd.google-earth.kml+xml">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for KML files.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/vnd.google-earth.kmz">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for KMZ files (zip archive with KML and associated files).</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="image/jp2">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for JPEG 2000 as specified by ISO/IEC 15444-1.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-ecw">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for Enhanced Compressed Wavelet (ECW) files.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-ascii-grid">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for ASCII GRID files.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-oracledump">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for Oracle dumps. This media type is incomplete as it misses a reference to the specification of the format.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-las">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for the LASer file format (LAS).</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-laz">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for compressed LAS files. This media type is incomplete as it misses a reference to the specification of the format.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-tab">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for the MapInfo TAB format. The file is a zip archive that contains at least the tab, dat, map and id files.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-tab-raster">
+        <xs:annotation>
+          <xs:documentation>he media type shall be used for the MapInfo Raster TAB format. This media type is incomplete as it misses a reference to the specification of the format.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="text/csv">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for CSV files.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="application/x-worldfile">
+        <xs:annotation>
+          <xs:documentation>The media type shall be used for world files. The file extension usually depends on the format of the associated image, e.g. .jgw for JPEG (2000) oder .tfw for TIFF.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

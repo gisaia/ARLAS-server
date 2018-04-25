@@ -27,7 +27,7 @@ import java.util.List;
 @XmlRootElement(name = "OpenSearchDescription", namespace ="http://a9.com/-/spec/opensearch/1.1/")
 public class OpenSearchDescription {
 
-    @XmlElement(name = "shortName", namespace ="http://a9.com/-/spec/opensearch/1.1/")
+    @XmlElement(name = "ShortName", namespace ="http://a9.com/-/spec/opensearch/1.1/")
     public String shortName = "";
 
     @XmlElement(name = "Description", namespace ="http://a9.com/-/spec/opensearch/1.1/")

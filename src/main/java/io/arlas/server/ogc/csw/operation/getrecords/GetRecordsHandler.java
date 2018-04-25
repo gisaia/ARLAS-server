@@ -20,104 +20,80 @@
 package io.arlas.server.ogc.csw.operation.getrecords;
 
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.DublinCoreElementName;
 import io.arlas.server.ogc.csw.CSWHandler;
+import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
+import io.arlas.server.ogc.csw.utils.RecordBuilder;
 import net.opengis.cat.csw._3.*;
+import net.opengis.ows._2.BoundingBoxType;
+import net.opengis.ows._2.WGS84BoundingBoxType;
 import org.purl.dc.elements._1.SimpleLiteral;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class GetRecordsHandler {
 
     public CSWHandler cswHandler;
 
-
     public GetRecordsHandler(CSWHandler cswHandler) {
         this.cswHandler = cswHandler;
-
     }
 
-    public JAXBElement<GetRecordsResponseType> getCSWGetRecordsResponse(List<CollectionReference> collections,
+    public GetRecordsResponseType getCSWGetRecordsResponse(List<CollectionReference> collections,
                                                                         ElementSetName elementSetName,
                                                                         int startPosition,
-                                                                        int maxRecords) {
+                                                                        long recordsMatched, String[] elements) throws DatatypeConfigurationException {
         GetRecordsResponseType getRecordsResponseType = new GetRecordsResponseType();
         SearchResultsType searchResultType = new SearchResultsType();
+        RequestStatusType searchStatus = new RequestStatusType();
+        GregorianCalendar c = new GregorianCalendar();
+        c.setTime(new Date());
+        XMLGregorianCalendar date = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+        searchStatus.setTimestamp(date);
+        getRecordsResponseType.setSearchStatus(searchStatus);
         switch (elementSetName) {
             case brief:
                 collections.forEach(collectionReference -> {
-                    JAXBElement<BriefRecordType> briefRecordTypeJAXBElement = getBriefResult(collectionReference);
-                    searchResultType.getAbstractRecord().add(briefRecordTypeJAXBElement);
-                    getRecordsResponseType.setSearchResults(searchResultType);
+                    BriefRecordType briefRecord = RecordBuilder.getBriefResult(collectionReference, elements);
+                    JAXBElement<BriefRecordType> briefRecordType = cswHandler.cswFactory.createBriefRecord(briefRecord);
+                    searchResultType.getAbstractRecord().add(briefRecordType);
                 });
                 break;
             case summary:
                 collections.forEach(collectionReference -> {
-                    JAXBElement<SummaryRecordType> summaryRecordTypeJAXBElement = getSummaryResult(collectionReference);
-                    searchResultType.getAbstractRecord().add(summaryRecordTypeJAXBElement);
-                    getRecordsResponseType.setSearchResults(searchResultType);
+                    SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements);
+                    JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
+                    searchResultType.getAbstractRecord().add(summaryRecordType);
                 });
                 break;
             case full:
                 collections.forEach(collectionReference -> {
-                    JAXBElement<RecordType> recordTypeJAXBElement = getFullResult(collectionReference);
-                    searchResultType.getAbstractRecord().add(recordTypeJAXBElement);
-                    getRecordsResponseType.setSearchResults(searchResultType);
+                    RecordType  record = RecordBuilder.getFullResult(collectionReference, elements);
+                    JAXBElement<RecordType> recordType  = cswHandler.cswFactory.createRecord(record);
+                    searchResultType.getAbstractRecord().add(recordType);
                 });
                 break;
             default:
                 collections.forEach(collectionReference -> {
-                    JAXBElement<SummaryRecordType> summaryRecordTypeJAXBElement = getSummaryResult(collectionReference);
-                    searchResultType.getAbstractRecord().add(summaryRecordTypeJAXBElement);
-                    getRecordsResponseType.setSearchResults(searchResultType);
+                    SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements);
+                    JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
+                    searchResultType.getAbstractRecord().add(summaryRecordType);
                 });
                 break;
         }
-
-        searchResultType.setNextRecord(BigInteger.valueOf(startPosition + maxRecords));
+        getRecordsResponseType.setSearchResults(searchResultType);
+        searchResultType.setNextRecord(BigInteger.valueOf(startPosition + collections.size()));
         searchResultType.setNumberOfRecordsReturned(BigInteger.valueOf(collections.size()));
-        searchResultType.setNumberOfRecordsMatched(BigInteger.valueOf(collections.size()));
-
-        return cswHandler.cswFactory.createGetRecordsResponse(getRecordsResponseType);
-    }
-
-    private JAXBElement<BriefRecordType> getBriefResult(CollectionReference collectionReference) {
-        BriefRecordType briefRecord = new BriefRecordType();
-        JAXBElement<BriefRecordType> briefRecordType = cswHandler.cswFactory.createBriefRecord(briefRecord);
-        SimpleLiteral simpleLiteral = new SimpleLiteral();
-        simpleLiteral.getContent().add(collectionReference.collectionName);
-        JAXBElement<SimpleLiteral> title = cswHandler.dcElementFactory.createTitle(simpleLiteral);
-        briefRecordType.getValue().getTitle().add(title);
-        return briefRecordType;
-
-    }
-
-    private JAXBElement<SummaryRecordType> getSummaryResult(CollectionReference collectionReference) {
-        SummaryRecordType summaryRecord = new SummaryRecordType();
-        JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
-        SimpleLiteral simpleLiteral = new SimpleLiteral();
-        simpleLiteral.getContent().add(collectionReference.collectionName);
-        JAXBElement<SimpleLiteral> title = cswHandler.dcElementFactory.createTitle(simpleLiteral);
-        summaryRecordType.getValue().getTitle().add(title);
-        summaryRecordType.getValue().getSubject().add(simpleLiteral);
-
-        return summaryRecordType;
-    }
-
-    private JAXBElement<RecordType> getFullResult(CollectionReference collectionReference) {
-        RecordType record = new RecordType();
-        JAXBElement<RecordType> recordType = cswHandler.cswFactory.createRecord(record);
-        SimpleLiteral simpleLiteral = new SimpleLiteral();
-        simpleLiteral.getContent().add(collectionReference.collectionName);
-        JAXBElement<SimpleLiteral> title = cswHandler.dcElementFactory.createTitle(simpleLiteral);
-        JAXBElement<SimpleLiteral> subject = cswHandler.dcElementFactory.createSubject(simpleLiteral);
-        recordType.getValue().getDCElement().add(title);
-        recordType.getValue().getDCElement().add(subject);
-        recordType.getValue().getDCElement().add(subject);
-
-
-        return recordType;
+        searchResultType.setNumberOfRecordsMatched(BigInteger.valueOf(recordsMatched));
+        return  getRecordsResponseType;
     }
 }

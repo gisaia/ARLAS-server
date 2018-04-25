@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2014 EUROPEAN UNION Licensed under the EUPL,
+Version 1.1  or - as soon they will be approved by the European Commission -
+subsequent versions of the EUPL (the "Licence"); You may not use this work
+except in compliance with the Licence. You may obtain a copy of the Licence
+at:
+
+http://ec.europa.eu/idabc/eupl
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the Licence is distributed on an "AS IS" basis, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+Licence for the specific language governing permissions and limitations under
+the Licence.
+
+Date: 12-03-2014
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://inspire.ec.europa.eu/schemas/common/1.0" targetNamespace="http://inspire.ec.europa.eu/schemas/common/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.1">
+	<xs:simpleType name="keywordValueInspireTheme_dut">
+		<xs:restriction base="keywordValueInspireTheme">
+			<xs:enumeration value="Systemen voor verwijzing door middel van coördinaten"/>
+			<xs:enumeration value="Geografisch rastersysteem"/>
+			<xs:enumeration value="Geografische namen"/>
+			<xs:enumeration value="Administratieve eenheden"/>
+			<xs:enumeration value="Adressen"/>
+			<xs:enumeration value="Kadastrale percelen"/>
+			<xs:enumeration value="Vervoersnetwerken"/>
+			<xs:enumeration value="Hydrografie"/>
+			<xs:enumeration value="Beschermde gebieden"/>
+			<xs:enumeration value="Hoogte"/>
+			<xs:enumeration value="Bodemgebruik"/>
+			<xs:enumeration value="Orthobeeldvorming"/>
+			<xs:enumeration value="Geologie"/>
+			<xs:enumeration value="Statistische eenheden"/>
+			<xs:enumeration value="Gebouwen"/>
+			<xs:enumeration value="Bodem"/>
+			<xs:enumeration value="Landgebruik"/>
+			<xs:enumeration value="Menselijke gezondheid en veiligheid"/>
+			<xs:enumeration value="Nutsdiensten en overheidsdiensten"/>
+			<xs:enumeration value="Milieubewakingsvoorzieningen"/>
+			<xs:enumeration value="Faciliteiten voor productie en industrie"/>
+			<xs:enumeration value="Faciliteiten voor landbouw en aquacultuur"/>
+			<xs:enumeration value="Spreiding van de bevolking — demografie"/>
+			<xs:enumeration value="Gebiedsbeheer, gebieden waar beperkingen gelden, gereguleerde gebieden en rapportage-eenheden"/>
+			<xs:enumeration value="Gebieden met natuurrisico's"/>
+			<xs:enumeration value="Atmosferische omstandigheden"/>
+			<xs:enumeration value="Meteorologische geografische kenmerken"/>
+			<xs:enumeration value="Oceanografische geografische kenmerken"/>
+			<xs:enumeration value="Zeegebieden"/>
+			<xs:enumeration value="Biogeografische gebieden"/>
+			<xs:enumeration value="Habitats en biotopen"/>
+			<xs:enumeration value="Spreiding van soorten"/>
+			<xs:enumeration value="Energiebronnen"/>
+			<xs:enumeration value="Minerale bronnen"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexI_dut">
+		<xs:restriction base="keywordValueInspireTheme_dut">
+			<xs:enumeration value="Systemen voor verwijzing door middel van coördinaten"/>
+			<xs:enumeration value="Geografisch rastersysteem"/>
+			<xs:enumeration value="Geografische namen"/>
+			<xs:enumeration value="Administratieve eenheden"/>
+			<xs:enumeration value="Adressen"/>
+			<xs:enumeration value="Kadastrale percelen"/>
+			<xs:enumeration value="Vervoersnetwerken"/>
+			<xs:enumeration value="Hydrografie"/>
+			<xs:enumeration value="Beschermde gebieden"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexII_dut">
+		<xs:restriction base="keywordValueInspireTheme_dut">
+			<xs:enumeration value="Hoogte"/>
+			<xs:enumeration value="Bodemgebruik"/>
+			<xs:enumeration value="Orthobeeldvorming"/>
+			<xs:enumeration value="Geologie"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexIII_dut">
+		<xs:restriction base="keywordValueInspireTheme_dut">
+			<xs:enumeration value="Geologie"/>
+			<xs:enumeration value="Statistische eenheden"/>
+			<xs:enumeration value="Gebouwen"/>
+			<xs:enumeration value="Bodem"/>
+			<xs:enumeration value="Landgebruik"/>
+			<xs:enumeration value="Menselijke gezondheid en veiligheid"/>
+			<xs:enumeration value="Nutsdiensten en overheidsdiensten"/>
+			<xs:enumeration value="Milieubewakingsvoorzieningen"/>
+			<xs:enumeration value="Faciliteiten voor productie en industrie"/>
+			<xs:enumeration value="Faciliteiten voor landbouw en aquacultuur"/>
+			<xs:enumeration value="Spreiding van de bevolking — demografie"/>
+			<xs:enumeration value="Gebiedsbeheer, gebieden waar beperkingen gelden, gereguleerde gebieden en rapportage-eenheden"/>
+			<xs:enumeration value="Gebieden met natuurrisico's"/>
+			<xs:enumeration value="Atmosferische omstandigheden"/>
+			<xs:enumeration value="Meteorologische geografische kenmerken"/>
+			<xs:enumeration value="Oceanografische geografische kenmerken"/>
+			<xs:enumeration value="Zeegebieden"/>
+			<xs:enumeration value="Biogeografische gebieden"/>
+			<xs:enumeration value="Habitats en biotopen"/>
+			<xs:enumeration value="Spreiding van soorten"/>
+			<xs:enumeration value="Energiebronnen"/>
+			<xs:enumeration value="Minerale bronnen"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="inspireTheme_dut">
+		<xs:complexContent>
+			<xs:restriction base="inspireTheme">
+				<xs:sequence>
+					<xs:element name="OriginatingControlledVocabulary" type="originatingControlledVocabularyGemetInspireThemes" minOccurs="1"/>
+					<xs:element name="KeywordValue" type="keywordValueInspireTheme_dut"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireDirective_dut">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:L:2007:108:SOM:NL:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireDirective_dut">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Richtlijn 2007/2/EG van het Europees Parlement en de Raad van 14 maart 2007 tot oprichting van een infrastructuur voor ruimtelijke informatie in de Gemeenschap (Inspire)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2007-04-25"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2007:108:SOM:NL:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireDirective_dut" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireMDRegulation_dut">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32008R1205:NL:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireMDRegulation_dut">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Verordening (EG) nr. 1205/2008 van de Commissie van 3 december 2008 ter uitvoering van Richtlijn 2007/2/EG van het Europees Parlement en de Raad betreffende metagegevens (Voor de EER relevante tekst)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2008-12-03"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32008R1205:NL:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireMDRegulation_dut" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireNSRegulation_dut">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32009R0976:NL:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireNSRegulation_dut">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Verordening (EG) nr. 976/2009 van de Commissie van 19 oktober 2009 tot uitvoering van Richtlijn 2007/2/EG van het Europees Parlement en de Raad wat betreft de netwerkdiensten"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2009-10-19"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32009R0976:NL:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireNSRegulation_dut" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<!--Interoperability-->
+	<xs:complexType name="resLocInspireInteroperabilityRegulation_dut">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2010:323:0011:0102:NL:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireInteroperabilityRegulation_dut">
+		<xs:complexContent>
+			<xs:restriction base="citationConformity">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Verordening (EU) n r. 1089/2010 van de Commissie van 23 november 2010 ter uitvoering van Richtlijn 2007/2/EG van het Europees Parlement en de Raad betreffende de interoperabiliteit van verzamelingen ruimtelijke gegevens en van diensten met betrekking tot ruimtelijke gegevens"/>
+								<xs:enumeration value="VERORDENING (EU) Nr. 1089/2010 VAN DE COMMISSIE van 23 november 2010 ter uitvoering van Richtlijn 2007/2/EG van het Europees Parlement en de Raad betreffende de interoperabiliteit van verzamelingen ruimtelijke gegevens en van diensten met betrekking tot ruimtelijke gegevens"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2010-12-08"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2010:323:0011:0102:NL:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireInteroperabilityRegulation_dut" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

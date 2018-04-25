@@ -186,7 +186,7 @@
       attributes, since the needed information is included in the
       BoundingBoxType.</documentation>
     </annotation>
-    <list itemType="double" />
+    <list itemType="string" />
   </simpleType>
   <!-- =========================================================== -->
   <element name="WGS84BoundingBox"

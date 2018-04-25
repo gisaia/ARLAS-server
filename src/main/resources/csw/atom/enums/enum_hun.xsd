@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2014 EUROPEAN UNION Licensed under the EUPL,
+Version 1.1  or - as soon they will be approved by the European Commission -
+subsequent versions of the EUPL (the "Licence"); You may not use this work
+except in compliance with the Licence. You may obtain a copy of the Licence
+at:
+
+http://ec.europa.eu/idabc/eupl
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the Licence is distributed on an "AS IS" basis, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+Licence for the specific language governing permissions and limitations under
+the Licence.
+
+Date: 12-03-2014
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://inspire.ec.europa.eu/schemas/common/1.0" targetNamespace="http://inspire.ec.europa.eu/schemas/common/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.1">
+	<xs:simpleType name="keywordValueInspireTheme_hun">
+		<xs:restriction base="keywordValueInspireTheme">
+			<xs:enumeration value="Koordinátarendszerek"/>
+			<xs:enumeration value="Földrajzi rácsrendszerek"/>
+			<xs:enumeration value="Földrajzi nevek"/>
+			<xs:enumeration value="Közigazgatási egységek"/>
+			<xs:enumeration value="Címek"/>
+			<xs:enumeration value="Kataszteri parcellák"/>
+			<xs:enumeration value="Közlekedési hálózatok"/>
+			<xs:enumeration value="Vízrajz"/>
+			<xs:enumeration value="Védett helyek"/>
+			<xs:enumeration value="Domborzat"/>
+			<xs:enumeration value="A felszín borítása"/>
+			<xs:enumeration value="Ortofotók"/>
+			<xs:enumeration value="Földtan"/>
+			<xs:enumeration value="Statisztikai egységek"/>
+			<xs:enumeration value="Épületek"/>
+			<xs:enumeration value="Talaj"/>
+			<xs:enumeration value="Földhasználat"/>
+			<xs:enumeration value="Emberi egészség és biztonság"/>
+			<xs:enumeration value="Közüzemi és közszolgáltatások"/>
+			<xs:enumeration value="Környezetvédelmi monitoringlétesítmények"/>
+			<xs:enumeration value="Termelő és ipari létesítmények"/>
+			<xs:enumeration value="Mezőgazdasági és akvakultúra-ágazati létesítmények"/>
+			<xs:enumeration value="A népesség eloszlása – demográfia"/>
+			<xs:enumeration value="Területgazdálkodási/-korlátozási/-szabályozási övezetek és adatszolgáltató egységek"/>
+			<xs:enumeration value="Természeti kockázati zónák"/>
+			<xs:enumeration value="Légköri viszonyok"/>
+			<xs:enumeration value="Meteorológiai földrajzi jellemzők"/>
+			<xs:enumeration value="Oceanográfiai földrajzi jellemzők"/>
+			<xs:enumeration value="Tengeri régiók"/>
+			<xs:enumeration value="Biogeográfiai régiók"/>
+			<xs:enumeration value="Élőhelyek és biotópok"/>
+			<xs:enumeration value="A fajok megoszlása"/>
+			<xs:enumeration value="Energiaforrások"/>
+			<xs:enumeration value="Ásványi nyersanyagok"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexI_hun">
+		<xs:restriction base="keywordValueInspireTheme_hun">
+			<xs:enumeration value="Koordinátarendszerek"/>
+			<xs:enumeration value="Földrajzi rácsrendszerek"/>
+			<xs:enumeration value="Földrajzi nevek"/>
+			<xs:enumeration value="Közigazgatási egységek"/>
+			<xs:enumeration value="Címek"/>
+			<xs:enumeration value="Kataszteri parcellák"/>
+			<xs:enumeration value="Közlekedési hálózatok"/>
+			<xs:enumeration value="Vízrajz"/>
+			<xs:enumeration value="Védett helyek"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexII_hun">
+		<xs:restriction base="keywordValueInspireTheme_hun">
+			<xs:enumeration value="Domborzat"/>
+			<xs:enumeration value="A felszín borítása"/>
+			<xs:enumeration value="Ortofotók"/>
+			<xs:enumeration value="Földtan"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexIII_hun">
+		<xs:restriction base="keywordValueInspireTheme_hun">
+			<xs:enumeration value="Statisztikai egységek"/>
+			<xs:enumeration value="Épületek"/>
+			<xs:enumeration value="Talaj"/>
+			<xs:enumeration value="Földhasználat"/>
+			<xs:enumeration value="Emberi egészség és biztonság"/>
+			<xs:enumeration value="Közüzemi és közszolgáltatások"/>
+			<xs:enumeration value="Környezetvédelmi monitoringlétesítmények"/>
+			<xs:enumeration value="Termelő és ipari létesítmények"/>
+			<xs:enumeration value="Mezőgazdasági és akvakultúra-ágazati létesítmények"/>
+			<xs:enumeration value="A népesség eloszlása – demográfia"/>
+			<xs:enumeration value="Területgazdálkodási/-korlátozási/-szabályozási övezetek és adatszolgáltató egységek"/>
+			<xs:enumeration value="Természeti kockázati zónák"/>
+			<xs:enumeration value="Légköri viszonyok"/>
+			<xs:enumeration value="Meteorológiai földrajzi jellemzők"/>
+			<xs:enumeration value="Oceanográfiai földrajzi jellemzők"/>
+			<xs:enumeration value="Tengeri régiók"/>
+			<xs:enumeration value="Biogeográfiai régiók"/>
+			<xs:enumeration value="Élőhelyek és biotópok"/>
+			<xs:enumeration value="A fajok megoszlása"/>
+			<xs:enumeration value="Energiaforrások"/>
+			<xs:enumeration value="Ásványi nyersanyagok"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="inspireTheme_hun">
+		<xs:complexContent>
+			<xs:restriction base="inspireTheme">
+				<xs:sequence>
+					<xs:element name="OriginatingControlledVocabulary" type="originatingControlledVocabularyGemetInspireThemes"/>
+					<xs:element name="KeywordValue" type="keywordValueInspireTheme_hun"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireDirective_hun">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:L:2007:108:SOM:HU:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireDirective_hun">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Az Európai Parlament és a Tanács 2007/2/EK irányelve (2007. március 14.) az Európai Közösségen belüli térinformációs infrastruktúra (INSPIRE) kialakításáról"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2007-04-25"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2007:108:SOM:HU:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireDirective_hun" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireMDRegulation_hun">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32008R1205:HU:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireMDRegulation_hun">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="A Bizottság 1205/2008/EK rendelete ( 2008. december 3. ) a 2007/2/EK európai parlamenti és tanácsi irányelv metaadatokra vonatkozó rendelkezéseinek végrehajtásáról (EGT-vonatkozású szöveg)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2008-12-03"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32008R1205:HU:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireMDRegulation_hun" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireNSRegulation_hun">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32009R0976:HU:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireNSRegulation_hun">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="A Bizottság 976/2009/EK rendelete ( 2009. október 19. ) a 2007/2/EK európai parlamenti és tanácsi irányelv hálózati szolgáltatásokra vonatkozó rendelkezéseinek végrehajtásáról"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2009-10-19"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32009R0976:HU:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireNSRegulation_hun" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<!--Interoperability-->
+	<xs:complexType name="resLocInspireInteroperabilityRegulation_hun">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2010:323:0011:0102:HU:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireInteroperabilityRegulation_hun">
+		<xs:complexContent>
+			<xs:restriction base="citationConformity">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="A Bizottság 1089/2010/EU rendelete ( 2010. november 23. ) a 2007/2/EK európai parlamenti és tanácsi irányelv téradatkészletek és -szolgáltatások interoperabilitására vonatkozó rendelkezéseinek végrehajtásáról"/>
+								<xs:enumeration value="A BIZOTTSÁG 1089/2010/EU RENDELETE (2010. november 23.) a 2007/2/EK európai parlamenti és tanácsi irányelv téradatkészletek és -szolgáltatások interoperabilitására vonatkozó rendelkezéseinek végrehajtásáról"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2010-12-08"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2010:323:0011:0102:HU:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireInteroperabilityRegulation_hun" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

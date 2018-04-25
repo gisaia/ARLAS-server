@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2014 EUROPEAN UNION Licensed under the EUPL,
+Version 1.1  or - as soon they will be approved by the European Commission -
+subsequent versions of the EUPL (the "Licence"); You may not use this work
+except in compliance with the Licence. You may obtain a copy of the Licence
+at:
+
+http://ec.europa.eu/idabc/eupl
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the Licence is distributed on an "AS IS" basis, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+Licence for the specific language governing permissions and limitations under
+the Licence.
+
+Date: 12-03-2014
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://inspire.ec.europa.eu/schemas/common/1.0" targetNamespace="http://inspire.ec.europa.eu/schemas/common/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.1">
+	<xs:simpleType name="keywordValueInspireTheme_swe">
+		<xs:restriction base="keywordValueInspireTheme">
+			<xs:enumeration value="Referenskoordinatsystem"/>
+			<xs:enumeration value="Geografiska rutnätssystem"/>
+			<xs:enumeration value="Geografiska namn"/>
+			<xs:enumeration value="Administrativa enheter"/>
+			<xs:enumeration value="Adresser"/>
+			<xs:enumeration value="Fastighetsområden"/>
+			<xs:enumeration value="Transportnät"/>
+			<xs:enumeration value="Hydrografi"/>
+			<xs:enumeration value="Skyddade områden"/>
+			<xs:enumeration value="Höjd"/>
+			<xs:enumeration value="Landtäcke"/>
+			<xs:enumeration value="Ortofoto"/>
+			<xs:enumeration value="Geologi"/>
+			<xs:enumeration value="Statistiska enheter"/>
+			<xs:enumeration value="Byggnader"/>
+			<xs:enumeration value="Mark"/>
+			<xs:enumeration value="Markanvändning"/>
+			<xs:enumeration value="Människors hälsa och säkerhet"/>
+			<xs:enumeration value="Allmännyttiga och offentliga tjänster"/>
+			<xs:enumeration value="Anläggningar för miljöövervakning"/>
+			<xs:enumeration value="Produktions- och industrianläggningar"/>
+			<xs:enumeration value="Jordbruks- och vattenbruksanläggningar"/>
+			<xs:enumeration value="Befolkningsfördelning – demografi"/>
+			<xs:enumeration value="Områden med särskild förvaltning/begränsningar/reglering samt enheter för rapportering"/>
+			<xs:enumeration value="Naturliga riskområden"/>
+			<xs:enumeration value="Atmosfäriska förhållanden"/>
+			<xs:enumeration value="Geografiska meteorologiska förhållanden"/>
+			<xs:enumeration value="Geografiska oceanografiska förhållanden"/>
+			<xs:enumeration value="Havsområden"/>
+			<xs:enumeration value="Biogeografiska regioner"/>
+			<xs:enumeration value="Naturtyper och biotoper"/>
+			<xs:enumeration value="Arters utbredning"/>
+			<xs:enumeration value="Energiresurser"/>
+			<xs:enumeration value="Mineralfyndigheter"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexI_swe">
+		<xs:restriction base="keywordValueInspireTheme_swe">
+			<xs:enumeration value="Referenskoordinatsystem"/>
+			<xs:enumeration value="Geografiska rutnätssystem"/>
+			<xs:enumeration value="Geografiska namn"/>
+			<xs:enumeration value="Administrativa enheter"/>
+			<xs:enumeration value="Adresser"/>
+			<xs:enumeration value="Fastighetsområden"/>
+			<xs:enumeration value="Transportnät"/>
+			<xs:enumeration value="Hydrografi"/>
+			<xs:enumeration value="Skyddade områden"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexII_swe">
+		<xs:restriction base="keywordValueInspireTheme_swe">
+			<xs:enumeration value="Höjd"/>
+			<xs:enumeration value="Landtäcke"/>
+			<xs:enumeration value="Ortofoto"/>
+			<xs:enumeration value="Geologi"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexIII_swe">
+		<xs:restriction base="keywordValueInspireTheme_swe">
+			<xs:enumeration value="Statistiska enheter"/>
+			<xs:enumeration value="Byggnader"/>
+			<xs:enumeration value="Mark"/>
+			<xs:enumeration value="Markanvändning"/>
+			<xs:enumeration value="Människors hälsa och säkerhet"/>
+			<xs:enumeration value="Allmännyttiga och offentliga tjänster"/>
+			<xs:enumeration value="Anläggningar för miljöövervakning"/>
+			<xs:enumeration value="Produktions- och industrianläggningar"/>
+			<xs:enumeration value="Jordbruks- och vattenbruksanläggningar"/>
+			<xs:enumeration value="Befolkningsfördelning – demografi"/>
+			<xs:enumeration value="Områden med särskild förvaltning/begränsningar/reglering samt enheter för rapportering"/>
+			<xs:enumeration value="Naturliga riskområden"/>
+			<xs:enumeration value="Atmosfäriska förhållanden"/>
+			<xs:enumeration value="Geografiska meteorologiska förhållanden"/>
+			<xs:enumeration value="Geografiska oceanografiska förhållanden"/>
+			<xs:enumeration value="Havsområden"/>
+			<xs:enumeration value="Biogeografiska regioner"/>
+			<xs:enumeration value="Naturtyper och biotoper"/>
+			<xs:enumeration value="Arters utbredning"/>
+			<xs:enumeration value="Energiresurser"/>
+			<xs:enumeration value="Mineralfyndigheter"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="inspireTheme_swe">
+		<xs:complexContent>
+			<xs:restriction base="inspireTheme">
+				<xs:sequence>
+					<xs:element name="OriginatingControlledVocabulary" type="originatingControlledVocabularyGemetInspireThemes"/>
+					<xs:element name="KeywordValue" type="keywordValueInspireTheme_swe"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireDirective_swe">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:L:2007:108:SOM:SV:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireDirective_swe">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Europaparlamentets och rådets direktiv 2007/2/EG av den 14 mars 2007 om upprättande av en infrastruktur för rumslig information i Europeiska gemenskapen (Inspire)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2007-04-25"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2007:108:SOM:SV:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireDirective_swe" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireMDRegulation_swe">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32008R1205:SV:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireMDRegulation_swe">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Kommissionens förordning (EG) nr 1205/2008 av den 3 december 2008 om genomförande av Europaparlamentets och rådets direktiv 2007/2/EG om metadata (Text av betydelse för EES)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2008-12-03"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32008R1205:SV:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireMDRegulation_swe" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireNSRegulation_swe">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32009R0976:SV:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireNSRegulation_swe">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Kommissionens förordning (EG) nr 976/2009 av den 19 oktober 2009 om genomförande av Europaparlamentets och rådets direktiv 2007/2/EG med avseende på nättjänster"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2009-10-19"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32009R0976:SV:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireNSRegulation_swe" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<!--Interoperability-->
+	<xs:complexType name="resLocInspireInteroperabilityRegulation_swe">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2010:323:0011:0102:SV:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireInteroperabilityRegulation_swe">
+		<xs:complexContent>
+			<xs:restriction base="citationConformity">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Kommissionens förordning (EU) nr 1089/2010 av den 23 november 2010 om genomförande av Europaparlamentets och rådets direktiv 2007/2/EG vad gäller interoperabilitet för rumsliga datamängder och datatjänster"/>
+								<xs:enumeration value="KOMMISSIONENS FÖRORDNING (EU) nr 1089/2010 av den 23 november 2010 om genomförande av Europaparlamentets och rådets direktiv 2007/2/EG vad gäller interoperabilitet för rumsliga datamängder och datatjänster"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2010-12-08"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2010:323:0011:0102:SV:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireInteroperabilityRegulation_swe" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

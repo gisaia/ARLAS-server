@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2014 EUROPEAN UNION Licensed under the EUPL,
+Version 1.1  or - as soon they will be approved by the European Commission -
+subsequent versions of the EUPL (the "Licence"); You may not use this work
+except in compliance with the Licence. You may obtain a copy of the Licence
+at:
+
+http://ec.europa.eu/idabc/eupl
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the Licence is distributed on an "AS IS" basis, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+Licence for the specific language governing permissions and limitations under
+the Licence.
+
+Date: 12-03-2014
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://inspire.ec.europa.eu/schemas/common/1.0" targetNamespace="http://inspire.ec.europa.eu/schemas/common/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.1">
+	<xs:simpleType name="keywordValueInspireTheme_gre">
+		<xs:restriction base="keywordValueInspireTheme">
+			<xs:enumeration value="Συστήματα συντεταγμένων"/>
+			<xs:enumeration value="Συστήματα γεωγραφικού καννάβου"/>
+			<xs:enumeration value="Τοπωνύμια"/>
+			<xs:enumeration value="Διοικητικές ενότητες"/>
+			<xs:enumeration value="Διευθύνσεις"/>
+			<xs:enumeration value="Γεωτεμάχια κτηματολογίου"/>
+			<xs:enumeration value="Δίκτυα μεταφορών"/>
+			<xs:enumeration value="Υδρογραφία"/>
+			<xs:enumeration value="Προστατευόμενες τοποθεσίες"/>
+			<xs:enumeration value="Υψομετρία"/>
+			<xs:enumeration value="Κάλυψη γης"/>
+			<xs:enumeration value="Ορθοφωτογραφία"/>
+			<xs:enumeration value="Γεωλογία"/>
+			<xs:enumeration value="Στατιστικές μονάδες"/>
+			<xs:enumeration value="Κτίρια"/>
+			<xs:enumeration value="Έδαφος"/>
+			<xs:enumeration value="Χρήσεις γης"/>
+			<xs:enumeration value="Ανθρώπινη υγεία και ασφάλεια"/>
+			<xs:enumeration value="Επιχειρήσεις κοινής ωφελείας και κρατικές υπηρεσίες"/>
+			<xs:enumeration value="Εγκαταστάσεις παρακολούθησης του περιβάλλοντος"/>
+			<xs:enumeration value="Εγκαταστάσεις παραγωγής και βιομηχανικές εγκαταστάσεις"/>
+			<xs:enumeration value="Γεωργικές εγκαταστάσεις και εγκαταστάσεις υδατοκαλλιέργειας"/>
+			<xs:enumeration value="Κατανομή πληθυσμού — δημογραφία"/>
+			<xs:enumeration value="Ζώνες διαχείρισης/περιορισμού/ρύθμισης εκτάσεων και μονάδες αναφοράς"/>
+			<xs:enumeration value="Ζώνες φυσικών κινδύνων"/>
+			<xs:enumeration value="Ατμοσφαιρικές συνθήκες"/>
+			<xs:enumeration value="Μετεωρολογικά γεωγραφικά χαρακτηριστικά"/>
+			<xs:enumeration value="Ωκεανογραφικά γεωγραφικά χαρακτηριστικά"/>
+			<xs:enumeration value="Θαλάσσιες περιοχές"/>
+			<xs:enumeration value="Βιογεωγραφικές περιοχές"/>
+			<xs:enumeration value="Ενδιαιτήματα και βιότοποι"/>
+			<xs:enumeration value="Κατανομή ειδών"/>
+			<xs:enumeration value="Ενεργειακοί πόροι"/>
+			<xs:enumeration value="Ορυκτοί πόροι"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexI_gre">
+		<xs:restriction base="keywordValueInspireTheme_gre">
+			<xs:enumeration value="Συστήματα συντεταγμένων"/>
+			<xs:enumeration value="Συστήματα γεωγραφικού καννάβου"/>
+			<xs:enumeration value="Τοπωνύμια"/>
+			<xs:enumeration value="Διοικητικές ενότητες"/>
+			<xs:enumeration value="Διευθύνσεις"/>
+			<xs:enumeration value="Γεωτεμάχια κτηματολογίου"/>
+			<xs:enumeration value="Δίκτυα μεταφορών"/>
+			<xs:enumeration value="Υδρογραφία"/>
+			<xs:enumeration value="Προστατευόμενες τοποθεσίες"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexII_gre">
+		<xs:restriction base="keywordValueInspireTheme_gre">
+			<xs:enumeration value="Υψομετρία"/>
+			<xs:enumeration value="Κάλυψη γης"/>
+			<xs:enumeration value="Ορθοφωτογραφία"/>
+			<xs:enumeration value="Γεωλογία"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="keywordValueInspireThemeAnnexIII_gre">
+		<xs:restriction base="keywordValueInspireTheme_gre">
+			<xs:enumeration value="Στατιστικές μονάδες"/>
+			<xs:enumeration value="Κτίρια"/>
+			<xs:enumeration value="Έδαφος"/>
+			<xs:enumeration value="Χρήσεις γης"/>
+			<xs:enumeration value="Ανθρώπινη υγεία και ασφάλεια"/>
+			<xs:enumeration value="Επιχειρήσεις κοινής ωφελείας και κρατικές υπηρεσίες"/>
+			<xs:enumeration value="Εγκαταστάσεις παρακολούθησης του περιβάλλοντος"/>
+			<xs:enumeration value="Εγκαταστάσεις παραγωγής και βιομηχανικές εγκαταστάσεις"/>
+			<xs:enumeration value="Γεωργικές εγκαταστάσεις και εγκαταστάσεις υδατοκαλλιέργειας"/>
+			<xs:enumeration value="Κατανομή πληθυσμού — δημογραφία"/>
+			<xs:enumeration value="Ζώνες διαχείρισης/περιορισμού/ρύθμισης εκτάσεων και μονάδες αναφοράς"/>
+			<xs:enumeration value="Ζώνες φυσικών κινδύνων"/>
+			<xs:enumeration value="Ατμοσφαιρικές συνθήκες"/>
+			<xs:enumeration value="Μετεωρολογικά γεωγραφικά χαρακτηριστικά"/>
+			<xs:enumeration value="Ωκεανογραφικά γεωγραφικά χαρακτηριστικά"/>
+			<xs:enumeration value="Θαλάσσιες περιοχές"/>
+			<xs:enumeration value="Βιογεωγραφικές περιοχές"/>
+			<xs:enumeration value="Ενδιαιτήματα και βιότοποι"/>
+			<xs:enumeration value="Κατανομή ειδών"/>
+			<xs:enumeration value="Ενεργειακοί πόροι"/>
+			<xs:enumeration value="Ορυκτοί πόροι"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="inspireTheme_gre">
+		<xs:complexContent>
+			<xs:restriction base="inspireTheme">
+				<xs:sequence>
+					<xs:element name="OriginatingControlledVocabulary" type="originatingControlledVocabularyGemetInspireThemes"/>
+					<xs:element name="KeywordValue" type="keywordValueInspireTheme_gre"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireDirective_gre">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:L:2007:108:SOM:EL:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireDirective_gre">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Οδηγία 2007/2/ΕΚ του Ευρωπαϊκού Κοινοβουλίου και του Συμβουλίου, της 14ης Μαρτίου 2007, για τη δημιουργία υποδομής χωρικών πληροφοριών στην Ευρωπαϊκή Κοινότητα (Inspire)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2007-04-25"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2007:108:SOM:EL:HTML"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireDirective_gre" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireMDRegulation_gre">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32008R1205:EL:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireMDRegulation_gre">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Κανονισμός (ΕΚ) αριθ. 1205/2008 της Επιτροπής, της 3ης Δεκεμβρίου 2008 , για εφαρμογή της οδηγίας 2007/2/ΕΚ του Ευρωπαϊκού Κοινοβουλίου και του Συμβουλίου όσον αφορά τα μεταδεδομένα (Κείμενο που παρουσιάζει ενδιαφέρον για τον ΕΟΧ)"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2008-12-03"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32008R1205:EL:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireMDRegulation_gre" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="resLocInspireNSRegulation_gre">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32009R0976:EL:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="text/html"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireNSRegulation_gre">
+		<xs:complexContent>
+			<xs:restriction base="citation">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Κανονισμός (ΕΚ) αριθ. 976/2009 της Επιτροπής, της 19ης Οκτωβρίου 2009 , για την υλοποίηση της οδηγίας 2007/2/ΕΚ του Ευρωπαϊκού Κοινοβουλίου και του Συμβουλίου όσον αφορά τις δικτυακές υπηρεσίες"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2009-10-19"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="CELEX:32009R0976:EL:NOT"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireNSRegulation_gre" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<!--Interoperability-->
+	<xs:complexType name="resLocInspireInteroperabilityRegulation_gre">
+		<xs:complexContent>
+			<xs:restriction base="resourceLocatorType">
+				<xs:sequence>
+					<xs:element name="URL">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2010:323:0011:0102:EL:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="MediaType">
+						<xs:simpleType>
+							<xs:restriction base="mediaType">
+								<xs:enumeration value="application/pdf"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="citationInspireInteroperabilityRegulation_gre">
+		<xs:complexContent>
+			<xs:restriction base="citationConformity">
+				<xs:sequence>
+					<xs:element name="Title">
+						<xs:simpleType>
+							<xs:restriction base="notEmptyString">
+								<xs:enumeration value="Κανονισμός (ΕΕ) αριθ. 1089/2010 της Επιτροπής της 23ης Νοεμβρίου 2010 σχετικά με την εφαρμογή της οδηγίας 2007/2/ΕΚ του Ευρωπαϊκού Κοινοβουλίου και του Συμβουλίου όσον αφορά τη διαλειτουργικότητα των συνόλων και των υπηρεσιών χωρικών δεδομένων"/>
+								<xs:enumeration value="ΚΑΝΟΝΙΣΜΌΣ (ΕΕ) αριθ. 1089/2010 ΤΗΣ ΕΠΙΤΡΟΠΗΣ της 23ης Νοεμβρίου 2010 σχετικά με την εφαρμογή της οδηγίας 2007/2/ΕΚ του Ευρωπαϊκού Κοινοβουλίου και του Συμβουλίου όσον αφορά τη διαλειτουργικότητα των συνόλων και των υπηρεσιών χωρικών δεδομένων"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:choice>
+						<xs:element name="DateOfPublication">
+							<xs:simpleType>
+								<xs:restriction base="iso8601Date">
+									<xs:enumeration value="2010-12-08"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+					<xs:element name="URI" minOccurs="1" maxOccurs="1">
+						<xs:simpleType>
+							<xs:restriction base="urlType">
+								<xs:enumeration value="OJ:L:2010:323:0011:0102:EL:PDF"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="ResourceLocator" type="resLocInspireInteroperabilityRegulation_gre" minOccurs="1" maxOccurs="1"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

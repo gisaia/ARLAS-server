@@ -32,6 +32,9 @@ import java.util.List;
 
 public class DublinCoreElementName {
 
+    public DublinCoreElementName(){
+    }
+
     @JsonProperty(value = "title", required = false)
     public String title = "";
 
@@ -57,7 +60,7 @@ public class DublinCoreElementName {
     public String format = "";
 
     @JsonProperty(value = "identifier", required = false)
-    public String identifier = "";
+    public String identifier = String.valueOf(java.util.UUID.randomUUID());;
 
     @JsonProperty(value = "source", required = false)
     public String source = "";
@@ -73,7 +76,6 @@ public class DublinCoreElementName {
     public String getDate(){
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
        return simpleDateFormat.format(date);
-
     }
 
     private JSONObject coverage;
@@ -114,4 +116,5 @@ public class DublinCoreElementName {
         @JsonProperty(value = "west", required = true)
         public double west = -180.0;
     }
+
 }

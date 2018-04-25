@@ -22,6 +22,7 @@ package io.arlas.server.ogc.csw;
 import io.arlas.server.app.CSWConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
+import io.arlas.server.ogc.csw.operation.getrecordbyid.GetRecordsByIdHandler;
 import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
 import net.opengis.cat.csw._3.ObjectFactory;
 
@@ -29,6 +30,8 @@ public class CSWHandler {
 
     public GetCapabilitiesHandler getCapabilitiesHandler;
     public GetRecordsHandler getRecordsHandler;
+    public GetRecordsByIdHandler getRecordsByIdHandler;
+
 
     public OGCConfiguration ogcConfiguration;
     public CSWConfiguration cswConfiguration;
@@ -44,5 +47,7 @@ public class CSWHandler {
         this.cswConfiguration = cswConfiguration;
         getCapabilitiesHandler = new GetCapabilitiesHandler(this);
         getRecordsHandler = new GetRecordsHandler(this);
+        getRecordsByIdHandler = new GetRecordsByIdHandler(this);
+
     }
 }
