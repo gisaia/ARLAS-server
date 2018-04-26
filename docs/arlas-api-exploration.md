@@ -11,6 +11,7 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/explore/**_list**                 | List  the collections configured in ARLAS |
 | /arlas/explore/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
 | /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Count the number of elements found in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_range**?`field` & `filter` & `form` | Calculates the min and max values of a field in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection as features, given the filters |
 | /arlas/explore/`{collection}`/**_geosearch**/`{z}`/`{x}`/`{y}`?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection and localized in the given tile(x,y,z) as features, given the filters |
@@ -195,6 +196,17 @@ The `form` url part allows the following parameters to be specified:
 | **pretty** | `false`       | `true,false` | Pretty print         | false    |
 
 > Example: `pretty=true`
+
+---
+### Part: `field`
+
+The `field` url part is used by the Range service only:
+
+| Parameter   | Default value | Values               | Description                              | Multiple |
+| ----------- | ------------- | -------------------- | ---------------------------------------- | -------- |
+| **field**   | None          | `{fieldNamePattern}` | The name pattern of the field on which the range service is applied | false     |
+
+> Example: `field=timestamp`
 
 ---
 ### Part: `projection`

@@ -28,7 +28,10 @@ import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.request.*;
+import io.arlas.server.model.response.RangeResponse;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +51,10 @@ public class CheckParams {
     private static final String INVALID_AGGREGATION_PARAMETER = "Invalid aggregation syntax. Must start with {type}:{field}:...";
     private static final String INVALID_AGGREGATION = "Invalid aggregation parameters. Type and field must be specified";
     private static final String INVALID_AGGREGATION_TYPE = "Invalid aggregation TYPE. Must be datehistogram, geohash, histogram or terms ";
+    private static final String INVALID_RANGE_FIELD = "The field name/path should not be null.";
+    private static final String UNEXISTING_FIELD = "The field name/pattern doesn't exist in the collection";
+    private static final String MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD = "Infinity";
+    private static Logger LOGGER = LoggerFactory.getLogger(CheckParams.class);
 
     public CheckParams() {
     }
@@ -57,6 +64,16 @@ public class CheckParams {
             throw new BadRequestException("Aggregation should not be null");
         else if (request != null) {
             checkAggregation((AggregationsRequest) request);
+        }
+    }
+
+    public static void checkRangeRequestField(Request request) throws ArlasException {
+        if (request == null || !(request instanceof RangeRequest))
+            throw new BadRequestException("Range request should not be null");
+        else if (request != null) {
+            if (((RangeRequest) request).field == null || ((RangeRequest) request).field.length() == 0) {
+                throw new InvalidParameterException(INVALID_RANGE_FIELD);
+            }
         }
     }
 
@@ -74,6 +91,12 @@ public class CheckParams {
                     checkBbox(npw);
                 }
             }
+        }
+    }
+
+    public static void checkRangeFieldExists(RangeResponse rangeResponse) throws ArlasException {
+        if ( rangeResponse.min.toString().equals(MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD) || rangeResponse.min.toString().equals("-"+MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD)) {
+            throw new InvalidParameterException(UNEXISTING_FIELD);
         }
     }
 

@@ -24,6 +24,7 @@ import io.arlas.server.core.FluidSearch;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationMetric;
@@ -32,6 +33,7 @@ import io.arlas.server.rest.ResponseCacheManager;
 import io.arlas.server.rest.explore.enumerations.MetricAggregationEnum;
 import io.arlas.server.utils.CheckParams;
 import org.apache.lucene.geo.Rectangle;
+import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -110,10 +112,30 @@ public class ExploreServices {
         return fluidSearch.exec();
     }
 
+    public SearchResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
+        CheckParams.checkRangeRequestField(request.basicRequest);
+        FluidSearch fluidSearch = new FluidSearch(client);
+        fluidSearch.setCollectionReference(collectionReference);
+        applyFilter(request.basicRequest.filter, fluidSearch);
+        applyFilter(request.headerRequest.filter, fluidSearch);
+        applyRangeRequest(((RangeRequest) request.basicRequest).field, fluidSearch);
+        SearchResponse response;
+        try {
+            response = fluidSearch.exec();
+        } catch (SearchPhaseExecutionException e) {
+            throw new InvalidParameterException("The field's type must be numeric");
+        }
+        return fluidSearch.exec();
+    }
+
     protected void applyAggregation(List<Aggregation> aggregations, FluidSearch fluidSearch, Boolean isGeoAggregation) throws ArlasException {
         if (aggregations != null && aggregations != null && !aggregations.isEmpty()) {
             fluidSearch = fluidSearch.aggregate(aggregations, isGeoAggregation);
         }
+    }
+
+    protected void applyRangeRequest(String field, FluidSearch fluidSearch) throws ArlasException {
+        fluidSearch = fluidSearch.getFieldRange(field);
     }
 
 

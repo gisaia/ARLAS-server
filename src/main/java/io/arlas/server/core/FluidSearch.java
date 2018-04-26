@@ -46,6 +46,8 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInter
 import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.max.MaxAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -101,6 +103,9 @@ public class FluidSearch {
     public static final String SIZE_NOT_IMPLEMENTED = "Size is not implemented for geohash.";
     public static final String RANGE_ALIASES_CHARACTER = "$";
     public static final String TIMESTAMP_ALIAS = "timestamp";
+
+    public static final String FIELD_MIN_VALUE = "field_min_value";
+    public static final String FIELD_MAX_VALUE = "field_max_value";
 
     private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
 
@@ -502,6 +507,13 @@ public class FluidSearch {
         AggregationBuilder aggregationBuilder = null;
         aggregationBuilder = aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate, 0);
         searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(aggregationBuilder);
+        return this;
+    }
+
+    public FluidSearch getFieldRange(String field) {
+        MinAggregationBuilder minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
+        MaxAggregationBuilder maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
+        searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(minAggregationBuilder).addAggregation(maxAggregationBuilder);
         return this;
     }
 

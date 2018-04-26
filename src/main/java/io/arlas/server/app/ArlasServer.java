@@ -45,6 +45,7 @@ import io.arlas.server.rest.explore.describe.DescribeCollectionRESTService;
 import io.arlas.server.rest.explore.describe.DescribeRESTService;
 import io.arlas.server.rest.explore.opensearch.AtomHitsMessageBodyWriter;
 import io.arlas.server.rest.explore.opensearch.OpenSearchDescriptorService;
+import io.arlas.server.rest.explore.range.RangeRESTService;
 import io.arlas.server.rest.explore.raw.RawRESTService;
 import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
@@ -161,6 +162,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             environment.jersey().register(new DescribeRESTService(exploration));
             environment.jersey().register(new RawRESTService(exploration));
             environment.jersey().register(new DescribeCollectionRESTService(exploration));
+            environment.jersey().register(new RangeRESTService(exploration));
             LOGGER.info("Explore API enabled");
         } else {
             LOGGER.info("Explore API disabled");
