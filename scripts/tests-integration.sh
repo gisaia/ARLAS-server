@@ -39,3 +39,5 @@ cd ${SCRIPT_PATH}/..
 # TESTS SUITE
 ./scripts/tests-integration-stage.sh --stage=REST
 ./scripts/tests-integration-stage.sh --stage=WFS
+./scripts/tests-integration-stage.sh --stage=CSW
+

@@ -23,10 +23,11 @@ services:
     environment:
       - ARLAS_ELASTIC_CLUSTER="docker-cluster"
       - ARLAS_ELASTIC_NODES="elasticsearch:9300"
-      - ARLAS_SERVICE_WFS_ENABLE="true"
       - ARLAS_PREFIX="${ARLAS_PREFIX:-/arlas}"
       - ARLAS_APP_PATH="${ARLAS_APP_PATH:-/}"
       - ARLAS_OGC_SERVER_URI="${ARLAS_OGC_SERVER_URI:-http://arlas-server:9999/arlas/}"
+      - ARLAS_SERVICE_WFS_ENABLE="${ARLAS_SERVICE_WFS_ENABLE:-false}"
+      - ARLAS_SERVICE_CSW_ENABLE="${ARLAS_SERVICE_CSW_ENABLE:-false}"
       - ARLAS_SERVICE_TAG_ENABLE="${ARLAS_SERVICE_TAG_ENABLE:-false}"
     ports:
       - 19999:9999

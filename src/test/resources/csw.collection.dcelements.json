@@ -1,0 +1,116 @@
+[
+   {
+    "title": "Panda Collection",
+    "creator": "John Doe",
+    "subject": "Panda way of life",
+    "description": "A collection of photography of panda",
+    "publisher": "WWF",
+    "contributor": "India",
+    "type": "image",
+    "format": "png/jpeg",
+    "source": "WWF",
+    "language": "english",
+    "bbox": {
+      "north": 23.443089,
+      "south": 12.254128,
+      "east": 83.540039,
+      "west": 72.246094
+    }
+  },
+   {
+    "title": "Pelican Collection",
+    "creator": "Mary Doe",
+    "subject": "Flight of pelican",
+    "description": "A collection of position of pelican",
+    "publisher": "WWF",
+    "contributor": "USA",
+    "type": "point",
+    "format": "Geojson",
+    "source": "",
+    "language": "english",
+    "bbox": {
+      "north": 32.546813,
+      "south": 24.886436,
+      "west": -86.308594,
+      "east": -76.992188
+    }
+  },
+  {
+    "title": "Dolphin Collection",
+    "creator": "Flipper Doe",
+    "subject": "Collection of dolphin",
+    "description": "Flipper life",
+    "publisher": "Ace Ventura",
+    "contributor": "USA",
+    "type": "point",
+    "format": "Geojson",
+    "source": "",
+    "language": "english",
+    "bbox": {
+      "north": 32.546813,
+      "south": 24.886436,
+      "west": -86.308594,
+      "east": -76.992188
+    }
+  },
+  {
+    "title": "Elephant Collection",
+    "creator": "Babar",
+    "subject": "Which is the strongest between elephant and hippopotamus?",
+    "description": "Who'is the best between elephant and hipo",
+    "publisher": "Dumbo",
+    "contributor": "USA",
+    "type": "point",
+    "format": "Geojson",
+    "source": "",
+    "language": "english",
+    "bbox": {
+      "north": 32.546813,
+      "south": 24.886436,
+      "west": -86.308594,
+      "east": -76.992188
+
+    }
+  },
+   {
+      "title": "Tiger Collection",
+      "creator": "Sherkan",
+      "subject": "Collection of tiger picture",
+      "description": "Eyes of tiger",
+      "contributor": "Africa",
+      "type": "image",
+      "format": "gif",
+      "source": "",
+      "language": "english",
+      "bbox": {
+        "north": -8.581021,
+        "south": -25.641526,
+        "west": 21.269531,
+        "east": 41.660156
+
+      }
+    },
+{
+      "title": "Lion Collection",
+      "creator": "Simba",
+      "subject":  "Collection of photography of lion",
+      "description": "The lion King way of life",
+      "publisher": "Muffassa",
+      "contributor": "Africa",
+      "type": "image",
+      "format": "gif",
+      "source": "",
+      "language": "english",
+      "bbox": {
+        "north": -8.581021,
+        "south": -25.641526,
+        "west": 21.269531,
+        "east": 41.660156
+      }
+    }
+]
+
+
+
+
+
