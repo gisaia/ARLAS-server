@@ -104,10 +104,10 @@ public class AtomBuilder {
                     break;
             }
         });
-        String south = recordType.getBoundingBox().get(0).getValue().getLowerCorner().get(0);
-        String west = recordType.getBoundingBox().get(0).getValue().getLowerCorner().get(1);
-        String north = recordType.getBoundingBox().get(0).getValue().getUpperCorner().get(0);
-        String east = recordType.getBoundingBox().get(0).getValue().getUpperCorner().get(1);
+        String south = recordType.getBoundingBox().get(0).getValue().getLowerCorner().get(1);
+        String west = recordType.getBoundingBox().get(0).getValue().getLowerCorner().get(0);
+        String north = recordType.getBoundingBox().get(0).getValue().getUpperCorner().get(1);
+        String east = recordType.getBoundingBox().get(0).getValue().getUpperCorner().get(0);
         entryType.getBox().add(south);
         entryType.getBox().add(west);
         entryType.getBox().add(north);
@@ -153,10 +153,10 @@ public class AtomBuilder {
         });
         entryType.setId(idTypeValue);
         entryType.setTitle(title);
-        String south = summaryRecordType.getBoundingBox().get(0).getValue().getLowerCorner().get(0);
-        String west = summaryRecordType.getBoundingBox().get(0).getValue().getLowerCorner().get(1);
-        String north = summaryRecordType.getBoundingBox().get(0).getValue().getUpperCorner().get(0);
-        String east = summaryRecordType.getBoundingBox().get(0).getValue().getUpperCorner().get(1);
+        String south = summaryRecordType.getBoundingBox().get(0).getValue().getLowerCorner().get(1);
+        String west = summaryRecordType.getBoundingBox().get(0).getValue().getLowerCorner().get(0);
+        String north = summaryRecordType.getBoundingBox().get(0).getValue().getUpperCorner().get(1);
+        String east = summaryRecordType.getBoundingBox().get(0).getValue().getUpperCorner().get(0);
         entryType.getBox().add(south);
         entryType.getBox().add(west);
         entryType.getBox().add(north);
@@ -179,10 +179,10 @@ public class AtomBuilder {
         });
         entryType.setId(idTypeValue);
         entryType.setTitle(title);
-        String south = briefRecordType.getBoundingBox().get(0).getValue().getLowerCorner().get(0);
-        String west = briefRecordType.getBoundingBox().get(0).getValue().getLowerCorner().get(1);
-        String north = briefRecordType.getBoundingBox().get(0).getValue().getUpperCorner().get(0);
-        String east = briefRecordType.getBoundingBox().get(0).getValue().getUpperCorner().get(1);
+        String south = briefRecordType.getBoundingBox().get(0).getValue().getLowerCorner().get(1);
+        String west = briefRecordType.getBoundingBox().get(0).getValue().getLowerCorner().get(0);
+        String north = briefRecordType.getBoundingBox().get(0).getValue().getUpperCorner().get(1);
+        String east = briefRecordType.getBoundingBox().get(0).getValue().getUpperCorner().get(0);
         entryType.getBox().add(south);
         entryType.getBox().add(west);
         entryType.getBox().add(north);
