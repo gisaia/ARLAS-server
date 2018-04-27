@@ -88,9 +88,4 @@ public class GeoTypeMapper {
         }
         return geoObject;
     }
-
-    public static void main(String[] args) {
-
-    }
-
 }
