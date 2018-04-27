@@ -66,6 +66,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.arlas.server.utils.CheckParams.isBboxLatLonInCorrectRanges;
+
 
 public class CSWService extends CollectionRESTServices {
 
@@ -281,12 +283,12 @@ public class CSWService extends CollectionRESTServices {
         }
         BoundingBox boundingBox = null;
         if (bbox != null && bbox.length() > 0) {
-            // south, west, north, east CSW spec
+            // west, south, east, north CSW spec
             double[] bboxList = GeoFormat.toDoubles(bbox, Service.CSW);
-            if (!(CSWCheckParam.isBboxLatLonInCorrectRanges(bboxList) && bboxList[2] > bboxList[0]) && bboxList[1] != bboxList[3]) {
+            if (!(isBboxLatLonInCorrectRanges(bboxList) && bboxList[3] > bboxList[1]) && bboxList[0] != bboxList[2]) {
                 throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "bbox", Service.CSW);
             }
-            boundingBox = new BoundingBox(bboxList[2], bboxList[0], bboxList[1], bboxList[3]);
+            boundingBox = new BoundingBox(bboxList[3], bboxList[1], bboxList[0], bboxList[2]);
         }
         startPosition = Optional.ofNullable(startPosition).orElse(1);
         maxRecords = Optional.ofNullable(maxRecords).orElse(ogcConfiguration.queryMaxFeature.intValue());

@@ -62,6 +62,7 @@ function test_rest() {
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
     export ARLAS_SERVICE_TAG_ENABLE=true
+    export ARLAS_SERVICE_WFS_ENABLE=true
     start_stack
     docker run --rm \
         -w /opt/maven \
@@ -83,6 +84,7 @@ function test_wfs() {
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
     export ARLAS_OGC_SERVER_URI="http://arlas-server:9999/pathtest/arlastest/"
+    export ARLAS_SERVICE_WFS_ENABLE=true
     start_stack
     docker run --rm \
         -w /opt/maven \
@@ -119,6 +121,47 @@ function test_wfs() {
         mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="delete"
 }
 
+
+function test_csw() {
+    export ARLAS_PREFIX="/arlastest"
+    export ARLAS_APP_PATH="/pathtest"
+    export ARLAS_OGC_SERVER_URI="http://arlas-server:9999/pathtest/arlastest/"
+    export ARLAS_SERVICE_CSW_ENABLE=true
+    start_stack
+    docker run --rm \
+        -w /opt/maven \
+        -v $PWD:/opt/maven \
+        -v $HOME/.m2:/root/.m2 \
+        -e ARLAS_HOST="arlas-server" \
+        -e ARLAS_PORT="9999" \
+        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+        --net arlas_default \
+        maven:3.5.0-jdk-8 \
+        mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="loadcsw"
+
+    docker run --rm \
+         --net arlas_default \
+         --env CSW_GETCAPABILITIES_URL="http://arlas-server:9999/pathtest/arlastest/collections/csw/?" \
+         gisaia/ets-cat30
+
+    docker run --rm \
+        -w /opt/maven \
+        -v $PWD:/opt/maven \
+        -v $HOME/.m2:/root/.m2 \
+        -e ARLAS_HOST="arlas-server" \
+        -e ARLAS_PORT="9999" \
+        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+        --net arlas_default \
+        maven:3.5.0-jdk-8 \
+        mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="deletecsw"
+}
+
 function test_doc() {
     ./mkDocs.sh
 }
@@ -127,7 +170,9 @@ echo "===> run integration tests"
 export ALIASED_COLLECTION="false"
 if [ "$STAGE" == "REST" ]; then test_rest; fi
 if [ "$STAGE" == "WFS" ]; then test_wfs; fi
+if [ "$STAGE" == "CSW" ]; then test_csw; fi
 if [ "$STAGE" == "REST_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_rest; fi
 if [ "$STAGE" == "WFS_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_wfs; fi
+if [ "$STAGE" == "CSW_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_csw; fi
 if [ "$STAGE" == "DOC" ]; then test_doc; fi
 

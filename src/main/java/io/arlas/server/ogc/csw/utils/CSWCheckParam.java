@@ -96,11 +96,4 @@ public class CSWCheckParam {
             VersionUtils.checkVersion(requestVersion, CSWConstant.SUPPORTED_CSW_VERSION, Service.CSW);
         }
     }
-
-    public static boolean isBboxLatLonInCorrectRanges(double[] tlbr) {
-        // west, south, east, north
-        return tlbr[0] >= -90 && tlbr[2] >= -90 && tlbr[0] <= 90 && tlbr[2] <= 90 &&
-                tlbr[1] >= -180 && tlbr[3] >= -180 && tlbr[1] <= 180 && tlbr[3] <= 180;
-    }
-
 }

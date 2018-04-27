@@ -209,10 +209,10 @@ public class RecordBuilder {
 
     public static void addBbox(AbstractRecordType abstractRecordType, DublinCoreElementName.Bbox bbox) {
         WGS84BoundingBoxType boudingBox = new WGS84BoundingBoxType();
-        boudingBox.getLowerCorner().add(String.valueOf(bbox.south));
         boudingBox.getLowerCorner().add(String.valueOf(bbox.west));
-        boudingBox.getUpperCorner().add(String.valueOf(bbox.north));
+        boudingBox.getLowerCorner().add(String.valueOf(bbox.south));
         boudingBox.getUpperCorner().add(String.valueOf(bbox.east));
+        boudingBox.getUpperCorner().add(String.valueOf(bbox.north));
         JAXBElement<WGS84BoundingBoxType> JAXBElementBbox = owsObjectFactory.createWGS84BoundingBox(boudingBox);
         switch (abstractRecordType.getClass().getSimpleName()) {
             case "BriefRecordType":
