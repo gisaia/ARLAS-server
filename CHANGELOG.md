@@ -1,5 +1,13 @@
 # Change Log
 
+## [v5.6.1](https://github.com/gisaia/ARLAS-server/tree/v5.6.1) (2018-04-27)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v5.6.0...v5.6.1)
+
+**New stuff:**
+
+- Implements Atom Response for CSW GetRecords [\#260](https://github.com/gisaia/ARLAS-server/issues/260)
+
 ## [v5.6.0](https://github.com/gisaia/ARLAS-server/tree/v5.6.0) (2018-04-20)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v4.6.0...v5.6.0)

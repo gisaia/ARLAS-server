@@ -191,7 +191,7 @@ else echo "=> Skip npm api publish"; fi
 cd ${BASEDIR}
 
 if [ "$SIMULATE" == "NO" ]; then
-    echo "=> Build arlas-server docker image"
+    echo "=> Tag arlas-server docker image"
     docker tag arlas-server:${ARLAS_VERSION} gisaia/arlas-server:${ARLAS_VERSION}
     docker tag arlas-server:${ARLAS_VERSION} gisaia/arlas-server:latest
     echo "=> Push arlas-server docker image"
@@ -201,6 +201,8 @@ else echo "=> Skip docker push image"; fi
 
 if [ "$SIMULATE" == "NO" ]; then
     echo "=> Generate CHANGELOG.md"
+    git tag v${ARLAS_VERSION}
+    git push origin v${ARLAS_VERSION}
     #@see scripts/build-github-changelog-generator.sh if you need a fresher version of this tool
     docker run -it --rm -v "$(pwd)":/usr/local/src/your-app gisaia/github-changelog-generator:latest github_changelog_generator \
         -u gisaia -p ARLAS-server --token 479b4f9b9390acca5c931dd34e3b7efb21cbf6d0 \
@@ -210,6 +212,8 @@ if [ "$SIMULATE" == "NO" ]; then
         --enhancement-labels  type:enhancement \
         --breaking-labels type:breaking \
         --enhancement-label "**New stuff:**" --issues-label "**Miscellaneous:**" --since-tag v2.5.3
+    git tag -d v${ARLAS_VERSION}
+    git push origin :v${ARLAS_VERSION}
     echo "=> Commit release version"
     git commit -a -m "release version ${ARLAS_VERSION}"
     git tag v${ARLAS_VERSION}
