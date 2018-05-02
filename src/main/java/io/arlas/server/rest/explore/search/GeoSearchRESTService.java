@@ -477,13 +477,10 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             //Apply geometry or centroid to geo json feature
             if (geometryGeoJson != null) {
                 feature.setGeometry(geometryGeoJson);
-                feature.setProperties(hit.getSourceAsMap());
             } else if (centroidGeoJson != null) {
                 feature.setGeometry(centroidGeoJson);
-                feature.setProperties(hit.getSourceAsMap());
-            } else {
-                feature.setProperties(hit.getSourceAsMap());
             }
+            feature.setProperties(hit.getSourceAsMap());
             fc.add(feature);
         }
         return fc;
