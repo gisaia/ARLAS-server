@@ -51,9 +51,8 @@ docker run --rm \
 	-v $PWD:/opt/gen \
 	-v $HOME/.m2:/root/.m2 \
 	gisaia/swagger-codegen:2.3.1
-	
-echo "=> Generate documentation of API typescript client"
 
+echo "=> Generate Typescript client documentation"
 docker run --rm \
     -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
@@ -73,7 +72,7 @@ docker run --rm \
 	busybox \
         sh -c '(mv /opt/maven/target/tmp/typescript-fetch/typedoc_docs/ /opt/maven/target/generated-docs \
         && mv /opt/maven/target/generated-docs/typedoc_docs/ /opt/maven/target/generated-docs/typescript-doc)'
-
+        
 echo "=> Generate API documentation"
 docker run --rm \
     -w /opt/maven \
@@ -89,7 +88,7 @@ docker run --rm \
         && cat /opt/maven/target/generated-docs/paths.md >> /opt/maven/target/generated-docs/reference.md \
         && cat /opt/maven/target/generated-docs/definitions.md >> /opt/maven/target/generated-docs/reference.md \
         && cat /opt/maven/target/generated-docs/security.md >> /opt/maven/target/generated-docs/reference.md'
-
+        
 echo "=> Copy CHANGELOG.md"
 docker run --rm \
     -v $PWD:/opt/maven \
@@ -97,3 +96,12 @@ docker run --rm \
 	busybox \
         sh -c 'cp /opt/maven/CHANGELOG.md /opt/maven/target/generated-docs/CHANGELOG_ARLAS-server.md'
 
+echo "=> Check generated documentation"
+if [[ ! -f ${BASEDIR}/target/generated-docs/typescript-doc/classes/_api_.exploreapi.md ]] ; then
+    echo 'File "_api_.exploreapi.md" is not generated, aborting.'
+    exit -1
+fi
+if [[ ! -f ${BASEDIR}/target/generated-docs/reference.md ]] ; then
+    echo 'File "reference.md" is not generated, aborting.'
+    exit -1
+fi
