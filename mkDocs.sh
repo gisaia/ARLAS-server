@@ -45,6 +45,34 @@ docker run --rm \
 	--network arlas_default \
 	byrnedo/alpine-curl \
     -c 'i=1; until curl -XGET http://arlas-server:9999/arlas/swagger.yaml -o /opt/maven/target/tmp/swagger.yaml; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
+    
+echo "=> Generate API"
+docker run --rm \
+	-v $PWD:/opt/gen \
+	-v $HOME/.m2:/root/.m2 \
+	gisaia/swagger-codegen:2.3.1
+	
+echo "=> Generate documentation of API typescript client"
+
+docker run --rm \
+    -v $PWD:/opt/maven \
+	-v $HOME/.m2:/root/.m2 \
+	busybox \
+        sh -c '(cp /opt/maven/conf/npm/package-build.json /opt/maven/target/tmp/typescript-fetch/package.json) \
+        && (cp /opt/maven/conf/npm/tsconfig-build.json /opt/maven/target/tmp/typescript-fetch/tsconfig.json)'
+        
+BASEDIR=$PWD
+
+cd ${BASEDIR}/target/tmp/typescript-fetch/
+docker run -a STDERR --rm  -i -v `pwd`:/docs gisaia/typedocgen:0.0.4 generatedoc api.ts
+cd ${BASEDIR}
+
+docker run --rm \
+    -v $PWD:/opt/maven \
+	-v $HOME/.m2:/root/.m2 \
+	busybox \
+        sh -c '(mv /opt/maven/target/tmp/typescript-fetch/typedoc_docs/ /opt/maven/target/generated-docs \
+        && mv /opt/maven/target/generated-docs/typedoc_docs/ /opt/maven/target/generated-docs/typescript-doc)'
 
 echo "=> Generate API documentation"
 docker run --rm \
