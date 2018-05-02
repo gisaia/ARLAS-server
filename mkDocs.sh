@@ -3,13 +3,6 @@ set -e
 
 function clean_docker {
     ./scripts/docker-clean.sh
-    echo "===> clean maven repository"
-	docker run --rm \
-		-w /opt/maven \
-		-v $PWD:/opt/maven \
-		-v $HOME/.m2:/root/.m2 \
-		maven:3.5.0-jdk-8 \
-		mvn clean
 }
 
 function clean_exit {
@@ -27,7 +20,6 @@ cd ${SCRIPT_PATH}
 # START ARLAS STACK
 ./scripts/docker-clean.sh
 ./scripts/docker-run.sh
-DOCKER_IP=$(docker-machine ip || echo "localhost")
 
 echo "=> Get swagger documentation"
 docker run --rm \
