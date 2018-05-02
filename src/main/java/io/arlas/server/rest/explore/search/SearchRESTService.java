@@ -31,6 +31,7 @@ import io.arlas.server.ns.ATOM;
 import io.arlas.server.rest.explore.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.ExploreServices;
+import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ParamsParser;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.annotations.ApiOperation;
@@ -44,6 +45,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -185,7 +187,19 @@ public class SearchRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-
+        List<String> fields = new ArrayList<>();
+        if (collectionReference.params.idPath != null)
+            fields.add(collectionReference.params.idPath);
+        if (collectionReference.params.geometryPath != null)
+            fields.add(collectionReference.params.geometryPath);
+        if (collectionReference.params.centroidPath != null)
+            fields.add(collectionReference.params.centroidPath);
+        if (collectionReference.params.timestampPath != null)
+            fields.add(collectionReference.params.timestampPath);
+        if(exclude!=null && exclude!=""){
+            List<String> excludeField = Arrays.asList(exclude.split(","));
+            CheckParams.checkExcludeField(excludeField, fields);
+        }
         Search search = new Search();
         search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect);
         search.size = ParamsParser.getSize(size, from);

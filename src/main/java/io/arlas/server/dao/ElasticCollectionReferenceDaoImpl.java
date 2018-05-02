@@ -33,6 +33,7 @@ import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.utils.BoundingBox;
+import io.arlas.server.utils.CheckParams;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -300,7 +301,10 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 fields.add(collectionReference.params.centroidPath);
             if (collectionReference.params.timestampPath != null)
                 fields.add(collectionReference.params.timestampPath);
-            checkExcludeField(collectionReference.params, fields);
+            if(collectionReference.params.excludeFields!=null && collectionReference.params.excludeFields!=""){
+                List<String> excludeField = Arrays.asList(collectionReference.params.excludeFields.split(","));
+                CheckParams.checkExcludeField(excludeField, fields);
+            }
 
             Iterator<String> indeces = response.getMappings().keysIt();
             while (indeces.hasNext()) {
@@ -329,21 +333,6 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             throw new NotFoundException("Index " + collectionReference.params.indexName + " does not exist.");
         } catch (Exception e) {
             throw new NotFoundException("Unable to access " + collectionReference.params.typeName + " in " + collectionReference.params.indexName + ".");
-        }
-    }
-
-    private void checkExcludeField(CollectionReferenceParameters params, List<String> fields) throws NotAllowedException {
-        if (params.excludeFields != null && params.excludeFields != "") {
-            ArrayList<Pattern> excludeFields = new ArrayList<>();
-            Arrays.asList(params.excludeFields.split(",")).forEach(field -> {
-                excludeFields.add(Pattern.compile("^" + field.replace(".", "\\.").replace("*", ".*") + ".*$"));
-            });
-            boolean excludePath;
-            for (String field : fields) {
-                excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(field).matches());
-                if (excludePath)
-                    throw new NotAllowedException("Unable to exclude field used for id, geometry, centroid or timestamp.");
-            }
         }
     }
 

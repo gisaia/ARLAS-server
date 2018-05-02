@@ -25,10 +25,15 @@ import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.exceptions.NotAllowedException;
+import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.request.*;
 import org.elasticsearch.search.sort.SortOrder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class CheckParams {
     private static final String POLYGON_TYPE = "POLYGON";
@@ -228,6 +233,27 @@ public class CheckParams {
                 tlbr[0] >= -180 && tlbr[2] >= -180 && tlbr[0] <= 180 && tlbr[2] <= 180;
     }
 
+    public static void checkExcludeField(List<String> excludeFields, List<String> fields) throws NotAllowedException {
+            ArrayList<Pattern> excludeFieldsPattern = new ArrayList<>();
+            excludeFields.forEach(field ->
+                excludeFieldsPattern.add(Pattern.compile("^" + field.replace(".", "\\.").replace("*", ".*") + ".*$"))
+            );
+            boolean excludePath;
+            for (String field : fields) {
+                excludePath = excludeFieldsPattern.stream().anyMatch(pattern -> pattern.matcher(field).matches());
+                if (excludePath)
+                    throw new NotAllowedException("Unable to exclude field "+field+ " used for id, geometry, centroid or timestamp.");
+            }
+    }
+
+    public static double[] toDoubles(String doubles) throws InvalidParameterException {
+        try {
+            return Arrays.stream(doubles.split(",")).mapToDouble(Double::parseDouble).toArray();
+        } catch (Exception e) {
+            throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+        }
+    }
+
     private static boolean isIntegerInXYZRange(int n, int z) {
         long minRange = 0;
         long maxRange = (long) (Math.pow(2, z) - 1);
@@ -258,11 +284,4 @@ public class CheckParams {
         }
     }
 
-    public static double[] toDoubles(String doubles) throws InvalidParameterException {
-        try {
-            return Arrays.stream(doubles.split(",")).mapToDouble(Double::parseDouble).toArray();
-        } catch (Exception e) {
-            throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
-        }
-    }
 }
