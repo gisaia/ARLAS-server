@@ -159,3 +159,39 @@ docker run -ti -d \
 | Environment variable | Description |
 | --- | --- |
 | ARLAS_XMX | Java Maximum Heap Size |
+
+## Helm configuration
+
+[Helm](helm.sh) is a package management system for kubernetes applications. Its packaging format is called *charts*. A Helm chart is implemented for arlas-server.
+
+A Helm chart comes with a set of default values. In our case, they are found in file [packaging/helm/arlas-server/values.yaml](https://github.com/gisaia/ARLAS-server/tree/develop/packaging/helm/arlas-server/values.yaml).
+
+When installing the chart, a user can pass its own configuration value (see [this section of the official documentation](https://docs.helm.sh/chart_template_guide/#values-files)):
+
+```
+helm install -f my_values.yaml packaging/helm/arlas-server
+```
+
+Helm will perform a merge between the two configuration sets, with priority to the user values in case of conflict.
+
+All supported configuration values can be found in [packaging/helm/arlas-server/values.yaml](https://github.com/gisaia/ARLAS-server/tree/develop/packaging/helm/arlas-server/values.yaml):
+
+| Key | Default value | Description |
+|-|-|-|
+| `adminPath` | `/admin` | Base path of the administration API. |
+| `affinity` | `{}` | Allows to declare preferences for the type of node on which arlas-server is to run (more info [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)). |
+| `containerPort` | `9999` | Port on which the arlas-server application will listen inside its container. |
+| `deployment.name` | `arlas-server` | |
+| `deployment.labels` | | Additional labels for the deployment. |
+| `environmentVariables` | | YAML map of environment variables to be passed to the container. |
+| `image.repository` | `gisaia/arlas-server` | |
+| `image.pullPolicy` | `Always` | See field `imagePullPolicy` in [kubernetes container's resource definition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.10/#container-v1-core) |
+| `imagePullSecrets` | | Array of kubernetes secrets to use for authentication to private docker registries (more info in the [official documentation page](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)). |
+| `namespace` | `default` | Kubernetes namespace where to install the Chart's components. |
+| `nodeSelector` | `{}` | See [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector) for official kubernetes documentation about `nodeSelector`. |
+| `replicaCount` | `1` | |
+| `revisionHistoryLimit` | | See [here](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#revision-history-limit). |
+| `resources` | `{}` | Resource requests & limits for the pod, see [here](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/). |
+| `service.type` | `ClusterIP` | See [here](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services---service-types). |
+| `service.port` | `9999` | Port on which arlas-server will be reachable through the service. |
+| `tolerations` | `{}` | Allow to have kubernetes worker nodes repelling arlas-server ("opposite" of affinity, see [here](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/) for more info).  |

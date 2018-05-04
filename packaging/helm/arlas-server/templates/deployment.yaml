@@ -1,0 +1,61 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "arlas-server.deployment.name" . }}
+{{ include "arlas-server.namespace" . | indent 2 }}
+  labels:
+    app: {{ template "arlas-server.name" . }}
+    chart: {{ template "arlas-server.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    {{- include "arlas-server.deployment.labels" . | indent 4 }}
+spec:
+  replicas: {{ int .Values.replicaCount }}
+{{- include "arlas-server.revisionHistoryLimit" . | indent 2 }}
+  selector:
+    matchLabels:
+      app: {{ template "arlas-server.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "arlas-server.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+{{include "arlas-server.imagePullSecrets" . | indent 6 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          ports:
+            - name: http
+              containerPort: {{ int .Values.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: "{{ .Values.adminPath }}/healthcheck"
+              port: http
+          readinessProbe:
+            httpGet:
+              path: "{{ .Values.adminPath }}/healthcheck"
+              port: http
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+          env:
+            - name: ARLAS_PORT
+              value: {{ .Values.containerPort | quote }}
+            - name: ARLAS_ADMIN_PATH
+              value: {{ .Values.adminPath | quote }}
+{{- include "arlas-server.environmentVariables" . | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

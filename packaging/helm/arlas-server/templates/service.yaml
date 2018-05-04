@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "arlas-server.fullname" . }}
+{{ include "arlas-server.namespace" . | indent 2 }}
+  labels:
+    app: {{ template "arlas-server.name" . }}
+    chart: {{ template "arlas-server.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    {{- include "arlas-server.service.labels" . | indent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "arlas-server.name" . }}
+    release: {{ .Release.Name }}

@@ -122,6 +122,8 @@ echo "=> Update project version"
 mvn clean
 mvn versions:set -DnewVersion=${ARLAS_VERSION}
 sed -i.bak 's/\"API_VERSION\"/\"'${FULL_API_VERSION}'\"/' src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
+sed -i.bak 's/^appVersion: .*$/appVersion: '${ARLAS_VERSION}'/' packaging/helm/arlas-server/Chart.yaml
+sed -i.bak 's/^version: .*$/version: '${ARLAS_VERSION}'/' packaging/helm/arlas-server/Chart.yaml
 
 if [ "$SIMULATE" == "NO" ]; then
     export DOCKERFILE="Dockerfile"
