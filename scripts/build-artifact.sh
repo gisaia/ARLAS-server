@@ -34,4 +34,4 @@ docker run --rm \
 
 echo "===> prepare arlas-server artifact"
 cp conf/configuration.yaml .
-cp target/arlas-*.jar .
+cp arlas-server/target/arlas-*.jar .

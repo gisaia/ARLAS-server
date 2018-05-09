@@ -8,7 +8,7 @@ RUN apk add --update netcat-openbsd curl && rm -rf /var/cache/apk/*
 
 # application placed into /opt/app
 WORKDIR /opt/app
-ADD target/arlas-server*.jar /opt/app/arlas-server.jar
+ADD arlas-server/target/arlas-server*.jar /opt/app/arlas-server.jar
 ADD conf/configuration.yaml /opt/app/configuration.yaml
 ADD scripts/wait-for-elasticsearch.sh /opt/app/wait-for-elasticsearch.sh
 ADD scripts/start.sh /opt/app/start.sh

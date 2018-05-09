@@ -12,7 +12,7 @@ RUN mvn verify clean --fail-never
 # build all project
 COPY . /opt/build/
 RUN mvn install \
-    && mv /opt/build/target/arlas-server-*.jar /opt/build/arlas-server.jar
+    && mv /opt/build/arlas-server/target/arlas-server-*.jar /opt/build/arlas-server.jar
 
 ###################
 # PACKAGING STAGE #

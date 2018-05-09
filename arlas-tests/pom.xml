@@ -1,0 +1,49 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.arlas</groupId>
+  <artifactId>arlas-tests</artifactId>
+  <version>5.6.3-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>ARLAS server tests</name>
+
+  <parent>
+    <groupId>io.arlas</groupId>
+    <artifactId>arlas-server-parent</artifactId>
+    <version>5.6.3-SNAPSHOT</version>
+  </parent>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.arlas</groupId>
+      <artifactId>arlas-server</artifactId>
+      <version>5.6.3-SNAPSHOT</version>
+    </dependency>
+
+    <!-- ____________________________________________________ -->
+    <!-- Tests -->
+    <!-- ____________________________________________________ -->
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+      <version>${io.rest-assured.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-core</artifactId>
+      <version>${org.hamcrest.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.20.1</version>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
