@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.arlas</groupId>
+    <artifactId>arlas-core</artifactId>
+    <version>5.6.3-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>ARLAS server core</name>
+
+    <parent>
+      <groupId>io.arlas</groupId>
+      <artifactId>arlas-server-parent</artifactId>
+      <version>5.6.3-SNAPSHOT</version>
+    </parent>
+
+    <dependencies>
+        <!-- ____________________________________________________ -->
+        <!-- DROPWIZARD -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-core</artifactId>
+            <version>${dropwizard.version}</version>
+        </dependency>
+
+        <!-- ____________________________________________________ -->
+        <!-- MONITORING -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>com.smoketurner.dropwizard</groupId>
+            <artifactId>zipkin-core</artifactId>
+            <version>${zipkin.dropwizard.version}</version>
+        </dependency>
+
+        <!-- ____________________________________________________ -->
+        <!-- SWAGGER -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>com.smoketurner</groupId>
+            <artifactId>dropwizard-swagger</artifactId>
+            <version>${dropwizard.swagger.version}</version>
+            <exclusions><exclusion><groupId>org.glassfish.jersey.containers</groupId><artifactId>jersey-container-servlet-core</artifactId></exclusion></exclusions>
+        </dependency>
+
+        <!-- ____________________________________________________ -->
+        <!-- DATABASE -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>transport</artifactId>
+            <version>${elastic.version}</version>
+        </dependency>
+
+        <!-- ____________________________________________________ -->
+        <!-- GEO -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-main</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-geojson</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools.xsd</groupId>
+            <artifactId>gt-xsd-fes</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opengis</groupId>
+            <artifactId>geoapi</artifactId>
+            <version>${geoapi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.grundid.opendatalab</groupId>
+            <artifactId>geojson-jackson</artifactId>
+            <version>${geojson.jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>
+            <version>${vivid.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.locationtech.spatial4j</groupId>
+            <artifactId>spatial4j</artifactId>
+            <version>${spatial4j.version}</version>
+        </dependency>
+
+        <!-- ____________________________________________________ -->
+        <!-- Tests -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${io.rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>${org.hamcrest.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

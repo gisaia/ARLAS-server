@@ -121,7 +121,7 @@ else echo "=> Skip develop checkout"; fi
 echo "=> Update project version"
 mvn clean
 mvn versions:set -DnewVersion=${ARLAS_VERSION}
-sed -i.bak 's/\"API_VERSION\"/\"'${FULL_API_VERSION}'\"/' src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
+sed -i.bak 's/\"API_VERSION\"/\"'${FULL_API_VERSION}'\"/' arlas-rest/src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
 sed -i.bak 's/^appVersion: .*$/appVersion: '${ARLAS_VERSION}'/' packaging/helm/arlas-server/Chart.yaml
 sed -i.bak 's/^version: .*$/version: '${ARLAS_VERSION}'/' packaging/helm/arlas-server/Chart.yaml
 
@@ -238,7 +238,7 @@ echo "=> Update project version for develop"
 mvn versions:set -DnewVersion=${ARLAS_DEV_VERSION}-SNAPSHOT
 
 echo "=> Update REST API version in JAVA source code"
-sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
+sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' arlas-rest/src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
 
 if [ "$SIMULATE" == "NO" ]; then
     git commit -a -m "development version ${ARLAS_DEV_VERSION}-SNAPSHOT"
