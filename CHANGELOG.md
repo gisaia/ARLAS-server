@@ -1,5 +1,20 @@
 # Change Log
 
+## [v6.6.0](https://github.com/gisaia/ARLAS-server/tree/v6.6.0) (2018-05-16)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v5.6.2...v6.6.0)
+
+**New stuff:**
+
+- Implement a `\_range` service that calculates the min and max values of a given field [\#269](https://github.com/gisaia/ARLAS-server/issues/269) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Exclude in search and geosearch : check that md properties are not included in the exclude patterns [\#184](https://github.com/gisaia/ARLAS-server/issues/184)
+- Helm packaging [\#264](https://github.com/gisaia/ARLAS-server/pull/264) ([elouanKeryell-Even](https://github.com/elouanKeryell-Even))
+
+**Miscellaneous:**
+
+- Simplify `GeoSearchRESTService.getFeatures\(\)` [\#273](https://github.com/gisaia/ARLAS-server/issues/273)
+- Useless `main` in `GeoTypeMapper` [\#271](https://github.com/gisaia/ARLAS-server/issues/271)
+
 ## [v5.6.2](https://github.com/gisaia/ARLAS-server/tree/v5.6.2) (2018-04-27)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v5.6.1...v5.6.2)
