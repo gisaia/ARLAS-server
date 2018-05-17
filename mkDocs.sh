@@ -59,7 +59,13 @@ docker run --rm \
 	busybox \
         sh -c '(cp /opt/maven/conf/npm/package-build.json /opt/maven/target/tmp/typescript-fetch/package.json) \
         && (cp /opt/maven/conf/npm/tsconfig-build.json /opt/maven/target/tmp/typescript-fetch/tsconfig.json)'
-        
+
+echo "=> Generate Python API and its documentation"
+docker run --rm \
+	-v $PWD:/opt/gen \
+	-v $HOME/.m2:/root/.m2 \
+	gisaia/swagger-codegen-python:2.2.3
+
 BASEDIR=$PWD
 
 cd ${BASEDIR}/target/tmp/typescript-fetch/
@@ -72,7 +78,15 @@ docker run --rm \
 	busybox \
         sh -c '(mv /opt/maven/target/tmp/typescript-fetch/typedoc_docs/ /opt/maven/target/generated-docs \
         && mv /opt/maven/target/generated-docs/typedoc_docs/ /opt/maven/target/generated-docs/typescript-doc)'
-        
+
+docker run --rm \
+    -v $PWD:/opt/maven \
+	-v $HOME/.m2:/root/.m2 \
+	busybox \
+        sh -c '(mv /opt/maven/target/tmp/python-api/docs/ /opt/maven/target/generated-docs \
+        && mv /opt/maven/target/generated-docs/docs/ /opt/maven/target/generated-docs/python-doc \
+        && mv /opt/maven/target/tmp/python-api/README.md /opt/maven/target/generated-docs/python-doc)'
+
 echo "=> Generate API documentation"
 docker run --rm \
     -w /opt/maven \
