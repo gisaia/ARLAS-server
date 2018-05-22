@@ -171,6 +171,11 @@ docker run --rm \
 	-v $HOME/.m2:/root/.m2 \
 	gisaia/swagger-codegen:2.3.1
 
+docker run --rm \
+	-v $PWD:/opt/gen \
+	-v $HOME/.m2:/root/.m2 \
+	gisaia/swagger-codegen-python:2.2.3
+
 echo "=> Build Typescript API "${FULL_API_VERSION}
 cd ${BASEDIR}/target/tmp/typescript-fetch/
 cp ${BASEDIR}/conf/npm/package-build.json package.json
@@ -189,6 +194,27 @@ npm version --no-git-tag-version ${FULL_API_VERSION}
 if [ "$SIMULATE" == "NO" ]; then
     npm publish || echo "Publishing on npm failed ... continue ..."
 else echo "=> Skip npm api publish"; fi
+
+echo "=> Build Python API "${FULL_API_VERSION}
+cd ${BASEDIR}/target/tmp/python-api/
+cp ${BASEDIR}/conf/python/setup.py setup.py
+sed -i 's/api_version/${FULL_API_VERSION}/g' setup.py
+docker run --rm \
+    -w /opt/python \
+	-v $PWD:/opt/python \
+	python:3 \
+	python setup.py sdist bdist_wheel
+
+echo "=> Publish Python API "
+if [ "$SIMULATE" == "NO" ]; then
+    docker run --rm \
+        -w /opt/python \
+    	-v $PWD:/opt/python \
+    	python:3 \
+        pip install twine & \
+        twine upload dist/*
+     ### At this stage username and password of Pypi repository should be set
+else echo "=> Skip python api publish"; fi
 
 cd ${BASEDIR}
 

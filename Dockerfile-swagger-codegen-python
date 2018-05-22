@@ -1,0 +1,11 @@
+FROM openjdk:8-jre-alpine
+WORKDIR /opt/swagger
+
+ADD swagger-codegen/modules/swagger-codegen-cli/target/swagger-codegen-cli.jar /opt/swagger/swagger-codegen-cli.jar
+ADD conf/swagger/python-config.json /opt/swagger/python-config.json
+
+CMD java -jar /opt/swagger/swagger-codegen-cli.jar generate \
+    -i /opt/gen/target/tmp/swagger.json \
+    -l python \
+    -o /opt/gen/target/tmp/python-api \
+    -c /opt/swagger/python-config.json
