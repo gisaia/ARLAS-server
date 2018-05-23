@@ -64,7 +64,7 @@ public class Documentation {
             "\n \n" +
             "       :lt:     | {fieldName}  is less than {value}                | numeric " +
             "\n \n" +
-            "       :range:  | {fieldName} is between `{comma separated [min-max] values}`. **OR** operation is applied for the specified ranges | numeric or strings";
+            "       :range:  | {fieldName} is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, then min & max should be timestamps in millisecond ";
 
     public static final String FILTER_PARAM_Q = "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}";
     public static final String FILTER_PARAM_PWITHIN = "Any element having its centroid contained within the given bbox : 'top, left, bottom, right'. ";
