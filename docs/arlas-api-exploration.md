@@ -27,8 +27,8 @@ When multiple collections are permitted ({collections}), the comma is used for s
 | https://api.gisaia.com/demo/arlas/explore/`_describe` |
 | https://api.gisaia.com/demo/arlas/explore/`city,state,country`/`_describe` |
 | https://api.gisaia.com/demo/arlas/explore/`city,state,country`/`_count`?`q=bord*`&`f=country:France`&`pretty=true` |
-| https://api.gisaia.com/demo/arlas/explore/`election`/`_search`?`f=country:France`&`f=$timestamp:range:[0;1490613808]`&`pretty=true`&`size=1000`&`include=id,name` |
-| https://api.gisaia.com/demo/arlas/explore/`election`/`_aggregate`?`f=country:France`&`f=$timestamp:range:[0;1490613808]`&`pretty=true`&`size=1000`&`include=id,name`&`agg=geohash`&`agg_interval=4` |
+| https://api.gisaia.com/demo/arlas/explore/`election`/`_search`?`f=country:France`&`f=$timestamp:range:[0<1490613808000]`&`pretty=true`&`size=1000`&`include=id,name` |
+| https://api.gisaia.com/demo/arlas/explore/`election`/`_aggregate`?`f=country:France`&`f=$timestamp:range:[0<1490613808000]`&`pretty=true`&`size=1000`&`include=id,name`&`agg=geohash`&`agg_interval=4` |
 
 All URLs are accessible both with GET and POST requests. For POST requests, URL parts are passed as a JSON representation.
 
@@ -163,22 +163,25 @@ Of course, you can combine both way to handle complex multiple filters for each 
 | **`:gt:`**    | `{fieldName}` is greater than `{value}`                                                                             | numeric            |
 | **`:lte:`**   | `{fieldName}` is less than or equal to `{value}`                                                                    | numeric            |
 | **`:lt:`**    | `{fieldName}` is less than `{value}`                                                                                | numeric            |
-| **`:range:`** | `{fieldName}` is between `{comma separated [min-max] values}`. **OR** operation is applied for the specified ranges | numeric or strings |
+| **`:range:`** | `{fieldName}` is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, min & max should be timestamps in millisecond |
 
 The `:range:` operator has a specific syntax to indicates if range bounds are taken into account or not.
 
 | Range operator syntax             | Meaning                    |
 | --------------------------------- | -------------------------- |
-| `x:range:]min;max[`               | min<x<max                  |
-| `x:range:[min;max]`               | min<=x<=max                |
-| `x:range:]min;max]`               | min<x<=max                 |
-| `x:range:[min;max[`               | min<=x<max                 |
-| `x:range:]min1;max1[,]min2;max2[` | min1<x<max1 OR min2<x<max2 |
+| `x:range:]min<max[`               | min<x<max                  |
+| `x:range:[min<max]`               | min<=x<=max                |
+| `x:range:]min<max]`               | min<x<=max                 |
+| `x:range:[min<max[`               | min<=x<max                 |
+| `x:range:]min1<max1[,]min2<max2[` | min1<x<max1 OR min2<x<max2 |
 
 On top of that, `:range:` operator supports generic aliases to represent collection configured fields :
 * `$timestamp` refers to collection's timestamp field.
 
-> Example: `f=city:eq:Toulouse&f=city:eq:Bordeaux&f=$timestamp:range:[0;1490613808]`
+> Example: `f=city:eq:Toulouse&f=city:eq:Bordeaux&f=$timestamp:range:[0<1490613808000]`
+
+!!! note
+    For `:range:` operation, if the field's type is date, then the *min* & *max* in [min<max] should be timestamps in millisecond.
 
 #### Partition filtering
 
