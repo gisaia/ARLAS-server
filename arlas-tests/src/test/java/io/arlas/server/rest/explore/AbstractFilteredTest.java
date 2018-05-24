@@ -100,10 +100,20 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString()), 3, "Chemist", "Brain Scientist");
         handleFieldFilter(header(request.filter), 3, "Chemist", "Brain Scientist");
 
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.lte, "775000||/s")));
+        handleFieldFilter(post(request), 3, "Chemist", "Brain Scientist");
+        handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString()), 3, "Chemist", "Brain Scientist");
+        handleFieldFilter(header(request.filter), 3, "Chemist", "Brain Scientist");
+
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.gt, "1250000")));
         handleFieldFilter(post(request), 3, "Chemist", "Brain Scientist");
         handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString()), 3, "Chemist", "Brain Scientist");
         handleFieldFilter(header(request.filter), 3, "Chemist", "Brain Scientist");
+
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.lte, "now-1M/y")));
+        handleFieldFilter(post(request), 595);
+        handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString()), 595);
+        handleFieldFilter(header(request.filter), 595);
 
         request.filter.f = null;
 
@@ -156,6 +166,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingTimestampRangeFilter(get("f", request.filter.f.get(0).get(0).toString()), 0, 775000, 3);
         handleMatchingTimestampRangeFilter(header(request.filter), 0, 775000, 3);
 
+        //ALIAS
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("$timestamp", OperatorEnum.range, "[0<775000||-3s/s[")));
+        handleMatchingTimestampRangeFilter(post(request), 0, 772000, 2);
+        handleMatchingTimestampRangeFilter(get("f", request.filter.f.get(0).get(0).toString()), 0, 772000, 2);
+        handleMatchingTimestampRangeFilter(header(request.filter), 0, 772000, 2);
+
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("$timestamp", OperatorEnum.range, "[770000<775000]")));
         handleMatchingTimestampRangeFilter(post(request), 770000, 775000, 2);
         handleMatchingTimestampRangeFilter(get("f", request.filter.f.get(0).get(0).toString()), 770000, 775000, 2);
@@ -168,6 +184,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingTimestampRangeFilter(header(request.filter), 0, 775000, 3);
 
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1270000<1283600]")));
+        handleNotMatchingRange(post(request));
+        handleNotMatchingRange(get("f", request.filter.f.get(0).get(0).toString()));
+        handleNotMatchingRange(header(request.filter));
+
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[now<now+2M/d]")));
         handleNotMatchingRange(post(request));
         handleNotMatchingRange(get("f", request.filter.f.get(0).get(0).toString()));
         handleNotMatchingRange(header(request.filter));
@@ -549,6 +570,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleInvalidParameters(header(request.filter));
         request.filter.f = null;
 
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.gte, "now-")));//);
+        handleInvalidParameters(post(request));
+        handleInvalidParameters(get("f", request.filter.f.get(0).get(0).toString()));
+        handleInvalidParameters(header(request.filter));
+        request.filter.f = null;
+
         //Q
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My:name"));
         handleInvalidParameters(post(request));
@@ -661,6 +688,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     protected abstract RequestSpecification givenFilterableRequestBody();
 
     protected abstract void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception;
+    protected abstract void handleFieldFilter(ValidatableResponse then, int nbResults) throws Exception;
 
     protected abstract void handleMatchingQueryFilter(ValidatableResponse then, int nbResults) throws Exception;
 

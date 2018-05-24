@@ -78,6 +78,11 @@ public class RangeServiceIT extends AbstractFieldRangeTest {
 
     @Override
     protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
+        handleFieldFilter(then, nbResults);
+    }
+
+    @Override
+    protected void handleFieldFilter(ValidatableResponse then, int nbResults) throws Exception {
         handleMatchingFilter(then, nbResults);
     }
 

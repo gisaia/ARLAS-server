@@ -24,9 +24,9 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.enumerations.MetricAggregationEnum;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.TimestampType;
-import io.arlas.server.model.enumerations.MetricAggregationEnum;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ParamsParser;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -74,7 +74,7 @@ public class FluidSearch {
     public static final String INVALID_ORDER_VALUE = "Invalid 'on-' value ";
     public static final String INVALID_GEOSORT_LAT_LON = "'lat lon' must be numeric values separated by a space";
     public static final String INVALID_GEOSORT_LABEL = "To sort by geo_distance, please specifiy the point, from which the distances are calculated, as following 'geodistance:lat lon'";
-    public static final String INVALID_TIMESTAMP_RANGE = "Timestamp range values must be numbers.";
+    public static final String INVALID_TIMESTAMP_RANGE = "Timestamp range values must be numbers or a date expression";
 
     public static final String DATEHISTOGRAM_AGG = "Datehistogram aggregation";
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
@@ -285,13 +285,8 @@ public class FluidSearch {
         Object min = value.substring(1, value.lastIndexOf("<"));
         Object max = value.substring(value.lastIndexOf("<") + 1, value.length() - 1);
         if (field.equals(collectionReference.params.timestampPath)) {
-            try {
-                min = Long.parseLong((String) min);
-                max = Long.parseLong((String) max);
-                ParamsParser.formatRangeValues((Long) min, (Long) max, collectionReference);
-            } catch (NumberFormatException e) {
-                throw new InvalidParameterException(INVALID_TIMESTAMP_RANGE);
-            }
+            CheckParams.checkTimestampFormatValidity((String) min);
+            CheckParams.checkTimestampFormatValidity((String) max);
         }
         RangeQueryBuilder ret = QueryBuilders.rangeQuery(field);
         if (incMin) {
@@ -308,6 +303,7 @@ public class FluidSearch {
             ret = ret.format(TimestampType.epoch_millis.name());
         }
         return ret;
+
     }
 
     public FluidSearch filterQ(MultiValueFilter<String> q) throws ArlasException {
