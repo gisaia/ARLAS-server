@@ -76,6 +76,11 @@ public class SearchServiceIT extends AbstractSortedTest {
                 .body("hits.data.params.job", everyItem(isOneOf(values)));
     }
 
+    protected void handleFieldFilter(ValidatableResponse then, int nbResults) throws Exception {
+        then.statusCode(200)
+                .body("totalnb", equalTo(nbResults));
+    }
+
     //----------------------------------------------------------------
     //----------------------- TEXT QUERY -----------------------------
     //----------------------------------------------------------------

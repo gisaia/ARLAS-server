@@ -209,6 +209,11 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
 
     @Override
     protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
+        handleFieldFilter(then, nbResults);
+    }
+
+    @Override
+    protected void handleFieldFilter(ValidatableResponse then, int nbResults) throws Exception {
         then.statusCode(200)
                 .body("elements.size()", equalTo(nbResults));
     }

@@ -108,6 +108,17 @@ public class ATOMSearchServiceIT extends AbstractSortedTest {
         }
     }
 
+    @Override
+    protected void handleFieldFilter(ValidatableResponse then, int nbResults) throws Exception {
+        if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
+            then.statusCode(200)
+                    .body(ATOM.XML_PREFIX + ":feed.totalResults", equalTo("" + nbResults));
+        } else {
+            then.statusCode(200)
+                    .body("totalnb", equalTo(nbResults));
+        }
+    }
+
     //----------------------------------------------------------------
     //----------------------- TEXT QUERY -----------------------------
     //----------------------------------------------------------------
