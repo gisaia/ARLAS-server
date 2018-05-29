@@ -107,7 +107,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             }
         });
 
-        bootstrap.addBundle(new AssetsBundle("/src/main/resources/assets/", "/", "index.html"));
+        bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
     }
 
     @Override
