@@ -15,28 +15,31 @@ A Collection has the following structure :
 
 ```JSON
 {
- "collection_name": "string",
- "params": {
-   "index_name": "string",
-   "type_name": "string",
-   "id_path": "string",
-   "geometry_path": "string",
-   "centroid_path": "string",
-   "timestamp_path": "string",
-   "include_fields": "string",
-   "exclude_fields": "string",
-   "custom_params": {},
-   "atom_feed": {
+  "collection_name": "string",
+  "params": {
+    "index_name": "string",
+    "type_name": "string",
+    "id_path": "string",
+    "geometry_path": "string",
+    "centroid_path": "string",
+    "timestamp_path": "string",
+    "include_fields": "string",
+    "exclude_fields": "string",
+    "custom_params": {},
+    "atom_feed": {
       ...
-   },
-   "open_search": {
+    },
+    "open_search": {
       ...
-   }
- }
-   }
+    }
+    "ratser_tiles": {
+      ...
+    }
+  }
+}
 ```
 
-The `atom_feed` and `open_search` nodes are optionals. The most important fields are:
+The `atom_feed`, `open_search` and `ratser_tiles` nodes are optionals. The most important fields are:
 
 | Attribute      | Description                                       | Mention   |
 | ---------------| ------------------------------------------------- | --------- |
@@ -141,3 +144,25 @@ The OPENSEARCH Description document of the collection can be customized with the
 |  output_encoding |  Contains a string that indicates that the search engine supports search responses encoded with the specified character encoding. The value must conform to the XML 1.0 Character Encodings, as specified by the IANA Character Set Assignments. |  Optional |
 |  url_template_prefix |  URL Template prefix for all the OPENSEARCH URLs |  Optional |
 
+## RASTER TILES
+
+If the data in the collection are metadata of images and the images are available as 256x256 px tiles through a WMTS or X/Y/Z service (top left corner is 0/0), 
+then ARLAS can, for a given tile, dynamically stack the tiles aligned with the requested one and for the images matching a given filter.
+
+```JSON
+   "ratser_tiles": {
+     "url": "string",
+     "id_path": "string",
+     "min_z": "string",
+     "max_z": "string",
+     "check_geometry": "boolean"
+   }
+```
+
+| Attribute      | Description                                       | Mention   | Default value   |
+| ---------------| ------------------------------------------------- | --------- | --------- |
+|  url |  The URL pattern of the WMTS or X/Y/Z service. It should contain variable place holders for `{x}`, `{y}`, `{z}` and `{id}`  |  Mandatory |   |
+|  id_path |  JSON path of the image id that will be injected in the URL of the tile service |  optional | id  |
+|  min_z | Min zoom supported by the tile service  |  Optional |  0 |
+|  max_z | Max zoom supported by the tile service  |  Optional |  18 |
+|  check_geometry | Whether ARLAS should check that the matching images have their geometry intersecting the requested tile. Usefull if the search returns false positives on geometric queries | Optional  | false |

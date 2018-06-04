@@ -17,32 +17,31 @@
  * under the License.
  */
 
-package io.arlas.server;
+package io.arlas.server.model;
 
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Request;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.IOException;
+public class RasterTileURL {
+    @JsonProperty(value = "url", required = true)
+    public String url = null;
 
-public abstract class AbstractTestWithCollection extends AbstractTestContext {
+    @JsonProperty(value = "id_path", required = true, defaultValue = "id")
+    public String idPath = "id";
 
-    public static String COLLECTION_NAME = CollectionTool.COLLECTION_NAME;
+    @JsonProperty(value = "min_z", required = false)
+    public int minZ = 0;
 
-    protected static Request request = new Request();
+    @JsonProperty(value = "max_z", required = false)
+    public int maxZ = 18;
 
-    static {
-        request.filter = new Filter();
-    }
+    @JsonProperty(value = "check_geometry", required = false)
+    public boolean checkGeometry = false;
 
-    @BeforeClass
-    public static void beforeClass() {
-        new CollectionTool().load(10000);
-    }
-
-    @AfterClass
-    public static void afterClass() throws IOException {
-        new CollectionTool().delete();
+    public RasterTileURL(){}
+    public RasterTileURL(String url, int minZ, int maxZ,boolean checkGeometry){
+        this.url = url;
+        this.minZ = minZ;
+        this.maxZ = maxZ;
+        this.checkGeometry = checkGeometry;
     }
 }

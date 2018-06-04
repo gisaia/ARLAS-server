@@ -71,6 +71,7 @@ docker run -ti -d \
 | ARLAS_SERVICE_OPENSEARCH_ENABLE    | arlas-service-opensearch-enabled    | true     | Whether the opensearch service is enabled or not |
 | ARLAS_SERVICE_CSW_ENABLE    | arlas-service-csw-enabled    | true     | Whether the CSW service is enabled or not |
 | ARLAS_SERVICE_TAG_ENABLE    | arlas-service-tag-enabled    | false     | Whether the tag service is enabled or not |
+| ARLAS_SERVICE_RASTER_TILES_ENABLE    | arlas-service-raster-tiles-enabled    | false     | Whether the RASTER tile service is enabled or not |
 
 
 ### Datasource
@@ -177,7 +178,7 @@ Helm will perform a merge between the two configuration sets, with priority to t
 All supported configuration values can be found in [packaging/helm/arlas-server/values.yaml](https://github.com/gisaia/ARLAS-server/tree/develop/packaging/helm/arlas-server/values.yaml):
 
 | Key | Default value | Description |
-|-|-|-|
+| --- | --- | --- |
 | `adminPath` | `/admin` | Base path of the administration API. |
 | `affinity` | `{}` | Allows to declare preferences for the type of node on which arlas-server is to run (more info [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)). |
 | `containerPort` | `9999` | Port on which the arlas-server application will listen inside its container. |

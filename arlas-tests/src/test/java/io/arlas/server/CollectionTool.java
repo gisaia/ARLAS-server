@@ -21,6 +21,7 @@ package io.arlas.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.DublinCoreElementName;
 import org.junit.Test;
 
@@ -42,23 +43,28 @@ public class CollectionTool extends AbstractTestContext {
     public static void main(String[] args) throws IOException {
         switch (args[0]) {
             case "load":
-                load(0);
+                new CollectionTool().load();
                 break;
             case "loadcsw":
-                loadCsw(0);
+                new CollectionTool().loadCsw(0);
                 break;
             case "delete":
-                delete();
+                new CollectionTool().delete();
                 break;
             case "deletecsw":
-                deleteCsw();
+                new CollectionTool().deleteCsw();
                 break;
         }
         DataSetTool.close();
     }
 
     @Test
-    public static void load(long sleepAfter) {
+    public  void load() {
+        this.load(0);
+    }
+
+    public  void load(long sleepAfter) {
+
         try {
             DataSetTool.loadDataSet();
         } catch (UnknownHostException e) {
@@ -67,19 +73,20 @@ public class CollectionTool extends AbstractTestContext {
             e.printStackTrace();
         }
 
-        Map<String, Object> jsonAsMap = new HashMap<>();
-        jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
-        jsonAsMap.put(CollectionReference.TYPE_NAME, DataSetTool.DATASET_TYPE_NAME);
-        jsonAsMap.put(CollectionReference.ID_PATH, DataSetTool.DATASET_ID_PATH);
-        jsonAsMap.put(CollectionReference.GEOMETRY_PATH, DataSetTool.DATASET_GEOMETRY_PATH);
-        jsonAsMap.put(CollectionReference.CENTROID_PATH, DataSetTool.DATASET_CENTROID_PATH);
-        jsonAsMap.put(CollectionReference.TIMESTAMP_PATH, DataSetTool.DATASET_TIMESTAMP_PATH);
-        jsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_EXCLUDE_FIELDS);
-        jsonAsMap.put(CollectionReference.EXCLUDE_WFS_FIELDS, DataSetTool.DATASET_EXCLUDE_WFS_FIELDS);
-        jsonAsMap.put(CollectionReference.TAGGABLE_FIELDS, DataSetTool.DATASET_TAGGABLE_FIELDS);
+        CollectionReferenceParameters params = new CollectionReferenceParameters();
+        params.indexName = DataSetTool.DATASET_INDEX_NAME;
+        params.typeName = DataSetTool.DATASET_TYPE_NAME;
+        params.idPath = DataSetTool.DATASET_ID_PATH;
+        params.geometryPath = DataSetTool.DATASET_GEOMETRY_PATH;
+        params.centroidPath = DataSetTool.DATASET_CENTROID_PATH;
+        params.timestampPath = DataSetTool.DATASET_TIMESTAMP_PATH;
+        params.excludeFields = DataSetTool.DATASET_EXCLUDE_FIELDS;
+        params.excludeWfsFields = DataSetTool.DATASET_EXCLUDE_WFS_FIELDS;
+        params.taggableFields = DataSetTool.DATASET_TAGGABLE_FIELDS;
+        params.rasterTileURL = DataSetTool.DATASET_TILE_URL;
 
         // PUT new collection
-        given().contentType("application/json").body(jsonAsMap).when().put(getUrlPath()).then().statusCode(200);
+        given().contentType("application/json").body(params).when().put(getUrlPath()).then().statusCode(200);
 
         try {
             Thread.sleep(sleepAfter);
@@ -89,7 +96,11 @@ public class CollectionTool extends AbstractTestContext {
     }
 
     @Test
-    public static void loadCsw(long sleepAfter) throws IOException {
+    public  void loadCsw() throws IOException {
+        this.loadCsw(0);
+    }
+
+    public  void loadCsw(long sleepAfter) throws IOException {
         try {
             DataSetTool.loadDataSet();
         } catch (UnknownHostException e) {
@@ -102,20 +113,21 @@ public class CollectionTool extends AbstractTestContext {
         ObjectMapper objectMapper = new ObjectMapper();
         DublinCoreElementName[] dcelements = objectMapper.readValue(dcelementForCollection, DublinCoreElementName[].class);
         Arrays.asList(dcelements).forEach(dublinCoreElementName -> {
-                    Map<String, Object> jsonAsMap = new HashMap<>();
-                    jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
-                    jsonAsMap.put(CollectionReference.TYPE_NAME, DataSetTool.DATASET_TYPE_NAME);
-                    jsonAsMap.put(CollectionReference.ID_PATH, DataSetTool.DATASET_ID_PATH);
-                    jsonAsMap.put(CollectionReference.GEOMETRY_PATH, DataSetTool.DATASET_GEOMETRY_PATH);
-                    jsonAsMap.put(CollectionReference.CENTROID_PATH, DataSetTool.DATASET_CENTROID_PATH);
-                    jsonAsMap.put(CollectionReference.TIMESTAMP_PATH, DataSetTool.DATASET_TIMESTAMP_PATH);
-                    jsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_EXCLUDE_FIELDS);
-                    jsonAsMap.put(CollectionReference.EXCLUDE_WFS_FIELDS, DataSetTool.DATASET_EXCLUDE_WFS_FIELDS);
-                    jsonAsMap.put(CollectionReference.TAGGABLE_FIELDS, DataSetTool.DATASET_TAGGABLE_FIELDS);
-                    jsonAsMap.put("dublin_core_element_name", dublinCoreElementName);
+                    CollectionReferenceParameters params = new CollectionReferenceParameters();
+                    params.indexName = DataSetTool.DATASET_INDEX_NAME;
+                    params.typeName = DataSetTool.DATASET_TYPE_NAME;
+                    params.idPath = DataSetTool.DATASET_ID_PATH;
+                    params.geometryPath = DataSetTool.DATASET_GEOMETRY_PATH;
+                    params.centroidPath = DataSetTool.DATASET_CENTROID_PATH;
+                    params.timestampPath = DataSetTool.DATASET_TIMESTAMP_PATH;
+                    params.excludeFields = DataSetTool.DATASET_EXCLUDE_FIELDS;
+                    params.excludeWfsFields = DataSetTool.DATASET_EXCLUDE_WFS_FIELDS;
+                    params.taggableFields = DataSetTool.DATASET_TAGGABLE_FIELDS;
+                    params.rasterTileURL = DataSetTool.DATASET_TILE_URL;
+                    params.dublinCoreElementName=dublinCoreElementName;
                     String url = arlasPath + "collections/" + dublinCoreElementName.title.split(" ")[0].toLowerCase();
                     // PUT new collection
-                    given().contentType("application/json").body(jsonAsMap).when().put(url).then().statusCode(200);
+                    given().contentType("application/json").body(params).when().put(url).then().statusCode(200);
                 }
         );
         try {
@@ -125,13 +137,13 @@ public class CollectionTool extends AbstractTestContext {
         }
     }
 
-    public static void delete() throws IOException {
+    public  void delete() throws IOException {
         DataSetTool.clearDataSet();
         //DELETE collection
         when().delete(getUrlPath()).then().statusCode(200);
     }
 
-    public static void deleteCsw() throws IOException {
+    public  void deleteCsw() throws IOException {
         DataSetTool.clearDataSet();
         InputStreamReader dcelementForCollection = new InputStreamReader(CollectionTool.class.getClassLoader().getResourceAsStream("csw.collection.dcelements.json"));
         ObjectMapper objectMapper = new ObjectMapper();

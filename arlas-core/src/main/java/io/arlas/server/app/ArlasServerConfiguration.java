@@ -97,6 +97,8 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("arlas-service-tag-enabled")
     public Boolean arlasServiceTagEnabled;
 
+    @JsonProperty("arlas-service-raster-tiles-enabled")
+    public Boolean arlasServiceRasterTileEnabled;
 
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
@@ -164,6 +166,9 @@ public class ArlasServerConfiguration extends Configuration {
         }
         if(arlasServiceTagEnabled==null){
             arlasServiceTagEnabled=false;
+        }
+        if(arlasServiceRasterTileEnabled==null){
+            arlasServiceRasterTileEnabled=false;
         }
         if(collectionAutoDiscoverConfiguration == null) {
             collectionAutoDiscoverConfiguration = new CollectionAutoDiscoverConfiguration();

@@ -63,6 +63,8 @@ function test_rest() {
     export ARLAS_APP_PATH="/pathtest"
     export ARLAS_SERVICE_TAG_ENABLE=true
     export ARLAS_SERVICE_WFS_ENABLE=true
+    export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
+    export ARLAS_TILE_URL="jar:file:///opt/app/arlas-server.jar!/{id}/{z}/{x}/{y}.png"
     start_stack
     docker run --rm \
         -w /opt/maven \
@@ -73,6 +75,8 @@ function test_rest() {
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
         -e ARLAS_SERVICE_TAG_ENABLE=${ARLAS_SERVICE_TAG_ENABLE} \
+        -e ARLAS_SERVICE_RASTER_TILES_ENABLE=${ARLAS_SERVICE_RASTER_TILES_ENABLE} \
+        -e ARLAS_TILE_URL=${ARLAS_TILE_URL} \
         -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
