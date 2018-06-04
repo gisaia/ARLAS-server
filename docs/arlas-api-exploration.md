@@ -163,7 +163,7 @@ Of course, you can combine both way to handle complex multiple filters for each 
 | **`:gt:`**    | `{fieldName}` is greater than `{value}`                                                                             | numeric            |
 | **`:lte:`**   | `{fieldName}` is less than or equal to `{value}`                                                                    | numeric            |
 | **`:lt:`**    | `{fieldName}` is less than `{value}`                                                                                | numeric            |
-| **`:range:`** | `{fieldName}` is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, min & max should be timestamps in millisecond |
+| **`:range:`** | `{fieldName}` is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, min & max should be timestamps in millisecond or [Date expression](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math) |
 
 The `:range:` operator has a specific syntax to indicates if range bounds are taken into account or not.
 
@@ -181,7 +181,18 @@ On top of that, `:range:` operator supports generic aliases to represent collect
 > Example: `f=city:eq:Toulouse&f=city:eq:Bordeaux&f=$timestamp:range:[0<1490613808000]`
 
 !!! note
-    For `:range:` operation, if the field's type is date, then the *min* & *max* in [min<max] should be timestamps in millisecond.
+    For `:range:`, `lt`, `lte`, `gt` and `gte` operation, if the field's type is date, then the values should be timestamps in millisecond or a [Date expression](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math).
+
+!!! note
+    Date expressions start with a date value. It can either be "now" or timestamp in millisecond followed by "||".
+    The date value is followed by one or two opeations :
+    - +1h : add one hour
+    - -1M : substract one month
+    - /d : round up or down to the nearest day
+    The resulted date is rounded up for `lte` and `gt` and rounded down for `lt` and `gte`
+
+ > The date expression: `timestamp:gte:now-1M/M` substracts 1 month from now then the resulted date is rounded down to the beginning of the month.
+ > Assuming `now` is 2018-06-15. `timestamp:gte:now-1M/M` is equivalent to `timestamp:gte:2016-05-01`
 
 #### Partition filtering
 

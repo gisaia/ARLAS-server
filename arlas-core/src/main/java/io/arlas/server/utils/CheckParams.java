@@ -26,7 +26,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotAllowedException;
-import io.arlas.server.model.CollectionReferenceParameters;
+import io.arlas.server.model.enumerations.DateUnitEnum;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.RangeResponse;
 import org.elasticsearch.search.sort.SortOrder;
@@ -42,9 +42,11 @@ public class CheckParams {
     private static final String POLYGON_TYPE = "POLYGON";
     private static final String INVALID_SORT_PARAMETER = "Invalid sort syntax. Please use the following syntax : 'fieldName:ASC' or 'fieldName:DESC'. ";
     private static final String INVALID_XYZ_PARAMETER = "Z must be between 0 and 22. X and Y must be between 0 and (2^Z-1)";
-    private static final String INVALID_DATE_UNIT = "Invalid date unit. Please use the following list : year,quarter,month,week,day,hour,minute,second. ";
-    private static final String INVALID_DATE_SIZE = "Invalid date size. Please specify an integer. ";
-    private static final String INVALID_DATE_INTERVAL = "Invalid date interval. Please use the following syntax : '{size}(year,quarter,month,week,day,hour,minute,second). ";
+    private static final String INVALID_DATE_MATH_UNIT = "Invalid date math unit. Please use the following list : y, M, w, d, h, H, m, s. ";
+    private static final String INVALID_DATE_MATH_VALUE = "Invalid date math value. Please specify an integer. ";
+    private static final String INVALID_DATE_MATH_OPERATOR = "Invalid date math operator. Please use the following list : /, +, -";
+    private static final String MISSING_DATE_MATH_UNIT = "Missing date math unit";
+    private static final String INVALID_DATE_MATH_EXPRESSION = "Invalid date math expression";
     private static final String OUTRANGE_GEOHASH_PRECISION = "Precision must be between 1 and 12. ";
     private static final String INVALID_PRECISION_TYPE = "Precision must be an integer between 1 and 12. ";
     private static final String INVALID_INTERVAL_TYPE = "Interval must be numeric. ";
@@ -54,6 +56,7 @@ public class CheckParams {
     private static final String INVALID_RANGE_FIELD = "The field name/path should not be null.";
     private static final String UNEXISTING_FIELD = "The field name/pattern doesn't exist in the collection";
     private static final String MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD = "Infinity";
+    private static final String DATE_NOW = "now";
     private static Logger LOGGER = LoggerFactory.getLogger(CheckParams.class);
 
     public CheckParams() {
@@ -155,7 +158,34 @@ public class CheckParams {
 
     public static void checkTimestampFormatValidity(String timestamp) throws ArlasException {
         if (tryParseLong(timestamp) == null) {
-            throw new InvalidParameterException(FluidSearch.INVALID_TIMESTAMP_RANGE);
+            // Check date math validity
+            if (timestamp.length() >= 3) {
+                // Check if the anchor date is equal to "now"
+                if (timestamp.substring(0, 3).equals(DATE_NOW)) {
+                    if (timestamp.length() > 3) {
+                        String postAnchor = timestamp.substring(3);
+                        checkPostAnchorValidity(postAnchor);
+                    }
+                } else {
+                    // If the anchor date is not equal to "now", then it should be a millisecond timestamp ending with "||"
+                    if (timestamp.contains("||")) {
+                        String[] operands = timestamp.split("\\|\\|");
+                        if (tryParseLong(operands[0]) == null) {
+                            throw new InvalidParameterException(FluidSearch.INVALID_TIMESTAMP_RANGE);
+                        } else {
+                            if (operands.length == 1) {
+                                throw new InvalidParameterException(INVALID_DATE_MATH_EXPRESSION);
+                            } else {
+                                checkPostAnchorValidity(operands[1]);
+                            }
+                        }
+                    } else {
+                        throw new InvalidParameterException(FluidSearch.INVALID_TIMESTAMP_RANGE);
+                    }
+                }
+            } else {
+                throw new InvalidParameterException(FluidSearch.INVALID_TIMESTAMP_RANGE);
+            }
         }
     }
 
@@ -274,6 +304,59 @@ public class CheckParams {
             return Arrays.stream(doubles.split(",")).mapToDouble(Double::parseDouble).toArray();
         } catch (Exception e) {
             throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+        }
+    }
+
+    private static void checkPostAnchorValidity(String postAnchor) throws ArlasException{
+        // Check if it starts with an operator
+        // "/" operator is for rounding the date up or down
+        String op = postAnchor.substring(0, 1);
+        if (!op.equals("/") && !op.equals("-") && !op.equals("+")) {
+            throw new InvalidParameterException(INVALID_DATE_MATH_OPERATOR);
+        } else {
+            if (op.equals("/")) {
+                // If the operator is "/", it should be followed by one character : a date math unit,
+                if (postAnchor.length() == 2) {
+                    checkDateMathUnit(postAnchor.substring(1, 2));
+                } else {
+                    throw new InvalidParameterException(INVALID_DATE_MATH_EXPRESSION);
+                }
+            } else {
+                if (op.equals("+") || op.equals("-")) {
+                    // example of postAnchor value : -2h/M
+                    if (postAnchor.length() > 1) {
+                        String[] operands = postAnchor.substring(1).split("/");
+                        //translationDuration == 2
+                        String translationDuration = operands[0].substring(0, operands[0].length() - 1);
+                        if (tryParseInteger(translationDuration) == null) {
+                            throw new InvalidParameterException(INVALID_DATE_MATH_VALUE);
+                        }
+                        //translationUnit == h
+                        String translationUnit = operands[0].substring(operands[0].length() - 1);
+                        checkDateMathUnit(translationUnit);
+                        if (operands.length == 2) {
+                            // roundingUnit == M
+                            String roundingUnit = operands[1];
+                            checkDateMathUnit(roundingUnit);
+                        } else {
+                            if (postAnchor.substring(1).contains("/")) {
+                                throw new InvalidParameterException(MISSING_DATE_MATH_UNIT);
+                            }
+                        }
+                    } else {
+                        throw new InvalidParameterException(INVALID_DATE_MATH_EXPRESSION);
+                    }
+
+                }
+            }
+        }
+    }
+
+    private static void checkDateMathUnit(String unit) throws ArlasException{
+        try {
+            DateUnitEnum.valueOf(unit);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidParameterException(INVALID_DATE_MATH_UNIT);
         }
     }
 

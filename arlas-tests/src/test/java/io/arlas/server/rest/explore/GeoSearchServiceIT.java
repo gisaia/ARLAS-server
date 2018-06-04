@@ -79,6 +79,11 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     }
 
     @Override
+    protected void handleFieldFilter(ValidatableResponse then, int nbResults) throws Exception {
+        then.statusCode(200);
+    }
+
+    @Override
     protected void handleMatchingQueryFilter(ValidatableResponse then, int nbResults) throws Exception {
         then.statusCode(200)
                 .body("features.size()", equalTo(Math.min(nbResults, 10)));//get only default sized result array
