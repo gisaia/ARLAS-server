@@ -17,32 +17,23 @@
  * under the License.
  */
 
-package io.arlas.server;
+package io.arlas.server.utils;
 
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Request;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import java.awt.image.BufferedImage;
 
-import java.io.IOException;
+public class ImageUtil {
 
-public abstract class AbstractTestWithCollection extends AbstractTestContext {
 
-    public static String COLLECTION_NAME = CollectionTool.COLLECTION_NAME;
-
-    protected static Request request = new Request();
-
-    static {
-        request.filter = new Filter();
-    }
-
-    @BeforeClass
-    public static void beforeClass() {
-        new CollectionTool().load(10000);
-    }
-
-    @AfterClass
-    public static void afterClass() throws IOException {
-        new CollectionTool().delete();
+    public static int coverage(BufferedImage img, int sampling){
+        if(img==null){return 0;}
+        int count = 0;
+        for (int y = 0; y < img.getHeight(); y += sampling) {
+            for (int x = 0; x < img.getWidth(); x += sampling) {
+                if ((img.getRGB(x, y) >> 24) != 0x00) {
+                    count++;
+                }
+            }
+        }
+        return (100 * count) / ((img.getHeight() / sampling) * (img.getWidth() / sampling));
     }
 }

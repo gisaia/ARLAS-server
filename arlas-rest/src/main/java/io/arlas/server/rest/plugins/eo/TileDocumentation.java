@@ -17,32 +17,9 @@
  * under the License.
  */
 
-package io.arlas.server;
+package io.arlas.server.rest.plugins.eo;
 
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Request;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-
-import java.io.IOException;
-
-public abstract class AbstractTestWithCollection extends AbstractTestContext {
-
-    public static String COLLECTION_NAME = CollectionTool.COLLECTION_NAME;
-
-    protected static Request request = new Request();
-
-    static {
-        request.filter = new Filter();
-    }
-
-    @BeforeClass
-    public static void beforeClass() {
-        new CollectionTool().load(10000);
-    }
-
-    @AfterClass
-    public static void afterClass() throws IOException {
-        new CollectionTool().delete();
-    }
+public class TileDocumentation {
+    public static final String TILE_SAMPLING = "Size of the sampling for testing transparency: 1: test every pixel, 10: test 1 pixel every 10 pixels, etc.";
+    public static final String TILE_COVERAGE = "Percentage (]0-100]) of acceptable transparent pixels. Higher the percentage, more tiles could be used for filling the tile";
 }

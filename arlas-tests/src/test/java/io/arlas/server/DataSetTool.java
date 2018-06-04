@@ -22,6 +22,7 @@ package io.arlas.server;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.model.RasterTileURL;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.index.IndexResponse;
@@ -58,6 +59,7 @@ public class DataSetTool {
     public final static String DATASET_TAGGABLE_FIELDS="params.tags,params.job";
     public final static String DATASET_EXCLUDE_WFS_FIELDS="params.country";
     public final static String DATASET_TIMESTAMP_FORMAT = "epoch_millis";
+    public final static RasterTileURL DATASET_TILE_URL = new RasterTileURL(Optional.ofNullable(System.getenv("ARLAS_TILE_URL")).orElse("{id}/{z}/{x}/{y}.png"),5,18,true);
     public static final String[] jobs = {"Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter"};
     public static final String[] cities = {"Paris", "London", "New York", "Tokyo", "Toulouse", "Marseille", "Lyon", "Bordeaux", "Lille", "Albi", "Calais"};
     public static final String[] countries = {"Afghanistan",

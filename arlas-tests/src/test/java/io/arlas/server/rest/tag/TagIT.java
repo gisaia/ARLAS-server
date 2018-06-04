@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.function.Function;
 
 import static io.restassured.RestAssured.given;
@@ -59,8 +60,8 @@ public class TagIT extends AbstractTestContext {
     }
 
     @After
-    public void after(){
-        AbstractTestWithCollection.beforeClass();
+    public void after() throws IOException {
+        AbstractTestWithCollection.afterClass();
     }
 
     @Test

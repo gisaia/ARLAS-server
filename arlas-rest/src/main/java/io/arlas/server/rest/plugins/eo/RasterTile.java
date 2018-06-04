@@ -17,32 +17,26 @@
  * under the License.
  */
 
-package io.arlas.server;
+package io.arlas.server.rest.plugins.eo;
 
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Request;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.utils.Tile;
 
-import java.io.IOException;
+import java.awt.image.BufferedImage;
 
-public abstract class AbstractTestWithCollection extends AbstractTestContext {
-
-    public static String COLLECTION_NAME = CollectionTool.COLLECTION_NAME;
-
-    protected static Request request = new Request();
-
-    static {
-        request.filter = new Filter();
+public class RasterTile extends Tile {
+	BufferedImage img;
+	
+	public RasterTile(int x, int y, int z, BufferedImage img) throws ArlasException {
+		super(x,y,z);
+		this.img = img;
     }
 
-    @BeforeClass
-    public static void beforeClass() {
-        new CollectionTool().load(10000);
-    }
+	public BufferedImage getImg() {
+		return img;
+	}
 
-    @AfterClass
-    public static void afterClass() throws IOException {
-        new CollectionTool().delete();
-    }
+	public void setImg(BufferedImage img) {
+		this.img = img;
+	}
 }

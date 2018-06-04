@@ -17,32 +17,14 @@
  * under the License.
  */
 
-package io.arlas.server;
+package io.arlas.server.rest.plugins.eo;
 
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Request;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import cyclops.control.Try;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.utils.Tile;
 
-import java.io.IOException;
+import java.util.Optional;
 
-public abstract class AbstractTestWithCollection extends AbstractTestContext {
-
-    public static String COLLECTION_NAME = CollectionTool.COLLECTION_NAME;
-
-    protected static Request request = new Request();
-
-    static {
-        request.filter = new Filter();
-    }
-
-    @BeforeClass
-    public static void beforeClass() {
-        new CollectionTool().load(10000);
-    }
-
-    @AfterClass
-    public static void afterClass() throws IOException {
-        new CollectionTool().delete();
-    }
+public interface TileProvider <TILE_RESULT extends Tile> {
+    public Try<Optional<TILE_RESULT>,ArlasException> getTile(Tile tile);
 }
