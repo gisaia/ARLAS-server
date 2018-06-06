@@ -56,7 +56,7 @@ public class GeoTypeMapper {
                 && ((ArrayList) elasticsearchGeoField).size() == 2) {
             //Standard lon/lat array as geo_point field
             try {
-                geoObject = new Point((Double) ((ArrayList) elasticsearchGeoField).get(0), (Double) ((ArrayList) elasticsearchGeoField).get(1));
+                geoObject = new Point(((Number) ((ArrayList) elasticsearchGeoField).get(0)).doubleValue(), ((Number) ((ArrayList) elasticsearchGeoField).get(1)).doubleValue());
             } catch (Exception e) {
                 LOGGER.error("unable to parse geo_point from " + elasticsearchGeoField.getClass() + " :" + elasticsearchGeoField, e);
                 throw new NotImplementedException("Not supported geo_point format found.");
@@ -73,7 +73,7 @@ public class GeoTypeMapper {
             } else if (((HashMap) elasticsearchGeoField).containsKey("lat") &&
                     ((HashMap) elasticsearchGeoField).containsKey("lon")) {
                 try {
-                    geoObject = new Point(((Double) ((HashMap) elasticsearchGeoField).get("lon")), ((Double) ((HashMap) elasticsearchGeoField).get("lat")));
+                    geoObject = new Point(((Number) ((HashMap) elasticsearchGeoField).get("lon")).doubleValue(), ((Number) ((HashMap) elasticsearchGeoField).get("lat")).doubleValue());
                 } catch (Exception e) {
                     LOGGER.error("unable to parse geo_point from " + elasticsearchGeoField.getClass() + " :" + elasticsearchGeoField, e);
                     throw new NotImplementedException("Not supported geo_point format found.");
