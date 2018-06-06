@@ -17,26 +17,14 @@
  * under the License.
  */
 
-package io.arlas.server.rest.explore.opensearch.model;
+package io.arlas.server.app;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Url {
+public class OpensearchConfiguration {
 
-    public static enum REL {results, suggestions, self, collection}
+    public static final String COLLECTION_PLACEMARK = "COLLECTION";
 
-    @XmlAttribute(name = "template")
-    public String template = "";
-
-    @XmlAttribute(name = "type")
-    public String type = "";
-
-    @XmlAttribute(name = "rel")
-    public REL rel;
-
-    @XmlAttribute(name = "indexOffset")
-    public String indexOffset = "";
-
-    @XmlAttribute(name = "pageOffset")
-    public String pageOffset = "";
+    @JsonProperty("url-template-prefix")
+    public String urlTemplatePrefix;
 }

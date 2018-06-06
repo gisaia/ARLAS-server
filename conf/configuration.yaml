@@ -120,3 +120,9 @@ arlas-ogc:
 arlas-csw:
   openSearchDescription: ${ARLAS_CSW_OPENSEARCH_DESCRIPTION:-Geo-BigData Collection Catalog}
   openSearchShortName: ${ARLAS_CSW_OPENSEARCH_SHORTNAME:-Geo-Catalog}
+
+########################################################
+############ OPENSEARCH                  ###############
+########################################################
+opensearch:
+  url-template-prefix: ${ARLAS_OPENSEARCH_URL_TEMPLATE:-http://localhost:9999/arlas/explore/COLLECTION/_search} # If the placemark COLLECTION is specified in the url template, it will be replaced by the collection name in ARLAS server.
