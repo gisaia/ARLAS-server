@@ -29,6 +29,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.common.Strings;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +44,9 @@ public class ArlasServerConfiguration extends Configuration {
 
     @JsonProperty("arlas-csw")
     public CSWConfiguration cswConfiguration;
+
+    @JsonProperty("opensearch")
+    public OpensearchConfiguration opensearchConfiguration;
 
     @JsonProperty("zipkin")
     public ZipkinFactory zipkinConfiguration;
@@ -136,6 +141,13 @@ public class ArlasServerConfiguration extends Configuration {
         }
         if (swaggerBundleConfiguration == null) {
             throw new ArlasConfigurationException("Swagger configuration missing in config file.");
+        }
+        if (opensearchConfiguration != null && opensearchConfiguration.urlTemplatePrefix != null) {
+            try {
+                URI uri = new URI(opensearchConfiguration.urlTemplatePrefix);
+            } catch (URISyntaxException e) {
+                throw new ArlasConfigurationException("The url-template-prefix of Opensearch is invalid.");
+            }
         }
         if (Strings.isNullOrEmpty(arlasindex)) {
             arlasindex = ".arlas";
