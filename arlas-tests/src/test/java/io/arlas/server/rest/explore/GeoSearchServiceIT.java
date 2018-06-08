@@ -75,7 +75,8 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     @Override
     protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
         then.statusCode(200)
-                .body("features.properties.params.job", everyItem(isOneOf(values)));
+                .body("features.properties.params.job", everyItem(isOneOf(values)))
+                .body("features.properties.feature_type", everyItem(equalTo("hit")));
     }
 
     @Override

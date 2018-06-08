@@ -54,6 +54,10 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         super(exploreServices);
     }
 
+    private static final String FEATURE_TYPE_KEY = "feature_type";
+    private static final String FEATURE_TYPE_VALUE = "hit";
+
+
     @Timed
     @Path("{collection}/_geosearch")
     @GET
@@ -481,6 +485,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                 feature.setGeometry(centroidGeoJson);
             }
             feature.setProperties(hit.getSourceAsMap());
+            feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
             fc.add(feature);
         }
         return fc;
