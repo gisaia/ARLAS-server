@@ -186,7 +186,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         if(configuration.arlasServiceOPENSEARCHEnabled){
             LOGGER.info("OPENSEARCH Service enabled");
-            environment.jersey().register(new OpenSearchDescriptorService(exploration));
+            OpensearchConfiguration opensearchConfiguration = configuration.opensearchConfiguration;
+            environment.jersey().register(new OpenSearchDescriptorService(exploration, opensearchConfiguration));
         } else {
             LOGGER.info("OPENSEARCH Service disabled");
         }

@@ -20,6 +20,7 @@
 package io.arlas.server.rest.explore.opensearch;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.app.OpensearchConfiguration;
 import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
@@ -53,13 +54,15 @@ import java.util.concurrent.ExecutionException;
 
 public class OpenSearchDescriptorService extends ExploreRESTServices {
     ElasticAdmin admin;
+    OpensearchConfiguration opensearchConfiguration;
 
     @Context
     UriInfo uri;
 
-    public OpenSearchDescriptorService(ExploreServices exploreServices) {
+    public OpenSearchDescriptorService(ExploreServices exploreServices, OpensearchConfiguration opensearchConfiguration) {
         super(exploreServices);
         this.admin = new ElasticAdmin(exploreServices.getClient());
+        this.opensearchConfiguration = opensearchConfiguration;
     }
 
     public static final String MIME_TYPE_XML = "application/xml";
@@ -99,8 +102,9 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
         //[scheme:][//authority][path][?query][#fragment]
         if (cr.params.openSearch != null) {
             OpenSearch os = cr.params.openSearch;
-            if (!Strings.isNullOrEmpty(os.urlTemplatePrefix)) {
-                prefix = os.urlTemplatePrefix;
+            if (opensearchConfiguration != null && opensearchConfiguration.urlTemplatePrefix != null) {
+                prefix = opensearchConfiguration.urlTemplatePrefix;
+                prefix = prefix.replace(OpensearchConfiguration.COLLECTION_PLACEMARK, collection);
             }
             description.adultContent = os.adultContent;
             description.attribution = os.attribution;

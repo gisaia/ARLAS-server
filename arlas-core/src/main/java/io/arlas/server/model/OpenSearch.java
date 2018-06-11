@@ -19,9 +19,12 @@
 
 package io.arlas.server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class OpenSearch {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class  OpenSearch {
+
     @JsonProperty(value = "short_name", required = false)
     public String shortName = "";
 
@@ -69,7 +72,4 @@ public class OpenSearch {
 
     @JsonProperty(value = "output_encoding", required = false)
     public String outputEncoding = "";
-
-    @JsonProperty(value = "url_template_prefix", required = false)
-    public String urlTemplatePrefix = "";
 }

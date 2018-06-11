@@ -133,6 +133,14 @@ docker run -ti -d \
 | --- | --- | --- |
 | ARLAS_WFS_FEATURE_NAMESPACE | arlas-wfs.queryMaxFeature | arlas |
 
+### OPENSEARCH
+
+| Environment variable | ARLAS Server configuration variable | Default |
+| --- | --- | --- |
+| ARLAS_OPENSEARCH_URL_TEMPLATE | opensearch.url-template-prefix | http://localhost:9999/arlas/explore/COLLECTION/_search |
+
+> Note :  If the placemark COLLECTION is specified in the url template, then it will be replaced by the collection name by ARLAS server.
+
 ### Logging
 
 | Environment variable | ARLAS Server configuration variable | Default |
