@@ -35,6 +35,7 @@ import io.arlas.server.ogc.csw.writer.record.AtomRecordMessageBodyWriter;
 import io.arlas.server.ogc.csw.writer.record.XmlRecordMessageBodyWriter;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.WFSService;
+import io.arlas.server.rest.plugins.eo.TileRESTService;
 import io.arlas.server.utils.PrettyPrintFilter;
 import io.arlas.server.rest.collections.ElasticCollectionService;
 import io.arlas.server.services.ExploreServices;
@@ -204,6 +205,14 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         }else{
             LOGGER.info("Tag Service disabled");
         }
+
+        if(configuration.arlasServiceRasterTileEnabled){
+            LOGGER.info("Raster Tile Service enabled");
+            environment.jersey().register(new TileRESTService(updateServices));
+        }else{
+            LOGGER.info("Raster Tile Service disabled");
+        }
+
         //filters
         environment.jersey().register(PrettyPrintFilter.class);
         environment.jersey().register(InsensitiveCaseFilter.class);

@@ -19,19 +19,27 @@
 
 package io.arlas.server.utils;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotImplementedException;
 import org.apache.lucene.geo.Rectangle;
 import org.elasticsearch.common.geo.GeoHashUtils;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 public class GeoTileUtil {
 
     public static final String INVALID_GEOHASH = "Invalid geohash";
-
+    private static final GeometryFactory geoFactory = new GeometryFactory();
     public static BoundingBox getBoundingBox(final Tile tile) {
         return getBoundingBox(tile.getxTile(), tile.getyTile(), tile.getzTile());
+    }
+
+    public static Polygon toPolygon(BoundingBox bbox){
+        return (Polygon)geoFactory.toGeometry(new ReferencedEnvelope(bbox.east, bbox.west, bbox.north, bbox.south, DefaultGeographicCRS.WGS84));
     }
 
     public static BoundingBox getBoundingBox(final String geohash) throws ArlasException {

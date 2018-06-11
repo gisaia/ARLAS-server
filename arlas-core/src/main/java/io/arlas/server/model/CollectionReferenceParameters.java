@@ -70,6 +70,9 @@ public class CollectionReferenceParameters {
     @JsonProperty(value = "dublin_core_element_name", required = false)
     public DublinCoreElementName dublinCoreElementName = new DublinCoreElementName();
 
+    @JsonProperty(value = "raster_tile_url", required = false)
+    public RasterTileURL rasterTileURL = null;
+
     public CollectionReferenceParameters() {
     }
 }
