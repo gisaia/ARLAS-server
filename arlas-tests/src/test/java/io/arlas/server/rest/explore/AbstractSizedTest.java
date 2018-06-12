@@ -126,15 +126,17 @@ public abstract class AbstractSizedTest extends AbstractFilteredTest {
     //---------------------- ValidatableResponse ------------------
     //----------------------------------------------------------------
 
-    protected ValidatableResponse post(Request request) {
-        return givenBigSizedRequestParamsPost().body(request)
-                .when().post(getUrlPath("geodata"))
-                .then();
-    }
-
     protected ValidatableResponse get(String param, Object paramValue) {
-        return givenBigSizedRequestParams().param(param, paramValue)
+        return givenFilterableRequestBody().param(param, paramValue)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
+    private ValidatableResponse post(Request request) {
+        RequestSpecification req = givenBigSizedRequestParamsPost();
+        return req.body(handlePostRequest(request))
+                .when().post(getUrlPath("geodata"))
+                .then();
+    }
+    protected Request handlePostRequest(Request req){return req;}
+
 }

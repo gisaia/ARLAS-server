@@ -132,6 +132,12 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "pretty") Boolean pretty,
 
+            @ApiParam(name = "flat", value = Documentation.FORM_FLAT,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required = false)
+            @QueryParam(value = "flat") Boolean flat,
+
             // --------------------------------------------------------
             // -----------------------  PROJECTION   -----------------------
             // --------------------------------------------------------
@@ -202,7 +208,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         request.headerRequest = searchHeader;
 
-        FeatureCollection fc = getFeatures(collectionReference, request);
+        FeatureCollection fc = getFeatures(collectionReference, request, (flat!=null && flat));
         return cache(Response.ok(fc), maxagecache);
     }
 
@@ -299,6 +305,12 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "pretty") Boolean pretty,
 
+            @ApiParam(name = "flat", value = Documentation.FORM_FLAT,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required = false)
+            @QueryParam(value = "flat") Boolean flat,
+
             // --------------------------------------------------------
             // -----------------------  PROJECTION   -----------------------
             // --------------------------------------------------------
@@ -375,6 +387,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     notgintersect,
                     partitionFilter,
                     pretty,
+                    flat,
                     include,
                     exclude,
                     size,
@@ -426,7 +439,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     defaultValue = "false",
                     required = false)
             @QueryParam(value = "pretty") Boolean pretty,
-
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
@@ -445,11 +457,11 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         request.headerRequest = searchHeader;
 
-        FeatureCollection fc = getFeatures(collectionReference, request);
+        FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat));
         return cache(Response.ok(fc), maxagecache);
     }
 
-    protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
+    protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request, boolean flat) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
         FeatureCollection fc = new FeatureCollection();
         SearchHit[] results = searchHits.getHits();
@@ -484,7 +496,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             } else if (centroidGeoJson != null) {
                 feature.setGeometry(centroidGeoJson);
             }
-            feature.setProperties(hit.getSourceAsMap());
+            feature.setProperties(flat?MapExplorer.flat(hit.getSourceAsMap(),new MapExplorer.ReduceArrayOnKey("_")):hit.getSourceAsMap());
             feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
             fc.add(feature);
         }

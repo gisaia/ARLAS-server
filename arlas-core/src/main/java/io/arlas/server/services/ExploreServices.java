@@ -29,6 +29,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationMetric;
 import io.arlas.server.model.response.AggregationResponse;
+import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ResponseCacheManager;
 import io.arlas.server.model.enumerations.CollectionFunction;
 import io.arlas.server.utils.CheckParams;
@@ -50,7 +51,12 @@ import org.geojson.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class ExploreServices {
     private Client client;
@@ -283,6 +289,52 @@ public class ExploreServices {
             }
         });
         return aggregationResponse;
+    }
+
+
+    public Map<String, Object> flat(AggregationResponse element, Function<Map<List<String>, Object>,Map<String, Object>> keyStringifier, Predicate<String> keyPartFiler) {
+        Map<List<String>, Object> flatted= new HashMap<>();
+        flat(flatted,element,new ArrayList<>());
+        return keyStringifier.apply(flatted.entrySet().stream().collect(Collectors.toMap(e->e.getKey().stream().filter(keyPartFiler).collect(Collectors.toList()), e->e.getValue())));
+    }
+
+    public Map<String,Object> flat(AggregationResponse element, Function<Map<List<String>, Object>,Map<String, Object>> keyStringifier) {
+        Map<List<String>,Object> flatted = new HashMap<>();
+        flat(flatted, element, new ArrayList<>());
+        return keyStringifier.apply(flatted);
+    }
+
+
+    private void flat(Map<List<String>,Object> flat, AggregationResponse element, List<String> keyParts){
+        addToFlat(flat, keyParts, "count",element.count);
+        addToFlat(flat, keyParts, "key",element.key);
+        addToFlat(flat, keyParts, "keyAsString",element.keyAsString);
+        addToFlat(flat, keyParts, "name",element.name);
+        addToFlat(flat, keyParts, "queryTime",element.queryTime);
+        addToFlat(flat, keyParts, "sumotherdoccounts",element.sumotherdoccounts);
+        addToFlat(flat, keyParts, "totalnb",element.totalnb);
+        addToFlat(flat, keyParts, "totalTime",element.totalTime);
+        if(element.metric!=null){
+            addToFlat(flat, newKeyParts(newKeyParts(keyParts,element.metric.field),element.metric.type), "",element.metric.value);
+        }
+        int idx = 0;
+        if(element.elements!=null){
+            for(AggregationResponse subElement: element.elements){
+                flat(flat,subElement, newKeyParts(newKeyParts(keyParts,"elements"),""+(idx++)));
+            }
+        }
+    }
+
+    private void addToFlat(Map<List<String>,Object> flat, List<String> keyParts, String key, Object value) {
+        if(value!=null){
+            flat.put(newKeyParts(keyParts, key), value);
+        }
+    }
+
+    private List<String> newKeyParts(List<String> keyParts, String key){
+        List<String> newOne = new ArrayList<>(keyParts);
+        newOne.add(key);
+        return newOne;
     }
 
     private GeoPoint getGeohashCentre(String geohash) {

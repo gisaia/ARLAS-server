@@ -19,13 +19,13 @@
 
 package io.arlas.server.rest.explore;
 
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.Projection;
-import io.arlas.server.model.request.Size;
-import io.arlas.server.model.request.Sort;
+import io.arlas.server.model.request.*;
 import io.restassured.response.ValidatableResponse;
+import io.restassured.specification.RequestSpecification;
 import org.junit.Before;
 import org.junit.Test;
+
+import static io.restassured.RestAssured.given;
 
 public abstract class AbstractSortedTest extends AbstractProjectedTest {
     @Before
@@ -65,4 +65,11 @@ public abstract class AbstractSortedTest extends AbstractProjectedTest {
     protected abstract void handleGeoSortParameter(ValidatableResponse then, String firstElement) throws Exception;
 
     protected abstract void handleInvalidGeoSortParameter(ValidatableResponse then) throws Exception;
+
+    private ValidatableResponse post(Request request) {
+        RequestSpecification req = givenFilterableRequestBody();
+        return req.body(handlePostRequest(request))
+                .when().post(getUrlPath("geodata"))
+                .then();
+    }
 }
