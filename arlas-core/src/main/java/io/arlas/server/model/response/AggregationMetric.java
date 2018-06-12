@@ -26,5 +26,4 @@ public class AggregationMetric {
     public String type;
     public String field;
     public Object value;
-
 }

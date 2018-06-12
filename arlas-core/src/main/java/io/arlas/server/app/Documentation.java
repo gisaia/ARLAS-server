@@ -201,6 +201,7 @@ public class Documentation {
             "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ";
 
     public static final String FORM_PRETTY = "Pretty print";
+    public static final String FORM_FLAT = "Flat the property map: only key/value on one level";
 
     public static final String RANGE_OPERATION = "Calculates the min and max values of a field in the collection, given the filters";
     public static final String RANGE_FIELD = "The field whose range is calculated";
