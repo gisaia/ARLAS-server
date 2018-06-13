@@ -19,7 +19,7 @@
 
 package io.arlas.server.rest.explore;
 
-import io.arlas.server.model.request.AggregationTypeEnum;
+import io.arlas.server.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.model.request.Interval;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
@@ -77,7 +77,7 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))
                 .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))
                 .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))
-                .body("features.properties.elements[0].name", everyItem(equalTo(collectFct)))
+                .body("features.properties.elements[0].name", everyItem(startsWith(collectFct)))
                 .body("features.properties.elements[0].metric.type", everyItem(equalTo(collectFct)));
     }
 
@@ -100,7 +100,7 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))))
                 .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))))
                 .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))))
-                .body("features.properties.elements[0].name", everyItem(equalTo(collectFct)))
+                .body("features.properties.elements[0].name", everyItem(startsWith(collectFct)))
                 .body("features.properties.elements[0].metric.type", everyItem(equalTo(collectFct)));
     }
 
@@ -127,8 +127,23 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
         then
                 .body("features.properties.elements[0].metric.value", everyItem(greaterThanOrEqualTo(featureCollectMin)))
                 .body("features.properties.elements[0].metric.value", everyItem(lessThanOrEqualTo(featureCollectMax)))
-                .body("features.properties.elements[0].name", everyItem(equalTo(collectFct)))
+                .body("features.properties.elements[0].name", everyItem(startsWith(collectFct)))
                 .body("features.properties.elements[0].metric.type", everyItem(equalTo(collectFct)));
+    }
+
+    @Override
+    protected  void handleMatchingGeohashAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct1, String collectFct2,
+                                                            float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
+        handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
+        then
+                .body("features.properties.elements[0].metric.value", everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
+                .body("features.properties.elements[1].metric.value", everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
+                .body("features.properties.elements[0].metric.value", everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
+                .body("features.properties.elements[1].metric.value", everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
+                .body("features.properties.elements[0].name", hasItem(startsWith(collectFct1)))
+                .body("features.properties.elements[1].name", hasItem(startsWith(collectFct2)))
+                .body("features.properties.elements[0].metric.type", hasItem(equalTo(collectFct1)))
+                .body("features.properties.elements[1].metric.type", hasItem(equalTo(collectFct2)));
     }
 
     @Override
@@ -149,6 +164,12 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     @Override
     protected void handleMatchingAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin,
                                                       float featureCollectMax) throws Exception {
+        then.statusCode(400);
+    }
+
+    @Override
+    protected  void handleMatchingAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct1, String collectFct2,
+                                                            float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
         then.statusCode(400);
     }
 

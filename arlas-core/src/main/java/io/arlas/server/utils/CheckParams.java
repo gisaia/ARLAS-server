@@ -26,12 +26,10 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotAllowedException;
-import io.arlas.server.model.enumerations.DateUnitEnum;
+import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.RangeResponse;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +37,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class CheckParams {
+
     private static final String POLYGON_TYPE = "POLYGON";
     private static final String INVALID_SORT_PARAMETER = "Invalid sort syntax. Please use the following syntax : 'fieldName:ASC' or 'fieldName:DESC'. ";
     private static final String INVALID_XYZ_PARAMETER = "Z must be between 0 and 22. X and Y must be between 0 and (2^Z-1)";
@@ -54,10 +53,13 @@ public class CheckParams {
     private static final String INVALID_AGGREGATION = "Invalid aggregation parameters. Type and field must be specified";
     private static final String INVALID_AGGREGATION_TYPE = "Invalid aggregation TYPE. Must be datehistogram, geohash, histogram or terms ";
     private static final String INVALID_RANGE_FIELD = "The field name/path should not be null.";
+    private static final String INVALID_ORDER_VALUE = "Invalid 'order-' value : ";
+    private static final String REDUNDANT_COLLECT_FIELD_COLLECT_FCT = "Bad request : the same 'collect-fct' is applied to the same 'collect-field' twice or more.";
+    private static final String INVALID_ON_VALUE = "Invalid 'on-' value : ";
+    private static final String BAD_COLLECT_FCT_COLLECT_FIELD_NUMBERS = "'collect_field' and 'collect_fct' occurrences should be even.";
     private static final String UNEXISTING_FIELD = "The field name/pattern doesn't exist in the collection";
     private static final String MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD = "Infinity";
     private static final String DATE_NOW = "now";
-    private static Logger LOGGER = LoggerFactory.getLogger(CheckParams.class);
 
     public CheckParams() {
     }
@@ -67,6 +69,21 @@ public class CheckParams {
             throw new BadRequestException("Aggregation should not be null");
         else if (request != null) {
             checkAggregation((AggregationsRequest) request);
+        }
+    }
+
+    public static void checkAggregationModel(Aggregation aggregation) throws ArlasException {
+        // Check 'order'
+        if (aggregation.order != null && aggregation.order != Order.asc && aggregation.order != Order.desc) {
+            throw new InvalidParameterException(INVALID_ORDER_VALUE + aggregation.order.name());
+        }
+        // Check 'on'
+        if (aggregation.on != null && aggregation.on != OrderOn.count && aggregation.on != OrderOn.field && aggregation.on != OrderOn.result) {
+            throw new InvalidParameterException(INVALID_ON_VALUE + aggregation.on.name());
+        }
+        // Check 'collect-field' and 'collect-fct' are not redundant
+        if (aggregation.metrics.stream().distinct().count() != aggregation.metrics.stream().count()) {
+            throw new InvalidParameterException(REDUNDANT_COLLECT_FIELD_COLLECT_FCT);
         }
     }
 
@@ -232,6 +249,12 @@ public class CheckParams {
             }
         } else {
             throw new InvalidParameterException(INVALID_AGGREGATION_PARAMETER);
+        }
+    }
+
+    public static void checkCollectionFunctionValidity(List<String> collectField, List<CollectionFunction> collectFct) throws ArlasException {
+        if (collectFct.size() != collectField.size()) {
+            throw new BadRequestException(BAD_COLLECT_FCT_COLLECT_FIELD_NUMBERS);
         }
     }
 

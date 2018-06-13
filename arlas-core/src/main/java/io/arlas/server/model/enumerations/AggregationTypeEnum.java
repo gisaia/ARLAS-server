@@ -17,8 +17,8 @@
  * under the License.
  */
 
-package io.arlas.server.model.request;
+package io.arlas.server.model.enumerations;
 
-public enum UnitEnum {
-    year, quarter, month, week, day, hour, minute, second
+public enum AggregationTypeEnum {
+    datehistogram, geohash, histogram, term;
 }

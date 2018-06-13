@@ -30,7 +30,7 @@ import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationMetric;
 import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.utils.ResponseCacheManager;
-import io.arlas.server.model.enumerations.MetricAggregationEnum;
+import io.arlas.server.model.enumerations.CollectionFunction;
 import io.arlas.server.utils.CheckParams;
 import org.apache.lucene.geo.Rectangle;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
@@ -214,7 +214,6 @@ public class ExploreServices {
         if (aggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
             aggregationResponse.sumotherdoccounts = ((Terms) aggregation).getSumOfOtherDocCounts();
         }
-
         aggregationResponse.elements = new ArrayList<AggregationResponse>();
         List<MultiBucketsAggregation.Bucket> buckets = (List<MultiBucketsAggregation.Bucket>) aggregation.getBuckets();
         buckets.forEach(bucket -> {
@@ -242,25 +241,25 @@ public class ExploreServices {
                     } else {
                         subAggregationResponse.elements = null;
                         AggregationMetric aggregationMetric = new AggregationMetric();
-                        aggregationMetric.type = subAggregation.getName();
-                        if (!aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase()) && !aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase())
-                                && !aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase() + "-bucket") && !aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase() + "-bucket")) {
+                        aggregationMetric.type = subAggregation.getName().split(":")[0];
+                        if (!aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase())
+                                && !aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket") && !aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket")) {
                             aggregationMetric.value = (((InternalAggregation) subAggregation).getProperty("value"));
                         } else {
                             FeatureCollection fc = new FeatureCollection();
                             Feature feature = new Feature();
-                            if (aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase()) || aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase() + "-bucket")) {
+                            if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase()) || aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket")) {
                                 Polygon box = createBox((GeoBounds) subAggregation);
                                 GeoJsonObject g = box;
-                                if (aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase() + "-bucket")) {
+                                if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket")) {
                                     element.BBOX = box;
                                 }
                                 feature.setGeometry(g);
                                 fc.add(feature);
-                            } else if (aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase()) || aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase() + "-bucket")) {
+                            } else if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase()) || aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket")) {
                                 GeoPoint centroid = ((GeoCentroid) subAggregation).centroid();
                                 GeoJsonObject g = new Point(centroid.getLon(), centroid.getLat());
-                                if (aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase() + "-bucket")) {
+                                if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket")) {
                                     element.centroid = (Point) g;
                                 }
                                 feature.setGeometry(g);
@@ -269,7 +268,8 @@ public class ExploreServices {
                             aggregationMetric.value = fc;
                         }
                         // No need to add the geocentroid or the geobox as metric if withGeoCentroid or withGeoBBox is true (respectively)
-                        if (!aggregationMetric.type.equals(MetricAggregationEnum.GEOBBOX.name().toLowerCase() + "-bucket") && !aggregationMetric.type.equals(MetricAggregationEnum.GEOCENTROID.name().toLowerCase() + "-bucket")) {
+                        if (!aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket") && !aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket")) {
+                            aggregationMetric.field = subAggregation.getName().split(":")[1];
                             subAggregationResponse.metric = aggregationMetric;
                         } else {
                             subAggregationResponse = null;

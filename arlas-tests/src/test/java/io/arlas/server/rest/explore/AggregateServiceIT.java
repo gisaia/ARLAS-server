@@ -19,7 +19,7 @@
 
 package io.arlas.server.rest.explore;
 
-import io.arlas.server.model.request.AggregationTypeEnum;
+import io.arlas.server.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.model.request.Interval;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
@@ -57,7 +57,7 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
                 .body("elements.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))
                 .body("elements.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))
                 .body("elements.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))
-                .body("elements.elements[0].name", everyItem(equalTo(collectFct)))
+                .body("elements.elements[0].name", everyItem(startsWith(collectFct)))
                 .body("elements.elements[0].metric.type", everyItem(equalTo(collectFct)));
     }
 
@@ -89,7 +89,7 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
                 .body("elements.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))))
                 .body("elements.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))))
                 .body("elements.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))))
-                .body("elements.elements[0].name", everyItem(equalTo(collectFct)))
+                .body("elements.elements[0].name", everyItem(startsWith(collectFct)))
                 .body("elements.elements[0].metric.type", everyItem(equalTo(collectFct)));
     }
 
@@ -105,8 +105,29 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
         then
                 .body("elements.elements[0].metric.value", everyItem(greaterThanOrEqualTo(featureCollectMin)))
                 .body("elements.elements[0].metric.value", everyItem(lessThanOrEqualTo(featureCollectMax)))
-                .body("elements.elements[0].name", everyItem(equalTo(collectFct)))
+                .body("elements.elements[0].name", everyItem(startsWith(collectFct)))
                 .body("elements.elements[0].metric.type", everyItem(equalTo(collectFct)));
+    }
+
+    @Override
+    protected  void handleMatchingAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct1, String collectFct2,
+                                                            float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
+        handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
+        then
+                .body("elements.elements[0].metric.value", everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
+                .body("elements.elements[1].metric.value", everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
+                .body("elements.elements[0].metric.value", everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
+                .body("elements.elements[1].metric.value", everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
+                .body("elements.elements[0].name", hasItem(startsWith(collectFct1)))
+                .body("elements.elements[1].name", hasItem(startsWith(collectFct2)))
+                .body("elements.elements[0].metric.type", hasItem(equalTo(collectFct1)))
+                .body("elements.elements[1].metric.type", hasItem(equalTo(collectFct2)));
+    }
+
+    @Override
+    protected  void handleMatchingGeohashAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct1, String collectFct2,
+                                                            float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
+        handleMatchingAggregateWithMultiCollect(then, featuresSize, featureCountMin, featureCountMax, collectFct1, collectFct2, featureCollectMin1, featureCollectMax1, featureCollectMin2, featureCollectMax2);
     }
 
     @Override
