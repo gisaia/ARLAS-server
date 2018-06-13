@@ -44,7 +44,7 @@ public class OpenSearchHandler {
         description.setDescription(cswHandler.cswConfiguration.openSearchDescription);
         description.setShortName(cswHandler.cswConfiguration.openSearchShortName);
         Url urlXMLBox = new Url();
-        urlXMLBox.setTemplate(serverUrl + "collections/csw/?" + "request=GetRecords&service=CSW" +
+        urlXMLBox.setTemplate(serverUrl + "ogc/csw/?" + "request=GetRecords&service=CSW" +
                 "&version=3.0.0&q={searchTerms?}" +
                 "&startPosition={startIndex?}" +
                 "&maxRecords={count?}" +
@@ -53,7 +53,7 @@ public class OpenSearchHandler {
                 "&outputFormat=application/xml");
         urlXMLBox.setType(MediaType.APPLICATION_XML);
         Url urlATOMBox = new Url();
-        urlATOMBox.setTemplate(serverUrl + "collections/csw/?" + "request=GetRecords&service=CSW" +
+        urlATOMBox.setTemplate(serverUrl + "ogc/csw/?" + "request=GetRecords&service=CSW" +
                 "&version=3.0.0&q={searchTerms?}" +
                 "&startPosition={startIndex?}" +
                 "&maxRecords={count?}" +
@@ -62,7 +62,7 @@ public class OpenSearchHandler {
                 "&outputFormat=application/atom%2Bxml");
         urlATOMBox.setType(MediaType.APPLICATION_ATOM_XML);
         Url urlXMLId = new Url();
-        urlXMLId.setTemplate(serverUrl + "collections/csw/?" + "request=GetRecords&service=CSW" +
+        urlXMLId.setTemplate(serverUrl + "ogc/csw/?" + "request=GetRecords&service=CSW" +
                 "&version=3.0.0" +
                 "&startPosition={startIndex?}" +
                 "&maxRecords={count?}" +
@@ -71,7 +71,7 @@ public class OpenSearchHandler {
                 "&outputFormat=application/xml");
         urlXMLId.setType(MediaType.APPLICATION_XML);
         Url urlATOMId = new Url();
-        urlATOMId.setTemplate(serverUrl + "collections/csw/?" + "request=GetRecords&service=CSW" +
+        urlATOMId.setTemplate(serverUrl + "ogc/csw/?" + "request=GetRecords&service=CSW" +
                 "&version=3.0.0" +
                 "&startPosition={startIndex?}" +
                 "&maxRecords={count?}" +

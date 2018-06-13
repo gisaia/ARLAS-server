@@ -61,8 +61,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-@Path("/wfs")
-@Api(value = "/wfs")
+@Path("/ogc/wfs")
+@Api(value = "/ogc/wfs")
 public class WFSService {
     Logger LOGGER = LoggerFactory.getLogger(WFSService.class);
 
@@ -202,7 +202,7 @@ public class WFSService {
         // TODO add cache in describeCollection method
         CollectionReferenceDescription collectionReferenceDescription = elasticAdmin.describeCollection(collectionReference);
         String collectionName = collectionReferenceDescription.collectionName;
-        String serviceUrl = serverUrl + "wfs/" + collectionName + "/?";
+        String serviceUrl = serverUrl + "ogc/wfs/" + collectionName + "/?";
         QName featureQname = new QName(serviceUrl, collectionName, wfsConfiguration.featureNamespace);
         WFSCheckParam.checkTypeNames(collectionName, typenames);
         WFSQueryBuilder wfsQueryBuilder = new WFSQueryBuilder(requestType, id, bbox, filter, resourceid, storedquery_id, collectionReferenceDescription, partitionFilter, exploreServices);

@@ -46,7 +46,7 @@ public class WFSServiceIT extends AbstractTestWithCollection {
 
     @Override
     protected String getUrlPath(String collection) {
-        return arlasPath + "wfs/" + collection;
+        return arlasPath + "ogc/wfs/" + collection;
     }
 
     @Test

@@ -6,7 +6,11 @@ The ARLAS Server offers 6 enpoints:
 - an exploration API for [exploring](arlas-api-exploration.md), meaning searching and analyzing, spatial-temoral big data (`http://.../arlas/explore/`)
 - a [tagging](arlas-api-tagging.md) service (`http://.../arlas/write/{collection}/_tag`)
 - a RATSER [tile service](arlas-tile-service.md) for rendering RASTER tiles based on the collection and on a tile service such as WMTS or X/Y/Z service
-- a WFS service (`http://.../arlas/wfs/{collection}?REQUEST=GetCapabilities&VERSION=2.0.0&SERVICE=WFS`)
+- OGC/opensearch services:
+    - a CSW service (`http://.../arlas/ogc/csw`)
+    - a CSW opensearch service (`http://.../arlas/ogc/csw/opensearch`)
+    - a WFS service (`http://.../arlas/ogc/wfs/{collection}?REQUEST=GetCapabilities&VERSION=2.0.0&SERVICE=WFS`)
+    - an opensearch service (`http://.../arlas/ogc/opensearch/{collection}`)
 - an API for monitoring the server health and performances
 - an endpoints for testing the collection API  and the exploration API with swagger
 

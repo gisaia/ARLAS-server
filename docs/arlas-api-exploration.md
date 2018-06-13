@@ -271,4 +271,4 @@ Fields can be provided several times by separating them with a comma. The order 
 
 ## OpenSearch
 
-If enabled, ARLAS offers an Opensearch Description document (`/arlas/explore/{collection}/_opensearch`).
+If enabled, ARLAS offers an Opensearch Description document (`/arlas/ogc/opensearch/{collection}`).

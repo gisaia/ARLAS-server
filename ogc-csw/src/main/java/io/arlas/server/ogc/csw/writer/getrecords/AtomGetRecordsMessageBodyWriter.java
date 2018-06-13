@@ -102,7 +102,7 @@ public class AtomGetRecordsMessageBodyWriter implements MessageBodyWriter<GetRec
         }
         LinkType linkType = new LinkType();
         linkType.setType(CSWService.MIME_TYPE__OPENSEARCH_XML);
-        linkType.setHref(arlasServerConfiguration.ogcConfiguration.serverUri + "collections/csw/_opensearch");
+        linkType.setHref(arlasServerConfiguration.ogcConfiguration.serverUri + "ogc/opensearch/{collection}");
         linkType.setRel("search");
         feedType.getLink().add(linkType);
         com.a9.opensearch.ObjectFactory openSearchFactory = new com.a9.opensearch.ObjectFactory();

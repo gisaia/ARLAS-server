@@ -68,7 +68,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
     public static final String MIME_TYPE_XML = "application/xml";
 
     @Timed
-    @Path("{collection}/_opensearch")
+    @Path("/ogc/opensearch/{collection}")
     @GET
     @Produces({MIME_TYPE_XML})
     @ApiOperation(value = "OpenSearch Description Document", produces = MIME_TYPE_XML, notes = Documentation.OPENSEARCH_OPERATION)
