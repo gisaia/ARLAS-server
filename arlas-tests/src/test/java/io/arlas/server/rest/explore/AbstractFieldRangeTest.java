@@ -19,7 +19,7 @@
 
 package io.arlas.server.rest.explore;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.*;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Before;

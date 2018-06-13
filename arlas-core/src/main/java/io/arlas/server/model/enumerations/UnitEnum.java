@@ -17,8 +17,8 @@
  * under the License.
  */
 
-package io.arlas.server.model.request;
+package io.arlas.server.model.enumerations;
 
-public enum FormatEnum {
-    json, geojson;
+public enum UnitEnum {
+    year, quarter, month, week, day, hour, minute, second
 }

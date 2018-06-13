@@ -19,6 +19,6 @@
 
 package io.arlas.server.model.enumerations;
 
-public enum MetricAggregationEnum {
+public enum CollectionFunction {
     AVG, CARDINALITY, MAX, MIN, SUM, GEOCENTROID, GEOBBOX;
 }

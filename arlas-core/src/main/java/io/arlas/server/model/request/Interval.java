@@ -19,6 +19,8 @@
 
 package io.arlas.server.model.request;
 
+import io.arlas.server.model.enumerations.UnitEnum;
+
 public class Interval {
     public Integer value;
     public UnitEnum unit;
