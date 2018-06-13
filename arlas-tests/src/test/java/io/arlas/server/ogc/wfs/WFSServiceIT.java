@@ -26,7 +26,7 @@ import io.arlas.server.DataSetTool;
 import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.MultiValueFilter;
-import io.arlas.server.model.request.OperatorEnum;
+import io.arlas.server.model.enumerations.OperatorEnum;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -38,7 +38,6 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.isOneOf;
 
 public class WFSServiceIT extends AbstractTestWithCollection {

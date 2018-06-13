@@ -25,8 +25,8 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
-import io.arlas.server.model.enumerations.MetricAggregationEnum;
 import io.dropwizard.jersey.params.IntParam;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoPoint;
@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ParamsParser {
     private static ObjectMapper objectMapper = new ObjectMapper();
@@ -67,7 +69,6 @@ public class ParamsParser {
     public static Aggregation getAggregationModel(List<String> agg) throws ArlasException {
         Aggregation aggregationModel = new Aggregation();
         aggregationModel.type = AggregationTypeEnum.valueOf(agg.get(0));
-
         for (String parameter : agg) {
             if (parameter.contains(AGG_INTERVAL_PARAM)) {
                 if (aggregationModel.type.equals(AggregationTypeEnum.datehistogram)) {
@@ -77,14 +78,10 @@ public class ParamsParser {
                 }
             } else if (parameter.contains(AGG_FORMAT_PARAM)) {
                 aggregationModel.format = parameter.substring(AGG_FORMAT_PARAM.length());
-            } else if (parameter.contains(AGG_COLLECT_FIELD_PARAM)) {
-                aggregationModel.collectField = parameter.substring(AGG_COLLECT_FIELD_PARAM.length());
-            } else if (parameter.contains(AGG_COLLECT_FCT_PARAM)) {
-                aggregationModel.collectFct = MetricAggregationEnum.valueOf(parameter.substring(AGG_COLLECT_FCT_PARAM.length()).toUpperCase());
             } else if (parameter.contains(AGG_ORDER_PARAM)) {
-                aggregationModel.order = AggregationOrderEnum.valueOf(parameter.substring(AGG_ORDER_PARAM.length()));
+                aggregationModel.order = Order.valueOf(parameter.substring(AGG_ORDER_PARAM.length()));
             } else if (parameter.contains(AGG_ON_PARAM)) {
-                aggregationModel.on = AggregationOnEnum.valueOf(parameter.substring(AGG_ON_PARAM.length()));
+                aggregationModel.on = OrderOn.valueOf(parameter.substring(AGG_ON_PARAM.length()));
             } else if (parameter.contains(AGG_SIZE_PARAM)) {
                 aggregationModel.size = parameter.substring(AGG_SIZE_PARAM.length());
             } else if (parameter.contains(AGG_INCLUDE_PARAM)) {
@@ -97,7 +94,29 @@ public class ParamsParser {
                 aggregationModel.field = parameter;
             }
         }
+        aggregationModel.metrics = getAggregationMetrics(agg);
+        CheckParams.checkAggregationModel(aggregationModel);
         return aggregationModel;
+    }
+
+    private static List<Metric> getAggregationMetrics(List<String> agg) throws ArlasException {
+        List<Metric> metrics = new ArrayList<>();
+        try {
+            List<String> collectFields = agg.stream().filter(s -> s.contains(AGG_COLLECT_FIELD_PARAM))
+                    .map(s -> s.substring(AGG_COLLECT_FIELD_PARAM.length()))
+                    .collect(Collectors.toList());
+            List<CollectionFunction> collectFcts = agg.stream().filter(s -> s.contains(AGG_COLLECT_FCT_PARAM))
+                    .map(s -> CollectionFunction.valueOf(s.substring(AGG_COLLECT_FCT_PARAM.length()).toUpperCase()))
+                    .collect(Collectors.toList());
+            CheckParams.checkCollectionFunctionValidity(collectFields, collectFcts);
+            metrics = IntStream.range(0, collectFcts.size())
+                    .filter(i -> i < collectFcts.size())
+                    .mapToObj(i -> new Metric(collectFields.get(i), collectFcts.get(i)))
+                    .collect(Collectors.toList());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidParameterException("Invalid collection function");
+        }
+        return metrics;
     }
 
     public static Interval getDateInterval(String intervalString) throws ArlasException {

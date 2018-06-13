@@ -17,8 +17,8 @@
  * under the License.
  */
 
-package io.arlas.server.model.request;
+package io.arlas.server.model.enumerations;
 
-public enum AggregationOrderEnum {
+public enum Order {
     asc, desc;
 }

@@ -17,8 +17,8 @@
  * under the License.
  */
 
-package io.arlas.server.model.request;
+package io.arlas.server.model.enumerations;
 
-public enum OperatorEnum {
-    eq, gte, gt, lte, lt, like, ne, range
+public enum FormatEnum {
+    json, geojson;
 }

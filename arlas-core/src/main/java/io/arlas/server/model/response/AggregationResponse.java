@@ -23,6 +23,7 @@ import io.dropwizard.jackson.JsonSnakeCase;
 import org.geojson.Point;
 import org.geojson.Polygon;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonSnakeCase
@@ -33,7 +34,7 @@ public class AggregationResponse extends OperationInfo {
     public Object key;
     public Object keyAsString;
     public List<AggregationResponse> elements;
-    public AggregationMetric metric = null;
+    public AggregationMetric metric;
     public Polygon BBOX = null;
     public Point centroid = null;
 }

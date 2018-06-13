@@ -19,6 +19,8 @@
 
 package io.arlas.server.model.request;
 
+import io.arlas.server.model.enumerations.OperatorEnum;
+
 public class Expression {
     public String field;
     public OperatorEnum op;
