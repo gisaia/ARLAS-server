@@ -66,8 +66,8 @@ import java.util.Optional;
 
 import static io.arlas.server.utils.CheckParams.isBboxLatLonInCorrectRanges;
 
-@Path("/collections")
-@Api(value = "/collections")
+@Path("/ogc")
+@Api(value = "/ogc")
 public class CSWService {
 
     protected CollectionReferenceDao dao = null;
@@ -313,7 +313,7 @@ public class CSWService {
             case GetCapabilities:
                 GetCapabilitiesHandler getCapabilitiesHandler = cswHandler.getCapabilitiesHandler;
                 JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse(Arrays.asList(sectionList),
-                        serverUrl + "collections/csw/?", serverUrl + "collections/csw/_opensearch");
+                        serverUrl + "ogc/csw/?", serverUrl + "ogc/csw/opensearch");
                 return Response.ok(getCapabilitiesResponse).type(acceptFormatMediaType).build();
             case GetRecords:
                 GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
@@ -341,7 +341,7 @@ public class CSWService {
     }
 
     @Timed
-    @Path("/csw/_opensearch")
+    @Path("/csw/opensearch")
     @GET
     @Produces({MediaType.APPLICATION_XML, MIME_TYPE__OPENSEARCH_XML})
     @ApiOperation(value = "OpenSearch CSW Description Document",

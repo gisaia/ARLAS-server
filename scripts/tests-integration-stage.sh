@@ -107,7 +107,7 @@ function test_wfs() {
     docker run --rm \
          --net arlas_default \
          --env ID="ID__170__20DI"\
-         --env WFS_GETCAPABILITIES_URL="http://arlas-server:9999/pathtest/arlastest/wfs/geodata/?request=GetCapabilities&service=WFS&version=2.0.0" \
+         --env WFS_GETCAPABILITIES_URL="http://arlas-server:9999/pathtest/arlastest/ogc/wfs/geodata/?request=GetCapabilities&service=WFS&version=2.0.0" \
          gisaia/ets-wfs20
 
     docker run --rm \
@@ -148,7 +148,7 @@ function test_csw() {
 
     docker run --rm \
          --net arlas_default \
-         --env CSW_GETCAPABILITIES_URL="http://arlas-server:9999/pathtest/arlastest/collections/csw/?" \
+         --env CSW_GETCAPABILITIES_URL="http://arlas-server:9999/pathtest/arlastest/ogc/csw/?" \
          gisaia/ets-cat30
 
     docker run --rm \
