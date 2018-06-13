@@ -60,6 +60,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         super(exploreServices);
     }
 
+    private static final String FEATURE_TYPE_KEY = "feature_type";
+    private static final String FEATURE_TYPE_VALUE = "aggregation";
+
     @Timed
     @Path("{collection}/_geoaggregate")
     @GET
@@ -396,6 +399,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 properties.put("geohash", element.keyAsString);
                 properties.put("elements", element.elements);
                 feature.setProperties(properties);
+                feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
                 GeoJsonObject g;
                 if (element.BBOX != null) {
                     g = element.BBOX;

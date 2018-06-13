@@ -57,6 +57,7 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features.size()", equalTo(featuresSize))
                 .body("features.properties.count", everyItem(greaterThanOrEqualTo(featureCountMin)))
                 .body("features.properties.count", everyItem(lessThanOrEqualTo(featureCountMax)))
+                .body("features.properties.feature_type", everyItem(equalTo("aggregation")))
                 .body("sumotherdoccounts", nullValue());
     }
 
