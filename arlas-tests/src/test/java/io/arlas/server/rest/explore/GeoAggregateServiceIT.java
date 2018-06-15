@@ -134,7 +134,7 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
-    protected  void handleMatchingGeohashAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct1, String collectFct2,
+    protected  void handleMatchingGeohashAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField1, String collectField2, String collectFct1, String collectFct2,
                                                             float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
@@ -145,7 +145,9 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features.properties.elements[0].name", hasItem(startsWith(collectFct1)))
                 .body("features.properties.elements[1].name", hasItem(startsWith(collectFct2)))
                 .body("features.properties.elements[0].metric.type", hasItem(equalTo(collectFct1)))
-                .body("features.properties.elements[1].metric.type", hasItem(equalTo(collectFct2)));
+                .body("features.properties.elements[1].metric.type", hasItem(equalTo(collectFct2)))
+                .body("features.properties.elements[0].metric.field", hasItem(equalTo(collectField1.replace(".", "-"))))
+                .body("features.properties.elements[1].metric.field", hasItem(equalTo(collectField2.replace(".", "-"))));
     }
 
     @Override
@@ -170,7 +172,7 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
-    protected  void handleMatchingAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct1, String collectFct2,
+    protected  void handleMatchingAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField1, String collectField2, String collectFct1, String collectFct2,
                                                             float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
         then.statusCode(400);
     }
