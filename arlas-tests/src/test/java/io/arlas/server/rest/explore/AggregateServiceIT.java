@@ -45,12 +45,12 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
-    protected void handleMatchingAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
-        handleMatchingGeohashAggregateWithGeocentroidCollect(then, featuresSize, featureCountMin, featureCountMax, collectFct, centroidLonMin, centroidLatMin, centroidLonMax, centroidLatMax);
+    protected void handleMatchingAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+        handleMatchingGeohashAggregateWithGeocentroidCollect(then, featuresSize, featureCountMin, featureCountMax, collectField, collectFct, centroidLonMin, centroidLatMin, centroidLonMax, centroidLatMax);
     }
 
     @Override
-    protected void handleMatchingGeohashAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+    protected void handleMatchingGeohashAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
                 .body("elements.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))
@@ -82,7 +82,7 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
-    protected void handleMatchingAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+    protected void handleMatchingAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
                 .body("elements.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))))
@@ -94,12 +94,12 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
-    protected void handleMatchingGeohashAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
-        handleMatchingAggregateWithGeoBboxCollect(then, featuresSize, featureCountMin, featureCountMax, collectFct, centroidLonMin, centroidLatMin, centroidLonMax, centroidLatMax);
+    protected void handleMatchingGeohashAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+        handleMatchingAggregateWithGeoBboxCollect(then, featuresSize, featureCountMin, featureCountMax, collectField, collectFct, centroidLonMin, centroidLatMin, centroidLonMax, centroidLatMax);
     }
 
     @Override
-    protected void handleMatchingGeohashAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin,
+    protected void handleMatchingGeohashAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float featureCollectMin,
                                                              float featureCollectMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
@@ -110,7 +110,7 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
-    protected  void handleMatchingAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct1, String collectFct2,
+    protected  void handleMatchingAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField1, String collectField2, String collectFct1, String collectFct2,
                                                             float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
@@ -121,13 +121,15 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
                 .body("elements.elements[0].name", hasItem(startsWith(collectFct1)))
                 .body("elements.elements[1].name", hasItem(startsWith(collectFct2)))
                 .body("elements.elements[0].metric.type", hasItem(equalTo(collectFct1)))
-                .body("elements.elements[1].metric.type", hasItem(equalTo(collectFct2)));
+                .body("elements.elements[1].metric.type", hasItem(equalTo(collectFct2)))
+                .body("elements.elements[0].metric.field", hasItem(equalTo(collectField1.replace(".", "-"))))
+                .body("elements.elements[1].metric.field", hasItem(equalTo(collectField2.replace(".", "-"))));
     }
 
     @Override
-    protected  void handleMatchingGeohashAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct1, String collectFct2,
+    protected  void handleMatchingGeohashAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField1, String collectField2,String collectFct1, String collectFct2,
                                                             float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
-        handleMatchingAggregateWithMultiCollect(then, featuresSize, featureCountMin, featureCountMax, collectFct1, collectFct2, featureCollectMin1, featureCollectMax1, featureCollectMin2, featureCollectMax2);
+        handleMatchingAggregateWithMultiCollect(then, featuresSize, featureCountMin, featureCountMax, collectField1, collectField2, collectFct1, collectFct2, featureCollectMin1, featureCollectMax1, featureCollectMin2, featureCollectMax2);
     }
 
     @Override
@@ -167,9 +169,9 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
-    protected void handleMatchingAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin,
+    protected void handleMatchingAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float featureCollectMin,
                                                       float featureCollectMax) throws Exception {
-        handleMatchingGeohashAggregateWithCollect(then, featuresSize, featureCountMin, featureCountMax, collectFct, featureCollectMin, featureCollectMax);
+        handleMatchingGeohashAggregateWithCollect(then, featuresSize, featureCountMin, featureCountMax, collectField, collectFct, featureCollectMin, featureCollectMax);
     }
 
     @Override

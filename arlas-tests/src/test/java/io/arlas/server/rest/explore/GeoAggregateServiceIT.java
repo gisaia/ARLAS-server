@@ -71,7 +71,8 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features.geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))));
     }
 
-    protected void handleMatchingGeohashAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+    @Override
+    protected void handleMatchingGeohashAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
                 .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))
@@ -94,7 +95,7 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
-    protected void handleMatchingGeohashAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+    protected void handleMatchingGeohashAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
                 .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))))
@@ -117,12 +118,12 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
-    protected void handleMatchingAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+    protected void handleMatchingAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         then.statusCode(400);
     }
 
     @Override
-    protected void handleMatchingGeohashAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin,
+    protected void handleMatchingGeohashAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float featureCollectMin,
                                                              float featureCollectMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
@@ -133,7 +134,7 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
-    protected  void handleMatchingGeohashAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct1, String collectFct2,
+    protected  void handleMatchingGeohashAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField1, String collectField2, String collectFct1, String collectFct2,
                                                             float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
@@ -144,7 +145,9 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features.properties.elements[0].name", hasItem(startsWith(collectFct1)))
                 .body("features.properties.elements[1].name", hasItem(startsWith(collectFct2)))
                 .body("features.properties.elements[0].metric.type", hasItem(equalTo(collectFct1)))
-                .body("features.properties.elements[1].metric.type", hasItem(equalTo(collectFct2)));
+                .body("features.properties.elements[1].metric.type", hasItem(equalTo(collectFct2)))
+                .body("features.properties.elements[0].metric.field", hasItem(equalTo(collectField1.replace(".", "-"))))
+                .body("features.properties.elements[1].metric.field", hasItem(equalTo(collectField2.replace(".", "-"))));
     }
 
     @Override
@@ -163,19 +166,20 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
-    protected void handleMatchingAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float featureCollectMin,
+    protected void handleMatchingAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float featureCollectMin,
                                                       float featureCollectMax) throws Exception {
         then.statusCode(400);
     }
 
     @Override
-    protected  void handleMatchingAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct1, String collectFct2,
+    protected  void handleMatchingAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField1, String collectField2, String collectFct1, String collectFct2,
                                                             float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
         then.statusCode(400);
     }
 
     @Override
-    protected void handleMatchingAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+    protected void handleMatchingAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+
         then.statusCode(400);
     }
 
@@ -199,7 +203,6 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     protected void handleMultiMatchingGeohashAggregate(ValidatableResponse then, int featuresSize) throws Exception {
         then.statusCode(200)
                 .body("features.size()", equalTo(featuresSize))
-                .body("features.properties.elements.elements", hasSize(featuresSize))
                 .body("features.properties.elements.elements", hasSize(featuresSize));
     }
 

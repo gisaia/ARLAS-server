@@ -21,8 +21,10 @@ package io.arlas.server.rest.explore;
 
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.Projection;
+import io.arlas.server.model.request.Request;
 import io.arlas.server.model.request.Size;
 import io.restassured.response.ValidatableResponse;
+import io.restassured.specification.RequestSpecification;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -74,4 +76,11 @@ public abstract class AbstractProjectedTest extends AbstractSizedTest {
     protected abstract void handleHiddenParameter(ValidatableResponse then, List<String> hidden) throws Exception;
 
     protected abstract void handleDisplayedParameter(ValidatableResponse then, List<String> displayed) throws Exception;
+
+    private ValidatableResponse post(Request request) {
+        RequestSpecification req = givenFilterableRequestBody();
+        return req.body(handlePostRequest(request))
+                .when().post(getUrlPath("geodata"))
+                .then();
+    }
 }

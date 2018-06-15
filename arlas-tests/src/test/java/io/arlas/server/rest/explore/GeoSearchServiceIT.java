@@ -19,7 +19,9 @@
 
 package io.arlas.server.rest.explore;
 
+import io.arlas.server.model.request.Form;
 import io.arlas.server.model.request.MultiValueFilter;
+import io.arlas.server.model.request.Request;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
@@ -214,5 +216,12 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     @Override
     protected void handleInvalidXYZ(ValidatableResponse then) {
         then.statusCode(400);
+    }
+
+    @Override
+    protected Request handlePostRequest(Request req){
+        if (req.form==null)req.form=new Form();
+        req.form.flat=false;
+        return req;
     }
 }

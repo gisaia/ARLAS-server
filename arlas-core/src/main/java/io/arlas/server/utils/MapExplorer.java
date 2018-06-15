@@ -19,10 +19,15 @@
 
 package io.arlas.server.utils;
 
+import com.google.common.collect.Streams;
+import cyclops.data.tuple.Tuple2;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import org.elasticsearch.common.Strings;
 
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class MapExplorer {
 
@@ -47,6 +52,45 @@ public class MapExplorer {
             } else {
                 return null;
             }
+        }
+    }
+
+    public static Map<String, Object> flat(Object source, Function<Map<List<String>, Object>,Map<String, Object>> keyStringifier) {
+        Map<List<String>, Object> flatted= new HashMap<>();
+        flat(new ArrayList<>(),source, flatted);
+        return keyStringifier.apply(flatted);
+    }
+
+    private static void flat(List<String> keyParts, Object source, Map<List<String>, Object> flatted) {
+        if(source==null){
+            flatted.put(keyParts,source);
+        }else if (source instanceof Map) {
+            ((Map) source).forEach((key,value)->{
+                List<String> extendedParts=new ArrayList<>(keyParts);
+                extendedParts.add((String)key);
+                flat(extendedParts,value, flatted);
+            });
+        }else if(source instanceof Collection || source.getClass().isArray()) {
+            Collection collection = source instanceof Collection?(Collection)source:Arrays.asList(source);
+            Streams.mapWithIndex(collection.stream(),(value,i) -> {
+                List<String> extendedParts=new ArrayList<>(keyParts);
+                extendedParts.add(""+i);
+                flat(extendedParts,value, flatted);
+                return value;
+            }).count();
+        }else{
+            flatted.put(keyParts,source);
+        }
+    }
+
+    public static class ReduceArrayOnKey implements Function<Map<List<String>, Object>,Map<String, Object>>{
+        private String separator="/";
+        public ReduceArrayOnKey(){}
+        public ReduceArrayOnKey(String separator){this.separator = separator;}
+
+        @Override
+        public Map<String, Object> apply(Map<List<String>, Object> flat) {
+            return flat.entrySet().stream().map(e->new Tuple2<>(String.join(separator,e.getKey()),e.getValue())).collect(Collectors.toMap(Tuple2::_1,Tuple2::_2));
         }
     }
 }

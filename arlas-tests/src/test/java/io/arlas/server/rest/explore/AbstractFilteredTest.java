@@ -507,10 +507,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .when().get(getUrlPath("geodata"))
                         .then());
         handleComplexFilter(
-                givenFilterableRequestBody().body(request)
-                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
-                        .when().post(getUrlPath("geodata"))
-                        .then());
+                post(request,"partition-filter", objectMapper.writeValueAsString(filterHeader)));
 
         filterHeader.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, "Actor")));
         handleNotMatchingRequest(
@@ -759,20 +756,21 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     //---------------------- ValidatableResponse ------------------
     //----------------------------------------------------------------
 
-    private ValidatableResponse post(Request request) {
-        return givenFilterableRequestBody().body(request)
-                .when().post(getUrlPath("geodata"))
-                .then();
-    }
-
     private ValidatableResponse get(String param, Object paramValue) {
-        return givenFilterableRequestParams().param(param, paramValue)
+        RequestSpecification req = givenFilterableRequestParams();
+        for (Pair<String, String> extraParam : this.extraParams) {
+            req = req.param(extraParam.getKey(), extraParam.getValue());
+        }
+        return req.param(param, paramValue)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
 
     private ValidatableResponse get(List<Pair<String, String>> params) {
         RequestSpecification req = givenFilterableRequestParams();
+        for (Pair<String, String> extraParam : this.extraParams) {
+            req = req.param(extraParam.getKey(), extraParam.getValue());
+        }
         for (Pair<String, String> param : params) {
             req = req.param(param.getKey(), param.getValue());
         }
@@ -786,4 +784,21 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
+
+    private ValidatableResponse post(Request request) {
+        RequestSpecification req = givenFilterableRequestBody();
+        return req.body(handlePostRequest(request))
+                .when().post(getUrlPath("geodata"))
+                .then();
+    }
+    protected Request handlePostRequest(Request req){return req;}
+
+    private ValidatableResponse post(Request request, String headerkey, String headerValue) {
+        return givenFilterableRequestBody().body(handlePostRequest(request))
+                .header(headerkey, headerValue)
+                .when().post(getUrlPath("geodata"))
+                .then();
+    }
+
+
 }

@@ -20,15 +20,19 @@
 package io.arlas.server;
 
 import io.restassured.RestAssured;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public abstract class AbstractTestContext {
     static Logger LOGGER = LoggerFactory.getLogger(AbstractTestContext.class);
 
     protected static String arlasPath;
+    protected List<Pair<String, String>> extraParams = new ArrayList<>();
 
     public AbstractTestContext() {
     }
