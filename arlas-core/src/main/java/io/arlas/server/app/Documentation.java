@@ -88,7 +88,11 @@ public class Documentation {
             "\n \n" +
             "   - **format** is optional for datehistogram, and must not be specified for the other types." +
             "\n \n" +
-            "   - (**collect_field**,**collect_fct**) couple is optional for all aggregation types." +
+            "   - (**collect_field**,**collect_fct**) couple is optional for all aggregation types. " +
+            "\n \n" +
+            "   - It's possible to apply multiple metric aggregations by defining multiple (**collect_field**,**collect_fct**) couples." +
+            "\n \n" +
+            "   - (**collect_field**,**collect_fct**) couples should be unique in that case." +
             "\n \n" +
             "   - (**order**,**on**) couple is optional for all aggregation types." +
             "\n \n" +
@@ -122,6 +126,8 @@ public class Documentation {
             "Its values are 'asc' or 'desc'. " +
             "\n \n" +
             "- {on} is set to specify whether the {order} is on the field name, on the count of the aggregation or on the result of a metric sub-aggregation. Its values are 'field', 'count' or 'result'. " +
+            "\n \n" +
+            "- If {on} is equal to `result` and two ore more (**collect_field**,**collect_fct**) couples are specified, then the order is applied on the first `collect_fct` that is different from geobbox and geocentroid" +
             "\n \n" +
             "- {size} Defines how many buckets should be returned. " +
             "\n \n" +

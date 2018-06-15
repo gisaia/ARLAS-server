@@ -54,7 +54,7 @@ The other parts must be specified or not depending on the aggregation type. All 
 | ---------                 | -------------                       | ---------------------------------------- |
 | **interval**              | `datehistogram, histogram, geohash` | mandatory |
 | **format**                | `datehistogram`                     | optional (default value : `yyyy-MM-dd-HH:mm:ss`) |
-| (**collect_field**,**collect_fct**) | All types                 | optional |
+| (**collect_field**,**collect_fct**) | All types                 | optional and multiple |
 | (**order**,**on**)        | `term, histogram, datehistogram`    | optional |
 | **size**                  | `term, geohash`                     | optional |
 | **include**               | `term`                              | optional |
@@ -74,7 +74,7 @@ The sub-parameters possible values are:
 | **collect_field** | `{collect_field}`                               | The field used to aggregate collections. |
 | **collect_fct**   | `avg,cardinality,max,min,sum,geobbox,geocentroid (2)` | The aggregation function to apply to collections on the specified **collect_field**. |
 | **order**         | `asc,desc`                                      | Sorts the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation, ascending or descending. |
-| **on**            | `field,count,result` (3)                        | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
+| **on**            | `field,count,result` (3) (3')                       | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
 | **size**          | {size}                                          | Defines how many buckets should be returned. |
 | **include**       | Comma separated strings (4)                     | Specifies the values for which buckets will be created. |
 | **withGeoBBOX**   | Boolean (5)(6)                                  | When it's true : the geoaggregation geometry is the data extent (bbox) of each bucket. |
@@ -82,10 +82,19 @@ The sub-parameters possible values are:
 
 (1) Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
 
-(2) (**collect_field**,**collect_fct**) should both be specified, except when **collect_fct** = `geobbox` or `geocentroid`, it could be specified alone.
+(2) (**collect_field**,**collect_fct**) should both be specified.
+It's possible to apply multiple metric aggregations by defining multiple (**collect_field**,**collect_fct**) couples.
+They should be unique in that case.
 The metrics `geobbox` and `geocentroid` are returned as features collections.
 
 (3) When **on** is `result`, then (**collect_field**,**collect_fct**) should be specified. Except when **collect_fct** = `geobbox` or `geocentroid`, then **on**=`result` is prohibited .
+
+(3') If **on** is equal to `result` and two ore more (**collect_field**,**collect_fct**) couples are specified, then the order is applied on the first `collect_fct` different from `geobbox` and `geocentroid`"
+
+> Example: `agg=term:sexe:collect_field-location:collect_fct-geobbox:collect_field-age:collect_fct-avg:collect_field-height:collect_fct-max:order-asc:on-result`
+
+The `order` is applied on the first collect_fct `avg` (that is different from `geobbox`).
+
 
 (4) If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created.
 
