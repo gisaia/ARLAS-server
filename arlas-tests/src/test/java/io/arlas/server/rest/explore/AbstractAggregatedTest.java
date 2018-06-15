@@ -105,9 +105,9 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.SUM));
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.age", CollectionFunction.MAX));
         handleMatchingGeohashAggregateWithMultiCollect(post(aggregationRequest),
-                32, 16, 25, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, "sum", "max", 12641200F, 28305000F, 1600F,13600F);
+                32, 16, 25, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, aggregationRequest.aggregations.get(0).metrics.get(1).collectField, "sum", "max", 12641200F, 28305000F, 1600F,13600F);
         handleMatchingGeohashAggregateWithMultiCollect(get("geohash:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-sum:collect_field-params.age:collect_fct-max"),
-                32, 16, 25, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"sum", "max", 12641200F, 28305000F, 1600F,13600F);
+                32, 16, 25, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, aggregationRequest.aggregations.get(0).metrics.get(1).collectField,"sum", "max", 12641200F, 28305000F, 1600F,13600F);
 
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
@@ -221,9 +221,9 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.SUM));
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.age", CollectionFunction.MAX));
         handleMatchingAggregateWithMultiCollect(post(aggregationRequest),
-                10, 1, 104, "sum", "max", 1263600F, 102986100F, 8800F,13600F);
+                10, 1, 104, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, aggregationRequest.aggregations.get(0).metrics.get(1).collectField, "sum", "max", 1263600F, 102986100F, 8800F,13600F);
         handleMatchingAggregateWithMultiCollect(get("datehistogram:params.startdate:interval-1minute:collect_field-params.startdate:collect_fct-sum:collect_field-params.age:collect_fct-max"),
-                10, 1, 104, "sum", "max", 1263600F, 102986100F, 8800F,13600F);
+                10, 1, 104, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, aggregationRequest.aggregations.get(0).metrics.get(1).collectField,"sum", "max", 1263600F, 102986100F, 8800F,13600F);
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
         aggregationRequest.aggregations.get(0).format = "yyyyMMdd";
@@ -337,9 +337,9 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.SUM));
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.age", CollectionFunction.MAX));
         handleMatchingAggregateWithMultiCollect(post(aggregationRequest),
-                6, 14, 176, "sum", "max", 11005100F, 170040600F, 8800F,13600F);
+                6, 14, 176, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, aggregationRequest.aggregations.get(0).metrics.get(1).collectField,"sum", "max", 11005100F, 170040600F, 8800F,13600F);
         handleMatchingAggregateWithMultiCollect(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-sum:collect_field-params.age:collect_fct-max"),
-                6, 14, 176, "sum", "max", 11005100F, 170040600F, 8800F,13600F);
+                6, 14, 176, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, aggregationRequest.aggregations.get(0).metrics.get(1).collectField,"sum", "max", 11005100F, 170040600F, 8800F,13600F);
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("geo_params.centroid", CollectionFunction.GEOCENTROID));
@@ -449,9 +449,9 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.SUM));
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.age", CollectionFunction.MAX));
         handleMatchingAggregateWithMultiCollect(post(aggregationRequest),
-                DataSetTool.jobs.length - 1, 58, 64, "sum", "max", 58000000F, 640000000F, 6400F,13600F);
+                DataSetTool.jobs.length - 1, 58, 64, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, aggregationRequest.aggregations.get(0).metrics.get(1).collectField,"sum", "max", 58000000F, 640000000F, 6400F,13600F);
         handleMatchingAggregateWithMultiCollect(get("term:params.job:collect_field-params.startdate:collect_fct-sum:collect_field-params.age:collect_fct-max"),
-                DataSetTool.jobs.length - 1, 58, 64, "sum", "max", 58000000F, 640000000F, 6400F,13600F);
+                DataSetTool.jobs.length - 1, 58, 64, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, aggregationRequest.aggregations.get(0).metrics.get(1).collectField,"sum", "max", 58000000F, 640000000F, 6400F,13600F);
 
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
@@ -716,9 +716,9 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
 
     protected abstract void handleMatchingAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float featureCollectMin, float featureCollectMax) throws Exception;
 
-    protected abstract void handleMatchingAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectFct1, String collecFct2, float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception;
+    protected abstract void handleMatchingAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField1, String collectField2, String collectFct1, String collecFct2, float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception;
 
-    protected abstract void handleMatchingGeohashAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct1, String collecFct2, float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception;
+    protected abstract void handleMatchingGeohashAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField1, String collectField2, String collectFct1, String collecFct2, float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception;
 
     protected abstract void handleMatchingAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
 

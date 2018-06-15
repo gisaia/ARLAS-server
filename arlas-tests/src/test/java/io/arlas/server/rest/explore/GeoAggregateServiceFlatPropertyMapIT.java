@@ -39,7 +39,7 @@ public class GeoAggregateServiceFlatPropertyMapIT extends GeoAggregateServiceIT{
     protected void handleMatchingGeohashAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
-                .body("features.properties.0_name", everyItem(equalTo(collectFct)));
+                .body("features.properties.0_name", everyItem(startsWith(collectFct)));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class GeoAggregateServiceFlatPropertyMapIT extends GeoAggregateServiceIT{
     protected void handleMatchingGeohashAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
-                .body("features.properties.0_name", everyItem(equalTo(collectFct)));
+                .body("features.properties.0_name", everyItem(startsWith(collectFct)));
     }
 
     @Override
@@ -70,7 +70,20 @@ public class GeoAggregateServiceFlatPropertyMapIT extends GeoAggregateServiceIT{
         then
                 .body("features.properties.0_"+collectField+"_"+collectFct, everyItem(greaterThanOrEqualTo(featureCollectMin)))
                 .body("features.properties.0_"+collectField+"_"+collectFct, everyItem(lessThanOrEqualTo(featureCollectMax)))
-                .body("features.properties.0_name", everyItem(equalTo(collectFct)));
+                .body("features.properties.0_name", everyItem(startsWith(collectFct)));
+    }
+
+    @Override
+    protected  void handleMatchingGeohashAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField1, String collectField2, String collectFct1, String collectFct2,
+                                                                   float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
+        handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
+        then
+                .body("features.properties.0_"+collectField1+"_"+collectFct1, everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
+                .body("features.properties.1_"+collectField2+"_"+collectFct2, everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
+                .body("features.properties.0_"+collectField1+"_"+collectFct1, everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
+                .body("features.properties.1_"+collectField2+"_"+collectFct2, everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
+                .body("features.properties.0_name", hasItem(startsWith(collectFct1)))
+                .body("features.properties.1_name", hasItem(startsWith(collectFct2)));
     }
 
     @Override
