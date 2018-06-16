@@ -2,21 +2,21 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.arlas</groupId>
   <artifactId>arlas-admin</artifactId>
-  <version>7.6.0</version>
+  <version>7.6.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>ARLAS server admin</name>
 
   <parent>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-server-parent</artifactId>
-    <version>7.6.0</version>
+    <version>7.6.1-SNAPSHOT</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-core</artifactId>
-      <version>7.6.0</version>
+      <version>7.6.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
