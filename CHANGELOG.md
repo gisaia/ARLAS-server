@@ -1,5 +1,26 @@
 # Change Log
 
+## [v7.6.0](https://github.com/gisaia/ARLAS-server/tree/v7.6.0) (2018-06-16)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v6.6.0...v7.6.0)
+
+**New stuff:**
+
+- Generate python api [\#287](https://github.com/gisaia/ARLAS-server/issues/287)
+- OPENSEARCH: add url\_template\_prefix in ARLAS server configuration instread of collection reference definition [\#286](https://github.com/gisaia/ARLAS-server/issues/286) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
+- RASTER Tile Service for ARLAS [\#261](https://github.com/gisaia/ARLAS-server/issues/261) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
+- GeoAggregate and GeoSearch: add feature-type property [\#212](https://github.com/gisaia/ARLAS-server/issues/212)
+- Filters: Implement date math values in range, lt and gt operators [\#87](https://github.com/gisaia/ARLAS-server/issues/87) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Feat/\#287 python api generation [\#288](https://github.com/gisaia/ARLAS-server/pull/288) ([TamerGisaia](https://github.com/TamerGisaia))
+
+**Fixed bugs:**
+
+- When coordinates are Long/Integer, the GEOJSON is not built. [\#284](https://github.com/gisaia/ARLAS-server/issues/284)
+
+**Miscellaneous:**
+
+- Documentation : update range operator documentation [\#290](https://github.com/gisaia/ARLAS-server/issues/290) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
 ## [v6.6.0](https://github.com/gisaia/ARLAS-server/tree/v6.6.0) (2018-05-16)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v5.6.2...v6.6.0)
@@ -14,6 +35,7 @@
 
 - Simplify `GeoSearchRESTService.getFeatures\(\)` [\#273](https://github.com/gisaia/ARLAS-server/issues/273)
 - Useless `main` in `GeoTypeMapper` [\#271](https://github.com/gisaia/ARLAS-server/issues/271)
+- Documentation : add documentation of Collection Model [\#144](https://github.com/gisaia/ARLAS-server/issues/144) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
 
 ## [v5.6.2](https://github.com/gisaia/ARLAS-server/tree/v5.6.2) (2018-04-27)
 
