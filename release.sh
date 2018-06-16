@@ -12,7 +12,7 @@ function clean_docker {
 function clean_exit {
     ARG=$?
 	echo "=> Exit status = $ARG"
-	rm pom.xml.versionsBackup
+	rm -rf pom.xml.versionsBackup
 	rm -rf target/tmp || echo "target/tmp already removed"
 	clean_docker
 	if [ "$SIMULATE" == "NO" ]; then
@@ -21,7 +21,7 @@ function clean_exit {
     else
         echo "=> Skip discard changes";
         git checkout -- pom.xml
-        sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
+        sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' arlas-rest/src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
     fi
     exit $ARG
 }
@@ -148,8 +148,8 @@ i=1; until nc -w 2 ${DOCKER_IP} 19999; do if [ $i -lt 30 ]; then sleep 1; else b
 
 echo "=> Get swagger documentation"
 mkdir -p target/tmp || echo "target/tmp exists"
-i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.json -o target/tmp/swagger.json; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
-i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.yaml -o target/tmp/swagger.yaml; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
+i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.json -o target/tmp/swagger.json; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
+i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.yaml -o target/tmp/swagger.yaml; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 
 echo "=> Stop arlas-server stack"
 docker-compose --project-name arlas down
@@ -199,7 +199,8 @@ else echo "=> Skip npm api publish"; fi
 echo "=> Build Python API "${FULL_API_VERSION}
 cd ${BASEDIR}/target/tmp/python-api/
 cp ${BASEDIR}/conf/python/setup.py setup.py
-sed -i 's/api_version/${FULL_API_VERSION}/g' setup.py
+sed -i.bak 's/\"api_version\"/\"'${FULL_API_VERSION}'\"/' setup.py
+
 docker run --rm \
     -w /opt/python \
 	-v $PWD:/opt/python \
