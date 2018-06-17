@@ -6,6 +6,8 @@
 
 **New stuff:**
 
+- Aggregate and Geoaggregate must allow multiple metrics [\#106](https://github.com/gisaia/ARLAS-server/issues/106) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- GeoAggregate/Geosearch : flat the propreties of geojson [\#296](https://github.com/gisaia/ARLAS-server/issues/296) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
 - Generate python api [\#287](https://github.com/gisaia/ARLAS-server/issues/287)
 - OPENSEARCH: add url\_template\_prefix in ARLAS server configuration instread of collection reference definition [\#286](https://github.com/gisaia/ARLAS-server/issues/286) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
 - RASTER Tile Service for ARLAS [\#261](https://github.com/gisaia/ARLAS-server/issues/261) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
@@ -20,6 +22,8 @@
 **Miscellaneous:**
 
 - Documentation : update range operator documentation [\#290](https://github.com/gisaia/ARLAS-server/issues/290) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- OGC URL prefix for OGC related services [\#294](https://github.com/gisaia/ARLAS-server/issues/290) [[API](https://github.com/gisaia/ARLAS-server/labels/API)] [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)] [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
 
 ## [v6.6.0](https://github.com/gisaia/ARLAS-server/tree/v6.6.0) (2018-05-16)
 
