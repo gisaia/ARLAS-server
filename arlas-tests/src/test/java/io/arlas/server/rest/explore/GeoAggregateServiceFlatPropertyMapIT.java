@@ -39,7 +39,7 @@ public class GeoAggregateServiceFlatPropertyMapIT extends GeoAggregateServiceIT{
     protected void handleMatchingGeohashAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
-                .body("features.properties.0_name", everyItem(startsWith(collectFct)));
+                .body("features.properties", everyItem(hasKey(collectField.replace(".", "-") + "_" + collectFct + "_")));
     }
 
     @Override
@@ -54,23 +54,22 @@ public class GeoAggregateServiceFlatPropertyMapIT extends GeoAggregateServiceIT{
     protected void handleMatchingGeohashAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
-                .body("features.properties.0_name", everyItem(startsWith(collectFct)));
+                .body("features.properties", everyItem(hasKey(collectField.replace(".", "-") + "_" + collectFct + "_")));
     }
 
     @Override
     protected void handleMatchingGeohashAggregateWithGeoBboxBucket(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int elementsSize, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
-                .body("features[0].properties.size()", equalTo(5+elementsSize*2));// 5 = default value when nothing fetched
+                .body("features[0].properties.size()", equalTo(5 + elementsSize));// 5 = default value when nothing fetched
     }
     @Override
     protected void handleMatchingGeohashAggregateWithCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float featureCollectMin,
                                                              float featureCollectMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
-                .body("features.properties.0_"+collectField+"_"+collectFct, everyItem(greaterThanOrEqualTo(featureCollectMin)))
-                .body("features.properties.0_"+collectField+"_"+collectFct, everyItem(lessThanOrEqualTo(featureCollectMax)))
-                .body("features.properties.0_name", everyItem(startsWith(collectFct)));
+                .body("features.properties."+collectField+"_"+collectFct + "_", everyItem(greaterThanOrEqualTo(featureCollectMin)))
+                .body("features.properties."+collectField+"_"+collectFct + "_", everyItem(lessThanOrEqualTo(featureCollectMax)));
     }
 
     @Override
@@ -78,12 +77,10 @@ public class GeoAggregateServiceFlatPropertyMapIT extends GeoAggregateServiceIT{
                                                                    float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
-                .body("features.properties.0_"+collectField1+"_"+collectFct1, everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
-                .body("features.properties.1_"+collectField2+"_"+collectFct2, everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
-                .body("features.properties.0_"+collectField1+"_"+collectFct1, everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
-                .body("features.properties.1_"+collectField2+"_"+collectFct2, everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
-                .body("features.properties.0_name", hasItem(startsWith(collectFct1)))
-                .body("features.properties.1_name", hasItem(startsWith(collectFct2)));
+                .body("features.properties."+collectField1+"_"+collectFct1 + "_", everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
+                .body("features.properties."+collectField2+"_"+collectFct2 + "_", everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
+                .body("features.properties."+collectField1+"_"+collectFct1 + "_", everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
+                .body("features.properties."+collectField2+"_"+collectFct2 + "_", everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))));
     }
 
     @Override
