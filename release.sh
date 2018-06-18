@@ -213,8 +213,7 @@ if [ "$SIMULATE" == "NO" ]; then
         -w /opt/python \
     	-v $PWD:/opt/python \
     	python:3 \
-        pip install twine & \
-        twine upload dist/*
+    	/bin/bash -c  "pip install twine ; twine upload dist/*"
      ### At this stage username and password of Pypi repository should be set
 else echo "=> Skip python api publish"; fi
 
