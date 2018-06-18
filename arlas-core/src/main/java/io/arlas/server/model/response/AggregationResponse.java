@@ -34,7 +34,7 @@ public class AggregationResponse extends OperationInfo {
     public Object key;
     public Object keyAsString;
     public List<AggregationResponse> elements;
-    public AggregationMetric metric;
+    public List<AggregationMetric> metrics;
     public Polygon BBOX = null;
     public Point centroid = null;
 }

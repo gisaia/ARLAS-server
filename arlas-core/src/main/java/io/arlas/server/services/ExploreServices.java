@@ -236,6 +236,7 @@ public class ExploreServices {
                 element.elements = null;
                 aggregationResponse.elements.add(element);
             } else {
+                element.metrics = new ArrayList<>();
                 bucket.getAggregations().forEach(subAggregation -> {
                     AggregationResponse subAggregationResponse = new AggregationResponse();
                     subAggregationResponse.name = subAggregation.getName();
@@ -245,7 +246,7 @@ public class ExploreServices {
                     if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse);
                     } else {
-                        subAggregationResponse.elements = null;
+                        subAggregationResponse = null;
                         AggregationMetric aggregationMetric = new AggregationMetric();
                         aggregationMetric.type = subAggregation.getName().split(":")[0];
                         if (!aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase())
@@ -276,9 +277,7 @@ public class ExploreServices {
                         // No need to add the geocentroid or the geobox as metric if withGeoCentroid or withGeoBBox is true (respectively)
                         if (!aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket") && !aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket")) {
                             aggregationMetric.field = subAggregation.getName().split(":")[1];
-                            subAggregationResponse.metric = aggregationMetric;
-                        } else {
-                            subAggregationResponse = null;
+                            element.metrics.add(aggregationMetric);
                         }
                     }
                     if (subAggregationResponse != null) {
@@ -314,8 +313,8 @@ public class ExploreServices {
         addToFlat(flat, keyParts, "sumotherdoccounts",element.sumotherdoccounts);
         addToFlat(flat, keyParts, "totalnb",element.totalnb);
         addToFlat(flat, keyParts, "totalTime",element.totalTime);
-        if(element.metric!=null){
-            addToFlat(flat, newKeyParts(newKeyParts(keyParts,element.metric.field),element.metric.type), "",element.metric.value);
+        if(element.metrics!=null){
+            element.metrics.forEach(metric -> addToFlat(flat, newKeyParts(newKeyParts(keyParts,metric.field),  metric.type), "", metric.value));
         }
         int idx = 0;
         if(element.elements!=null){

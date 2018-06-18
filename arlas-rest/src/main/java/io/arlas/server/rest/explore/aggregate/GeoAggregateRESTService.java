@@ -419,6 +419,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     });
                 }else{
                     properties.put("elements", element.elements);
+                    properties.put("metrics", element.metrics);
                 }
                 feature.setProperties(properties);
                 feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);

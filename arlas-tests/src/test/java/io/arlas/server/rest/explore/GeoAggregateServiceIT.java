@@ -75,12 +75,11 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     protected void handleMatchingGeohashAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
-                .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))
-                .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))
-                .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))
-                .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))
-                .body("features.properties.elements[0].name", everyItem(startsWith(collectFct)))
-                .body("features.properties.elements[0].metric.type", everyItem(equalTo(collectFct)));
+                .body("features.properties.metrics[0].value.features[0].geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))
+                .body("features.properties.metrics[0].value.features[0].geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))
+                .body("features.properties.metrics[0].value.features[0].geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))
+                .body("features.properties.metrics[0].value.features[0].geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))
+                .body("features.properties.metrics[0].type", everyItem(equalTo(collectFct)));
     }
 
     @Override
@@ -98,12 +97,11 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     protected void handleMatchingGeohashAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
-                .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))))
-                .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))))
-                .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))))
-                .body("features.properties.elements[0].metric.value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))))
-                .body("features.properties.elements[0].name", everyItem(startsWith(collectFct)))
-                .body("features.properties.elements[0].metric.type", everyItem(equalTo(collectFct)));
+                .body("features.properties.metrics[0].value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))))
+                .body("features.properties.metrics[0].value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))))
+                .body("features.properties.metrics[0].value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))))
+                .body("features.properties.metrics[0].value.features[0].geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))))
+                .body("features.properties.metrics[0].type", everyItem(equalTo(collectFct)));
     }
 
     @Override
@@ -114,7 +112,7 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))))
                 .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))))
                 .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))))
-                .body("features[0].properties.elements.size()", equalTo(elementsSize));
+                .body("features[0].properties.metrics.size()", equalTo(elementsSize));
     }
 
     @Override
@@ -127,10 +125,9 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                                                              float featureCollectMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
-                .body("features.properties.elements[0].metric.value", everyItem(greaterThanOrEqualTo(featureCollectMin)))
-                .body("features.properties.elements[0].metric.value", everyItem(lessThanOrEqualTo(featureCollectMax)))
-                .body("features.properties.elements[0].name", everyItem(startsWith(collectFct)))
-                .body("features.properties.elements[0].metric.type", everyItem(equalTo(collectFct)));
+                .body("features.properties.metrics[0].value", everyItem(greaterThanOrEqualTo(featureCollectMin)))
+                .body("features.properties.metrics[0].value", everyItem(lessThanOrEqualTo(featureCollectMax)))
+                .body("features.properties.metrics[0].type", everyItem(equalTo(collectFct)));
     }
 
     @Override
@@ -138,16 +135,14 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                                                             float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
-                .body("features.properties.elements[0].metric.value", everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
-                .body("features.properties.elements[1].metric.value", everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
-                .body("features.properties.elements[0].metric.value", everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
-                .body("features.properties.elements[1].metric.value", everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
-                .body("features.properties.elements[0].name", hasItem(startsWith(collectFct1)))
-                .body("features.properties.elements[1].name", hasItem(startsWith(collectFct2)))
-                .body("features.properties.elements[0].metric.type", hasItem(equalTo(collectFct1)))
-                .body("features.properties.elements[1].metric.type", hasItem(equalTo(collectFct2)))
-                .body("features.properties.elements[0].metric.field", hasItem(equalTo(collectField1.replace(".", "-"))))
-                .body("features.properties.elements[1].metric.field", hasItem(equalTo(collectField2.replace(".", "-"))));
+                .body("features.properties.metrics[0].value", everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
+                .body("features.properties.metrics[1].value", everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))
+                .body("features.properties.metrics[0].value", everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
+                .body("features.properties.metrics[1].value", everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
+                .body("features.properties.metrics[0].type", hasItem(equalTo(collectFct1)))
+                .body("features.properties.metrics[1].type", hasItem(equalTo(collectFct2)))
+                .body("features.properties.metrics[0].field", hasItem(equalTo(collectField1.replace(".", "-"))))
+                .body("features.properties.metrics[1].field", hasItem(equalTo(collectField2.replace(".", "-"))));
     }
 
     @Override
