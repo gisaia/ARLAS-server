@@ -63,11 +63,11 @@ public abstract class AbstractProjectedTest extends AbstractSizedTest {
 
         search.projection.excludes = "params.job,fullname";
         search.projection.includes = "geo_params.geometry";
-        handleDisplayedParameter(post(search), Arrays.asList("id", "params.startdate", "geo_params.geometry", "geo_params.centroid"));
+        handleDisplayedParameter(post(search), Arrays.asList("id", "params.startdate",  "geo_params.centroid"));
         handleDisplayedParameter(givenFilterableRequestParams().param("include", search.projection.includes)
                 .param("exclude", search.projection.excludes)
                 .when().get(getUrlPath("geodata"))
-                .then(), Arrays.asList("id", "params.startdate", "geo_params.geometry", "geo_params.centroid"));
+                .then(), Arrays.asList("id", "params.startdate",  "geo_params.centroid"));
 
         search.projection.includes = null;
         search.projection.excludes = null;

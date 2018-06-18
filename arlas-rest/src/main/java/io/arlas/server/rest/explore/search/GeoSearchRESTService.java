@@ -31,6 +31,7 @@ import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.*;
 import io.dropwizard.jersey.params.IntParam;
+import io.netty.util.internal.StringUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -44,8 +45,10 @@ import org.geojson.GeoJsonObject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class GeoSearchRESTService extends ExploreRESTServices {
@@ -208,7 +211,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         request.headerRequest = searchHeader;
 
-        FeatureCollection fc = getFeatures(collectionReference, request, (flat!=null && flat));
+        FeatureCollection fc = getFeatures(collectionReference, request, (flat!=null && flat), getExcludeFromData(collectionReference));
         return cache(Response.ok(fc), maxagecache);
     }
 
@@ -456,16 +459,14 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-
-        FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat));
+        FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat), getExcludeFromData(collectionReference));
         return cache(Response.ok(fc), maxagecache);
     }
 
-    protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request, boolean flat) throws ArlasException, IOException {
+    protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request, boolean flat, Set<String> exclude) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
         FeatureCollection fc = new FeatureCollection();
         SearchHit[] results = searchHits.getHits();
-
         for (SearchHit hit : results) {
             Feature feature = new Feature();
             Map<String, Object> source = hit.getSourceAsMap();
@@ -496,10 +497,18 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             } else if (centroidGeoJson != null) {
                 feature.setGeometry(centroidGeoJson);
             }
-            feature.setProperties(flat?MapExplorer.flat(hit.getSourceAsMap(),new MapExplorer.ReduceArrayOnKey("_")):hit.getSourceAsMap());
+            feature.setProperties(flat?MapExplorer.flat(hit.getSourceAsMap(),new MapExplorer.ReduceArrayOnKey("_"), exclude):hit.getSourceAsMap());
             feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
             fc.add(feature);
         }
         return fc;
+    }
+    private Set<String> getExcludeFromData(CollectionReference collectionReference){
+    Set<String> excludeFromData = new HashSet<>();
+        //excludeFromData.add(collectionReference.params.centroidPath); TODO : decide whether the centroid should be in the response or not
+        if(!StringUtil.isNullOrEmpty(collectionReference.params.geometryPath)){
+            excludeFromData.add(collectionReference.params.geometryPath);
+        }
+        return excludeFromData;
     }
 }

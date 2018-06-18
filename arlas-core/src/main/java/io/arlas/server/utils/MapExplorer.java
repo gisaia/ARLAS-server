@@ -55,27 +55,29 @@ public class MapExplorer {
         }
     }
 
-    public static Map<String, Object> flat(Object source, Function<Map<List<String>, Object>,Map<String, Object>> keyStringifier) {
+    public static Map<String, Object> flat(Object source, Function<Map<List<String>, Object>,Map<String, Object>> keyStringifier, Set<String> exclude) {
         Map<List<String>, Object> flatted= new HashMap<>();
-        flat(new ArrayList<>(),source, flatted);
+        flat(new ArrayList<>(),source, flatted, exclude);
         return keyStringifier.apply(flatted);
     }
 
-    private static void flat(List<String> keyParts, Object source, Map<List<String>, Object> flatted) {
+    private static void flat(List<String> keyParts, Object source, Map<List<String>, Object> flatted, Set<String> exclude) {
         if(source==null){
             flatted.put(keyParts,source);
+        }else if(exclude.stream().anyMatch(donotstartwith->String.join(".",keyParts).startsWith(donotstartwith))){
+            // Nothing to do: should not be exported in the map
         }else if (source instanceof Map) {
             ((Map) source).forEach((key,value)->{
                 List<String> extendedParts=new ArrayList<>(keyParts);
                 extendedParts.add((String)key);
-                flat(extendedParts,value, flatted);
+                flat(extendedParts,value, flatted, exclude);
             });
         }else if(source instanceof Collection || source.getClass().isArray()) {
             Collection collection = source instanceof Collection?(Collection)source:Arrays.asList(source);
             Streams.mapWithIndex(collection.stream(),(value,i) -> {
                 List<String> extendedParts=new ArrayList<>(keyParts);
                 extendedParts.add(""+i);
-                flat(extendedParts,value, flatted);
+                flat(extendedParts,value, flatted, exclude);
                 return value;
             }).count();
         }else{

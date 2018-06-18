@@ -22,10 +22,13 @@ package io.arlas.server.utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.collection.IsMapContaining;
+import org.hamcrest.core.IsNot;
 import org.junit.Assert;
 import org.junit.Test;
+import org.opengis.filter.Not;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 public class MapExplorerTest {
@@ -35,7 +38,7 @@ public class MapExplorerTest {
         Map<String, Object> flat =
                 MapExplorer.flat(
                         new ObjectMapper().reader(new TypeReference<Map<String, Object>>(){}).readValue(this.getClass().getClassLoader().getResourceAsStream("flatMapTest.json")),
-                        new MapExplorer.ReduceArrayOnKey("_"));
+                        new MapExplorer.ReduceArrayOnKey("_"), Collections.singleton("a.e.g.2"));
         Assert.assertThat(flat,IsMapContaining.hasEntry("a_b_0_c", 1));
         Assert.assertThat(flat,IsMapContaining.hasEntry("a_b_1_c", 2));
         Assert.assertThat(flat,IsMapContaining.hasEntry("a_b_2_d", "a"));
@@ -43,6 +46,6 @@ public class MapExplorerTest {
         Assert.assertThat(flat,IsMapContaining.hasEntry("a_e_f", "a"));
         Assert.assertThat(flat,IsMapContaining.hasEntry("a_e_g_0", 1));
         Assert.assertThat(flat,IsMapContaining.hasEntry("a_e_g_1", 2));
-        Assert.assertThat(flat,IsMapContaining.hasEntry("a_e_g_2", 3));
+        Assert.assertThat(flat,IsNot.not(IsMapContaining.hasEntry("a_e_g_2", 3)));
     }
 }
