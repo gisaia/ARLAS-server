@@ -105,6 +105,12 @@ if [ -z ${ARLAS_DEV+x} ]; then usage;          else    echo "Next development ve
                                                        echo "Running tests               : ${TESTS}"
                                                        echo "Simulate mode               : ${SIMULATE}"
 
+if [ "$SIMULATE" == "NO" ]; then
+    if  [ -z "$PIP_LOGIN"  ] ; then echo "Please set PIP_LOGIN environment variable"; exit -1; fi
+    if  [ -z "$PIP_PASSWORD"  ] ; then echo "Please set PIP_PASSWORD environment variable"; exit -1; fi
+fi
+
+
 export ARLAS_VERSION="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_REL}"
 ARLAS_DEV_VERSION="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_DEV}"
 FULL_API_VERSION=${API_MAJOR_VERSION}"."${API_MINOR_VERSION}"."${API_PATCH_VERSION}
@@ -213,7 +219,7 @@ if [ "$SIMULATE" == "NO" ]; then
         -w /opt/python \
     	-v $PWD:/opt/python \
     	python:3 \
-    	/bin/bash -c  "pip install twine ; twine upload dist/*"
+    	/bin/bash -c  "pip install twine ; twine upload dist/* -u ${PIP_LOGIN} -p ${PIP_PASSWORD}"
      ### At this stage username and password of Pypi repository should be set
 else echo "=> Skip python api publish"; fi
 
