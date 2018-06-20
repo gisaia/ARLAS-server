@@ -1,5 +1,32 @@
 # Change Log
 
+## [v7.6.1](https://github.com/gisaia/ARLAS-server/tree/v7.6.1) (2018-06-20)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v6.6.0...v7.6.1)
+
+**New stuff:**
+
+- \_geosearch : centroid/geometry is not in the returned geojson data when property map is flatted [\#311](https://github.com/gisaia/ARLAS-server/issues/311)
+- GeoAggregate/Geosearch : flat the propreties of geojson [\#296](https://github.com/gisaia/ARLAS-server/issues/296) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Generate python api [\#287](https://github.com/gisaia/ARLAS-server/issues/287)
+- OPENSEARCH: add url\_template\_prefix in ARLAS server configuration instread of collection reference definition [\#286](https://github.com/gisaia/ARLAS-server/issues/286) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
+- RASTER Tile Service for ARLAS [\#261](https://github.com/gisaia/ARLAS-server/issues/261) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
+- GeoAggregate and GeoSearch: add feature-type property [\#212](https://github.com/gisaia/ARLAS-server/issues/212)
+- Aggregate and Geoaggregate must allow multiple metrics [\#106](https://github.com/gisaia/ARLAS-server/issues/106) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Filters: Implement date math values in range, lt and gt operators [\#87](https://github.com/gisaia/ARLAS-server/issues/87) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Feat/\#287 python api generation [\#288](https://github.com/gisaia/ARLAS-server/pull/288) ([TamerGisaia](https://github.com/TamerGisaia))
+
+**Fixed bugs:**
+
+- release.sh : pip publication command line fails [\#312](https://github.com/gisaia/ARLAS-server/issues/312)
+- When coordinates are Long/Integer, the GEOJSON is not built. [\#284](https://github.com/gisaia/ARLAS-server/issues/284)
+
+**Miscellaneous:**
+
+- Multiple Metrics within a single aggregation [\#313](https://github.com/gisaia/ARLAS-server/issues/313) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- OGC URL prefix for OGC related services [\#294](https://github.com/gisaia/ARLAS-server/issues/294) [[API](https://github.com/gisaia/ARLAS-server/labels/API)] [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)] [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- Documentation : update range operator documentation [\#290](https://github.com/gisaia/ARLAS-server/issues/290) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
 ## [v6.6.0](https://github.com/gisaia/ARLAS-server/tree/v6.6.0) (2018-05-16)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v5.6.2...v6.6.0)
