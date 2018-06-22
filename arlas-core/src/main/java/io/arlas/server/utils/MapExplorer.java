@@ -92,7 +92,7 @@ public class MapExplorer {
 
         @Override
         public Map<String, Object> apply(Map<List<String>, Object> flat) {
-            return flat.entrySet().stream().map(e->new Tuple2<>(String.join(separator,e.getKey()),e.getValue())).collect(Collectors.toMap(Tuple2::_1,Tuple2::_2));
+            return flat.entrySet().stream().filter(e->e.getValue()!=null).map(e->new Tuple2<>(String.join(separator,e.getKey()),e.getValue())).collect(Collectors.toMap(Tuple2::_1,Tuple2::_2));
         }
     }
 }
