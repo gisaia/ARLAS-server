@@ -1,5 +1,14 @@
 # Change Log
 
+## [v7.6.2](https://github.com/gisaia/ARLAS-server/tree/v7.6.2) (2018-06-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v7.6.1...v7.6.2)
+
+**Fixed bugs:**
+
+- Flat : NullPointerException thrown when an attribute has a null value [\#321](https://github.com/gisaia/ARLAS-server/issues/321)
+- Flat : remove attributes that has null value [\#322](https://github.com/gisaia/ARLAS-server/pull/322) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
 ## [v7.6.1](https://github.com/gisaia/ARLAS-server/tree/v7.6.1) (2018-06-20)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v6.6.0...v7.6.1)
