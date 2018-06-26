@@ -56,7 +56,20 @@ public abstract class AbstractFieldRangeTest  extends AbstractFilteredTest {
         rangeRequest.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.lt, "0")));
         handleFieldRangeEmptyResponse(post(rangeRequest));
         handleFieldRangeEmptyResponse(get(rangeRequest.field,"f", rangeRequest.filter.f.get(0).get(0).toString()));
-        rangeRequest.filter = new Filter();
+
+        rangeRequest.field = "params.weight";
+        rangeRequest.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[763600<1013700]")));
+        handleFieldRangeRequest(post(rangeRequest), 1, -6000, -6000);
+        handleFieldRangeRequest(get(rangeRequest.field,"f", rangeRequest.filter.f.get(0).get(0).toString()), 1, -6000, -6000);
+
+        rangeRequest.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[763600<1013599]")));
+        handleFieldRangeEmptyResponse(post(rangeRequest));
+        handleFieldRangeEmptyResponse(get(rangeRequest.field,"f", rangeRequest.filter.f.get(0).get(0).toString()));
+        rangeRequest.filter =  new Filter();
+
+        rangeRequest.field = "params.foo";
+        handleFieldRangeEmptyResponse(post(rangeRequest));
+        handleFieldRangeEmptyResponse(get(rangeRequest.field));
     }
 
     //----------------------------------------------------------------
@@ -69,10 +82,6 @@ public abstract class AbstractFieldRangeTest  extends AbstractFilteredTest {
         handleInvalidFieldRangeRequest(get(rangeRequest.field));
 
         rangeRequest.field = "geo_params.centroid";
-        handleInvalidFieldRangeRequest(post(rangeRequest));
-        handleInvalidFieldRangeRequest(get(rangeRequest.field));
-
-        rangeRequest.field = "params.foo";
         handleInvalidFieldRangeRequest(post(rangeRequest));
         handleInvalidFieldRangeRequest(get(rangeRequest.field));
     }

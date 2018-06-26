@@ -141,6 +141,9 @@ public class DataSetTool {
                 data.fullname = "My name is " + data.id;
                 data.params.age = Math.abs(i * j);
                 data.params.startdate = 1l * (i + 1000) * (j + 1000);
+                if (data.params.startdate >= 1013600) {
+                    data.params.weight = (i + 10) * (j + 10);
+                }
                 data.params.stopdate = 1l * (i + 1000) * (j + 1000) + 100;
                 data.geo_params.centroid = j + "," + i;
                 data.params.job = jobs[((Math.abs(i) + Math.abs(j)) / 10) % (jobs.length - 1)];
