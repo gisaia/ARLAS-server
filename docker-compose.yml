@@ -32,4 +32,4 @@ services:
       - ARLAS_SERVICE_RASTER_TILES_ENABLE="${ARLAS_SERVICE_RASTER_TILES_ENABLE:-false}"
     ports:
       - 19999:9999
-    command: ["/opt/app/wait-for-elasticsearch.sh", "elasticsearch", "9300"]
+    command: ["/opt/app/wait-for-elasticsearch.sh"]
