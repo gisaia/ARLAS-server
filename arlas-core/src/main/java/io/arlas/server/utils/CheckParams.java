@@ -40,7 +40,7 @@ public class CheckParams {
 
     private static final String POLYGON_TYPE = "POLYGON";
     private static final String INVALID_SORT_PARAMETER = "Invalid sort syntax. Please use the following syntax : 'fieldName:ASC' or 'fieldName:DESC'. ";
-    private static final String INVALID_XYZ_PARAMETER = "Z must be between 0 and 22. X and Y must be between 0 and (2^Z-1)";
+    private static final String INVALID_XYZ_PARAMETER = "Z must be between 0 and 28. X and Y must be between 0 and (2^Z-1)";
     private static final String INVALID_DATE_MATH_UNIT = "Invalid date math unit. Please use the following list : y, M, w, d, h, H, m, s. ";
     private static final String INVALID_DATE_MATH_VALUE = "Invalid date math value. Please specify an integer. ";
     private static final String INVALID_DATE_MATH_OPERATOR = "Invalid date math operator. Please use the following list : /, +, -";
@@ -294,7 +294,7 @@ public class CheckParams {
     }
 
     public static void checkXYZTileValidity(int x, int y, int z) throws ArlasException {
-        if (z >= 0 && z <= 22) {
+        if (z >= 0 && z <= 28) {
             if (!isIntegerInXYZRange(x, z) || !isIntegerInXYZRange(x, z)) {
                 throw new InvalidParameterException(INVALID_XYZ_PARAMETER);
             }

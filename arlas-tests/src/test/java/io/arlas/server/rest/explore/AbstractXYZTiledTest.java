@@ -67,7 +67,7 @@ public abstract class AbstractXYZTiledTest extends AbstractSortedTest {
     @Test
     public void testInvalidXYZTile() throws Exception {
         handleInvalidXYZ(xyzTileGet(null, null, 0, 1, 0));
-        handleInvalidXYZ(xyzTileGet(null, null, 23, 1, 0));
+        handleInvalidXYZ(xyzTileGet(null, null, 29, 1, 0));
     }
 
     protected abstract void handleXYZ(ValidatableResponse then, String bottomLeft, String topRight) throws Exception;
