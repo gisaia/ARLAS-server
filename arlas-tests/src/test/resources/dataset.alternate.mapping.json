@@ -15,6 +15,9 @@
         "age": {
           "type": "integer"
         },
+        "weight": {
+          "type": "integer"
+        },
         "keywords": {
           "type": "keyword"
         },

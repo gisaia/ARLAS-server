@@ -145,9 +145,9 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleNotMatchingRequest(header(request.filter));
 
         request.filter.q = Arrays.asList(new MultiValueFilter<>(Arrays.asList("400", "600", "800", "1000")));
-        handleMatchingQueryFilter(post(request), 56);
-        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0) + ";" + request.filter.q.get(0).get(1) + ";" + request.filter.q.get(0).get(2) + ";" + request.filter.q.get(0).get(3)), (56));
-        handleMatchingQueryFilter(header(request.filter), 56);
+        handleMatchingQueryFilter(post(request), 68);
+        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0) + ";" + request.filter.q.get(0).get(1) + ";" + request.filter.q.get(0).get(2) + ";" + request.filter.q.get(0).get(3)), (68));
+        handleMatchingQueryFilter(header(request.filter), 68);
 
         request.filter.q = null;
     }

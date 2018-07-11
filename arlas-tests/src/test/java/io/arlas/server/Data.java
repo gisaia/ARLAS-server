@@ -30,6 +30,7 @@ public class Data {
     public class DataParams {
         public String job;
         public int age;
+        public Integer weight;
         public String city;
         public String country;
         public Long startdate;

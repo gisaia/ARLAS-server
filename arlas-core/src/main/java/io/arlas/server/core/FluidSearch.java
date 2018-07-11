@@ -505,6 +505,7 @@ public class FluidSearch {
     }
 
     public FluidSearch getFieldRange(String field) {
+        boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.existsQuery(field));
         MinAggregationBuilder minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
         MaxAggregationBuilder maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
         searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(minAggregationBuilder).addAggregation(maxAggregationBuilder);
