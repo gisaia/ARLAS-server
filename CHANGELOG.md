@@ -1,6 +1,21 @@
 # Change Log
 
-## [v7.6.2](https://github.com/gisaia/ARLAS-server/tree/v7.6.2) (2018-06-22)
+## [v7.6.3](https://github.com/gisaia/ARLAS-server/tree/v7.6.3) (2018-07-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v7.6.2...v7.6.3)
+
+**New stuff:**
+
+- TiledGeosearch : increase max zoom level [\#326](https://github.com/gisaia/ARLAS-server/issues/326)
+- make `scripts/wait-for-elasticsearch` recognize environment value `ARLAS\_ELASTIC\_NODES` [\#323](https://github.com/gisaia/ARLAS-server/issues/323)
+- Made `scripts/wait-for-elasticsearch.sh` support environment variable… [\#328](https://github.com/gisaia/ARLAS-server/pull/328) ([elouanKeryell-Even](https://github.com/elouanKeryell-Even))
+- Increase max zoom for tiled geosearch [\#330](https://github.com/gisaia/ARLAS-server/pull/330) ([mbarbet](https://github.com/mbarbet))
+
+**Fixed bugs:**
+
+- RangeService : check if the field exists before calculating its values range [\#325](https://github.com/gisaia/ARLAS-server/issues/325)
+
+## [v7.6.2](https://github.com/gisaia/ARLAS-server/tree/v7.6.2) (2018-06-25)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v7.6.1...v7.6.2)
 
