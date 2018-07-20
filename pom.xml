@@ -36,15 +36,15 @@
     <io.rest-assured.version>3.0.5</io.rest-assured.version>
 
     <!-- ELASTICSEARCH-->
-    <elastic.version>6.2.3</elastic.version>
+    <elastic.version>6.3.1</elastic.version>
 
     <!-- GEO-->
     <geotools.version>18.0</geotools.version>
     <protobuf.version>3.4.0</protobuf.version>
     <geoapi.version>3.0.1</geoapi.version>
     <geojson.jackson.version>1.8</geojson.jackson.version>
-    <vivid.version>1.13</vivid.version>
-    <spatial4j.version>0.6</spatial4j.version>
+    <spatial4j.version>0.7</spatial4j.version>
+    <jts.version>1.15.0</jts.version>
 
     <!-- DOCUMENTATION GENERATION-->
     <swagger2markup.version>1.2.0</swagger2markup.version>

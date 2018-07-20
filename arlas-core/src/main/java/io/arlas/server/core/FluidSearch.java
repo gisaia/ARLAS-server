@@ -19,9 +19,9 @@
 
 package io.arlas.server.core;
 
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
@@ -789,7 +789,8 @@ public class FluidSearch {
     private PolygonBuilder createPolygonBuilder(Polygon polygon) {
         // TODO: add interior holes
         CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
-        coordinatesBuilder.coordinates(polygon.getCoordinates());
+        List<Coordinate> coordinates = Arrays.asList(polygon.getCoordinates());
+        coordinatesBuilder.coordinates(coordinates);
         return new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.LEFT);
     }
 
