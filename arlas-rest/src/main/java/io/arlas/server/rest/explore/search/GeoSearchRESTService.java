@@ -45,10 +45,7 @@ import org.geojson.GeoJsonObject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class GeoSearchRESTService extends ExploreRESTServices {
@@ -497,7 +494,13 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             } else if (centroidGeoJson != null) {
                 feature.setGeometry(centroidGeoJson);
             }
-            feature.setProperties(flat?MapExplorer.flat(hit.getSourceAsMap(),new MapExplorer.ReduceArrayOnKey("_"), exclude):hit.getSourceAsMap());
+            exclude.stream().forEach(e->{
+                String pathToRemove = e.substring(0,e.lastIndexOf("."));
+                String keyToRemove = e.substring(e.lastIndexOf(".")+1);
+                Map objectToRemove = (Map) MapExplorer.getObjectFromPath(pathToRemove, source);
+                objectToRemove.remove(keyToRemove);
+            });
+            feature.setProperties(flat?MapExplorer.flat(source,new MapExplorer.ReduceArrayOnKey("_"), exclude):source);
             feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
             fc.add(feature);
         }
