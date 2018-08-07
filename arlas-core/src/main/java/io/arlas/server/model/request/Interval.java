@@ -22,13 +22,13 @@ package io.arlas.server.model.request;
 import io.arlas.server.model.enumerations.UnitEnum;
 
 public class Interval {
-    public Integer value;
+    public Number value;
     public UnitEnum unit;
 
     public Interval() {
     }
 
-    public Interval(Integer value, UnitEnum unit) {
+    public Interval(Number value, UnitEnum unit) {
         this.value = value;
         this.unit = unit;
     }

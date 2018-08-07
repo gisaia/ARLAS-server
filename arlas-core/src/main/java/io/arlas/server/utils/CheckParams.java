@@ -66,7 +66,7 @@ public class CheckParams {
     public static final String INTERVAL_UNIT_NOT_SPECIFIED = "Interval unit is missing.";
     public static final String NO_INTERVAL_UNIT_FOR_GEOHASH_NOR_HISTOGRAM = "Interval unit must not be specified for geohash nor histogram aggregations.";
     public static final String NO_TERM_INTERVAL = "'Interval' should not be specified for term aggregation.";
-    
+
     public CheckParams() {
     }
 
@@ -150,7 +150,7 @@ public class CheckParams {
 
     public static void checkAggregationIntervalParameter(Aggregation aggregationModel) throws ArlasException {
         // - Aggregation Interval must be specified for geohash, histogram and datehistogram only
-        // - Interval value must be Integer
+        // - Interval value must be a positive Integer for geohash and datehistogram aggregations and positive decimal for histogram aggregation
         // - Interval unit must be specified for datehistogram aggregation only
         if (aggregationModel.type == AggregationTypeEnum.term) {
             if (aggregationModel.interval != null) {
@@ -164,7 +164,15 @@ public class CheckParams {
                 if (interval.value == null) {
                     throw new BadRequestException(INTERVAL_VALUE_NOT_SPECIFIED);
                 } else {
-                    Integer intervalValue = ParamsParser.tryParseInteger(interval.value.toString());
+                    Number intervalValue = 0;
+                    switch (aggregationModel.type) {
+                        case datehistogram:
+                            intervalValue = ParamsParser.tryParseInteger(interval.value.toString());break;
+                        case geohash:
+                            intervalValue = ParamsParser.tryParseInteger(interval.value.toString());break;
+                        case histogram:
+                            intervalValue = ParamsParser.tryParseDouble(interval.value.toString());break;
+                    }
                     if (intervalValue == null || intervalValue.doubleValue() <=0) {
                         switch (aggregationModel.type) {
                             case datehistogram:
