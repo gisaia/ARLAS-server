@@ -20,5 +20,5 @@
 package io.arlas.server.model.enumerations;
 
 public enum AggregationTypeEnum {
-    datehistogram, geohash, histogram, term;
+    datehistogram, geohash, geoterm, histogram, term;
 }

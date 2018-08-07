@@ -48,6 +48,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.max.MaxAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -77,17 +78,17 @@ public class FluidSearch {
     public static final String DATEHISTOGRAM_AGG = "Datehistogram aggregation";
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
+    public static final String GEOTERM_AGG = "Geoterm aggregation";
     public static final String GEOHASH_AGG = "Geohash aggregation";
     public static final String GEO_DISTANCE = "geodistance";
-    public static final String NOT_ALLOWED_AGGREGATION_TYPE = " aggregation type is not allowed. Please use '_geoaggregate' service instead.";
-    public static final String NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE = " aggregation type is not allowed as main aggregation. Please make sure that geohash is the main aggregation or use '_aggregate' service instead.";
+    public static final String NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE = " aggregation type is not allowed as main aggregation. Please make sure that 'geohash' or 'geoterm' are the main aggregation type or use '_aggregate' service instead.";
     public static final String INTREVAL_NOT_SPECIFIED = "Interval parameter 'interval-' is not specified.";
-    public static final String NO_TERM_INTERVAL = "'interval-' should not be specified for term aggregation.";
+    public static final String NO_TERM_INTERVAL = "'interval-' should not be specified for term or geoterm aggregation.";
     public static final String NO_INCLUDE_TO_SPECIFY = "'include-' should not be specified for this aggregation";
     public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
     public static final String NO_SIZE_TO_SPECIFY = "'size-' should not be specified for this aggregation.";
     public static final String NO_ORDER_ON_TO_SPECIFY = "'order-' and 'on-' should not be specified for this aggregation.";
-    public static final String NO_GEOBBOX_GEOCENTROID_TO_SPECIFY = "'withGeoBBOX-' and 'withGeoCentroid-' should be specified only for geohash-aggregation.";
+    public static final String NO_GEOBBOX_GEOCENTROID_TO_SPECIFY = "'withGeoBBOX' and 'withGeoCentroid' should be specified only for geohash-aggregation.";
     public static final String COLLECT_FCT_NOT_SPECIFIED = "The aggregation function 'collect_fct' is not specified.";
     public static final String COLLECT_FIELD_NOT_SPECIFIED = "The aggregation field 'collect_field' is not specified.";
     public static final String BAD_COLLECT_FIELD_FOR_GEO_METRICS = "For GeoBBOX and GeoCentroid, 'collect_field' should be the centroid path";
@@ -472,7 +473,11 @@ public class FluidSearch {
         if (isGeoAggregate && counter == 0) {
             if (aggregationModel.type.equals(AggregationTypeEnum.geohash)) {
                 aggregationBuilder = buildGeohashAggregation(aggregationModel);
-            } else throw new NotAllowedException(aggregationModel.type + NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE);
+            } else if (aggregationModel.type.equals(AggregationTypeEnum.geoterm)) {
+                aggregationBuilder = buildGeotermAggregation(aggregationModel);
+            } else {
+                throw new NotAllowedException(aggregationModel.type + NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE);
+            }
         } else {
             switch (aggregationModel.type) {
                 case datehistogram:
@@ -481,11 +486,14 @@ public class FluidSearch {
                 case geohash:
                     aggregationBuilder = buildGeohashAggregation(aggregationModel);
                     break;
+                case geoterm:
+                    aggregationBuilder = buildGeotermAggregation(aggregationModel);
+                    break;
                 case histogram:
                     aggregationBuilder = buildHistogramAggregation(aggregationModel);
                     break;
                 case term:
-                    aggregationBuilder = buildTermsAggregation(aggregationModel);
+                    aggregationBuilder = buildTermsAggregation(aggregationModel, TERM_AGG);
                     break;
             }
         }
@@ -588,8 +596,8 @@ public class FluidSearch {
     }
 
     // construct and returns the terms aggregationModel builder
-    private TermsAggregationBuilder buildTermsAggregation(Aggregation aggregationModel) throws ArlasException {
-        TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(TERM_AGG);
+    private TermsAggregationBuilder buildTermsAggregation(Aggregation aggregationModel, String name) throws ArlasException {
+        TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(name);
         //get the field, format, collect_field, collect_fct, order, on
         if (aggregationModel.interval != null) {
             throw new BadRequestException(NO_TERM_INTERVAL);
@@ -607,6 +615,14 @@ public class FluidSearch {
             termsAggregationBuilder = termsAggregationBuilder.includeExclude(includeExclude);
         }
         return termsAggregationBuilder;
+    }
+
+    // construct and returns the geoterms aggregationModel builder
+    private TermsAggregationBuilder buildGeotermAggregation(Aggregation aggregationModel) throws ArlasException {
+        TermsAggregationBuilder geotermAggregationBuilder = buildTermsAggregation(aggregationModel, GEOTERM_AGG);
+        TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits("GEO_TERM").size(1).fetchSource(collectionReference.params.geometryPath, null);
+        geotermAggregationBuilder.subAggregation(topHitsAggregationBuilder);
+        return geotermAggregationBuilder;
     }
 
     private ValuesSourceAggregationBuilder setAggregationParameters(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
