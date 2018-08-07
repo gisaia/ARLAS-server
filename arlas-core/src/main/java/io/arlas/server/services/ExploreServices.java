@@ -29,6 +29,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationMetric;
 import io.arlas.server.model.response.AggregationResponse;
+import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ResponseCacheManager;
 import io.arlas.server.model.enumerations.CollectionFunction;
@@ -47,6 +48,7 @@ import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.geobounds.GeoBounds;
 import org.elasticsearch.search.aggregations.metrics.geocentroid.GeoCentroid;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
 import org.geojson.*;
 
 import java.io.IOException;
@@ -215,9 +217,9 @@ public class ExploreServices {
         }
     }
 
-    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse) {
+    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse, String collection) {
         aggregationResponse.name = aggregation.getName();
-        if (aggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
+        if (aggregationResponse.name.equals(FluidSearch.TERM_AGG) || aggregationResponse.name.equals(FluidSearch.GEOTERM_AGG) ) {
             aggregationResponse.sumotherdoccounts = ((Terms) aggregation).getSumOfOtherDocCounts();
         }
         aggregationResponse.elements = new ArrayList<AggregationResponse>();
@@ -243,9 +245,30 @@ public class ExploreServices {
                     if (subAggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
                         subAggregationResponse.sumotherdoccounts = ((Terms) subAggregation).getSumOfOtherDocCounts();
                     }
-                    if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
-                        subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse);
-                    } else {
+                    if (subAggregationResponse.name.equals("GEO_TERM")) {
+                        Map source = ((TopHits)subAggregation).getHits().getHits()[0].getSourceAsMap();
+                        GeoJsonObject geometryGeoJson = null;
+                        try {
+                            CollectionReference collectionReference = getDaoCollectionReference().getCollectionReference(collection);
+
+                            Object geometry = collectionReference.params.geometryPath != null ?
+                                    MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source) : null;
+                            geometryGeoJson = geometry != null ?
+                                    GeoTypeMapper.getGeoJsonObject(geometry) : null;
+                        } catch (ArlasException e) {
+                            e.printStackTrace();
+                        }
+                        if (geometryGeoJson != null) {
+                            element.geometry = geometryGeoJson;
+                        }
+                        if (bucket.getAggregations().asList().size() == 1) {
+                            element.metrics = null;
+                            element.elements = null;
+                        }
+                    }
+                    if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregationResponse.name.equals(FluidSearch.GEOTERM_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
+                        subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection);
+                    } else if (!subAggregationResponse.name.equals("GEO_TERM")){
                         subAggregationResponse = null;
                         AggregationMetric aggregationMetric = new AggregationMetric();
                         aggregationMetric.type = subAggregation.getName().split(":")[0];
@@ -259,7 +282,7 @@ public class ExploreServices {
                                 Polygon box = createBox((GeoBounds) subAggregation);
                                 GeoJsonObject g = box;
                                 if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket")) {
-                                    element.BBOX = box;
+                                    element.geometry = box;
                                 }
                                 feature.setGeometry(g);
                                 fc.add(feature);
@@ -267,7 +290,7 @@ public class ExploreServices {
                                 GeoPoint centroid = ((GeoCentroid) subAggregation).centroid();
                                 GeoJsonObject g = new Point(centroid.getLon(), centroid.getLat());
                                 if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket")) {
-                                    element.centroid = (Point) g;
+                                    element.geometry = (Point) g;
                                 }
                                 feature.setGeometry(g);
                                 fc.add(feature);
@@ -279,6 +302,8 @@ public class ExploreServices {
                             aggregationMetric.field = subAggregation.getName().split(":")[1];
                             element.metrics.add(aggregationMetric);
                         }
+                    } else {
+                        subAggregationResponse = null;
                     }
                     if (subAggregationResponse != null) {
                         element.elements.add(subAggregationResponse);

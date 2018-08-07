@@ -20,6 +20,7 @@
 package io.arlas.server.model.response;
 
 import io.dropwizard.jackson.JsonSnakeCase;
+import org.geojson.GeoJsonObject;
 import org.geojson.Point;
 import org.geojson.Polygon;
 
@@ -35,7 +36,6 @@ public class AggregationResponse extends OperationInfo {
     public Object keyAsString;
     public List<AggregationResponse> elements;
     public List<AggregationMetric> metrics;
-    public Polygon BBOX = null;
-    public Point centroid = null;
+    public GeoJsonObject geometry = null;
 }
 
