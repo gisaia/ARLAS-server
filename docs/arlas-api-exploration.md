@@ -55,9 +55,9 @@ The other parts must be specified or not depending on the aggregation type. All 
 | **interval**              | `datehistogram, histogram, geohash` | mandatory |
 | **format**                | `datehistogram`                     | optional (default value : `yyyy-MM-dd-HH:mm:ss`) |
 | (**collect_field**,**collect_fct**) | All types                 | optional and multiple |
-| (**order**,**on**)        | `term, histogram, datehistogram`    | optional |
-| **size**                  | `term, geohash`                     | optional |
-| **include**               | `term`                              | optional |
+| (**order**,**on**)        | `term, histogram, datehistogram, geoterm`    | optional |
+| **size**                  | `term, geohash, geoterm`                     | optional |
+| **include**               | `term, geoterm`                              | optional |
 
 
 
@@ -67,7 +67,7 @@ The sub-parameters possible values are:
 
 | Parameter         | Values                                          | Description                              |
 | ----------------- | ----------------------------------------------  | ---------------------------------------- |
-| **{type}**        | `datehistogram`, `histogram`, `geohash`, `term` | Type of aggregation |
+| **{type}**        | `datehistogram`, `histogram`, `geohash`, `term`, `geoterm` | Type of aggregation |
 | **{field}**       | {field}                                         | Aggregates on {field} |
 | **interval**      | {interval}                                      | Size of the intervals.(1)                   |
 | **format**        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.         |
@@ -98,16 +98,17 @@ The `order` is applied on the first collect_fct `avg` (that is different from `g
 
 (4) If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created.
 
-(5) If **withGeoCentroid** or **withGeoBBOX** are specified, the returned geometry is the one used in the geojson. **withGeoBBOX** wins over **withGeoCentroid**.
+(5) **withGeoCentroid** or **withGeoBBOX** are to be specified for `geohash` aggregation only. If **withGeoCentroid** or **withGeoBBOX** are specified, the returned geometry is the one used in the geojson. **withGeoBBOX** wins over **withGeoCentroid**.
 
 (6) If **withGeoCentroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics.
 
-| Service             | Aggregation type    | Interval                                 | Description                              |
-| ------------------- | ------------------- | ---------------------------------------- | ---------------------------------------- |
-| ***_aggregate***    | ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit). Size must be equal to 1 for year, quarter, month and week |
-| ***_geoaggregate*** | ***geohash***       | `{length}`                               | The geohash length: lower the length, greater is the surface of aggregation. See table below. |
-| ***_aggregate***    | ***histogram***     | `{size}`                                 | The interval size of the numeric aggregation |
-| ***_aggregate***    | ***term***          | None                                     | None                                     |
+| Service             | Aggregation type    | Description  |Interval                                 | Interval description                              |
+| ------------------- | ------------------- | ------------ |---------------------------------------- | ---------------------------------------- |
+| ***_aggregate***    | ***datehistogram*** | Aggregates documents on date values with a given interval  |`{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit). Size must be equal to 1 for year, quarter, month and week |
+| ***_geoaggregate*** | ***geohash***       | Aggregates geo-point fields into cells grid. Each cell has a geohash. The cells size are detailed in the table below |`{length}`                               | The geohash length: lower the length, greater is the surface of aggregation. See table below. |
+| ***_aggregate***    | ***histogram***     | Aggregates documents on numeric values with a given interval |`{size}`                                 | The interval size of the numeric aggregation |
+| ***_aggregate***    | ***term***          | Aggregates per unique values of a field |None                                     | None                                     |
+| ***_geoaggregate*** | ***geoterm***       | Aggregates per unique values of a field. The geometry of each bucket is the geometry of a random document included in this bucket.|None                                     | None.                                    |
 
 The table below shows the metric dimensions for cells covered by various string lengths of geohash. Cell dimensions vary with latitude and so the table is for the worst-case scenario at the equator.
 
@@ -128,7 +129,7 @@ The table below shows the metric dimensions for cells covered by various string 
 
 **agg** parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : the order matters.
 
-For **_geoaggregate** service, the first (main) aggregation must be geohash.
+For **_geoaggregate** service, the first (main) aggregation must be `geohash` or `geoterm`.
 
 ---
 ### Part: `filter`

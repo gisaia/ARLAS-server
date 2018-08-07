@@ -236,7 +236,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         aggregation = (MultiBucketsAggregation) response.getAggregations().asList().get(0);
         aggregationResponse.totalnb = response.getHits().getTotalHits();
         aggregationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
-        aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse);
+        aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse, collectionReference.collectionName);
         return aggregationResponse;
     }
 

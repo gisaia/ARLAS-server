@@ -398,7 +398,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, true);
         MultiBucketsAggregation aggregation;
         aggregation = (MultiBucketsAggregation) response.getAggregations().asList().get(0);
-        aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse);
+        aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse, collectionReference.collectionName);
         fc = toGeoJson(aggregationResponse, flat);
         return fc;
     }
@@ -412,7 +412,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 Feature feature = new Feature();
                 Map<String, Object> properties = new HashMap<>();
                 properties.put("count", element.count);
-                properties.put("geohash", element.keyAsString);
+                properties.put("geolabel", element.keyAsString);
                 if(flat){
                     this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey("_"), s ->(!"elements".equals(s))).forEach((key, value) -> {
                         properties.put(key,value);
@@ -424,10 +424,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 feature.setProperties(properties);
                 feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
                 GeoJsonObject g;
-                if (element.BBOX != null) {
-                    g = element.BBOX;
-                } else if (element.centroid != null) {
-                    g = element.centroid;
+                if (element.geometry != null) {
+                    g = element.geometry;
                 } else {
                     GeoPoint geoPoint = (GeoPoint) element.key;
                     g = new Point(geoPoint.getLon(), geoPoint.getLat());
