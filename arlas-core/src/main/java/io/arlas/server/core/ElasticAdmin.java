@@ -81,10 +81,10 @@ public class ElasticAdmin {
         for (String key : update.keySet()) {
             if(!ret.containsKey(key)) {
                 ret.put(key,update.get(key));
+            } else if(ret.get(key).type != update.get(key).type) {
+                LOGGER.error("Cannot union field [key=" + key + "] because type mismatch between indices' mappings");
             } else if(ret.get(key).properties instanceof Map && update.get(key).properties instanceof Map) {
                 ret.get(key).properties = union(ret.get(key).properties, update.get(key).properties);
-            } else {
-                LOGGER.warn("Cannot union fields [key " + key + "] for collection describe");
             }
         }
         return ret;
