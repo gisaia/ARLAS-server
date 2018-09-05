@@ -81,8 +81,6 @@ public class FluidSearch {
     public static final String GEO_DISTANCE = "geodistance";
     public static final String NOT_ALLOWED_AGGREGATION_TYPE = " aggregation type is not allowed. Please use '_geoaggregate' service instead.";
     public static final String NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE = " aggregation type is not allowed as main aggregation. Please make sure that geohash is the main aggregation or use '_aggregate' service instead.";
-    public static final String INTREVAL_NOT_SPECIFIED = "Interval parameter 'interval-' is not specified.";
-    public static final String NO_TERM_INTERVAL = "'interval-' should not be specified for term aggregation.";
     public static final String NO_INCLUDE_TO_SPECIFY = "'include-' should not be specified for this aggregation";
     public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
     public static final String NO_SIZE_TO_SPECIFY = "'size-' should not be specified for this aggregation.";
@@ -513,8 +511,6 @@ public class FluidSearch {
     }
 
     private DateHistogramAggregationBuilder buildDateHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
-        CheckParams.checkNullityOfAggregationIncludeParameter(aggregationModel.include);
-        CheckParams.checkNullityOfAggregationIntervalParameter(aggregationModel.interval);
         if (Strings.isNullOrEmpty(aggregationModel.field)) {
             aggregationModel.field = collectionReference.params.timestampPath;
         }
@@ -563,12 +559,9 @@ public class FluidSearch {
 
     // construct and returns the geohash aggregationModel builder
     private GeoGridAggregationBuilder buildGeohashAggregation(Aggregation aggregationModel) throws ArlasException {
-        CheckParams.checkNullityOfAggregationIncludeParameter(aggregationModel.include);
-        CheckParams.checkNullityOfAggregationIntervalParameter(aggregationModel.interval);
-
         GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(GEOHASH_AGG);
         //get the precision
-        Integer precision = ParamsParser.getAggregationGeohashPrecision(aggregationModel.interval);
+        Integer precision = aggregationModel.interval.value;
         geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
         //get the field, format, collect_field, collect_fct, order, on
         geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
@@ -577,9 +570,6 @@ public class FluidSearch {
 
     // construct and returns the histogram aggregationModel builder
     private HistogramAggregationBuilder buildHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
-        CheckParams.checkNullityOfAggregationIncludeParameter(aggregationModel.include);
-        CheckParams.checkNullityOfAggregationIntervalParameter(aggregationModel.interval);
-
         HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram(HISTOGRAM_AGG);
         histogramAggregationBuilder = histogramAggregationBuilder.interval(aggregationModel.interval.value);
         //get the field, format, collect_field, collect_fct, order, on
@@ -591,11 +581,7 @@ public class FluidSearch {
     private TermsAggregationBuilder buildTermsAggregation(Aggregation aggregationModel) throws ArlasException {
         TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(TERM_AGG);
         //get the field, format, collect_field, collect_fct, order, on
-        if (aggregationModel.interval != null) {
-            throw new BadRequestException(NO_TERM_INTERVAL);
-        }
         termsAggregationBuilder = (TermsAggregationBuilder) setAggregationParameters(aggregationModel, termsAggregationBuilder);
-
         if (aggregationModel.include != null && !aggregationModel.include.isEmpty()) {
             String[] includeList = aggregationModel.include.split(",");
             IncludeExclude includeExclude;

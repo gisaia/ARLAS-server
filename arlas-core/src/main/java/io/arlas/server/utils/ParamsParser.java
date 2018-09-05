@@ -72,9 +72,13 @@ public class ParamsParser {
         for (String parameter : agg) {
             if (parameter.contains(AGG_INTERVAL_PARAM)) {
                 if (aggregationModel.type.equals(AggregationTypeEnum.datehistogram)) {
-                    aggregationModel.interval = getDateInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));
+                    aggregationModel.interval = getDatehistogramAggregationInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));
+                } else if (aggregationModel.type.equals(AggregationTypeEnum.geohash)) {
+                    aggregationModel.interval = getGeohashAggregationInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));
+                } else if (aggregationModel.type.equals(AggregationTypeEnum.histogram)) {
+                    aggregationModel.interval = getHistogramAggregationInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));
                 } else {
-                    aggregationModel.interval = new Interval(Integer.parseInt(parameter.substring(AGG_INTERVAL_PARAM.length())), null);
+                    throw new BadRequestException(CheckParams.NO_TERM_INTERVAL);
                 }
             } else if (parameter.contains(AGG_FORMAT_PARAM)) {
                 aggregationModel.format = parameter.substring(AGG_FORMAT_PARAM.length());
@@ -95,7 +99,6 @@ public class ParamsParser {
             }
         }
         aggregationModel.metrics = getAggregationMetrics(agg);
-        CheckParams.checkAggregationModel(aggregationModel);
         return aggregationModel;
     }
 
@@ -119,29 +122,24 @@ public class ParamsParser {
         return metrics;
     }
 
-    public static Interval getDateInterval(String intervalString) throws ArlasException {
+    public static Interval getDatehistogramAggregationInterval(String intervalString) throws ArlasException {
         if (intervalString != null && !intervalString.equals("")) {
             String[] sizeAndUnit = intervalString.split("(?<=[a-zA-Z])(?=\\d)|(?<=\\d)(?=[a-zA-Z])");
             if (sizeAndUnit.length == 2) {
                 Interval interval = new Interval(tryParseInteger(sizeAndUnit[0]), UnitEnum.valueOf(sizeAndUnit[1].toLowerCase()));
-                if (interval.value == null) {
-                    throw new InvalidParameterException(FluidSearch.INVALID_SIZE + sizeAndUnit[0]);
-                }
                 return interval;
             } else throw new InvalidParameterException("The date interval " + intervalString + "is not valid");
-        } else throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
+        } else {
+            return null;
+        }
     }
 
-    public static Integer getAggregationGeohashPrecision(Interval interval) throws ArlasException {
-        if (interval != null) {
-            if (interval.value > 12 || interval.value < 1) {
-                throw new InvalidParameterException("Invalid geohash aggregation precision of " + interval.value + ". Must be between 1 and 12.");
-            } else {
-                return interval.value;
-            }
-        } else {
-            throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
-        }
+    public static Interval getGeohashAggregationInterval(String intervalString) {
+        return new Interval(Integer.parseInt(intervalString), null);
+    }
+
+    public static Interval getHistogramAggregationInterval(String intervalString) {
+        return getGeohashAggregationInterval(intervalString);
     }
 
     public static String getValidAggregationFormat(String aggFormat) {
