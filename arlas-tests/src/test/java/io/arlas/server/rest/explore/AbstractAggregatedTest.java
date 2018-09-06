@@ -294,6 +294,10 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleSumOtherCountsExistence(post(aggregationRequest), 1, 595, 595);
         handleSumOtherCountsExistence(get("histogram:params.startdate:interval-2000000"), 1, 595, 595);
 
+        aggregationRequest.aggregations.get(0).interval = new Interval(200000.5, null);
+        handleSumOtherCountsExistence(post(aggregationRequest), 4, 14, 292);
+        handleSumOtherCountsExistence(get("histogram:params.startdate:interval-200000.5"), 4, 14, 292);
+
         aggregationRequest.aggregations.get(0).interval = new Interval(100000, null);
         handleSumOtherCountsExistence(post(aggregationRequest), 6, 14, 176, -1);
         handleSumOtherCountsExistence(get("histogram:params.startdate:interval-100000"), 6, 14, 176);
@@ -646,6 +650,14 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("datehistogram:params.startdate"));
 
+
+        aggregationRequest.aggregations.get(0).interval = new Interval(1.5, UnitEnum.day); // "1day";
+        handleInvalidParameters(post(aggregationRequest));
+        handleInvalidParameters(get("datehistogram:params.startdate:interval-1.5day"));
+
+        aggregationRequest.aggregations.get(0).interval = new Interval(null, UnitEnum.day); // "1day";
+        handleInvalidParameters(post(aggregationRequest));
+        handleInvalidParameters(get("datehistogram:params.startdate:interval-day"));
 
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.histogram;
         aggregationRequest.aggregations.get(0).field = "params.startdate";

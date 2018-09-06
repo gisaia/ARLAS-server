@@ -128,18 +128,19 @@ public class ParamsParser {
             if (sizeAndUnit.length == 2) {
                 Interval interval = new Interval(tryParseInteger(sizeAndUnit[0]), UnitEnum.valueOf(sizeAndUnit[1].toLowerCase()));
                 return interval;
-            } else throw new InvalidParameterException("The date interval " + intervalString + "is not valid");
+            } else throw new InvalidParameterException("The date interval '" + intervalString + "' is not valid");
         } else {
             return null;
         }
+
     }
 
-    public static Interval getGeohashAggregationInterval(String intervalString) {
-        return new Interval(Integer.parseInt(intervalString), null);
+    public static Interval getHistogramAggregationInterval(String intervalString) throws ArlasException {
+        return new Interval(tryParseDouble(intervalString), null);
     }
 
-    public static Interval getHistogramAggregationInterval(String intervalString) {
-        return getGeohashAggregationInterval(intervalString);
+    public static Interval getGeohashAggregationInterval(String intervalString) throws ArlasException {
+        return new Interval(tryParseInteger(intervalString), null);
     }
 
     public static String getValidAggregationFormat(String aggFormat) {

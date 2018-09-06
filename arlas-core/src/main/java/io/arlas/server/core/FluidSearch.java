@@ -518,7 +518,7 @@ public class FluidSearch {
                 || aggregationModel.interval.unit.equals(UnitEnum.month)
                 || aggregationModel.interval.unit.equals(UnitEnum.quarter)
                 || aggregationModel.interval.unit.equals(UnitEnum.week)) {
-            if (aggregationModel.interval.value > 1)
+            if ((Integer)aggregationModel.interval.value > 1)
                 throw new NotAllowedException("The size must be equal to 1 for the unit " + aggregationModel.interval.unit + ".");
         }
         DateHistogramInterval intervalUnit = null;
@@ -536,16 +536,16 @@ public class FluidSearch {
                 intervalUnit = DateHistogramInterval.WEEK;
                 break;
             case day:
-                intervalUnit = DateHistogramInterval.days(aggregationModel.interval.value);
+                intervalUnit = DateHistogramInterval.days((Integer)aggregationModel.interval.value);
                 break;
             case hour:
-                intervalUnit = DateHistogramInterval.hours(aggregationModel.interval.value);
+                intervalUnit = DateHistogramInterval.hours((Integer)aggregationModel.interval.value);
                 break;
             case minute:
-                intervalUnit = DateHistogramInterval.minutes(aggregationModel.interval.value);
+                intervalUnit = DateHistogramInterval.minutes((Integer)aggregationModel.interval.value);
                 break;
             case second:
-                intervalUnit = DateHistogramInterval.seconds(aggregationModel.interval.value);
+                intervalUnit = DateHistogramInterval.seconds((Integer)aggregationModel.interval.value);
                 break;
             default:
                 throw new InvalidParameterException(INVALID_DATE_UNIT);
@@ -560,7 +560,7 @@ public class FluidSearch {
     private GeoGridAggregationBuilder buildGeohashAggregation(Aggregation aggregationModel) throws ArlasException {
         GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(GEOHASH_AGG);
         //get the precision
-        Integer precision = aggregationModel.interval.value;
+        Integer precision = (Integer)aggregationModel.interval.value;
         geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
         //get the field, format, collect_field, collect_fct, order, on
         geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
@@ -570,7 +570,7 @@ public class FluidSearch {
     // construct and returns the histogram aggregationModel builder
     private HistogramAggregationBuilder buildHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
         HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram(HISTOGRAM_AGG);
-        histogramAggregationBuilder = histogramAggregationBuilder.interval(aggregationModel.interval.value);
+        histogramAggregationBuilder = histogramAggregationBuilder.interval((Double)aggregationModel.interval.value);
         //get the field, format, collect_field, collect_fct, order, on
         histogramAggregationBuilder = (HistogramAggregationBuilder) setAggregationParameters(aggregationModel, histogramAggregationBuilder);
         return histogramAggregationBuilder;
