@@ -25,7 +25,9 @@ You need a Java Runtime (JRE) 8 and an ElasticSearch server running. ARLAS is co
 |  ---  |
 | 6.0.1 |
 | 6.1.3 |
-| 6.2.3 |
+| 6.2.4 |
+| 6.3.2 |
+| 6.4.0 |
 
 ## Build
 
