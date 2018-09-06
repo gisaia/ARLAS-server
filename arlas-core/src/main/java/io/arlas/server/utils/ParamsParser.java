@@ -301,7 +301,7 @@ public class ParamsParser {
         return simplifiedPwithin;
     }
 
-    private static Integer tryParseInteger(String text) {
+    public static Integer tryParseInteger(String text) {
         try {
             return Integer.parseInt(text);
         } catch (NumberFormatException e) {
@@ -309,9 +309,17 @@ public class ParamsParser {
         }
     }
 
-    private static Double tryParseDouble(String text) {
+    public static Double tryParseDouble(String text) {
         try {
             return Double.parseDouble(text);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    public static Long tryParseLong(String text) {
+        try {
+            return Long.parseLong(text);
         } catch (NumberFormatException e) {
             return null;
         }

@@ -66,8 +66,7 @@ public class CheckParams {
     public static final String INTERVAL_UNIT_NOT_SPECIFIED = "Interval unit is missing.";
     public static final String NO_INTERVAL_UNIT_FOR_GEOHASH_NOR_HISTOGRAM = "Interval unit must not be specified for geohash nor histogram aggregations.";
     public static final String NO_TERM_INTERVAL = "'Interval' should not be specified for term aggregation.";
-
-
+    
     public CheckParams() {
     }
 
@@ -165,7 +164,7 @@ public class CheckParams {
                 if (interval.value == null) {
                     throw new BadRequestException(INTERVAL_VALUE_NOT_SPECIFIED);
                 } else {
-                    Integer intervalValue = tryParseInteger(interval.value.toString());
+                    Integer intervalValue = ParamsParser.tryParseInteger(interval.value.toString());
                     if (intervalValue == null || intervalValue.doubleValue() <=0) {
                         switch (aggregationModel.type) {
                             case datehistogram:
@@ -176,7 +175,7 @@ public class CheckParams {
                                 throw new InvalidParameterException("The histogram interval is not valid. It must be a positive decimal number.");
                         }
                     }
-                    if (intervalValue != null && aggregationModel.type == AggregationTypeEnum.geohash && tryParseInteger(interval.value.toString()) >= 13) {
+                    if (intervalValue != null && aggregationModel.type == AggregationTypeEnum.geohash && ParamsParser.tryParseInteger(interval.value.toString()) >= 13) {
                         throw new InvalidParameterException("The geohash precision is not valid. It must be an integer between 1 and 12.");
                     } else if (intervalValue != null){
                         aggregationModel.interval.value = intervalValue;
@@ -226,7 +225,7 @@ public class CheckParams {
     }
 
     public static void checkTimestampFormatValidity(String timestamp) throws ArlasException {
-        if (tryParseLong(timestamp) == null) {
+        if (ParamsParser.tryParseLong(timestamp) == null) {
             // Check date math validity
             if (timestamp.length() >= 3) {
                 // Check if the anchor date is equal to "now"
@@ -239,7 +238,7 @@ public class CheckParams {
                     // If the anchor date is not equal to "now", then it should be a millisecond timestamp ending with "||"
                     if (timestamp.contains("||")) {
                         String[] operands = timestamp.split("\\|\\|");
-                        if (tryParseLong(operands[0]) == null) {
+                        if (ParamsParser.tryParseLong(operands[0]) == null) {
                             throw new InvalidParameterException(FluidSearch.INVALID_TIMESTAMP_RANGE);
                         } else {
                             if (operands.length == 1) {
@@ -275,19 +274,6 @@ public class CheckParams {
             return false;
     }
 
-    // Verify that the sort parameter respects the specified syntax. Returns the
-    // field and the ASC/DESC
-    public static String[] checkSortParam(String sort) throws ArlasException {
-        String[] sortOperands = sort.split(":");
-        if (sortOperands.length == 3) {
-            if (sortOperands[2].equals(SortOrder.ASC) || sortOperands[2].equals(SortOrder.DESC)) {
-                return sortOperands;
-            } else
-                throw new InvalidParameterException(INVALID_SORT_PARAMETER);
-        } else
-            throw new InvalidParameterException(INVALID_SORT_PARAMETER);
-    }
-
     // Verify if agg parameter contains at least type:field and verify that type
     // matches : datehistogram, geohash, histogram or terms
     public static Boolean isAggregationParamValid(String agg) throws ArlasException {
@@ -316,30 +302,6 @@ public class CheckParams {
                 checkAggregationModel(aggregationModel);
             }
         }
-    }
-
-    public static Integer getValidGeoHashPrecision(String aggInterval) throws ArlasException {
-        if (aggInterval != null) {
-            Integer precision = tryParseInteger(aggInterval);
-            if (precision != null && precision < 13) {
-                return precision;
-            } else if (precision > 12)
-                throw new InvalidParameterException(OUTRANGE_GEOHASH_PRECISION);
-            else if (precision == null)
-                throw new InvalidParameterException(INVALID_PRECISION_TYPE);
-        }
-        return null;
-    }
-
-    public static Double getValidHistogramInterval(String aggInterval) throws ArlasException {
-        if (aggInterval != null) {
-            Double interval = tryParseDouble(aggInterval);
-            if (interval != null) {
-                return interval;
-            } else
-                throw new InvalidParameterException(INVALID_INTERVAL_TYPE);
-        }
-        return null;
     }
 
     public static void checkXYZTileValidity(int x, int y, int z) throws ArlasException {
@@ -400,7 +362,7 @@ public class CheckParams {
                         String[] operands = postAnchor.substring(1).split("/");
                         //translationDuration == 2
                         String translationDuration = operands[0].substring(0, operands[0].length() - 1);
-                        if (tryParseInteger(translationDuration) == null) {
+                        if (ParamsParser.tryParseInteger(translationDuration) == null) {
                             throw new InvalidParameterException(INVALID_DATE_MATH_VALUE);
                         }
                         //translationUnit == h
@@ -437,29 +399,4 @@ public class CheckParams {
         long maxRange = (long) (Math.pow(2, z) - 1);
         return (n >= minRange && n <= maxRange);
     }
-
-    private static Integer tryParseInteger(String text) {
-        try {
-            return Integer.parseInt(text);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    private static Double tryParseDouble(String text) {
-        try {
-            return Double.parseDouble(text);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    private static Long tryParseLong(String text) {
-        try {
-            return Long.parseLong(text);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
 }
