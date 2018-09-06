@@ -7,9 +7,9 @@ ARLAS-server provides a highly simplified **REST API** for exploring data collec
 
 ## Documentation
 
-* [Overview](doc/api/API-Explore-definition.md)
-* [Configuration](http://arlas.io/arlas-tech/current/arlas-server-configuration/)
-* [API](http://arlas.io/arlas-tech/current/arlas-api/)
+* [Overview](http://docs.arlas.io/arlas-tech/current/arlas-api/)
+* [Configuration](http://docs.arlas.io/arlas-tech/current/arlas-server-configuration/)
+* [API Reference](http://docs.arlas.io/arlas-tech/current/reference/)
 
 ## Prerequisites :
 
