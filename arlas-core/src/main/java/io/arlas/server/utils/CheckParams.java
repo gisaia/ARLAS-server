@@ -61,6 +61,12 @@ public class CheckParams {
     private static final String MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD = "Infinity";
     private static final String DATE_NOW = "now";
 
+    public static final String INTERVAL_NOT_SPECIFIED = "Interval parameter is not specified.";
+    public static final String INTERVAL_VALUE_NOT_SPECIFIED = "Interval value is missing.";
+    public static final String INTERVAL_UNIT_NOT_SPECIFIED = "Interval unit is missing.";
+    public static final String NO_INTERVAL_UNIT_FOR_GEOHASH_NOR_HISTOGRAM = "Interval unit must not be specified for geohash nor histogram aggregations.";
+    public static final String NO_TERM_INTERVAL = "'Interval' should not be specified for term aggregation.";
+    
     public CheckParams() {
     }
 
@@ -68,11 +74,15 @@ public class CheckParams {
         if (request == null || !(request instanceof AggregationsRequest) || ((AggregationsRequest) request).aggregations == null)
             throw new BadRequestException("Aggregation should not be null");
         else if (request != null) {
-            checkAggregation((AggregationsRequest) request);
+            checkAggregations((AggregationsRequest) request);
         }
     }
 
     public static void checkAggregationModel(Aggregation aggregation) throws ArlasException {
+        // Check 'type' & 'field'
+        if (aggregation.type == null || (aggregation.field == null && aggregation.type != AggregationTypeEnum.datehistogram)) {
+            throw new InvalidParameterException(INVALID_AGGREGATION);
+        }
         // Check 'order'
         if (aggregation.order != null && aggregation.order != Order.asc && aggregation.order != Order.desc) {
             throw new InvalidParameterException(INVALID_ORDER_VALUE + aggregation.order.name());
@@ -82,9 +92,13 @@ public class CheckParams {
             throw new InvalidParameterException(INVALID_ON_VALUE + aggregation.on.name());
         }
         // Check 'collect-field' and 'collect-fct' are not redundant
-        if (aggregation.metrics.stream().distinct().count() != aggregation.metrics.stream().count()) {
+        if (aggregation.metrics != null && aggregation.metrics.stream().distinct().count() != aggregation.metrics.stream().count()) {
             throw new InvalidParameterException(REDUNDANT_COLLECT_FIELD_COLLECT_FCT);
         }
+        // Check Interval parameter validity according to aggregation type
+        checkAggregationIntervalParameter(aggregation);
+        // Check include parameter validity according to aggregation type
+        checkAggregationIncludeParameter(aggregation);
     }
 
     public static void checkRangeRequestField(Request request) throws ArlasException {
@@ -128,15 +142,52 @@ public class CheckParams {
         }
     }
 
-    public static void checkNullityOfAggregationIncludeParameter(String include) throws ArlasException {
-        if (include != null) {
+    public static void checkAggregationIncludeParameter(Aggregation aggregationModel) throws ArlasException {
+        if (aggregationModel.include != null && aggregationModel.type != AggregationTypeEnum.term) {
             throw new BadRequestException(FluidSearch.NO_INCLUDE_TO_SPECIFY);
         }
     }
 
-    public static void checkNullityOfAggregationIntervalParameter(Interval interval) throws ArlasException {
-        if (interval == null || interval.value == null) {
-            throw new BadRequestException(FluidSearch.INTREVAL_NOT_SPECIFIED);
+    public static void checkAggregationIntervalParameter(Aggregation aggregationModel) throws ArlasException {
+        // - Aggregation Interval must be specified for geohash, histogram and datehistogram only
+        // - Interval value must be Integer
+        // - Interval unit must be specified for datehistogram aggregation only
+        if (aggregationModel.type == AggregationTypeEnum.term) {
+            if (aggregationModel.interval != null) {
+                throw new BadRequestException(NO_TERM_INTERVAL);
+            }
+        } else {
+            Interval interval = aggregationModel.interval;
+            if (interval == null) {
+                throw new BadRequestException(INTERVAL_NOT_SPECIFIED);
+            } else {
+                if (interval.value == null) {
+                    throw new BadRequestException(INTERVAL_VALUE_NOT_SPECIFIED);
+                } else {
+                    Integer intervalValue = ParamsParser.tryParseInteger(interval.value.toString());
+                    if (intervalValue == null || intervalValue.doubleValue() <=0) {
+                        switch (aggregationModel.type) {
+                            case datehistogram:
+                                throw new InvalidParameterException("The datehistogram interval must be a positive integer.");
+                            case geohash:
+                                throw new InvalidParameterException("The geohash precision is not valid. It must be an integer between 1 and 12.");
+                            case histogram:
+                                throw new InvalidParameterException("The histogram interval is not valid. It must be a positive decimal number.");
+                        }
+                    }
+                    if (intervalValue != null && aggregationModel.type == AggregationTypeEnum.geohash && ParamsParser.tryParseInteger(interval.value.toString()) >= 13) {
+                        throw new InvalidParameterException("The geohash precision is not valid. It must be an integer between 1 and 12.");
+                    } else if (intervalValue != null){
+                        aggregationModel.interval.value = intervalValue;
+                    }
+                }
+                if (interval.unit != null && aggregationModel.type != AggregationTypeEnum.datehistogram) {
+                    throw new BadRequestException(NO_INTERVAL_UNIT_FOR_GEOHASH_NOR_HISTOGRAM);
+                }
+                if (interval.unit == null && aggregationModel.type == AggregationTypeEnum.datehistogram) {
+                    throw new BadRequestException(INTERVAL_UNIT_NOT_SPECIFIED);
+                }
+            }
         }
     }
 
@@ -174,7 +225,7 @@ public class CheckParams {
     }
 
     public static void checkTimestampFormatValidity(String timestamp) throws ArlasException {
-        if (tryParseLong(timestamp) == null) {
+        if (ParamsParser.tryParseLong(timestamp) == null) {
             // Check date math validity
             if (timestamp.length() >= 3) {
                 // Check if the anchor date is equal to "now"
@@ -187,7 +238,7 @@ public class CheckParams {
                     // If the anchor date is not equal to "now", then it should be a millisecond timestamp ending with "||"
                     if (timestamp.contains("||")) {
                         String[] operands = timestamp.split("\\|\\|");
-                        if (tryParseLong(operands[0]) == null) {
+                        if (ParamsParser.tryParseLong(operands[0]) == null) {
                             throw new InvalidParameterException(FluidSearch.INVALID_TIMESTAMP_RANGE);
                         } else {
                             if (operands.length == 1) {
@@ -223,19 +274,6 @@ public class CheckParams {
             return false;
     }
 
-    // Verify that the sort parameter respects the specified syntax. Returns the
-    // field and the ASC/DESC
-    public static String[] checkSortParam(String sort) throws ArlasException {
-        String[] sortOperands = sort.split(":");
-        if (sortOperands.length == 3) {
-            if (sortOperands[2].equals(SortOrder.ASC) || sortOperands[2].equals(SortOrder.DESC)) {
-                return sortOperands;
-            } else
-                throw new InvalidParameterException(INVALID_SORT_PARAMETER);
-        } else
-            throw new InvalidParameterException(INVALID_SORT_PARAMETER);
-    }
-
     // Verify if agg parameter contains at least type:field and verify that type
     // matches : datehistogram, geohash, histogram or terms
     public static Boolean isAggregationParamValid(String agg) throws ArlasException {
@@ -258,39 +296,12 @@ public class CheckParams {
         }
     }
 
-    private static void checkAggregation(AggregationsRequest aggregations) throws ArlasException {
+    private static void checkAggregations(AggregationsRequest aggregations) throws ArlasException {
         if (aggregations != null && aggregations.aggregations != null && aggregations.aggregations.size() > 0) {
             for (Aggregation aggregationModel : aggregations.aggregations) {
-                if (aggregationModel.type == null ||
-                        (aggregationModel.field == null && aggregationModel.type != AggregationTypeEnum.datehistogram)) {
-                    throw new InvalidParameterException(INVALID_AGGREGATION);
-                }
+                checkAggregationModel(aggregationModel);
             }
         }
-    }
-
-    public static Integer getValidGeoHashPrecision(String aggInterval) throws ArlasException {
-        if (aggInterval != null) {
-            Integer precision = tryParseInteger(aggInterval);
-            if (precision != null && precision < 13) {
-                return precision;
-            } else if (precision > 12)
-                throw new InvalidParameterException(OUTRANGE_GEOHASH_PRECISION);
-            else if (precision == null)
-                throw new InvalidParameterException(INVALID_PRECISION_TYPE);
-        }
-        return null;
-    }
-
-    public static Double getValidHistogramInterval(String aggInterval) throws ArlasException {
-        if (aggInterval != null) {
-            Double interval = tryParseDouble(aggInterval);
-            if (interval != null) {
-                return interval;
-            } else
-                throw new InvalidParameterException(INVALID_INTERVAL_TYPE);
-        }
-        return null;
     }
 
     public static void checkXYZTileValidity(int x, int y, int z) throws ArlasException {
@@ -351,7 +362,7 @@ public class CheckParams {
                         String[] operands = postAnchor.substring(1).split("/");
                         //translationDuration == 2
                         String translationDuration = operands[0].substring(0, operands[0].length() - 1);
-                        if (tryParseInteger(translationDuration) == null) {
+                        if (ParamsParser.tryParseInteger(translationDuration) == null) {
                             throw new InvalidParameterException(INVALID_DATE_MATH_VALUE);
                         }
                         //translationUnit == h
@@ -388,29 +399,4 @@ public class CheckParams {
         long maxRange = (long) (Math.pow(2, z) - 1);
         return (n >= minRange && n <= maxRange);
     }
-
-    private static Integer tryParseInteger(String text) {
-        try {
-            return Integer.parseInt(text);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    private static Double tryParseDouble(String text) {
-        try {
-            return Double.parseDouble(text);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    private static Long tryParseLong(String text) {
-        try {
-            return Long.parseLong(text);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
 }
