@@ -1,6 +1,20 @@
 # Change Log
 
-## [v7.6.3](https://github.com/gisaia/ARLAS-server/tree/v7.6.3) (2018-07-11)
+## [v7.6.4](https://github.com/gisaia/ARLAS-server/tree/v7.6.4) (2018-09-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v7.6.3...v7.6.4)
+
+**New stuff:**
+
+- README CI badge: explicitly mention branch [\#332](https://github.com/gisaia/ARLAS-server/issues/332) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- Aggregation Interval : allow decimals for histogram aggegation's interval [\#335](https://github.com/gisaia/ARLAS-server/issues/335)
+
+**Fixed bugs:**
+
+- Describe collection generates inconsistant warn logs [\#338](https://github.com/gisaia/ARLAS-server/issues/338)
+- Documentation links given in README.md are dead links \(404\) [\#337](https://github.com/gisaia/ARLAS-server/issues/337) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
+## [v7.6.3](https://github.com/gisaia/ARLAS-server/tree/v7.6.3) (2018-07-13)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v7.6.2...v7.6.3)
 

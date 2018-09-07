@@ -2,21 +2,21 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.arlas</groupId>
   <artifactId>ogc-csw</artifactId>
-  <version>7.6.4-SNAPSHOT</version>
+  <version>7.6.4</version>
   <packaging>jar</packaging>
   <name>ARLAS ogc csw</name>
 
   <parent>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-server-parent</artifactId>
-    <version>7.6.4-SNAPSHOT</version>
+    <version>7.6.4</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>ogc-common</artifactId>
-      <version>7.6.4-SNAPSHOT</version>
+      <version>7.6.4</version>
     </dependency>
   </dependencies>
 
