@@ -244,7 +244,9 @@ public class TileRESTService extends ExploreRESTServices {
                             collectionReference.params.rasterTileURL.url.replace("{id}", Optional.ofNullable(match._1()).orElse("")),
                             collectionReference.params.rasterTileURL.minZ,
                             collectionReference.params.rasterTileURL.maxZ,
-                            collectionReference.params.rasterTileURL.checkGeometry))).collect(Collectors.toList()));
+                            collectionReference.params.rasterTileURL.checkGeometry),
+                            collectionReference.params.rasterTileWidth,
+                            collectionReference.params.rasterTileHeight)).collect(Collectors.toList()));
             if(providers.size()==0){
                 return Response.noContent().build();
             }

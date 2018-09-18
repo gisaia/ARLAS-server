@@ -26,13 +26,16 @@ import io.arlas.server.utils.ImageUtil;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
+import org.hamcrest.Matchers;
 import org.junit.*;
 
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.Response;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
@@ -99,11 +102,20 @@ public class TileServiceIT extends AbstractTestContext {
     @Test
     public void testTile() throws InterruptedException, IOException {
         // The top of the tile pyramid is empty => Coverage is around 50%
-        int coverage = ImageUtil.coverage(ImageIO.read(given()
+        BufferedImage image = ImageIO.read(given()
                 .when()
                 .get(getUrlPath(CollectionTool.COLLECTION_NAME) + "/10/511/484.png?f=id:eq:ID_0_10DI_bottom")
                 .then()
-                .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream()),10);
+                .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
+
+        Assert.assertThat("image height is 256",
+                image.getHeight(),
+                Matchers.equalTo(256));
+        Assert.assertThat("image width is 256",
+                image.getWidth(),
+                Matchers.equalTo(256));
+
+        int coverage = ImageUtil.coverage(image,10);
 
         Assert.assertThat("coverage",
                 coverage,
@@ -114,11 +126,19 @@ public class TileServiceIT extends AbstractTestContext {
                 lessThan(60));
 
         // The bottom of the tile pyramid is empty => Coverage is around 50%
-        coverage = ImageUtil.coverage(ImageIO.read(given()
+        image =ImageIO.read(given()
                 .when()
                 .get(getUrlPath(CollectionTool.COLLECTION_NAME) + "/10/511/484.png?f=id:eq:ID_0_10DI_top")
                 .then()
-                .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream()),10);
+                .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
+                coverage = ImageUtil.coverage(image,10);
+
+        Assert.assertThat("image height is 256",
+                image.getHeight(),
+                Matchers.equalTo(256));
+        Assert.assertThat("image width is 256",
+                image.getWidth(),
+                Matchers.equalTo(256));
 
         Assert.assertThat("coverage",
                 coverage,
@@ -129,11 +149,20 @@ public class TileServiceIT extends AbstractTestContext {
                 lessThan(60));
 
         // The top and bottom are combined => Coverage is around 100%
-        coverage = ImageUtil.coverage(ImageIO.read(given()
+        image =ImageIO.read(given()
                 .when()
                 .get(getUrlPath(CollectionTool.COLLECTION_NAME) + "/10/511/484.png?f=id:eq:ID_0_10DI_bottom,ID_0_10DI_top&coverage=70")
                 .then()
-                .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream()),10);
+                .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
+
+        Assert.assertThat("image height is 256",
+                image.getHeight(),
+                Matchers.equalTo(256));
+        Assert.assertThat("image width is 256",
+                image.getWidth(),
+                Matchers.equalTo(256));
+
+        coverage = ImageUtil.coverage(image,10);
 
         Assert.assertThat("coverage",
                 coverage,

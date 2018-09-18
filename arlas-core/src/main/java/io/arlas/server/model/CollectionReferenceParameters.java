@@ -73,6 +73,12 @@ public class CollectionReferenceParameters {
     @JsonProperty(value = "raster_tile_url", required = false)
     public RasterTileURL rasterTileURL = null;
 
+    @JsonProperty(value = "raster_tile_width", required = false)
+    public int rasterTileWidth = -1;
+
+    @JsonProperty(value = "raster_tile_height", required = false)
+    public int rasterTileHeight = -1;
+
     public CollectionReferenceParameters() {
     }
 }

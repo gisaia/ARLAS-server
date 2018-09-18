@@ -84,6 +84,8 @@ public class CollectionTool extends AbstractTestContext {
         params.excludeWfsFields = DataSetTool.DATASET_EXCLUDE_WFS_FIELDS;
         params.taggableFields = DataSetTool.DATASET_TAGGABLE_FIELDS;
         params.rasterTileURL = DataSetTool.DATASET_TILE_URL;
+        params.rasterTileWidth=256;
+        params.rasterTileHeight=256;
 
         // PUT new collection
         given().contentType("application/json").body(params).when().put(getUrlPath()).then().statusCode(200);
