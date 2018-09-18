@@ -146,7 +146,8 @@ The OPENSEARCH Description document of the collection can be customized with the
 ## RASTER TILES
 
 If the data in the collection are metadata of images and the images are available as 256x256 px tiles through a WMTS or X/Y/Z service (top left corner is 0/0), 
-then ARLAS can, for a given tile, dynamically stack the tiles aligned with the requested one and for the images matching a given filter.
+then ARLAS can, for a given tile, dynamically stack the tiles aligned with the requested one and for the images matching a given filter. 
+In case the tile server does not provide the tiles always with the right size (too big), then you can set the `raster_tile_width` and `raster_tile_height` to the desired dimensions, such as 256 or 512. A crop operation is done to meet the right size when the tile is too big. The "too small" case is not handled.
 
 ```JSON
    "ratser_tiles": {
@@ -154,7 +155,9 @@ then ARLAS can, for a given tile, dynamically stack the tiles aligned with the r
      "id_path": "string",
      "min_z": "string",
      "max_z": "string",
-     "check_geometry": "boolean"
+     "check_geometry": "boolean",
+     "raster_tile_width":"integer",
+     "raster_tile_height":"integer"
    }
 ```
 
@@ -165,3 +168,5 @@ then ARLAS can, for a given tile, dynamically stack the tiles aligned with the r
 |  min_z | Min zoom supported by the tile service  |  Optional |  0 |
 |  max_z | Max zoom supported by the tile service  |  Optional |  18 |
 |  check_geometry | Whether ARLAS should check that the matching images have their geometry intersecting the requested tile. Usefull if the search returns false positives on geometric queries | Optional  | false |
+|  raster_tile_width | In case the tile is too big, the crop width to apply. Set to -1 if not check must be applied |  Optional |  -1 |
+|  raster_tile_height | In case the tile is too big, the crop height to apply. Set to -1 if not check must be applied  |  Optional |  -1 |

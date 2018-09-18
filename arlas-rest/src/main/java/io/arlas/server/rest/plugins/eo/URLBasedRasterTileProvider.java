@@ -26,6 +26,7 @@ import io.arlas.server.model.RasterTileURL;
 import io.arlas.server.utils.Tile;
 
 import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
@@ -35,6 +36,9 @@ public class URLBasedRasterTileProvider implements TileProvider <RasterTile>{
         ImageIO.scanForPlugins();
     }
     private RasterTileURL template;
+    private int width =-1;
+    private int height =-1;
+
     public static final String PATTERN_X="{x}";
     public static final String PATTERN_Y="{y}";
     public static final String PATTERN_Z="{z}";
@@ -47,13 +51,28 @@ public class URLBasedRasterTileProvider implements TileProvider <RasterTile>{
         this.template=template;
     }
 
+    public URLBasedRasterTileProvider(RasterTileURL template, int width, int height){
+        this.template=template;
+        this.height=height;
+        this.width=width;
+    }
+
     @Override
     public Try<Optional<RasterTile>,ArlasException> getTile(Tile request) {
         return Try.withCatch(()->{
             RasterTile tile = (request.getzTile() > template.maxZ || request.getzTile() < template.minZ)?null:
-                    new RasterTile(request.getxTile(), request.getyTile(), request.getzTile(), ImageIO.read(resolveURL(request)));
+                    new RasterTile(request.getxTile(), request.getyTile(), request.getzTile(), getImage(resolveURL(request)));
                 return Optional.ofNullable(tile);
         },Error.class).mapFailure(e -> {e.printStackTrace();return new InternalServerErrorException("Can not fetch the tile "+request.getxTile()+"/"+request.getyTile()+"/"+request.getzTile(),e);});
+    }
+
+    protected BufferedImage getImage(URL url) throws IOException {
+        BufferedImage img = ImageIO.read(url);
+        if(width>-1 && height>-1 && (img.getWidth()>width || img.getHeight()>height)){
+            return img.getSubimage(0,0,width, height);
+        }else{
+            return img;
+        }
     }
 
     protected URL resolveURL(Tile request) throws IOException {
