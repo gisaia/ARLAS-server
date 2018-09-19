@@ -80,6 +80,7 @@ public class DublinCoreElementName {
        return simpleDateFormat.format(date);
     }
 
+    @JsonGetter(value = "coverage")
     public Polygon getCoverage(){
         org.geojson.Polygon polygon = new org.geojson.Polygon();
         List<LngLatAlt> exteriorRing = new ArrayList<>();
