@@ -27,23 +27,23 @@ import java.util.Map;
 public class CollectionReferenceParameters {
 
     @NotEmpty
-    @JsonProperty(value = "index_name", required = false)
+    @JsonProperty(value = "index_name", required = true)
     public String indexName;
 
     @NotEmpty
-    @JsonProperty(value = "type_name", required = false)
+    @JsonProperty(value = "type_name", required = true)
     public String typeName;
 
-    @JsonProperty(value = "id_path", required = false)
+    @JsonProperty(value = "id_path", required = true)
     public String idPath;
 
-    @JsonProperty(value = "geometry_path", required = false)
+    @JsonProperty(value = "geometry_path", required = true)
     public String geometryPath;
 
-    @JsonProperty(value = "centroid_path", required = false)
+    @JsonProperty(value = "centroid_path", required = true)
     public String centroidPath;
 
-    @JsonProperty(value = "timestamp_path", required = false)
+    @JsonProperty(value = "timestamp_path", required = true)
     public String timestampPath;
 
     @JsonProperty(value = "exclude_fields", required = false)

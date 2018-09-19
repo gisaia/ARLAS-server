@@ -22,10 +22,10 @@ package io.arlas.server.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class RasterTileURL {
-    @JsonProperty(value = "url", required = false)
+    @JsonProperty(value = "url", required = true)
     public String url = null;
 
-    @JsonProperty(value = "id_path", required = false, defaultValue = "id")
+    @JsonProperty(value = "id_path", required = true, defaultValue = "id")
     public String idPath = "id";
 
     @JsonProperty(value = "min_z", required = false)

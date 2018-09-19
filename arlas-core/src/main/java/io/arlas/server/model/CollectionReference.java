@@ -38,10 +38,10 @@ public class CollectionReference {
     public static final String EXCLUDE_WFS_FIELDS = "exclude_wfs_fields";
     public static final String CUSTOM_PARAMS = "custom_params";
 
-    @JsonProperty(value = "collection_name", required = false)
+    @JsonProperty(value = "collection_name", required = true)
     public String collectionName;
 
-    @JsonProperty(value = "params", required = false)
+    @JsonProperty(value = "params", required = true)
     public CollectionReferenceParameters params;
 
     public CollectionReference() {

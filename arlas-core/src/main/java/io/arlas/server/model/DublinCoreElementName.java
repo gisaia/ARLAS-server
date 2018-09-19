@@ -80,6 +80,7 @@ public class DublinCoreElementName {
        return simpleDateFormat.format(date);
     }
 
+    @JsonGetter(value = "coverage")
     public Polygon getCoverage(){
         org.geojson.Polygon polygon = new org.geojson.Polygon();
         List<LngLatAlt> exteriorRing = new ArrayList<>();
@@ -92,16 +93,16 @@ public class DublinCoreElementName {
     }
 
     public class Bbox {
-        @JsonProperty(value = "north", required = false)
+        @JsonProperty(value = "north", required = true)
         public double north = 90.0;
 
-        @JsonProperty(value = "south", required = false)
+        @JsonProperty(value = "south", required = true)
         public double south = -90.0;
 
-        @JsonProperty(value = "east", required = false)
+        @JsonProperty(value = "east", required = true)
         public double east = 180.0;
 
-        @JsonProperty(value = "west", required = false)
+        @JsonProperty(value = "west", required = true)
         public double west = -180.0;
     }
 
