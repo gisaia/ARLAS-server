@@ -21,7 +21,9 @@ package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.geojson.GeoJsonObject;
 import org.geojson.LngLatAlt;
+import org.geojson.Polygon;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -78,9 +80,8 @@ public class DublinCoreElementName {
        return simpleDateFormat.format(date);
     }
 
-    private JSONObject coverage;
     @JsonGetter(value = "coverage")
-    public JSONObject getCoverage(){
+    public Polygon getCoverage(){
         org.geojson.Polygon polygon = new org.geojson.Polygon();
         List<LngLatAlt> exteriorRing = new ArrayList<>();
         exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
@@ -88,19 +89,7 @@ public class DublinCoreElementName {
         exteriorRing.add(new LngLatAlt(bbox.west, bbox.north));
         exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
         polygon.setExteriorRing(exteriorRing);
-        this.coverage = new JSONObject();
-        JSONArray jsonArayExt = new JSONArray();
-        polygon.getExteriorRing().forEach(lngLatAlt -> {
-            JSONArray jsonArayLngLat = new JSONArray();
-            jsonArayLngLat.add(0, lngLatAlt.getLongitude());
-            jsonArayLngLat.add(1, lngLatAlt.getLatitude());
-            jsonArayExt.add(jsonArayLngLat);
-        });
-        JSONArray jsonAray = new JSONArray();
-        jsonAray.add(jsonArayExt);
-        this.coverage.put("type", "Polygon");
-        this.coverage.put("coordinates", jsonAray);
-        return this.coverage;
+        return polygon;
     }
 
     public class Bbox {
