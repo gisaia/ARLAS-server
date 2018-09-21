@@ -19,10 +19,10 @@
 
 package io.arlas.server.app;
 
+import brave.http.HttpTracing;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.github.kristofa.brave.Brave;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.exceptions.*;
@@ -35,10 +35,7 @@ import io.arlas.server.ogc.csw.writer.record.AtomRecordMessageBodyWriter;
 import io.arlas.server.ogc.csw.writer.record.XmlRecordMessageBodyWriter;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.WFSService;
-import io.arlas.server.rest.plugins.eo.TileRESTService;
-import io.arlas.server.utils.PrettyPrintFilter;
 import io.arlas.server.rest.collections.ElasticCollectionService;
-import io.arlas.server.services.ExploreServices;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
 import io.arlas.server.rest.explore.aggregate.GeoAggregateRESTService;
 import io.arlas.server.rest.explore.count.CountRESTService;
@@ -51,9 +48,12 @@ import io.arlas.server.rest.explore.raw.RawRESTService;
 import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
+import io.arlas.server.rest.plugins.eo.TileRESTService;
 import io.arlas.server.rest.tag.TagRESTService;
+import io.arlas.server.services.ExploreServices;
 import io.arlas.server.services.UpdateServices;
 import io.arlas.server.task.CollectionAutoDiscover;
+import io.arlas.server.utils.PrettyPrintFilter;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -107,7 +107,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
                 return configuration.zipkinConfiguration;
             }
         });
-
         bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
     }
 
@@ -134,7 +133,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         Client client = transportClient;
 
         if (configuration.zipkinConfiguration != null) {
-            Optional<Brave> brave = configuration.zipkinConfiguration.build(environment);
+            Optional<HttpTracing> tracing = configuration.zipkinConfiguration.build(environment);
         }
 
         ExploreServices exploration = new ExploreServices(client, configuration);
