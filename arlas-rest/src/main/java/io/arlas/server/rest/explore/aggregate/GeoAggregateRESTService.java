@@ -424,10 +424,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 feature.setProperties(properties);
                 feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
                 GeoJsonObject g;
-                if (element.BBOX != null) {
-                    g = element.BBOX;
-                } else if (element.centroid != null) {
-                    g = element.centroid;
+                if (element.geometry != null) {
+                    g = element.geometry;
                 } else {
                     GeoPoint geoPoint = (GeoPoint) element.key;
                     g = new Point(geoPoint.getLon(), geoPoint.getLat());

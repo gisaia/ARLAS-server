@@ -66,6 +66,8 @@ public class CheckParams {
     public static final String INTERVAL_UNIT_NOT_SPECIFIED = "Interval unit is missing.";
     public static final String NO_INTERVAL_UNIT_FOR_GEOHASH_NOR_HISTOGRAM = "Interval unit must not be specified for geohash nor histogram aggregations.";
     public static final String NO_TERM_INTERVAL = "'Interval' should not be specified for term aggregation.";
+    public static final String INVALID_FETCHGEOMETRY = "Invalid aggregation geometry type. Should be `fetchGeometry-bbox`, `fetchGeometry-centroid`, `fetchGeometry-byDefault` or `fetchGeometry";
+
 
     public CheckParams() {
     }

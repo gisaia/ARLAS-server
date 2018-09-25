@@ -35,8 +35,7 @@ public class Aggregation {
     public OrderOn on;
     public String size;
     public String include;
-    public Boolean withGeoCentroid = false;
-    public Boolean withGeoBBOX = false;
+    public AggregatedGeometry fetchGeometry;
 
     public Aggregation() {
     }

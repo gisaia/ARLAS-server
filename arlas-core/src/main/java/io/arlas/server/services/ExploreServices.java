@@ -259,7 +259,7 @@ public class ExploreServices {
                                 Polygon box = createBox((GeoBounds) subAggregation);
                                 GeoJsonObject g = box;
                                 if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket")) {
-                                    element.BBOX = box;
+                                    element.geometry = box;
                                 }
                                 feature.setGeometry(g);
                                 fc.add(feature);
@@ -267,7 +267,7 @@ public class ExploreServices {
                                 GeoPoint centroid = ((GeoCentroid) subAggregation).centroid();
                                 GeoJsonObject g = new Point(centroid.getLon(), centroid.getLat());
                                 if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket")) {
-                                    element.centroid = (Point) g;
+                                    element.geometry = g;
                                 }
                                 feature.setGeometry(g);
                                 fc.add(feature);

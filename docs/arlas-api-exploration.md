@@ -77,8 +77,7 @@ The sub-parameters possible values are:
 | **on**            | `field,count,result` (3) (3')                       | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
 | **size**          | {size}                                          | Defines how many buckets should be returned. |
 | **include**       | Comma separated strings (4)                     | Specifies the values for which buckets will be created. |
-| **withGeoBBOX**   | Boolean (5)(6)                                  | When it's true : the geoaggregation geometry is the data extent (bbox) of each bucket. |
-| **withGeoCentroid**   | Boolean (5)(6)                              | When it's true : the geoaggregation geometry is the centroid of each bucket. |
+| **fetchGeometry**   | `bbox`, `centroid`, or nothing specified      | Specifies which geometry to fetch for each bucket (5)(6)|
 
 (1) Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
 
@@ -89,7 +88,7 @@ The metrics `geobbox` and `geocentroid` are returned as features collections.
 
 (3) When **on** is `result`, then (**collect_field**,**collect_fct**) should be specified. Except when **collect_fct** = `geobbox` or `geocentroid`, then **on**=`result` is prohibited .
 
-(3') If **on** is equal to `result` and two ore more (**collect_field**,**collect_fct**) couples are specified, then the order is applied on the first `collect_fct` different from `geobbox` and `geocentroid`"
+(3') If **on** is equal to `result` and two ore more (**collect_field**,**collect_fct**) couples are specified, then the order is applied on the first `collect_fct` different from `geobbox` and `geobbox`".
 
 > Example: `agg=term:sexe:collect_field-location:collect_fct-geobbox:collect_field-age:collect_fct-avg:collect_field-height:collect_fct-max:order-asc:on-result`
 
@@ -98,9 +97,14 @@ The `order` is applied on the first collect_fct `avg` (that is different from `g
 
 (4) If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created.
 
-(5) If **withGeoCentroid** or **withGeoBBOX** are specified, the returned geometry is the one used in the geojson. **withGeoBBOX** wins over **withGeoCentroid**.
+(5) If **fetchGeometry** is specified, the returned geometry depends on the value it takes :
 
-(6) If **withGeoCentroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics.
+ - If `fetchGeometry-bbox`, then the returned geometry is the extend of data in each bucket
+ - If `fetchGeometry-centroid`, then the returned geometry is the centroid of data in each bucket
+ - If `fetchGeometry`, then the returned geometry is the centroid of the geohash
+
+
+(6) If **fetchGeometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics. Same for **fetchGeometry-bbox** and **collect_fct**=`geobbox`
 
 | Service             | Aggregation type    | Interval                                 | Description                              |
 | ------------------- | ------------------- | ---------------------------------------- | ---------------------------------------- |
