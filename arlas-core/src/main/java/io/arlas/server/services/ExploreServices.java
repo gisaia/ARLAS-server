@@ -29,6 +29,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationMetric;
 import io.arlas.server.model.response.AggregationResponse;
+import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ResponseCacheManager;
 import io.arlas.server.model.enumerations.CollectionFunction;
@@ -47,6 +48,7 @@ import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.geobounds.GeoBounds;
 import org.elasticsearch.search.aggregations.metrics.geocentroid.GeoCentroid;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
 import org.geojson.*;
 
 import java.io.IOException;
@@ -215,7 +217,7 @@ public class ExploreServices {
         }
     }
 
-    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse) {
+    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse, String collection) {
         aggregationResponse.name = aggregation.getName();
         if (aggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
             aggregationResponse.sumotherdoccounts = ((Terms) aggregation).getSumOfOtherDocCounts();
@@ -243,8 +245,32 @@ public class ExploreServices {
                     if (subAggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
                         subAggregationResponse.sumotherdoccounts = ((Terms) subAggregation).getSumOfOtherDocCounts();
                     }
+
                     if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
-                        subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse);
+                        subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection);
+                    } else if (subAggregationResponse.name.equals("first_geometry") || subAggregationResponse.name.equals("last_geometry")) {
+                        subAggregationResponse = null;
+                        Map source = ((TopHits)subAggregation).getHits().getHits()[0].getSourceAsMap();
+                        GeoJsonObject geometryGeoJson = null;
+                        try {
+                            CollectionReference collectionReference = getDaoCollectionReference().getCollectionReference(collection);
+                            Object geometry = collectionReference.params.geometryPath != null ?
+                                    MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source) : null;
+                            if (geometry == null) {
+                                geometry = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
+                            }
+                            geometryGeoJson = geometry != null ?
+                                    GeoTypeMapper.getGeoJsonObject(geometry) : null;
+                        } catch (ArlasException e) {
+                            e.printStackTrace();
+                        }
+                        if (geometryGeoJson != null) {
+                            element.geometry = geometryGeoJson;
+                        }
+                        if (bucket.getAggregations().asList().size() == 1) {
+                            element.metrics = null;
+                            element.elements = null;
+                        }
                     } else {
                         subAggregationResponse = null;
                         AggregationMetric aggregationMetric = new AggregationMetric();

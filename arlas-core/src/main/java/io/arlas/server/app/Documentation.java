@@ -185,6 +185,10 @@ public class Documentation {
             "\n \n" +
             "- {fetchGeometry} : When it's bbox: the geoaggregation geometry is the data extend (bbox) of each bucket." +
             "\n \n" +
+            "- {fetchGeometry} : When it's first: the geoaggregation geometry is the geometry of the first document in each bucket (chronogically)" +
+            "\n \n" +
+            "- {fetchGeometry} : When it's last: the geoaggregation geometry is the geometry of the last document in each bucket (chronogically)" +
+            "\n \n" +
             "- (collect_field,collect_fct) should both be specified, except when collect_fct = `geobbox` or `geocentroid`, it could be specified alone. The metrics `geobbox` and `geocentroid` are returned as features collections." +
             "\n \n" +
             "- {order} is set to sort the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation. " +

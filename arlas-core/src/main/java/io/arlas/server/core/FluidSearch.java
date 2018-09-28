@@ -19,6 +19,7 @@
 
 package io.arlas.server.core;
 
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
@@ -564,6 +565,7 @@ public class FluidSearch {
         geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
         //get the field, format, collect_field, collect_fct, order, on
         geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
+        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggeragatedGeometryStrategy(aggregationModel, geoHashAggregationBuilder);
         return geoHashAggregationBuilder;
     }
 
@@ -678,23 +680,33 @@ public class FluidSearch {
         }
 
         setOrder(aggregationModel, aggregationBuilder, firstMetricAggregationBuilder);
+        return aggregationBuilder;
+    }
 
-        if (aggregationModel.type == AggregationTypeEnum.geohash) {
-            if (aggregationModel.fetchGeometry != null && aggregationModel.fetchGeometry.option == AggregatedGeometryEnum.bbox) {
+    private ValuesSourceAggregationBuilder setAggeragatedGeometryStrategy(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
+        if (aggregationModel.fetchGeometry != null) {
+            if (aggregationModel.fetchGeometry.option == AggregatedGeometryEnum.bbox) {
                 // Check if geobbox is not already asked as a sub-aggregation
                 if ((aggregationModel.metrics != null && aggregationModel.metrics.stream().map(m -> m.collectFct).filter(collectFct -> collectFct.name().equals(CollectionFunction.GEOBBOX.name())).count() == 0) || aggregationModel.metrics == null) {
                     ValuesSourceAggregationBuilder metricAggregation = AggregationBuilders.geoBounds(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket").field(collectionReference.params.centroidPath);
                     aggregationBuilder.subAggregation(metricAggregation);
                 }
-            } else if (aggregationModel.fetchGeometry != null && aggregationModel.fetchGeometry.option == AggregatedGeometryEnum.centroid) {
+            } else if (aggregationModel.fetchGeometry.option == AggregatedGeometryEnum.centroid) {
                 // if geocentroid is not already asked as a sub-aggregation
                 if ((aggregationModel.metrics != null && aggregationModel.metrics.stream().map(m -> m.collectFct).filter(collectFct -> collectFct.name().equals(CollectionFunction.GEOCENTROID.name())).count() == 0) || aggregationModel.metrics == null) {
                     ValuesSourceAggregationBuilder metricAggregation = AggregationBuilders.geoCentroid(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket").field(collectionReference.params.centroidPath);
                     aggregationBuilder.subAggregation(metricAggregation);
                 }
+            } else if (aggregationModel.fetchGeometry.option == AggregatedGeometryEnum.first) {
+                String[] includes = {collectionReference.params.geometryPath, collectionReference.params.centroidPath};
+                TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits("first_geometry").size(1).sort(collectionReference.params.timestampPath, SortOrder.ASC).fetchSource(includes, null);
+                aggregationBuilder.subAggregation(topHitsAggregationBuilder);
+            } else if (aggregationModel.fetchGeometry.option == AggregatedGeometryEnum.last) {
+                String[] includes = {collectionReference.params.geometryPath, collectionReference.params.centroidPath};
+                TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits("last_geometry").size(1).sort(collectionReference.params.timestampPath, SortOrder.DESC).fetchSource(includes, null);
+                aggregationBuilder.subAggregation(topHitsAggregationBuilder);
             }
         }
-
         return aggregationBuilder;
     }
 

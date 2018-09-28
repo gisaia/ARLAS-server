@@ -115,9 +115,15 @@ public class ParamsParser {
                             aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.centroid);
                         }  else if (option.equals(AggregatedGeometryEnum.byDefault.name())) {
                             aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.byDefault);
+                        } else if (option.equals(AggregatedGeometryEnum.first.name())) {
+                            aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first);
+                        } else if (option.equals(AggregatedGeometryEnum.last.name())) {
+                            aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last);
                         } else {
                             throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
                         }
+                    } else {
+                        throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
                     }
                 }
             } else {

@@ -73,6 +73,14 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingGeohashAggregateCenter(post(aggregationRequest), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
         handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1:fetchGeometry"), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
         handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1:fetchGeometry-byDefault"), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first);
+        handleMatchingGeohashAggregateFirstGeometry(post(aggregationRequest), 32, 16, 25, -171F, -81F, 141F, 51F);
+        handleMatchingGeohashAggregateFirstGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-first"), 32, 16, 25, -171F, -81F, 141F, 51F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last);
+        handleMatchingGeohashAggregateLastGeometry(post(aggregationRequest), 32, 16, 25, -141F, -51F, 171F, 81F);
+        handleMatchingGeohashAggregateLastGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-last"), 32, 16, 25, -141F, -51F, 171F, 81F);
         aggregationRequest.aggregations.get(0).fetchGeometry = null;
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
@@ -582,8 +590,8 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).interval = new Interval(13, null);
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-13"));
-
         aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
+
         aggregationRequest.aggregations.get(0).order = Order.asc;
         aggregationRequest.aggregations.get(0).on = OrderOn.count;
         handleInvalidParameters(post(aggregationRequest));
@@ -623,12 +631,16 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         invalidAggregationRequest.invalidAggregations.get(0).type = "geohash";
         invalidAggregationRequest.invalidAggregations.get(0).field = "geo_params.centroid";
         invalidAggregationRequest.invalidAggregations.get(0).interval = new Interval(1, null);
-        ;
         invalidAggregationRequest.invalidAggregations.get(0).metrics = new ArrayList<>();
         invalidAggregationRequest.invalidAggregations.get(0).metrics.add(new InvalidMetric("foo", "bar"));
         handleInvalidParameters(post(invalidAggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-foo:collect_fct-bar"));
+        invalidAggregationRequest.invalidAggregations.get(0).metrics = null;
 
+        invalidAggregationRequest.invalidAggregations.get(0).fetchGeometry = "boo";
+        handleInvalidParameters(post(invalidAggregationRequest));
+        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:fetchGeometry-boo"));
+        invalidAggregationRequest.invalidAggregations.get(0).fetchGeometry = null;
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
         aggregationRequest.aggregations.get(0).include = "foo";
@@ -721,6 +733,10 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
 
     protected abstract void handleMatchingGeohashAggregateCenter(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
 
+    protected abstract void handleMatchingGeohashAggregateFirstGeometry(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
+
+    protected abstract void handleMatchingGeohashAggregateLastGeometry(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
+
     protected abstract void handleMatchingGeohashAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
 
     protected abstract void handleMatchingGeohashAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float left, float bottom, float right, float top) throws Exception;
@@ -789,6 +805,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         public Order order;
         public OrderOn on;
         public String size;
+        public String fetchGeometry;
 
         public InvalidAggregation() {
         }

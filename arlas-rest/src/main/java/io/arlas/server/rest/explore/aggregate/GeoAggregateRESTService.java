@@ -398,7 +398,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, true);
         MultiBucketsAggregation aggregation;
         aggregation = (MultiBucketsAggregation) response.getAggregations().asList().get(0);
-        aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse);
+        aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse, collectionReference.collectionName);
         fc = toGeoJson(aggregationResponse, flat);
         return fc;
     }

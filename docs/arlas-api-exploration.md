@@ -77,7 +77,7 @@ The sub-parameters possible values are:
 | **on**            | `field,count,result` (3) (3')                       | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
 | **size**          | {size}                                          | Defines how many buckets should be returned. |
 | **include**       | Comma separated strings (4)                     | Specifies the values for which buckets will be created. |
-| **fetchGeometry**   | `bbox`, `centroid`, or nothing specified      | Specifies which geometry to fetch for each bucket (5)(6)|
+| **fetchGeometry**   | `bbox`, `centroid`, `byDefault`, `first`, `last` or nothing specified      | Specifies which geometry to fetch for each bucket (5)(6)|
 
 (1) Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
 
@@ -101,7 +101,9 @@ The `order` is applied on the first collect_fct `avg` (that is different from `g
 
  - If `fetchGeometry-bbox`, then the returned geometry is the extend of data in each bucket
  - If `fetchGeometry-centroid`, then the returned geometry is the centroid of data in each bucket
- - If `fetchGeometry`, then the returned geometry is the centroid of the geohash
+ - If `fetchGeometry` or `fetchGeometry-byDefault` , then the returned geometry is the centroid of the geohash
+ - If `fetchGeometry-first`, then the returned geometry is the geometry of the first document in each bucket (chronogically)
+ - If `fetchGeometry-last`, then the returned geometry is the geometry of the last document in each bucket (chronogically)
 
 
 (6) If **fetchGeometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics. Same for **fetchGeometry-bbox** and **collect_fct**=`geobbox`
