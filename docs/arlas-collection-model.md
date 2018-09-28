@@ -32,9 +32,11 @@ A Collection has the following structure :
     "open_search": {
       ...
     }
-    "ratser_tiles": {
+    "raster_tile_url": {
       ...
-    }
+    },
+    "raster_tile_width":"integer",
+    "raster_tile_height":"integer"
   }
 }
 ```
@@ -51,6 +53,8 @@ The `atom_feed`, `open_search` and `ratser_tiles` nodes are optionals. The most 
 | timestamp_path | Path to a timestamp/date field in the indexed documents, that meets the [Elasticsearch date format](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/mapping-date-format.html), set when indexing data. | Optional  |
 | include_fields | Comma separated fields names that will be included in ARLAS-server responses. By default, all the fields are included | Optional  |
 | exclude_fields | Comma separated fields names that will be excluded from ARLAS-server responses. By default, none of the fields are excluded | Optional|
+| raster_tile_width | In case the tile is too big, the crop width to apply. Set to -1 if not check must be applied |  Optional |  -1 |
+| raster_tile_height | In case the tile is too big, the crop height to apply. Set to -1 if not check must be applied  |  Optional |  -1 |
 
 
 ## ATOM
@@ -150,14 +154,12 @@ then ARLAS can, for a given tile, dynamically stack the tiles aligned with the r
 In case the tile server does not provide the tiles always with the right size (too big), then you can set the `raster_tile_width` and `raster_tile_height` to the desired dimensions, such as 256 or 512. A crop operation is done to meet the right size when the tile is too big. The "too small" case is not handled.
 
 ```JSON
-   "ratser_tiles": {
+   "raster_tile_url": {
      "url": "string",
      "id_path": "string",
-     "min_z": "string",
-     "max_z": "string",
-     "check_geometry": "boolean",
-     "raster_tile_width":"integer",
-     "raster_tile_height":"integer"
+     "min_z": "integer",
+     "max_z": "integer",
+     "check_geometry": "boolean"
    }
 ```
 
@@ -168,5 +170,3 @@ In case the tile server does not provide the tiles always with the right size (t
 |  min_z | Min zoom supported by the tile service  |  Optional |  0 |
 |  max_z | Max zoom supported by the tile service  |  Optional |  18 |
 |  check_geometry | Whether ARLAS should check that the matching images have their geometry intersecting the requested tile. Usefull if the search returns false positives on geometric queries | Optional  | false |
-|  raster_tile_width | In case the tile is too big, the crop width to apply. Set to -1 if not check must be applied |  Optional |  -1 |
-|  raster_tile_height | In case the tile is too big, the crop height to apply. Set to -1 if not check must be applied  |  Optional |  -1 |
