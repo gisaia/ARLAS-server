@@ -786,7 +786,8 @@ public class FluidSearch {
         coordinatesBuilder.coordinate(bbox[0], bbox[3]);
         coordinatesBuilder.coordinate(bbox[0], bbox[1]);
         coordinatesBuilder.coordinate(bbox[2], bbox[1]);
-        return new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.LEFT);
+        // NB : In ES api LEFT is clockwise and RIGHT anticlockwise
+        return new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.RIGHT);
     }
 
     private MultiPolygonBuilder createMultiPolygonBuilder(MultiPolygon multiPolygon) {
