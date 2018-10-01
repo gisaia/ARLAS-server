@@ -81,6 +81,15 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last);
         handleMatchingGeohashAggregateLastGeometry(post(aggregationRequest), 32, 16, 25, -141F, -51F, 171F, 81F);
         handleMatchingGeohashAggregateLastGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-last"), 32, 16, 25, -141F, -51F, 171F, 81F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first, "params.age");
+        handleMatchingGeohashAggregateFirstGeometry(post(aggregationRequest), 32, 16, 25, -161F, -99F, 161F, 71F);
+        handleMatchingGeohashAggregateFirstGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-params.age-first"), 32, 16, 25, -161F, -99F, 161F, 71F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last, "params.age");
+        handleMatchingGeohashAggregateLastGeometry(post(aggregationRequest), 32, 16, 25, -171F, -81F, 171F, 81F);
+        handleMatchingGeohashAggregateLastGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-params.age-last"), 32, 16, 25, -171F, -81F, 171F, 81F);
+
         aggregationRequest.aggregations.get(0).fetchGeometry = null;
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
@@ -591,6 +600,10 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-13"));
         aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry =  new AggregatedGeometry(AggregatedGeometryEnum.centroid, "params.age");
+        handleInvalidParameters(post(aggregationRequest));
+        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:fetchGeometry-params.age-centroid"));
 
         aggregationRequest.aggregations.get(0).order = Order.asc;
         aggregationRequest.aggregations.get(0).on = OrderOn.count;

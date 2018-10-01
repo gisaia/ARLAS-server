@@ -97,14 +97,15 @@ The `order` is applied on the first collect_fct `avg` (that is different from `g
 
 (4) If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created.
 
-(5) If **fetchGeometry** is specified, the returned geometry depends on the value it takes :
+(5) **fetchGeometry** is to be specified for geohash aggregation only. If **fetchGeometry** is specified, the returned geometry depends on the value it takes :
 
  - If `fetchGeometry-bbox`, then the returned geometry is the extend of data in each bucket
  - If `fetchGeometry-centroid`, then the returned geometry is the centroid of data in each bucket
  - If `fetchGeometry` or `fetchGeometry-byDefault` , then the returned geometry is the centroid of the geohash
  - If `fetchGeometry-first`, then the returned geometry is the geometry of the first document in each bucket (chronogically)
  - If `fetchGeometry-last`, then the returned geometry is the geometry of the last document in each bucket (chronogically)
-
+ - If `fetchGeometry-{field}-first`, then the returned geometry is the geometry of the first document in each bucket (ordered on the {field})
+ - If `fetchGeometry-{field}-last`, then the returned geometry is the geometry of the last document in each bucket (ordered on the {field})
 
 (6) If **fetchGeometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics. Same for **fetchGeometry-bbox** and **collect_fct**=`geobbox`
 

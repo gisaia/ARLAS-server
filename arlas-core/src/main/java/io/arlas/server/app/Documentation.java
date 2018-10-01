@@ -181,6 +181,8 @@ public class Documentation {
             "\n \n" +
             "       avg,cardinality,max,min,sum,geobbox,geocentroid" +
             "\n \n" +
+            "- {fetchGeometry} is to be specified for geohash aggregation only" +
+            "\n \n" +
             "- {fetchGeometry} : When it's centroid : the geoaggregation geometry is the centroid of each bucket." +
             "\n \n" +
             "- {fetchGeometry} : When it's bbox: the geoaggregation geometry is the data extend (bbox) of each bucket." +
@@ -188,6 +190,10 @@ public class Documentation {
             "- {fetchGeometry} : When it's first: the geoaggregation geometry is the geometry of the first document in each bucket (chronogically)" +
             "\n \n" +
             "- {fetchGeometry} : When it's last: the geoaggregation geometry is the geometry of the last document in each bucket (chronogically)" +
+            "\n \n" +
+            "- {fetchGeometry} : When it's {field}-first: the geoaggregation geometry is the geometry of the first document in each bucket (ordered on the {field})" +
+            "\n \n" +
+            "- {fetchGeometry} : When it's {field}-last: the geoaggregation geometry is the geometry of the last document in each bucket (ordered on the {field})" +
             "\n \n" +
             "- (collect_field,collect_fct) should both be specified, except when collect_fct = `geobbox` or `geocentroid`, it could be specified alone. The metrics `geobbox` and `geocentroid` are returned as features collections." +
             "\n \n" +

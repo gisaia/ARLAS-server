@@ -104,27 +104,34 @@ public class ParamsParser {
         if (fetchGeometryString != null) {
             if (fetchGeometryString.contains("-")) {
                 String[] fetchOptions = fetchGeometryString.split("-");
-                if (fetchOptions.length != 2) {
-                    throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
-                } else {
-                    if (fetchOptions.length == 2) {
-                        String option = fetchOptions[1];
-                        if (option.equals(AggregatedGeometryEnum.bbox.name())) {
-                            aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.bbox);
-                        } else if (option.equals(AggregatedGeometryEnum.centroid.name())) {
-                            aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.centroid);
-                        }  else if (option.equals(AggregatedGeometryEnum.byDefault.name())) {
-                            aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.byDefault);
-                        } else if (option.equals(AggregatedGeometryEnum.first.name())) {
-                            aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first);
-                        } else if (option.equals(AggregatedGeometryEnum.last.name())) {
-                            aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last);
-                        } else {
-                            throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
-                        }
+                if (fetchOptions.length == 2) {
+                    String option = fetchOptions[1];
+                    if (option.equals(AggregatedGeometryEnum.bbox.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.bbox);
+                    } else if (option.equals(AggregatedGeometryEnum.centroid.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.centroid);
+                    }  else if (option.equals(AggregatedGeometryEnum.byDefault.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.byDefault);
+                    } else if (option.equals(AggregatedGeometryEnum.first.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first);
+                    } else if (option.equals(AggregatedGeometryEnum.last.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last);
                     } else {
                         throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
                     }
+                } else if (fetchOptions.length == 3) {
+                    String field = fetchOptions[1];
+                    // TODO check field existence ?
+                    String option = fetchOptions[2];
+                    if (option.equals(AggregatedGeometryEnum.first.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first, field);
+                    } else if (option.equals(AggregatedGeometryEnum.last.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last, field);
+                    } else {
+                        throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
+                    }
+                } else {
+                    throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
                 }
             } else {
                 if (fetchGeometryString.equals("")) {

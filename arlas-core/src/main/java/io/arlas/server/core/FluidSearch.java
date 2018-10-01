@@ -697,14 +697,16 @@ public class FluidSearch {
                     ValuesSourceAggregationBuilder metricAggregation = AggregationBuilders.geoCentroid(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket").field(collectionReference.params.centroidPath);
                     aggregationBuilder.subAggregation(metricAggregation);
                 }
-            } else if (aggregationModel.fetchGeometry.option == AggregatedGeometryEnum.first) {
+            } else {
                 String[] includes = {collectionReference.params.geometryPath, collectionReference.params.centroidPath};
-                TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits("first_geometry").size(1).sort(collectionReference.params.timestampPath, SortOrder.ASC).fetchSource(includes, null);
-                aggregationBuilder.subAggregation(topHitsAggregationBuilder);
-            } else if (aggregationModel.fetchGeometry.option == AggregatedGeometryEnum.last) {
-                String[] includes = {collectionReference.params.geometryPath, collectionReference.params.centroidPath};
-                TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits("last_geometry").size(1).sort(collectionReference.params.timestampPath, SortOrder.DESC).fetchSource(includes, null);
-                aggregationBuilder.subAggregation(topHitsAggregationBuilder);
+                String sortField = (aggregationModel.fetchGeometry.field != null) ? aggregationModel.fetchGeometry.field : collectionReference.params.timestampPath;
+                if (aggregationModel.fetchGeometry.option == AggregatedGeometryEnum.first) {
+                    TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits("first_geometry").size(1).sort(sortField, SortOrder.ASC).fetchSource(includes, null);
+                    aggregationBuilder.subAggregation(topHitsAggregationBuilder);
+                } else if (aggregationModel.fetchGeometry.option == AggregatedGeometryEnum.last) {
+                    TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits("last_geometry").size(1).sort(sortField, SortOrder.DESC).fetchSource(includes, null);
+                    aggregationBuilder.subAggregation(topHitsAggregationBuilder);
+                }
             }
         }
         return aggregationBuilder;

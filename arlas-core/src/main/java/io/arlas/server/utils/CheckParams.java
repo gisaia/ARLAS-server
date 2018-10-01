@@ -66,7 +66,8 @@ public class CheckParams {
     public static final String INTERVAL_UNIT_NOT_SPECIFIED = "Interval unit is missing.";
     public static final String NO_INTERVAL_UNIT_FOR_GEOHASH_NOR_HISTOGRAM = "Interval unit must not be specified for geohash nor histogram aggregations.";
     public static final String NO_TERM_INTERVAL = "'Interval' should not be specified for term aggregation.";
-    public static final String INVALID_FETCHGEOMETRY = "Invalid aggregation geometry type. Should be `fetchGeometry-bbox`, `fetchGeometry-centroid`, `fetchGeometry-byDefault` or `fetchGeometry";
+    public static final String INVALID_FETCHGEOMETRY = "Invalid aggregation geometry type. Should be `fetchGeometry-bbox`, `fetchGeometry-centroid`, `fetchGeometry-byDefault`" +
+            "`fetchGeometry-first`, `fetchGeometry-last`, `fetchGeometry-{field}-first`, `fetchGeometry-{field}-last` or `fetchGeometry";
 
 
     public CheckParams() {
@@ -101,6 +102,8 @@ public class CheckParams {
         checkAggregationIntervalParameter(aggregation);
         // Check include parameter validity according to aggregation type
         checkAggregationIncludeParameter(aggregation);
+        // Check fetchGeometry validity according to aggregation type
+        checkFetchGeometryParameter(aggregation);
     }
 
     public static void checkRangeRequestField(Request request) throws ArlasException {
@@ -147,6 +150,22 @@ public class CheckParams {
     public static void checkAggregationIncludeParameter(Aggregation aggregationModel) throws ArlasException {
         if (aggregationModel.include != null && aggregationModel.type != AggregationTypeEnum.term) {
             throw new BadRequestException(FluidSearch.NO_INCLUDE_TO_SPECIFY);
+        }
+    }
+
+    public static void checkFetchGeometryParameter(Aggregation aggregationModel) throws ArlasException {
+        if (aggregationModel.type == AggregationTypeEnum.geohash) {
+            if (aggregationModel.fetchGeometry != null) {
+                AggregatedGeometryEnum fetchGeometryOption = aggregationModel.fetchGeometry.option;
+                if ((fetchGeometryOption == AggregatedGeometryEnum.byDefault || fetchGeometryOption == AggregatedGeometryEnum.centroid
+                        ||fetchGeometryOption == AggregatedGeometryEnum.bbox) && aggregationModel.fetchGeometry.field != null) {
+                    throw new BadRequestException("field should not be specified for centroid & bbox fetchGeometry option");
+                }
+            }
+        } else {
+            if (aggregationModel.fetchGeometry != null) {
+                throw new BadRequestException("fetchGeometry should be specified for geohash aggregation only");
+            }
         }
     }
 
