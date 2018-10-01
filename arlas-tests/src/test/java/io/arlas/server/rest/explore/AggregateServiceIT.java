@@ -138,7 +138,7 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
-    protected void handleMatchingGeohashAggregateFirstGeometry(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+    protected void handleMatchingAggregateWithGeometry(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
                 .body("elements.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))))
@@ -148,8 +148,13 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
-    protected void handleMatchingGeohashAggregateLastGeometry(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
-        handleMatchingGeohashAggregateFirstGeometry(then, featuresSize, featureCountMin, featureCountMax, centroidLonMin, centroidLatMin, centroidLonMax, centroidLatMax);
+    protected void handleMatchingAggregateWithCentroid(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+        handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
+        then
+                .body("elements.geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))
+                .body("elements.geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))
+                .body("elements.geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))
+                .body("elements.geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))));
     }
 
     @Override

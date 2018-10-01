@@ -181,7 +181,7 @@ public class Documentation {
             "\n \n" +
             "       avg,cardinality,max,min,sum,geobbox,geocentroid" +
             "\n \n" +
-            "- {fetchGeometry} is to be specified for geohash aggregation only" +
+            "- {fetchGeometry} is to be specified for `geohash` and `term` aggregations only" +
             "\n \n" +
             "- {fetchGeometry} : When it's centroid : the geoaggregation geometry is the centroid of each bucket." +
             "\n \n" +

@@ -154,7 +154,7 @@ public class CheckParams {
     }
 
     public static void checkFetchGeometryParameter(Aggregation aggregationModel) throws ArlasException {
-        if (aggregationModel.type == AggregationTypeEnum.geohash) {
+        if (aggregationModel.type == AggregationTypeEnum.geohash || aggregationModel.type == AggregationTypeEnum.term) {
             if (aggregationModel.fetchGeometry != null) {
                 AggregatedGeometryEnum fetchGeometryOption = aggregationModel.fetchGeometry.option;
                 if ((fetchGeometryOption == AggregatedGeometryEnum.byDefault || fetchGeometryOption == AggregatedGeometryEnum.centroid
@@ -164,7 +164,7 @@ public class CheckParams {
             }
         } else {
             if (aggregationModel.fetchGeometry != null) {
-                throw new BadRequestException("fetchGeometry should be specified for geohash aggregation only");
+                throw new BadRequestException("fetchGeometry should be specified for geohash and term aggregation only");
             }
         }
     }

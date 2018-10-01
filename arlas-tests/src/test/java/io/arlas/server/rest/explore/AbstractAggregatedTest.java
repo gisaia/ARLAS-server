@@ -75,20 +75,20 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1:fetchGeometry-byDefault"), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
 
         aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first);
-        handleMatchingGeohashAggregateFirstGeometry(post(aggregationRequest), 32, 16, 25, -171F, -81F, 141F, 51F);
-        handleMatchingGeohashAggregateFirstGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-first"), 32, 16, 25, -171F, -81F, 141F, 51F);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 32, 16, 25, -171F, -81F, 141F, 51F);
+        handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-first"), 32, 16, 25, -171F, -81F, 141F, 51F);
 
         aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last);
-        handleMatchingGeohashAggregateLastGeometry(post(aggregationRequest), 32, 16, 25, -141F, -51F, 171F, 81F);
-        handleMatchingGeohashAggregateLastGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-last"), 32, 16, 25, -141F, -51F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 32, 16, 25, -141F, -51F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-last"), 32, 16, 25, -141F, -51F, 171F, 81F);
 
         aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first, "params.age");
-        handleMatchingGeohashAggregateFirstGeometry(post(aggregationRequest), 32, 16, 25, -161F, -99F, 161F, 71F);
-        handleMatchingGeohashAggregateFirstGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-params.age-first"), 32, 16, 25, -161F, -99F, 161F, 71F);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 32, 16, 25, -161F, -99F, 161F, 71F);
+        handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-params.age-first"), 32, 16, 25, -161F, -99F, 161F, 71F);
 
         aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last, "params.age");
-        handleMatchingGeohashAggregateLastGeometry(post(aggregationRequest), 32, 16, 25, -171F, -81F, 171F, 81F);
-        handleMatchingGeohashAggregateLastGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-params.age-last"), 32, 16, 25, -171F, -81F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 32, 16, 25, -171F, -81F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-params.age-last"), 32, 16, 25, -171F, -81F, 171F, 81F);
 
         aggregationRequest.aggregations.get(0).fetchGeometry = null;
 
@@ -526,6 +526,41 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).order = Order.desc;
         handleMatchingAggregateWithOrder(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, "Cost Estimator");
         handleMatchingAggregateWithOrder(get("term:params.job:collect_field-params.startdate:collect_fct-sum:order-desc:on-result"), DataSetTool.jobs.length - 1, 58, 64, "Cost Estimator");
+
+        // FETCHGEOMETRY TESTS
+        aggregationRequest.aggregations.get(0).metrics = null;
+        aggregationRequest.aggregations.get(0).order = null;
+        aggregationRequest.aggregations.get(0).on = null;
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.byDefault);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -99F, 81F);
+        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry"), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -99F, 81F);
+        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-byDefault"), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -99F, 81F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.centroid);
+        handleMatchingAggregateWithCentroid(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -3.3527612686157227e-7F, -1.6763806343078613e-7F, -2.514570951461792e-7F, -1.257285475730896e-7F);
+        handleMatchingAggregateWithCentroid(get("term:params.job:fetchGeometry-centroid"), DataSetTool.jobs.length - 1, 58, 64, -3.3527612686157227e-7F, -1.6763806343078613e-7F, -2.514570951461792e-7F, -1.257285475730896e-7F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.bbox);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-bbox"), DataSetTool.jobs.length - 1, 58, 64, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -159F, 1F);
+        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-first"), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -159F, 1F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, 79F, 79F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-last"), DataSetTool.jobs.length - 1, 58, 64, 79F, 79F, 171F, 81F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first, "params.age");
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -161F, -81F, 41F, 1F);
+        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-params.age-first"), DataSetTool.jobs.length - 1, 58, 64, -161F, -81F, 41F, 1F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last, "params.age");
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -151F, -81F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-params.age-last"), DataSetTool.jobs.length - 1, 58, 64, -151F, -81F, 171F, 81F);
+
     }
 
     @Test
@@ -653,6 +688,15 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         invalidAggregationRequest.invalidAggregations.get(0).fetchGeometry = "boo";
         handleInvalidParameters(post(invalidAggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:fetchGeometry-boo"));
+        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:fetchGeometry-"));
+
+        invalidAggregationRequest.invalidAggregations.get(0).type = "term";
+        invalidAggregationRequest.invalidAggregations.get(0).field = "params.job";
+        invalidAggregationRequest.invalidAggregations.get(0).interval = null;
+        invalidAggregationRequest.invalidAggregations.get(0).fetchGeometry = "boo";
+        handleInvalidParameters(post(invalidAggregationRequest));
+        handleInvalidParameters(get("term:params.job:fetchGeometry-boo"));
+        handleInvalidParameters(get("term:params.job:fetchGeometry-"));
         invalidAggregationRequest.invalidAggregations.get(0).fetchGeometry = null;
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
@@ -720,9 +764,9 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
 
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
         aggregationRequest.aggregations.get(0).interval = null;
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.centroid);
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.centroid, "params.age");
         handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("term:params.job:interval-1:fetchGeometry-centroid"));
+        handleInvalidParameters(get("term:params.job:interval-1:fetchGeometry-params.age-centroid"));
     }
 
     @Test
@@ -746,9 +790,9 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
 
     protected abstract void handleMatchingGeohashAggregateCenter(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
 
-    protected abstract void handleMatchingGeohashAggregateFirstGeometry(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
+    protected abstract void handleMatchingAggregateWithGeometry(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
 
-    protected abstract void handleMatchingGeohashAggregateLastGeometry(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
+    protected abstract void handleMatchingAggregateWithCentroid(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
 
     protected abstract void handleMatchingGeohashAggregateWithGeocentroidCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
 

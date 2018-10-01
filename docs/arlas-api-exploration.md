@@ -97,7 +97,7 @@ The `order` is applied on the first collect_fct `avg` (that is different from `g
 
 (4) If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created.
 
-(5) **fetchGeometry** is to be specified for geohash aggregation only. If **fetchGeometry** is specified, the returned geometry depends on the value it takes :
+(5) **fetchGeometry** is to be specified for `geohash` and `term` aggregations only. If **fetchGeometry** is specified, the returned geometry depends on the value it takes :
 
  - If `fetchGeometry-bbox`, then the returned geometry is the extend of data in each bucket
  - If `fetchGeometry-centroid`, then the returned geometry is the centroid of data in each bucket

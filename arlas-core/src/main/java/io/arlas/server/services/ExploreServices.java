@@ -248,7 +248,7 @@ public class ExploreServices {
 
                     if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection);
-                    } else if (subAggregationResponse.name.equals("first_geometry") || subAggregationResponse.name.equals("last_geometry")) {
+                    } else if (subAggregationResponse.name.equals(FluidSearch.FIRST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.LAST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.TERM_RANDOM_GEOMETRY)) {
                         subAggregationResponse = null;
                         Map source = ((TopHits)subAggregation).getHits().getHits()[0].getSourceAsMap();
                         GeoJsonObject geometryGeoJson = null;
