@@ -29,7 +29,6 @@ import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.RangeResponse;
-import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -156,10 +155,10 @@ public class CheckParams {
     public static void checkFetchGeometryParameter(Aggregation aggregationModel) throws ArlasException {
         if (aggregationModel.type == AggregationTypeEnum.geohash || aggregationModel.type == AggregationTypeEnum.term) {
             if (aggregationModel.fetchGeometry != null) {
-                AggregatedGeometryEnum fetchGeometryOption = aggregationModel.fetchGeometry.option;
-                if ((fetchGeometryOption == AggregatedGeometryEnum.byDefault || fetchGeometryOption == AggregatedGeometryEnum.centroid
-                        ||fetchGeometryOption == AggregatedGeometryEnum.bbox) && aggregationModel.fetchGeometry.field != null) {
-                    throw new BadRequestException("field should not be specified for centroid & bbox fetchGeometry option");
+                AggregatedGeometryStrategyEnum fetchGeometryOption = aggregationModel.fetchGeometry.strategy;
+                if ((fetchGeometryOption == AggregatedGeometryStrategyEnum.byDefault || fetchGeometryOption == AggregatedGeometryStrategyEnum.centroid
+                        ||fetchGeometryOption == AggregatedGeometryStrategyEnum.bbox) && aggregationModel.fetchGeometry.field != null) {
+                    throw new BadRequestException("field should not be specified for centroid & bbox fetchGeometry strategy");
                 }
             }
         } else {

@@ -405,7 +405,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         return fc;
     }
 
-    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum maintAggregationType, boolean flat) throws IOException {
+    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat) throws IOException {
         FeatureCollection fc = new FeatureCollection();
         ObjectMapper mapper = new ObjectMapper();
         List<AggregationResponse> elements = aggregationResponse.elements;
@@ -415,7 +415,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 Feature feature = new Feature();
                 Map<String, Object> properties = new HashMap<>();
                 properties.put("count", element.count);
-                if (maintAggregationType == AggregationTypeEnum.geohash) {
+                if (mainAggregationType == AggregationTypeEnum.geohash) {
                     properties.put("geohash", element.keyAsString);
                 } else {
                     properties.put("term", element.keyAsString);
@@ -433,7 +433,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 GeoJsonObject g = null;
                 if (element.geometry != null) {
                     g = element.geometry;
-                } else if (maintAggregationType == AggregationTypeEnum.geohash){
+                } else if (mainAggregationType == AggregationTypeEnum.geohash){
                     GeoPoint geoPoint = (GeoPoint) element.key;
                     g = new Point(geoPoint.getLon(), geoPoint.getLat());
                 }

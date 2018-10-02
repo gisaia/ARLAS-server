@@ -65,7 +65,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingGeohashAggregateCenter(post(aggregationRequest), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
         handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1"), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.byDefault);
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
         handleMatchingGeohashAggregate(post(aggregationRequest), 32, 16, 25);
         handleMatchingGeohashAggregate(get("geohash:geo_params.centroid:interval-1:fetchGeometry"), 32, 16, 25);
         handleMatchingGeohashAggregate(get("geohash:geo_params.centroid:interval-1:fetchGeometry-byDefault"), 32, 16, 25);
@@ -74,19 +74,19 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1:fetchGeometry"), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
         handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1:fetchGeometry-byDefault"), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first);
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first);
         handleMatchingAggregateWithGeometry(post(aggregationRequest), 32, 16, 25, -171F, -81F, 141F, 51F);
         handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-first"), 32, 16, 25, -171F, -81F, 141F, 51F);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last);
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last);
         handleMatchingAggregateWithGeometry(post(aggregationRequest), 32, 16, 25, -141F, -51F, 171F, 81F);
         handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-last"), 32, 16, 25, -141F, -51F, 171F, 81F);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first, "params.age");
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first, "params.age");
         handleMatchingAggregateWithGeometry(post(aggregationRequest), 32, 16, 25, -161F, -99F, 161F, 71F);
         handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-params.age-first"), 32, 16, 25, -161F, -99F, 161F, 71F);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last, "params.age");
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last, "params.age");
         handleMatchingAggregateWithGeometry(post(aggregationRequest), 32, 16, 25, -171F, -81F, 171F, 81F);
         handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-params.age-last"), 32, 16, 25, -171F, -81F, 171F, 81F);
 
@@ -151,13 +151,13 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
                 32, 16, 25, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.centroid);
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.centroid);
         handleMatchingGeohashAggregateWithGeocentroidBucket(post(aggregationRequest),
                 32, 16, 25, 0, -155.00000031664968F, -65.00000014901161F, 154.99999981373549F, 64.99999981373549F);
         handleMatchingGeohashAggregateWithGeocentroidBucket(get("geohash:geo_params.centroid:interval-1:fetchGeometry-centroid"),
                 32, 16, 25, 0, -155.00000031664968F, -65.00000014901161F, 154.99999981373549F, 64.99999981373549F);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.bbox);
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.bbox);
         handleMatchingGeohashAggregateWithGeoBboxBucket(post(aggregationRequest),
                 32, 16, 25, 0, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
         handleMatchingGeohashAggregateWithGeoBboxBucket(get("geohash:geo_params.centroid:interval-1:fetchGeometry-bbox"),
@@ -532,32 +532,32 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).order = null;
         aggregationRequest.aggregations.get(0).on = null;
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.byDefault);
-        handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -99F, 81F);
-        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry"), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -99F, 81F);
-        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-byDefault"), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -99F, 81F);
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -180F, -90F, 180F, 90F);
+        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry"), DataSetTool.jobs.length - 1, 58, 64, -180F, -90F, 180F, 90F);
+        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-byDefault"), DataSetTool.jobs.length - 1, 58, 64, -180F, -90F, 180F, 90F);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.centroid);
-        handleMatchingAggregateWithCentroid(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -3.3527612686157227e-7F, -1.6763806343078613e-7F, -2.514570951461792e-7F, -1.257285475730896e-7F);
-        handleMatchingAggregateWithCentroid(get("term:params.job:fetchGeometry-centroid"), DataSetTool.jobs.length - 1, 58, 64, -3.3527612686157227e-7F, -1.6763806343078613e-7F, -2.514570951461792e-7F, -1.257285475730896e-7F);
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.centroid);
+        handleMatchingAggregateWithCentroid(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -1e-6F, -1e-6F, 1e-6F, 1e-6F);
+        handleMatchingAggregateWithCentroid(get("term:params.job:fetchGeometry-centroid"), DataSetTool.jobs.length - 1, 58, 64, -1e-6F, -1e-6F, 1e-6F, 1e-6F);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.bbox);
-        handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
-        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-bbox"), DataSetTool.jobs.length - 1, 58, 64, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.bbox);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -170.1F, -80.1F, 170F, 80F);
+        handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-bbox"), DataSetTool.jobs.length - 1, 58, 64, -170.1F, -80.1F, 170F, 80F);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first);
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first);
         handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -159F, 1F);
         handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-first"), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -159F, 1F);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last);
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last);
         handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, 79F, 79F, 171F, 81F);
         handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-last"), DataSetTool.jobs.length - 1, 58, 64, 79F, 79F, 171F, 81F);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first, "params.age");
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first, "params.age");
         handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -161F, -81F, 41F, 1F);
         handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-params.age-first"), DataSetTool.jobs.length - 1, 58, 64, -161F, -81F, 41F, 1F);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last, "params.age");
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last, "params.age");
         handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -151F, -81F, 171F, 81F);
         handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-params.age-last"), DataSetTool.jobs.length - 1, 58, 64, -151F, -81F, 171F, 81F);
 
@@ -636,7 +636,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-13"));
         aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
 
-        aggregationRequest.aggregations.get(0).fetchGeometry =  new AggregatedGeometry(AggregatedGeometryEnum.centroid, "params.age");
+        aggregationRequest.aggregations.get(0).fetchGeometry =  new AggregatedGeometry(AggregatedGeometryStrategyEnum.centroid, "params.age");
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:fetchGeometry-params.age-centroid"));
 
@@ -676,6 +676,11 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-foo"));
 
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).include = "foo";
+        handleInvalidParameters(post(invalidAggregationRequest));
+        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:include-foo"));
+
         invalidAggregationRequest.invalidAggregations.get(0).type = "geohash";
         invalidAggregationRequest.invalidAggregations.get(0).field = "geo_params.centroid";
         invalidAggregationRequest.invalidAggregations.get(0).interval = new Interval(1, null);
@@ -690,26 +695,12 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:fetchGeometry-boo"));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:fetchGeometry-"));
 
-        invalidAggregationRequest.invalidAggregations.get(0).type = "term";
-        invalidAggregationRequest.invalidAggregations.get(0).field = "params.job";
-        invalidAggregationRequest.invalidAggregations.get(0).interval = null;
-        invalidAggregationRequest.invalidAggregations.get(0).fetchGeometry = "boo";
-        handleInvalidParameters(post(invalidAggregationRequest));
-        handleInvalidParameters(get("term:params.job:fetchGeometry-boo"));
-        handleInvalidParameters(get("term:params.job:fetchGeometry-"));
-        invalidAggregationRequest.invalidAggregations.get(0).fetchGeometry = null;
-
-        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
-        aggregationRequest.aggregations.get(0).include = "foo";
-        handleInvalidParameters(post(invalidAggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:include-foo"));
-
         aggregationRequest.aggregations.get(0).include = null;
         aggregationRequest.aggregations.get(0).interval = null;
         handleInvalidParameters(post(invalidAggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid"));
 
-
+        // INVALID DATE HISTOGRAM
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.datehistogram;
         aggregationRequest.aggregations.get(0).field = "params.job";
         aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.day);// TODO: was incorrect (iday), was it on purpose?
@@ -737,6 +728,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("datehistogram:params.startdate:interval-day"));
 
+        // INVALID HISTOGRAM
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.histogram;
         aggregationRequest.aggregations.get(0).field = "params.startdate";
         aggregationRequest.aggregations.get(0).interval = new Interval(100000, null);
@@ -756,7 +748,7 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("histogram:params.job"));
 
-
+        // INVALID TERM
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
         aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
         handleInvalidParameters(post(aggregationRequest));
@@ -764,9 +756,18 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
 
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
         aggregationRequest.aggregations.get(0).interval = null;
-        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryEnum.centroid, "params.age");
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.centroid, "params.age");
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("term:params.job:interval-1:fetchGeometry-params.age-centroid"));
+
+        invalidAggregationRequest.invalidAggregations.get(0).type = "term";
+        invalidAggregationRequest.invalidAggregations.get(0).field = "params.job";
+        invalidAggregationRequest.invalidAggregations.get(0).interval = null;
+        invalidAggregationRequest.invalidAggregations.get(0).fetchGeometry = "boo";
+        handleInvalidParameters(post(invalidAggregationRequest));
+        handleInvalidParameters(get("term:params.job:fetchGeometry-boo"));
+        handleInvalidParameters(get("term:params.job:fetchGeometry-"));
+        invalidAggregationRequest.invalidAggregations.get(0).fetchGeometry = null;
     }
 
     @Test

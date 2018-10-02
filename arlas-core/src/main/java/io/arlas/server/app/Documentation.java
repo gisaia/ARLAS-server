@@ -127,7 +127,7 @@ public class Documentation {
             "\n \n" +
             "- {on} is set to specify whether the {order} is on the field name, on the count of the aggregation or on the result of a metric sub-aggregation. Its values are 'field', 'count' or 'result'. " +
             "\n \n" +
-            "- If {on} is equal to `result` and two ore more (**collect_field**,**collect_fct**) couples are specified, then the order is applied on the first `collect_fct` that is different from geobbox and geocentroid" +
+            "- If {on} is equal to `result` and two or more (**collect_field**,**collect_fct**) couples are specified, then the order is applied on the first `collect_fct` that is different from geobbox and geocentroid" +
             "\n \n" +
             "- {size} Defines how many buckets should be returned. " +
             "\n \n" +

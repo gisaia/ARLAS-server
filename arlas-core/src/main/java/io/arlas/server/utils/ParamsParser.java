@@ -106,16 +106,16 @@ public class ParamsParser {
                 String[] fetchOptions = fetchGeometryString.split("-");
                 if (fetchOptions.length == 2) {
                     String option = fetchOptions[1];
-                    if (option.equals(AggregatedGeometryEnum.bbox.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.bbox);
-                    } else if (option.equals(AggregatedGeometryEnum.centroid.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.centroid);
-                    }  else if (option.equals(AggregatedGeometryEnum.byDefault.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.byDefault);
-                    } else if (option.equals(AggregatedGeometryEnum.first.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first);
-                    } else if (option.equals(AggregatedGeometryEnum.last.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last);
+                    if (option.equals(AggregatedGeometryStrategyEnum.bbox.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.bbox);
+                    } else if (option.equals(AggregatedGeometryStrategyEnum.centroid.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.centroid);
+                    }  else if (option.equals(AggregatedGeometryStrategyEnum.byDefault.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
+                    } else if (option.equals(AggregatedGeometryStrategyEnum.first.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first);
+                    } else if (option.equals(AggregatedGeometryStrategyEnum.last.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last);
                     } else {
                         throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
                     }
@@ -123,10 +123,10 @@ public class ParamsParser {
                     String field = fetchOptions[1];
                     // TODO check field existence ?
                     String option = fetchOptions[2];
-                    if (option.equals(AggregatedGeometryEnum.first.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.first, field);
-                    } else if (option.equals(AggregatedGeometryEnum.last.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryEnum.last, field);
+                    if (option.equals(AggregatedGeometryStrategyEnum.first.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first, field);
+                    } else if (option.equals(AggregatedGeometryStrategyEnum.last.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last, field);
                     } else {
                         throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
                     }
@@ -135,7 +135,7 @@ public class ParamsParser {
                 }
             } else {
                 if (fetchGeometryString.equals("")) {
-                    aggregatedGeometry =  new AggregatedGeometry(AggregatedGeometryEnum.byDefault);
+                    aggregatedGeometry =  new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
                 } else {
                     throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
                 }

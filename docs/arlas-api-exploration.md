@@ -88,7 +88,7 @@ The metrics `geobbox` and `geocentroid` are returned as features collections.
 
 (3) When **on** is `result`, then (**collect_field**,**collect_fct**) should be specified. Except when **collect_fct** = `geobbox` or `geocentroid`, then **on**=`result` is prohibited .
 
-(3') If **on** is equal to `result` and two ore more (**collect_field**,**collect_fct**) couples are specified, then the order is applied on the first `collect_fct` different from `geobbox` and `geobbox`".
+(3') If **on** is equal to `result` and two or more (**collect_field**,**collect_fct**) couples are specified, then the order is applied on the first `collect_fct` different from `geobbox` and `geobbox`".
 
 > Example: `agg=term:sexe:collect_field-location:collect_fct-geobbox:collect_field-age:collect_fct-avg:collect_field-height:collect_fct-max:order-asc:on-result`
 
