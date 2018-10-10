@@ -36,6 +36,5 @@ public class WFSConstant {
     public static final String SUPPORTED_WFS_VERSION = "2.0.0";
     public static final String[] SUPPORTED_CRS = {"http://www.opengis.net/def/crs/epsg/0/4326", "urn:ogc:def:crs:EPSG::4326"};
     public static final String[] FEATURE_GML_FORMAT = {"application/gml+xml; version=3.2", "text/xml; subtype=gml/3.2"};
-
     public static final String[] SUPPORTED_WFS_REQUESTYPE = {"GetCapabilities", "DescribeFeatureType", "GetFeature", "GetPropertyValue", "ListStoredQueries", "DescribeStoredQueries"};
 }

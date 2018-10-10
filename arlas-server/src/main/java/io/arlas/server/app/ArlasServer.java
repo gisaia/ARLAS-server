@@ -177,7 +177,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         if(configuration.arlasServiceWFSEnabled){
             LOGGER.info("WFS Service enabled");
-            WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration, configuration.ogcConfiguration);
+            WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration, configuration.ogcConfiguration, configuration.inspireConfiguration);
             environment.jersey().register(new WFSService(exploration, wfsHandler));
         } else {
             LOGGER.info("WFS Service disabled");

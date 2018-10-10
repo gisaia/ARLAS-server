@@ -181,6 +181,12 @@ public class WFSService {
                     allowMultiple = false,
                     required = false)
             @QueryParam(value = "bbox") String bbox,
+            @ApiParam(
+                    name = "language",
+                    value = "language",
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "language") String language,
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter
     ) throws IOException, ArlasException, ParserConfigurationException, SAXException, ExecutionException, InterruptedException {
@@ -216,6 +222,9 @@ public class WFSService {
                 GetCapabilitiesHandler getCapabilitiesHandler = wfsHandler.getCapabilitiesHandler;
                 getCapabilitiesHandler.setFeatureTypeListType(collectionName, serviceUrl);
                 getCapabilitiesHandler.setOperationsUrl(serviceUrl);
+                if(wfsHandler.inspireConfiguration.enabled) {
+                    getCapabilitiesHandler.addINSPIRECompliantElements(collectionReference, serviceUrl, language);
+                }
                 JAXBElement<WFSCapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getWFSCapabilitiesResponse();
                 return Response.ok(getCapabilitiesResponse).type(MediaType.APPLICATION_XML).build();
             case DescribeFeatureType:

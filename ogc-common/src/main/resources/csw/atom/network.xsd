@@ -22,7 +22,7 @@ Date: 12-03-2014
     <xs:annotation>
       <xs:documentation>Extended capabilities for ISO 19128 , OGC CSW, OGC OWS services</xs:documentation>
     </xs:annotation>
-    <xs:choice>
+    <!--<xs:choice>
       <xs:sequence>
         <xs:annotation>
           <xs:documentation>Scenario 1: Mandatory MetadataUrl element pointing to an INSPIRE Compliant ISO metadata document plus language parameters </xs:documentation>
@@ -59,7 +59,35 @@ Date: 12-03-2014
         <xs:element name="ResponseLanguage" type="languageElementISO6392B"/>
         <xs:element name="MetadataUrl" type="resourceLocatorType" minOccurs="0"/>
       </xs:sequence>
-    </xs:choice>
+    </xs:choice>-->
+    <xs:sequence>
+      <xs:annotation>
+        <xs:documentation>Scenario 2: Mandatory (where appropriate) metadata elements not mapped to standard capabilities, plus mandatory language parameters, plus OPTIONAL MetadataUrl pointing to an INSPIRE Compliant ISO metadata document</xs:documentation>
+      </xs:annotation>
+      <xs:element name="ResourceLocator" type="resourceLocatorType" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Mandatory linkage to the network service</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ResourceType" type="resourceType"/>
+      <xs:element name="TemporalReference" type="temporalReference" maxOccurs="unbounded"/>
+      <xs:element name="Conformity" type="conformity" maxOccurs="unbounded"/>
+      <xs:element name="MetadataPointOfContact" type="metadataPointOfContact" maxOccurs="unbounded"/>
+      <xs:element name="MetadataDate" type="iso8601Date"/>
+      <xs:element name="SpatialDataServiceType" type="spatialDataServiceType"/>
+      <xs:element name="MandatoryKeyword" type="classificationOfSpatialDataService" maxOccurs="unbounded"/>
+      <xs:element name="Keyword" type="keyword" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">If the resource is a spatial data service, at least one keyword from Part D.4 shall be provided.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="QualityOfService" type="spatialDataServiceQualityOfService" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Category" type="spatialDataServiceCategoryType" minOccurs="0"/>
+      <xs:element name="CoordinateReferenceSystemIdentifier" type="coordinateReferenceSystem" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="SupportedLanguages" type="supportedLanguagesType"/>
+      <xs:element name="ResponseLanguage" type="languageElementISO6392B"/>
+      <xs:element name="MetadataUrl" type="resourceLocatorType" minOccurs="0"/>
+    </xs:sequence>
   </xs:complexType>
   <xs:complexType name="supportedLanguagesType">
     <xs:sequence>

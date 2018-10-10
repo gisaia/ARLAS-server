@@ -19,11 +19,25 @@
 
 package io.arlas.server.ogc.wfs.operation.getcapabilities;
 
+
+import eu.europa.ec.inspire.schemas.common._1.*;
+import eu.europa.ec.inspire.schemas.inspire_dls._1.ExtendedCapabilitiesType;
+import io.arlas.server.app.INSPIREConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.app.WFSConfiguration;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.OGCException;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.DublinCoreElementName;
+import io.arlas.server.model.Keyword;
+import io.arlas.server.model.constants.INSPIREConstants;
+import io.arlas.server.model.enums.InspireSupportedLanguages;
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.WFSHandler;
+import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
+
 import net.opengis.fes._2.*;
 import net.opengis.gml._3.TimeInstantType;
 import net.opengis.ows._1.*;
@@ -34,7 +48,10 @@ import net.opengis.wfs._2.WFSCapabilitiesType;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class GetCapabilitiesHandler {
 
@@ -58,18 +75,22 @@ public class GetCapabilitiesHandler {
     private static final String DURING = "During";
     private static final String TIMEINSTANT = "TimeInstant";
     private static final String TIMEPERIOD = "TimePeriod";
+    private final String METADATA_DEFAULT_SUPPORTED_LANGUAGE = InspireSupportedLanguages.eng.name();
 
     public WFSHandler wfsHandler;
     public WFSCapabilitiesType getCapabilitiesType = new WFSCapabilitiesType();
+    public ExtendedCapabilitiesType inspireExtendedCapabilitiesType = new ExtendedCapabilitiesType();
     protected ValueType trueValueType = new ValueType();
     protected ValueType falseValueType = new ValueType();
     private WFSConfiguration wfsConfiguration;
     private OGCConfiguration ogcConfiguration;
+    private INSPIREConfiguration inspireConfiguration;
 
-    public GetCapabilitiesHandler(WFSConfiguration wfsConfiguration, OGCConfiguration ogcConfiguration, WFSHandler wfsHandler) {
+    public GetCapabilitiesHandler(WFSHandler wfsHandler) {
         this.wfsHandler = wfsHandler;
-        this.wfsConfiguration = wfsConfiguration;
-        this.ogcConfiguration = ogcConfiguration;
+        this.wfsConfiguration = wfsHandler.wfsConfiguration;
+        this.ogcConfiguration = wfsHandler.ogcConfiguration;
+        this.inspireConfiguration = wfsHandler.inspireConfiguration;
 
         getCapabilitiesType.setVersion(WFSConstant.SUPPORTED_WFS_VERSION);
         trueValueType.setValue(TRUE);
@@ -322,5 +343,153 @@ public class GetCapabilitiesHandler {
         addConformanceType(conformanceType, "ImplementsTemporalJoins", falseValueType);
         addConformanceType(conformanceType, "ImplementsFeatureVersioning", falseValueType);
         addConformanceType(conformanceType, "ManageStoredQueries", falseValueType);
+    }
+
+    public void addINSPIRECompliantElements(CollectionReference collectionReference, String serviceUrl, String language) throws ArlasException {
+        addExtendedCapabilities(collectionReference, serviceUrl);
+        setInspireServiceIdentification(collectionReference, language);
+        setInspireFeatureTypeBoundingBox(collectionReference);
+    }
+
+    private void addExtendedCapabilities(CollectionReference collectionReference, String serviceUrl) throws OGCException {
+        // Add INSPIRE Resource type
+        inspireExtendedCapabilitiesType.setResourceType(ResourceType.SERVICE);
+
+        // Add INSPIRE Spatial data service type
+        inspireExtendedCapabilitiesType.setSpatialDataServiceType(SpatialDataServiceType.DOWNLOAD);
+
+        // Add INSPIRE Resource Locator
+        ResourceLocatorType resourceLocatorType = new ResourceLocatorType();
+        resourceLocatorType.setURL(serviceUrl + "service=WFS&request=GetCapabilities&version=2.0.0");
+        inspireExtendedCapabilitiesType.getResourceLocator().clear();
+        inspireExtendedCapabilitiesType.getResourceLocator().add(resourceLocatorType);
+
+        // Add INSPIRE Temporal Reference
+        TemporalReference temporalReference = new TemporalReference();
+        temporalReference.setDateOfCreation(collectionReference.params.dublinCoreElementName.getDate());
+        inspireExtendedCapabilitiesType.getTemporalReference().clear();
+        inspireExtendedCapabilitiesType.getTemporalReference().add(temporalReference);
+
+        // Add INSPIRE Conformity
+        Conformity networkServicesConformity = new Conformity();
+        CitationConformity citationConformity = new CitationConformity();
+        citationConformity.setTitle(INSPIREConstants.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE);
+        citationConformity.setDateOfCreation(INSPIREConstants.INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE);
+        networkServicesConformity.setSpecification(citationConformity);
+        networkServicesConformity.setDegree(DegreeOfConformity.CONFORMANT);
+        Conformity metadataConformity = new Conformity();
+        citationConformity = new CitationConformity();
+        citationConformity.setTitle(INSPIREConstants.INSPIRE_METADATA_CONFORMITY_TITLE);
+        citationConformity.setDateOfCreation(INSPIREConstants.INSPIRE_METADATA_CONFORMITY_DATE);
+        metadataConformity.setSpecification(citationConformity);
+        metadataConformity.setDegree(DegreeOfConformity.CONFORMANT);
+        inspireExtendedCapabilitiesType.getConformity().clear();
+        inspireExtendedCapabilitiesType.getConformity().add(networkServicesConformity);
+        inspireExtendedCapabilitiesType.getConformity().add(metadataConformity);
+
+        // Add INSPIRE Metadata Point of Contact
+        MetadataPointOfContact metadataPointOfContact = new MetadataPointOfContact();
+        String email = Optional.ofNullable(collectionReference.params.atomFeed).map(atom -> atom.author).map(author -> author.email).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_EMAIL);
+        String name = Optional.ofNullable(collectionReference.params.atomFeed).map(atom -> atom.author).map(author -> author.name).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_NAME);
+        metadataPointOfContact.setEmailAddress(email);
+        metadataPointOfContact.setOrganisationName(name);
+        inspireExtendedCapabilitiesType.getMetadataPointOfContact().clear();
+        inspireExtendedCapabilitiesType.getMetadataPointOfContact().add(metadataPointOfContact);
+
+        // Add INSPIRE Metadata date
+        String metadataDate = collectionReference.params.dublinCoreElementName.getDate();
+        inspireExtendedCapabilitiesType.setMetadataDate(metadataDate);
+
+        // Add INSPIRE Metadata Language
+        SupportedLanguagesType supportedLanguagesType = new SupportedLanguagesType();
+        String defaultLanguage = Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.language).filter(t -> !t.isEmpty()).map(String::toString).orElse(METADATA_DEFAULT_SUPPORTED_LANGUAGE);
+        WFSCheckParam.checkLanguageInspireCompliance(defaultLanguage, Service.WFS);
+        LanguageElementISO6392B defaultLanguageIso = new LanguageElementISO6392B();
+        defaultLanguageIso.setLanguage(defaultLanguage);
+        supportedLanguagesType.setDefaultLanguage(defaultLanguageIso);
+        inspireExtendedCapabilitiesType.setSupportedLanguages(supportedLanguagesType);
+        inspireExtendedCapabilitiesType.setResponseLanguage(defaultLanguageIso);
+
+        // Add INSPIRE Unique Resource Identifier
+        UniqueResourceIdentifier uniqueResourceIdentifier = new UniqueResourceIdentifier();
+        String code = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.inspireURI)
+                .map(inspireURI -> inspireURI.code).map(String::toString).orElse("ARLAS.INSPIRE." + collectionReference.collectionName.toUpperCase());
+        String namespace = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.inspireURI)
+                .map(inspireURI -> inspireURI.namespace).map(String::toString).orElse("ARLAS.INSPIRE." + collectionReference.collectionName.toUpperCase());
+        uniqueResourceIdentifier.setCode(code);
+        uniqueResourceIdentifier.setNamespace(namespace);
+        inspireExtendedCapabilitiesType.getSpatialDataSetIdentifier().clear();
+        inspireExtendedCapabilitiesType.getSpatialDataSetIdentifier().add(uniqueResourceIdentifier);
+
+        // Add INSPIRE keywords
+        List<Keyword> keywords = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.keywords).orElse(new ArrayList<>());
+        WFSCheckParam.checkKeywordsInspireCompliance(keywords, Service.WFS);
+        inspireExtendedCapabilitiesType.getKeyword().clear();
+        getCapabilitiesType.getServiceIdentification().getKeywords().clear();
+        keywords.forEach(keyword -> {
+            eu.europa.ec.inspire.schemas.common._1.Keyword inspireKeyword = new eu.europa.ec.inspire.schemas.common._1.Keyword();
+            inspireKeyword.setKeywordValue(keyword.value);
+            OriginatingControlledVocabulary vocabulary = new OriginatingControlledVocabulary();
+            Optional.ofNullable(keyword.vocabulary).map(k -> {vocabulary.setTitle(keyword.vocabulary); return k;});
+            Optional.ofNullable(keyword.dateOfPublication).map(k -> {vocabulary.setDateOfCreation(keyword.dateOfPublication); return k;});
+            inspireKeyword.setOriginatingControlledVocabulary(vocabulary);
+            inspireExtendedCapabilitiesType.getKeyword().add(inspireKeyword);
+            KeywordsType ke = new KeywordsType();
+            LanguageStringType languageStringType = new LanguageStringType();
+            languageStringType.setValue(keyword.value);
+            ke.getKeyword().add(languageStringType);
+            getCapabilitiesType.getServiceIdentification().getKeywords().add(ke);
+        });
+
+        ExtendedCapabilities extendedCapabilities  = new ExtendedCapabilities();
+        extendedCapabilities.setExtendedCapabilities(inspireExtendedCapabilitiesType);
+        getCapabilitiesType.getOperationsMetadata().setExtendedCapabilities(extendedCapabilities);
+    }
+
+    private void setInspireServiceIdentification(CollectionReference collectionReference, String language) throws ArlasException {
+        // Add INSPIRE 'Resource Title'
+        LanguageStringType WFSTitle = new LanguageStringType();
+        ServiceIdentification serviceIdentification = getCapabilitiesType.getServiceIdentification();
+
+        // FOR NOW we just check if the language is correct but we always return the only language declared in the collection reference params
+        if (language != null) {
+            WFSCheckParam.checkLanguageInspireCompliance(language, Service.WFS);
+        }
+
+        WFSTitle.setValue(Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.title).filter(t -> !t.isEmpty()).map(String::toString).orElse(INSPIREConstants.INSPIRE_RESOURCE_TITLE));
+        serviceIdentification.getTitle().clear();
+        serviceIdentification.getTitle().add(WFSTitle);
+
+        // Add INSPIRE 'Resource Abstract'
+        LanguageStringType WFSAbstract = new LanguageStringType();
+        WFSAbstract.setValue(Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.description).filter(t -> !t.isEmpty()).map(String::toString).orElse(INSPIREConstants.INSPIRE_RESOURCE_ABSTRACT));
+        serviceIdentification.getAbstract().clear();
+        serviceIdentification.getAbstract().add(WFSAbstract);
+
+        // Add INSPIRE 'Conditions for Access and Use'
+        String conditionsForAccessAndUse = Optional.ofNullable(inspireConfiguration).map(c -> c.accessAndUseConditions).map(String::toString).orElse(INSPIREConstants.NO_CONDITIONS_FOR_ACCESS_AND_USE);
+        serviceIdentification.setFees(conditionsForAccessAndUse);
+
+        // Add INSPIRE 'Limitations on Public Access'
+        serviceIdentification.getAccessConstraints().clear();
+        String limitationsOnPublicAccess = Optional.ofNullable(inspireConfiguration).map(c -> c.publicAccessLimitations).map(String::toString).orElse(INSPIREConstants.LIMITATION_ON_PUBLIC_ACCESS);
+        serviceIdentification.getAccessConstraints().add(limitationsOnPublicAccess);
+
+        getCapabilitiesType.setServiceIdentification(serviceIdentification);
+    }
+
+    private void setInspireFeatureTypeBoundingBox(CollectionReference collectionReference) {
+        FeatureTypeListType featureTypeListType = getCapabilitiesType.getFeatureTypeList();
+        DublinCoreElementName.Bbox bbox = collectionReference.params.dublinCoreElementName.bbox;
+        /*featureTypeListType.getFeatureType().forEach( featureTypeType -> {
+            featureTypeType.getWGS84BoundingBox().clear();
+            WGS84BoundingBoxType wgs84BoundingBoxType = new WGS84BoundingBoxType();
+            wgs84BoundingBoxType.getLowerCorner().add(bbox.west);
+            wgs84BoundingBoxType.getLowerCorner().add(bbox.south);
+            wgs84BoundingBoxType.getUpperCorner().add(bbox.east);
+            wgs84BoundingBoxType.getUpperCorner().add(bbox.north);
+            featureTypeType.getWGS84BoundingBox().add(wgs84BoundingBoxType);
+        });*/
+        // getCapabilitiesType.setFeatureTypeList(featureTypeListType);
     }
 }

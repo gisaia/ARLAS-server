@@ -68,6 +68,9 @@ public class CollectionReferenceParameters {
     @JsonProperty(value = "open_search", required = false)
     public OpenSearch openSearch = null;
 
+    @JsonProperty(value = "inspire", required = false)
+    public Inspire inspire = null;
+
     @JsonProperty(value = "dublin_core_element_name", required = false)
     public DublinCoreElementName dublinCoreElementName = new DublinCoreElementName();
 
