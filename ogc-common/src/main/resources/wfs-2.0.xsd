@@ -11,8 +11,8 @@
     -->
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
     <xsd:import namespace="http://www.w3.org/1999/xlink" schemaLocation="http://www.w3.org/1999/xlink.xsd"/>
-    <xsd:import namespace="http://www.opengis.net/ows/1.1" schemaLocation="http://schemas.opengis.net/ows/1.1.0/owsAll.xsd"/>
-    <xsd:import namespace="http://www.opengis.net/fes/2.0" schemaLocation="http://schemas.opengis.net/filter/2.0/filterAll.xsd"/>
+    <xsd:import namespace="http://www.opengis.net/ows/1.1" schemaLocation="csw/ows-1.1/owsAll.xsd"/>
+    <xsd:import namespace="http://www.opengis.net/fes/2.0" schemaLocation="csw/fes-2.0/filterAll.xsd"/>
     <!--
      ==================================================================
     -->

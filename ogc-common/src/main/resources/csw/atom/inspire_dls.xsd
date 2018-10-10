@@ -22,7 +22,7 @@ Date: 12-03-2014
 		08-JUN-2012 1.0.3	Added SpatialDataUniqueResourceIdentifier element
 		03-FEB-2012 1.0.2	Created for Download Services ISO 19142/WFS 2.0
 -->    
-	<import namespace="http://www.opengis.net/ows/1.1" schemaLocation="http://schemas.opengis.net/ows/1.1.0/owsAll.xsd"/>
+	<import namespace="http://www.opengis.net/ows/1.1" schemaLocation="../ows-1.1/owsAll.xsd"/>
 	<!--For JAXB Binding we use the local schema
 	<import namespace="http://www.opengis.net/ows/1.1" schemaLocation="http://schemas.opengis.net/ows/1.1.0/owsAll.xsd"/>-->
 	<import namespace="http://inspire.ec.europa.eu/schemas/common/1.0" schemaLocation="common.xsd"/>
