@@ -185,7 +185,9 @@ public class Documentation {
             "\n \n" +
             "- {fetchGeometry} : When it's centroid : the geoaggregation geometry is the centroid of each bucket." +
             "\n \n" +
-            "- {fetchGeometry} : When it's bbox: the geoaggregation geometry is the data extend (bbox) of each bucket." +
+            "- {fetchGeometry} : When it's bbox: the geoaggregation geometry is the data extend (bbox) in each bucket." +
+            "\n \n" +
+            "- {fetchGeometry} : When it's geohash: the geoaggregation geometry is the geohash extend of each bucket. It's applied only for Geohash aggregation tye. It is not supported for term aggregation type. " +
             "\n \n" +
             "- {fetchGeometry} : When it's first: the geoaggregation geometry is the geometry of the first document in each bucket (chronogically)" +
             "\n \n" +
