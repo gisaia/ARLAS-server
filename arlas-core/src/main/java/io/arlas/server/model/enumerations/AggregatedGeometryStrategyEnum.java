@@ -20,5 +20,5 @@
 package io.arlas.server.model.enumerations;
 
 public enum AggregatedGeometryStrategyEnum {
-    bbox, centroid, first, last, byDefault;
+    bbox, centroid, geohash, first, last, byDefault
 }

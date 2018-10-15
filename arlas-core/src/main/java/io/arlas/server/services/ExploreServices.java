@@ -227,8 +227,16 @@ public class ExploreServices {
         buckets.forEach(bucket -> {
             AggregationResponse element = new AggregationResponse();
             element.keyAsString = bucket.getKeyAsString();
-            if (aggregationResponse.name.equals(FluidSearch.GEOHASH_AGG)) {
-                element.key = getGeohashCentre(element.keyAsString.toString());
+            if (aggregationResponse.name.startsWith(FluidSearch.GEOHASH_AGG)) {
+                GeoPoint geoPoint = getGeohashCentre(element.keyAsString.toString());
+                element.key = geoPoint;
+                if (aggregationResponse.name.equals(FluidSearch.GEOHASH_AGG)) {
+                    // return the centroid of the geohash
+                    element.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
+                } else {
+                    // return the Extent of the geohash
+                    element.geometry = createPolygonFromRectangle(GeoHashUtils.bbox(element.keyAsString.toString()));
+                }
             } else {
                 element.key = bucket.getKey();
             }
@@ -246,7 +254,7 @@ public class ExploreServices {
                         subAggregationResponse.sumotherdoccounts = ((Terms) subAggregation).getSumOfOtherDocCounts();
                     }
 
-                    if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
+                    if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().startsWith(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection);
                     } else if (subAggregationResponse.name.equals(FluidSearch.FIRST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.LAST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.TERM_RANDOM_GEOMETRY)) {
                         subAggregationResponse = null;
@@ -388,5 +396,16 @@ public class ExploreServices {
         box.add(bounds);
 
         return box;
+    }
+
+    private Polygon createPolygonFromRectangle(Rectangle rectangle) {
+        Polygon polygon = new Polygon();
+        List<LngLatAlt> bounds = new ArrayList<>();
+        bounds.add(new LngLatAlt(rectangle.minLon, rectangle.maxLat));
+        bounds.add(new LngLatAlt(rectangle.maxLon, rectangle.maxLat));
+        bounds.add(new LngLatAlt(rectangle.maxLon, rectangle.minLat));
+        bounds.add(new LngLatAlt(rectangle.minLon, rectangle.minLat));
+        polygon.add(bounds);
+        return polygon;
     }
 }

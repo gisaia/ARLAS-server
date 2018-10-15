@@ -430,13 +430,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 }
                 feature.setProperties(properties);
                 feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
-                GeoJsonObject g = null;
-                if (element.geometry != null) {
-                    g = element.geometry;
-                } else if (mainAggregationType == AggregationTypeEnum.geohash){
-                    GeoPoint geoPoint = (GeoPoint) element.key;
-                    g = new Point(geoPoint.getLon(), geoPoint.getLat());
-                }
+                GeoJsonObject g = element.geometry;
                 feature.setGeometry(g);
                 fc.add(feature);
             }

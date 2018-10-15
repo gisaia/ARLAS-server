@@ -116,6 +116,8 @@ public class ParamsParser {
                         aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first);
                     } else if (option.equals(AggregatedGeometryStrategyEnum.last.name())) {
                         aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last);
+                    } else if (option.equals(AggregatedGeometryStrategyEnum.geohash.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.geohash);
                     } else {
                         throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
                     }

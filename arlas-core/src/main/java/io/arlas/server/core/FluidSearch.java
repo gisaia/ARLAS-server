@@ -79,6 +79,7 @@ public class FluidSearch {
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
     public static final String GEOHASH_AGG = "Geohash aggregation";
+    public static final String GEOHASH_AGG_WITH_GEOASH_STRATEGY = "Geohash aggregation with geoash strategy";
     public static final String GEO_DISTANCE = "geodistance";
     public static final String NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE = " aggregation type is not allowed as main aggregation. Please make sure that geohash or term is the main aggregation or use '_aggregate' service instead.";
     public static final String NO_INCLUDE_TO_SPECIFY = "'include-' should not be specified for this aggregation";
@@ -570,7 +571,9 @@ public class FluidSearch {
 
     // construct and returns the geohash aggregationModel builder
     private GeoGridAggregationBuilder buildGeohashAggregation(Aggregation aggregationModel) throws ArlasException {
-        GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(GEOHASH_AGG);
+        String geohashAggName = Optional.ofNullable(aggregationModel.fetchGeometry).map(fg -> fg.strategy).filter(strategy -> strategy == AggregatedGeometryStrategyEnum.geohash)
+                .map(s -> GEOHASH_AGG_WITH_GEOASH_STRATEGY).orElse(GEOHASH_AGG);
+        GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(geohashAggName);
         //get the precision
         Integer precision = (Integer)aggregationModel.interval.value;
         geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
@@ -702,6 +705,8 @@ public class FluidSearch {
                     ValuesSourceAggregationBuilder metricAggregation = AggregationBuilders.geoCentroid(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket").field(collectionReference.params.centroidPath);
                     aggregationBuilder.subAggregation(metricAggregation);
                 }
+            } else if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.geohash) {
+                // aggregationModel.type is necesseraly AggregationTypeEnum.geohash. We already return the centroid of each geohash by default => nothing to implement here => create geohash geometry at response stage
             } else if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.byDefault) {
                 if (aggregationModel.type ==  AggregationTypeEnum.term) {
                     String[] includes = {collectionReference.params.geometryPath, collectionReference.params.centroidPath};

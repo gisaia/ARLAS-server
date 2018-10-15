@@ -22,10 +22,7 @@ package io.arlas.server.utils;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 import io.arlas.server.core.FluidSearch;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.BadRequestException;
-import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.exceptions.NotAllowedException;
+import io.arlas.server.exceptions.*;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.RangeResponse;
@@ -59,6 +56,7 @@ public class CheckParams {
     private static final String UNEXISTING_FIELD = "The field name/pattern doesn't exist in the collection";
     private static final String MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD = "Infinity";
     private static final String DATE_NOW = "now";
+    private static final String GEOHASH_STRATEGY_NOT_SUPPORTED = "geohash strategy is not supported for term aggregations.";
 
     public static final String INTERVAL_NOT_SPECIFIED = "Interval parameter is not specified.";
     public static final String INTERVAL_VALUE_NOT_SPECIFIED = "Interval value is missing.";
@@ -159,6 +157,9 @@ public class CheckParams {
                 if ((fetchGeometryOption == AggregatedGeometryStrategyEnum.byDefault || fetchGeometryOption == AggregatedGeometryStrategyEnum.centroid
                         ||fetchGeometryOption == AggregatedGeometryStrategyEnum.bbox) && aggregationModel.fetchGeometry.field != null) {
                     throw new BadRequestException("field should not be specified for centroid & bbox fetchGeometry strategy");
+                }
+                if (fetchGeometryOption == AggregatedGeometryStrategyEnum.geohash && aggregationModel.type == AggregationTypeEnum.term) {
+                    throw new NotAllowedException(GEOHASH_STRATEGY_NOT_SUPPORTED);
                 }
             }
         } else {

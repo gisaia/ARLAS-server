@@ -157,6 +157,12 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingGeohashAggregateWithGeocentroidBucket(get("geohash:geo_params.centroid:interval-1:fetchGeometry-centroid"),
                 32, 16, 25, 0, -155.00000031664968F, -65.00000014901161F, 154.99999981373549F, 64.99999981373549F);
 
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.geohash);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest),
+                32, 16, 25, -180F, -90F, 180F, 90F);
+        handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-geohash"),
+                32, 16, 25, -180F, -90F, 180F, 90F);
+        
         aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.bbox);
         handleMatchingGeohashAggregateWithGeoBboxBucket(post(aggregationRequest),
                 32, 16, 25, 0, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
@@ -759,6 +765,10 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.centroid, "params.age");
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("term:params.job:interval-1:fetchGeometry-params.age-centroid"));
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.geohash);
+        handleInvalidParameters(post(aggregationRequest));
+        handleInvalidParameters(get("term:params.job:interval-1:fetchGeometry-geohash"));
 
         invalidAggregationRequest.invalidAggregations.get(0).type = "term";
         invalidAggregationRequest.invalidAggregations.get(0).field = "params.job";
