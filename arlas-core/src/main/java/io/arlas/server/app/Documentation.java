@@ -216,7 +216,7 @@ public class Documentation {
             "\n \n" +
             "**agg** parameter is multiple. The first (main) aggregation must be geohash. Every agg parameter specified is a subaggregation of the previous one : order matters. " +
             "\n \n" +
-            "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md ";
+            "For more details, check https://github.com/gisaia/ARLAS-server/blob/master/docs/arlas-api-exploration.md ";
 
     public static final String FORM_PRETTY = "Pretty print";
     public static final String FORM_FLAT = "Flat the property map: only key/value on one level";
