@@ -95,21 +95,5 @@
             <artifactId>jts-core</artifactId>
             <version>${jts.version}</version>
         </dependency>
-
-        <!-- ____________________________________________________ -->
-        <!-- Tests -->
-        <!-- ____________________________________________________ -->
-        <dependency>
-            <groupId>io.rest-assured</groupId>
-            <artifactId>rest-assured</artifactId>
-            <version>${io.rest-assured.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-            <version>${org.hamcrest.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>
