@@ -29,6 +29,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationMetric;
 import io.arlas.server.model.response.AggregationResponse;
+import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ResponseCacheManager;
 import io.arlas.server.model.enumerations.CollectionFunction;
@@ -47,6 +48,7 @@ import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.geobounds.GeoBounds;
 import org.elasticsearch.search.aggregations.metrics.geocentroid.GeoCentroid;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
 import org.geojson.*;
 
 import java.io.IOException;
@@ -215,7 +217,7 @@ public class ExploreServices {
         }
     }
 
-    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse) {
+    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse, String collection) {
         aggregationResponse.name = aggregation.getName();
         if (aggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
             aggregationResponse.sumotherdoccounts = ((Terms) aggregation).getSumOfOtherDocCounts();
@@ -225,8 +227,16 @@ public class ExploreServices {
         buckets.forEach(bucket -> {
             AggregationResponse element = new AggregationResponse();
             element.keyAsString = bucket.getKeyAsString();
-            if (aggregationResponse.name.equals(FluidSearch.GEOHASH_AGG)) {
-                element.key = getGeohashCentre(element.keyAsString.toString());
+            if (aggregationResponse.name.startsWith(FluidSearch.GEOHASH_AGG)) {
+                GeoPoint geoPoint = getGeohashCentre(element.keyAsString.toString());
+                element.key = geoPoint;
+                if (aggregationResponse.name.equals(FluidSearch.GEOHASH_AGG)) {
+                    // return the centroid of the geohash
+                    element.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
+                } else {
+                    // return the Extent of the geohash
+                    element.geometry = createPolygonFromRectangle(GeoHashUtils.bbox(element.keyAsString.toString()));
+                }
             } else {
                 element.key = bucket.getKey();
             }
@@ -243,8 +253,32 @@ public class ExploreServices {
                     if (subAggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
                         subAggregationResponse.sumotherdoccounts = ((Terms) subAggregation).getSumOfOtherDocCounts();
                     }
-                    if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
-                        subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse);
+
+                    if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().startsWith(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
+                        subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection);
+                    } else if (subAggregationResponse.name.equals(FluidSearch.FIRST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.LAST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.TERM_RANDOM_GEOMETRY)) {
+                        subAggregationResponse = null;
+                        Map source = ((TopHits)subAggregation).getHits().getHits()[0].getSourceAsMap();
+                        GeoJsonObject geometryGeoJson = null;
+                        try {
+                            CollectionReference collectionReference = getDaoCollectionReference().getCollectionReference(collection);
+                            Object geometry = collectionReference.params.geometryPath != null ?
+                                    MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source) : null;
+                            if (geometry == null) {
+                                geometry = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
+                            }
+                            geometryGeoJson = geometry != null ?
+                                    GeoTypeMapper.getGeoJsonObject(geometry) : null;
+                        } catch (ArlasException e) {
+                            e.printStackTrace();
+                        }
+                        if (geometryGeoJson != null) {
+                            element.geometry = geometryGeoJson;
+                        }
+                        if (bucket.getAggregations().asList().size() == 1) {
+                            element.metrics = null;
+                            element.elements = null;
+                        }
                     } else {
                         subAggregationResponse = null;
                         AggregationMetric aggregationMetric = new AggregationMetric();
@@ -259,7 +293,7 @@ public class ExploreServices {
                                 Polygon box = createBox((GeoBounds) subAggregation);
                                 GeoJsonObject g = box;
                                 if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket")) {
-                                    element.BBOX = box;
+                                    element.geometry = box;
                                 }
                                 feature.setGeometry(g);
                                 fc.add(feature);
@@ -267,7 +301,7 @@ public class ExploreServices {
                                 GeoPoint centroid = ((GeoCentroid) subAggregation).centroid();
                                 GeoJsonObject g = new Point(centroid.getLon(), centroid.getLat());
                                 if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket")) {
-                                    element.centroid = (Point) g;
+                                    element.geometry = g;
                                 }
                                 feature.setGeometry(g);
                                 fc.add(feature);
@@ -362,5 +396,16 @@ public class ExploreServices {
         box.add(bounds);
 
         return box;
+    }
+
+    private Polygon createPolygonFromRectangle(Rectangle rectangle) {
+        Polygon polygon = new Polygon();
+        List<LngLatAlt> bounds = new ArrayList<>();
+        bounds.add(new LngLatAlt(rectangle.minLon, rectangle.maxLat));
+        bounds.add(new LngLatAlt(rectangle.maxLon, rectangle.maxLat));
+        bounds.add(new LngLatAlt(rectangle.maxLon, rectangle.minLat));
+        bounds.add(new LngLatAlt(rectangle.minLon, rectangle.minLat));
+        polygon.add(bounds);
+        return polygon;
     }
 }

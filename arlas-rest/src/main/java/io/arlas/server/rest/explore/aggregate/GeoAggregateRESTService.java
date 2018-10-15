@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.model.request.AggregationsRequest;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.AggregationResponse;
@@ -395,24 +396,30 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     private FeatureCollection getFeatureCollection(MixedRequest request, CollectionReference collectionReference, boolean flat) throws ArlasException, IOException {
         FeatureCollection fc;
         AggregationResponse aggregationResponse = new AggregationResponse();
+        AggregationTypeEnum maintAggregationType = ((AggregationsRequest)request.basicRequest).aggregations.get(0).type;
         SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, true);
         MultiBucketsAggregation aggregation;
         aggregation = (MultiBucketsAggregation) response.getAggregations().asList().get(0);
-        aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse);
-        fc = toGeoJson(aggregationResponse, flat);
+        aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse, collectionReference.collectionName);
+        fc = toGeoJson(aggregationResponse, maintAggregationType, flat);
         return fc;
     }
 
-    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, boolean flat) throws IOException {
+    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat) throws IOException {
         FeatureCollection fc = new FeatureCollection();
         ObjectMapper mapper = new ObjectMapper();
         List<AggregationResponse> elements = aggregationResponse.elements;
         if (elements != null && elements.size() > 0) {
+
             for (AggregationResponse element : elements) {
                 Feature feature = new Feature();
                 Map<String, Object> properties = new HashMap<>();
                 properties.put("count", element.count);
-                properties.put("geohash", element.keyAsString);
+                if (mainAggregationType == AggregationTypeEnum.geohash) {
+                    properties.put("geohash", element.keyAsString);
+                } else {
+                    properties.put("term", element.keyAsString);
+                }
                 if(flat){
                     this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey("_"), s ->(!"elements".equals(s))).forEach((key, value) -> {
                         properties.put(key,value);
@@ -423,15 +430,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 }
                 feature.setProperties(properties);
                 feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
-                GeoJsonObject g;
-                if (element.BBOX != null) {
-                    g = element.BBOX;
-                } else if (element.centroid != null) {
-                    g = element.centroid;
-                } else {
-                    GeoPoint geoPoint = (GeoPoint) element.key;
-                    g = new Point(geoPoint.getLon(), geoPoint.getLat());
-                }
+                GeoJsonObject g = element.geometry;
                 feature.setGeometry(g);
                 fc.add(feature);
             }

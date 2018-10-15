@@ -17,25 +17,31 @@
  * under the License.
  */
 
-package io.arlas.server.model.response;
+package io.arlas.server.model.request;
 
-import io.dropwizard.jackson.JsonSnakeCase;
-import org.geojson.GeoJsonObject;
-import org.geojson.Point;
-import org.geojson.Polygon;
+import io.arlas.server.model.enumerations.AggregatedGeometryStrategyEnum;
 
-import java.util.ArrayList;
-import java.util.List;
+public class AggregatedGeometry {
+    public AggregatedGeometryStrategyEnum strategy;
+    public String field;
 
-@JsonSnakeCase
-public class AggregationResponse extends OperationInfo {
-    public String name;
-    public Long count;
-    public Long sumotherdoccounts;
-    public Object key;
-    public Object keyAsString;
-    public List<AggregationResponse> elements;
-    public List<AggregationMetric> metrics;
-    public GeoJsonObject geometry;
+    public AggregatedGeometry() {
+    }
+
+    public AggregatedGeometry(AggregatedGeometryStrategyEnum strategy, String field) {
+        this.strategy = strategy;
+        this.field = field;
+    }
+
+    public AggregatedGeometry(AggregatedGeometryStrategyEnum strategy) {
+        this.strategy = strategy;
+    }
+
+    public String flatten() {
+        if (field != null) {
+            return field + '-' + strategy.name();
+        } else {
+            return strategy.name();
+        }
+    }
 }
-

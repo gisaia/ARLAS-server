@@ -48,8 +48,7 @@ public class ParamsParser {
     private static final String AGG_ON_PARAM = "on-";
     private static final String AGG_SIZE_PARAM = "size-";
     private static final String AGG_INCLUDE_PARAM = "include-";
-    private static final String AGG_GEOCENTROID_PARAM = "withGeoCentroid-";
-    private static final String AGG_GEOBBOX_PARAM = "withGeoBBOX-";
+    private static final String AGG_FETCHGEOMETRY_PARAM = "fetchGeometry";
 
     public static List<Aggregation> getAggregations(List<String> agg) throws ArlasException {
         List<Aggregation> aggregations = new ArrayList<>();
@@ -90,16 +89,62 @@ public class ParamsParser {
                 aggregationModel.size = parameter.substring(AGG_SIZE_PARAM.length());
             } else if (parameter.contains(AGG_INCLUDE_PARAM)) {
                 aggregationModel.include = parameter.substring(AGG_INCLUDE_PARAM.length());
-            } else if (parameter.contains(AGG_GEOCENTROID_PARAM)) {
-                aggregationModel.withGeoCentroid = Boolean.valueOf(parameter.substring(AGG_GEOCENTROID_PARAM.length()));
-            } else if (parameter.contains(AGG_GEOBBOX_PARAM)) {
-                aggregationModel.withGeoBBOX = Boolean.valueOf(parameter.substring(AGG_GEOBBOX_PARAM.length()));
+            } else if (parameter.contains(AGG_FETCHGEOMETRY_PARAM)) {
+                aggregationModel.fetchGeometry = getAggregatedGeometry(parameter.substring(AGG_FETCHGEOMETRY_PARAM.length()));
             } else if (parameter.equals(agg.get(1))) {
                 aggregationModel.field = parameter;
             }
         }
         aggregationModel.metrics = getAggregationMetrics(agg);
         return aggregationModel;
+    }
+
+    private static AggregatedGeometry getAggregatedGeometry(String fetchGeometryString) throws ArlasException {
+        AggregatedGeometry aggregatedGeometry = null;
+        if (fetchGeometryString != null) {
+            if (fetchGeometryString.contains("-")) {
+                String[] fetchOptions = fetchGeometryString.split("-");
+                if (fetchOptions.length == 2) {
+                    String option = fetchOptions[1];
+                    if (option.equals(AggregatedGeometryStrategyEnum.bbox.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.bbox);
+                    } else if (option.equals(AggregatedGeometryStrategyEnum.centroid.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.centroid);
+                    }  else if (option.equals(AggregatedGeometryStrategyEnum.byDefault.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
+                    } else if (option.equals(AggregatedGeometryStrategyEnum.first.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first);
+                    } else if (option.equals(AggregatedGeometryStrategyEnum.last.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last);
+                    } else if (option.equals(AggregatedGeometryStrategyEnum.geohash.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.geohash);
+                    } else {
+                        throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
+                    }
+                } else if (fetchOptions.length == 3) {
+                    String field = fetchOptions[1];
+                    // TODO check field existence ?
+                    String option = fetchOptions[2];
+                    if (option.equals(AggregatedGeometryStrategyEnum.first.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first, field);
+                    } else if (option.equals(AggregatedGeometryStrategyEnum.last.name())) {
+                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last, field);
+                    } else {
+                        throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
+                    }
+                } else {
+                    throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
+                }
+            } else {
+                if (fetchGeometryString.equals("")) {
+                    aggregatedGeometry =  new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
+                } else {
+                    throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
+                }
+            }
+
+        }
+        return aggregatedGeometry;
     }
 
     private static List<Metric> getAggregationMetrics(List<String> agg) throws ArlasException {

@@ -17,25 +17,8 @@
  * under the License.
  */
 
-package io.arlas.server.model.response;
+package io.arlas.server.model.enumerations;
 
-import io.dropwizard.jackson.JsonSnakeCase;
-import org.geojson.GeoJsonObject;
-import org.geojson.Point;
-import org.geojson.Polygon;
-
-import java.util.ArrayList;
-import java.util.List;
-
-@JsonSnakeCase
-public class AggregationResponse extends OperationInfo {
-    public String name;
-    public Long count;
-    public Long sumotherdoccounts;
-    public Object key;
-    public Object keyAsString;
-    public List<AggregationResponse> elements;
-    public List<AggregationMetric> metrics;
-    public GeoJsonObject geometry;
+public enum AggregatedGeometryStrategyEnum {
+    bbox, centroid, geohash, first, last, byDefault
 }
-

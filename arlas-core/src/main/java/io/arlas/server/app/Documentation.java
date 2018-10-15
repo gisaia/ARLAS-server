@@ -127,7 +127,7 @@ public class Documentation {
             "\n \n" +
             "- {on} is set to specify whether the {order} is on the field name, on the count of the aggregation or on the result of a metric sub-aggregation. Its values are 'field', 'count' or 'result'. " +
             "\n \n" +
-            "- If {on} is equal to `result` and two ore more (**collect_field**,**collect_fct**) couples are specified, then the order is applied on the first `collect_fct` that is different from geobbox and geocentroid" +
+            "- If {on} is equal to `result` and two or more (**collect_field**,**collect_fct**) couples are specified, then the order is applied on the first `collect_fct` that is different from geobbox and geocentroid" +
             "\n \n" +
             "- {size} Defines how many buckets should be returned. " +
             "\n \n" +
@@ -141,7 +141,7 @@ public class Documentation {
     public static final String GEOHASH_GEOAGGREGATION_OPERATION = "Aggregate the elements in the collection(s) and localized in the given geohash as features, given the filters and the aggregation parameters.";
     public static final String GEOAGGREGATION_PARAM_AGG = "- The agg parameter should be given in the following formats:  " +
             "\n \n" +
-            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}:withGeoCentroid-{Boolean}:withGeoBBOX-{Boolean} " +
+            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}:fetcbGeometry-{fetchGeometry values}" +
             "\n \n" +
             "Where :" +
             "\n \n" +
@@ -181,9 +181,21 @@ public class Documentation {
             "\n \n" +
             "       avg,cardinality,max,min,sum,geobbox,geocentroid" +
             "\n \n" +
-            "- {withGeoCentroid} : When it's true : the geoaggregation geometry is the centroid of each bucket." +
+            "- {fetchGeometry} is to be specified for `geohash` and `term` aggregations only" +
             "\n \n" +
-            "- {withGeoBBOX} : When it's true : the geoaggregation geometry is the data extent (bbox) of each bucket." +
+            "- {fetchGeometry} : When it's centroid : the geoaggregation geometry is the centroid of each bucket." +
+            "\n \n" +
+            "- {fetchGeometry} : When it's bbox: the geoaggregation geometry is the data extend (bbox) in each bucket." +
+            "\n \n" +
+            "- {fetchGeometry} : When it's geohash: the geoaggregation geometry is the geohash extend of each bucket. It's applied only for Geohash aggregation tye. It is not supported for term aggregation type. " +
+            "\n \n" +
+            "- {fetchGeometry} : When it's first: the geoaggregation geometry is the geometry of the first document in each bucket (chronogically)" +
+            "\n \n" +
+            "- {fetchGeometry} : When it's last: the geoaggregation geometry is the geometry of the last document in each bucket (chronogically)" +
+            "\n \n" +
+            "- {fetchGeometry} : When it's {field}-first: the geoaggregation geometry is the geometry of the first document in each bucket (ordered on the {field})" +
+            "\n \n" +
+            "- {fetchGeometry} : When it's {field}-last: the geoaggregation geometry is the geometry of the last document in each bucket (ordered on the {field})" +
             "\n \n" +
             "- (collect_field,collect_fct) should both be specified, except when collect_fct = `geobbox` or `geocentroid`, it could be specified alone. The metrics `geobbox` and `geocentroid` are returned as features collections." +
             "\n \n" +
@@ -198,9 +210,9 @@ public class Documentation {
             "\n \n" +
             "- {include} Specifies the values for which buckets will be created. This values are comma separated. If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created." +
             "\n \n" +
-            "If {withGeoCentroid} or {withGeoBBOX} are specified, the returned geometry is the one used in the geojson. {withGeoBBOX} wins over {withGeoCentroid}" +
+            "If {fetchGeometry} is specified, the returned geometry is the one used in the geojson." +
             "\n \n" +
-            "If {withGeoCentroid} and {collect_fct}=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics" +
+            "If **fetchGeometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics. Same for **fetchGeometry-bbox** and **collect_fct**=`geobbox`" +
             "\n \n" +
             "**agg** parameter is multiple. The first (main) aggregation must be geohash. Every agg parameter specified is a subaggregation of the previous one : order matters. " +
             "\n \n" +

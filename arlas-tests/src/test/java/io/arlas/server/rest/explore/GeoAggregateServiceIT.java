@@ -116,6 +116,26 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
+    protected void handleMatchingAggregateWithGeometry(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+        handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
+        then
+                .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))))
+                .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))))
+                .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))))
+                .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))));
+    }
+
+    @Override
+    protected void handleMatchingAggregateWithCentroid(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
+        handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
+        then
+                .body("features.geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLonMin))))
+                .body("features.geometry.coordinates", everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))
+                .body("features.geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))
+                .body("features.geometry.coordinates", everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))));
+    }
+
+    @Override
     protected void handleMatchingAggregateWithGeoBboxCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField, String collectFct, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {
         then.statusCode(400);
     }
