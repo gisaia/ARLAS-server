@@ -1,5 +1,30 @@
 # Change Log
 
+## [v8.6.0](https://github.com/gisaia/ARLAS-server/tree/v8.6.0) (2018-10-16)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v7.6.4...v8.6.0)
+
+**Breaking changes:**
+
+- Modify \_geoaggregates' geometry fetching strategy [\#346](https://github.com/gisaia/ARLAS-server/issues/346) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+**New stuff:**
+
+- Remove duplicate geo in geojson [\#333](https://github.com/gisaia/ARLAS-server/pull/333) ([mbarbet](https://github.com/mbarbet))
+- Crop 256x256 on raster tiles [\#343](https://github.com/gisaia/ARLAS-server/pull/343) ([sylvaingaudan](https://github.com/sylvaingaudan))
+
+**Fixed bugs:**
+
+- GeoSearch : remove the duplicated geometry in the geojson properties [\#103](https://github.com/gisaia/ARLAS-server/issues/103)
+- Geo query not work with bbox on  Bering Detroit [\#347](https://github.com/gisaia/ARLAS-server/issues/347)
+- Some of Aggregation model attributes are not checked for validity when using POST for \_aggregate [\#341](https://github.com/gisaia/ARLAS-server/issues/341)
+- Fix shape orientation Bbox [\#348](https://github.com/gisaia/ARLAS-server/pull/348) ([mbarbet](https://github.com/mbarbet))
+
+**Miscellaneous:**
+
+- API Documentation points on github instead of gitlab. [\#353](https://github.com/gisaia/ARLAS-server/issues/353) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- Typo error in collection model doc [\#345](https://github.com/gisaia/ARLAS-server/issues/345) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
 ## [v7.6.4](https://github.com/gisaia/ARLAS-server/tree/v7.6.4) (2018-09-07)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v7.6.3...v7.6.4)
