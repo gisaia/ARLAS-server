@@ -146,6 +146,7 @@ The OPENSEARCH Description document of the collection can be customized with the
 |  language |  Contains a string that indicates that the search engine supports search results in the specified language. The value must conform to the XML 1.0 Language Identification, as specified by RFC 5646. |  Optional |
 |  input_encoding |  Contains a string that indicates that the search engine supports search requests encoded with the specified character encoding. The value must conform to the XML 1.0 Character Encodings, as specified by the IANA Character Set Assignments. |  Optional |
 |  output_encoding |  Contains a string that indicates that the search engine supports search responses encoded with the specified character encoding. The value must conform to the XML 1.0 Character Encodings, as specified by the IANA Character Set Assignments. |  Optional |
+|  url_template_prefix |  Is the url prefix that is rendered in the url template of Opensearch response. |  Optional |
 
 ## RASTER TILES
 
