@@ -27,11 +27,13 @@ import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.MultiValueFilter;
+import io.arlas.server.model.*;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -91,6 +93,12 @@ public class CollectionTool extends AbstractTestContext {
         params.rasterTileURL = DataSetTool.DATASET_TILE_URL;
         params.rasterTileWidth=256;
         params.rasterTileHeight=256;
+        params.inspire = new Inspire();
+
+        params.inspire.keywords = new ArrayList<>();
+        Keyword k = new Keyword();
+        k.value = "humanGeographicViewer";
+        params.inspire.keywords.add(k);
 
 
         // PUT new collection

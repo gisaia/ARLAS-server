@@ -121,6 +121,10 @@ arlas-csw:
   openSearchDescription: ${ARLAS_CSW_OPENSEARCH_DESCRIPTION:-Geo-BigData Collection Catalog}
   openSearchShortName: ${ARLAS_CSW_OPENSEARCH_SHORTNAME:-Geo-Catalog}
 
+arlas-inspire:
+  enabled: ${ARLAS_WFS_INSPIRE_ENABLED:-false}
+  access_and_use_conditions: ${ARLAS_WFS_INSPIRE_ACCESS_AND_USE_CONDITIONS:-no conditons apply} # Free text or specify a URL to a link that describes eventual conditions
+  public_access_limitations: ${ARLAS_WFS_INSPIRE_PUBLIC_ACCESS_LIMITATIONS:-no limitations apply} # Free text or specify a URL to a link that describes eventual limitations
 ########################################################
 ############ OPENSEARCH                  ###############
 ########################################################
