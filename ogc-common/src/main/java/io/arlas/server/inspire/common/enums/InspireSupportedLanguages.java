@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.model.enums;
+package io.arlas.server.inspire.common.enums;
 
 public enum InspireSupportedLanguages {
     /* List of the 24 Official languages of the EU in ISO 639-2 (B)*/

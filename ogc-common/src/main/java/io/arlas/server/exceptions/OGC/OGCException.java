@@ -17,10 +17,11 @@
  * under the License.
  */
 
-package io.arlas.server.exceptions;
+package io.arlas.server.exceptions.OGC;
 
 
-import io.arlas.server.model.response.OGCError;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.ogc.common.model.response.OGCError;
 import io.arlas.server.ogc.common.model.Service;
 
 import javax.ws.rs.core.MediaType;

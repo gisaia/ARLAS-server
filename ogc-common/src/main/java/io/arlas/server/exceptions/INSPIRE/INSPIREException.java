@@ -17,25 +17,15 @@
  * under the License.
  */
 
-package io.arlas.server.ogc.common.utils;
+package io.arlas.server.exceptions.INSPIRE;
 
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.ogc.common.model.Service;
 
-import java.util.Arrays;
+public class INSPIREException extends OGCException {
 
-public class RequestUtils {
-
-    public static void checkRequestTypeByName(String requestName, String[] requestTypes, Service service) throws OGCException {
-        String msg = "Request type '" + requestName + "' is not supported.";
-        if (Arrays.asList(requestTypes).indexOf(requestName) < 0) {
-            switch (service){
-                case CSW:
-                    throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, msg, "request", service);
-                default:
-                    throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, msg, "request", service);
-            }
-        }
+    public INSPIREException(OGCExceptionCode exceptionCode, String exceptionText, Service service) {
+        super(exceptionCode, exceptionText, "null", service);
     }
 }

@@ -19,8 +19,8 @@
 
 package io.arlas.server.ogc.csw.operation.getrecordbyid;
 
-import io.arlas.server.exceptions.OGCException;
-import io.arlas.server.exceptions.OGCExceptionCode;
+import io.arlas.server.exceptions.OGC.OGCException;
+import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.csw.CSWHandler;

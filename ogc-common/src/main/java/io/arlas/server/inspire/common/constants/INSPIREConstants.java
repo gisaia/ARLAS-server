@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.model.constants;
+package io.arlas.server.inspire.common.constants;
 
 public class INSPIREConstants {
     public static final String INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE = "Commission Regulation (EC) No 1088/2010 - Conformance to Download services";

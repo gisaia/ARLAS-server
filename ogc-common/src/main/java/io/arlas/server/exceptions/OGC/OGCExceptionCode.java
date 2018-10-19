@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.exceptions;
+package io.arlas.server.exceptions.OGC;
 
 import javax.servlet.http.HttpServletResponse;
 

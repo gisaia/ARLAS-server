@@ -21,11 +21,12 @@ package io.arlas.server.ogc.wfs.utils;
 
 
 import eu.europa.ec.inspire.schemas.common._1.KeywordValueEnum;
-import io.arlas.server.exceptions.OGCException;
-import io.arlas.server.exceptions.OGCExceptionCode;
+import io.arlas.server.exceptions.INSPIRE.INSPIREException;
+import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
+import io.arlas.server.exceptions.OGC.OGCException;
+import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.model.Keyword;
-import io.arlas.server.model.constants.INSPIREConstants;
-import io.arlas.server.model.enums.InspireSupportedLanguages;
+import io.arlas.server.inspire.common.enums.InspireSupportedLanguages;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.Version;
@@ -114,25 +115,21 @@ public class WFSCheckParam {
         return valuereference;
     }
 
-    // TODO : manage INSPIREException
     public static void checkLanguageInspireCompliance(String language, Service service) throws OGCException {
         try {
             InspireSupportedLanguages.valueOf(language);
         } catch (IllegalArgumentException e) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, language + " is not a valid language", service);
+            throw new INSPIREException(INSPIREExceptionCode.INVALID_INSPIRE_PARAMETER_VALUE, language + " is not a valid language. Languages must be one of the 24 Official languages of the EU in ISO 639-2 (B)", service);
         }
     }
 
     public static void checkKeywordsInspireCompliance(List<Keyword> keywordList, Service service) throws OGCException {
         boolean atLeastOneCSDSKeyword = Arrays.stream(KeywordValueEnum.values()).map(KeywordValueEnum::value)
                 .anyMatch(keywordList.stream()
-                .map(k -> {
-                    k.vocabulary = INSPIREConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES;
-                    k.dateOfPublication = INSPIREConstants.DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES;
-                    return k.value;})
+                .map(k -> k.value)
                 .collect(Collectors.toSet())::contains);
         if (!atLeastOneCSDSKeyword) {
-            throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, "At least one keyword should be in the Classification of Spatial Data Services Vocabulary", service);
+            throw new INSPIREException(INSPIREExceptionCode.MISSING_INSPIRE_METADATA, "At least one keyword should be in the Inspire Classification of Spatial Data Services' Vocabulary", service);
         }
     }
 }

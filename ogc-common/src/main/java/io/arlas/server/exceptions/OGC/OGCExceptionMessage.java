@@ -17,7 +17,9 @@
  * under the License.
  */
 
-package io.arlas.server.exceptions;
+package io.arlas.server.exceptions.OGC;
+
+import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -17,25 +17,17 @@
  * under the License.
  */
 
-package io.arlas.server.ogc.common.utils;
+package io.arlas.server.exceptions.INSPIRE;
 
-import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
-import io.arlas.server.ogc.common.model.Service;
 
-import java.util.Arrays;
+import javax.servlet.http.HttpServletResponse;
 
-public class RequestUtils {
+public class INSPIREExceptionCode extends OGCExceptionCode {
+    public static final INSPIREExceptionCode MISSING_INSPIRE_METADATA = new INSPIREExceptionCode("InspireMissingMetadata", HttpServletResponse.SC_BAD_REQUEST);
+    public static final INSPIREExceptionCode INVALID_INSPIRE_PARAMETER_VALUE = new INSPIREExceptionCode("InspireInvalidParameterValue", HttpServletResponse.SC_BAD_REQUEST);
 
-    public static void checkRequestTypeByName(String requestName, String[] requestTypes, Service service) throws OGCException {
-        String msg = "Request type '" + requestName + "' is not supported.";
-        if (Arrays.asList(requestTypes).indexOf(requestName) < 0) {
-            switch (service){
-                case CSW:
-                    throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, msg, "request", service);
-                default:
-                    throw new OGCException(OGCExceptionCode.OPERATION_NOT_SUPPORTED, msg, "request", service);
-            }
-        }
+    public INSPIREExceptionCode(String value, Integer httpStatusCode) {
+        super(value, httpStatusCode);
     }
 }

@@ -26,12 +26,12 @@ import io.arlas.server.app.INSPIREConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.app.WFSConfiguration;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.OGCException;
+import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.DublinCoreElementName;
 import io.arlas.server.model.Keyword;
-import io.arlas.server.model.constants.INSPIREConstants;
-import io.arlas.server.model.enums.InspireSupportedLanguages;
+import io.arlas.server.inspire.common.constants.INSPIREConstants;
+import io.arlas.server.inspire.common.enums.InspireSupportedLanguages;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
@@ -351,26 +351,21 @@ public class GetCapabilitiesHandler {
         setInspireFeatureTypeBoundingBox(collectionReference);
     }
 
-    private void addExtendedCapabilities(CollectionReference collectionReference, String serviceUrl) throws OGCException {
-        // Add INSPIRE Resource type
-        inspireExtendedCapabilitiesType.setResourceType(ResourceType.SERVICE);
-
-        // Add INSPIRE Spatial data service type
-        inspireExtendedCapabilitiesType.setSpatialDataServiceType(SpatialDataServiceType.DOWNLOAD);
-
-        // Add INSPIRE Resource Locator
+    private void addECResourceLocator(String serviceUrl) {
         ResourceLocatorType resourceLocatorType = new ResourceLocatorType();
-        resourceLocatorType.setURL(serviceUrl + "service=WFS&request=GetCapabilities&version=2.0.0");
+        resourceLocatorType.setURL(serviceUrl + WFSConstant.WFS_GET_CAPABILITIES_PARAMETERS);
         inspireExtendedCapabilitiesType.getResourceLocator().clear();
         inspireExtendedCapabilitiesType.getResourceLocator().add(resourceLocatorType);
+    }
 
-        // Add INSPIRE Temporal Reference
+    private void addECTemporalReference(CollectionReference collectionReference) {
         TemporalReference temporalReference = new TemporalReference();
         temporalReference.setDateOfCreation(collectionReference.params.dublinCoreElementName.getDate());
         inspireExtendedCapabilitiesType.getTemporalReference().clear();
         inspireExtendedCapabilitiesType.getTemporalReference().add(temporalReference);
+    }
 
-        // Add INSPIRE Conformity
+    private void addECConformity() {
         Conformity networkServicesConformity = new Conformity();
         CitationConformity citationConformity = new CitationConformity();
         citationConformity.setTitle(INSPIREConstants.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE);
@@ -386,21 +381,21 @@ public class GetCapabilitiesHandler {
         inspireExtendedCapabilitiesType.getConformity().clear();
         inspireExtendedCapabilitiesType.getConformity().add(networkServicesConformity);
         inspireExtendedCapabilitiesType.getConformity().add(metadataConformity);
+    }
 
-        // Add INSPIRE Metadata Point of Contact
+    private void addECMetadataPointOfContact(CollectionReference collectionReference) {
         MetadataPointOfContact metadataPointOfContact = new MetadataPointOfContact();
-        String email = Optional.ofNullable(collectionReference.params.atomFeed).map(atom -> atom.author).map(author -> author.email).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_EMAIL);
-        String name = Optional.ofNullable(collectionReference.params.atomFeed).map(atom -> atom.author).map(author -> author.name).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_NAME);
+        String email = Optional.ofNullable(collectionReference.params.atomFeed)
+                               .map(atom -> atom.author).map(author -> author.email).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_EMAIL);
+        String name = Optional.ofNullable(collectionReference.params.atomFeed)
+                              .map(atom -> atom.author).map(author -> author.name).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_NAME);
         metadataPointOfContact.setEmailAddress(email);
         metadataPointOfContact.setOrganisationName(name);
         inspireExtendedCapabilitiesType.getMetadataPointOfContact().clear();
         inspireExtendedCapabilitiesType.getMetadataPointOfContact().add(metadataPointOfContact);
+    }
 
-        // Add INSPIRE Metadata date
-        String metadataDate = collectionReference.params.dublinCoreElementName.getDate();
-        inspireExtendedCapabilitiesType.setMetadataDate(metadataDate);
-
-        // Add INSPIRE Metadata Language
+    private void addECMetadataLanguage(CollectionReference collectionReference) throws OGCException {
         SupportedLanguagesType supportedLanguagesType = new SupportedLanguagesType();
         String defaultLanguage = Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.language).filter(t -> !t.isEmpty()).map(String::toString).orElse(METADATA_DEFAULT_SUPPORTED_LANGUAGE);
         WFSCheckParam.checkLanguageInspireCompliance(defaultLanguage, Service.WFS);
@@ -409,8 +404,9 @@ public class GetCapabilitiesHandler {
         supportedLanguagesType.setDefaultLanguage(defaultLanguageIso);
         inspireExtendedCapabilitiesType.setSupportedLanguages(supportedLanguagesType);
         inspireExtendedCapabilitiesType.setResponseLanguage(defaultLanguageIso);
+    }
 
-        // Add INSPIRE Unique Resource Identifier
+    private void addECUniqueResourceIdentifier(CollectionReference collectionReference) {
         UniqueResourceIdentifier uniqueResourceIdentifier = new UniqueResourceIdentifier();
         String code = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.inspireURI)
                 .map(inspireURI -> inspireURI.code).map(String::toString).orElse("ARLAS.INSPIRE." + collectionReference.collectionName.toUpperCase());
@@ -420,11 +416,22 @@ public class GetCapabilitiesHandler {
         uniqueResourceIdentifier.setNamespace(namespace);
         inspireExtendedCapabilitiesType.getSpatialDataSetIdentifier().clear();
         inspireExtendedCapabilitiesType.getSpatialDataSetIdentifier().add(uniqueResourceIdentifier);
+    }
 
-        // Add INSPIRE keywords
+    private void addECKeywords(CollectionReference collectionReference) throws OGCException {
         List<Keyword> keywords = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.keywords).orElse(new ArrayList<>());
         WFSCheckParam.checkKeywordsInspireCompliance(keywords, Service.WFS);
+        keywords.forEach(keyword -> {
+            try {
+                KeywordValueEnum.valueOf(keyword.value);
+                keyword.vocabulary = INSPIREConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES;
+                keyword.dateOfPublication = INSPIREConstants.DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES;
+            } catch (IllegalArgumentException e) {
+
+            }
+        });
         inspireExtendedCapabilitiesType.getKeyword().clear();
+        // add The same keywords in ServiceIdentification part
         getCapabilitiesType.getServiceIdentification().getKeywords().clear();
         keywords.forEach(keyword -> {
             eu.europa.ec.inspire.schemas.common._1.Keyword inspireKeyword = new eu.europa.ec.inspire.schemas.common._1.Keyword();
@@ -440,7 +447,30 @@ public class GetCapabilitiesHandler {
             ke.getKeyword().add(languageStringType);
             getCapabilitiesType.getServiceIdentification().getKeywords().add(ke);
         });
+    }
 
+    private void addExtendedCapabilities(CollectionReference collectionReference, String serviceUrl) throws OGCException {
+        // Add INSPIRE Resource type
+        inspireExtendedCapabilitiesType.setResourceType(ResourceType.SERVICE);
+        // Add INSPIRE Spatial data service type
+        inspireExtendedCapabilitiesType.setSpatialDataServiceType(SpatialDataServiceType.DOWNLOAD);
+        // Add INSPIRE Metadata date
+        String metadataDate = collectionReference.params.dublinCoreElementName.getDate();
+        inspireExtendedCapabilitiesType.setMetadataDate(metadataDate);
+        // Add INSPIRE Resource Locator
+        addECResourceLocator(serviceUrl);
+        // Add INSPIRE Temporal Reference
+        addECTemporalReference(collectionReference);
+        // Add INSPIRE Conformity
+        addECConformity();
+        // Add INSPIRE Metadata Point of Contact
+        addECMetadataPointOfContact(collectionReference);
+        // Add INSPIRE Metadata Language
+        addECMetadataLanguage(collectionReference);
+        // Add INSPIRE Unique Resource Identifier
+        addECUniqueResourceIdentifier(collectionReference);
+        // Add INSPIRE keywords
+        addECKeywords(collectionReference);
         ExtendedCapabilities extendedCapabilities  = new ExtendedCapabilities();
         extendedCapabilities.setExtendedCapabilities(inspireExtendedCapabilitiesType);
         getCapabilitiesType.getOperationsMetadata().setExtendedCapabilities(extendedCapabilities);
