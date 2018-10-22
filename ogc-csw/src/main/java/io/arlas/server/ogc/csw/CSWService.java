@@ -209,7 +209,6 @@ public class CSWService {
                     allowMultiple = false,
                     required = false)
             @QueryParam(value = "id") String id,
-
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -310,8 +309,8 @@ public class CSWService {
         switch (requestType) {
             case GetCapabilities:
                 GetCapabilitiesHandler getCapabilitiesHandler = cswHandler.getCapabilitiesHandler;
-                JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse(Arrays.asList(sectionList),
-                        serverUrl + "ogc/csw/?", serverUrl + "ogc/csw/opensearch");
+                getCapabilitiesHandler.setCapabilitiesType(Arrays.asList(sectionList),serverUrl + "ogc/csw/?", serverUrl + "ogc/csw/opensearch");
+                JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse();
                 return Response.ok(getCapabilitiesResponse).type(acceptFormatMediaType).build();
             case GetRecords:
                 GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;

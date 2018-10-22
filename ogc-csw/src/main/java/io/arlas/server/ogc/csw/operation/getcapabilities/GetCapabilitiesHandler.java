@@ -52,6 +52,7 @@ public class GetCapabilitiesHandler {
 
     public CSWHandler cswHandler;
     public OGCConfiguration ogcConfiguration;
+    public CapabilitiesType capabilitiesType;
 
 
 
@@ -65,29 +66,31 @@ public class GetCapabilitiesHandler {
         trueValueType.setValue(TRUE);
         falseValueType.setValue(FALSE);
     }
-    public JAXBElement<CapabilitiesType> getCSWCapabilitiesResponse(List<String> sections, String url, String urlOpenSearch) {
-        CapabilitiesType getCapabilitiesType = new CapabilitiesType();
-        getCapabilitiesType.setVersion(CSWConstant.SUPPORTED_CSW_VERSION);
+    public void setCapabilitiesType(List<String> sections, String url, String urlOpenSearch) {
+        capabilitiesType = new CapabilitiesType();
+        capabilitiesType.setVersion(CSWConstant.SUPPORTED_CSW_VERSION);
 
         if(sections.contains("ServiceIdentification") || sections.contains("All")){
-            setServiceIdentification(getCapabilitiesType);
+            setServiceIdentification(capabilitiesType);
         }
         if(sections.contains("ServiceProvider") || sections.contains("All")){
-            setServiceProvider(getCapabilitiesType);
+            setServiceProvider(capabilitiesType);
         }
         if(sections.contains("OperationsMetadata") || sections.contains("All")){
-            setOperations(getCapabilitiesType,urlOpenSearch);
-            setOperationsUrl(getCapabilitiesType,url);
+            setOperations(capabilitiesType,urlOpenSearch);
+            setOperationsUrl(capabilitiesType,url);
         }
         if(sections.contains("Filter_Capabilities") || sections.contains("All")){
-            setFilterCapabilities(getCapabilitiesType);
+            setFilterCapabilities(capabilitiesType);
         }
         if(sections.contains("Languages") || sections.contains("All")){
             CapabilitiesBaseType.Languages languages = new CapabilitiesBaseType.Languages();
             languages.getLanguage().add("FILTER");
-            getCapabilitiesType.setLanguages(languages);
+            capabilitiesType.setLanguages(languages);
         }
-        return cswHandler.cswFactory.createCapabilities(getCapabilitiesType);
+    }
+    public JAXBElement<CapabilitiesType> getCSWCapabilitiesResponse() {
+        return cswHandler.cswFactory.createCapabilities(capabilitiesType);
     }
 
     private void setServiceProvider(CapabilitiesType getCapabilitiesType) {
