@@ -226,7 +226,11 @@ public class WFSService {
                     getCapabilitiesHandler.addINSPIRECompliantElements(collectionReference, serviceUrl, language);
                 }
                 JAXBElement<WFSCapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getWFSCapabilitiesResponse();
-                return Response.ok(getCapabilitiesResponse).type(MediaType.APPLICATION_XML).build();
+                return Response
+                        .ok(getCapabilitiesResponse)
+                        .type(MediaType.APPLICATION_XML)
+
+                        .build();
             case DescribeFeatureType:
                 StreamingOutput describeFeatureTypeResponse = wfsHandler.describeFeatureTypeHandler.getDescribeFeatureTypeResponse(collectionReferenceDescription, serviceUrl);
                 return Response.ok(describeFeatureTypeResponse).type(MediaType.APPLICATION_XML).build();
