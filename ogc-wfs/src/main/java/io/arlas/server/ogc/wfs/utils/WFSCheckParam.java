@@ -115,14 +115,6 @@ public class WFSCheckParam {
         return valuereference;
     }
 
-    public static void checkLanguageInspireCompliance(String language, Service service) throws OGCException {
-        try {
-            InspireSupportedLanguages.valueOf(language);
-        } catch (IllegalArgumentException e) {
-            throw new INSPIREException(INSPIREExceptionCode.INVALID_INSPIRE_PARAMETER_VALUE, language + " is not a valid language. Languages must be one of the 24 Official languages of the EU in ISO 639-2 (B)", service);
-        }
-    }
-
     public static void checkKeywordsInspireCompliance(List<Keyword> keywordList, Service service) throws OGCException {
         boolean atLeastOneCSDSKeyword = Arrays.stream(KeywordValueEnum.values()).map(KeywordValueEnum::value)
                 .anyMatch(keywordList.stream()

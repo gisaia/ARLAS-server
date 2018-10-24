@@ -26,6 +26,9 @@ public class INSPIREConfiguration {
     @JsonProperty("enabled")
     public Boolean enabled;
 
+    @JsonProperty("services_date_of_Creation")
+    public String servicesDateOfCreation;
+
     @JsonProperty("access_and_use_conditions")
     public String accessAndUseConditions;
 

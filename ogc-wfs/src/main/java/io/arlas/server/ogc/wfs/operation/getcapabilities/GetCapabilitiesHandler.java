@@ -27,6 +27,7 @@ import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.app.WFSConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.OGC.OGCException;
+import io.arlas.server.inspire.common.utils.INSPIRECheckParam;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.DublinCoreElementName;
 import io.arlas.server.model.Keyword;
@@ -45,6 +46,7 @@ import net.opengis.wfs._2.FeatureTypeListType;
 import net.opengis.wfs._2.FeatureTypeType;
 import net.opengis.wfs._2.OutputFormatListType;
 import net.opengis.wfs._2.WFSCapabilitiesType;
+import org.elasticsearch.common.Strings;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -398,7 +400,7 @@ public class GetCapabilitiesHandler {
     private void addECMetadataLanguage(CollectionReference collectionReference) throws OGCException {
         SupportedLanguagesType supportedLanguagesType = new SupportedLanguagesType();
         String defaultLanguage = Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.language).filter(t -> !t.isEmpty()).map(String::toString).orElse(METADATA_DEFAULT_SUPPORTED_LANGUAGE);
-        WFSCheckParam.checkLanguageInspireCompliance(defaultLanguage, Service.WFS);
+        INSPIRECheckParam.checkLanguageInspireCompliance(defaultLanguage, Service.WFS);
         LanguageElementISO6392B defaultLanguageIso = new LanguageElementISO6392B();
         defaultLanguageIso.setLanguage(defaultLanguage);
         supportedLanguagesType.setDefaultLanguage(defaultLanguageIso);
@@ -421,25 +423,29 @@ public class GetCapabilitiesHandler {
     private void addECKeywords(CollectionReference collectionReference) throws OGCException {
         List<Keyword> keywords = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.keywords).orElse(new ArrayList<>());
         WFSCheckParam.checkKeywordsInspireCompliance(keywords, Service.WFS);
+        inspireExtendedCapabilitiesType.getKeyword().clear();
+        inspireExtendedCapabilitiesType.getMandatoryKeyword().clear();
+        getCapabilitiesType.getServiceIdentification().getKeywords().clear();
         keywords.forEach(keyword -> {
             try {
                 KeywordValueEnum.valueOf(keyword.value);
                 keyword.vocabulary = INSPIREConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES;
                 keyword.dateOfPublication = INSPIREConstants.DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES;
-            } catch (IllegalArgumentException e) {
-
-            }
-        });
-        inspireExtendedCapabilitiesType.getKeyword().clear();
-        // add The same keywords in ServiceIdentification part
-        getCapabilitiesType.getServiceIdentification().getKeywords().clear();
-        keywords.forEach(keyword -> {
+                ClassificationOfSpatialDataService classificationOfSpatialDataService = new ClassificationOfSpatialDataService();
+                classificationOfSpatialDataService.setKeywordValue(keyword.value);
+                inspireExtendedCapabilitiesType.getMandatoryKeyword().add(classificationOfSpatialDataService);
+            } catch (IllegalArgumentException e) {}
+            /* Check if other keywords have a Controled vocabulary*/
             eu.europa.ec.inspire.schemas.common._1.Keyword inspireKeyword = new eu.europa.ec.inspire.schemas.common._1.Keyword();
-            inspireKeyword.setKeywordValue(keyword.value);
-            OriginatingControlledVocabulary vocabulary = new OriginatingControlledVocabulary();
-            Optional.ofNullable(keyword.vocabulary).map(k -> {vocabulary.setTitle(keyword.vocabulary); return k;});
-            Optional.ofNullable(keyword.dateOfPublication).map(k -> {vocabulary.setDateOfCreation(keyword.dateOfPublication); return k;});
-            inspireKeyword.setOriginatingControlledVocabulary(vocabulary);
+            if (Strings.isNullOrEmpty(keyword.vocabulary) || !keyword.vocabulary.equals(INSPIREConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES)) {
+                inspireKeyword.setKeywordValue(keyword.value);
+                OriginatingControlledVocabulary vocabulary = new OriginatingControlledVocabulary();
+                Optional.ofNullable(keyword.vocabulary).map(k -> {vocabulary.setTitle(keyword.vocabulary); return k;});
+                Optional.ofNullable(keyword.dateOfPublication).map(k -> {vocabulary.setDateOfCreation(keyword.dateOfPublication); return k;});
+                if (!Strings.isNullOrEmpty(keyword.vocabulary)) {
+                    inspireKeyword.setOriginatingControlledVocabulary(vocabulary);
+                }
+            }
             inspireExtendedCapabilitiesType.getKeyword().add(inspireKeyword);
             KeywordsType ke = new KeywordsType();
             LanguageStringType languageStringType = new LanguageStringType();
@@ -483,7 +489,7 @@ public class GetCapabilitiesHandler {
 
         // FOR NOW we just check if the language is correct but we always return the only language declared in the collection reference params
         if (language != null) {
-            WFSCheckParam.checkLanguageInspireCompliance(language, Service.WFS);
+            INSPIRECheckParam.checkLanguageInspireCompliance(language, Service.WFS);
         }
 
         WFSTitle.setValue(Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.title).filter(t -> !t.isEmpty()).map(String::toString).orElse(INSPIREConstants.INSPIRE_RESOURCE_TITLE));

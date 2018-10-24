@@ -24,6 +24,8 @@ public class INSPIREConstants {
     public static final String INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE = "2010-11-23";
     public static final String INSPIRE_METADATA_CONFORMITY_TITLE = "Commission Regulation (EC) No 1205/2008";
     public static final String INSPIRE_METADATA_CONFORMITY_DATE = "2008-12-03";
+    public static final String INSPIRE_INTEROPERABILITY_CONFORMITY_TITLE = "Commission Regulation (EU) No 1089/2010 of 23 November 2010 implementing Directive 2007/2/EC of the European Parliament and of the Council as regards interoperability of spatial data sets and services";
+    public static final String INSPIRE_INTEROPERABILITY_CONFORMITY_DATE = "2010-11-23";
     public static final String CLASSIFICATION_SPATIAL_DATA_SERVICES = "Classification of Spatial data Services";
     public static final String DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES = "2008-12-03";
     public static final String INSPIRE_RESOURCE_TITLE = "Inspire WFS services published by ARLAS";
@@ -32,4 +34,7 @@ public class INSPIREConstants {
     public static final String LIMITATION_ON_PUBLIC_ACCESS = "no limitations apply";
     public static final String METADATA_POINT_OF_CONTACT_EMAIL = "contact@gisaia.com";
     public static final String METADATA_POINT_OF_CONTACT_NAME = "Gisaïa";
+    public static final String CSW_MANDATORY_KEYWORD = "infoCatalogService";
+    public static final String CSW_METADATA_DATE_FORMAT = "yyyy-MM-dd";
+    public static final String DUBLIN_CORE_DATE_FORMAT = "yyyy-MM-dd'T'hh:mm:ss";
 }

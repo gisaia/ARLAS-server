@@ -38,6 +38,9 @@ public class OGCConfiguration {
     @JsonProperty("serviceContactIndividualName")
     public String serviceContactIndividualName;
 
+    @JsonProperty("serviceContactMail")
+    public String serviceContactMail;
+
     @JsonProperty("serviceContactAdressCity")
     public String serviceContactAdressCity;
 

@@ -209,6 +209,13 @@ public class CSWService {
                     allowMultiple = false,
                     required = false)
             @QueryParam(value = "id") String id,
+            @ApiParam(
+                    name = "language",
+                    value = "language",
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "language") String language,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -309,14 +316,19 @@ public class CSWService {
         switch (requestType) {
             case GetCapabilities:
                 GetCapabilitiesHandler getCapabilitiesHandler = cswHandler.getCapabilitiesHandler;
-                getCapabilitiesHandler.setCapabilitiesType(Arrays.asList(sectionList),serverUrl + "ogc/csw/?", serverUrl + "ogc/csw/opensearch");
+                List<String> responseSections = Arrays.asList(sectionList);
+                String serviceUrl = serverUrl + "ogc/csw/?";
+                getCapabilitiesHandler.setCapabilitiesType(responseSections, serviceUrl, serverUrl + "ogc/csw/opensearch");
+                if (cswHandler.inspireConfiguration.enabled) {
+                    List<CollectionReference> allCollections = dao.getAllCollectionReferences();
+                    getCapabilitiesHandler.addINSPIRECompliantElements(allCollections, responseSections, serviceUrl, language);
+                }
                 JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse();
                 return Response.ok(getCapabilitiesResponse).type(acceptFormatMediaType).build();
             case GetRecords:
                 GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
                 long recordsMatched = dao.countCollectionReferences(ids, query, boundingBox);
-                collections = dao.getCollectionReferences(elements, null,
-                        maxRecords, startPosition - 1, ids, query, boundingBox);
+                collections = dao.getCollectionReferences(elements, null, maxRecords, startPosition - 1, ids, query, boundingBox);
                 if (recordIds != null && recordIds.length() > 0) {
                     if (collections.size() == 0) {
                         throw new OGCException(OGCExceptionCode.NOT_FOUND, "Document not Found", "id", Service.CSW);

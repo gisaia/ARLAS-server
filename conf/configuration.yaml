@@ -14,8 +14,8 @@ swagger: # Configuration of SWAGGER for generating documentation and APIs
 arlas-service-collections-enabled: ${ARLAS_SERVICE_COLLECTIONS_ENABLE:-true}
 arlas-service-explore-enabled: ${ARLAS_SERVICE_EXPLORE_ENABLE:-true}
 arlas-service-opensearch-enabled: ${ARLAS_SERVICE_OPENSEARCH_ENABLE:-true}
-arlas-service-wfs-enabled: ${ARLAS_SERVICE_WFS_ENABLE:-false}
-arlas-service-csw-enabled: ${ARLAS_SERVICE_CSW_ENABLE:-false}
+arlas-service-wfs-enabled: ${ARLAS_SERVICE_WFS_ENABLE:-true}
+arlas-service-csw-enabled: ${ARLAS_SERVICE_CSW_ENABLE:-true}
 arlas-service-tag-enabled: ${ARLAS_SERVICE_TAG_ENABLE:-false}
 arlas-service-raster-tiles-enabled: ${ARLAS_SERVICE_RASTER_TILES_ENABLE:-true}
 
@@ -111,18 +111,23 @@ arlas-ogc:
   serviceProviderName: ${ARLAS_OGC_SERVICE_PROVIDER_NAME:-ARLAS}
   serviceProviderSite: ${ARLAS_OGC_SERVICE_PROVIDER_SITE:-www.gisaia.com}
   serviceProviderRole: ${ARLAS_OGC_SERVICE_PROVIDER_ROLE:-Developer}
-  serviceContactIndividualName: ${ARLAS_OGC_SERVICE_CONTACT_NAME:-John Doe}
+  serviceContactIndividualName: ${ARLAS_OGC_SERVICE_CONTACT_NAME:-Gisaïa}
+  serviceContactMail: ${ARLAS_OGC_SERVICE_CONTACT_MAIL:-contact@gisaia.com}
   serviceContactAdressCity: ${ARLAS_OGC_SERVICE_CONTACT_CITY:-Toulouse}
   serviceContactAdressPostalCode: ${ARLAS_OGC_SERVICE_CONTACT_CODE:-31000}
   serviceContactAdressCountry: ${ARLAS_OGC_SERVICE_CONTACT_COUNTRY:-France}
   queryMaxFeature: ${ARLAS_OGC_QUERY_MAX_FEATURE:-1000}
 
 arlas-csw:
+  serviceIdentificationTitle: ${ARLAS_CSW_TITLE:-Discovery Service - CSW}
+  serviceIdentificationAbstract: ${ARLAS_CSW_ABSTRACT:-Discovery Service - CSW}
+  serviceIdentificationLanguage: ${ARLAS_CSW_LANGUAGE:-eng}
   openSearchDescription: ${ARLAS_CSW_OPENSEARCH_DESCRIPTION:-Geo-BigData Collection Catalog}
   openSearchShortName: ${ARLAS_CSW_OPENSEARCH_SHORTNAME:-Geo-Catalog}
 
 arlas-inspire:
-  enabled: ${ARLAS_WFS_INSPIRE_ENABLED:-false}
+  enabled: ${ARLAS_WFS_INSPIRE_ENABLED:-true}
+  services_date_of_Creation: ${ARLAS_INSPIRE_SERVICES_DATE_OF_CREATION:-2018-11-05} # YYYY-MM-DD
   access_and_use_conditions: ${ARLAS_WFS_INSPIRE_ACCESS_AND_USE_CONDITIONS:-no conditons apply} # Free text or specify a URL to a link that describes eventual conditions
   public_access_limitations: ${ARLAS_WFS_INSPIRE_PUBLIC_ACCESS_LIMITATIONS:-no limitations apply} # Free text or specify a URL to a link that describes eventual limitations
 ########################################################
