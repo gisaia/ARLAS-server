@@ -19,6 +19,7 @@
 
 package io.arlas.server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
@@ -28,5 +29,6 @@ public class Inspire {
     public List<Keyword> keywords;
     @JsonProperty(value = "inspire_uri", required = false)
     public InspireURI inspireURI;
-
+    @JsonProperty(value = "inspire_limitation_access", required = false)
+    public InspireLimitationAccess inspireLimitationAccess;
 }

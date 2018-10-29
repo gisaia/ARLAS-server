@@ -22,13 +22,14 @@ package io.arlas.server.ogc.csw;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.services.ExploreServices;
 import org.elasticsearch.client.Client;
 
 public class ElasticCSWService extends CSWService {
 
-    public ElasticCSWService(CSWHandler cswHandler , Client client, ArlasServerConfiguration configuration) throws ArlasException {
-        super(cswHandler);
-        this.dao = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
+    public ElasticCSWService(CSWHandler cswHandler , ExploreServices exploreServices, ArlasServerConfiguration configuration) throws ArlasException {
+        super(cswHandler, exploreServices);
+        this.dao = new ElasticCollectionReferenceDaoImpl(exploreServices.getClient(), configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
         dao.initCollectionDatabase();
     }
 

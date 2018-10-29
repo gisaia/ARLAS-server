@@ -17,21 +17,12 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
-public class INSPIREConfiguration {
-
-    @JsonProperty("enabled")
-    public Boolean enabled;
-
-    @JsonProperty("services_date_of_creation")
-    public String servicesDateOfCreation;
-
-    @JsonProperty("access_and_use_conditions")
-    public String accessAndUseConditions;
-
-    @JsonProperty("public_access_limitations")
-    public String publicAccessLimitations;
+public class CollectionReferences {
+    public List<CollectionReference> collectionReferences;
+    public long nbCollectionReferences;
+    public long totalCollectionReferences;
 }

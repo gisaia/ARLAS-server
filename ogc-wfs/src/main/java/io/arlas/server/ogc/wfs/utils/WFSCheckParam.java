@@ -39,25 +39,6 @@ import java.util.stream.Collectors;
 
 public class WFSCheckParam {
 
-    public static boolean isFieldInMapping(CollectionReferenceDescription collectionReference, String... fields) throws RuntimeException {
-        String[] cleanField = new String[fields.length];
-        boolean isFieldInMapping = true;
-        for (int i = 0; i < fields.length; i++) {
-            if (fields.clone()[i].contains(":")) {
-                cleanField[i] = fields.clone()[i].split(":")[1];
-            } else {
-                cleanField[i] = fields.clone()[i];
-            }
-        }
-        for (String field : cleanField) {
-            Object data = MapExplorer.getObjectFromPath(field, collectionReference.properties);
-            if (data == null) {
-                isFieldInMapping = false;
-            }
-        }
-        return isFieldInMapping;
-    }
-
     public static void checkQuerySyntax(String service, String bbox, String resourceid, String filter, WFSRequestType requestType, Version requestVersion) throws OGCException {
 
         if (bbox != null && resourceid != null) {
@@ -102,17 +83,6 @@ public class WFSCheckParam {
         if (isCrsUnSupported) {
             throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid CRS :" + srsname, "srsname", Service.WFS);
         }
-    }
-
-    public static String formatValueReference(String valuereference, CollectionReferenceDescription collectionReferenceDescription) throws OGCException {
-        if (valuereference == null || valuereference.equals("")) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid valuereference value", "valuereference", Service.WFS);
-        } else if (valuereference.equals("@gml:id")) {
-            valuereference = collectionReferenceDescription.params.idPath;
-        } else if (!WFSCheckParam.isFieldInMapping(collectionReferenceDescription, valuereference)) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid valuereference value, " + valuereference + " is not in queryable", "valuereference", Service.WFS);
-        }
-        return valuereference;
     }
 
     public static void checkKeywordsInspireCompliance(List<Keyword> keywordList, Service service) throws OGCException {

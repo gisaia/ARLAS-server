@@ -25,7 +25,7 @@ import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
-import io.arlas.server.ogc.wfs.utils.XmlUtils;
+import io.arlas.server.ogc.common.utils.XmlUtils;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import org.elasticsearch.search.SearchHit;

@@ -23,31 +23,34 @@ import com.a9.opensearch.OpenSearchDescription;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.app.CSWConfiguration;
 import io.arlas.server.app.OGCConfiguration;
+import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.CollectionReferences;
+import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.ns.ATOM;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.common.utils.RequestUtils;
+import io.arlas.server.ogc.csw.filter.CSWQueryBuilder;
 import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.ogc.csw.operation.getrecordbyid.GetRecordsByIdHandler;
 import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
 import io.arlas.server.ogc.csw.operation.opensearch.OpenSearchHandler;
-import io.arlas.server.ogc.csw.utils.CSWCheckParam;
-import io.arlas.server.ogc.csw.utils.CSWConstant;
-import io.arlas.server.ogc.csw.utils.CSWRequestType;
-import io.arlas.server.ogc.csw.utils.ElementSetName;
+import io.arlas.server.ogc.csw.utils.*;
 import io.arlas.server.app.Documentation;
+import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.BoundingBox;
 import io.swagger.annotations.*;
 import net.opengis.cat.csw._3.AbstractRecordType;
 import net.opengis.cat.csw._3.CapabilitiesType;
 import net.opengis.cat.csw._3.GetRecordsResponseType;
+import org.xml.sax.SAXException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -56,6 +59,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.*;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,15 +75,16 @@ public class CSWService {
     protected CollectionReferenceDao dao = null;
     public static final String MIME_TYPE__OPENSEARCH_XML = "application/opensearchdescription+xml";
 
-
     public CSWHandler cswHandler;
     private OGCConfiguration ogcConfiguration;
     private CSWConfiguration cswConfiguration;
+    private ExploreServices exploreServices;
 
     private String serverUrl;
 
-    public CSWService(CSWHandler cswHandler) {
+    public CSWService(CSWHandler cswHandler, ExploreServices exploreServices) {
         this.cswHandler = cswHandler;
+        this.exploreServices = exploreServices;
         this.ogcConfiguration = cswHandler.ogcConfiguration;
         this.cswConfiguration = cswHandler.cswConfiguration;
         this.serverUrl = ogcConfiguration.serverUri;
@@ -143,6 +148,13 @@ public class CSWService {
                     allowMultiple = false,
                     required = true)
             @QueryParam(value = "filter") String filter,
+
+            @ApiParam(
+                    name = "constraint",
+                    value = "constraint",
+                    allowMultiple = false,
+                    required = true)
+            @QueryParam(value = "constraint") String constraint,
             @ApiParam(
                     name = "startposition",
                     value = "startposition",
@@ -225,7 +237,7 @@ public class CSWService {
                     required = false)
             @QueryParam(value = "pretty") Boolean pretty,
             @Context HttpHeaders headers
-    ) throws ArlasException, DatatypeConfigurationException, IOException {
+    ) throws ArlasException, DatatypeConfigurationException, IOException, OGCException, ParserConfigurationException, SAXException {
         String acceptFormatMediaType = MediaType.APPLICATION_XML;
         String outputFormatMediaType = MediaType.APPLICATION_XML;
         for (MediaType mediaType : headers.getAcceptableMediaTypes()) {
@@ -275,7 +287,7 @@ public class CSWService {
 
         RequestUtils.checkRequestTypeByName(request, CSWConstant.SUPPORTED_CSW_REQUESTYPE, Service.CSW);
         CSWRequestType requestType = CSWRequestType.valueOf(request);
-        CSWCheckParam.checkQuerySyntax(requestType, elementName, elementSetName, acceptVersions, version, service, outputSchema, typeNames, bbox, recordIds, query, id);
+        CSWCheckParam.checkQuerySyntax(requestType, elementName, elementSetName, acceptVersions, version, service, outputSchema, typeNames, bbox, recordIds, query, id, filter);
 
         String[] ids = null;
         if (recordIds != null && recordIds.length() > 0) {
@@ -327,8 +339,14 @@ public class CSWService {
                 return Response.ok(getCapabilitiesResponse).type(acceptFormatMediaType).build();
             case GetRecords:
                 GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
-                long recordsMatched = dao.countCollectionReferences(ids, query, boundingBox);
-                collections = dao.getCollectionReferences(elements, null, maxRecords, startPosition - 1, ids, query, boundingBox);
+                CollectionReference metaCollection = dao.getMetaCollectionReference(ogcConfiguration, cswHandler.inspireConfiguration);
+                ElasticAdmin elasticAdmin = new ElasticAdmin(exploreServices.getClient());
+                CollectionReferenceDescription metaCollectionDescription = elasticAdmin.describeCollection(metaCollection);
+                CSWQueryBuilder cswQueryBuilder = new CSWQueryBuilder(ids, query, boundingBox, constraint, metaCollectionDescription);
+                CollectionReferences collectionReferences = dao.getCollectionReferencesForCSW(cswQueryBuilder.ogcQuery, cswQueryBuilder.isConfigurationQuery, elements, null, maxRecords, startPosition - 1);
+                collections = collectionReferences.collectionReferences;
+                long recordsMatched = collectionReferences.totalCollectionReferences;
+
                 if (recordIds != null && recordIds.length() > 0) {
                     if (collections.size() == 0) {
                         throw new OGCException(OGCExceptionCode.NOT_FOUND, "Document not Found", "id", Service.CSW);
@@ -348,6 +366,8 @@ public class CSWService {
                 throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.CSW);
         }
     }
+
+
 
     @Timed
     @Path("/csw/opensearch")

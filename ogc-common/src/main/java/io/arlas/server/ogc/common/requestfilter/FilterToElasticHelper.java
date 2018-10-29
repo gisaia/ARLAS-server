@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.ogc.wfs.filter;
+package io.arlas.server.ogc.common.requestfilter;
 
 import com.google.common.collect.ImmutableMap;
 import com.vividsolutions.jts.geom.*;
@@ -25,7 +25,7 @@ import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.exceptions.OGC.OGCExceptionMessage;
 import io.arlas.server.ogc.common.model.Service;
-import io.arlas.server.ogc.wfs.utils.XmlUtils;
+import io.arlas.server.ogc.common.utils.XmlUtils;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.JTS;
 import org.locationtech.spatial4j.shape.SpatialRelation;
@@ -146,7 +146,7 @@ class FilterToElasticHelper {
                 List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, key + " is not a valid geom field", "filter"));
-                delegate.wfsException = new OGCException(wfsExceptionMessages, Service.WFS);
+                delegate.ogcException = new OGCException(wfsExceptionMessages, Service.WFS);
                 throw new RuntimeException();
             }
             e2.accept(delegate, extraData);

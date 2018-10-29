@@ -30,6 +30,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.ogc.common.model.Service;
+import io.arlas.server.ogc.common.utils.OGCCheckParam;
 import io.arlas.server.ogc.common.utils.RequestUtils;
 import io.arlas.server.ogc.common.utils.Version;
 import io.arlas.server.ogc.common.utils.VersionUtils;
@@ -254,7 +255,7 @@ public class WFSService {
                     hitsGetFeature = exploreServices.getClient()
                             .prepareSearch(collectionReference.params.indexName)
                             .setFetchSource(null, exludes)
-                            .setQuery(wfsQueryBuilder.wfsQuery)
+                            .setQuery(wfsQueryBuilder.ogcQuery)
                             .execute()
                             .get()
                             .getHits();
@@ -271,7 +272,7 @@ public class WFSService {
                             .getClient()
                             .prepareSearch(collectionReference.params.indexName)
                             .setFetchSource(null, exludes)
-                            .setQuery(wfsQueryBuilder.wfsQuery)
+                            .setQuery(wfsQueryBuilder.ogcQuery)
                             .setFrom(startindex)
                             .setSize(count)
                             .execute()
@@ -286,12 +287,12 @@ public class WFSService {
                 return Response.ok(getFeatureResponse).type(MediaType.APPLICATION_XML).build();
 
             case GetPropertyValue:
-                String include = WFSCheckParam.formatValueReference(valuereference, collectionReferenceDescription);
+                String include = OGCCheckParam.formatValueReference(valuereference, collectionReferenceDescription);
                 ValueCollectionType valueCollectionType = new ValueCollectionType();
                 SearchHits hitsGetPropertyValue = exploreServices.getClient()
                         .prepareSearch(collectionReference.params.indexName)
                         .setFetchSource(new String[]{include}, exludes)
-                        .setQuery(wfsQueryBuilder.wfsQuery)
+                        .setQuery(wfsQueryBuilder.ogcQuery)
                         .setFrom(startindex)
                         .setSize(count)
                         .execute()

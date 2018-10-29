@@ -17,21 +17,8 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.model.enumerations;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class INSPIREConfiguration {
-
-    @JsonProperty("enabled")
-    public Boolean enabled;
-
-    @JsonProperty("services_date_of_creation")
-    public String servicesDateOfCreation;
-
-    @JsonProperty("access_and_use_conditions")
-    public String accessAndUseConditions;
-
-    @JsonProperty("public_access_limitations")
-    public String publicAccessLimitations;
+public enum InspireAccessClassificationEnum {
+    unclassified, restricted, confidential, secret, topSecret
 }

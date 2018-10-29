@@ -20,15 +20,10 @@
 package io.arlas.server.inspire.common.constants;
 
 public class INSPIREConstants {
-    public static final String INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE = "Commission Regulation (EC) No 1088/2010 - Conformance to Download services";
-    public static final String INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE = "2010-11-23";
-    public static final String INSPIRE_METADATA_CONFORMITY_TITLE = "Commission Regulation (EC) No 1205/2008";
-    public static final String INSPIRE_METADATA_CONFORMITY_DATE = "2008-12-03";
-    public static final String INSPIRE_INTEROPERABILITY_CONFORMITY_TITLE = "Commission Regulation (EU) No 1089/2010 of 23 November 2010 implementing Directive 2007/2/EC of the European Parliament and of the Council as regards interoperability of spatial data sets and services";
-    public static final String INSPIRE_INTEROPERABILITY_CONFORMITY_DATE = "2010-11-23";
+
     public static final String CLASSIFICATION_SPATIAL_DATA_SERVICES = "Classification of Spatial data Services";
     public static final String DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES = "2008-12-03";
-    public static final String INSPIRE_RESOURCE_TITLE = "Inspire WFS services published by ARLAS";
+    public static final String INSPIRE_RESOURCE_TITLE = "WFS service (download service) published by ARLAS";
     public static final String INSPIRE_RESOURCE_ABSTRACT = "Web Feature Service maintained by Arlas. Contact: contact@gisaia.com";
     public static final String NO_CONDITIONS_FOR_ACCESS_AND_USE = "no conditions apply";
     public static final String LIMITATION_ON_PUBLIC_ACCESS = "no limitations apply";

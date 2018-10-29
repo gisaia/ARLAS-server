@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.ogc.wfs.utils;
+package io.arlas.server.ogc.common.utils;
 
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
@@ -122,9 +122,9 @@ public class XmlUtils {
     }
 
     private static void writeEmptyElement(XMLStreamWriter writer, String nameToDisplay, String type, Integer minoccurs) throws XMLStreamException {
-        writer.writeEmptyElement(WFSConstant.XSNS, ELEMENT);
+        writer.writeEmptyElement(OGCConstant.XSNS, ELEMENT);
         writer.writeAttribute(NAME, nameToDisplay);
-        writer.writeAttribute(TYPE, WFSConstant.XS_PREFIX + ":" + type);
+        writer.writeAttribute(TYPE, OGCConstant.XS_PREFIX + ":" + type);
         writer.writeAttribute(MIN_OCCURS, String.valueOf(minoccurs));
     }
 

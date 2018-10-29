@@ -29,8 +29,11 @@ import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.inspire.common.constants.INSPIREConstants;
+import io.arlas.server.inspire.common.enums.AdditionalQueryables;
+import io.arlas.server.inspire.common.enums.SupportedISOQueryables;
 import io.arlas.server.inspire.common.utils.INSPIRECheckParam;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.INSPIREConformity;
 import io.arlas.server.ns.GML;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.csw.CSWHandler;
@@ -127,8 +130,8 @@ public class GetCapabilitiesHandler {
     private void addECConformity() {
         Conformity interoperabilityConformity = new Conformity();
         CitationConformity citationConformity = new CitationConformity();
-        citationConformity.setTitle(INSPIREConstants.INSPIRE_INTEROPERABILITY_CONFORMITY_TITLE);
-        citationConformity.setDateOfCreation(INSPIREConstants.INSPIRE_INTEROPERABILITY_CONFORMITY_DATE);
+        citationConformity.setTitle(INSPIREConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_TITLE);
+        citationConformity.setDateOfCreation(INSPIREConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_DATE);
         interoperabilityConformity.setSpecification(citationConformity);
         interoperabilityConformity.setDegree(DegreeOfConformity.NOT_EVALUATED);
         inspireExtendedCapabilitiesType.getConformity().clear();
@@ -385,7 +388,12 @@ public class GetCapabilitiesHandler {
         resolve.getAllowedValues().getValueOrRange().add(local);
         //add  operations
         DomainType[] getCapabilitiesParameters = {acceptVersions, sections,outputSchema,outputFormat,acceptFormats};
-        DomainType[] getRecordsConstraint = {opensearch};
+        String[] additionalQueryablesStringArray = Arrays.stream(AdditionalQueryables.values()).map(aq -> aq.value).toArray(String[]::new);
+        String[] supportedIsoQueryablesStringArray = Arrays.stream(SupportedISOQueryables.values()).map(siq -> siq.value).toArray(String[]::new);
+        DomainType additionalQueryables = createDomain("AdditionalQueryables", additionalQueryablesStringArray);
+        DomainType supportedIsoQueryables = createDomain("SupportedISOQueryables", supportedIsoQueryablesStringArray);
+
+        DomainType[] getRecordsConstraint = {opensearch, additionalQueryables, supportedIsoQueryables};
 
         addOperation(CSWRequestType.GetCapabilities.name() ,operationsMetadata, getCapabilitiesParameters,noParameters);
         addOperation(CSWRequestType.GetRecords.name(), operationsMetadata,noParameters,getRecordsConstraint);
@@ -503,6 +511,4 @@ public class GetCapabilitiesHandler {
             throw new INSPIREException(INSPIREExceptionCode.INTERNAL_SERVER_ERROR, "Metadata date of collection is not well formatted", Service.CSW);
         }
     }
-
-
 }

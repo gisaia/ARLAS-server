@@ -30,6 +30,7 @@ import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.inspire.common.utils.INSPIRECheckParam;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.DublinCoreElementName;
+import io.arlas.server.model.INSPIREConformity;
 import io.arlas.server.model.Keyword;
 import io.arlas.server.inspire.common.constants.INSPIREConstants;
 import io.arlas.server.inspire.common.enums.InspireSupportedLanguages;
@@ -370,14 +371,14 @@ public class GetCapabilitiesHandler {
     private void addECConformity() {
         Conformity networkServicesConformity = new Conformity();
         CitationConformity citationConformity = new CitationConformity();
-        citationConformity.setTitle(INSPIREConstants.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE);
-        citationConformity.setDateOfCreation(INSPIREConstants.INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE);
+        citationConformity.setTitle(INSPIREConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE);
+        citationConformity.setDateOfCreation(INSPIREConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE);
         networkServicesConformity.setSpecification(citationConformity);
         networkServicesConformity.setDegree(DegreeOfConformity.CONFORMANT);
         Conformity metadataConformity = new Conformity();
         citationConformity = new CitationConformity();
-        citationConformity.setTitle(INSPIREConstants.INSPIRE_METADATA_CONFORMITY_TITLE);
-        citationConformity.setDateOfCreation(INSPIREConstants.INSPIRE_METADATA_CONFORMITY_DATE);
+        citationConformity.setTitle(INSPIREConformity.INSPIRE_METADATA_CONFORMITY_TITLE);
+        citationConformity.setDateOfCreation(INSPIREConformity.INSPIRE_METADATA_CONFORMITY_DATE);
         metadataConformity.setSpecification(citationConformity);
         metadataConformity.setDegree(DegreeOfConformity.CONFORMANT);
         inspireExtendedCapabilitiesType.getConformity().clear();

@@ -27,7 +27,7 @@ import io.arlas.server.ogc.wfs.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.ogc.wfs.operation.getfeature.GetFeatureHandler;
 import io.arlas.server.ogc.wfs.operation.storedquery.ListStoredQueriesHandler;
 import io.arlas.server.ogc.wfs.operation.storedquery.StoredQueryManager;
-import io.arlas.server.ogc.wfs.utils.XmlUtils;
+import io.arlas.server.ogc.common.utils.XmlUtils;
 import net.opengis.wfs._2.ObjectFactory;
 
 import javax.xml.parsers.ParserConfigurationException;

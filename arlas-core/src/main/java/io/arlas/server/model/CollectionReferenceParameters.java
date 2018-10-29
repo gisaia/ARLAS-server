@@ -19,12 +19,13 @@
 
 package io.arlas.server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.server.model.request.Filter;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.Map;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CollectionReferenceParameters {
 
     @NotEmpty

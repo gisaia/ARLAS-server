@@ -17,21 +17,12 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class INSPIREConfiguration {
+public class MetaCollectionReferenceParameters extends CollectionReferenceParameters {
 
-    @JsonProperty("enabled")
-    public Boolean enabled;
-
-    @JsonProperty("services_date_of_creation")
-    public String servicesDateOfCreation;
-
-    @JsonProperty("access_and_use_conditions")
-    public String accessAndUseConditions;
-
-    @JsonProperty("public_access_limitations")
-    public String publicAccessLimitations;
+    @JsonProperty(value = "ogc_inspire_configuration_parameters", required = false)
+    public OgcInspireConfigurationParameters inspireConfigurationParameters = new OgcInspireConfigurationParameters();
 }

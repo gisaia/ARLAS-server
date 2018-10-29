@@ -107,7 +107,7 @@ arlas-wfs:
   replaceChar: ${ARLAS_WFS_REPLACE_CHAR:-_}
 
 arlas-ogc:
-  serverUri: ${ARLAS_OGC_SERVER_URI:-http://arlas-server:9999/arlas/}
+  serverUri: ${ARLAS_OGC_SERVER_URI:-http://localhost:9999/arlas/}
   serviceProviderName: ${ARLAS_OGC_SERVICE_PROVIDER_NAME:-ARLAS}
   serviceProviderSite: ${ARLAS_OGC_SERVICE_PROVIDER_SITE:-www.gisaia.com}
   serviceProviderRole: ${ARLAS_OGC_SERVICE_PROVIDER_ROLE:-Developer}
@@ -127,7 +127,7 @@ arlas-csw:
 
 arlas-inspire:
   enabled: ${ARLAS_WFS_INSPIRE_ENABLED:-true}
-  services_date_of_Creation: ${ARLAS_INSPIRE_SERVICES_DATE_OF_CREATION:-2018-11-05} # YYYY-MM-DD
+  services_date_of_creation: ${ARLAS_INSPIRE_SERVICES_DATE_OF_CREATION:-2018-11-05} # YYYY-MM-DD
   access_and_use_conditions: ${ARLAS_WFS_INSPIRE_ACCESS_AND_USE_CONDITIONS:-no conditons apply} # Free text or specify a URL to a link that describes eventual conditions
   public_access_limitations: ${ARLAS_WFS_INSPIRE_PUBLIC_ACCESS_LIMITATIONS:-no limitations apply} # Free text or specify a URL to a link that describes eventual limitations
 ########################################################

@@ -17,21 +17,15 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.inspire.common.enums;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+public enum SupportedISOQueryables {
+    subject("Subject"), serviceType("ServiceType"), title("Title"), abstractTitle("Abstract"), resourceType("Type"),
+    organisationName("OrganisationName"), resourceIdentifier("ResourceIdentifier"), creationDate("CreationDate"), language("Language");
 
-public class INSPIREConfiguration {
+    public String value;
 
-    @JsonProperty("enabled")
-    public Boolean enabled;
-
-    @JsonProperty("services_date_of_creation")
-    public String servicesDateOfCreation;
-
-    @JsonProperty("access_and_use_conditions")
-    public String accessAndUseConditions;
-
-    @JsonProperty("public_access_limitations")
-    public String publicAccessLimitations;
+    SupportedISOQueryables(String value) {
+        this.value = value;
+    }
 }

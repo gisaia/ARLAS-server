@@ -17,21 +17,15 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.inspire.common.enums;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+public enum AdditionalQueryables {
+    specificationTitle("SpecificationTitle"), specificationDate("SpecificationDate"), specificationDateType("SpecificationDateType"),
+    degree("Degree"), responsiblePartyRole("ResponsiblePartyRole"), accessConstraints("AccessConstraints"), otherConstraints("OtherConstraints"),
+    classification("Classification"), conditionApplyingToAccessAndUse("ConditionApplyingToAccessAndUse");
 
-public class INSPIREConfiguration {
-
-    @JsonProperty("enabled")
-    public Boolean enabled;
-
-    @JsonProperty("services_date_of_creation")
-    public String servicesDateOfCreation;
-
-    @JsonProperty("access_and_use_conditions")
-    public String accessAndUseConditions;
-
-    @JsonProperty("public_access_limitations")
-    public String publicAccessLimitations;
+    public String value;
+    AdditionalQueryables(String value) {
+        this.value = value;
+    }
 }

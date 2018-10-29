@@ -23,7 +23,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
-import io.arlas.server.ogc.wfs.utils.XmlUtils;
+import io.arlas.server.ogc.common.utils.XmlUtils;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;

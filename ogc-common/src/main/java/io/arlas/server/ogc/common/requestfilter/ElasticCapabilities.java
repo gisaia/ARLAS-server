@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.ogc.wfs.filter;
+package io.arlas.server.ogc.common.requestfilter;
 
 import org.geotools.filter.Capabilities;
 import org.geotools.filter.capability.FilterCapabilitiesImpl;

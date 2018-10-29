@@ -22,6 +22,7 @@ package io.arlas.server.model;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.geojson.LngLatAlt;
+import org.geojson.Polygon;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -32,11 +33,14 @@ import java.util.List;
 
 public class DublinCoreElementName {
 
+    public static final String DEFAULT_TITLE = "WFS service (download service) published by ARLAS";
+    public static final String DEFAULT_DESCRIPTION = "WFS service (download service) published by ARLAS";
+
     public DublinCoreElementName(){
     }
 
     @JsonProperty(value = "title", required = false)
-    public String title = "";
+    public String title = DEFAULT_TITLE;
 
     @JsonProperty(value = "creator", required = false)
     public String creator = "";
@@ -45,7 +49,7 @@ public class DublinCoreElementName {
     public String subject = "";
 
     @JsonProperty(value = "description", required = false)
-    public String description = "";
+    public String description = DEFAULT_DESCRIPTION;
 
     @JsonProperty(value = "publisher", required = false)
     public String publisher = "";
@@ -53,20 +57,20 @@ public class DublinCoreElementName {
     @JsonProperty(value = "contributor", required = false)
     public String contributor = "";
 
-    @JsonProperty(value = "type", required = false)
-    public String type = "";
+    @JsonProperty(value = "type", required = false, defaultValue = "service")
+    public String type = "service";
 
     @JsonProperty(value = "format", required = false)
     public String format = "";
 
     @JsonProperty(value = "identifier", required = false)
-    public String identifier = String.valueOf(java.util.UUID.randomUUID());;
+    public String identifier = String.valueOf(java.util.UUID.randomUUID());
 
     @JsonProperty(value = "source", required = false)
     public String source = "";
 
-    @JsonProperty(value = "language", required = false)
-    public String language = "";
+    @JsonProperty(value = "language", required = false, defaultValue = "eng")
+    public String language = "eng";
 
     @JsonProperty(value = "bbox", required = false)
     public Bbox bbox = new Bbox();
@@ -78,19 +82,22 @@ public class DublinCoreElementName {
        return simpleDateFormat.format(date);
     }
 
+    private Polygon coverageGeometry;
+
     private JSONObject coverage;
     @JsonGetter(value = "coverage")
     public JSONObject getCoverage(){
-        org.geojson.Polygon polygon = new org.geojson.Polygon();
+        coverageGeometry = new org.geojson.Polygon();
         List<LngLatAlt> exteriorRing = new ArrayList<>();
         exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
+        exteriorRing.add(new LngLatAlt(bbox.east, bbox.south));
         exteriorRing.add(new LngLatAlt(bbox.east, bbox.north));
         exteriorRing.add(new LngLatAlt(bbox.west, bbox.north));
         exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
-        polygon.setExteriorRing(exteriorRing);
-        this.coverage = new JSONObject();
+        coverageGeometry.setExteriorRing(exteriorRing);
+        coverage = new JSONObject();
         JSONArray jsonArayExt = new JSONArray();
-        polygon.getExteriorRing().forEach(lngLatAlt -> {
+        coverageGeometry.getExteriorRing().forEach(lngLatAlt -> {
             JSONArray jsonArayLngLat = new JSONArray();
             jsonArayLngLat.add(0, lngLatAlt.getLongitude());
             jsonArayLngLat.add(1, lngLatAlt.getLatitude());
@@ -98,9 +105,24 @@ public class DublinCoreElementName {
         });
         JSONArray jsonAray = new JSONArray();
         jsonAray.add(jsonArayExt);
-        this.coverage.put("type", "Polygon");
-        this.coverage.put("coordinates", jsonAray);
-        return this.coverage;
+        coverage.put("type", "Polygon");
+        coverage.put("coordinates", jsonAray);
+        return coverage;
+    }
+
+    private String coverageCentroid;
+    @JsonGetter(value = "coverage_centroid")
+    public String getCoverageCentroid(){
+        if (coverageGeometry != null) {
+            LngLatAlt bottomLeft = coverageGeometry.getExteriorRing().get(0);
+            LngLatAlt topRight = coverageGeometry.getExteriorRing().get(2);
+            double centroidLat = (bottomLeft.getLatitude() + topRight.getLatitude()) / 2;
+            double centroidLng = (bottomLeft.getLongitude() + topRight.getLongitude()) / 2;
+            coverageCentroid = centroidLat + "," + centroidLng;
+        } else {
+            coverageCentroid = "0,0";
+        }
+        return coverageCentroid;
     }
 
     public class Bbox {

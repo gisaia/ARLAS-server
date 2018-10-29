@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.ogc.wfs.filter;
+package io.arlas.server.ogc.common.requestfilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -27,15 +27,20 @@ import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
+import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.exceptions.OGC.OGCExceptionMessage;
+import io.arlas.server.inspire.common.enums.AdditionalQueryables;
+import io.arlas.server.inspire.common.enums.SupportedDublinCoreQueryables;
+import io.arlas.server.inspire.common.enums.SupportedISOQueryables;
+import io.arlas.server.inspire.common.utils.INSPIRECheckParam;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.ogc.common.model.Service;
-import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
-import io.arlas.server.ogc.wfs.utils.XmlUtils;
+import io.arlas.server.ogc.common.utils.OGCCheckParam;
+import io.arlas.server.ogc.common.utils.XmlUtils;
 import org.elasticsearch.common.joda.Joda;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
@@ -107,7 +112,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     Map<String, Map<String, Map<String, Object>>> aggregations;
 
-    public OGCException wfsException;
+    public OGCException ogcException;
 
     private FilterToElasticHelper helper;
 
@@ -149,6 +154,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
 
     public CollectionReferenceDescription collectionReference;
+    public Boolean isConfigurationQuery = false;
 
     public FilterToElastic(CollectionReferenceDescription collectionReference) {
         queryBuilder = FilterToElasticHelper.MATCH_ALL;
@@ -319,11 +325,27 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         key = (String) XmlUtils.retrievePointPath((String) field);
         String[] pathElements = key.split(":")[1].split("\\.");
         if(isPathDate(pathElements,collectionReference.properties)){updateDateFormatter(key);}
-        if (!WFSCheckParam.isFieldInMapping(collectionReference, key)) {
+        if (!OGCCheckParam.isFieldInMapping(collectionReference, key)) {
             List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
             wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
             wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
-            wfsException = new OGCException(wfsExceptionMessages, Service.WFS);
+            ogcException = new OGCException(wfsExceptionMessages, Service.WFS);
+            throw new RuntimeException();
+        }
+        if (isFilterQueryableADate(literal)) {
+            List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
+            ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
+            ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Date fields are not allowed in PropertyIsLike filter", "filter"));
+            ogcException = new OGCException(ogcExceptionMessages, Service.CSW);
+            throw new RuntimeException();
+        }
+        key = mapFieldNameToInspireRequirements(key, literal);
+
+        if (!OGCCheckParam.isFieldInMapping(collectionReference, key)) {
+            List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
+            ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
+            ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
+            ogcException = new OGCException(ogcExceptionMessages, Service.WFS);
             throw new RuntimeException();
         }
 
@@ -552,14 +574,23 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             key = (String) XmlUtils.retrievePointPath((String) field);
             String[] pathElements = key.split(":")[1].split("\\.");
             if(isPathDate(pathElements,collectionReference.properties)){updateDateFormatter(key);}
-            if (!WFSCheckParam.isFieldInMapping(collectionReference, key)) {
+            if (!OGCCheckParam.isFieldInMapping(collectionReference, key)) {
                 List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
-                wfsException = new OGCException(wfsExceptionMessages, Service.WFS);
+                ogcException = new OGCException(wfsExceptionMessages, Service.WFS);   throw new RuntimeException();
+            }
+
+            left.accept(this, leftContext);
+            key = mapFieldNameToInspireRequirements(key, field.toString());
+
+            if (!OGCCheckParam.isFieldInMapping(collectionReference, key)) {
+                List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
+                ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
+                ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
+                ogcException = new OGCException(ogcExceptionMessages, Service.WFS);
                 throw new RuntimeException();
             }
-            left.accept(this, leftContext);
         }
         
         if (nested) {
@@ -567,7 +598,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         }
 
         if (field.equals("")) {
-            wfsException = new OGCException(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter", Service.WFS);
+            ogcException = new OGCException(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter", Service.WFS);
             throw new RuntimeException();
         }
 
@@ -1048,7 +1079,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
                 List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to format " + field + "  in " + collectionReference.collectionName + ".", "filter"));
-                wfsException = new OGCException(wfsExceptionMessages, Service.WFS);
+                ogcException = new OGCException(wfsExceptionMessages, Service.WFS);
                 throw new RuntimeException();
             }
         }
@@ -1314,5 +1345,96 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         }
         return  false;
     }
+    private String mapFieldNameToInspireRequirements(String key, String value) {
+        /*######################  SupportedDublinCoreQueryables #######################*/
+        if (key.equals(SupportedDublinCoreQueryables.title.value)) {
+            return "dublin_core_element_name.title";
+        } else if (key.equals(SupportedDublinCoreQueryables.abstractTitle.value)) {
+            return "dublin_core_element_name.description";
+        } else if (key.equals(SupportedDublinCoreQueryables.type.value)) {
+            return "dublin_core_element_name.type";
+        } else if (key.equals(SupportedDublinCoreQueryables.subject.value)) {
+            return "dublin_core_element_name.subject";
+        } else if (key.equals(SupportedDublinCoreQueryables.identifier.value)) {
+            return "dublin_core_element_name.identifier";
+        } else if (key.equals(SupportedDublinCoreQueryables.language.value)) {
+            return "dublin_core_element_name.language";
+        } else if (key.equals(SupportedDublinCoreQueryables.format.value)) {
+            return "dublin_core_element_name.format";
+        } else if (key.equals(SupportedDublinCoreQueryables.source.value)) {
+            return "dublin_core_element_name.source";
+        }
+        /*######################  SupportedISOQueryables #######################*/
+        else if (key.equals(SupportedISOQueryables.subject.value)) {
+            nested=true;
+            return "inspire.keywords.value";
+        } else if (key.equals(SupportedISOQueryables.title.value)) {
+            return "dublin_core_element_name.title";
+        } else if (key.equals(SupportedISOQueryables.abstractTitle.value)) {
+            return "dublin_core_element_name.description";
+        } else if (key.equals(SupportedISOQueryables.resourceType.value)) {
+            return "dublin_core_element_name.type";
+        } else if (key.equals(SupportedISOQueryables.language.value)) {
+            return "dublin_core_element_name.language";
+        } else if (key.equals(SupportedISOQueryables.resourceIdentifier.value)) {
+            nested=true;
+            return "inspire.inspire_uri.code";
+        } else if (key.equals(SupportedISOQueryables.serviceType.value)) {
+            isConfigurationQuery = true;
+            return "inspire_configuration_parameters.spatial_data_service_type";
+        } else if (key.equals(SupportedISOQueryables.creationDate.value)) {
+            if(!INSPIRECheckParam.isDateFormatValidForGetRecords(value)) {
+                throwDateException();
+            }
+            isConfigurationQuery = true;
+            return "inspire_configuration_parameters.creation_date";
+        } else if (key.equals(SupportedISOQueryables.organisationName.value)) {
+            isConfigurationQuery = true;
+            return "inspire_configuration_parameters.responsible_party";
+        }
+        /*######################  AdditionalQueryables #######################*/
+        else if (key.equals(AdditionalQueryables.specificationTitle.value)) {
+            nested = true;
+            isConfigurationQuery = true;
+            return "inspire_configuration_parameters.inspire_conformity_list.specification_title";
+        } else if (key.equals(AdditionalQueryables.specificationDate.value)) {
+            if(!INSPIRECheckParam.isDateFormatValidForGetRecords(value)) {
+                throwDateException();
+            }
+            nested = true;
+            isConfigurationQuery = true;
+            return "inspire_configuration_parameters.inspire_conformity_list.specification_date";
+        } else if (key.equals(AdditionalQueryables.specificationDateType.value)) {
+            nested = true;
+            isConfigurationQuery = true;
+            return "inspire_configuration_parameters.inspire_conformity_list.specification_date_type";
+        } else if (key.equals(AdditionalQueryables.degree.value)) {
+            nested = true;
+            isConfigurationQuery = true;
+            return "inspire_configuration_parameters.inspire_conformity_list.degree";
+        } else if (key.equals(AdditionalQueryables.responsiblePartyRole.value)) {
+            isConfigurationQuery = true;
+            return "inspire_configuration_parameters.responsible_party_role";
+        } else if (key.equals(AdditionalQueryables.accessConstraints.value) || key.equals(AdditionalQueryables.otherConstraints.value) || key.equals(AdditionalQueryables.classification.value)) {
+            isConfigurationQuery = true;
+            return "inspire_configuration_parameters.public_access_limitations";
+        } else if (key.equals(AdditionalQueryables.conditionApplyingToAccessAndUse.value)) {
+            isConfigurationQuery = true;
+            return "inspire_configuration_parameters.access_and_use_conditions";
+        } else {
+            return key;
+        }
+    }
+
+    private void throwDateException() {
+        List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
+            ogcExceptionMessages.add(new OGCExceptionMessage(INSPIREExceptionCode.INVALID_PARAMETER_VALUE, "Invalid date format. It should be YYYY-MM-DD", "filter"));
+        ogcException = new OGCException(ogcExceptionMessages, Service.CSW);
+        throw new RuntimeException();
+    }
+
+    private boolean isFilterQueryableADate(String queryable) {
+        return (queryable.equals(AdditionalQueryables.specificationDate.value) || key.equals(SupportedISOQueryables.creationDate.value));
+    };
 
 }

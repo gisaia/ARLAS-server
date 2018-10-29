@@ -17,21 +17,10 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.ogc.common.utils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+public class OGCConstant {
+    public static final String XS_PREFIX = "xs";
+    public static final String XSNS = "http://www.w3.org/2001/XMLSchema";
 
-public class INSPIREConfiguration {
-
-    @JsonProperty("enabled")
-    public Boolean enabled;
-
-    @JsonProperty("services_date_of_creation")
-    public String servicesDateOfCreation;
-
-    @JsonProperty("access_and_use_conditions")
-    public String accessAndUseConditions;
-
-    @JsonProperty("public_access_limitations")
-    public String publicAccessLimitations;
 }

@@ -194,7 +194,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         if (configuration.arlasServiceCSWEnabled) {
             LOGGER.info("CSW Service enabled");
             CSWHandler cswHandler = new CSWHandler(configuration.ogcConfiguration,configuration.cswConfiguration, configuration.inspireConfiguration);
-            environment.jersey().register(new ElasticCSWService(cswHandler,client,configuration));
+            environment.jersey().register(new ElasticCSWService(cswHandler, exploration,configuration));
         } else {
             LOGGER.info("CSW Service disabled");
         }

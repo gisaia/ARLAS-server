@@ -17,21 +17,17 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.arlas.server.model.enumerations.AccessConstraintEnum;
+import io.arlas.server.model.enumerations.InspireAccessClassificationEnum;
 
-public class INSPIREConfiguration {
-
-    @JsonProperty("enabled")
-    public Boolean enabled;
-
-    @JsonProperty("services_date_of_creation")
-    public String servicesDateOfCreation;
-
-    @JsonProperty("access_and_use_conditions")
-    public String accessAndUseConditions;
-
-    @JsonProperty("public_access_limitations")
-    public String publicAccessLimitations;
+public class InspireLimitationAccess {
+    @JsonProperty(value = "access_constraints", required = false, defaultValue = "otherRestrictions")
+    public AccessConstraintEnum accessConstraints = AccessConstraintEnum.otherRestrictions;
+    @JsonProperty(value = "other_constraints", required = false, defaultValue = "no limitation")
+    public String otherConstraints = "no limitation";
+    @JsonProperty(value = "classification", required = false, defaultValue = "unclassified")
+    public InspireAccessClassificationEnum classification = InspireAccessClassificationEnum.unclassified;
 }

@@ -17,21 +17,16 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.server.inspire.common.enums;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+public enum SupportedDublinCoreQueryables {
+    date("dc:date"), format("dc:format"), identifier("dc:identifier"), language("dc:language"),
+    source("dc:source"), subject("dc:subject"), title("dc:title"), type("dc:type"),
+    abstractTitle("dct:abstract");
 
-public class INSPIREConfiguration {
+    public String value;
 
-    @JsonProperty("enabled")
-    public Boolean enabled;
-
-    @JsonProperty("services_date_of_creation")
-    public String servicesDateOfCreation;
-
-    @JsonProperty("access_and_use_conditions")
-    public String accessAndUseConditions;
-
-    @JsonProperty("public_access_limitations")
-    public String publicAccessLimitations;
+    SupportedDublinCoreQueryables(String value) {
+        this.value = value;
+    }
 }
