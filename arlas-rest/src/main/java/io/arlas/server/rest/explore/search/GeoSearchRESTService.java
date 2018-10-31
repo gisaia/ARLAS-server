@@ -497,8 +497,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             exclude.stream().forEach(e->{
                 String pathToRemove = e.substring(0,e.lastIndexOf("."));
                 String keyToRemove = e.substring(e.lastIndexOf(".")+1);
-                Map objectToRemove = (Map) MapExplorer.getObjectFromPath(pathToRemove, source);
-                objectToRemove.remove(keyToRemove);
+                Optional.ofNullable((Map) MapExplorer.getObjectFromPath(pathToRemove, source)).map(objectWithAttributeToRemove -> objectWithAttributeToRemove.remove(keyToRemove));
             });
             feature.setProperties(flat?MapExplorer.flat(source,new MapExplorer.ReduceArrayOnKey("_"), exclude):source);
             feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
