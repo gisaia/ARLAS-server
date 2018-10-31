@@ -128,6 +128,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0)), 595);
         handleMatchingQueryFilter(header(request.filter), 595);
 
+        request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name:is"));
+        handleNotMatchingQueryFilter(post(request));
+        handleNotMatchingQueryFilter(get("q", request.filter.q.get(0).get(0)));
+        handleNotMatchingQueryFilter(header(request.filter));
+
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name is"));
         handleMatchingQueryFilter(post(request), 595);
         handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0)), 595);
@@ -574,12 +579,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleInvalidParameters(header(request.filter));
         request.filter.f = null;
 
-        //Q
-        request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My:name"));
-        handleInvalidParameters(post(request));
-        handleInvalidParameters(get("q", request.filter.q.get(0).get(0)));
-        handleInvalidParameters(header(request.filter));
-        request.filter.q = null;
+
 
         //PWITHIN
         request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-5,5,5,-5"));

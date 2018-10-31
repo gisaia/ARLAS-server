@@ -310,7 +310,7 @@ public class FluidSearch {
     public FluidSearch filterQ(MultiValueFilter<String> q) throws ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (String qFilter : q) {
-            String operands[] = qFilter.split(":");
+            String operands[] = qFilter.split(":",2);
             if (operands.length == 2) {
                 orBoolQueryBuilder = orBoolQueryBuilder
                         .should((QueryBuilders.simpleQueryStringQuery(operands[1]).defaultOperator(Operator.AND).field(operands[0])));
