@@ -1,5 +1,14 @@
 # Change Log
 
+## [v8.6.1](https://github.com/gisaia/ARLAS-server/tree/v8.6.1) (2018-10-31)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v8.6.0...v8.6.1)
+
+**Fixed bugs:**
+
+- Geosearch : Check if geometry exists before removing it from properties of geojson [\#361](https://github.com/gisaia/ARLAS-server/issues/361)
+- filter Q doesn't support field values containing ":" [\#359](https://github.com/gisaia/ARLAS-server/issues/359)
+
 ## [v8.6.0](https://github.com/gisaia/ARLAS-server/tree/v8.6.0) (2018-10-16)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v7.6.4...v8.6.0)
@@ -10,8 +19,8 @@
 
 **New stuff:**
 
-- Remove duplicate geo in geojson [\#333](https://github.com/gisaia/ARLAS-server/pull/333) ([mbarbet](https://github.com/mbarbet))
 - Crop 256x256 on raster tiles [\#343](https://github.com/gisaia/ARLAS-server/pull/343) ([sylvaingaudan](https://github.com/sylvaingaudan))
+- Remove duplicate geo in geojson [\#333](https://github.com/gisaia/ARLAS-server/pull/333) ([mbarbet](https://github.com/mbarbet))
 
 **Fixed bugs:**
 
