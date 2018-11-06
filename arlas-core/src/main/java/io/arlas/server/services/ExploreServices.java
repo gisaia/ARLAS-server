@@ -94,6 +94,7 @@ public class ExploreServices {
     public SearchHits count(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
+        applyFilter(collectionReference.params.filter,fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
         return fluidSearch.exec().getHits();
@@ -102,6 +103,7 @@ public class ExploreServices {
     public SearchHits search(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
+        applyFilter(collectionReference.params.filter,fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
         applySize(((Search) request.basicRequest).size, fluidSearch);
@@ -114,6 +116,7 @@ public class ExploreServices {
         CheckParams.checkAggregationRequest(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
+        applyFilter(collectionReference.params.filter,fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
         applyAggregation(((AggregationsRequest) request.basicRequest).aggregations, fluidSearch, isGeoAggregation);
@@ -124,6 +127,7 @@ public class ExploreServices {
         CheckParams.checkRangeRequestField(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
+        applyFilter(collectionReference.params.filter,fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
         applyRangeRequest(((RangeRequest) request.basicRequest).field, fluidSearch);

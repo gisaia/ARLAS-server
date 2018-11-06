@@ -82,6 +82,10 @@ public class WFSQueryBuilder {
         this.exploreServices = exploreServices;
         this.collectionReferenceDescription = collectionReferenceDescription;
 
+
+        FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
+        fluidSearch.setCollectionReference(collectionReferenceDescription);
+        addCollectionFilter(fluidSearch);
         if (filter != null) {
             buildFilterQuery();
         } else if (bbox != null) {
@@ -92,7 +96,7 @@ public class WFSQueryBuilder {
             buildStoredQueryIdQuery();
         }
         if (partitionFilter != null) {
-            addPartitionFilter();
+            addPartitionFilter(fluidSearch);
         }
     }
 
@@ -147,11 +151,15 @@ public class WFSQueryBuilder {
         }
     }
 
-    private void addPartitionFilter() throws ArlasException, IOException {
-        FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
-        fluidSearch.setCollectionReference(collectionReferenceDescription);
+    private void addPartitionFilter(FluidSearch fluidSearch) throws ArlasException, IOException {
         Filter headerFilter = ParamsParser.getFilter(partitionFilter);
         exploreServices.applyFilter(headerFilter, fluidSearch);
+        wfsQuery.filter(fluidSearch.getBoolQueryBuilder());
+    }
+
+    private void addCollectionFilter(FluidSearch fluidSearch) throws ArlasException, IOException {
+        Filter collectionFilter = collectionReferenceDescription.params.filter;
+        exploreServices.applyFilter(collectionFilter, fluidSearch);
         wfsQuery.filter(fluidSearch.getBoolQueryBuilder());
     }
 

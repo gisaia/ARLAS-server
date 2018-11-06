@@ -29,6 +29,7 @@ import java.io.IOException;
 public abstract class AbstractTestWithCollection extends AbstractTestContext {
 
     public static String COLLECTION_NAME = CollectionTool.COLLECTION_NAME;
+    public static String COLLECTION_NAME_ACTOR = CollectionTool.COLLECTION_NAME_ACTOR;
 
     protected static Request request = new Request();
 

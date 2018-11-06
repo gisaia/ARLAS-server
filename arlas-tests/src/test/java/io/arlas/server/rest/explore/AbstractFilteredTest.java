@@ -486,6 +486,50 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter = new Filter();
     }
 
+
+    @Test
+    public void testCollectionFilter() throws Exception {
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[1])));//);
+        RequestSpecification req = givenFilterableRequestBody();
+        handleNotMatchingRequest(
+                req.body(handlePostRequest(request))
+                .when().post(getUrlPath("geodata_actor"))
+                .then()
+        );
+        req = givenFilterableRequestParams();
+        for (Pair<String, String> extraParam : this.extraParams) {
+            req = req.param(extraParam.getKey(), extraParam.getValue());
+        }
+        handleNotMatchingRequest(
+                req.param("f", request.filter.f.get(0).get(0).toString())
+                .when().get(getUrlPath("geodata_actor"))
+                .then()
+        );
+        request.filter = new Filter();
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0])));//("job:eq:" + DataSetTool.jobs[0]);
+        req = givenFilterableRequestBody();
+
+        handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString()), 59, "Actor");
+        handleFieldFilter(header(request.filter), 59, "Actor");
+
+
+        handleFieldFilter(
+                req.body(handlePostRequest(request))
+                        .when().post(getUrlPath("geodata_actor"))
+                        .then(),59,"Actor"
+        );
+        req = givenFilterableRequestParams();
+        for (Pair<String, String> extraParam : this.extraParams) {
+            req = req.param(extraParam.getKey(), extraParam.getValue());
+        }
+        handleFieldFilter(
+                req.param("f", request.filter.f.get(0).get(0).toString())
+                        .when().get(getUrlPath("geodata_actor"))
+                        .then(),59,"Actor"
+        );
+        request.filter = new Filter();
+    }
+
     @Test
     public void testMixedFilter() throws Exception {
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, "Architect")),//"job:eq:Architect"
