@@ -30,6 +30,7 @@ import javax.xml.stream.XMLStreamWriter;
 import java.util.Arrays;
 import java.util.List;
 
+
 public class GeoFormat {
 
     public static void geojson2gml(GeoJsonObject geojson, XMLStreamWriter writer, String id) throws XMLStreamException {
@@ -49,6 +50,30 @@ public class GeoFormat {
                 writer.writeStartElement(GML.XML_NS, "pos");
                 writer.writeCharacters(g.getCoordinates().getLongitude() + " " + g.getCoordinates().getLatitude());
                 writer.writeEndElement();
+            }
+            writer.writeEndElement();
+            return;
+        }
+
+        if(geojson instanceof MultiPoint){
+            MultiPoint multiPoint = (MultiPoint) geojson;
+            writer.writeStartElement(GML.XML_NS, "MultiPoint");
+            writer.writeAttribute(GML.XML_NS, "id", id);
+            writer.writeAttribute("srsName", srsName);
+            int i =0;
+            for(LngLatAlt lngLatAlt :multiPoint.getCoordinates()){
+                writer.writeStartElement(GML.XML_NS, "pointMember");
+                writer.writeStartElement(GML.XML_NS, "Point");
+                writer.writeAttribute(GML.XML_NS, "id", id.concat("-").concat(String.valueOf(i)));
+                writer.writeAttribute("srsName", srsName);
+                if (lngLatAlt != null) {
+                    writer.writeStartElement(GML.XML_NS, "pos");
+                    writer.writeCharacters(lngLatAlt.getLongitude() + " " + lngLatAlt.getLatitude());
+                    writer.writeEndElement();
+                }
+                writer.writeEndElement();
+                writer.writeEndElement();
+
             }
             writer.writeEndElement();
             return;
@@ -74,15 +99,44 @@ public class GeoFormat {
             return;
         }
 
+        if(geojson instanceof MultiLineString){
+            MultiLineString multiLineString = (MultiLineString) geojson;
+            writer.writeStartElement(GML.XML_NS, "MultiLineString");
+            writer.writeAttribute(GML.XML_NS, "id", id);
+            writer.writeAttribute("srsName", srsName);
+            int i =0;
+            for(List<LngLatAlt> coordinates :multiLineString.getCoordinates()){
+                writer.writeStartElement(GML.XML_NS, "lineStringMember");
+                writer.writeStartElement(GML.XML_NS, "LineString");
+                writer.writeAttribute(GML.XML_NS, "id", id.concat("-").concat(String.valueOf(i)));
+                writer.writeAttribute("srsName", srsName);
+                if (coordinates != null && coordinates.size()>0 ) {
+                    {
+                        writer.writeStartElement(GML.XML_NS, "posList");
+                        String posList = "";
+                        for (LngLatAlt lnglnglat : coordinates) {
+                            posList += String.valueOf(lnglnglat.getLatitude()) + " " + String.valueOf(lnglnglat.getLongitude()) + " ";
+                        }
+                        writer.writeCharacters(posList.trim());
+                        writer.writeEndElement();
+                    }
+                }
+                writer.writeEndElement();
+                writer.writeEndElement();
+
+            }
+            writer.writeEndElement();
+            return;
+        }
+
 
         if (geojson instanceof Polygon) {
             Polygon p = (Polygon) geojson;
-            writer.writeStartElement(GML.XML_NS, "Polygon");
-            writer.writeAttribute(GML.XML_NS, "id", id);
-            writer.writeAttribute("srsName", srsName);
-            if (p.getCoordinates() != null && p.getCoordinates().size() > 0) {
-                {
 
+            if (p.getCoordinates() != null && p.getCoordinates().size() > 0) {
+                writer.writeStartElement(GML.XML_NS, "Polygon");
+                writer.writeAttribute(GML.XML_NS, "id", id);
+                writer.writeAttribute("srsName", srsName);
                     writer.writeStartElement(GML.XML_NS, "exterior");
                     writer.writeStartElement(GML.XML_NS, "LinearRing");
                     writer.writeStartElement(GML.XML_NS, "posList");
@@ -94,18 +148,69 @@ public class GeoFormat {
                     writer.writeEndElement();
                     writer.writeEndElement();
                     writer.writeEndElement();
-                    writer.writeEndElement();
-                }
+
+
                 for (List<LngLatAlt> ring : p.getInteriorRings()) {
                     writer.writeStartElement(GML.XML_NS, "interior");
                     writer.writeStartElement(GML.XML_NS, "LinearRing");
                     writer.writeStartElement(GML.XML_NS, "posList");
-                    String posList = "";
+                    posList = "";
                     for (LngLatAlt lnglnglat : ring) {
                         posList += String.valueOf(lnglnglat.getLatitude()) + " " + String.valueOf(lnglnglat.getLongitude()) + " ";
                     }
+                    writer.writeCharacters(posList.trim());
+                    writer.writeEndElement();
+                    writer.writeEndElement();
+                    writer.writeEndElement();
                 }
+                writer.writeEndElement();
             }
+            return;
+        }
+        if(geojson instanceof MultiPolygon){
+            MultiPolygon multiPolygon = (MultiPolygon) geojson;
+            writer.writeStartElement(GML.XML_NS, "MultiPolygon");
+            writer.writeAttribute(GML.XML_NS, "id", id);
+            writer.writeAttribute("srsName", srsName);
+            int i =0;
+            for(List<List<LngLatAlt>> coords : multiPolygon.getCoordinates()){
+                Polygon p = new Polygon();
+                p.setCoordinates(coords);
+                if (p.getCoordinates() != null && p.getCoordinates().size() > 0) {
+                    writer.writeStartElement(GML.XML_NS, "polygonMember");
+                    writer.writeStartElement(GML.XML_NS, "Polygon");
+                    writer.writeAttribute(GML.XML_NS, "id", id.concat("-").concat(String.valueOf(i)));
+                    writer.writeAttribute("srsName", srsName);
+                    writer.writeStartElement(GML.XML_NS, "exterior");
+                    writer.writeStartElement(GML.XML_NS, "LinearRing");
+                    writer.writeStartElement(GML.XML_NS, "posList");
+                    String posList = "";
+                    for (LngLatAlt lnglnglat : p.getExteriorRing()) {
+                        posList += String.valueOf(lnglnglat.getLatitude()) + " " + String.valueOf(lnglnglat.getLongitude()) + " ";
+                    }
+                    writer.writeCharacters(posList.trim());
+                    writer.writeEndElement();
+                    writer.writeEndElement();
+                    writer.writeEndElement();
+                    for (List<LngLatAlt> ring : p.getInteriorRings()) {
+                        writer.writeStartElement(GML.XML_NS, "interior");
+                        writer.writeStartElement(GML.XML_NS, "LinearRing");
+                        writer.writeStartElement(GML.XML_NS, "posList");
+                        posList = "";
+                        for (LngLatAlt lnglnglat : ring) {
+                            posList += String.valueOf(lnglnglat.getLatitude()) + " " + String.valueOf(lnglnglat.getLongitude()) + " ";
+                        }
+                        writer.writeCharacters(posList.trim());
+                        writer.writeEndElement();
+                        writer.writeEndElement();
+                        writer.writeEndElement();
+                    }
+                    writer.writeEndElement();
+                    writer.writeEndElement();
+                }
+                i++;
+            }
+            writer.writeEndElement();
             return;
         }
         throw new RuntimeException("Unsupported geometry type for " + geojson.toString());
