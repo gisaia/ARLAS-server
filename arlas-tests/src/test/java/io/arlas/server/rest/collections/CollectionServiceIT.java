@@ -105,7 +105,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     public void testImportExportCollections() throws Exception {
 
         // GET all collections
-        getAllCollections(everyItem(equalTo(COLLECTION_NAME)));
+        getAllCollections(array(equalTo(COLLECTION_NAME),equalTo(COLLECTION_NAME_ACTOR)));
 
         // EXPORT all collections
         String jsonExport = get(arlasPath + "collections/_export").asString();
@@ -122,7 +122,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         given().multiPart("file", jsonExport)
                 .when().post(arlasPath + "collections/_import")
                 .then().statusCode(200)
-                .body("collection_name", everyItem(equalTo(COLLECTION_NAME)));
+                .body("collection_name", hasItems(COLLECTION_NAME_ACTOR,COLLECTION_NAME));
 
         // GET all collections
         getAllCollections(everyItem(equalTo(COLLECTION_NAME)));
@@ -131,7 +131,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         given().multiPart("file", jsonExport)
                 .when().post(arlasPath + "collections/_import")
                 .then().statusCode(200)
-                .body("collection_name", everyItem(equalTo(COLLECTION_NAME)));
+                .body("collection_name", hasItems(COLLECTION_NAME_ACTOR,COLLECTION_NAME));
 
         // GET all collections
         getAllCollections(everyItem(equalTo(COLLECTION_NAME)));
@@ -143,10 +143,12 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .body("collection_name", hasItems(equalTo("foo")));
 
         // GET all collections
-        getAllCollections(hasItems(equalTo("foo"), equalTo(COLLECTION_NAME)));
+        getAllCollections(hasItems(equalTo("foo"), array(equalTo(COLLECTION_NAME),equalTo(COLLECTION_NAME_ACTOR))));
 
         // DELETE new collection
         when().delete(arlasPath + "collections/foo")
+                .then().statusCode(200);
+        when().delete(arlasPath + "collections/foo_actor")
                 .then().statusCode(200);
     }
 

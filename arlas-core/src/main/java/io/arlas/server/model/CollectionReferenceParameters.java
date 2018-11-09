@@ -20,6 +20,7 @@
 package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.arlas.server.model.request.Filter;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.Map;
@@ -78,6 +79,9 @@ public class CollectionReferenceParameters {
 
     @JsonProperty(value = "raster_tile_height", required = false)
     public int rasterTileHeight = -1;
+
+    @JsonProperty(value = "filter", required = false)
+    public Filter filter = null;
 
     public CollectionReferenceParameters() {
     }

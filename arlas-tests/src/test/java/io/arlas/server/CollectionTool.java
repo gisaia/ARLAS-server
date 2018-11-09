@@ -23,6 +23,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.DublinCoreElementName;
+import io.arlas.server.model.enumerations.OperatorEnum;
+import io.arlas.server.model.request.Expression;
+import io.arlas.server.model.request.Filter;
+import io.arlas.server.model.request.MultiValueFilter;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -30,6 +34,7 @@ import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -38,7 +43,7 @@ import static io.restassured.RestAssured.when;
 public class CollectionTool extends AbstractTestContext {
 
     public static String COLLECTION_NAME = "geodata";
-
+    public static String COLLECTION_NAME_ACTOR = "geodata_actor";
 
     public static void main(String[] args) throws IOException {
         switch (args[0]) {
@@ -87,8 +92,13 @@ public class CollectionTool extends AbstractTestContext {
         params.rasterTileWidth=256;
         params.rasterTileHeight=256;
 
+
         // PUT new collection
         given().contentType("application/json").body(params).when().put(getUrlPath()).then().statusCode(200);
+        Filter filter = new Filter();
+        filter.f =Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0])));
+        params.filter =filter;
+        given().contentType("application/json").body(params).when().put(arlasPath + "collections/" + COLLECTION_NAME_ACTOR).then().statusCode(200);
 
         try {
             Thread.sleep(sleepAfter);
@@ -143,6 +153,7 @@ public class CollectionTool extends AbstractTestContext {
         DataSetTool.clearDataSet();
         //DELETE collection
         when().delete(getUrlPath()).then().statusCode(200);
+        when().delete(arlasPath + "collections/" + COLLECTION_NAME_ACTOR).then().statusCode(200);
     }
 
     public  void deleteCsw() throws IOException {
