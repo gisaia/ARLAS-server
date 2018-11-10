@@ -109,8 +109,6 @@ public class GetFeatureHandler {
         writeNamespaceIfNotBound(writer, "xsi", "http://www.w3.org/2001/XMLSchema-instance");
         writer.writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "schemaLocation",
                 uri + " " + uri + "service=WFS&version=2.0.0&request=DescribeFeatureType http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd http://www.opengis.net/gml/3.2 http://schemas.opengis.net/gml/3.2.1/gml.xsd");
-
-
         writer.writeAttribute("timeStamp", getCurrentDateTimeWithoutMilliseconds());
         QName memberElementName = new QName(WFSConstant.WFS_NAMESPACE_URI, "member", WFSConstant.WFS_PREFIX);
 
@@ -177,6 +175,8 @@ public class GetFeatureHandler {
         String collectionName = collectionReference.collectionName;
         String idPath = collectionReference.params.idPath;
         String geometryPath = collectionReference.params.geometryPath;
+        String timestampPath = collectionReference.params.timestampPath;
+
         GeoJsonObject geometry = null;
         Object source = ((SearchHit) member).getSourceAsMap();
         String id = null;
@@ -184,11 +184,17 @@ public class GetFeatureHandler {
             id = "" + MapExplorer.getObjectFromPath(idPath, source);
         }
         if (geometryPath != null) {
-            Object m = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
+            Object m = MapExplorer.getObjectFromPath(geometryPath, source);
             if (m != null) {
                 geometry = GeoTypeMapper.getGeoJsonObject(m);
 
             }
+        }
+        String timestamp = null;
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
+        if (timestampPath != null) {
+            timestamp = "" + MapExplorer.getObjectFromPath(timestampPath, source);
+            f.setTimeZone(TimeZone.getTimeZone("UTC"));
         }
         if (id != null & geometry != null) {
             xmlStream.writeStartElement(featureNamespace, collectionName, uri);
@@ -214,6 +220,10 @@ public class GetFeatureHandler {
                 });
             }
             XmlUtils.parsePropertiesXml(collectionReference.properties, xmlStream, new Stack<>(), uri, source, featureNamespace, excludeFields);
+            //Write time
+            xmlStream.writeStartElement(featureNamespace, XmlUtils.replacePointPath((timestampPath)).concat("_time"), uri);
+            xmlStream.writeCharacters(f.format(new Date(Long.parseLong(timestamp))));
+            xmlStream.writeEndElement();
             xmlStream.writeEndElement();
         }
     }

@@ -19,13 +19,21 @@
 
 package io.arlas.server.ogc.wfs.utils;
 
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.model.response.TimestampType;
 import io.arlas.server.utils.MapExplorer;
+import io.arlas.server.utils.TimestampTypeMapper;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Pattern;
@@ -50,14 +58,14 @@ public class XmlUtils {
                 if (property.type == ElasticType.OBJECT) {
                     parsePropertiesXsd(property.properties, writer, namespace, excludeFields);
                 } else {
-                    writeElementForType(writer, String.join(".", new ArrayList<>(namespace)), property.type);
+                    writeElementForType(writer, String.join(".", new ArrayList<>(namespace)), property);
                 }
             }
             namespace.pop();
         }
     }
 
-    public static void parsePropertiesXml(Map<String, CollectionReferenceDescriptionProperty> properties, XMLStreamWriter writer, Stack<String> namespace, String uri, Object source, String prefix, ArrayList<Pattern> excludeFields) throws XMLStreamException {
+    public static void parsePropertiesXml(Map<String, CollectionReferenceDescriptionProperty> properties, XMLStreamWriter writer, Stack<String> namespace, String uri, Object source, String prefix, ArrayList<Pattern> excludeFields) throws XMLStreamException, ArlasException {
         for (String key : properties.keySet()) {
             CollectionReferenceDescriptionProperty property = properties.get(key);
             namespace.push(key);
@@ -68,9 +76,26 @@ public class XmlUtils {
                     parsePropertiesXml(property.properties, writer, namespace, uri, source, prefix, excludeFields);
                 } else {
                     Object valueObject = MapExplorer.getObjectFromPath(String.join(".", new ArrayList<>(namespace)), source);
-                    if (valueObject != null && property.type != ElasticType.GEO_POINT && property.type != ElasticType.GEO_SHAPE) {
+                    if (valueObject != null && property.type != ElasticType.DATE && property.type != ElasticType.GEO_POINT && property.type != ElasticType.GEO_SHAPE) {
                         String value = valueObject.toString();
                         writeElement(writer, String.join(".", new ArrayList<>(namespace)), value, uri, prefix);
+                    }else if(valueObject != null && property.type == ElasticType.DATE ){
+                        Long value = TimestampTypeMapper.getTimestamp(valueObject,property.format);
+                        if(property.format.equals("epoch_millis")||property.format.equals("seconds")) {
+                            writeElement(writer, String.join(".", new ArrayList<>(namespace)), value.toString(), uri, prefix);
+                        }else{
+                            DateTimeFormatter dtf = null;
+                            TimestampType type = TimestampType.getElasticsearchPatternName(property.format);
+                            if (type.name().equals("UNKNOWN")) {
+                                dtf = DateTimeFormat.forPattern(property.format);
+                            } else {
+                                dtf = type.dateTimeFormatter;
+                            }
+                            if (dtf != null) {
+                                DateTime jodatime = dtf.parseDateTime((String)valueObject);
+                                writeElement(writer, String.join(".", new ArrayList<>(namespace)), jodatime.toString(dtf), uri, prefix);
+                            }
+                        }
                     }
                 }
             }
@@ -101,9 +126,9 @@ public class XmlUtils {
         writer.writeAttribute(MIN_OCCURS, String.valueOf(minoccurs));
     }
 
-    private static void writeElementForType(XMLStreamWriter writer, String nameToDisplay, ElasticType type) throws XMLStreamException {
+    private static void writeElementForType(XMLStreamWriter writer, String nameToDisplay, CollectionReferenceDescriptionProperty property) throws XMLStreamException {
         nameToDisplay = replacePointPath(nameToDisplay);
-        switch (type) {
+        switch (property.type) {
             case KEYWORD:
             case TEXT:
                 writeEmptyElement(writer, nameToDisplay, "string", 0);
@@ -121,7 +146,11 @@ public class XmlUtils {
                 writeEmptyElement(writer, nameToDisplay, "boolean", 0);
                 break;
             case DATE:
-                writeEmptyElement(writer, nameToDisplay, "long", 0);
+                if(property.format.equals("epoch_millis")||property.format.equals("epoch_millis")){
+                    writeEmptyElement(writer, nameToDisplay, "long", 0);
+                }else{
+                    writeEmptyElement(writer, nameToDisplay, "dateTime", 0);
+                }
         }
     }
 

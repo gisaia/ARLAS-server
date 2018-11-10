@@ -34,6 +34,8 @@ import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
 import io.arlas.server.ogc.wfs.utils.XmlUtils;
+import net.opengis.gml._3.TimePeriodPropertyType;
+import net.opengis.gml._3.TimePeriodType;
 import org.elasticsearch.common.joda.Joda;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
@@ -49,7 +51,9 @@ import org.opengis.filter.expression.*;
 import org.opengis.filter.identity.Identifier;
 import org.opengis.filter.spatial.*;
 import org.opengis.filter.temporal.*;
+import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
+import org.opengis.temporal.Position;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -76,7 +80,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     private static final ObjectReader mapReader = mapper.readerWithView(Map.class).forType(HashMap.class);
 
-    private static final DateTimeFormatter DEFAULT_DATE_FORMATTER = Joda.forPattern("date_optional_time").printer();
+    private static final DateTimeFormatter DEFAULT_DATE_FORMATTER = Joda.forPattern("epoch_millis").printer();
 
     /**
      * The filter types that this class can encode
@@ -150,6 +154,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         nativeQueryBuilder = ImmutableMap.of("match_all", Collections.EMPTY_MAP);
         this.collectionReference = collectionReference;
         helper = new FilterToElasticHelper(this);
+        String dateFormat = collectionReference.params.customParams.get("timestamp_format");
+        dateFormatter = Joda.forPattern(dateFormat).printer();
 
     }
 
@@ -310,7 +316,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
         att.accept(this, extraData);
         key = (String) XmlUtils.retrievePointPath((String) field);
-        if (!WFSCheckParam.isFieldInMapping(collectionReference, key)) {
+        if (!WFSCheckParam.isFieldInMapping(collectionReference, key.replace(".time",""))) {
             List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
             wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
             wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
@@ -541,7 +547,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         } else {
             right.accept(this, null);
             key = (String) XmlUtils.retrievePointPath((String) field);
-            if (!WFSCheckParam.isFieldInMapping(collectionReference, key)) {
+            if (!WFSCheckParam.isFieldInMapping(collectionReference, key.replace(".time",""))) {
                 List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
                 wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
@@ -776,22 +782,29 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
             if (period != null) {
                 property.accept(this, extraData);
-                key = (String) field;
-
+                key = (String) XmlUtils.retrievePointPath((String) field);
+                key=  key.replace(".time","");
                 visitBegin(period, extraData);
                 begin = field;
                 visitEnd(period, extraData);
                 end = field;
             } else {
                 property.accept(this, extraData);
-                key = (String) field;
-                temporal.accept(this, typeContext);
+                key = (String) XmlUtils.retrievePointPath((String) field);
+                key=  key.replace(".time","");
+                if (temporal.evaluate(null) instanceof Instant) {
+                    Instant instant = (Instant) temporal.evaluate(null);
+                    filterFactory.literal(instant.getPosition().getDate()).accept((org.opengis.filter.expression.ExpressionVisitor) this, extraData);
+                }else{
+                    temporal.accept(this, typeContext);
+
+                }
             }
         } else if (filter instanceof Begins || filter instanceof Ends ||
                 filter instanceof BegunBy || filter instanceof EndedBy) {
             property.accept(this, extraData);
-            key = (String) field;
-
+            key = (String) XmlUtils.retrievePointPath((String) field);
+            key=  key.replace(".time","");
             if (filter instanceof Begins || filter instanceof BegunBy) {
                 visitBegin(period, extraData);
             } else {
@@ -800,6 +813,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         } else if (filter instanceof During || filter instanceof TContains) {
             property.accept(this, extraData);
             key = (String) field;
+            key = (String) XmlUtils.retrievePointPath((String) field);
+            key=  key.replace(".time","");
 
             visitBegin(period, extraData);
             lower = field;
@@ -807,12 +822,13 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         } else if (filter instanceof TEquals) {
             property.accept(this, extraData);
             key = (String) field;
+            key = (String) XmlUtils.retrievePointPath((String) field);
+            key=  key.replace(".time","");
             temporal.accept(this, typeContext);
         }
         if (nested) {
             path = extractNestedPath(key);
         }
-
         if (filter instanceof After || filter instanceof Before) {
             if (period != null) {
                 if ((op.equals(" > ") && !swapped) || (op.equals(" < ") && swapped)) {
@@ -840,6 +856,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         if (nested) {
             queryBuilder = ImmutableMap.of("nested", ImmutableMap.of("path", path, "query", queryBuilder));
         }
+
 
         return extraData;
     }
@@ -999,7 +1016,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      */
     protected void writeLiteral(Object literal) {
         field = literal;
-
+        dateFormatter = DEFAULT_DATE_FORMATTER;
         if (Date.class.isAssignableFrom(literal.getClass())) {
             field = dateFormatter.print(((Date) literal).getTime());
         }
