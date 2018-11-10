@@ -40,7 +40,7 @@ public class DublinCoreElementName {
     }
 
     @JsonProperty(value = "title", required = false)
-    public String title = DEFAULT_TITLE;
+    public String title = "";
 
     @JsonProperty(value = "creator", required = false)
     public String creator = "";
@@ -49,7 +49,7 @@ public class DublinCoreElementName {
     public String subject = "";
 
     @JsonProperty(value = "description", required = false)
-    public String description = DEFAULT_DESCRIPTION;
+    public String description = "";
 
     @JsonProperty(value = "publisher", required = false)
     public String publisher = "";

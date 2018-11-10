@@ -52,7 +52,7 @@ public class GetRecordsByIdHandler {
                     SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collections.get(0), new String[]{});
                     return summaryRecord;
                 case full:
-                    RecordType record = RecordBuilder.getFullResult(collections.get(0), new String[]{});
+                    RecordType record = RecordBuilder.getFullResult(collections.get(0), new String[]{}, cswHandler.ogcConfiguration);
                     return record;
                 default:
                     SummaryRecordType summaryDefaultRecord = RecordBuilder.getSummaryResult(collections.get(0), new String[]{});

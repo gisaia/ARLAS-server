@@ -65,6 +65,7 @@ public class WFSQueryBuilder extends OGCQueryBuilder {
                            String partitionFilter,
                            ExploreServices exploreServices)
             throws ArlasException, IOException, ParserConfigurationException, SAXException {
+        this.service = Service.WFS;
         this.requestType = requestType;
         this.id = id;
         this.bbox = bbox;

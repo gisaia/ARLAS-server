@@ -22,5 +22,5 @@ package io.arlas.server.ogc.common.utils;
 public class OGCConstant {
     public static final String XS_PREFIX = "xs";
     public static final String XSNS = "http://www.w3.org/2001/XMLSchema";
-
+    public static final String WFS_GET_CAPABILITIES_PARAMETERS = "service=WFS&version=2.0.0&request=GetCapabilities";
 }

@@ -148,6 +148,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     private DateTimeFormatter dateFormatter;
 
+    private Service service;
+
     public static final String NESTED = "nested";
     public static final String ANALYZED = "analyzed";
     public static final String DATE_FORMAT = "date_format";
@@ -156,14 +158,14 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     public CollectionReferenceDescription collectionReference;
     public Boolean isConfigurationQuery = false;
 
-    public FilterToElastic(CollectionReferenceDescription collectionReference) {
+    public FilterToElastic(CollectionReferenceDescription collectionReference, Service service) {
         queryBuilder = FilterToElasticHelper.MATCH_ALL;
         nativeQueryBuilder = ImmutableMap.of("match_all", Collections.EMPTY_MAP);
         this.collectionReference = collectionReference;
         helper = new FilterToElasticHelper(this);
         String dateFormat = collectionReference.params.customParams.get("timestamp_format");
         dateFormatter = Joda.forPattern(dateFormat).printer();
-
+        this.service = service;
     }
 
     /**
@@ -339,14 +341,19 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             ogcException = new OGCException(ogcExceptionMessages, Service.CSW);
             throw new RuntimeException();
         }
-        key = mapFieldNameToInspireRequirements(key, literal);
+        if (service == Service.CSW) {
+            if (isFilterQueryableADate(literal)) {
+                List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
+                ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
+                ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Date fields are not allowed in PropertyIsLike filter", "filter"));
+                ogcException = new OGCException(ogcExceptionMessages, service);
+                throw new RuntimeException();
+            }
+            key = mapFieldNameToInspireRequirements(key, literal);
+        }
 
         if (!OGCCheckParam.isFieldInMapping(collectionReference, key)) {
-            List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
-            ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
-            ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
-            ogcException = new OGCException(ogcExceptionMessages, Service.WFS);
-            throw new RuntimeException();
+            throwInvalidFieldException();
         }
 
         if (analyzed) {
@@ -582,14 +589,12 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             }
 
             left.accept(this, leftContext);
-            key = mapFieldNameToInspireRequirements(key, field.toString());
+            if (service == Service.CSW) {
+                key = mapFieldNameToInspireRequirements(key, field.toString());
+            }
 
             if (!OGCCheckParam.isFieldInMapping(collectionReference, key)) {
-                List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
-                ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
-                ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
-                ogcException = new OGCException(ogcExceptionMessages, Service.WFS);
-                throw new RuntimeException();
+                throwInvalidFieldException();
             }
         }
         
@@ -598,7 +603,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         }
 
         if (field.equals("")) {
-            ogcException = new OGCException(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter", Service.WFS);
+            ogcException = new OGCException(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter", service);
             throw new RuntimeException();
         }
 
@@ -1429,12 +1434,27 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     private void throwDateException() {
         List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
             ogcExceptionMessages.add(new OGCExceptionMessage(INSPIREExceptionCode.INVALID_PARAMETER_VALUE, "Invalid date format. It should be YYYY-MM-DD", "filter"));
-        ogcException = new OGCException(ogcExceptionMessages, Service.CSW);
+        ogcException = new OGCException(ogcExceptionMessages, service);
+        throw new RuntimeException();
+    }
+
+    private void throwInvalidFieldException() {
+        List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
+        ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
+        String exceptionText;
+        if (service == Service.WFS) {
+            exceptionText = "Unable to find " + field + "  in " + collectionReference.collectionName + ".";
+        } else {
+            exceptionText = "Unable to find the queried metadata : '" + key + "'";
+        }
+        ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, exceptionText, "filter"));
+
+        ogcException = new OGCException(ogcExceptionMessages, service);
         throw new RuntimeException();
     }
 
     private boolean isFilterQueryableADate(String queryable) {
         return (queryable.equals(AdditionalQueryables.specificationDate.value) || key.equals(SupportedISOQueryables.creationDate.value));
-    };
+    }
 
 }

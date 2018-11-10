@@ -26,6 +26,7 @@ import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.requestfilter.FilterToElastic;
 import io.arlas.server.ogc.common.utils.OGCQueryBuilder;
 import io.arlas.server.utils.BoundingBox;
@@ -60,6 +61,7 @@ public class CSWQueryBuilder extends OGCQueryBuilder {
 
     public CSWQueryBuilder(String[] ids, String query, BoundingBox bbox, String constraint, CollectionReferenceDescription metaCollectionDescription)
             throws ArlasException, IOException, ParserConfigurationException, SAXException  {
+        this.service = Service.CSW;
         this.ids = ids;
         this.query = query;
         this.bbox = bbox;

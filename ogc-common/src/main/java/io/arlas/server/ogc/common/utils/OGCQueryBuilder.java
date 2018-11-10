@@ -22,6 +22,7 @@ package io.arlas.server.ogc.common.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.requestfilter.FilterToElastic;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -39,6 +40,7 @@ public class OGCQueryBuilder {
     protected String filter;
     public BoolQueryBuilder ogcQuery = QueryBuilders.boolQuery();
     public Boolean isConfigurationQuery = false;
+    public Service service;
 
 
     protected void buildFilterQuery(CollectionReferenceDescription collectionReferenceDescription) throws OGCException, IOException, ParserConfigurationException, SAXException {
@@ -48,7 +50,7 @@ public class OGCQueryBuilder {
             // TODO : find a better way to replace EPSG for test suite
             filter = filter.replace("srsName=\"urn:ogc:def:crs:EPSG::4326\"", "srsName=\"http://www.opengis.net/def/crs/epsg/0/4326\"");
         }
-        FilterToElastic filterToElastic = new FilterToElastic(collectionReferenceDescription);
+        FilterToElastic filterToElastic = new FilterToElastic(collectionReferenceDescription, service);
         try {
             InputStream stream = new ByteArrayInputStream(filter.getBytes(StandardCharsets.UTF_8));
             org.opengis.filter.Filter openGisFilter = (org.opengis.filter.Filter) parser.parse(stream);

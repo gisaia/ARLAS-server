@@ -60,6 +60,7 @@ public class GetRecordsHandler {
                     BriefRecordType briefRecord = RecordBuilder.getBriefResult(collectionReference, elements);
                     JAXBElement<BriefRecordType> briefRecordType = cswHandler.cswFactory.createBriefRecord(briefRecord);
                     searchResultType.getAbstractRecord().add(briefRecordType);
+
                 });
                 break;
             case summary:
@@ -71,7 +72,7 @@ public class GetRecordsHandler {
                 break;
             case full:
                 collections.forEach(collectionReference -> {
-                    RecordType record = RecordBuilder.getFullResult(collectionReference, elements);
+                    RecordType record = RecordBuilder.getFullResult(collectionReference, elements, cswHandler.ogcConfiguration);
                     JAXBElement<RecordType> recordType = cswHandler.cswFactory.createRecord(record);
                     searchResultType.getAbstractRecord().add(recordType);
                 });
