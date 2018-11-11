@@ -36,7 +36,7 @@ import io.arlas.server.inspire.common.constants.INSPIREConstants;
 import io.arlas.server.inspire.common.enums.InspireSupportedLanguages;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.WFSHandler;
-import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
+import io.arlas.server.ogc.wfs.utils.ExtendedWFSCapabilitiesType;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
 
@@ -81,7 +81,7 @@ public class GetCapabilitiesHandler {
     private final String METADATA_DEFAULT_SUPPORTED_LANGUAGE = InspireSupportedLanguages.eng.name();
 
     public WFSHandler wfsHandler;
-    public WFSCapabilitiesType getCapabilitiesType = new WFSCapabilitiesType();
+    public ExtendedWFSCapabilitiesType getCapabilitiesType = new ExtendedWFSCapabilitiesType();
     public ExtendedCapabilitiesType inspireExtendedCapabilitiesType = new ExtendedCapabilitiesType();
     protected ValueType trueValueType = new ValueType();
     protected ValueType falseValueType = new ValueType();
@@ -126,6 +126,7 @@ public class GetCapabilitiesHandler {
         responsiblePartySubsetType.setContactInfo(contactType);
         serviceProvider.setServiceContact(responsiblePartySubsetType);
         getCapabilitiesType.setServiceProvider(serviceProvider);
+
     }
 
     private void setServiceIdentification() {
@@ -423,7 +424,7 @@ public class GetCapabilitiesHandler {
 
     private void addECKeywords(CollectionReference collectionReference) throws OGCException {
         List<Keyword> keywords = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.keywords).orElse(new ArrayList<>());
-        WFSCheckParam.checkKeywordsInspireCompliance(keywords, Service.WFS);
+       // WFSCheckParam.checkKeywordsInspireCompliance(keywords, Service.WFS);
         inspireExtendedCapabilitiesType.getKeyword().clear();
         inspireExtendedCapabilitiesType.getMandatoryKeyword().clear();
         getCapabilitiesType.getServiceIdentification().getKeywords().clear();

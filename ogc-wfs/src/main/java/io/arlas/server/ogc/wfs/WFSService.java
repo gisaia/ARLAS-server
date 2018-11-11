@@ -36,6 +36,7 @@ import io.arlas.server.ogc.common.utils.Version;
 import io.arlas.server.ogc.common.utils.VersionUtils;
 import io.arlas.server.ogc.wfs.filter.WFSQueryBuilder;
 import io.arlas.server.ogc.wfs.operation.getcapabilities.GetCapabilitiesHandler;
+import io.arlas.server.ogc.wfs.utils.ExtendedWFSCapabilitiesType;
 import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
@@ -226,7 +227,9 @@ public class WFSService {
                 if(wfsHandler.inspireConfiguration.enabled) {
                     getCapabilitiesHandler.addINSPIRECompliantElements(collectionReference, serviceUrl, language);
                 }
-                JAXBElement<WFSCapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getWFSCapabilitiesResponse();
+                JAXBElement<ExtendedWFSCapabilitiesType> getCapabilitiesResponse = ExtendedWFSCapabilitiesType.createWFSCapabilities(getCapabilitiesHandler.getCapabilitiesType);
+
+
                 return Response
                         .ok(getCapabilitiesResponse)
                         .type(MediaType.APPLICATION_XML)
