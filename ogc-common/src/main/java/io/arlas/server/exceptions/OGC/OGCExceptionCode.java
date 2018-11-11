@@ -36,6 +36,10 @@ public class OGCExceptionCode {
     // WFS 2.0 exception codes
     public static final OGCExceptionCode OPERATION_PROCESSING_FAILED = new OGCExceptionCode("OperationProcessingFailed", HttpServletResponse.SC_BAD_REQUEST);
     public static final OGCExceptionCode NOT_FOUND = new OGCExceptionCode("NotFound", HttpServletResponse.SC_NOT_FOUND);
+    // FES 2.0 exception codes
+    public static final OGCExceptionCode MISSING_ATTRIBUTE_FOR_OPERATOR = new OGCExceptionCode("MissingAttributeForOperator", HttpServletResponse.SC_NOT_FOUND);
+
+
     // Server exception codes
     public static final OGCExceptionCode INTERNAL_SERVER_ERROR = new OGCExceptionCode("InternalServerError", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 

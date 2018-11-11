@@ -34,9 +34,8 @@ public class CSWCheckParam {
 
     public static void checkQuerySyntax(CSWRequestType requestType,String elementName, String elementSetName, String acceptVersions,
                                         String version, String service, String outputSchema,String typeNames,
-                                        String bbox, String resourceid,String query,String id, String filter )throws OGCException {
+                                        String bbox, String resourceid,String query,String id)throws OGCException {
 
-        // TODO: WHAT THE STRATEGY TO DEFINE FOR FILTER PARAM WITH OTHER PARAMS
         if(service==null){
             throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, "Missing service", "service", Service.CSW);
         }

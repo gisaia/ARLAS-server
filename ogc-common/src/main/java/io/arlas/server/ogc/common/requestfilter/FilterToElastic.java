@@ -297,6 +297,15 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
      * @param filter the filter to be visited
      */
     public Object visit(PropertyIsLike filter, Object extraData) {
+        if (filter.getEscape() == null) {
+            throwInvalidFesFilterException("Missing escape attribute in 'PropertyIsLike' filter");
+        }
+        if (filter.getWildCard() == null) {
+            throwInvalidFesFilterException("Missing wildCard attribute in 'PropertyIsLike' filter");
+        }
+        if (filter.getSingleChar() == null) {
+            throwInvalidFesFilterException("Missing singleChar attribute in 'PropertyIsLike' filter");
+        }
         char esc = filter.getEscape().charAt(0);
         char multi = filter.getWildCard().charAt(0);
         char single = filter.getSingleChar().charAt(0);
@@ -1434,6 +1443,13 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     private void throwDateException() {
         List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
             ogcExceptionMessages.add(new OGCExceptionMessage(INSPIREExceptionCode.INVALID_PARAMETER_VALUE, "Invalid date format. It should be YYYY-MM-DD", "filter"));
+        ogcException = new OGCException(ogcExceptionMessages, service);
+        throw new RuntimeException();
+    }
+
+    private void throwInvalidFesFilterException(String message) {
+        List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
+        ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.MISSING_ATTRIBUTE_FOR_OPERATOR, message, "filter"));
         ogcException = new OGCException(ogcExceptionMessages, service);
         throw new RuntimeException();
     }

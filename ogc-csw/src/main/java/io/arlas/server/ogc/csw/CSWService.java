@@ -287,7 +287,7 @@ public class CSWService {
 
         RequestUtils.checkRequestTypeByName(request, CSWConstant.SUPPORTED_CSW_REQUESTYPE, Service.CSW);
         CSWRequestType requestType = CSWRequestType.valueOf(request);
-        CSWCheckParam.checkQuerySyntax(requestType, elementName, elementSetName, acceptVersions, version, service, outputSchema, typeNames, bbox, recordIds, query, id, filter);
+        CSWCheckParam.checkQuerySyntax(requestType, elementName, elementSetName, acceptVersions, version, service, outputSchema, typeNames, bbox, recordIds, query, id);
 
         String[] ids = null;
         if (recordIds != null && recordIds.length() > 0) {
