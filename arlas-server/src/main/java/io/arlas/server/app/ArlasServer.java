@@ -32,7 +32,8 @@ import io.arlas.server.ogc.csw.ElasticCSWService;
 import io.arlas.server.ogc.csw.writer.getrecords.AtomGetRecordsMessageBodyWriter;
 import io.arlas.server.ogc.csw.writer.getrecords.XmlGetRecordsMessageBodyWriter;
 import io.arlas.server.ogc.csw.writer.record.AtomRecordMessageBodyWriter;
-import io.arlas.server.ogc.csw.writer.record.XmlRecordMessageBodyWriter;
+import io.arlas.server.ogc.csw.writer.record.XmlRecordMessageBodyBuilder;
+import io.arlas.server.ogc.csw.writer.record.XmlMDMetadataMessageBodyWriter;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.WFSService;
 import io.arlas.server.rest.collections.ElasticCollectionService;
@@ -149,7 +150,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new AtomHitsMessageBodyWriter(exploration));
         environment.jersey().register(new AtomGetRecordsMessageBodyWriter(configuration));
         environment.jersey().register(new XmlGetRecordsMessageBodyWriter());
-        environment.jersey().register(new XmlRecordMessageBodyWriter());
+        environment.jersey().register(new XmlMDMetadataMessageBodyWriter());
+        environment.jersey().register(new XmlRecordMessageBodyBuilder());
         environment.jersey().register(new AtomRecordMessageBodyWriter());
 
         if (configuration.arlasServiceExploreEnabled) {

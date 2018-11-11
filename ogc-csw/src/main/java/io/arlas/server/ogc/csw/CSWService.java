@@ -39,6 +39,7 @@ import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.common.utils.RequestUtils;
 import io.arlas.server.ogc.csw.filter.CSWQueryBuilder;
 import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
+import io.arlas.server.ogc.csw.operation.getrecordbyid.GetRecordByIdResponse;
 import io.arlas.server.ogc.csw.operation.getrecordbyid.GetRecordsByIdHandler;
 import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
 import io.arlas.server.ogc.csw.operation.opensearch.OpenSearchHandler;
@@ -353,15 +354,20 @@ public class CSWService {
                     }
                 }
                 GetRecordsResponseType getRecordsResponse = getRecordsHandler.getCSWGetRecordsResponse(collections,
-                        ElementSetName.valueOf(elementSetName), startPosition - 1, recordsMatched, elements);
+                        ElementSetName.valueOf(elementSetName), startPosition - 1, recordsMatched, elements, outputSchema);
 
                 return Response.ok(getRecordsResponse).type(outputFormatMediaType).build();
             case GetRecordById:
                 GetRecordsByIdHandler getRecordsByIdHandler = cswHandler.getRecordsByIdHandler;
                 collections = dao.getCollectionReferences(elements, null,
                         maxRecords, startPosition - 1, ids, query, boundingBox);
-                AbstractRecordType abstractRecordType = getRecordsByIdHandler.getAbstractRecordTypeResponse(collections, ElementSetName.valueOf(elementSetName));
-                return Response.ok(abstractRecordType).type(outputFormatMediaType).build();
+                if (outputSchema != null && outputSchema.equals(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA[2])) {
+                    GetRecordByIdResponse getRecordByIdResponse = getRecordsByIdHandler.getMDMetadaTypeResponse(collections, ElementSetName.valueOf(elementSetName));
+                    return Response.ok(getRecordByIdResponse).type(outputFormatMediaType).build();
+                } else {
+                    AbstractRecordType abstractRecordType = getRecordsByIdHandler.getAbstractRecordTypeResponse(collections, ElementSetName.valueOf(elementSetName));
+                    return Response.ok(abstractRecordType).type(outputFormatMediaType).build();
+                }
             default:
                 throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.CSW);
         }

@@ -1395,46 +1395,46 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             return "inspire.inspire_uri.code";
         } else if (key.equals(SupportedISOQueryables.serviceType.value)) {
             isConfigurationQuery = true;
-            return "inspire_configuration_parameters.spatial_data_service_type";
+            return "ogc_inspire_configuration_parameters.spatial_data_service_type";
         } else if (key.equals(SupportedISOQueryables.creationDate.value)) {
             if(!INSPIRECheckParam.isDateFormatValidForGetRecords(value)) {
                 throwDateException();
             }
             isConfigurationQuery = true;
-            return "inspire_configuration_parameters.creation_date";
+            return "ogc_inspire_configuration_parameters.creation_date";
         } else if (key.equals(SupportedISOQueryables.organisationName.value)) {
             isConfigurationQuery = true;
-            return "inspire_configuration_parameters.responsible_party";
+            return "ogc_inspire_configuration_parameters.responsible_party";
         }
         /*######################  AdditionalQueryables #######################*/
         else if (key.equals(AdditionalQueryables.specificationTitle.value)) {
             nested = true;
             isConfigurationQuery = true;
-            return "inspire_configuration_parameters.inspire_conformity_list.specification_title";
+            return "ogc_inspire_configuration_parameters.inspire_conformity_list.specification_title";
         } else if (key.equals(AdditionalQueryables.specificationDate.value)) {
             if(!INSPIRECheckParam.isDateFormatValidForGetRecords(value)) {
                 throwDateException();
             }
             nested = true;
             isConfigurationQuery = true;
-            return "inspire_configuration_parameters.inspire_conformity_list.specification_date";
+            return "ogc_inspire_configuration_parameters.inspire_conformity_list.specification_date";
         } else if (key.equals(AdditionalQueryables.specificationDateType.value)) {
             nested = true;
             isConfigurationQuery = true;
-            return "inspire_configuration_parameters.inspire_conformity_list.specification_date_type";
+            return "ogc_inspire_configuration_parameters.inspire_conformity_list.specification_date_type";
         } else if (key.equals(AdditionalQueryables.degree.value)) {
             nested = true;
             isConfigurationQuery = true;
-            return "inspire_configuration_parameters.inspire_conformity_list.degree";
+            return "ogc_inspire_configuration_parameters.inspire_conformity_list.degree";
         } else if (key.equals(AdditionalQueryables.responsiblePartyRole.value)) {
             isConfigurationQuery = true;
-            return "inspire_configuration_parameters.responsible_party_role";
+            return "ogc_inspire_configuration_parameters.responsible_party_role";
         } else if (key.equals(AdditionalQueryables.accessConstraints.value) || key.equals(AdditionalQueryables.otherConstraints.value) || key.equals(AdditionalQueryables.classification.value)) {
             isConfigurationQuery = true;
-            return "inspire_configuration_parameters.public_access_limitations";
+            return "ogc_inspire_configuration_parameters.public_access_limitations";
         } else if (key.equals(AdditionalQueryables.conditionApplyingToAccessAndUse.value)) {
             isConfigurationQuery = true;
-            return "inspire_configuration_parameters.access_and_use_conditions";
+            return "ogc_inspire_configuration_parameters.access_and_use_conditions";
         } else {
             return key;
         }

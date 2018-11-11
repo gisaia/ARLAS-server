@@ -24,8 +24,8 @@ public class CSWConstant {
     public static final String CSW = "CSW";
     public static final String SUPPORTED_CSW_VERSION = "3.0.0";
     public static final String[] SUPPORTED_CSW_REQUESTYPE = {"GetCapabilities", "GetRecords", "GetRecordById"};
-    public static final String[] SUPPORTED_CSW_OUTPUT_SCHEMA = {"http://www.opengis.net/cat/csw/3.0", "http://www.w3.org/2005/Atom"};
-    public static final String[] SUPPORTED_TYPE_NAME_PATTERN = {"Record", ".*:Record"};
+    public static final String[] SUPPORTED_CSW_OUTPUT_SCHEMA = {"http://www.opengis.net/cat/csw/3.0", "http://www.w3.org/2005/Atom", "http://www.isotc211.org/2005/gmd"};
+    public static final String[] SUPPORTED_TYPE_NAME_PATTERN = {"Record", ".*:Record", "gmd:MD_Metadata"};
     public static final String[] SUPPORTED_CSW_OUTPUT_FORMAT = {"application/xml", "application/atom+xml"};
     public static final String[] SUPPORTED_CSW_ACCEPT_FORMATS = {"text/xml","application/xml"};
     public static final String[] SECTION_NAMES = {"ServiceIdentification", "ServiceProvider", "OperationsMetadata","Filter_Capabilities","All"};

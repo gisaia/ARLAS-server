@@ -19,11 +19,15 @@
 
 package io.arlas.server.ogc.csw.operation.getrecords;
 
+import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.ogc.csw.CSWHandler;
+import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
+import io.arlas.server.ogc.csw.utils.MDMetadataBuilder;
 import io.arlas.server.ogc.csw.utils.RecordBuilder;
 import net.opengis.cat.csw._3.*;
+import org.isotc211._2005.gmd.MDMetadataType;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -45,7 +49,7 @@ public class GetRecordsHandler {
     public GetRecordsResponseType getCSWGetRecordsResponse(List<CollectionReference> collections,
                                                            ElementSetName elementSetName,
                                                            int startPosition,
-                                                           long recordsMatched, String[] elements) throws DatatypeConfigurationException {
+                                                           long recordsMatched, String[] elements, String outputSchema) throws DatatypeConfigurationException {
         GetRecordsResponseType getRecordsResponseType = new GetRecordsResponseType();
         SearchResultsType searchResultType = new SearchResultsType();
         RequestStatusType searchStatus = new RequestStatusType();
@@ -57,31 +61,65 @@ public class GetRecordsHandler {
         switch (elementSetName) {
             case brief:
                 collections.forEach(collectionReference -> {
-                    BriefRecordType briefRecord = RecordBuilder.getBriefResult(collectionReference, elements);
-                    JAXBElement<BriefRecordType> briefRecordType = cswHandler.cswFactory.createBriefRecord(briefRecord);
-                    searchResultType.getAbstractRecord().add(briefRecordType);
+                    if (outputSchema !=null && outputSchema.equals(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA[2])) {
+                        MDMetadataType briefMDMetadata = MDMetadataBuilder.getBriefMDMetadata(collectionReference);
+                        searchResultType.getMDMetadata().add(briefMDMetadata);
+                    } else {
+                        BriefRecordType briefRecord = RecordBuilder.getBriefResult(collectionReference, elements);
+                        JAXBElement<BriefRecordType> briefRecordType = cswHandler.cswFactory.createBriefRecord(briefRecord);
+                        searchResultType.getAbstractRecord().add(briefRecordType);
+                    }
+
 
                 });
                 break;
             case summary:
                 collections.forEach(collectionReference -> {
-                    SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements);
-                    JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
-                    searchResultType.getAbstractRecord().add(summaryRecordType);
+                    if (outputSchema !=null && outputSchema.equals(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA[2])) {
+                        try {
+                            MDMetadataType summaryMDMetadata = MDMetadataBuilder.getSummaryMDMetadata(collectionReference, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration);
+                            searchResultType.getMDMetadata().add(summaryMDMetadata);
+                        } catch (OGCException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements);
+                        JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
+                        searchResultType.getAbstractRecord().add(summaryRecordType);
+                    }
                 });
                 break;
             case full:
                 collections.forEach(collectionReference -> {
-                    RecordType record = RecordBuilder.getFullResult(collectionReference, elements, cswHandler.ogcConfiguration);
-                    JAXBElement<RecordType> recordType = cswHandler.cswFactory.createRecord(record);
-                    searchResultType.getAbstractRecord().add(recordType);
+                    if (outputSchema !=null && outputSchema.equals(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA[2])) {
+                        try {
+                            MDMetadataType summaryMDMetadata = MDMetadataBuilder.getFullMDMetadata(collectionReference, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration);
+                            searchResultType.getMDMetadata().add(summaryMDMetadata);
+                        } catch (OGCException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        RecordType record = RecordBuilder.getFullResult(collectionReference, elements, cswHandler.ogcConfiguration);
+                        JAXBElement<RecordType> recordType = cswHandler.cswFactory.createRecord(record);
+                        searchResultType.getAbstractRecord().add(recordType);
+                    }
+
                 });
                 break;
             default:
                 collections.forEach(collectionReference -> {
-                    SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements);
-                    JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
-                    searchResultType.getAbstractRecord().add(summaryRecordType);
+                    if (outputSchema !=null && outputSchema.equals(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA[2])) {
+                        try {
+                            MDMetadataType summaryMDMetadata = MDMetadataBuilder.getSummaryMDMetadata(collectionReference, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration);
+                            searchResultType.getMDMetadata().add(summaryMDMetadata);
+                        } catch (OGCException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements);
+                        JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
+                        searchResultType.getAbstractRecord().add(summaryRecordType);
+                    }
                 });
                 break;
         }

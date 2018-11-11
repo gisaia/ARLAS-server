@@ -20,7 +20,6 @@
 package io.arlas.server.ogc.csw.writer.record;
 
 import net.opengis.cat.csw._3.*;
-
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -35,7 +34,7 @@ import java.lang.reflect.Type;
 
 @Provider
 @Produces(MediaType.APPLICATION_XML)
-public class XmlRecordMessageBodyWriter implements MessageBodyWriter<AbstractRecordType> {
+public class XmlRecordMessageBodyBuilder implements MessageBodyWriter<AbstractRecordType> {
 
     @Override
     public boolean isWriteable(Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {

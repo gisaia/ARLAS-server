@@ -24,12 +24,12 @@ import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.csw.CSWHandler;
+import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
+import io.arlas.server.ogc.csw.utils.MDMetadataBuilder;
 import io.arlas.server.ogc.csw.utils.RecordBuilder;
-import net.opengis.cat.csw._3.AbstractRecordType;
-import net.opengis.cat.csw._3.BriefRecordType;
-import net.opengis.cat.csw._3.RecordType;
-import net.opengis.cat.csw._3.SummaryRecordType;
+import net.opengis.cat.csw._3.*;
+import org.isotc211._2005.gmd.MDMetadataType;
 
 import java.util.List;
 
@@ -40,6 +40,36 @@ public class GetRecordsByIdHandler {
 
     public GetRecordsByIdHandler(CSWHandler cswHandler) {
         this.cswHandler = cswHandler;
+    }
+
+    public GetRecordByIdResponse getMDMetadaTypeResponse(List<CollectionReference> collections, ElementSetName elementSetName) throws OGCException {
+        if (collections.size() > 0) {
+            GetRecordByIdResponse getRecordByIdResponse = new GetRecordByIdResponse();
+            switch (elementSetName) {
+                case brief:
+                    MDMetadataType briefMDMetadata = MDMetadataBuilder.getBriefMDMetadata(collections.get(0));
+                    getRecordByIdResponse.getMdMetadata().add(briefMDMetadata);
+                    break;
+
+                case summary:
+                    MDMetadataType summaryMDMetadata = MDMetadataBuilder.getSummaryMDMetadata(collections.get(0),cswHandler.ogcConfiguration, cswHandler.inspireConfiguration);
+                    getRecordByIdResponse.getMdMetadata().add(summaryMDMetadata);
+                    break;
+
+                case full:
+                    MDMetadataType fullMDMetadata = MDMetadataBuilder.getFullMDMetadata(collections.get(0),cswHandler.ogcConfiguration, cswHandler.inspireConfiguration);
+                    getRecordByIdResponse.getMdMetadata().add(fullMDMetadata);
+                    break;
+
+                default:
+                    MDMetadataType defaultMDMetadata = MDMetadataBuilder.getSummaryMDMetadata(collections.get(0),cswHandler.ogcConfiguration, cswHandler.inspireConfiguration);
+                    getRecordByIdResponse.getMdMetadata().add(defaultMDMetadata);
+                    break;
+            }
+            return getRecordByIdResponse;
+        }else{
+            throw new OGCException(OGCExceptionCode.NOT_FOUND, "Document not Found", "id", Service.CSW);
+        }
     }
 
     public AbstractRecordType getAbstractRecordTypeResponse(List<CollectionReference> collections, ElementSetName elementSetName) throws OGCException {
@@ -62,4 +92,5 @@ public class GetRecordsByIdHandler {
             throw new OGCException(OGCExceptionCode.NOT_FOUND, "Document not Found", "id", Service.CSW);
         }
     }
+
 }

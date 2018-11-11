@@ -38,6 +38,7 @@ import io.arlas.server.ns.GML;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.utils.CSWConstant;
+import io.arlas.server.ogc.csw.utils.CSWParamsParser;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
 import net.opengis.cat.csw._3.CapabilitiesType;
 import net.opengis.fes._2.*;
@@ -210,7 +211,7 @@ public class GetCapabilitiesHandler {
         Date metadataDate = null;
         if (collections != null) {
             for(CollectionReference collectionReference : collections) {
-                Date collectionDate = getMetadataDate(collectionReference.params.dublinCoreElementName.getDate());
+                Date collectionDate = CSWParamsParser.getMetadataDate(collectionReference.params.dublinCoreElementName.getDate());
                 if (metadataDate == null || metadataDate.compareTo(collectionDate) < 0) {
                     metadataDate = collectionDate;
                 }
@@ -504,11 +505,5 @@ public class GetCapabilitiesHandler {
         addConformanceType(conformanceType, "ImplementsMinSpatialFilter", trueValueType);
     }
 
-    public Date getMetadataDate(String value) throws INSPIREException {
-        try {
-            return new SimpleDateFormat(INSPIREConstants.DUBLIN_CORE_DATE_FORMAT).parse(value);
-        } catch (ParseException e) {
-            throw new INSPIREException(INSPIREExceptionCode.INTERNAL_SERVER_ERROR, "Metadata date of collection is not well formatted", Service.CSW);
-        }
-    }
+
 }
