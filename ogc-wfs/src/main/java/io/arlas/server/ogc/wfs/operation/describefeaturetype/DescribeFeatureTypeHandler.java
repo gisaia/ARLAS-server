@@ -64,6 +64,8 @@ public class DescribeFeatureTypeHandler {
 
         String collectionName = collectionReference.collectionName;
         String geometryPath = collectionReference.params.geometryPath;
+        String timestampPath = collectionReference.params.timestampPath;
+
 
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(outputStream);
@@ -112,6 +114,7 @@ public class DescribeFeatureTypeHandler {
         writer.writeAttribute(XmlUtils.TYPE, WFSConstant.GML_PREFIX + ":GeometryPropertyType");
         writer.writeAttribute("minOccurs", "1");
         writer.writeAttribute("maxOccurs", "1");
+
         ArrayList<Pattern> excludeFields = new ArrayList<>();
         if (collectionReference.params.excludeWfsFields != null) {
             Arrays.asList(collectionReference.params.excludeWfsFields.split(",")).forEach(field -> {
@@ -119,6 +122,11 @@ public class DescribeFeatureTypeHandler {
             });
         }
         XmlUtils.parsePropertiesXsd(((CollectionReferenceDescription) collectionReference).properties, writer, new Stack<String>(), excludeFields);
+        writer.writeEmptyElement(WFSConstant.XSNS, "element");
+        writer.writeAttribute("name", XmlUtils.replacePointPath((timestampPath)).concat("_time"));
+        writer.writeAttribute(XmlUtils.TYPE, WFSConstant.XS_PREFIX + ":dateTime");
+        writer.writeAttribute("minOccurs", "1");
+        writer.writeAttribute("maxOccurs", "1");
 
         writer.writeEndElement();
         writer.writeEndElement();

@@ -108,7 +108,7 @@ function test_wfs() {
          --net arlas_default \
          --env ID="ID__170__20DI"\
          --env WFS_GETCAPABILITIES_URL="http://arlas-server:9999/pathtest/arlastest/ogc/wfs/geodata/?request=GetCapabilities&service=WFS&version=2.0.0" \
-         gisaia/ets-wfs20
+         gisaia/ets-wfs20:0.0.2
 
     docker run --rm \
         -w /opt/maven \

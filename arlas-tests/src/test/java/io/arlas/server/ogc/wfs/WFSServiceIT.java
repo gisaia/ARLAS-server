@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.wfs;
+package io.arlas.server.ogc.wfs;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -102,10 +102,10 @@ public class WFSServiceIT extends AbstractTestWithCollection {
     public void handleDescribeFeature(ValidatableResponse then) throws Exception {
         if(!DataSetTool.ALIASED_COLLECTION) {
             then.statusCode(200)
-                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(8));
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(9));
         } else {
             then.statusCode(200)
-                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(10));
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(11));
         }
     }
 

@@ -25,6 +25,7 @@ import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
 import net.opengis.fes._2.*;
+import net.opengis.gml._3.TimeInstantType;
 import net.opengis.ows._1.*;
 import net.opengis.wfs._2.FeatureTypeListType;
 import net.opengis.wfs._2.FeatureTypeType;
@@ -55,6 +56,8 @@ public class GetCapabilitiesHandler {
     private static final String AFTER = "After";
     private static final String BEFORE = "Before";
     private static final String DURING = "During";
+    private static final String TIMEINSTANT = "TimeInstant";
+    private static final String TIMEPERIOD = "TimePeriod";
 
     public WFSHandler wfsHandler;
     public WFSCapabilitiesType getCapabilitiesType = new WFSCapabilitiesType();
@@ -210,14 +213,17 @@ public class GetCapabilitiesHandler {
 
         QName afterQname = new QName(WFSConstant.FES_NAMESPACE_URI, AFTER);
         QName beforeQname = new QName(WFSConstant.FES_NAMESPACE_URI, BEFORE);
+        QName instantQname = new QName(WFSConstant.GML_NAMESPACE_URI, TIMEINSTANT, WFSConstant.GML_PREFIX);
+        QName timeperiodQname = new QName(WFSConstant.GML_NAMESPACE_URI, TIMEPERIOD, WFSConstant.GML_PREFIX);
+
         QName duringQname = new QName(WFSConstant.FES_NAMESPACE_URI, DURING);
         TemporalCapabilitiesType temporalCapabilities = wfsHandler.fesFactory.createTemporalCapabilitiesType();
         TemporalOperandsType allTemporalOperandsType = new TemporalOperandsType();
         TemporalOperatorsType temporalOperatorsType = new TemporalOperatorsType();
 
-        addTemporalOperator(temporalOperatorsType, afterQname, allTemporalOperandsType);
-        addTemporalOperator(temporalOperatorsType, beforeQname, allTemporalOperandsType);
-        addTemporalOperator(temporalOperatorsType, duringQname, allTemporalOperandsType);
+        addTemporalOperator(temporalOperatorsType, afterQname, instantQname, timeperiodQname,allTemporalOperandsType);
+        addTemporalOperator(temporalOperatorsType, beforeQname,instantQname, timeperiodQname,allTemporalOperandsType);
+        addTemporalOperator(temporalOperatorsType, duringQname,instantQname, timeperiodQname,allTemporalOperandsType);
 
         temporalCapabilities.setTemporalOperands(allTemporalOperandsType);
         temporalCapabilities.setTemporalOperators(temporalOperatorsType);
@@ -248,14 +254,18 @@ public class GetCapabilitiesHandler {
         operationsMetadata.getOperation().add(operation);
     }
 
-    private void addTemporalOperator(TemporalOperatorsType temporalOperatorsType, QName qNameOperand, TemporalOperandsType allTemporalOperandsType) {
+    private void addTemporalOperator(TemporalOperatorsType temporalOperatorsType, QName qNameOperator,QName qNameOperand1, QName qNameOperand2,TemporalOperandsType allTemporalOperandsType) {
         TemporalOperatorType temporalOperatorType = new TemporalOperatorType();
-        TemporalOperandsType.TemporalOperand operand = new TemporalOperandsType.TemporalOperand();
-        operand.setName(qNameOperand);
-        temporalOperatorType.setName(qNameOperand.getLocalPart());
+        TemporalOperandsType.TemporalOperand operand1 = new TemporalOperandsType.TemporalOperand();
+        operand1.setName(qNameOperand1);
+        TemporalOperandsType.TemporalOperand operand2 = new TemporalOperandsType.TemporalOperand();
+        operand2.setName(qNameOperand2);
+        temporalOperatorType.setName(qNameOperator.getLocalPart());
         TemporalOperandsType temporalOperandsType = new TemporalOperandsType();
-        temporalOperandsType.getTemporalOperand().add(operand);
-        allTemporalOperandsType.getTemporalOperand().add(operand);
+        temporalOperandsType.getTemporalOperand().add(operand1);
+        allTemporalOperandsType.getTemporalOperand().add(operand1);
+        temporalOperandsType.getTemporalOperand().add(operand2);
+        allTemporalOperandsType.getTemporalOperand().add(operand2);
         temporalOperatorType.setTemporalOperands(temporalOperandsType);
         temporalOperatorsType.getTemporalOperator().add(temporalOperatorType);
     }
@@ -298,10 +308,10 @@ public class GetCapabilitiesHandler {
         addConformanceType(conformanceType, "ImplementsMinStandardFilter", trueValueType);
         addConformanceType(conformanceType, "ImplementsStandardFilter", trueValueType);
         addConformanceType(conformanceType, "ImplementsSpatialFilter", trueValueType);
-        addConformanceType(conformanceType, "ImplementsTemporalFilter", falseValueType);
+        addConformanceType(conformanceType, "ImplementsTemporalFilter", trueValueType);
         addConformanceType(conformanceType, "ImplementsMinSpatialFilter", trueValueType);
         addConformanceType(conformanceType, "ImplementsSorting", trueValueType);
-        addConformanceType(conformanceType, "ImplementsMinTemporalFilter", falseValueType);
+        addConformanceType(conformanceType, "ImplementsMinTemporalFilter", trueValueType);
         addConformanceType(conformanceType, "ImplementsMinimumXPath", trueValueType);
         addConformanceType(conformanceType, "ImplementsLockingWFS", falseValueType);
         addConformanceType(conformanceType, "ImplementsInheritance", falseValueType);
