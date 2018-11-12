@@ -222,7 +222,7 @@ public class WFSService {
         switch (requestType) {
             case GetCapabilities:
                 GetCapabilitiesHandler getCapabilitiesHandler = wfsHandler.getCapabilitiesHandler;
-                getCapabilitiesHandler.setFeatureTypeListType(collectionName, serviceUrl);
+                getCapabilitiesHandler.setFeatureTypeListType(collectionReference, serviceUrl);
                 getCapabilitiesHandler.setOperationsUrl(serviceUrl);
                 if(wfsHandler.inspireConfiguration.enabled) {
                     getCapabilitiesHandler.addINSPIRECompliantElements(collectionReference, serviceUrl, language);

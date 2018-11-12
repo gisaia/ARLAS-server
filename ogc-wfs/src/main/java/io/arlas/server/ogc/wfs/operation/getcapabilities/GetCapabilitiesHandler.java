@@ -37,17 +37,16 @@ import io.arlas.server.inspire.common.enums.InspireSupportedLanguages;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.ExtendedWFSCapabilitiesType;
+import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
 
 import net.opengis.fes._2.*;
 import net.opengis.gml._3.TimeInstantType;
 import net.opengis.ows._1.*;
-import net.opengis.wfs._2.FeatureTypeListType;
-import net.opengis.wfs._2.FeatureTypeType;
-import net.opengis.wfs._2.OutputFormatListType;
-import net.opengis.wfs._2.WFSCapabilitiesType;
+import net.opengis.wfs._2.*;
 import org.elasticsearch.common.Strings;
+import org.w3._1999.xlink.TypeType;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -78,7 +77,8 @@ public class GetCapabilitiesHandler {
     private static final String DURING = "During";
     private static final String TIMEINSTANT = "TimeInstant";
     private static final String TIMEPERIOD = "TimePeriod";
-    private final String METADATA_DEFAULT_SUPPORTED_LANGUAGE = InspireSupportedLanguages.eng.name();
+    private static final String METADATA_URL = "ogc/csw?service=CSW&request=GetRecordById&version=3.0.0&elementSetName=full&outputSchema=http://www.isotc211.org/2005/gmd&id=";
+    private static final String METADATA_DEFAULT_SUPPORTED_LANGUAGE = InspireSupportedLanguages.eng.name();
 
     public WFSHandler wfsHandler;
     public ExtendedWFSCapabilitiesType getCapabilitiesType = new ExtendedWFSCapabilitiesType();
@@ -188,12 +188,17 @@ public class GetCapabilitiesHandler {
         getCapabilitiesType.setOperationsMetadata(operationsMetadata);
     }
 
-    public void setFeatureTypeListType(String name, String uri) {
+    public void setFeatureTypeListType(CollectionReference collectionReference, String uri) {
         FeatureTypeListType featureTypeListType = new FeatureTypeListType();
         FeatureTypeType featureTypeType = new FeatureTypeType();
         featureTypeType.setDefaultCRS(WFSConstant.SUPPORTED_CRS[0]);
-        QName qname = new QName(uri, name, wfsConfiguration.featureNamespace);
+        QName qname = new QName(uri, collectionReference.collectionName, wfsConfiguration.featureNamespace);
         featureTypeType.setName(qname);
+        MetadataURLType metadataURLType = new MetadataURLType();
+        String url = ogcConfiguration.serverUri + METADATA_URL + collectionReference.params.dublinCoreElementName.identifier;
+        metadataURLType.setHref(url);
+        metadataURLType.setType(TypeType.SIMPLE);
+        featureTypeType.getMetadataURL().add(metadataURLType);
         OutputFormatListType outputFormatListType = new OutputFormatListType();
         Arrays.asList(WFSConstant.FEATURE_GML_FORMAT).forEach(format -> outputFormatListType.getFormat().add(format));
         featureTypeType.setOutputFormats(outputFormatListType);
@@ -424,7 +429,7 @@ public class GetCapabilitiesHandler {
 
     private void addECKeywords(CollectionReference collectionReference) throws OGCException {
         List<Keyword> keywords = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.keywords).orElse(new ArrayList<>());
-       // WFSCheckParam.checkKeywordsInspireCompliance(keywords, Service.WFS);
+        //WFSCheckParam.checkKeywordsInspireCompliance(keywords, Service.WFS);
         inspireExtendedCapabilitiesType.getKeyword().clear();
         inspireExtendedCapabilitiesType.getMandatoryKeyword().clear();
         getCapabilitiesType.getServiceIdentification().getKeywords().clear();
@@ -457,7 +462,15 @@ public class GetCapabilitiesHandler {
         });
     }
 
+    private void addECMetadaURL(CollectionReference collectionReference) {
+        ResourceLocatorType resourceLocatorType = new ResourceLocatorType();
+        resourceLocatorType.setURL(ogcConfiguration.serverUri + METADATA_URL + collectionReference.params.dublinCoreElementName.identifier);
+        inspireExtendedCapabilitiesType.setMetadataUrl(resourceLocatorType);
+    }
+
     private void addExtendedCapabilities(CollectionReference collectionReference, String serviceUrl) throws OGCException {
+        // Add INSPIRE MetadataURL
+        addECMetadaURL(collectionReference);
         // Add INSPIRE Resource type
         inspireExtendedCapabilitiesType.setResourceType(ResourceType.SERVICE);
         // Add INSPIRE Spatial data service type
