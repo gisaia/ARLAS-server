@@ -30,6 +30,7 @@ public class ElasticCollectionService extends CollectionService {
         super();
         this.dao = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
         dao.initCollectionDatabase();
+        dao.initMetaCollection(configuration.ogcConfiguration, configuration.inspireConfiguration);
     }
 
 }

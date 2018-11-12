@@ -31,6 +31,7 @@ public class ElasticCSWService extends CSWService {
         super(cswHandler, exploreServices);
         this.dao = new ElasticCollectionReferenceDaoImpl(exploreServices.getClient(), configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
         dao.initCollectionDatabase();
+        dao.initMetaCollection(configuration.ogcConfiguration, configuration.inspireConfiguration);
     }
 
 }

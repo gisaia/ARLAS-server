@@ -71,6 +71,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     Client client = null;
     String arlasIndex = null;
+    OGCConfiguration ogcConfiguration;
     private static LoadingCache<String, CollectionReference> collections = null;
     private static ObjectMapper mapper;
     private static ObjectReader reader;
@@ -116,6 +117,15 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         }
     }
 
+    @Override
+    public void initMetaCollection(OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException {
+        try {
+            collections.get(META_COLLECTION_NAME);
+        } catch (ExecutionException e) {
+            createMetaCollection(ogcConfiguration, inspireConfiguration);
+        }
+    }
+
     private void createArlasIndex() throws IOException {
         String arlasMapping = IOUtils.toString(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("arlas.mapping.json")));
         client.admin().indices().prepareCreate(arlasIndex).addMapping(ARLAS_INDEX_MAPPING_NAME, arlasMapping, XContentType.JSON).get();
@@ -149,30 +159,11 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     @Override
     public  CollectionReference getMetaCollectionReference(OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException {
-        CollectionReference collectionReference =  new CollectionReference();
         try {
             return collections.get(META_COLLECTION_NAME);
         } catch (ExecutionException e) {
-            collectionReference.collectionName = META_COLLECTION_NAME;
-            MetaCollectionReferenceParameters collectionReferenceParameters = new MetaCollectionReferenceParameters();
-            collectionReferenceParameters.indexName = arlasIndex;
-            collectionReferenceParameters.typeName = ARLAS_INDEX_MAPPING_NAME;
-            collectionReferenceParameters.idPath = META_COLLECTION_ID_PATH;
-            collectionReferenceParameters.geometryPath = META_COLLECTION_GEOMETRY_PATH;
-            collectionReferenceParameters.centroidPath = META_COLLECTION_CENTROID_PATH;
-            collectionReferenceParameters.timestampPath = META_COLLECTION_TIMESTAMP_PATH;
-            collectionReferenceParameters.inspireConfigurationParameters = new OgcInspireConfigurationParameters();
-            collectionReferenceParameters.inspireConfigurationParameters.reponsibleParty = ogcConfiguration.serviceProviderName;
-            collectionReferenceParameters.inspireConfigurationParameters.reponsiblePartyRole = ogcConfiguration.serviceProviderRole;
-            collectionReferenceParameters.inspireConfigurationParameters.creationDate = inspireConfiguration.servicesDateOfCreation;
-            collectionReferenceParameters.inspireConfigurationParameters.setConformityParameter();
-            collectionReferenceParameters.inspireConfigurationParameters.publicAccessLimitations = inspireConfiguration.publicAccessLimitations;
-            collectionReferenceParameters.inspireConfigurationParameters.accessAndUseConditions = inspireConfiguration.accessAndUseConditions;
-            collectionReference.params = collectionReferenceParameters;
-            collectionReference = putCollectionReferenceInternal(collectionReference);
+            throw new InternalServerErrorException("Cannot fetch metacollection");
         }
-        return collectionReference;
-
     }
 
     @Override
@@ -393,7 +384,10 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     @Override
-    public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException {
+    public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException, NotAllowedException {
+        if (ref != null && ref.equals(META_COLLECTION_NAME)) {
+            throw new NotAllowedException("Forbidden operation on '" + META_COLLECTION_NAME + "'");
+        }
         DeleteResponse response = client.prepareDelete(arlasIndex, "collection", ref).get();
         if (response.status().equals(RestStatus.NOT_FOUND)) {
             throw new NotFoundException("collection " + ref + " not found.");
@@ -482,6 +476,27 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
             return collectionReference;
         }
+    }
+
+    private void createMetaCollection(OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException {
+        CollectionReference collectionReference =  new CollectionReference();
+        collectionReference.collectionName = META_COLLECTION_NAME;
+        MetaCollectionReferenceParameters collectionReferenceParameters = new MetaCollectionReferenceParameters();
+        collectionReferenceParameters.indexName = arlasIndex;
+        collectionReferenceParameters.typeName = ARLAS_INDEX_MAPPING_NAME;
+        collectionReferenceParameters.idPath = META_COLLECTION_ID_PATH;
+        collectionReferenceParameters.geometryPath = META_COLLECTION_GEOMETRY_PATH;
+        collectionReferenceParameters.centroidPath = META_COLLECTION_CENTROID_PATH;
+        collectionReferenceParameters.timestampPath = META_COLLECTION_TIMESTAMP_PATH;
+        collectionReferenceParameters.inspireConfigurationParameters = new OgcInspireConfigurationParameters();
+        collectionReferenceParameters.inspireConfigurationParameters.reponsibleParty = ogcConfiguration.serviceProviderName;
+        collectionReferenceParameters.inspireConfigurationParameters.reponsiblePartyRole = ogcConfiguration.serviceProviderRole;
+        collectionReferenceParameters.inspireConfigurationParameters.creationDate = inspireConfiguration.servicesDateOfCreation;
+        collectionReferenceParameters.inspireConfigurationParameters.setConformityParameter();
+        collectionReferenceParameters.inspireConfigurationParameters.publicAccessLimitations = inspireConfiguration.publicAccessLimitations;
+        collectionReferenceParameters.inspireConfigurationParameters.accessAndUseConditions = inspireConfiguration.accessAndUseConditions;
+        collectionReference.params = collectionReferenceParameters;
+        putCollectionReferenceInternal(collectionReference);
     }
 
     private void setDefaultInspireParameters(CollectionReference collectionReference) {

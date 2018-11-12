@@ -36,6 +36,8 @@ import java.util.List;
 public interface CollectionReferenceDao {
     public void initCollectionDatabase() throws ArlasException;
 
+    public void initMetaCollection(OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException;
+
     public CollectionReference getCollectionReference(String ref) throws ArlasException;
 
     public CollectionReference getMetaCollectionReference(OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException;
