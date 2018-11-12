@@ -28,6 +28,7 @@ public class CSWConstant {
     public static final String[] SUPPORTED_TYPE_NAME_PATTERN = {"Record", ".*:Record", "gmd:MD_Metadata"};
     public static final String[] SUPPORTED_CSW_OUTPUT_FORMAT = {"application/xml", "application/atom+xml"};
     public static final String[] SUPPORTED_CSW_ACCEPT_FORMATS = {"text/xml","application/xml"};
+    public static final String[] SUPPORTED_CSW_CONSTRAINTLANGUAGE = {"Filter"};
     public static final String[] SECTION_NAMES = {"ServiceIdentification", "ServiceProvider", "OperationsMetadata","Filter_Capabilities","All"};
     public static final String DC_FIELD_ABSTRACT = "abstract";
     public static final String DC_FIELD_TITLE = "title";

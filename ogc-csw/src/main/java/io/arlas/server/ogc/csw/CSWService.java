@@ -157,6 +157,12 @@ public class CSWService {
                     required = true)
             @QueryParam(value = "constraint") String constraint,
             @ApiParam(
+                    name = "constraintLanguage",
+                    value = "constraintLanguage",
+                    allowMultiple = false,
+                    required = true)
+            @QueryParam(value = "constraintLanguage") String constraintLanguage,
+            @ApiParam(
                     name = "startposition",
                     value = "startposition",
                     allowMultiple = false,
@@ -288,7 +294,7 @@ public class CSWService {
 
         RequestUtils.checkRequestTypeByName(request, CSWConstant.SUPPORTED_CSW_REQUESTYPE, Service.CSW);
         CSWRequestType requestType = CSWRequestType.valueOf(request);
-        CSWCheckParam.checkQuerySyntax(requestType, elementName, elementSetName, acceptVersions, version, service, outputSchema, typeNames, bbox, recordIds, query, id);
+        CSWCheckParam.checkQuerySyntax(requestType, elementName, elementSetName, acceptVersions, version, service, outputSchema, typeNames, bbox, recordIds, query, id, constraintLanguage);
 
         String[] ids = null;
         if (recordIds != null && recordIds.length() > 0) {
