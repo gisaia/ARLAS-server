@@ -32,10 +32,7 @@ import org.joda.time.format.DateTimeFormatter;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class XmlUtils {
@@ -80,9 +77,12 @@ public class XmlUtils {
                         String value = valueObject.toString();
                         writeElement(writer, String.join(".", new ArrayList<>(namespace)), value, uri, prefix);
                     }else if(valueObject != null && property.type == ElasticType.DATE ){
-                        Long value = TimestampTypeMapper.getTimestamp(valueObject,property.format);
-                        if(property.format.equals("epoch_millis")||property.format.equals("seconds")) {
-                            writeElement(writer, String.join(".", new ArrayList<>(namespace)), value.toString(), uri, prefix);
+                        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
+                        f.setTimeZone(TimeZone.getTimeZone("UTC"));
+                        if(property.format.equals("epoch_millis")||property.format.equals("epoch_seconds")) {
+                            Long value = TimestampTypeMapper.getTimestamp(valueObject,property.format);
+                            String timestamp = "" + value;
+                            writeElement(writer, String.join(".", new ArrayList<>(namespace)), f.format(new Date(Long.parseLong(timestamp))), uri, prefix);
                         }else{
                             DateTimeFormatter dtf = null;
                             TimestampType type = TimestampType.getElasticsearchPatternName(property.format);
@@ -93,7 +93,9 @@ public class XmlUtils {
                             }
                             if (dtf != null) {
                                 DateTime jodatime = dtf.parseDateTime((String)valueObject);
-                                writeElement(writer, String.join(".", new ArrayList<>(namespace)), jodatime.toString(dtf), uri, prefix);
+                                Long value = jodatime.getMillis();
+                                String timestamp = "" + value;
+                                writeElement(writer, String.join(".", new ArrayList<>(namespace)), f.format(new Date(Long.parseLong(timestamp))), uri, prefix);
                             }
                         }
                     }
@@ -146,11 +148,8 @@ public class XmlUtils {
                 writeEmptyElement(writer, nameToDisplay, "boolean", 0);
                 break;
             case DATE:
-                if(property.format.equals("epoch_millis")||property.format.equals("epoch_millis")){
-                    writeEmptyElement(writer, nameToDisplay, "long", 0);
-                }else{
                     writeEmptyElement(writer, nameToDisplay, "dateTime", 0);
-                }
+
         }
     }
 

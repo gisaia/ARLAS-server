@@ -102,10 +102,10 @@ public class WFSServiceIT extends AbstractTestWithCollection {
     public void handleDescribeFeature(ValidatableResponse then) throws Exception {
         if(!DataSetTool.ALIASED_COLLECTION) {
             then.statusCode(200)
-                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(9));
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(8));
         } else {
             then.statusCode(200)
-                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(11));
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(10));
         }
     }
 

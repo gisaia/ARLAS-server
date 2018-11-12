@@ -190,12 +190,7 @@ public class GetFeatureHandler {
 
             }
         }
-        String timestamp = null;
-        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
-        if (timestampPath != null) {
-            timestamp = "" + MapExplorer.getObjectFromPath(timestampPath, source);
-            f.setTimeZone(TimeZone.getTimeZone("UTC"));
-        }
+
         if (id != null & geometry != null) {
             xmlStream.writeStartElement(featureNamespace, collectionName, uri);
             if (isByID) {
@@ -220,10 +215,6 @@ public class GetFeatureHandler {
                 });
             }
             XmlUtils.parsePropertiesXml(collectionReference.properties, xmlStream, new Stack<>(), uri, source, featureNamespace, excludeFields);
-            //Write time
-            xmlStream.writeStartElement(featureNamespace, XmlUtils.replacePointPath((timestampPath)).concat("_time"), uri);
-            xmlStream.writeCharacters(f.format(new Date(Long.parseLong(timestamp))));
-            xmlStream.writeEndElement();
             xmlStream.writeEndElement();
         }
     }

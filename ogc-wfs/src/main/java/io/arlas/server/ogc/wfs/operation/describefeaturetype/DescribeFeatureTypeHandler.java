@@ -122,11 +122,7 @@ public class DescribeFeatureTypeHandler {
             });
         }
         XmlUtils.parsePropertiesXsd(((CollectionReferenceDescription) collectionReference).properties, writer, new Stack<String>(), excludeFields);
-        writer.writeEmptyElement(WFSConstant.XSNS, "element");
-        writer.writeAttribute("name", XmlUtils.replacePointPath((timestampPath)).concat("_time"));
-        writer.writeAttribute(XmlUtils.TYPE, WFSConstant.XS_PREFIX + ":dateTime");
-        writer.writeAttribute("minOccurs", "1");
-        writer.writeAttribute("maxOccurs", "1");
+
 
         writer.writeEndElement();
         writer.writeEndElement();
