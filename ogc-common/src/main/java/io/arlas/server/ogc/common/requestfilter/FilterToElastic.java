@@ -1392,7 +1392,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             return "dublin_core_element_name.language";
         } else if (key.equals(SupportedISOQueryables.resourceIdentifier.value)) {
             nested=true;
-            return "inspire.inspire_uri.code";
+            return "dublin_core_element_name.identifier";
         } else if (key.equals(SupportedISOQueryables.serviceType.value)) {
             isConfigurationQuery = true;
             return "ogc_inspire_configuration_parameters.spatial_data_service_type";
@@ -1429,9 +1429,15 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         } else if (key.equals(AdditionalQueryables.responsiblePartyRole.value)) {
             isConfigurationQuery = true;
             return "ogc_inspire_configuration_parameters.responsible_party_role";
-        } else if (key.equals(AdditionalQueryables.accessConstraints.value) || key.equals(AdditionalQueryables.otherConstraints.value) || key.equals(AdditionalQueryables.classification.value)) {
-            isConfigurationQuery = true;
-            return "ogc_inspire_configuration_parameters.public_access_limitations";
+        } else if (key.equals(AdditionalQueryables.accessConstraints.value)) {
+            nested = true;
+            return "inspire.inspire_limitation_access.access_constraints";
+        } else if (key.equals(AdditionalQueryables.otherConstraints.value)) {
+            nested = true;
+            return "inspire.inspire_limitation_access.other_constraints";
+        } else if (key.equals(AdditionalQueryables.classification.value)) {
+            nested = true;
+            return "inspire.inspire_limitation_access.classification";
         } else if (key.equals(AdditionalQueryables.conditionApplyingToAccessAndUse.value)) {
             isConfigurationQuery = true;
             return "ogc_inspire_configuration_parameters.access_and_use_conditions";

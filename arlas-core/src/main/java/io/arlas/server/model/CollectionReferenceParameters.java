@@ -70,7 +70,7 @@ public class CollectionReferenceParameters {
     public OpenSearch openSearch = null;
 
     @JsonProperty(value = "inspire", required = false)
-    public Inspire inspire = null;
+    public Inspire inspire = new Inspire();
 
     @JsonProperty(value = "dublin_core_element_name", required = false)
     public DublinCoreElementName dublinCoreElementName = new DublinCoreElementName();

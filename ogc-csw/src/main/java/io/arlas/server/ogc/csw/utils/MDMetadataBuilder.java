@@ -175,17 +175,18 @@ public class MDMetadataBuilder {
         MDLegalConstraintsType mdLegalConstraintsType = new MDLegalConstraintsType();
         MDRestrictionCodePropertyType mdRestrictionCodePropertyType = new MDRestrictionCodePropertyType();
         String legalConstraint = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.inspireLimitationAccess)
-                .map(inspireLimitationAccess -> inspireLimitationAccess.accessConstraints).map(a -> a.name()).orElse(AccessConstraintEnum.otherRestrictions.name());
+                .map(inspireLimitationAccess -> inspireLimitationAccess.accessConstraints).get();
 
         CodeListValueType restrictionCodeListValueType = new CodeListValueType();
         restrictionCodeListValueType.setCodeList(RESTRICTION_CODE_LIST);
         restrictionCodeListValueType.setCodeListValue(legalConstraint);
         mdRestrictionCodePropertyType.setMDRestrictionCode(restrictionCodeListValueType);
         mdLegalConstraintsType.getAccessConstraints().add(mdRestrictionCodePropertyType);
-
-        String otherConstraint = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.inspireLimitationAccess)
-                .map(inspireLimitationAccess -> inspireLimitationAccess.otherConstraints).orElse(inspireConfiguration.publicAccessLimitations);
-        mdLegalConstraintsType.getOtherConstraints().add(createCharacterStringPropertyType(otherConstraint));
+        if (legalConstraint.equals(AccessConstraintEnum.otherRestrictions.name())) {
+            String otherConstraint = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.inspireLimitationAccess)
+                    .map(inspireLimitationAccess -> inspireLimitationAccess.otherConstraints).orElse(INSPIREConstants.LIMITATION_ON_PUBLIC_ACCESS);
+            mdLegalConstraintsType.getOtherConstraints().add(createCharacterStringPropertyType(otherConstraint));
+        }
         mdLegalConstraintsPropertyType.setMDConstraints(gmdObjectFactory.createMDConstraints(mdLegalConstraintsType));
         svServiceIdentificationType.getResourceConstraints().add(mdLegalConstraintsPropertyType);
     }

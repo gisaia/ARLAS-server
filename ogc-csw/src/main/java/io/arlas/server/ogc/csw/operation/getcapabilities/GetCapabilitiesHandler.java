@@ -285,10 +285,10 @@ public class GetCapabilitiesHandler {
         serviceIdentification.setFees(conditionsForAccessAndUse);
 
         // Add INSPIRE 'Limitations on Public Access'
+        // For CSW We specify publicAccessLimitations from Inspire configuration
         serviceIdentification.getAccessConstraints().clear();
         String limitationsOnPublicAccess = Optional.ofNullable(cswHandler.inspireConfiguration).map(c -> c.publicAccessLimitations).map(String::toString).orElse(INSPIREConstants.LIMITATION_ON_PUBLIC_ACCESS);
         serviceIdentification.getAccessConstraints().add(limitationsOnPublicAccess);
-
         capabilitiesType.setServiceIdentification(serviceIdentification);
     }
 

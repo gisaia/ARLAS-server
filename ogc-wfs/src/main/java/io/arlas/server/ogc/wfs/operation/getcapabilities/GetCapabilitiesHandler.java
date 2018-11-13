@@ -34,6 +34,7 @@ import io.arlas.server.model.INSPIREConformity;
 import io.arlas.server.model.Keyword;
 import io.arlas.server.inspire.common.constants.INSPIREConstants;
 import io.arlas.server.inspire.common.enums.InspireSupportedLanguages;
+import io.arlas.server.model.enumerations.AccessConstraintEnum;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.ExtendedWFSCapabilitiesType;
@@ -429,10 +430,11 @@ public class GetCapabilitiesHandler {
 
     private void addECKeywords(CollectionReference collectionReference) throws OGCException {
         List<Keyword> keywords = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.keywords).orElse(new ArrayList<>());
-        //WFSCheckParam.checkKeywordsInspireCompliance(keywords, Service.WFS);
+        WFSCheckParam.checkKeywordsInspireCompliance(keywords, Service.WFS);
         inspireExtendedCapabilitiesType.getKeyword().clear();
         inspireExtendedCapabilitiesType.getMandatoryKeyword().clear();
         getCapabilitiesType.getServiceIdentification().getKeywords().clear();
+        KeywordsType ke = new KeywordsType();
         keywords.forEach(keyword -> {
             try {
                 KeywordValueEnum.valueOf(keyword.value);
@@ -454,12 +456,11 @@ public class GetCapabilitiesHandler {
                 }
             }
             inspireExtendedCapabilitiesType.getKeyword().add(inspireKeyword);
-            KeywordsType ke = new KeywordsType();
             LanguageStringType languageStringType = new LanguageStringType();
             languageStringType.setValue(keyword.value);
             ke.getKeyword().add(languageStringType);
-            getCapabilitiesType.getServiceIdentification().getKeywords().add(ke);
         });
+        getCapabilitiesType.getServiceIdentification().getKeywords().add(ke);
     }
 
     private void addECMetadaURL(CollectionReference collectionReference) {
@@ -523,7 +524,10 @@ public class GetCapabilitiesHandler {
 
         // Add INSPIRE 'Limitations on Public Access'
         serviceIdentification.getAccessConstraints().clear();
-        String limitationsOnPublicAccess = Optional.ofNullable(inspireConfiguration).map(c -> c.publicAccessLimitations).map(String::toString).orElse(INSPIREConstants.LIMITATION_ON_PUBLIC_ACCESS);
+        String limitationsOnPublicAccess = collectionReference.params.inspire.inspireLimitationAccess.accessConstraints;
+        if (limitationsOnPublicAccess.equals(AccessConstraintEnum.otherRestrictions.name())) {
+            limitationsOnPublicAccess = collectionReference.params.inspire.inspireLimitationAccess.otherConstraints;
+        }
         serviceIdentification.getAccessConstraints().add(limitationsOnPublicAccess);
 
         getCapabilitiesType.setServiceIdentification(serviceIdentification);

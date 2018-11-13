@@ -100,6 +100,23 @@
               "copy_to": ["internal.fulltext"]
             }
           }
+        },
+        "inspire_limitation_access" :{
+          "type": "nested",
+          "properties": {
+            "access_constraints": {
+              "type": "keyword",
+              "copy_to": ["internal.fulltext"]
+            },
+            "other_constraints": {
+              "type": "keyword",
+              "copy_to": ["internal.fulltext"]
+            },
+            "classification": {
+              "type": "keyword",
+              "copy_to": ["internal.fulltext"]
+            }
+          }
         }
       }
     },

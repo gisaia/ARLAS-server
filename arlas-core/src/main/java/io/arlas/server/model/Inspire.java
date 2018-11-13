@@ -31,4 +31,8 @@ public class Inspire {
     public InspireURI inspireURI;
     @JsonProperty(value = "inspire_limitation_access", required = false)
     public InspireLimitationAccess inspireLimitationAccess;
+
+    public Inspire() {
+        inspireLimitationAccess = new InspireLimitationAccess();
+    }
 }

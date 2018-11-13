@@ -25,9 +25,9 @@ import io.arlas.server.model.enumerations.InspireAccessClassificationEnum;
 
 public class InspireLimitationAccess {
     @JsonProperty(value = "access_constraints", required = false, defaultValue = "otherRestrictions")
-    public AccessConstraintEnum accessConstraints = AccessConstraintEnum.otherRestrictions;
+    public String accessConstraints = AccessConstraintEnum.otherRestrictions.name();
     @JsonProperty(value = "other_constraints", required = false, defaultValue = "no limitation")
-    public String otherConstraints = "no limitation";
+    public String otherConstraints = "no limitations apply";
     @JsonProperty(value = "classification", required = false, defaultValue = "unclassified")
-    public InspireAccessClassificationEnum classification = InspireAccessClassificationEnum.unclassified;
+    public String classification = InspireAccessClassificationEnum.unclassified.name();
 }
