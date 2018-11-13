@@ -334,15 +334,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
         att.accept(this, extraData);
         key = (String) XmlUtils.retrievePointPath((String) field);
-        String[] pathElements = key.split(":")[1].split("\\.");
+        String[] pathElements = getPathElements(key);
         if(isPathDate(pathElements,collectionReference.properties)){updateDateFormatter(key);}
-        if (!OGCCheckParam.isFieldInMapping(collectionReference, key)) {
-            List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
-            wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
-            wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
-            ogcException = new OGCException(wfsExceptionMessages, Service.WFS);
-            throw new RuntimeException();
-        }
         if (isFilterQueryableADate(literal)) {
             List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
             ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
@@ -588,15 +581,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         } else {
             right.accept(this, null);
             key = (String) XmlUtils.retrievePointPath((String) field);
-            String[] pathElements = key.split(":")[1].split("\\.");
+            String[] pathElements = getPathElements(key);
             if(isPathDate(pathElements,collectionReference.properties)){updateDateFormatter(key);}
-            if (!OGCCheckParam.isFieldInMapping(collectionReference, key)) {
-                List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
-                wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.OPERATION_PROCESSING_FAILED, "Invalid Filter", "filter"));
-                wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Unable to find " + field + "  in " + collectionReference.collectionName + ".", "filter"));
-                ogcException = new OGCException(wfsExceptionMessages, Service.WFS);   throw new RuntimeException();
-            }
-
             left.accept(this, leftContext);
             if (service == Service.CSW) {
                 key = mapFieldNameToInspireRequirements(key, field.toString());
@@ -1233,7 +1219,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     }
 
     protected void updateDateFormatter(String key) {
-        String[] pathElements = key.split(":")[1].split("\\.");
+        String[] pathElements = getPathElements(key);
         String format = getFormatFromPath(pathElements,collectionReference.properties);
         dateFormatter = Joda.forPattern(format).printer();
     }
@@ -1477,6 +1463,17 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     private boolean isFilterQueryableADate(String queryable) {
         return (queryable.equals(AdditionalQueryables.specificationDate.value) || key.equals(SupportedISOQueryables.creationDate.value));
+    }
+
+    private String[] getPathElements(String key) {
+        String[] splittedKeyList = key.split(":");
+        String keyToSplit = "";
+        if (splittedKeyList.length == 1) {
+            keyToSplit = splittedKeyList[0];
+        } else if (splittedKeyList.length > 1) {
+            keyToSplit = splittedKeyList[1];
+        }
+        return keyToSplit.split("\\.");
     }
 
 }

@@ -133,7 +133,7 @@ public class WFSQueryBuilder extends OGCQueryBuilder {
     private void addCollectionFilter(FluidSearch fluidSearch) throws ArlasException, IOException {
         Filter collectionFilter = collectionReferenceDescription.params.filter;
         exploreServices.applyFilter(collectionFilter, fluidSearch);
-        wfsQuery.filter(fluidSearch.getBoolQueryBuilder());
+        ogcQuery.filter(fluidSearch.getBoolQueryBuilder());
     }
 
     private BoolQueryBuilder getBBoxBoolQueryBuilder(String bbox, String centroidPath) throws OGCException {
