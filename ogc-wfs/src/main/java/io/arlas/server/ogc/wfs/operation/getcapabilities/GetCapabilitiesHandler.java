@@ -395,10 +395,8 @@ public class GetCapabilitiesHandler {
 
     private void addECMetadataPointOfContact(CollectionReference collectionReference) {
         MetadataPointOfContact metadataPointOfContact = new MetadataPointOfContact();
-        String email = Optional.ofNullable(collectionReference.params.atomFeed)
-                               .map(atom -> atom.author).map(author -> author.email).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_EMAIL);
-        String name = Optional.ofNullable(collectionReference.params.atomFeed)
-                              .map(atom -> atom.author).map(author -> author.name).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_NAME);
+        String email = Optional.ofNullable(ogcConfiguration.serviceContactMail).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_EMAIL);
+        String name = Optional.ofNullable(ogcConfiguration.serviceContactIndividualName).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_NAME);
         metadataPointOfContact.setEmailAddress(email);
         metadataPointOfContact.setOrganisationName(name);
         inspireExtendedCapabilitiesType.getMetadataPointOfContact().clear();

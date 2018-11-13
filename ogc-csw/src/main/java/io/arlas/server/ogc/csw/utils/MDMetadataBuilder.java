@@ -26,6 +26,7 @@ import io.arlas.server.inspire.common.constants.INSPIREConstants;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.DublinCoreElementName;
 import io.arlas.server.model.INSPIREConformity;
+import io.arlas.server.model.Keyword;
 import io.arlas.server.model.enumerations.AccessConstraintEnum;
 import io.arlas.server.ogc.common.utils.OGCConstant;
 import net.opengis.gml._3.CodeType;
@@ -40,6 +41,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public class MDMetadataBuilder {
@@ -164,6 +166,22 @@ public class MDMetadataBuilder {
         svServiceIdentificationType.getPointOfContact().add(ciResponsiblePartyPropertyType);
     }
 
+    public static void addKeywords(SVServiceIdentificationType svServiceIdentificationType, CollectionReference collectionReference) {
+        List<Keyword> keywords = collectionReference.params.inspire.keywords;
+        if (keywords != null) {
+            for (Keyword keyword : keywords) {
+                MDKeywordsPropertyType mdKeywordsPropertyType = new MDKeywordsPropertyType();
+                MDKeywordsType mdKeywordsType = new MDKeywordsType();
+                mdKeywordsType.getKeyword().add(createCharacterStringPropertyType(keyword.value));
+                if (keyword.vocabulary != null && !keyword.vocabulary.equals("")) {
+                    mdKeywordsType.setThesaurusName(createCICitation(keyword.vocabulary, keyword.dateOfPublication, DATE_TYPE));
+                }
+                mdKeywordsPropertyType.setMDKeywords(mdKeywordsType);
+                svServiceIdentificationType.getDescriptiveKeywords().add(mdKeywordsPropertyType);
+            }
+        }
+    }
+
     public static void addResourceConstraints(SVServiceIdentificationType svServiceIdentificationType, CollectionReference collectionReference, INSPIREConfiguration inspireConfiguration) {
         MDConstraintsPropertyType mdConstraintsPropertyType = new MDConstraintsPropertyType();
         MDConstraintsType mdConstraintsType = new MDConstraintsType();
@@ -247,6 +265,7 @@ public class MDMetadataBuilder {
         addCICitation(svServiceIdentificationType, collectionReference.params.dublinCoreElementName.title, formatedDate, DATE_TYPE);
         addAbstract(svServiceIdentificationType, collectionReference.params.dublinCoreElementName.description);
         addPointOfContact(svServiceIdentificationType, ogcConfiguration);
+        addKeywords(svServiceIdentificationType, collectionReference);
         addResourceConstraints(svServiceIdentificationType, collectionReference, inspireConfiguration);
         addExtent(svServiceIdentificationType, collectionReference.params.dublinCoreElementName.bbox);
         addServiceType(svServiceIdentificationType);
