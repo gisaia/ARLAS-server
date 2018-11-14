@@ -21,30 +21,20 @@ package io.arlas.server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.model.RasterTileURL;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.client.AdminClient;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class DataSetTool {
+public class DataSetTool extends ESConnector {
 
     static Logger LOGGER = LoggerFactory.getLogger(DataSetTool.class);
 
@@ -76,27 +66,11 @@ public class DataSetTool {
             "Austria"
     };
 
-    public static AdminClient adminClient;
-    public static Client client;
     public static boolean ALIASED_COLLECTION;
 
     static {
-        try {
-            Settings settings = null;
-            List<Pair<String,Integer>> nodes = ArlasServerConfiguration.getElasticNodes(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_NODES")).orElse("localhost:9300"));
-            if ("localhost".equals(nodes.get(0).getLeft())) {
-                settings = Settings.EMPTY;
-            } else {
-                settings = Settings.builder().put("cluster.name", "docker-cluster").build();
-            }
-            client = new PreBuiltTransportClient(settings)
-                    .addTransportAddress(new TransportAddress(InetAddress.getByName(nodes.get(0).getLeft()), nodes.get(0).getRight()));
-            adminClient = client.admin();
-            ALIASED_COLLECTION = Optional.ofNullable(System.getenv("ALIASED_COLLECTION")).orElse("false").equals("true");
-            LOGGER.info("Load data in " + nodes.get(0).getLeft() + ":" + nodes.get(0).getRight() + " with ALIASED_COLLECTION=" + ALIASED_COLLECTION);
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
+        ALIASED_COLLECTION = Optional.ofNullable(System.getenv("ALIASED_COLLECTION")).orElse("false").equals("true");
+        LOGGER.info("Load data in " + esNodes.get(0).getLeft() + ":" + esNodes.get(0).getRight() + " with ALIASED_COLLECTION=" + ALIASED_COLLECTION);
     }
 
     public static void main(String[] args) throws IOException {
@@ -106,14 +80,14 @@ public class DataSetTool {
     public static void loadDataSet() throws IOException {
         if(!ALIASED_COLLECTION) {
             //Create a single index with all data
-            createIndex(DATASET_INDEX_NAME,"dataset.mapping.json");
+            createIndex(DATASET_INDEX_NAME,"dataset.mapping.json", DATASET_TYPE_NAME);
             fillIndex(DATASET_INDEX_NAME,-170,170,-80,80);
             LOGGER.info("Index created : " + DATASET_INDEX_NAME);
         } else {
             //Create 2 indeces, split data between them and create an alias above these 2 indeces
-            createIndex(DATASET_INDEX_NAME+"_original","dataset.mapping.json");
+            createIndex(DATASET_INDEX_NAME+"_original","dataset.mapping.json", DATASET_TYPE_NAME);
             fillIndex(DATASET_INDEX_NAME+"_original",-170,0,-80,80);
-            createIndex(DATASET_INDEX_NAME+"_alt","dataset.alternate.mapping.json");
+            createIndex(DATASET_INDEX_NAME+"_alt","dataset.alternate.mapping.json", DATASET_TYPE_NAME);
             fillIndex(DATASET_INDEX_NAME+"_alt",10,170,-80,80);
             adminClient.indices().prepareAliases().addAlias(DATASET_INDEX_NAME+"*",DATASET_INDEX_NAME).get();
             LOGGER.info("Indeces created : " + DATASET_INDEX_NAME + "_original," + DATASET_INDEX_NAME + "_alt");
@@ -121,14 +95,6 @@ public class DataSetTool {
         }
     }
 
-    private static void createIndex(String indexName, String mappingFileName) throws IOException {
-        String mapping = IOUtils.toString(new InputStreamReader(DataSetTool.class.getClassLoader().getResourceAsStream(mappingFileName)));
-        try {
-            adminClient.indices().prepareDelete(indexName).get();
-        } catch (Exception e) {
-        }
-        adminClient.indices().prepareCreate(indexName).addMapping(DATASET_TYPE_NAME, mapping, XContentType.JSON).get();
-    }
 
     private static void fillIndex(String indexName, int lonMin, int lonMax, int latMin, int latMax) throws JsonProcessingException {
         Data data;

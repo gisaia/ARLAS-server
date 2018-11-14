@@ -35,6 +35,7 @@ import io.arlas.server.model.enumerations.AccessConstraintEnum;
 import io.arlas.server.model.enumerations.InspireAccessClassificationEnum;
 import io.arlas.server.utils.BoundingBox;
 import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.ESTool;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -60,6 +61,7 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -74,6 +76,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     private static LoadingCache<String, CollectionReference> collections = null;
     private static ObjectMapper mapper;
     private static ObjectReader reader;
+    private static final String ARLAS_MAPPING_FILE_NAME = "arlas.mapping.json";
     private static final String META_COLLECTION_NAME = "metacollection";
     private static final String ARLAS_INDEX_MAPPING_NAME = "collection";
     private static final String META_COLLECTION_ID_PATH = "dublin_core_element_name.identifier";
@@ -107,12 +110,9 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     public void initCollectionDatabase() {
         try {
             client.admin().indices().prepareGetIndex().setIndices(arlasIndex).get();
+            ESTool.putExtendedMapping(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, this.getClass().getClassLoader().getResourceAsStream(ARLAS_MAPPING_FILE_NAME));
         } catch (IndexNotFoundException e) {
-            try {
-                createArlasIndex();
-            } catch (IOException e1) {
-                new InternalServerErrorException("Can not initialize the collection database", e);
-            }
+            ESTool.createArlasIndex(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, ARLAS_MAPPING_FILE_NAME);
         }
     }
 
@@ -123,11 +123,6 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         } catch (ExecutionException e) {
             createMetaCollection(ogcConfiguration, inspireConfiguration);
         }
-    }
-
-    private void createArlasIndex() throws IOException {
-        String arlasMapping = IOUtils.toString(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("arlas.mapping.json")));
-        client.admin().indices().prepareCreate(arlasIndex).addMapping(ARLAS_INDEX_MAPPING_NAME, arlasMapping, XContentType.JSON).get();
     }
 
     private CollectionReference getCollectionReferenceFromES(String ref) throws ArlasException {
@@ -460,8 +455,11 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 }
 
                 //check fields
-                if (!fields.isEmpty())
-                    checkIndexMappingFields(index, collectionReference.params, fields.toArray(new String[fields.size()]));
+                if (!fields.isEmpty()) {
+                    ESTool.checkIndexMappingFields(client, index, collectionReference.params.typeName, fields.toArray(new String[fields.size()]));
+                    setTimestampFormatOfCollectionReference(index, collectionReference.params);
+                }
+
 
             }
         } catch (ArlasException e) {
@@ -542,29 +540,21 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         }
     }
 
-    private void checkIndexMappingFields(String index, CollectionReferenceParameters collectionRefParams, String... fields) throws ArlasException {
-        GetFieldMappingsResponse response = client.admin().indices().prepareGetFieldMappings(index).setTypes(collectionRefParams.typeName).setFields(fields).get();
-        for (String field : fields) {
-            GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(index, collectionRefParams.typeName, field);
-            if (data == null || data.isNull()) {
-                throw new NotFoundException("Unable to find " + field + " from " + collectionRefParams.typeName + " in " + index + ".");
+    private void setTimestampFormatOfCollectionReference(String index, CollectionReferenceParameters collectionRefParams) {
+        String timestampField = collectionRefParams.timestampPath;
+        String[] timestampFieldArray = {timestampField};
+        GetFieldMappingsResponse response = client.admin().indices().prepareGetFieldMappings(index).setTypes(collectionRefParams.typeName).setFields(timestampFieldArray).get();
+        GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(index, collectionRefParams.typeName, timestampField);
+        if (data != null) {
+            String[] fields = timestampField.split("\\.");
+            String field = fields[fields.length - 1];
+            LinkedHashMap<String, Object> timestampMD = (LinkedHashMap) data.sourceAsMap().get(field);
+            collectionRefParams.customParams = new HashMap<>();
+            if (timestampMD.keySet().contains("format")) {
+                collectionRefParams.customParams.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
             } else {
-                if (field.equals(collectionRefParams.timestampPath)) {
-                    setTimestampFormat(collectionRefParams, data, field);
-                }
+                collectionRefParams.customParams.put(CollectionReference.TIMESTAMP_FORMAT, CollectionReference.DEFAULT_TIMESTAMP_FORMAT);
             }
-        }
-    }
-
-    private void setTimestampFormat(CollectionReferenceParameters collectionRefParams, GetFieldMappingsResponse.FieldMappingMetaData data, String fieldPath) {
-        String[] fields = fieldPath.split("\\.");
-        String field = fields[fields.length - 1];
-        LinkedHashMap<String, Object> timestampMD = (LinkedHashMap) data.sourceAsMap().get(field);
-        collectionRefParams.customParams = new HashMap<>();
-        if (timestampMD.keySet().contains("format")) {
-            collectionRefParams.customParams.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
-        } else {
-            collectionRefParams.customParams.put(CollectionReference.TIMESTAMP_FORMAT, CollectionReference.DEFAULT_TIMESTAMP_FORMAT);
         }
     }
 }

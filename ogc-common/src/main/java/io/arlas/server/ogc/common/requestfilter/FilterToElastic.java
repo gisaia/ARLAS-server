@@ -603,7 +603,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         }
 
         if (type.equals("=")) {
-            queryBuilder = ImmutableMap.of("term", ImmutableMap.of(key, field));
+            queryBuilder = ImmutableMap.of("match", ImmutableMap.of(key, field));
         } else if (type.equals("!=")) {
             queryBuilder = ImmutableMap.of("bool", ImmutableMap.of("must_not", ImmutableMap.of("term", ImmutableMap.of(key, field))));
         } else if (type.equals(">")) {

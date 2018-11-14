@@ -71,10 +71,10 @@
           "format": "YYYY-MM-DD"
         },
         "access_and_use_conditions": {
-          "type": "keyword"
+          "type": "text"
         },
         "public_access_limitations": {
-          "type": "keyword"
+          "type": "text"
         }
       }
 
@@ -109,7 +109,7 @@
               "copy_to": ["internal.fulltext"]
             },
             "other_constraints": {
-              "type": "keyword",
+              "type": "text",
               "copy_to": ["internal.fulltext"]
             },
             "classification": {
@@ -123,15 +123,15 @@
     "dublin_core_element_name":{
       "properties": {
         "title": {
-          "type": "keyword",
+          "type": "text",
           "copy_to": ["internal.fulltext"]
         },
         "subject": {
-          "type": "keyword",
+          "type": "text",
           "copy_to": ["internal.fulltext"]
         },
         "description": {
-          "type": "keyword",
+          "type": "text",
           "copy_to": ["internal.fulltext"]
         },
         "date": {
@@ -140,7 +140,7 @@
           "copy_to": ["internal.fulltext"]
         },
         "type": {
-          "type": "keyword",
+          "type": "text",
           "copy_to": ["internal.fulltext"]
         },
         "format": {
@@ -148,7 +148,7 @@
           "copy_to": ["internal.fulltext"]
         },
         "identifier": {
-          "type": "keyword",
+          "type": "text",
           "copy_to": ["internal.fulltext"]
         },
         "language": {
@@ -156,7 +156,7 @@
           "copy_to": ["internal.fulltext"]
         },
         "source": {
-          "type": "keyword",
+          "type": "text",
           "copy_to": ["internal.fulltext"]
         },
         "coverage": {
