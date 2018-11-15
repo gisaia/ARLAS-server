@@ -36,21 +36,7 @@ import java.util.List;
 public interface CollectionReferenceDao {
     public void initCollectionDatabase() throws ArlasException;
 
-    public void initMetaCollection(OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException;
-
     public CollectionReference getCollectionReference(String ref) throws ArlasException;
-
-    public CollectionReference getMetaCollectionReference(OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException;
-
-    public List<CollectionReference> getCollectionReferences(String[] includes, String[]
-            excludes, int size, int from, String[] ids, String q, BoundingBox boundingBox) throws ArlasException, IOException;
-
-    public CollectionReferences getCollectionReferencesForCSW(QueryBuilder queryBuilder,  Boolean isConfigurationQuery, String[] includes, String[] excludes, int size,
-                                                        int from) throws ArlasException, IOException;
-    public CollectionReferences getCollectionReferences(String[] includes, String[] excludes, int size,
-                                                              int from) throws ArlasException, IOException;
-
-    public long countCollectionReferences(String[] ids, String q, BoundingBox boundingBox) throws ArlasException, IOException;
 
     public List<CollectionReference> getAllCollectionReferences() throws ArlasException;
 

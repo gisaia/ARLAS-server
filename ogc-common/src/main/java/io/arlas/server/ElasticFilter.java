@@ -17,28 +17,20 @@
  * under the License.
  */
 
-package io.arlas.server.ogc.csw.filter;
+package io.arlas.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InternalServerErrorException;
-import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.requestfilter.FilterToElastic;
-import io.arlas.server.ogc.common.utils.OGCQueryBuilder;
 import io.arlas.server.utils.BoundingBox;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
 import org.elasticsearch.common.geo.builders.PolygonBuilder;
 import org.elasticsearch.common.geo.builders.ShapeBuilder;
-import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.geotools.filter.v2_0.FESConfiguration;
 import org.geotools.xml.Parser;
 import org.xml.sax.SAXException;
@@ -48,43 +40,22 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-public class CSWQueryBuilder extends OGCQueryBuilder {
-    private BoundingBox bbox;
-    private String[] ids;
-    private String query;
-    private CollectionReferenceDescription metaCollectionDescription;
-    public List<CollectionReference> collections = new ArrayList<>();
+public class ElasticFilter {
 
-    public CSWQueryBuilder(String[] ids, String query, BoundingBox bbox, String constraint, CollectionReferenceDescription metaCollectionDescription)
-            throws ArlasException, IOException, ParserConfigurationException, SAXException  {
-        this.service = Service.CSW;
-        this.ids = ids;
-        this.query = query;
-        this.bbox = bbox;
-        this.filter = constraint;
-        this.metaCollectionDescription = metaCollectionDescription;
-
-        buildCollectionQuery(ids,query,bbox);
-        if (filter != null) {
-            buildFilterQuery(metaCollectionDescription);
-        }
-    }
-
-    private void buildCollectionQuery(String[] ids, String q, BoundingBox boundingBox) throws IOException {
+    public static BoolQueryBuilder filter(String[] ids, String idFieldName, String q, String fulltextField, BoundingBox boundingBox, String geometryField) throws IOException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         int minimumShouldMatch = 0;
         if (ids != null && ids.length > 0) {
             for (String resourceIdValue : Arrays.asList(ids)) {
-                orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery("dublin_core_element_name.identifier", resourceIdValue));
+                orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(idFieldName, resourceIdValue));
             }
             minimumShouldMatch = minimumShouldMatch + 1;
         } else if (q != null && q.length() > 0) {
             orBoolQueryBuilder = orBoolQueryBuilder
-                    .should((QueryBuilders.simpleQueryStringQuery(q).defaultOperator(Operator.AND).field("internal.fulltext")));
+                    .should((QueryBuilders.simpleQueryStringQuery(q).defaultOperator(Operator.AND).field(fulltextField)));
             minimumShouldMatch = minimumShouldMatch + 1;
         }
         if (boundingBox != null) {
@@ -96,10 +67,41 @@ public class CSWQueryBuilder extends OGCQueryBuilder {
             coordinatesBuilder.coordinate(boundingBox.getEast(), boundingBox.getSouth());
             PolygonBuilder polygonBuilder = new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.LEFT);
             orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(QueryBuilders.geoIntersectionQuery("dublin_core_element_name.coverage", polygonBuilder));
+                    .should(QueryBuilders.geoIntersectionQuery(geometryField, polygonBuilder));
             minimumShouldMatch = minimumShouldMatch + 1;
         }
         orBoolQueryBuilder.minimumShouldMatch(minimumShouldMatch);
-        ogcQuery.filter(orBoolQueryBuilder);
+        boolQuery = boolQuery.filter(orBoolQueryBuilder);
+        return boolQuery;
     }
- }
+
+    public static BoolQueryBuilder filter(String constraint, CollectionReferenceDescription collectionDescription, Service service) throws IOException, ArlasException {
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        FESConfiguration configuration = new FESConfiguration();
+        Parser parser = new Parser(configuration);
+        if (constraint != null) {
+            if (constraint.contains("srsName=\"urn:ogc:def:crs:EPSG::4326\"")) {
+                // TODO : find a better way to replace EPSG for test suite
+                constraint = constraint.replace("srsName=\"urn:ogc:def:crs:EPSG::4326\"", "srsName=\"http://www.opengis.net/def/crs/epsg/0/4326\"");
+            }
+            FilterToElastic filterToElastic = new FilterToElastic(collectionDescription, service);
+            try {
+                InputStream stream = new ByteArrayInputStream(constraint.getBytes(StandardCharsets.UTF_8));
+                org.opengis.filter.Filter openGisFilter = (org.opengis.filter.Filter) parser.parse(stream);
+
+                filterToElastic.encode(openGisFilter);
+                ObjectMapper mapper = new ObjectMapper();
+                String filterQuery = mapper.writeValueAsString(filterToElastic.getQueryBuilder());
+                // TODO : find a better way to remove prefix xml in field name
+                boolQuery.filter(QueryBuilders.wrapperQuery(filterQuery.replace("tns:", "")));
+            } catch (SAXException e) {
+                throw filterToElastic.ogcException;
+            } catch (ParserConfigurationException e) {
+                throw filterToElastic.ogcException;
+            } catch (RuntimeException e) {
+                throw filterToElastic.ogcException;
+            }
+        }
+        return boolQuery;
+    }
+}

@@ -72,17 +72,11 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     Client client = null;
     String arlasIndex = null;
-    OGCConfiguration ogcConfiguration;
     private static LoadingCache<String, CollectionReference> collections = null;
     private static ObjectMapper mapper;
     private static ObjectReader reader;
     private static final String ARLAS_MAPPING_FILE_NAME = "arlas.mapping.json";
-    private static final String META_COLLECTION_NAME = "metacollection";
     private static final String ARLAS_INDEX_MAPPING_NAME = "collection";
-    private static final String META_COLLECTION_ID_PATH = "dublin_core_element_name.identifier";
-    private static final String META_COLLECTION_GEOMETRY_PATH = "dublin_core_element_name.coverage";
-    private static final String META_COLLECTION_CENTROID_PATH = "dublin_core_element_name.coverage_centroid";
-    private static final String META_COLLECTION_TIMESTAMP_PATH = "dublin_core_element_name.date";
 
 
     static {
@@ -101,7 +95,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 .build(
                         new CacheLoader<String, CollectionReference>() {
                             public CollectionReference load(String ref) throws ArlasException {
-                                return getCollectionReferenceFromES(ref);
+                                return ESTool.getCollectionReferenceFromES(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, reader, ref);
                             }
                         });
     }
@@ -117,222 +111,12 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     @Override
-    public void initMetaCollection(OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException {
-        try {
-            collections.get(META_COLLECTION_NAME);
-        } catch (ExecutionException e) {
-            createMetaCollection(ogcConfiguration, inspireConfiguration);
-        }
-    }
-
-    private CollectionReference getCollectionReferenceFromES(String ref) throws ArlasException {
-        CollectionReference collection = new CollectionReference(ref);
-        //Exclude old include_fields for support old collection
-        GetResponse hit = client.prepareGet(arlasIndex, "collection", ref).setFetchSource(null, "include_fields").get();
-        String source = hit.getSourceAsString();
-        if (source != null) {
-            try {
-                collection.params = reader.readValue(source);
-            } catch (IOException e) {
-                throw new InternalServerErrorException("Can not fetch collection " + ref, e);
-            }
-        } else {
-            throw new NotFoundException("Collection " + ref + " not found.");
-        }
-        return collection;
-    }
-
-    @Override
     public CollectionReference getCollectionReference(String ref) throws ArlasException {
         try {
             return collections.get(ref);
         } catch (ExecutionException e) {
             throw new NotFoundException("Collection " + ref + " not found.", e);
         }
-    }
-
-    @Override
-    public  CollectionReference getMetaCollectionReference(OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException {
-        try {
-            return collections.get(META_COLLECTION_NAME);
-        } catch (ExecutionException e) {
-            throw new InternalServerErrorException("Cannot fetch metacollection");
-        }
-    }
-
-    @Override
-    public CollectionReferences getCollectionReferencesForCSW(QueryBuilder queryBuilder,  Boolean isConfigurationQuery, String[] includes, String[] excludes, int size,
-                                                        int from) throws ArlasException, IOException {
-        CollectionReferences collectionReferences = new CollectionReferences();
-        collectionReferences.collectionReferences = new ArrayList<>();
-
-        //Exclude old include_fields for support old collection
-        if (excludes != null) {
-            excludes[excludes.length + 1] = "include_fields";
-        } else {
-            excludes = new String[]{"include_fields"};
-        }
-        try {
-            SearchResponse response = client.prepareSearch(arlasIndex)
-                    .setFetchSource(includes, excludes)
-                    .setFrom(from)
-                    .setSize(size)
-                    .setQuery(queryBuilder).get();
-
-            if (isConfigurationQuery) {
-                // The queried parameter is set in the configuration file ==> The only returned collection should be metacollection
-                // ==> this means that all the collections would match the query if the right value is given
-                if (response.getHits().getTotalHits() == 1 && response.getHits().getHits()[0].getId().equals(META_COLLECTION_NAME) ) {
-                    collectionReferences = getCollectionReferences(includes, null, size, from);
-                } else if (response.getHits().getTotalHits() == 0){
-                    collectionReferences.collectionReferences = new ArrayList<>();
-                    collectionReferences.totalCollectionReferences = 0;
-                    collectionReferences.nbCollectionReferences = 0;
-                } else {
-                    throw new InternalServerErrorException("Cannot fetch metacollection");
-                }
-            } else {
-                // The queried parameter is set in each declared collection
-                collectionReferences.totalCollectionReferences = response.getHits().getTotalHits();
-
-                for (SearchHit hit : response.getHits().getHits()) {
-                    String source = hit.getSourceAsString();
-                    try {
-                        if (!hit.getId().equals(META_COLLECTION_NAME)){
-                            collectionReferences.collectionReferences.add(new CollectionReference(hit.getId(), mapper.readerFor(CollectionReferenceParameters.class).readValue(source)));
-                        } else {
-                            collectionReferences.totalCollectionReferences -= 1;
-                        }
-                    } catch (IOException e) {
-                        throw new InternalServerErrorException("Can not fetch collection", e);
-                    }
-                }
-                collectionReferences.nbCollectionReferences = collectionReferences.collectionReferences.size();
-            }
-
-        } catch (IndexNotFoundException e) {
-            throw new InternalServerErrorException("Unreachable collections", e);
-        }
-        return collectionReferences;
-    }
-
-    @Override
-    public CollectionReferences getCollectionReferences(String[] includes, String[] excludes, int size,
-                                                              int from) throws ArlasException, IOException {
-        CollectionReferences collectionReferences = new CollectionReferences();
-        collectionReferences.collectionReferences = new ArrayList<>();
-
-        //Exclude old include_fields for support old collection
-        if (excludes != null) {
-            excludes[excludes.length + 1] = "include_fields";
-        } else {
-            excludes = new String[]{"include_fields"};
-        }
-        try {
-            SearchResponse response = client.prepareSearch(arlasIndex)
-                    .setFetchSource(includes, excludes)
-                    .setFrom(from)
-                    .setSize(size)
-                    .get();
-            collectionReferences.totalCollectionReferences = response.getHits().getTotalHits();
-            for (SearchHit hit : response.getHits().getHits()) {
-                String source = hit.getSourceAsString();
-                try {
-                    if (!hit.getId().equals(META_COLLECTION_NAME)){
-                        collectionReferences.collectionReferences.add(new CollectionReference(hit.getId(), mapper.readerFor(CollectionReferenceParameters.class).readValue(source)));
-                    } else {
-                        collectionReferences.totalCollectionReferences -= 1;
-                    }
-                } catch (IOException e) {
-                    throw new InternalServerErrorException("Can not fetch collection", e);
-                }
-            }
-            collectionReferences.nbCollectionReferences = collectionReferences.collectionReferences.size();
-
-        } catch (IndexNotFoundException e) {
-            throw new InternalServerErrorException("Unreachable collections", e);
-        }
-        return collectionReferences;
-    }
-
-
-    @Override
-    public List<CollectionReference> getCollectionReferences(String[] includes, String[] excludes, int size,
-                                                             int from, String[] ids, String q, BoundingBox boundingBox) throws ArlasException, IOException {
-
-        List<CollectionReference> collections = new ArrayList<>();
-        //Exclude old include_fields for support old collection
-        if (excludes != null) {
-            excludes[excludes.length + 1] = "include_fields";
-        } else {
-            excludes = new String[]{"include_fields"};
-        }
-        try {
-            BoolQueryBuilder boolQuery = buildCollectionQuery(ids, q, boundingBox);
-            SearchResponse response = client.prepareSearch(arlasIndex)
-                    .setFetchSource(includes, excludes)
-                    .setFrom(from)
-                    .setSize(size)
-                    .setQuery(boolQuery).get();
-            for (SearchHit hit : response.getHits().getHits()) {
-                String source = hit.getSourceAsString();
-                try {
-                    if (!hit.getId().equals(META_COLLECTION_NAME)){
-                        collections.add(new CollectionReference(hit.getId(), reader.readValue(source)));
-                    }
-                } catch (IOException e) {
-                    throw new InternalServerErrorException("Can not fetch collection", e);
-                }
-            }
-        } catch (IndexNotFoundException e) {
-            throw new InternalServerErrorException("Unreachable collections", e);
-        }
-        return collections;
-    }
-
-    @Override
-    public long countCollectionReferences(String[] ids, String q, BoundingBox boundingBox) throws ArlasException, IOException {
-        long count = 0;
-        try {
-            BoolQueryBuilder boolQuery = buildCollectionQuery(ids, q, boundingBox);
-            SearchResponse response = client.prepareSearch(arlasIndex)
-                    .setQuery(boolQuery).get();
-            count = response.getHits().getTotalHits();
-        } catch (IndexNotFoundException e) {
-            throw new InternalServerErrorException("Unreachable collections", e);
-        }
-        return count;
-    }
-
-    public static BoolQueryBuilder buildCollectionQuery(String[] ids, String q, BoundingBox boundingBox) throws IOException {
-        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        int minimumShouldMatch = 0;
-        if (ids != null && ids.length > 0) {
-            for (String resourceIdValue : Arrays.asList(ids)) {
-                orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery("dublin_core_element_name.identifier", resourceIdValue));
-            }
-            minimumShouldMatch = minimumShouldMatch + 1;
-        } else if (q != null && q.length() > 0) {
-            orBoolQueryBuilder = orBoolQueryBuilder
-                    .should((QueryBuilders.simpleQueryStringQuery(q).defaultOperator(Operator.AND).field("internal.fulltext")));
-            minimumShouldMatch = minimumShouldMatch + 1;
-        }
-        if (boundingBox != null) {
-            CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
-            coordinatesBuilder.coordinate(boundingBox.getEast(), boundingBox.getSouth());
-            coordinatesBuilder.coordinate(boundingBox.getEast(), boundingBox.getNorth());
-            coordinatesBuilder.coordinate(boundingBox.getWest(), boundingBox.getNorth());
-            coordinatesBuilder.coordinate(boundingBox.getWest(), boundingBox.getSouth());
-            coordinatesBuilder.coordinate(boundingBox.getEast(), boundingBox.getSouth());
-            PolygonBuilder polygonBuilder = new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.LEFT);
-            orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(QueryBuilders.geoIntersectionQuery("dublin_core_element_name.coverage", polygonBuilder));
-            minimumShouldMatch = minimumShouldMatch + 1;
-        }
-        orBoolQueryBuilder.minimumShouldMatch(minimumShouldMatch);
-        boolQuery = boolQuery.filter(orBoolQueryBuilder);
-        return boolQuery;
     }
 
     @Override
@@ -348,14 +132,11 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             do {
                 for (SearchHit hit : scrollResp.getHits().getHits()) {
                     String source = hit.getSourceAsString();
-                    if (!hit.getId().equals(META_COLLECTION_NAME)) {
-                        try {
-                            collections.add(new CollectionReference(hit.getId(), reader.readValue(source)));
-                        } catch (IOException e) {
-                            throw new InternalServerErrorException("Can not fetch collection", e);
-                        }
+                    try {
+                        collections.add(new CollectionReference(hit.getId(), reader.readValue(source)));
+                    } catch (IOException e) {
+                        throw new InternalServerErrorException("Can not fetch collection", e);
                     }
-
                 }
                 scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000))
                         .execute().actionGet();
@@ -368,20 +149,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     @Override
-    public CollectionReference putCollectionReference(CollectionReference collectionReference)
-            throws ArlasException {
-        if (!collectionReference.collectionName.equals(META_COLLECTION_NAME)) {
-            return putCollectionReferenceInternal(collectionReference);
-        } else {
-            throw new NotAllowedException("'" + META_COLLECTION_NAME + "' is not allowed as a name for collections");
-        }
-    }
-
-    @Override
-    public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException, NotAllowedException {
-        if (ref != null && ref.equals(META_COLLECTION_NAME)) {
-            throw new NotAllowedException("Forbidden operation on '" + META_COLLECTION_NAME + "'");
-        }
+    public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException {
         DeleteResponse response = client.prepareDelete(arlasIndex, "collection", ref).get();
         if (response.status().equals(RestStatus.NOT_FOUND)) {
             throw new NotFoundException("collection " + ref + " not found.");
@@ -471,7 +239,8 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         }
     }
 
-    private CollectionReference putCollectionReferenceInternal(CollectionReference collectionReference) throws ArlasException {
+    @Override
+    public CollectionReference putCollectionReference(CollectionReference collectionReference) throws ArlasException {
         checkCollectionReferenceParameters(collectionReference);
         setDefaultInspireParameters(collectionReference);
         setDefaultDublinCoreParameters(collectionReference);
@@ -493,27 +262,6 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
             return collectionReference;
         }
-    }
-
-    private void createMetaCollection(OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException {
-        CollectionReference collectionReference =  new CollectionReference();
-        collectionReference.collectionName = META_COLLECTION_NAME;
-        MetaCollectionReferenceParameters collectionReferenceParameters = new MetaCollectionReferenceParameters();
-        collectionReferenceParameters.indexName = arlasIndex;
-        collectionReferenceParameters.typeName = ARLAS_INDEX_MAPPING_NAME;
-        collectionReferenceParameters.idPath = META_COLLECTION_ID_PATH;
-        collectionReferenceParameters.geometryPath = META_COLLECTION_GEOMETRY_PATH;
-        collectionReferenceParameters.centroidPath = META_COLLECTION_CENTROID_PATH;
-        collectionReferenceParameters.timestampPath = META_COLLECTION_TIMESTAMP_PATH;
-        collectionReferenceParameters.inspireConfigurationParameters = new OgcInspireConfigurationParameters();
-        collectionReferenceParameters.inspireConfigurationParameters.reponsibleParty = ogcConfiguration.serviceProviderName;
-        collectionReferenceParameters.inspireConfigurationParameters.reponsiblePartyRole = ogcConfiguration.serviceProviderRole;
-        collectionReferenceParameters.inspireConfigurationParameters.creationDate = inspireConfiguration.servicesDateOfCreation;
-        collectionReferenceParameters.inspireConfigurationParameters.setConformityParameter();
-        collectionReferenceParameters.inspireConfigurationParameters.publicAccessLimitations = inspireConfiguration.publicAccessLimitations;
-        collectionReferenceParameters.inspireConfigurationParameters.accessAndUseConditions = inspireConfiguration.accessAndUseConditions;
-        collectionReference.params = collectionReferenceParameters;
-        putCollectionReferenceInternal(collectionReference);
     }
 
     private void setDefaultInspireParameters(CollectionReference collectionReference) {

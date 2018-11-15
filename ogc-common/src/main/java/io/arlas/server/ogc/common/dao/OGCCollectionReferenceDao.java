@@ -17,21 +17,20 @@
  * under the License.
  */
 
-package io.arlas.server.ogc.csw;
+package io.arlas.server.ogc.common.dao;
 
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.services.ExploreServices;
-import org.elasticsearch.client.Client;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.CollectionReferences;
+import io.arlas.server.utils.BoundingBox;
 
-public class ElasticCSWService extends CSWService {
+import java.io.IOException;
 
-    public ElasticCSWService(CSWHandler cswHandler , ExploreServices exploreServices, ArlasServerConfiguration configuration) throws ArlasException {
-        super(cswHandler, exploreServices);
-        this.dao = new ElasticCollectionReferenceDaoImpl(exploreServices.getClient(), configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
-        dao.initCollectionDatabase();
-        dao.initMetaCollection(configuration.ogcConfiguration, configuration.inspireConfiguration);
-    }
+public interface OGCCollectionReferenceDao {
 
+    public CollectionReferences getCollectionReferences(String[] includes, String[]
+            excludes, int size, int from, String[] ids, String q, String constraint, BoundingBox boundingBox) throws ArlasException, IOException;
+
+    public CollectionReferences getCollectionReferencesExceptOne(String[] includes, String[]
+            excludes, int size, int from, String[] ids, String q, String constraint, BoundingBox boundingBox, CollectionReference collectionReferenceToRemove) throws ArlasException, IOException;
 }

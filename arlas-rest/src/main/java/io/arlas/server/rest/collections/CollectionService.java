@@ -56,6 +56,7 @@ import java.util.concurrent.ExecutionException;
 public abstract class CollectionService extends CollectionRESTServices {
 
     protected CollectionReferenceDao dao = null;
+    private static final String META_COLLECTION_NAME = "metacollection";
 
     @Timed
     @Path("/")
@@ -103,6 +104,7 @@ public abstract class CollectionService extends CollectionRESTServices {
         List<CollectionReference> collections = dao.getAllCollectionReferences();
         String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
         String fileName = "arlas-collections-export_" + date + ".json";
+        removeMetacollection(collections);
         return ResponseFormatter.getFileResponse(collections, fileName);
     }
 
@@ -125,6 +127,7 @@ public abstract class CollectionService extends CollectionRESTServices {
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         List<CollectionReference> collections = getCollectionsFromInputStream(inputStream);
         List<CollectionReference> savedCollections = new ArrayList<>();
+        removeMetacollection(collections);
         for (CollectionReference collection : collections) {
             try {
                 savedCollections.add(save(collection.collectionName, collection.params));
@@ -222,6 +225,9 @@ public abstract class CollectionService extends CollectionRESTServices {
             @QueryParam(value = "pretty") Boolean pretty
 
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+        if (collection != null && collection.equals(META_COLLECTION_NAME)) {
+            throw new NotAllowedException("'" + META_COLLECTION_NAME + "' is not allowed as a name for collections");
+        }
         return ResponseFormatter.getResultResponse(save(collection, collectionReferenceParameters));
     }
 
@@ -262,7 +268,16 @@ public abstract class CollectionService extends CollectionRESTServices {
                     required = false)
             @QueryParam(value = "pretty") Boolean pretty
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+        if (collection != null && collection.equals(META_COLLECTION_NAME)) {
+            throw new NotAllowedException("Forbidden operation on '" + META_COLLECTION_NAME + "'");
+        }
         dao.deleteCollectionReference(collection);
         return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
+    }
+
+    private void removeMetacollection(List<CollectionReference> collectionReferences) {
+        if (collectionReferences != null) {
+            collectionReferences.removeIf(collectionReference -> collectionReference.collectionName.equals(META_COLLECTION_NAME));
+        }
     }
 }

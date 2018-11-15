@@ -19,386 +19,64 @@
 
 package io.arlas.server.ogc.csw;
 
-import com.a9.opensearch.OpenSearchDescription;
-import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.app.CSWConfiguration;
+import io.arlas.server.ElasticFilter;
+import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.app.INSPIREConfiguration;
 import io.arlas.server.app.OGCConfiguration;
-import io.arlas.server.core.ElasticAdmin;
-import io.arlas.server.core.FluidSearch;
-import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.exceptions.OGC.OGCExceptionCode;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.CollectionReferences;
-import io.arlas.server.model.response.CollectionReferenceDescription;
-import io.arlas.server.model.response.Error;
-import io.arlas.server.ns.ATOM;
+import io.arlas.server.model.*;
+import io.arlas.server.ogc.common.dao.ElasticOGCCollectionReferenceDaoImp;
 import io.arlas.server.ogc.common.model.Service;
-import io.arlas.server.ogc.common.utils.GeoFormat;
-import io.arlas.server.ogc.common.utils.RequestUtils;
-import io.arlas.server.ogc.csw.filter.CSWQueryBuilder;
-import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
-import io.arlas.server.ogc.csw.operation.getrecordbyid.GetRecordByIdResponse;
-import io.arlas.server.ogc.csw.operation.getrecordbyid.GetRecordsByIdHandler;
-import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
-import io.arlas.server.ogc.csw.operation.opensearch.OpenSearchHandler;
-import io.arlas.server.ogc.csw.utils.*;
-import io.arlas.server.app.Documentation;
-import io.arlas.server.services.ExploreServices;
-import io.arlas.server.utils.BoundingBox;
-import io.swagger.annotations.*;
-import net.opengis.cat.csw._3.AbstractRecordType;
-import net.opengis.cat.csw._3.CapabilitiesType;
-import net.opengis.cat.csw._3.GetRecordsResponseType;
-import org.xml.sax.SAXException;
+import org.elasticsearch.client.Client;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.*;
-import javax.xml.bind.JAXBElement;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
-import static io.arlas.server.utils.CheckParams.isBboxLatLonInCorrectRanges;
+public class CSWService extends CSWRESTService {
 
-@Path("/ogc")
-@Api(value = "/ogc")
-public class CSWService {
+    Client client;
 
-    protected CollectionReferenceDao dao = null;
-    public static final String MIME_TYPE__OPENSEARCH_XML = "application/opensearchdescription+xml";
+    private static final String META_COLLECTION_ID_PATH = "dublin_core_element_name.identifier";
+    private static final String META_COLLECTION_GEOMETRY_PATH = "dublin_core_element_name.coverage";
+    private static final String META_COLLECTION_CENTROID_PATH = "dublin_core_element_name.coverage_centroid";
+    private static final String META_COLLECTION_TIMESTAMP_PATH = "dublin_core_element_name.date";
 
-    public CSWHandler cswHandler;
-    private OGCConfiguration ogcConfiguration;
-    private CSWConfiguration cswConfiguration;
-    private ExploreServices exploreServices;
-
-    private String serverUrl;
-
-    public CSWService(CSWHandler cswHandler, ExploreServices exploreServices) {
-        this.cswHandler = cswHandler;
-        this.exploreServices = exploreServices;
-        this.ogcConfiguration = cswHandler.ogcConfiguration;
-        this.cswConfiguration = cswHandler.cswConfiguration;
-        this.serverUrl = ogcConfiguration.serverUri;
+    public CSWService(Client client, CSWHandler cswHandler, ArlasServerConfiguration configuration) throws ArlasException {
+        super(cswHandler);
+        this.client = client;
+        this.dao = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
+        initMetaCollection(configuration.arlasindex, configuration.ogcConfiguration, configuration.inspireConfiguration);
+        this.ogcDao = new ElasticOGCCollectionReferenceDaoImp(client, configuration.arlasindex, Service.CSW);
     }
 
-    @Context
-    UriInfo uri;
-
-    @Timed
-    @Path("/csw")
-    @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, ATOM.APPLICATION_ATOM_XML, MIME_TYPE__OPENSEARCH_XML})
-    @ApiOperation(
-            value = "CSW",
-
-            produces = MediaType.APPLICATION_XML + "," + MediaType.TEXT_XML + "," + ATOM.APPLICATION_ATOM_XML + "," + MIME_TYPE__OPENSEARCH_XML,
-            notes = "CSW"
-    )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
-    public Response doKVP(
-            @ApiParam(
-                    name = "version",
-                    value = "version",
-                    allowMultiple = false,
-                    required = true)
-            @QueryParam(value = "version") String version,
-            @ApiParam(
-                    name = "acceptversions",
-                    value = "acceptversions",
-                    allowMultiple = false,
-                    required = true)
-            @QueryParam(value = "acceptversions") String acceptVersions,
-            @ApiParam(
-                    name = "service",
-                    value = "service",
-                    allowMultiple = false,
-                    required = true)
-            @QueryParam(value = "service") String service,
-            @ApiParam(
-                    name = "request",
-                    value = "request",
-                    allowMultiple = false,
-                    required = true)
-            @QueryParam(value = "request") String request,
-            @ApiParam(
-                    name = "elementname",
-                    value = "elementname",
-                    allowMultiple = false,
-                    required = true)
-            @QueryParam(value = "elementname") String elementName,
-            @ApiParam(
-                    name = "elementsetname",
-                    value = "elementsetname",
-                    allowMultiple = false,
-                    required = true)
-            @QueryParam(value = "elementsetname") String elementSetName,
-            @ApiParam(
-                    name = "filter",
-                    value = "filter",
-                    allowMultiple = false,
-                    required = true)
-            @QueryParam(value = "filter") String filter,
-
-            @ApiParam(
-                    name = "constraint",
-                    value = "constraint",
-                    allowMultiple = false,
-                    required = true)
-            @QueryParam(value = "constraint") String constraint,
-            @ApiParam(
-                    name = "constraintLanguage",
-                    value = "constraintLanguage",
-                    allowMultiple = false,
-                    required = true)
-            @QueryParam(value = "constraintLanguage") String constraintLanguage,
-            @ApiParam(
-                    name = "startposition",
-                    value = "startposition",
-                    allowMultiple = false,
-                    required = false)
-            @QueryParam(value = "startposition") Integer startPosition,
-            @ApiParam(
-                    name = "maxrecords",
-                    value = "maxrecords",
-                    allowMultiple = false,
-                    required = false)
-            @QueryParam(value = "maxrecords") Integer maxRecords,
-            @ApiParam(
-                    name = "sections",
-                    value = "sections",
-                    allowMultiple = false,
-                    required = false)
-            @QueryParam(value = "sections") String sections,
-            @ApiParam(
-                    name = "acceptformats",
-                    value = "acceptformats",
-                    allowMultiple = false,
-                    required = false)
-            @QueryParam(value = "acceptformats") String acceptFormats,
-            @ApiParam(
-                    name = "q",
-                    value = "q",
-                    allowMultiple = false,
-                    required = false)
-            @QueryParam(value = "q") String query,
-            @ApiParam(
-                    name = "bbox",
-                    value = "bbox",
-                    allowMultiple = false,
-                    required = false)
-            @QueryParam(value = "bbox") String bbox,
-            @ApiParam(
-                    name = "outputformat",
-                    value = "outputformat",
-                    allowMultiple = false,
-                    required = false)
-            @QueryParam(value = "outputformat") String outputFormat,
-            @ApiParam(
-                    name = "outputschema",
-                    value = "outputschema",
-                    allowMultiple = false,
-                    required = false)
-            @QueryParam(value = "outputschema") String outputSchema,
-            @ApiParam(
-                    name = "typenames",
-                    value = "typenames",
-                    allowMultiple = false,
-                    required = false)
-            @QueryParam(value = "typenames") String typeNames,
-            @ApiParam(
-                    name = "recordids",
-                    value = "recordids",
-                    allowMultiple = false,
-                    required = false)
-            @QueryParam(value = "recordids") String recordIds,
-            @ApiParam(
-                    name = "id",
-                    value = "id",
-                    allowMultiple = false,
-                    required = false)
-            @QueryParam(value = "id") String id,
-            @ApiParam(
-                    name = "language",
-                    value = "language",
-                    allowMultiple = false,
-                    required = false)
-            @QueryParam(value = "language") String language,
-
-            // --------------------------------------------------------
-            // ----------------------- FORM -----------------------
-            // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
-            @QueryParam(value = "pretty") Boolean pretty,
-            @Context HttpHeaders headers
-    ) throws ArlasException, DatatypeConfigurationException, IOException, OGCException, ParserConfigurationException, SAXException {
-        String acceptFormatMediaType = MediaType.APPLICATION_XML;
-        String outputFormatMediaType = MediaType.APPLICATION_XML;
-        for (MediaType mediaType : headers.getAcceptableMediaTypes()) {
-            if (mediaType.getSubtype().contains("opensearchdescription")) {
-                OpenSearchHandler openSearchHandler = cswHandler.openSearchHandler;
-                OpenSearchDescription description = openSearchHandler.getOpenSearchDescription(serverUrl);
-                return Response.ok(description).build();
-            } else if (mediaType.getSubtype().contains("atom")) {
-                outputFormatMediaType = MediaType.APPLICATION_ATOM_XML;
-            }
-        }
-        if (request == null & version == null & service == null) {
-            request = "GetCapabilities";
-            version = CSWConstant.SUPPORTED_CSW_VERSION;
-            service = CSWConstant.CSW;
-        }
-        String[] sectionList;
-        if (sections == null) {
-            sectionList = new String[]{"All"};
-        } else {
-            sectionList = sections.split(",");
-            for (String section : Arrays.asList(sectionList)) {
-                if (!Arrays.asList(CSWConstant.SECTION_NAMES).contains(section)) {
-                    throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid sections", "sections", Service.CSW);
-                }
-            }
-        }
-        if (acceptFormats != null) {
-            if (acceptFormats.equals("text/xml")) {
-                acceptFormatMediaType = MediaType.TEXT_XML;
-            } else if (acceptFormats.equals("application/xml")) {
-                acceptFormatMediaType = MediaType.APPLICATION_XML;
-            } else {
-                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid acceptFormats", "acceptFormats", Service.CSW);
-            }
-        }
-
-        if (outputFormat != null) {
-            if (outputFormat.equals("application/xml")) {
-                outputFormatMediaType = MediaType.APPLICATION_XML;
-            } else if (outputFormat.equals("application/atom+xml")) {
-                outputFormatMediaType = MediaType.APPLICATION_ATOM_XML;
-            } else {
-                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid outputFormat", "outputFormat", Service.CSW);
-            }
-        }
-
-        RequestUtils.checkRequestTypeByName(request, CSWConstant.SUPPORTED_CSW_REQUESTYPE, Service.CSW);
-        CSWRequestType requestType = CSWRequestType.valueOf(request);
-        CSWCheckParam.checkQuerySyntax(requestType, elementName, elementSetName, acceptVersions, version, service, outputSchema, typeNames, bbox, recordIds, query, id, constraintLanguage);
-
-        String[] ids = null;
-        if (recordIds != null && recordIds.length() > 0) {
-            ids = recordIds.split(",");
-        } else if (id != null) {
-            ids = new String[]{id};
-        }
-        BoundingBox boundingBox = null;
-        if (bbox != null && bbox.length() > 0) {
-            // west, south, east, north CSW spec
-            double[] bboxList = GeoFormat.toDoubles(bbox, Service.CSW);
-            if (!(isBboxLatLonInCorrectRanges(bboxList) && bboxList[3] > bboxList[1]) && bboxList[0] != bboxList[2]) {
-                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "bbox", Service.CSW);
-            }
-            boundingBox = new BoundingBox(bboxList[3], bboxList[1], bboxList[0], bboxList[2]);
-        }
-        startPosition = Optional.ofNullable(startPosition).orElse(1);
-        maxRecords = Optional.ofNullable(maxRecords).orElse(ogcConfiguration.queryMaxFeature.intValue());
-        elementSetName = Optional.ofNullable(elementSetName).orElse("summary");
-        String[] elements = new String[]{};
-
-        if (elementName != null) {
-            elements = new String[elementName.split(",").length];
-            int i = 0;
-            for (String element : elementName.split(",")) {
-                if (element.contains(":")) {
-                    elements[i] = elementName.split(":")[1];
-                    element = elements[i];
-                } else {
-                    elements[i] = element;
-                }
-                if (!Arrays.asList(CSWConstant.DC_FIELDS).contains(element.toLowerCase()))
-                    throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid elementName", "elementName", Service.CSW);
-                i++;
-            }
-        }
-        List<CollectionReference> collections = new ArrayList<>();
-        switch (requestType) {
-            case GetCapabilities:
-                GetCapabilitiesHandler getCapabilitiesHandler = cswHandler.getCapabilitiesHandler;
-                List<String> responseSections = Arrays.asList(sectionList);
-                String serviceUrl = serverUrl + "ogc/csw/?";
-                getCapabilitiesHandler.setCapabilitiesType(responseSections, serviceUrl, serverUrl + "ogc/csw/opensearch");
-                if (cswHandler.inspireConfiguration.enabled) {
-                    List<CollectionReference> allCollections = dao.getAllCollectionReferences();
-                    getCapabilitiesHandler.addINSPIRECompliantElements(allCollections, responseSections, serviceUrl, language);
-                }
-                JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse();
-                return Response.ok(getCapabilitiesResponse).type(acceptFormatMediaType).build();
-            case GetRecords:
-                GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
-                CollectionReference metaCollection = dao.getMetaCollectionReference(ogcConfiguration, cswHandler.inspireConfiguration);
-                ElasticAdmin elasticAdmin = new ElasticAdmin(exploreServices.getClient());
-                CollectionReferenceDescription metaCollectionDescription = elasticAdmin.describeCollection(metaCollection);
-                CSWQueryBuilder cswQueryBuilder = new CSWQueryBuilder(ids, query, boundingBox, constraint, metaCollectionDescription);
-                CollectionReferences collectionReferences = dao.getCollectionReferencesForCSW(cswQueryBuilder.ogcQuery, cswQueryBuilder.isConfigurationQuery, elements, null, maxRecords, startPosition - 1);
-                collections = collectionReferences.collectionReferences;
-                long recordsMatched = collectionReferences.totalCollectionReferences;
-
-                if (recordIds != null && recordIds.length() > 0) {
-                    if (collections.size() == 0) {
-                        throw new OGCException(OGCExceptionCode.NOT_FOUND, "Document not Found", "id", Service.CSW);
-                    }
-                }
-                GetRecordsResponseType getRecordsResponse = getRecordsHandler.getCSWGetRecordsResponse(collections,
-                        ElementSetName.valueOf(elementSetName), startPosition - 1, recordsMatched, elements, outputSchema);
-
-                return Response.ok(getRecordsResponse).type(outputFormatMediaType).build();
-            case GetRecordById:
-                GetRecordsByIdHandler getRecordsByIdHandler = cswHandler.getRecordsByIdHandler;
-                collections = dao.getCollectionReferences(elements, null,
-                        maxRecords, startPosition - 1, ids, query, boundingBox);
-                if (outputSchema != null && outputSchema.equals(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA[2])) {
-                    GetRecordByIdResponse getRecordByIdResponse = getRecordsByIdHandler.getMDMetadaTypeResponse(collections, ElementSetName.valueOf(elementSetName));
-                    return Response.ok(getRecordByIdResponse).type(outputFormatMediaType).build();
-                } else {
-                    AbstractRecordType abstractRecordType = getRecordsByIdHandler.getAbstractRecordTypeResponse(collections, ElementSetName.valueOf(elementSetName));
-                    return Response.ok(abstractRecordType).type(outputFormatMediaType).build();
-                }
-            default:
-                throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.CSW);
+    private void initMetaCollection(String index, OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException {
+        List<CollectionReference> collectionReferences =  dao.getAllCollectionReferences();
+        long count = collectionReferences.stream().filter(collectionReference -> collectionReference.collectionName.equals(getMetacollactionName())).count();
+        if (count == 0) {
+            CollectionReference metacolletion = createMetaCollection(index, ogcConfiguration, inspireConfiguration);
+            dao.putCollectionReference(metacolletion);
         }
     }
 
-
-
-    @Timed
-    @Path("/csw/opensearch")
-    @GET
-    @Produces({MediaType.APPLICATION_XML, MIME_TYPE__OPENSEARCH_XML})
-    @ApiOperation(value = "OpenSearch CSW Description Document",
-            produces = MediaType.APPLICATION_XML + "," + MIME_TYPE__OPENSEARCH_XML,
-            notes = Documentation.OPENSEARCH_CSW_OPERATION)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
-    public Response opensearch(
-            // --------------------------------------------------------
-            // -----------------------  EXTRA   -----------------------
-            // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
-            @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws ArlasException {
-        OpenSearchHandler openSearchHandler = cswHandler.openSearchHandler;
-        OpenSearchDescription description = openSearchHandler.getOpenSearchDescription(serverUrl);
-        return Response.ok(description).build();
+    private CollectionReference createMetaCollection(String index, OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException {
+        CollectionReference collectionReference =  new CollectionReference();
+        collectionReference.collectionName = getMetacollactionName();
+        MetaCollectionReferenceParameters collectionReferenceParameters = new MetaCollectionReferenceParameters();
+        collectionReferenceParameters.indexName = index;
+        collectionReferenceParameters.typeName = "collection";
+        collectionReferenceParameters.idPath = META_COLLECTION_ID_PATH;
+        collectionReferenceParameters.geometryPath = META_COLLECTION_GEOMETRY_PATH;
+        collectionReferenceParameters.centroidPath = META_COLLECTION_CENTROID_PATH;
+        collectionReferenceParameters.timestampPath = META_COLLECTION_TIMESTAMP_PATH;
+        collectionReferenceParameters.inspireConfigurationParameters = new OgcInspireConfigurationParameters();
+        collectionReferenceParameters.inspireConfigurationParameters.reponsibleParty = ogcConfiguration.serviceProviderName;
+        collectionReferenceParameters.inspireConfigurationParameters.reponsiblePartyRole = ogcConfiguration.serviceProviderRole;
+        collectionReferenceParameters.inspireConfigurationParameters.creationDate = inspireConfiguration.servicesDateOfCreation;
+        collectionReferenceParameters.inspireConfigurationParameters.setConformityParameter();
+        collectionReferenceParameters.inspireConfigurationParameters.publicAccessLimitations = inspireConfiguration.publicAccessLimitations;
+        collectionReferenceParameters.inspireConfigurationParameters.accessAndUseConditions = inspireConfiguration.accessAndUseConditions;
+        collectionReference.params = collectionReferenceParameters;
+        return collectionReference;
     }
+
 }

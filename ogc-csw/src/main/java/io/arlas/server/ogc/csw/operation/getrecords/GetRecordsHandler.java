@@ -69,8 +69,6 @@ public class GetRecordsHandler {
                         JAXBElement<BriefRecordType> briefRecordType = cswHandler.cswFactory.createBriefRecord(briefRecord);
                         searchResultType.getAbstractRecord().add(briefRecordType);
                     }
-
-
                 });
                 break;
             case summary:

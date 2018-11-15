@@ -19,13 +19,16 @@
 
 package io.arlas.server.utils;
 
+import com.fasterxml.jackson.databind.ObjectReader;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
+import io.arlas.server.model.CollectionReference;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentType;
 
@@ -66,5 +69,22 @@ public class ESTool {
             }
         }
         return true;
+    }
+
+    public static CollectionReference getCollectionReferenceFromES(Client client, String index, String type, ObjectReader reader, String ref) throws ArlasException {
+        CollectionReference collection = new CollectionReference(ref);
+        //Exclude old include_fields for support old collection
+        GetResponse hit = client.prepareGet(index, type, ref).setFetchSource(null, "include_fields").get();
+        String source = hit.getSourceAsString();
+        if (source != null) {
+            try {
+                collection.params = reader.readValue(source);
+            } catch (IOException e) {
+                throw new InternalServerErrorException("Can not fetch collection " + ref, e);
+            }
+        } else {
+            throw new NotFoundException("Collection " + ref + " not found.");
+        }
+        return collection;
     }
 }

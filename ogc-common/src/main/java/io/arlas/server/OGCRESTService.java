@@ -17,19 +17,19 @@
  * under the License.
  */
 
-package io.arlas.server.rest.collections;
+package io.arlas.server;
 
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
-import io.arlas.server.exceptions.ArlasException;
-import org.elasticsearch.client.Client;
+import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.ogc.common.dao.OGCCollectionReferenceDao;
 
-public class ElasticCollectionService extends CollectionService {
 
-    public ElasticCollectionService(Client client, ArlasServerConfiguration configuration) throws ArlasException {
-        super();
-        this.dao = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
-        dao.initCollectionDatabase();
+public class OGCRESTService {
+    protected CollectionReferenceDao dao = null;
+    protected OGCCollectionReferenceDao ogcDao = null;
+    private static final String META_COLLECTION_NAME = "metacollection";
+
+    protected String getMetacollactionName() {
+        return META_COLLECTION_NAME;
     }
 
 }
