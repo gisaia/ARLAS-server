@@ -190,8 +190,11 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
             throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "StoredQuery " + storedquery_id + " not found", "storedquery_id", Service.WFS);
         }
         if (requestType !=null && requestType.equals(WFSRequestType.GetFeature)) {
-            wfsQuery.filter(QueryBuilders.matchQuery(collectionReference.params.idPath, id));
-            //isStoredQuey = true;
+            if (id != null) {
+                wfsQuery.filter(QueryBuilders.matchQuery(collectionReference.params.idPath, id));
+            } else {
+                throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, "'id' parameter is missing for the StoredQuery : " + storedquery_id, "storedquery_id", Service.WFS);
+            }
         }
     }
 
