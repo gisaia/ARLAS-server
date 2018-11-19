@@ -199,7 +199,7 @@ public class GetCapabilitiesHandler {
     private void addECMetadataPointOfContact() {
         MetadataPointOfContact metadataPointOfContact = new MetadataPointOfContact();
         String email = cswHandler.ogcConfiguration.serviceContactMail;
-        String name = cswHandler.ogcConfiguration.serviceContactIndividualName;
+        String name = cswHandler.ogcConfiguration.serviceProviderName;
         metadataPointOfContact.setEmailAddress(email);
         metadataPointOfContact.setOrganisationName(name);
         inspireExtendedCapabilitiesType.getMetadataPointOfContact().clear();

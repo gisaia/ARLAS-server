@@ -21,7 +21,7 @@ package io.arlas.server.inspire.common.constants;
 
 public class INSPIREConstants {
 
-    public static final String CLASSIFICATION_SPATIAL_DATA_SERVICES = "Classification of Spatial data Services";
+    public static final String CLASSIFICATION_SPATIAL_DATA_SERVICES = "Classification of Spatial data Services based on the geographic services taxonomy of EN ISO 19119";
     public static final String DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES = "2008-12-03";
     public static final String INSPIRE_RESOURCE_TITLE = "WFS service (download service) published by ARLAS";
     public static final String INSPIRE_RESOURCE_ABSTRACT = "Web Feature Service maintained by Arlas. Contact: contact@gisaia.com";

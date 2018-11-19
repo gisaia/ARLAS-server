@@ -43,7 +43,6 @@ import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
 
 import net.opengis.fes._2.*;
-import net.opengis.gml._3.TimeInstantType;
 import net.opengis.ows._1.*;
 import net.opengis.wfs._2.*;
 import org.elasticsearch.common.Strings;
@@ -264,8 +263,6 @@ public class GetCapabilitiesHandler {
         filterCapabilities.setIdCapabilities(idCapabilitiesType);
         filterCapabilities.setConformance(fesConformanceType);
         getCapabilitiesType.setFilterCapabilities(filterCapabilities);
-
-
     }
 
     private void addSection(String sectionName, DomainType sections) {
@@ -368,9 +365,9 @@ public class GetCapabilitiesHandler {
         inspireExtendedCapabilitiesType.getResourceLocator().add(resourceLocatorType);
     }
 
-    private void addECTemporalReference(CollectionReference collectionReference) {
+    private void addECTemporalReference(String dateOfCreation) {
         TemporalReference temporalReference = new TemporalReference();
-        temporalReference.setDateOfCreation(collectionReference.params.dublinCoreElementName.getDate());
+        temporalReference.setDateOfCreation(dateOfCreation);
         inspireExtendedCapabilitiesType.getTemporalReference().clear();
         inspireExtendedCapabilitiesType.getTemporalReference().add(temporalReference);
     }
@@ -393,10 +390,10 @@ public class GetCapabilitiesHandler {
         inspireExtendedCapabilitiesType.getConformity().add(metadataConformity);
     }
 
-    private void addECMetadataPointOfContact(CollectionReference collectionReference) {
+    private void addECMetadataPointOfContact() {
         MetadataPointOfContact metadataPointOfContact = new MetadataPointOfContact();
         String email = Optional.ofNullable(ogcConfiguration.serviceContactMail).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_EMAIL);
-        String name = Optional.ofNullable(ogcConfiguration.serviceContactIndividualName).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_NAME);
+        String name = Optional.ofNullable(ogcConfiguration.serviceProviderName).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_NAME);
         metadataPointOfContact.setEmailAddress(email);
         metadataPointOfContact.setOrganisationName(name);
         inspireExtendedCapabilitiesType.getMetadataPointOfContact().clear();
@@ -480,11 +477,11 @@ public class GetCapabilitiesHandler {
         // Add INSPIRE Resource Locator
         addECResourceLocator(serviceUrl);
         // Add INSPIRE Temporal Reference
-        addECTemporalReference(collectionReference);
+        addECTemporalReference(inspireConfiguration.servicesDateOfCreation);
         // Add INSPIRE Conformity
         addECConformity();
         // Add INSPIRE Metadata Point of Contact
-        addECMetadataPointOfContact(collectionReference);
+        addECMetadataPointOfContact();
         // Add INSPIRE Metadata Language
         addECMetadataLanguage(collectionReference);
         // Add INSPIRE Unique Resource Identifier

@@ -126,10 +126,10 @@ arlas-csw:
   openSearchShortName: ${ARLAS_CSW_OPENSEARCH_SHORTNAME:-Geo-Catalog}
 
 arlas-inspire:
-  enabled: ${ARLAS_WFS_INSPIRE_ENABLED:-true}
+  enabled: ${ARLAS_INSPIRE_ENABLED:-false}
   services_date_of_creation: ${ARLAS_INSPIRE_SERVICES_DATE_OF_CREATION:-2018-11-05} # YYYY-MM-DD
-  access_and_use_conditions: ${ARLAS_WFS_INSPIRE_ACCESS_AND_USE_CONDITIONS:-no conditons apply} # Free text or specify a URL to a link that describes eventual conditions
-  public_access_limitations: ${ARLAS_WFS_INSPIRE_PUBLIC_ACCESS_LIMITATIONS:-no limitations apply} # Free text or specify a URL to a link that describes eventual limitations
+  access_and_use_conditions: ${ARLAS_INSPIRE_ACCESS_AND_USE_CONDITIONS:-no conditons apply} # Free text or specify a URL to a link that describes eventual conditions
+  public_access_limitations: ${ARLAS_INSPIRE_PUBLIC_ACCESS_LIMITATIONS:-no limitations apply} # Free text or specify a URL to a link that describes eventual limitations
 ########################################################
 ############ OPENSEARCH                  ###############
 ########################################################
