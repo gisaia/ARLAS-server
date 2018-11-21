@@ -37,6 +37,14 @@ public class CollectionReference {
     public static final String UPDATE_MAX_HITS = "update_max_hits";
     public static final String EXCLUDE_WFS_FIELDS = "exclude_wfs_fields";
     public static final String CUSTOM_PARAMS = "custom_params";
+    public static final String INSPIRE_PATH = "inspire";
+    public static final String DUBLIN_CORE_PATH = "dublin_core_element_name";
+    public static final String INSPIRE_LINEAGE = "lineage";
+    public static final String INSPIRE_TOPIC_CATEGORIES = "topic_categories";
+    public static final String DUBLIN_CORE_TITLE = "title";
+    public static final String DUBLIN_CORE_DESCRIPTION = "description";
+    public static final String DUBLIN_CORE_LANGUAGE = "language";
+
 
     @JsonProperty(value = "collection_name", required = true)
     public String collectionName;

@@ -176,26 +176,6 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 CheckParams.checkExcludeField(excludeField, fields);
             }
 
-            try {
-                AccessConstraintEnum.valueOf(collectionReference.params.inspire.inspireLimitationAccess.accessConstraints);
-            } catch (IllegalArgumentException e) {
-                String listOfAccessConstraintEnum = "";
-                for (AccessConstraintEnum ace : AccessConstraintEnum.values()) {
-                    listOfAccessConstraintEnum += "'" + ace.name() + "', ";
-                }
-                throw new InvalidParameterException("accessConstraints is invalid. Please choose one of : " + listOfAccessConstraintEnum);
-            }
-            try {
-                InspireAccessClassificationEnum.valueOf(collectionReference.params.inspire.inspireLimitationAccess.classification);
-            } catch (IllegalArgumentException e) {
-                String listOfClassificationEnum = "";
-                for (InspireAccessClassificationEnum iace : InspireAccessClassificationEnum.values()) {
-                    listOfClassificationEnum += "'" + iace.name() + "', ";
-                }
-                throw new InvalidParameterException("Inspire Access Classification is invalid. Please choose one of : " + listOfClassificationEnum);
-            }
-
-
             Iterator<String> indeces = response.getMappings().keysIt();
             while (indeces.hasNext()) {
                 String index = indeces.next();

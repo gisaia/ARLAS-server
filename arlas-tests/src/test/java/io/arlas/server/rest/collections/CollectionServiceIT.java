@@ -26,7 +26,9 @@ import io.restassured.response.ValidatableResponse;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.*;
@@ -37,6 +39,8 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     @Test
     public void testLifecycle() throws Exception {
         Map<String, Object> jsonAsMap = getJsonAsMap();
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
 
         // PUT new collection
         given().contentType("application/json").body(jsonAsMap)
@@ -69,6 +73,8 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     @Test
     public void testGetAllCollections() throws Exception {
         Map<String, Object> jsonAsMap = getJsonAsMap();
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
 
         // PUT new collection 1
         given().contentType("application/json").body(jsonAsMap)
@@ -156,6 +162,8 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     public void testInvalidCollectionParameters() throws Exception {
         Map<String, Object> jsonAsMap = new HashMap<String, Object>();
         jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
 
         // PUT new collection with Index name Only
         handleInvalidCollectionParameters(put(jsonAsMap));
@@ -184,10 +192,47 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     }
 
     @Test
+    public void testMissingInspireDublinCollectionParameters() throws Exception {
+        Map<String, Object> jsonAsMap = getJsonAsMap();
+
+        // PUT new collection with missing both Inspire & dublin_core parameters
+        handleInspireDublinMissingCollectionParameters(put(jsonAsMap));
+
+        // PUT new collection with missing Inspire parameters only
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
+        handleInspireDublinMissingCollectionParameters(put(jsonAsMap));
+
+        // PUT new collection with missing Dublin parameters only
+        jsonAsMap.remove(CollectionReference.DUBLIN_CORE_PATH);
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        handleInspireDublinMissingCollectionParameters(put(jsonAsMap));
+    }
+
+    @Test
+    public void testInvalidInspireDublinCollectionParameters() throws Exception {
+        Map<String, Object> jsonAsMap = getJsonAsMap();
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireInvalidTopicCategoryJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
+
+        // PUT new collection with Invalid TopicCatecory
+        handleInvalidCollectionParameters(put(jsonAsMap));
+
+        // PUT new collection with Invalid dublin core language
+        jsonAsMap.remove(CollectionReference.INSPIRE_PATH);
+        jsonAsMap.remove(CollectionReference.DUBLIN_CORE_PATH);
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinInvalidLanguageJsonAsMap());
+        handleInvalidCollectionParameters(put(jsonAsMap));
+    }
+
+
+    @Test
     public void testNotFoundCollectionParameters() throws Exception {
         Map<String, Object> jsonAsMap = new HashMap<>();
         jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
         jsonAsMap.put(CollectionReference.TYPE_NAME, DataSetTool.DATASET_TYPE_NAME);
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
         jsonAsMap.put(CollectionReference.ID_PATH, "unknownId");
 
         // PUT new collection with non-existing 'id' field from DATASET_TYPE_NAME in DATASET_INDEX_NAME
@@ -205,6 +250,10 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
 
     private void handleInvalidCollectionParameters(ValidatableResponse then) throws Exception {
+        then.statusCode(400);
+    }
+
+    private void handleInspireDublinMissingCollectionParameters(ValidatableResponse then) throws Exception {
         then.statusCode(400);
     }
 
@@ -230,6 +279,42 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         jsonAsMap.put(CollectionReference.EXCLUDE_WFS_FIELDS, DataSetTool.DATASET_EXCLUDE_WFS_FIELDS);
         return jsonAsMap;
     }
+
+    private Map<String, Object> getDublinJsonAsMap() {
+        Map<String, Object> dublinSubJsonAsMap = new HashMap<>();
+        dublinSubJsonAsMap.put(CollectionReference.DUBLIN_CORE_TITLE, DataSetTool.DATASET_DUBLIN_CORE_TITLE);
+        dublinSubJsonAsMap.put(CollectionReference.DUBLIN_CORE_DESCRIPTION, DataSetTool.DATASET_DUBLIN_CORE_DESCRIPTION);
+        dublinSubJsonAsMap.put(CollectionReference.DUBLIN_CORE_LANGUAGE, DataSetTool.DATASET_DUBLIN_CORE_LANGUAGE);
+        return dublinSubJsonAsMap;
+    }
+
+    private Map<String, Object> getDublinInvalidLanguageJsonAsMap() {
+        Map<String, Object> dublinSubJsonAsMap = new HashMap<>();
+        dublinSubJsonAsMap.put(CollectionReference.DUBLIN_CORE_TITLE, DataSetTool.DATASET_DUBLIN_CORE_TITLE);
+        dublinSubJsonAsMap.put(CollectionReference.DUBLIN_CORE_DESCRIPTION, DataSetTool.DATASET_DUBLIN_CORE_DESCRIPTION);
+        dublinSubJsonAsMap.put(CollectionReference.DUBLIN_CORE_LANGUAGE, "english");
+        return dublinSubJsonAsMap;
+    }
+
+    private Map<String, Object> getInspireJsonAsMap() {
+        Map<String, Object> inspireSubJsonAsMap = new HashMap<>();
+        inspireSubJsonAsMap.put(CollectionReference.INSPIRE_LINEAGE, DataSetTool.DATASET_INSPIRE_LINEAGE);
+        List<String> topicCategories =  new ArrayList<>();
+        topicCategories.add(DataSetTool.DATASET_INSPIRE_TOPIC_CATEGORY);
+        inspireSubJsonAsMap.put(CollectionReference.INSPIRE_TOPIC_CATEGORIES, topicCategories);
+        return inspireSubJsonAsMap;
+    }
+
+    private Map<String, Object> getInspireInvalidTopicCategoryJsonAsMap() {
+        Map<String, Object> inspireSubJsonAsMap = new HashMap<>();
+        inspireSubJsonAsMap.put(CollectionReference.INSPIRE_LINEAGE, DataSetTool.DATASET_INSPIRE_LINEAGE);
+        List<String> invalidTopicCategories =  new ArrayList<>();
+        invalidTopicCategories.add("foo");
+        inspireSubJsonAsMap.put(CollectionReference.INSPIRE_TOPIC_CATEGORIES, invalidTopicCategories);
+        return inspireSubJsonAsMap;
+    }
+
+
 
     @Override
     protected String getUrlPath(String collection) {

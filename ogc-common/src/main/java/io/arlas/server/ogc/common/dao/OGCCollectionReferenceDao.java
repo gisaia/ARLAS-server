@@ -33,4 +33,6 @@ public interface OGCCollectionReferenceDao {
 
     public CollectionReferences getCollectionReferencesExceptOne(String[] includes, String[]
             excludes, int size, int from, String[] ids, String q, String constraint, BoundingBox boundingBox, CollectionReference collectionReferenceToRemove) throws ArlasException, IOException;
+    public CollectionReferences getAllCollectionReferencesExceptOne(String[] includes, String[]
+            excludes, int size, int from, CollectionReference collectionReferenceToRemove) throws ArlasException, IOException;
 }

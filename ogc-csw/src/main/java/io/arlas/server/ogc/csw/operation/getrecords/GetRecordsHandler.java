@@ -65,7 +65,7 @@ public class GetRecordsHandler {
                         MDMetadataType briefMDMetadata = MDMetadataBuilder.getBriefMDMetadata(collectionReference);
                         searchResultType.getMDMetadata().add(briefMDMetadata);
                     } else {
-                        BriefRecordType briefRecord = RecordBuilder.getBriefResult(collectionReference, elements);
+                        BriefRecordType briefRecord = RecordBuilder.getBriefResult(collectionReference, elements, cswHandler.inspireConfiguration.enabled);
                         JAXBElement<BriefRecordType> briefRecordType = cswHandler.cswFactory.createBriefRecord(briefRecord);
                         searchResultType.getAbstractRecord().add(briefRecordType);
                     }
@@ -81,7 +81,7 @@ public class GetRecordsHandler {
                             throw new RuntimeException(e);
                         }
                     } else {
-                        SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements);
+                        SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements, cswHandler.ogcConfiguration.serverUri, cswHandler.inspireConfiguration.enabled);
                         JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
                         searchResultType.getAbstractRecord().add(summaryRecordType);
                     }
@@ -97,7 +97,7 @@ public class GetRecordsHandler {
                             throw new RuntimeException(e);
                         }
                     } else {
-                        RecordType record = RecordBuilder.getFullResult(collectionReference, elements, cswHandler.ogcConfiguration);
+                        RecordType record = RecordBuilder.getFullResult(collectionReference, elements, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration.enabled);
                         JAXBElement<RecordType> recordType = cswHandler.cswFactory.createRecord(record);
                         searchResultType.getAbstractRecord().add(recordType);
                     }
@@ -114,7 +114,7 @@ public class GetRecordsHandler {
                             throw new RuntimeException(e);
                         }
                     } else {
-                        SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements);
+                        SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements, cswHandler.ogcConfiguration.serverUri, cswHandler.inspireConfiguration.enabled);
                         JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
                         searchResultType.getAbstractRecord().add(summaryRecordType);
                     }

@@ -94,11 +94,13 @@ public class CollectionTool extends AbstractTestContext {
         params.rasterTileWidth=256;
         params.rasterTileHeight=256;
         params.inspire = new Inspire();
-
-        params.inspire.keywords = new ArrayList<>();
-        Keyword k = new Keyword();
-        k.value = "humanGeographicViewer";
-        params.inspire.keywords.add(k);
+        params.inspire.lineage = DataSetTool.DATASET_INSPIRE_LINEAGE;
+        params.inspire.topicCategories = new ArrayList<>();
+        params.inspire.topicCategories.add(DataSetTool.DATASET_INSPIRE_TOPIC_CATEGORY);
+        params.dublinCoreElementName = new DublinCoreElementName();
+        params.dublinCoreElementName.title = DataSetTool.DATASET_DUBLIN_CORE_TITLE;
+        params.dublinCoreElementName.description = DataSetTool.DATASET_DUBLIN_CORE_DESCRIPTION;
+        params.dublinCoreElementName.language = DataSetTool.DATASET_DUBLIN_CORE_LANGUAGE;
 
 
         // PUT new collection

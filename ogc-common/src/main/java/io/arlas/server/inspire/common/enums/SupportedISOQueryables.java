@@ -20,9 +20,8 @@
 package io.arlas.server.inspire.common.enums;
 
 public enum SupportedISOQueryables {
-    subject("Subject"), serviceType("ServiceType"), title("Title"), abstractTitle("Abstract"), resourceType("Type"),
+    subject("Subject"), title("Title"), topicCategory("TopicCategory"), abstractTitle("Abstract"), spatialResolution("SpatialResolution"), resourceType("Type"),
     organisationName("OrganisationName"), resourceIdentifier("ResourceIdentifier"), creationDate("CreationDate"), language("Language");
-
     public String value;
 
     SupportedISOQueryables(String value) {

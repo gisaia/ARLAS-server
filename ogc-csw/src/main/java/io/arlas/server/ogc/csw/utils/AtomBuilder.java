@@ -124,11 +124,14 @@ public class AtomBuilder {
         });
         IdType idTypeValue = new IdType();
         summaryRecordType.getIdentifier().forEach(id -> {
-            entryType.setIdentifier(id);
-            id.getValue().getContent().forEach(content -> {
-                idTypeValue.setValue(content);
+            if (!id.getName().getLocalPart().equals("references")) {
+                entryType.setIdentifier(id);
+                id.getValue().getContent().forEach(content -> {
+                    idTypeValue.setValue(content);
 
-            });
+                });
+            }
+
         });
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         summaryRecordType.getModified().forEach(d -> {
@@ -173,9 +176,10 @@ public class AtomBuilder {
         });
         IdType idTypeValue = new IdType();
         briefRecordType.getIdentifier().forEach(id -> {
-            id.getValue().getContent().forEach(content -> {
-                idTypeValue.setValue(content);
-            });
+                id.getValue().getContent().forEach(content -> {
+                    idTypeValue.setValue(content);
+                });
+
         });
         entryType.setId(idTypeValue);
         entryType.setTitle(title);

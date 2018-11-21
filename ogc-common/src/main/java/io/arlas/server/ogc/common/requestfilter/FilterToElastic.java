@@ -31,6 +31,7 @@ import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.exceptions.OGC.OGCExceptionMessage;
+import io.arlas.server.inspire.common.constants.InspireConstants;
 import io.arlas.server.inspire.common.enums.AdditionalQueryables;
 import io.arlas.server.inspire.common.enums.SupportedDublinCoreQueryables;
 import io.arlas.server.inspire.common.enums.SupportedISOQueryables;
@@ -156,7 +157,6 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
 
     public CollectionReferenceDescription collectionReference;
-    public Boolean isConfigurationQuery = false;
 
     public FilterToElastic(CollectionReferenceDescription collectionReference, Service service) {
         queryBuilder = FilterToElasticHelper.MATCH_ALL;
@@ -351,7 +351,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
                 ogcException = new OGCException(ogcExceptionMessages, service);
                 throw new RuntimeException();
             }
-            key = mapFieldNameToInspireRequirements(key, literal);
+            setNestedKeys(key);
+            key = mapFieldNameToInspireRequirements(key);
         }
 
         if (!OGCCheckParam.isFieldInMapping(collectionReference, key)) {
@@ -585,7 +586,9 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             if(isPathDate(pathElements,collectionReference.properties)){updateDateFormatter(key);}
             left.accept(this, leftContext);
             if (service == Service.CSW) {
-                key = mapFieldNameToInspireRequirements(key, field.toString());
+                checkInspireRequirements(key, field.toString());
+                setNestedKeys(key);
+                key = mapFieldNameToInspireRequirements(key);
             }
 
             if (!OGCCheckParam.isFieldInMapping(collectionReference, key)) {
@@ -602,18 +605,34 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             throw new RuntimeException();
         }
 
-        if (type.equals("=")) {
-            queryBuilder = ImmutableMap.of("match", ImmutableMap.of(key, field));
-        } else if (type.equals("!=")) {
-            queryBuilder = ImmutableMap.of("bool", ImmutableMap.of("must_not", ImmutableMap.of("term", ImmutableMap.of(key, field))));
-        } else if (type.equals(">")) {
-            queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("gt", field)));
-        } else if (type.equals(">=")) {
-            queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("gte", field)));
-        } else if (type.equals("<")) {
-            queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("lt", field)));
-        } else if (type.equals("<=")) {
-            queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("lte", field)));
+        if ( service == Service.CSW && (key.equals(mapFieldNameToInspireRequirements(SupportedISOQueryables.creationDate.value)))) {
+            if (type.equals("=")) {
+                queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("gte", field, "lte", field,"format", InspireConstants.CSW_METADATA_DATE_FORMAT)));
+            } else if (type.equals("!=")) {
+                queryBuilder = ImmutableMap.of("bool", ImmutableMap.of("must_not", ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("gte", field, "lte", field,"format", InspireConstants.CSW_METADATA_DATE_FORMAT)))));
+            } else if (type.equals(">")) {
+                queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("gt", field, "format", InspireConstants.CSW_METADATA_DATE_FORMAT)));
+            } else if (type.equals(">=")) {
+                queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("gte", field, "format", InspireConstants.CSW_METADATA_DATE_FORMAT)));
+            } else if (type.equals("<")) {
+                queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("lt", field, "format", InspireConstants.CSW_METADATA_DATE_FORMAT)));
+            } else if (type.equals("<=")) {
+                queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("lte", field, "format", InspireConstants.CSW_METADATA_DATE_FORMAT)));
+            }
+        } else {
+            if (type.equals("=")) {
+                queryBuilder = ImmutableMap.of("match", ImmutableMap.of(key, ImmutableMap.of("query",field, "operator", "and")));
+            } else if (type.equals("!=")) {
+                queryBuilder = ImmutableMap.of("bool", ImmutableMap.of("must_not", ImmutableMap.of("match", ImmutableMap.of(key, field))));
+            } else if (type.equals(">")) {
+                queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("gt", field)));
+            } else if (type.equals(">=")) {
+                queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("gte", field)));
+            } else if (type.equals("<")) {
+                queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("lt", field)));
+            } else if (type.equals("<=")) {
+                queryBuilder = ImmutableMap.of("range", ImmutableMap.of(key, ImmutableMap.of("lte", field)));
+            }
         }
 
         if (nested) {
@@ -1329,8 +1348,6 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         return  "";
     }
 
-
-
     public static boolean isPathDate(String[] pathElements ,Map<String, CollectionReferenceDescriptionProperty> properties){
         for (String key : pathElements) {
             CollectionReferenceDescriptionProperty property = properties.get(key);
@@ -1345,7 +1362,27 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         }
         return  false;
     }
-    private String mapFieldNameToInspireRequirements(String key, String value) {
+
+    private void checkInspireRequirements(String key, String value) {
+        if (key.equals(AdditionalQueryables.specificationDate.value)) {
+            if(!InspireCheckParam.isDateFormatValidForGetRecords(value)) {
+                throwDateException();
+            }
+        } else if (key.equals(SupportedISOQueryables.creationDate.value)) {
+            if(!InspireCheckParam.isDateFormatValidForGetRecords(value)) {
+                throwDateException();
+            }
+        }
+    }
+
+    private void setNestedKeys(String key) {
+        nested = Arrays.asList(new String [] {SupportedISOQueryables.subject.value,
+                AdditionalQueryables.specificationTitle.value, AdditionalQueryables.specificationDate.value, AdditionalQueryables.specificationDateType.value,
+                AdditionalQueryables.degree.value, AdditionalQueryables.accessConstraints.value,
+                AdditionalQueryables.otherConstraints.value, AdditionalQueryables.classification.value, SupportedISOQueryables.spatialResolution.value, SupportedISOQueryables.resourceIdentifier.value}).contains(key);
+    }
+
+    private String mapFieldNameToInspireRequirements(String key) {
         /*######################  SupportedDublinCoreQueryables #######################*/
         if (key.equals(SupportedDublinCoreQueryables.title.value)) {
             return "dublin_core_element_name.title";
@@ -1366,67 +1403,47 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         }
         /*######################  SupportedISOQueryables #######################*/
         else if (key.equals(SupportedISOQueryables.subject.value)) {
-            nested=true;
             return "inspire.keywords.value";
         } else if (key.equals(SupportedISOQueryables.title.value)) {
             return "dublin_core_element_name.title";
         } else if (key.equals(SupportedISOQueryables.abstractTitle.value)) {
             return "dublin_core_element_name.description";
         } else if (key.equals(SupportedISOQueryables.resourceType.value)) {
-            return "dublin_core_element_name.type";
+            return "ogc_inspire_configuration_parameters.resource_type";
         } else if (key.equals(SupportedISOQueryables.language.value)) {
             return "dublin_core_element_name.language";
         } else if (key.equals(SupportedISOQueryables.resourceIdentifier.value)) {
-            nested=true;
-            return "dublin_core_element_name.identifier";
-        } else if (key.equals(SupportedISOQueryables.serviceType.value)) {
-            isConfigurationQuery = true;
-            return "ogc_inspire_configuration_parameters.spatial_data_service_type";
+            return "inspire.inspire_uri.code";
+        } else if (key.equals(SupportedISOQueryables.topicCategory.value)) {
+            return "inspire.topic_category";
+        } else if (key.equals(SupportedISOQueryables.spatialResolution.value)) {
+            return "inspire.spatial_resolution.value";
         } else if (key.equals(SupportedISOQueryables.creationDate.value)) {
-            if(!InspireCheckParam.isDateFormatValidForGetRecords(value)) {
-                throwDateException();
-            }
-            isConfigurationQuery = true;
-            return "ogc_inspire_configuration_parameters.creation_date";
+            return "dublin_core_element_name.date";
         } else if (key.equals(SupportedISOQueryables.organisationName.value)) {
-            isConfigurationQuery = true;
             return "ogc_inspire_configuration_parameters.responsible_party";
         }
         /*######################  AdditionalQueryables #######################*/
-        else if (key.equals(AdditionalQueryables.specificationTitle.value)) {
-            nested = true;
-            isConfigurationQuery = true;
+        else if (key.equals(AdditionalQueryables.lineage.value)) {
+            return "inspire.lineage";
+        } else if (key.equals(AdditionalQueryables.specificationTitle.value)) {
             return "ogc_inspire_configuration_parameters.inspire_conformity_list.specification_title";
         } else if (key.equals(AdditionalQueryables.specificationDate.value)) {
-            if(!InspireCheckParam.isDateFormatValidForGetRecords(value)) {
-                throwDateException();
-            }
-            nested = true;
-            isConfigurationQuery = true;
             return "ogc_inspire_configuration_parameters.inspire_conformity_list.specification_date";
         } else if (key.equals(AdditionalQueryables.specificationDateType.value)) {
-            nested = true;
-            isConfigurationQuery = true;
             return "ogc_inspire_configuration_parameters.inspire_conformity_list.specification_date_type";
         } else if (key.equals(AdditionalQueryables.degree.value)) {
-            nested = true;
-            isConfigurationQuery = true;
             return "ogc_inspire_configuration_parameters.inspire_conformity_list.degree";
         } else if (key.equals(AdditionalQueryables.responsiblePartyRole.value)) {
-            isConfigurationQuery = true;
             return "ogc_inspire_configuration_parameters.responsible_party_role";
         } else if (key.equals(AdditionalQueryables.accessConstraints.value)) {
-            nested = true;
             return "inspire.inspire_limitation_access.access_constraints";
         } else if (key.equals(AdditionalQueryables.otherConstraints.value)) {
-            nested = true;
             return "inspire.inspire_limitation_access.other_constraints";
         } else if (key.equals(AdditionalQueryables.classification.value)) {
-            nested = true;
             return "inspire.inspire_limitation_access.classification";
         } else if (key.equals(AdditionalQueryables.conditionApplyingToAccessAndUse.value)) {
-            isConfigurationQuery = true;
-            return "ogc_inspire_configuration_parameters.access_and_use_conditions";
+            return "inspire.inspire_use_conditions";
         } else {
             return key;
         }

@@ -45,14 +45,14 @@
           "type": "keyword",
           "copy_to": ["internal.fulltext"]
         },
-        "spatial_data_service_type": {
+        "resource_type": {
           "type": "keyword"
         },
         "inspire_conformity_list": {
           "type": "nested",
           "properties": {
             "specification_title": {
-              "type": "keyword"
+              "type": "text"
             },
             "specification_date": {
               "type": "date",
@@ -92,6 +92,26 @@
             }
           }
         },
+        "languages": {
+          "type": "keyword"
+        },
+        "topic_categories": {
+          "type": "keyword"
+        },
+        "lineage": {
+          "type": "text"
+        },
+        "spatial_resolution": {
+          "type": "nested",
+          "properties": {
+            "value": {
+              "type": "float"
+            },
+            "unit_of_measure": {
+              "type": "keyword"
+            }
+          }
+        },
         "inspire_uri" :{
           "type": "nested",
           "properties": {
@@ -100,6 +120,9 @@
               "copy_to": ["internal.fulltext"]
             }
           }
+        },
+        "inspire_use_conditions": {
+          "type": "text"
         },
         "inspire_limitation_access" :{
           "type": "nested",

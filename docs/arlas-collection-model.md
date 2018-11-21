@@ -172,10 +172,18 @@ In case the INSPIRE option is enabled in `configuration.yaml`, the following pro
           "date_of_publication": "string"
         }
         ],
+        "languages": ["eng", ...],
+        "topic_categories": "string",
+        "lineage": "string",
+        "spatial_resolution": {
+          "value": "number",
+          "unit_of_measure"
+        }
         "inspire_uri": {
         "code": "string",
         "namespace": "string"
         },
+        "inspire_use_conditions": "string",
         "inspire_limitation_access": {
         "access_constraints": "string",
         "otherConstraints": "string",
@@ -183,15 +191,23 @@ In case the INSPIRE option is enabled in `configuration.yaml`, the following pro
         }
    }
 ```
+The `inspire` node is mandatory only if INSPIRE option is enabled in `configuration.yaml`
 
 | Attribute      | Description                                       | Mention   |
 | ---------------| ------------------------------------------------- | --------- |
-|  keywords.value |  Value of the keyword. To be Inspire compliant, at least one keyword value must be in the [Classification of Spatial data Services vocabulary](http://inspire.ec.europa.eu/metadata-codelist/SpatialDataServiceCategory) based on the geographic services taxonomy of EN ISO 19119. Example : `infoFeatureAccessService`  |  Mandatory if INSPIRE option is enabled |
-|  keywords.vocabulary | Vocabulary from which the keyword value was taken. For example [GEMET Inspire-themes](https://www.eionet.europa.eu/gemet/en/inspire-themes/) or [Classification of Spatial data Services vocabulary](http://inspire.ec.europa.eu/metadata-codelist/SpatialDataServiceCategory)  | Optional  |
+|  keywords.value |  Value of the keyword. If the keyword is originated from [Classification of Spatial data Services vocabulary](http://inspire.ec.europa.eu/metadata-codelist/SpatialDataServiceCategory), then the camel-case keyword should be set. For example : `thematicImageProcessingService` |  Mandatory |
+|  keywords.vocabulary | Vocabulary from which the keyword value was taken. For example [GEMET Inspire-themes](https://www.eionet.europa.eu/gemet/en/inspire-themes/) or [Classification of Spatial data Services vocabulary](http://inspire.ec.europa.eu/metadata-codelist/SpatialDataServiceCategory)  | Mandatory for each keyword if the keyword value originates from a controlled vocabulary  |
 |  keywords.date_of_publication |  Date of publication of the Vocabulary. Must be in `YYYY-MM-DD` format. |  Optional |
-|  inspire_uri.code |  A character string code, assigned by the data owner. By default its value is `ARLAS.INSPIRE.{COLLECTION-NAME}` |  Optional |
-|  inspire_uri.namespace |  A character string namespace uniquely identifying the context of the identifier code (for example, the data owner). By default its value is `ARLAS.INSPIRE.{COLLECTION-NAME}`|  Optional |
-|  inspire_limitation_access.access_constraints* | Possible values : `copyright`, `patent`, `patentPending`, `trademark`, `license`, `intellectualPropertyRights`, `restricted`, `otherRestrictions`. The latest is the default value.  | Optional  |
+|  languages |  The language(s) used within the resource. The value domain of this metadata element is limited to the languages defined in ISO 639-2. |  Mandatory if the resource includes textual information. |
+|  topic_categories |  List of topic categories. A topic category is a high-level classification scheme to assist in the grouping and topic-based search of available spatial data resources. Must be one of the values in [this list](http://inspire.ec.europa.eu/metadata-codelist/TopicCategory). The value should be in camel-case. For example, the topic category of [Climatology / Meteorology / Atmosphere](http://inspire.ec.europa.eu/metadata-codelist/TopicCategory/climatologyMeteorologyAtmosphere), must be set as : `climatologyMeteorologyAtmosphere` |  Mandatory |
+|  lineage | (Free text) This is a statement on process history and/or overall quality of the spatial data set. Where appropriate it may include a statement whether the data set has been validated or quality assured, whether it is the official version (if multiple versions exist) |  Mandatory |
+|  spatial_resolution | Spatial resolution refers to the level of detail of the data set. It shall be expressed as a set of zero to many resolution distances (typically for gridded data and imagery-derived products) or equivalent scales (typically for maps or map-derived product |  Mandatory if an equivalent scale or a resolution distance can be specified |
+|  spatial_resolution.value | An equivalent scale is expressed as an integer value expressing the scale denominator. A resolution distance should be expressed as a numerical value associated with a unit of length. |  Mandatory if an equivalent scale or a resolution distance can be specified |
+|  spatial_resolution.unit_of_value | Unit of measure of the resolution distance. If it is not specified, that means spatial resolution is an equivalent scale |  Mandatory resolution distance can be specified |
+|  inspire_uri.code |  A character string code uniquely identifying the collection reference (data set), assigned by the data owner. |  Mandatory. If not set, it takes the id value generated by ARLAS-server |
+|  inspire_uri.namespace |  A character string namespace uniquely identifying the context of the identifier code (for example, the data owner). By default its value is `ARLAS.{COLLECTION-NAME}`|  Optional |
+|  inspire_use_conditions | Provides information on any fees necessary to access and use the data set  | Optional; default :  `no conditions apply`|
+|  inspire_limitation_access.access_constraints* | Possible values : `copyright`, `patent`, `patentPending`, `trademark`, `license`, `intellectualPropertyRights`, `restricted`, `otherRestrictions`.  | Mandatory. Default value is  `otherRestrictions`  |
 |  inspire_limitation_access.otherConstraints* |  Free text or specify a URL to a link that describes eventual limitations. Default value : `no limitations apply` |  Optional |
 |  inspire_limitation_access.classification* |  Name of the handling restrictions on the WFS. One of: `unclassified` (default value), `restricted`, `confidential`, `secret`, `topSecret` |  Optional |
 

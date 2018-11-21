@@ -22,12 +22,14 @@ package io.arlas.server.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class InspireConformity {
-    public static final String INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE = "Commission Regulation (EC) No 1088/2010 - Conformance to Download services";
-    public static final String INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE = "2010-11-23";
-    public static final String INSPIRE_METADATA_CONFORMITY_TITLE = "Commission Regulation (EC) No 1205/2008";
-    public static final String INSPIRE_METADATA_CONFORMITY_DATE = "2008-12-03";
+    public static final String INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE = "Commission Regulation (EC) No 1088/2010 of 23 November 2010" +
+            "amending Regulation (EC) No 976/2009 as regards download services and transformation services";
+    public static final String INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE = "2010-12-08";
+    public static final String INSPIRE_METADATA_CONFORMITY_TITLE = "Commission Regulation (EC) No 1205/2008 of 3 December 2008" +
+            "implementing Directive 2007/2/EC of the European Parliament and of the Council as regards metadata";
+    public static final String INSPIRE_METADATA_CONFORMITY_DATE = "2008-12-04";
     public static final String INSPIRE_INTEROPERABILITY_CONFORMITY_TITLE = "Commission Regulation (EU) No 1089/2010 of 23 November 2010 implementing Directive 2007/2/EC of the European Parliament and of the Council as regards interoperability of spatial data sets and services";
-    public static final String INSPIRE_INTEROPERABILITY_CONFORMITY_DATE = "2010-11-23";
+    public static final String INSPIRE_INTEROPERABILITY_CONFORMITY_DATE = "2010-12-08";
 
     @JsonProperty(value = "specification_title", required = false)
     public String specificationTitle;

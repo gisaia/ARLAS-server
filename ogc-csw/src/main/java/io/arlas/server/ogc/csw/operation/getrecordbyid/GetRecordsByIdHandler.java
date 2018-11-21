@@ -76,16 +76,16 @@ public class GetRecordsByIdHandler {
         if (collections.size() > 0) {
             switch (elementSetName) {
                 case brief:
-                    BriefRecordType briefRecord = RecordBuilder.getBriefResult(collections.get(0), new String[]{});
+                    BriefRecordType briefRecord = RecordBuilder.getBriefResult(collections.get(0), new String[]{}, cswHandler.inspireConfiguration.enabled);
                     return briefRecord;
                 case summary:
-                    SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collections.get(0), new String[]{});
+                    SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collections.get(0), new String[]{}, cswHandler.ogcConfiguration.serverUri,cswHandler.inspireConfiguration.enabled);
                     return summaryRecord;
                 case full:
-                    RecordType record = RecordBuilder.getFullResult(collections.get(0), new String[]{}, cswHandler.ogcConfiguration);
+                    RecordType record = RecordBuilder.getFullResult(collections.get(0), new String[]{}, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration.enabled);
                     return record;
                 default:
-                    SummaryRecordType summaryDefaultRecord = RecordBuilder.getSummaryResult(collections.get(0), new String[]{});
+                    SummaryRecordType summaryDefaultRecord = RecordBuilder.getSummaryResult(collections.get(0), new String[]{}, cswHandler.ogcConfiguration.serverUri, cswHandler.inspireConfiguration.enabled);
                     return summaryDefaultRecord;
             }
         }else{

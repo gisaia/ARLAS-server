@@ -37,19 +37,26 @@ import java.util.Arrays;
 
 public class RecordBuilder {
 
+    private static final String RESOURCE_TYPE = "dataset";
+
+
     public static final org.purl.dc.elements._1.ObjectFactory dcObjectFactory = new org.purl.dc.elements._1.ObjectFactory();
     public static final org.purl.dc.terms.ObjectFactory dctObjectFactory = new org.purl.dc.terms.ObjectFactory();
 
     public static final net.opengis.ows._2.ObjectFactory owsObjectFactory = new net.opengis.ows._2.ObjectFactory();
 
-    public static BriefRecordType getBriefResult(CollectionReference collectionReference, String[] elements) {
+    public static BriefRecordType getBriefResult(CollectionReference collectionReference, String[] elements, boolean inspireIsEnabled) {
         BriefRecordType briefRecord = new BriefRecordType();
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
         addIdentifier(briefRecord, dublinCoreElementName.identifier);
         if (elements.length == 0 || elements == null) {
             // ADD ALL field
             addTitle(briefRecord, dublinCoreElementName.title);
-            addType(briefRecord, dublinCoreElementName.type);
+            if (inspireIsEnabled) {
+                addType(briefRecord, RESOURCE_TYPE);
+            } else {
+                addType(briefRecord, dublinCoreElementName.type);
+            }
             addBbox(briefRecord, dublinCoreElementName.bbox);
         } else {
             for (String element : Arrays.asList(elements)) {
@@ -58,8 +65,11 @@ public class RecordBuilder {
                         addTitle(briefRecord, dublinCoreElementName.title);
                         break;
                     case CSWConstant.DC_FIELD_TYPE:
-                        addType(briefRecord, dublinCoreElementName.type);
-                        break;
+                        if (inspireIsEnabled) {
+                            addType(briefRecord, RESOURCE_TYPE);
+                        } else {
+                            addType(briefRecord, dublinCoreElementName.type);
+                        }                         break;
                     case CSWConstant.DC_FIELD_BBOX:
                         addBbox(briefRecord, dublinCoreElementName.bbox);
                         break;
@@ -69,7 +79,7 @@ public class RecordBuilder {
         return briefRecord;
     }
 
-    public static SummaryRecordType getSummaryResult(CollectionReference collectionReference, String[] elements) {
+    public static SummaryRecordType getSummaryResult(CollectionReference collectionReference, String[] elements, String serverUri, boolean inspireIsEnabled) {
         SummaryRecordType summaryRecord = new SummaryRecordType();
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
         Inspire inspire = collectionReference.params.inspire;
@@ -77,17 +87,24 @@ public class RecordBuilder {
         if (elements.length == 0) {
             // ADD ALL field
             addTitle(summaryRecord, dublinCoreElementName.title);
-            if (inspire.keywords != null) {
-                inspire.keywords.forEach(keyword -> addSubject(summaryRecord, keyword.value));
+            if (inspire != null && inspire.keywords != null) {
+                inspire.keywords.forEach(keyword -> {
+                    addSubject(summaryRecord, keyword.value);
+
+                });
             }
             if (!Strings.isNullOrEmpty(dublinCoreElementName.subject)) {
                 addSubject(summaryRecord, dublinCoreElementName.subject);
             }
-            addType(summaryRecord, dublinCoreElementName.type);
-            addBbox(summaryRecord, dublinCoreElementName.bbox);
+            if (inspireIsEnabled) {
+                addType(summaryRecord, RESOURCE_TYPE);
+            } else {
+                addType(summaryRecord, dublinCoreElementName.type);
+            }             addBbox(summaryRecord, dublinCoreElementName.bbox);
             addModified(summaryRecord, dublinCoreElementName.getDate());
             addFormat(summaryRecord, dublinCoreElementName.format);
             addAbstract(summaryRecord, dublinCoreElementName.description);
+            addUrlToWFS(summaryRecord, serverUri + "ogc/wfs/" + collectionReference.collectionName + "/?" + OGCConstant.WFS_GET_CAPABILITIES_PARAMETERS);
         } else {
             for (String element : Arrays.asList(elements)) {
                 switch (element.toLowerCase()) {
@@ -95,8 +112,11 @@ public class RecordBuilder {
                         addTitle(summaryRecord, dublinCoreElementName.title);
                         break;
                     case CSWConstant.DC_FIELD_TYPE:
-                        addType(summaryRecord, dublinCoreElementName.type);
-                        break;
+                        if (inspireIsEnabled) {
+                            addType(summaryRecord, RESOURCE_TYPE);
+                        } else {
+                            addType(summaryRecord, dublinCoreElementName.type);
+                        }                        break;
                     case CSWConstant.DC_FIELD_BBOX:
                         addBbox(summaryRecord, dublinCoreElementName.bbox);
                         break;
@@ -123,7 +143,7 @@ public class RecordBuilder {
         return summaryRecord;
     }
 
-    public static RecordType getFullResult(CollectionReference collectionReference, String[] elements, OGCConfiguration ogcConfiguration) {
+    public static RecordType getFullResult(CollectionReference collectionReference, String[] elements, OGCConfiguration ogcConfiguration, boolean inspireIsEnabled) {
         RecordType record = new RecordType();
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
         Inspire inspire = collectionReference.params.inspire;
@@ -131,19 +151,26 @@ public class RecordBuilder {
         if (elements.length == 0 || elements == null) {
             // ADD ALL field
             addTitle(record, dublinCoreElementName.title);
-            if (inspire.keywords != null) {
-                inspire.keywords.forEach(keyword -> addSubject(record, keyword.value));
+            if (inspire != null && inspire.keywords != null) {
+                inspire.keywords.forEach(keyword -> {
+                    if (keyword.value != null) {
+                        addSubject(record, keyword.value);
+                    }
+                });
             }
             if (!Strings.isNullOrEmpty(dublinCoreElementName.subject)) {
                 addSubject(record, dublinCoreElementName.subject);
             }
-            addType(record, dublinCoreElementName.type);
+            if (inspireIsEnabled) {
+                addType(record, RESOURCE_TYPE);
+            } else {
+                addType(record, dublinCoreElementName.type);
+            }
             addBbox(record, dublinCoreElementName.bbox);
             addModified(record, dublinCoreElementName.getDate());
             addFormat(record, dublinCoreElementName.format);
             addAbstract(record, dublinCoreElementName.description);
             addUrlToWFS(record, ogcConfiguration.serverUri + "ogc/wfs/" + collectionReference.collectionName + "/?" + OGCConstant.WFS_GET_CAPABILITIES_PARAMETERS);
-
         } else {
             for (String element : Arrays.asList(elements)) {
                 switch (element.toLowerCase()) {
@@ -151,8 +178,11 @@ public class RecordBuilder {
                         addTitle(record, dublinCoreElementName.title);
                         break;
                     case CSWConstant.DC_FIELD_TYPE:
-                        addType(record, dublinCoreElementName.type);
-                        break;
+                        if (inspireIsEnabled) {
+                            addType(record, RESOURCE_TYPE);
+                        } else {
+                            addType(record, dublinCoreElementName.type);
+                        }                        break;
                     case CSWConstant.DC_FIELD_BBOX:
                         addBbox(record, dublinCoreElementName.bbox);
                         break;

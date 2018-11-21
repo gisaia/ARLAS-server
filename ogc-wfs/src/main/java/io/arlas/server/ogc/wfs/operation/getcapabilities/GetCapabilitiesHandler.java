@@ -22,7 +22,7 @@ package io.arlas.server.ogc.wfs.operation.getcapabilities;
 
 import eu.europa.ec.inspire.schemas.common._1.*;
 import eu.europa.ec.inspire.schemas.inspire_dls._1.ExtendedCapabilitiesType;
-import io.arlas.server.app.INSPIREConfiguration;
+import io.arlas.server.app.InspireConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.app.WFSConfiguration;
 import io.arlas.server.exceptions.ArlasException;
@@ -33,19 +33,17 @@ import io.arlas.server.model.DublinCoreElementName;
 import io.arlas.server.model.InspireConformity;
 import io.arlas.server.model.Keyword;
 import io.arlas.server.inspire.common.constants.InspireConstants;
-import io.arlas.server.inspire.common.enums.InspireSupportedLanguages;
+import io.arlas.server.model.enumerations.InspireSupportedLanguages;
 import io.arlas.server.model.enumerations.AccessConstraintEnum;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.ExtendedWFSCapabilitiesType;
-import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
 
 import net.opengis.fes._2.*;
 import net.opengis.ows._1.*;
 import net.opengis.wfs._2.*;
-import org.elasticsearch.common.Strings;
 import org.w3._1999.xlink.TypeType;
 
 import javax.xml.bind.JAXBElement;
@@ -87,7 +85,7 @@ public class GetCapabilitiesHandler {
     protected ValueType falseValueType = new ValueType();
     private WFSConfiguration wfsConfiguration;
     private OGCConfiguration ogcConfiguration;
-    private INSPIREConfiguration inspireConfiguration;
+    private InspireConfiguration inspireConfiguration;
 
     public GetCapabilitiesHandler(WFSHandler wfsHandler) {
         this.wfsHandler = wfsHandler;
@@ -373,21 +371,31 @@ public class GetCapabilitiesHandler {
     }
 
     private void addECConformity() {
-        Conformity networkServicesConformity = new Conformity();
-        CitationConformity citationConformity = new CitationConformity();
-        citationConformity.setTitle(InspireConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE);
-        citationConformity.setDateOfCreation(InspireConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE);
-        networkServicesConformity.setSpecification(citationConformity);
-        networkServicesConformity.setDegree(DegreeOfConformity.CONFORMANT);
         Conformity metadataConformity = new Conformity();
-        citationConformity = new CitationConformity();
+        CitationConformity citationConformity = new CitationConformity();
         citationConformity.setTitle(InspireConformity.INSPIRE_METADATA_CONFORMITY_TITLE);
         citationConformity.setDateOfCreation(InspireConformity.INSPIRE_METADATA_CONFORMITY_DATE);
         metadataConformity.setSpecification(citationConformity);
         metadataConformity.setDegree(DegreeOfConformity.CONFORMANT);
+
+        Conformity networkServicesConformity = new Conformity();
+        citationConformity = new CitationConformity();
+        citationConformity.setTitle(InspireConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE);
+        citationConformity.setDateOfCreation(InspireConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE);
+        networkServicesConformity.setSpecification(citationConformity);
+        networkServicesConformity.setDegree(DegreeOfConformity.NOT_EVALUATED);
+
+        Conformity interoperabilityConformity = new Conformity();
+        citationConformity = new CitationConformity();
+        citationConformity.setTitle(InspireConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_TITLE);
+        citationConformity.setDateOfCreation(InspireConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_DATE);
+        interoperabilityConformity.setSpecification(citationConformity);
+        interoperabilityConformity.setDegree(DegreeOfConformity.NOT_EVALUATED);
+
         inspireExtendedCapabilitiesType.getConformity().clear();
-        inspireExtendedCapabilitiesType.getConformity().add(networkServicesConformity);
         inspireExtendedCapabilitiesType.getConformity().add(metadataConformity);
+        inspireExtendedCapabilitiesType.getConformity().add(networkServicesConformity);
+        inspireExtendedCapabilitiesType.getConformity().add(interoperabilityConformity);
     }
 
     private void addECMetadataPointOfContact() {
@@ -414,48 +422,49 @@ public class GetCapabilitiesHandler {
     private void addECUniqueResourceIdentifier(CollectionReference collectionReference) {
         UniqueResourceIdentifier uniqueResourceIdentifier = new UniqueResourceIdentifier();
         String code = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.inspireURI)
-                .map(inspireURI -> inspireURI.code).map(String::toString).orElse("ARLAS.INSPIRE." + collectionReference.collectionName.toUpperCase());
+                .map(inspireURI -> inspireURI.code).map(c -> "WFS-" + c).orElse("WFS-" + collectionReference.params.dublinCoreElementName.identifier);
         String namespace = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.inspireURI)
-                .map(inspireURI -> inspireURI.namespace).map(String::toString).orElse("ARLAS.INSPIRE." + collectionReference.collectionName.toUpperCase());
+                .map(inspireURI -> inspireURI.namespace).map(String::toString).orElse("ARLAS." + collectionReference.collectionName.toUpperCase());
         uniqueResourceIdentifier.setCode(code);
         uniqueResourceIdentifier.setNamespace(namespace);
         inspireExtendedCapabilitiesType.getSpatialDataSetIdentifier().clear();
         inspireExtendedCapabilitiesType.getSpatialDataSetIdentifier().add(uniqueResourceIdentifier);
     }
 
-    private void addECKeywords(CollectionReference collectionReference) throws OGCException {
+    private void addECKeywords(CollectionReference collectionReference) {
         List<Keyword> keywords = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.keywords).orElse(new ArrayList<>());
-        //WFSCheckParam.checkKeywordsInspireCompliance(keywords, Service.WFS);
         inspireExtendedCapabilitiesType.getKeyword().clear();
         inspireExtendedCapabilitiesType.getMandatoryKeyword().clear();
         getCapabilitiesType.getServiceIdentification().getKeywords().clear();
-        KeywordsType ke = new KeywordsType();
+        KeywordsType serviceIndentificationKeywords = new KeywordsType();
+
+        // ADD Mandatory keyword
+        ClassificationOfSpatialDataService classificationOfSpatialDataServiceMandatory = new ClassificationOfSpatialDataService();
+        classificationOfSpatialDataServiceMandatory.setKeywordValue(InspireConstants.WFS_MANDATORY_KEYWORD);
+        inspireExtendedCapabilitiesType.getMandatoryKeyword().add(classificationOfSpatialDataServiceMandatory);
+
+        LanguageStringType mandatoryKeywordString = new LanguageStringType();
+        mandatoryKeywordString.setValue(InspireConstants.WFS_MANDATORY_KEYWORD);
+        serviceIndentificationKeywords.getKeyword().add(mandatoryKeywordString);
+
         keywords.forEach(keyword -> {
-            try {
-                KeywordValueEnum.valueOf(keyword.value);
-                keyword.vocabulary = InspireConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES;
-                keyword.dateOfPublication = InspireConstants.DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES;
-                ClassificationOfSpatialDataService classificationOfSpatialDataService = new ClassificationOfSpatialDataService();
-                classificationOfSpatialDataService.setKeywordValue(keyword.value);
-                inspireExtendedCapabilitiesType.getMandatoryKeyword().add(classificationOfSpatialDataService);
-            } catch (IllegalArgumentException e) {}
             /* Check if other keywords have a Controled vocabulary*/
             eu.europa.ec.inspire.schemas.common._1.Keyword inspireKeyword = new eu.europa.ec.inspire.schemas.common._1.Keyword();
-            if (Strings.isNullOrEmpty(keyword.vocabulary) || !keyword.vocabulary.equals(InspireConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES)) {
-                inspireKeyword.setKeywordValue(keyword.value);
+            inspireKeyword.setKeywordValue(keyword.value);
+            if (keyword.vocabulary != null && !keyword.vocabulary.equals("")) {
                 OriginatingControlledVocabulary vocabulary = new OriginatingControlledVocabulary();
-                Optional.ofNullable(keyword.vocabulary).map(k -> {vocabulary.setTitle(keyword.vocabulary); return k;});
-                Optional.ofNullable(keyword.dateOfPublication).map(k -> {vocabulary.setDateOfCreation(keyword.dateOfPublication); return k;});
-                if (!Strings.isNullOrEmpty(keyword.vocabulary)) {
-                    inspireKeyword.setOriginatingControlledVocabulary(vocabulary);
+                vocabulary.setTitle(keyword.vocabulary);
+                if (keyword.dateOfPublication != null && !keyword.dateOfPublication.equals("")) {
+                    vocabulary.setDateOfCreation(keyword.dateOfPublication);
                 }
+                inspireKeyword.setOriginatingControlledVocabulary(vocabulary);
             }
             inspireExtendedCapabilitiesType.getKeyword().add(inspireKeyword);
             LanguageStringType languageStringType = new LanguageStringType();
             languageStringType.setValue(keyword.value);
-            ke.getKeyword().add(languageStringType);
+            serviceIndentificationKeywords.getKeyword().add(languageStringType);
         });
-        getCapabilitiesType.getServiceIdentification().getKeywords().add(ke);
+        getCapabilitiesType.getServiceIdentification().getKeywords().add(serviceIndentificationKeywords);
     }
 
     private void addECMetadaURL(CollectionReference collectionReference) {
@@ -503,13 +512,13 @@ public class GetCapabilitiesHandler {
             InspireCheckParam.checkLanguageInspireCompliance(language, Service.WFS);
         }
 
-        WFSTitle.setValue(Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.title).filter(t -> !t.isEmpty()).map(String::toString).orElse(InspireConstants.INSPIRE_RESOURCE_TITLE));
+        WFSTitle.setValue(Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.title).filter(t -> !t.isEmpty()).map(t -> InspireConstants.INSPIRE_WFS_RESOURCE_TITLE + " - " + t).orElse(InspireConstants.INSPIRE_WFS_RESOURCE_TITLE));
         serviceIdentification.getTitle().clear();
         serviceIdentification.getTitle().add(WFSTitle);
 
         // Add INSPIRE 'Resource Abstract'
         LanguageStringType WFSAbstract = new LanguageStringType();
-        WFSAbstract.setValue(Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.description).filter(t -> !t.isEmpty()).map(String::toString).orElse(InspireConstants.INSPIRE_RESOURCE_ABSTRACT));
+        WFSAbstract.setValue(Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.description).filter(t -> !t.isEmpty()).map(d -> InspireConstants.INSPIRE_WFS_RESOURCE_TITLE + " - " + d).orElse(InspireConstants.INSPIRE_WFS_RESOURCE_TITLE));
         serviceIdentification.getAbstract().clear();
         serviceIdentification.getAbstract().add(WFSAbstract);
 
@@ -519,9 +528,9 @@ public class GetCapabilitiesHandler {
 
         // Add INSPIRE 'Limitations on Public Access'
         serviceIdentification.getAccessConstraints().clear();
-        String limitationsOnPublicAccess = collectionReference.params.inspire.inspireLimitationAccess.accessConstraints;
+        String limitationsOnPublicAccess = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.inspireLimitationAccess).map(inspireLimitationAccess -> inspireLimitationAccess.accessConstraints).orElse(AccessConstraintEnum.otherRestrictions.name());
         if (limitationsOnPublicAccess.equals(AccessConstraintEnum.otherRestrictions.name())) {
-            limitationsOnPublicAccess = collectionReference.params.inspire.inspireLimitationAccess.otherConstraints;
+            limitationsOnPublicAccess = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.inspireLimitationAccess).map(inspireLimitationAccess -> inspireLimitationAccess.otherConstraints).orElse(InspireConstants.LIMITATION_ON_PUBLIC_ACCESS);
         }
         serviceIdentification.getAccessConstraints().add(limitationsOnPublicAccess);
 

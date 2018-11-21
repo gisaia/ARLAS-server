@@ -54,8 +54,8 @@ public class DublinCoreElementName {
     @JsonProperty(value = "contributor", required = false)
     public String contributor = "";
 
-    @JsonProperty(value = "type", required = false, defaultValue = "service")
-    public String type = "service";
+    @JsonProperty(value = "type", required = false)
+    public String type = "";
 
     @JsonProperty(value = "format", required = false)
     public String format = "";
@@ -66,8 +66,8 @@ public class DublinCoreElementName {
     @JsonProperty(value = "source", required = false)
     public String source = "";
 
-    @JsonProperty(value = "language", required = false, defaultValue = "eng")
-    public String language = "eng";
+    @JsonProperty(value = "language", required = false)
+    public String language = "";
 
     @JsonProperty(value = "bbox", required = false)
     public Bbox bbox = new Bbox();

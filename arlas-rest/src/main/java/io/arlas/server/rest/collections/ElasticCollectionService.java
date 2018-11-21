@@ -29,6 +29,7 @@ public class ElasticCollectionService extends CollectionService {
     public ElasticCollectionService(Client client, ArlasServerConfiguration configuration) throws ArlasException {
         super();
         this.dao = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
+        this.inspireConfigurationEnabled = configuration.inspireConfiguration.enabled;
         dao.initCollectionDatabase();
     }
 

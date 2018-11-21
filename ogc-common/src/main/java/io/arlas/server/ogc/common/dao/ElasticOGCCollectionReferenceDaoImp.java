@@ -22,7 +22,6 @@ package io.arlas.server.ogc.common.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
 import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
@@ -31,12 +30,14 @@ import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.CollectionReferences;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
+import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
 import io.arlas.server.utils.BoundingBox;
 import io.arlas.server.utils.ElasticTool;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 
@@ -88,6 +89,15 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
         return getCollectionReferences(ogcBoolQuery, includes, excludes, size, from);
     }
 
+    @Override
+    public CollectionReferences getAllCollectionReferencesExceptOne(String[] includes, String[] excludes, int size, int from,
+                                                                  CollectionReference collectionReferenceToRemove) throws ArlasException, IOException {
+
+        BoolQueryBuilder ogcBoolQuery = QueryBuilders.boolQuery();
+        ogcBoolQuery.filter(QueryBuilders.boolQuery().mustNot(QueryBuilders.matchQuery("dublin_core_element_name.identifier", collectionReferenceToRemove.params.dublinCoreElementName.identifier)));
+        return getCollectionReferences(ogcBoolQuery, includes, excludes, size, from);
+    }
+
     private CollectionReferences getCollectionReferences(BoolQueryBuilder boolQueryBuilder, String[] includes, String[] excludes, int size, int from) throws ArlasException {
         CollectionReferences collectionReferences = new CollectionReferences();
         collectionReferences.collectionReferences = new ArrayList<>();
@@ -105,9 +115,7 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
                     .setSize(size)
                     .setQuery(boolQueryBuilder).get();
 
-            // The queried parameter is set in each declared collection
             collectionReferences.totalCollectionReferences = response.getHits().getTotalHits();
-
             for (SearchHit hit : response.getHits().getHits()) {
                 String source = hit.getSourceAsString();
                 try {

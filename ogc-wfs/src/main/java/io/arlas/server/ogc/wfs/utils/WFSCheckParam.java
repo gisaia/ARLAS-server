@@ -26,12 +26,9 @@ import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.model.Keyword;
-import io.arlas.server.inspire.common.enums.InspireSupportedLanguages;
-import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.Version;
 import io.arlas.server.ogc.common.utils.VersionUtils;
-import io.arlas.server.utils.MapExplorer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -82,16 +79,6 @@ public class WFSCheckParam {
         }
         if (isCrsUnSupported) {
             throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid CRS :" + srsname, "srsname", Service.WFS);
-        }
-    }
-
-    public static void checkKeywordsInspireCompliance(List<Keyword> keywordList, Service service) throws OGCException {
-        boolean atLeastOneCSDSKeyword = Arrays.stream(KeywordValueEnum.values()).map(KeywordValueEnum::value)
-                .anyMatch(keywordList.stream()
-                .map(k -> k.value)
-                .collect(Collectors.toSet())::contains);
-        if (!atLeastOneCSDSKeyword) {
-            throw new INSPIREException(INSPIREExceptionCode.MISSING_INSPIRE_METADATA, "At least one keyword should be in the Inspire Classification of Spatial Data Services' Vocabulary", service);
         }
     }
 }

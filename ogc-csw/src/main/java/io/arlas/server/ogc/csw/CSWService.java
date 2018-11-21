@@ -20,7 +20,7 @@
 package io.arlas.server.ogc.csw;
 
 import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.app.INSPIREConfiguration;
+import io.arlas.server.app.InspireConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
@@ -48,7 +48,7 @@ public class CSWService extends CSWRESTService {
         this.ogcDao = new ElasticOGCCollectionReferenceDaoImp(client, configuration.arlasindex, Service.CSW);
     }
 
-    private void initMetaCollection(String index, OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException {
+    private void initMetaCollection(String index, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws ArlasException {
         List<CollectionReference> collectionReferences =  dao.getAllCollectionReferences();
         long count = collectionReferences.stream().filter(collectionReference -> collectionReference.collectionName.equals(getMetacollactionName())).count();
         if (count > 0) {
@@ -58,7 +58,7 @@ public class CSWService extends CSWRESTService {
         dao.putCollectionReference(metacolletion);
     }
 
-    private CollectionReference createMetaCollection(String index, OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException {
+    private CollectionReference createMetaCollection(String index, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws ArlasException {
         CollectionReference collectionReference =  new CollectionReference();
         collectionReference.collectionName = getMetacollactionName();
         MetaCollectionReferenceParameters collectionReferenceParameters = new MetaCollectionReferenceParameters();
@@ -71,7 +71,6 @@ public class CSWService extends CSWRESTService {
         collectionReferenceParameters.inspireConfigurationParameters = new OgcInspireConfigurationParameters();
         collectionReferenceParameters.inspireConfigurationParameters.reponsibleParty = ogcConfiguration.serviceProviderName;
         collectionReferenceParameters.inspireConfigurationParameters.reponsiblePartyRole = ogcConfiguration.serviceProviderRole;
-        collectionReferenceParameters.inspireConfigurationParameters.creationDate = inspireConfiguration.servicesDateOfCreation;
         collectionReferenceParameters.inspireConfigurationParameters.setConformityParameter();
         collectionReferenceParameters.inspireConfigurationParameters.publicAccessLimitations = inspireConfiguration.publicAccessLimitations;
         collectionReferenceParameters.inspireConfigurationParameters.accessAndUseConditions = inspireConfiguration.accessAndUseConditions;

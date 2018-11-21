@@ -17,15 +17,9 @@
  * under the License.
  */
 
-package io.arlas.server.inspire.common.enums;
+package io.arlas.server.model.enumerations;
 
-public enum AdditionalQueryables {
-    lineage("Lineage"), specificationTitle("SpecificationTitle"), specificationDate("SpecificationDate"), specificationDateType("SpecificationDateType"),
-    degree("Degree"), responsiblePartyRole("ResponsiblePartyRole"), accessConstraints("AccessConstraints"), otherConstraints("OtherConstraints"),
-    classification("Classification"), conditionApplyingToAccessAndUse("ConditionApplyingToAccessAndUse");
-
-    public String value;
-    AdditionalQueryables(String value) {
-        this.value = value;
-    }
+public enum InspireSupportedLanguages {
+    /* List of the 24 Official languages of the EU in ISO 639-2 (B)*/
+    bul, cze, hrv, dan, dut, eng, est, fin, fre, ger, gre, hun, gle, ita, lav, lit, mlt, pol, por, rum, slo, slv, spa, swe
 }

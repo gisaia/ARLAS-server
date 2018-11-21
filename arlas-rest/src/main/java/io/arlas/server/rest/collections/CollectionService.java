@@ -27,12 +27,10 @@ import io.arlas.server.app.Documentation;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.CollectionReferenceParameters;
-import io.arlas.server.model.Inspire;
-import io.arlas.server.model.InspireURI;
+import io.arlas.server.model.*;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Success;
+import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ResponseFormatter;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -58,6 +56,7 @@ import java.util.concurrent.ExecutionException;
 public abstract class CollectionService extends CollectionRESTServices {
 
     protected CollectionReferenceDao dao = null;
+    protected boolean inspireConfigurationEnabled;
     private static final String META_COLLECTION_NAME = "metacollection";
 
     @Timed
@@ -235,8 +234,10 @@ public abstract class CollectionService extends CollectionRESTServices {
 
     public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters) throws ArlasException, JsonProcessingException {
         CollectionReference collectionReference = new CollectionReference(collection, collectionReferenceParameters);
-        setDefaultDublinCoreParameters(collectionReference);
         setDefaultInspireParameters(collectionReference);
+        if (inspireConfigurationEnabled) {
+            CheckParams.checkInspireParamsInCollectionReference(collectionReference);
+        }
         CollectionReference cr = dao.putCollectionReference(collectionReference);
         return cr;
     }
@@ -290,23 +291,28 @@ public abstract class CollectionService extends CollectionRESTServices {
         if (collectionReference.params.inspire == null) {
             collectionReference.params.inspire = new Inspire();
         }
+        if (collectionReference.params.inspire.keywords == null ||collectionReference.params.inspire.keywords.size() == 0) {
+            collectionReference.params.inspire.keywords = new ArrayList<>();
+            Keyword k = new Keyword();
+            k.value = collectionReference.collectionName;
+            collectionReference.params.inspire.keywords.add(k);
+        }
+        if (collectionReference.params.inspire.inspireUseConditions == null || collectionReference.params.inspire.inspireUseConditions.equals("")) {
+            collectionReference.params.inspire.inspireUseConditions = "no conditions apply";
+        }
         if (collectionReference.params.inspire.inspireURI == null) {
             collectionReference.params.inspire.inspireURI = new InspireURI();
         }
         if (collectionReference.params.inspire.inspireURI.code == null || collectionReference.params.inspire.inspireURI.code.equals("")) {
-            collectionReference.params.inspire.inspireURI.code = "ARLAS.INSPIRE." + collectionReference.collectionName.toUpperCase();
+            collectionReference.params.inspire.inspireURI.code = collectionReference.params.dublinCoreElementName.identifier;
         }
-        if (collectionReference.params.inspire.inspireURI.code == null || collectionReference.params.inspire.inspireURI.code.equals("")) {
-            collectionReference.params.inspire.inspireURI.namespace = "ARLAS.INSPIRE." + collectionReference.collectionName.toUpperCase();
+        if (collectionReference.params.inspire.inspireURI.namespace == null || collectionReference.params.inspire.inspireURI.namespace.equals("")) {
+            collectionReference.params.inspire.inspireURI.namespace = "ARLAS." + collectionReference.collectionName.toUpperCase();
         }
-    }
-
-    private void setDefaultDublinCoreParameters(CollectionReference collectionReference) {
-        if (collectionReference.params.dublinCoreElementName.title == null || collectionReference.params.dublinCoreElementName.title.equals("")) {
-            collectionReference.params.dublinCoreElementName.title = collectionReference.collectionName;
-        }
-        if (collectionReference.params.dublinCoreElementName.description == null || collectionReference.params.dublinCoreElementName.description.equals("")) {
-            collectionReference.params.dublinCoreElementName.description = collectionReference.collectionName;
+        //a default language must be specified
+        if (collectionReference.params.inspire.languages == null || collectionReference.params.inspire.languages.size() == 0) {
+            collectionReference.params.inspire.languages = new ArrayList<>();
+            collectionReference.params.inspire.languages.add("eng");
         }
     }
 }

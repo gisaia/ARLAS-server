@@ -19,7 +19,7 @@
 
 package io.arlas.server.ogc.wfs;
 
-import io.arlas.server.app.INSPIREConfiguration;
+import io.arlas.server.app.InspireConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.app.WFSConfiguration;
 import io.arlas.server.ogc.wfs.operation.describefeaturetype.DescribeFeatureTypeHandler;
@@ -36,7 +36,7 @@ public class WFSHandler {
 
     public WFSConfiguration wfsConfiguration;
     public OGCConfiguration ogcConfiguration;
-    public INSPIREConfiguration inspireConfiguration;
+    public InspireConfiguration inspireConfiguration;
 
     public GetCapabilitiesHandler getCapabilitiesHandler;
     public DescribeFeatureTypeHandler describeFeatureTypeHandler;
@@ -47,7 +47,7 @@ public class WFSHandler {
     public net.opengis.fes._2.ObjectFactory fesFactory = new net.opengis.fes._2.ObjectFactory();
     public StoredQueryManager storedQueryManager = new StoredQueryManager();
 
-    public WFSHandler(WFSConfiguration wfsconfiguration, OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ParserConfigurationException {
+    public WFSHandler(WFSConfiguration wfsconfiguration, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws ParserConfigurationException {
         this.wfsConfiguration = wfsconfiguration;
         this.ogcConfiguration = ogcConfiguration;
         this.inspireConfiguration = inspireConfiguration;

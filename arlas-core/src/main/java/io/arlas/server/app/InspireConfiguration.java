@@ -21,7 +21,7 @@ package io.arlas.server.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class INSPIREConfiguration {
+public class InspireConfiguration {
 
     @JsonProperty("enabled")
     public Boolean enabled;

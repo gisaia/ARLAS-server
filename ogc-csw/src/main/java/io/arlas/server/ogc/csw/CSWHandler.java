@@ -20,7 +20,7 @@
 package io.arlas.server.ogc.csw;
 
 import io.arlas.server.app.CSWConfiguration;
-import io.arlas.server.app.INSPIREConfiguration;
+import io.arlas.server.app.InspireConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.ogc.csw.operation.getrecordbyid.GetRecordsByIdHandler;
@@ -38,7 +38,7 @@ public class CSWHandler {
 
     public OGCConfiguration ogcConfiguration;
     public CSWConfiguration cswConfiguration;
-    public INSPIREConfiguration inspireConfiguration;
+    public InspireConfiguration inspireConfiguration;
 
     public ObjectFactory cswFactory = new ObjectFactory();
     public net.opengis.ows._2.ObjectFactory owsFactory = new net.opengis.ows._2.ObjectFactory();
@@ -46,7 +46,7 @@ public class CSWHandler {
     public net.opengis.fes._2.ObjectFactory fesFactory = new net.opengis.fes._2.ObjectFactory();
 
 
-    public CSWHandler(OGCConfiguration ogcConfiguration, CSWConfiguration cswConfiguration, INSPIREConfiguration inspireConfiguration) {
+    public CSWHandler(OGCConfiguration ogcConfiguration, CSWConfiguration cswConfiguration, InspireConfiguration inspireConfiguration) {
         this.ogcConfiguration = ogcConfiguration;
         this.cswConfiguration = cswConfiguration;
         this.inspireConfiguration = inspireConfiguration;

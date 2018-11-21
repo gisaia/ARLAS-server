@@ -26,10 +26,20 @@ import java.util.List;
 public class Inspire {
     @JsonProperty(value = "keywords", required = false)
     public List<Keyword> keywords;
+    @JsonProperty(value = "topic_categories", required = false)
+    public List<String> topicCategories;
+    @JsonProperty(value = "lineage", required = false)
+    public String lineage;
+    @JsonProperty(value = "languages", required = false)
+    public List<String> languages;
+    @JsonProperty(value = "spatial_resolution", required = false)
+    public InspireSpatialResolution spatialResolution;
     @JsonProperty(value = "inspire_uri", required = false)
     public InspireURI inspireURI;
     @JsonProperty(value = "inspire_limitation_access", required = false)
     public InspireLimitationAccess inspireLimitationAccess;
+    @JsonProperty(value = "inspire_use_conditions", required = false)
+    public String inspireUseConditions = "no conditions apply";
 
     public Inspire() {
         inspireLimitationAccess = new InspireLimitationAccess();

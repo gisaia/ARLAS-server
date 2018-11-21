@@ -22,7 +22,7 @@ package io.arlas.server.inspire.common.utils;
 import io.arlas.server.exceptions.INSPIRE.INSPIREException;
 import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
 import io.arlas.server.inspire.common.constants.InspireConstants;
-import io.arlas.server.inspire.common.enums.InspireSupportedLanguages;
+import io.arlas.server.model.enumerations.InspireSupportedLanguages;
 import io.arlas.server.ogc.common.model.Service;
 
 import java.text.ParseException;

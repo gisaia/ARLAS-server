@@ -25,6 +25,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.*;
 import javax.xml.namespace.QName;
 
+// This class is added in order to add the xsi:schemaLocation namespace in WFS GetCapabilities Response
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ExtendedWFSCapabilitiesType extends WFSCapabilitiesType {
 

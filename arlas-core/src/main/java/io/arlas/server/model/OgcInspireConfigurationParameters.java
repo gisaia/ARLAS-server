@@ -29,10 +29,8 @@ public class OgcInspireConfigurationParameters {
     public String reponsibleParty;
     @JsonProperty(value = "responsible_party_role", required = false)
     public String reponsiblePartyRole;
-    @JsonProperty(value = "spatial_data_service_type", required = false, defaultValue = "download")
-    public String spatialDataServiceType = "download";
-    @JsonProperty(value = "creation_date", required = false)
-    public String creationDate;
+    @JsonProperty(value = "resource_type", required = false)
+    public String resourceType = "dataset";
     @JsonProperty(value = "inspire_conformity_list", required = false)
     public List<InspireConformity> inspireConformityList;
     @JsonProperty(value = "access_and_use_conditions", required = false)
@@ -43,12 +41,6 @@ public class OgcInspireConfigurationParameters {
 
     public void setConformityParameter() {
         inspireConformityList = new ArrayList<>();
-        InspireConformity networkServiceConformity = new InspireConformity();
-        networkServiceConformity.specificationTitle = InspireConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE;
-        networkServiceConformity.specificationDate = InspireConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE;
-        networkServiceConformity.specificationDateType = "publication";
-        networkServiceConformity.degree = "conformant";
-        inspireConformityList.add(networkServiceConformity);
 
         InspireConformity metadataConformity = new InspireConformity();
         metadataConformity.specificationTitle = InspireConformity.INSPIRE_METADATA_CONFORMITY_TITLE;

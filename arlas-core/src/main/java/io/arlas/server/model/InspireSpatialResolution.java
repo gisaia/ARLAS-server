@@ -17,9 +17,13 @@
  * under the License.
  */
 
-package io.arlas.server.inspire.common.enums;
+package io.arlas.server.model;
 
-public enum InspireSupportedLanguages {
-    /* List of the 24 Official languages of the EU in ISO 639-2 (B)*/
-    bul, cze, hrv, dan, dut, eng, est, fin, fre, ger, gre, hun, gle, ita, lav, lit, mlt, pol, por, rum, slo, slv, spa, swe
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class InspireSpatialResolution {
+    @JsonProperty(value = "value", required = false)
+    public Number value;
+    @JsonProperty(value = "unit_of_measure", required = false)
+    public String unitOfMeasure;
 }
