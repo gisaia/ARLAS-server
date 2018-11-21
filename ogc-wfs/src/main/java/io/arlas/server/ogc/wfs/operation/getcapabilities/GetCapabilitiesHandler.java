@@ -27,12 +27,12 @@ import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.app.WFSConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.inspire.common.utils.INSPIRECheckParam;
+import io.arlas.server.inspire.common.utils.InspireCheckParam;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.DublinCoreElementName;
-import io.arlas.server.model.INSPIREConformity;
+import io.arlas.server.model.InspireConformity;
 import io.arlas.server.model.Keyword;
-import io.arlas.server.inspire.common.constants.INSPIREConstants;
+import io.arlas.server.inspire.common.constants.InspireConstants;
 import io.arlas.server.inspire.common.enums.InspireSupportedLanguages;
 import io.arlas.server.model.enumerations.AccessConstraintEnum;
 import io.arlas.server.ogc.common.model.Service;
@@ -375,14 +375,14 @@ public class GetCapabilitiesHandler {
     private void addECConformity() {
         Conformity networkServicesConformity = new Conformity();
         CitationConformity citationConformity = new CitationConformity();
-        citationConformity.setTitle(INSPIREConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE);
-        citationConformity.setDateOfCreation(INSPIREConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE);
+        citationConformity.setTitle(InspireConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE);
+        citationConformity.setDateOfCreation(InspireConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE);
         networkServicesConformity.setSpecification(citationConformity);
         networkServicesConformity.setDegree(DegreeOfConformity.CONFORMANT);
         Conformity metadataConformity = new Conformity();
         citationConformity = new CitationConformity();
-        citationConformity.setTitle(INSPIREConformity.INSPIRE_METADATA_CONFORMITY_TITLE);
-        citationConformity.setDateOfCreation(INSPIREConformity.INSPIRE_METADATA_CONFORMITY_DATE);
+        citationConformity.setTitle(InspireConformity.INSPIRE_METADATA_CONFORMITY_TITLE);
+        citationConformity.setDateOfCreation(InspireConformity.INSPIRE_METADATA_CONFORMITY_DATE);
         metadataConformity.setSpecification(citationConformity);
         metadataConformity.setDegree(DegreeOfConformity.CONFORMANT);
         inspireExtendedCapabilitiesType.getConformity().clear();
@@ -392,8 +392,8 @@ public class GetCapabilitiesHandler {
 
     private void addECMetadataPointOfContact() {
         MetadataPointOfContact metadataPointOfContact = new MetadataPointOfContact();
-        String email = Optional.ofNullable(ogcConfiguration.serviceContactMail).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_EMAIL);
-        String name = Optional.ofNullable(ogcConfiguration.serviceProviderName).orElse(INSPIREConstants.METADATA_POINT_OF_CONTACT_NAME);
+        String email = Optional.ofNullable(ogcConfiguration.serviceContactMail).orElse(InspireConstants.METADATA_POINT_OF_CONTACT_EMAIL);
+        String name = Optional.ofNullable(ogcConfiguration.serviceProviderName).orElse(InspireConstants.METADATA_POINT_OF_CONTACT_NAME);
         metadataPointOfContact.setEmailAddress(email);
         metadataPointOfContact.setOrganisationName(name);
         inspireExtendedCapabilitiesType.getMetadataPointOfContact().clear();
@@ -403,7 +403,7 @@ public class GetCapabilitiesHandler {
     private void addECMetadataLanguage(CollectionReference collectionReference) throws OGCException {
         SupportedLanguagesType supportedLanguagesType = new SupportedLanguagesType();
         String defaultLanguage = Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.language).filter(t -> !t.isEmpty()).map(String::toString).orElse(METADATA_DEFAULT_SUPPORTED_LANGUAGE);
-        INSPIRECheckParam.checkLanguageInspireCompliance(defaultLanguage, Service.WFS);
+        InspireCheckParam.checkLanguageInspireCompliance(defaultLanguage, Service.WFS);
         LanguageElementISO6392B defaultLanguageIso = new LanguageElementISO6392B();
         defaultLanguageIso.setLanguage(defaultLanguage);
         supportedLanguagesType.setDefaultLanguage(defaultLanguageIso);
@@ -425,7 +425,7 @@ public class GetCapabilitiesHandler {
 
     private void addECKeywords(CollectionReference collectionReference) throws OGCException {
         List<Keyword> keywords = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.keywords).orElse(new ArrayList<>());
-        WFSCheckParam.checkKeywordsInspireCompliance(keywords, Service.WFS);
+        //WFSCheckParam.checkKeywordsInspireCompliance(keywords, Service.WFS);
         inspireExtendedCapabilitiesType.getKeyword().clear();
         inspireExtendedCapabilitiesType.getMandatoryKeyword().clear();
         getCapabilitiesType.getServiceIdentification().getKeywords().clear();
@@ -433,15 +433,15 @@ public class GetCapabilitiesHandler {
         keywords.forEach(keyword -> {
             try {
                 KeywordValueEnum.valueOf(keyword.value);
-                keyword.vocabulary = INSPIREConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES;
-                keyword.dateOfPublication = INSPIREConstants.DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES;
+                keyword.vocabulary = InspireConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES;
+                keyword.dateOfPublication = InspireConstants.DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES;
                 ClassificationOfSpatialDataService classificationOfSpatialDataService = new ClassificationOfSpatialDataService();
                 classificationOfSpatialDataService.setKeywordValue(keyword.value);
                 inspireExtendedCapabilitiesType.getMandatoryKeyword().add(classificationOfSpatialDataService);
             } catch (IllegalArgumentException e) {}
             /* Check if other keywords have a Controled vocabulary*/
             eu.europa.ec.inspire.schemas.common._1.Keyword inspireKeyword = new eu.europa.ec.inspire.schemas.common._1.Keyword();
-            if (Strings.isNullOrEmpty(keyword.vocabulary) || !keyword.vocabulary.equals(INSPIREConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES)) {
+            if (Strings.isNullOrEmpty(keyword.vocabulary) || !keyword.vocabulary.equals(InspireConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES)) {
                 inspireKeyword.setKeywordValue(keyword.value);
                 OriginatingControlledVocabulary vocabulary = new OriginatingControlledVocabulary();
                 Optional.ofNullable(keyword.vocabulary).map(k -> {vocabulary.setTitle(keyword.vocabulary); return k;});
@@ -500,21 +500,21 @@ public class GetCapabilitiesHandler {
 
         // FOR NOW we just check if the language is correct but we always return the only language declared in the collection reference params
         if (language != null) {
-            INSPIRECheckParam.checkLanguageInspireCompliance(language, Service.WFS);
+            InspireCheckParam.checkLanguageInspireCompliance(language, Service.WFS);
         }
 
-        WFSTitle.setValue(Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.title).filter(t -> !t.isEmpty()).map(String::toString).orElse(INSPIREConstants.INSPIRE_RESOURCE_TITLE));
+        WFSTitle.setValue(Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.title).filter(t -> !t.isEmpty()).map(String::toString).orElse(InspireConstants.INSPIRE_RESOURCE_TITLE));
         serviceIdentification.getTitle().clear();
         serviceIdentification.getTitle().add(WFSTitle);
 
         // Add INSPIRE 'Resource Abstract'
         LanguageStringType WFSAbstract = new LanguageStringType();
-        WFSAbstract.setValue(Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.description).filter(t -> !t.isEmpty()).map(String::toString).orElse(INSPIREConstants.INSPIRE_RESOURCE_ABSTRACT));
+        WFSAbstract.setValue(Optional.ofNullable(collectionReference.params.dublinCoreElementName).map(d -> d.description).filter(t -> !t.isEmpty()).map(String::toString).orElse(InspireConstants.INSPIRE_RESOURCE_ABSTRACT));
         serviceIdentification.getAbstract().clear();
         serviceIdentification.getAbstract().add(WFSAbstract);
 
         // Add INSPIRE 'Conditions for Access and Use'
-        String conditionsForAccessAndUse = Optional.ofNullable(inspireConfiguration).map(c -> c.accessAndUseConditions).map(String::toString).orElse(INSPIREConstants.NO_CONDITIONS_FOR_ACCESS_AND_USE);
+        String conditionsForAccessAndUse = Optional.ofNullable(inspireConfiguration).map(c -> c.accessAndUseConditions).map(String::toString).orElse(InspireConstants.NO_CONDITIONS_FOR_ACCESS_AND_USE);
         serviceIdentification.setFees(conditionsForAccessAndUse);
 
         // Add INSPIRE 'Limitations on Public Access'

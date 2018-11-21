@@ -19,7 +19,7 @@
 
 package io.arlas.server.inspire.common.constants;
 
-public class INSPIREConstants {
+public class InspireConstants {
 
     public static final String CLASSIFICATION_SPATIAL_DATA_SERVICES = "Classification of Spatial data Services based on the geographic services taxonomy of EN ISO 19119";
     public static final String DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES = "2008-12-03";

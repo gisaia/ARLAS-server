@@ -33,9 +33,6 @@ import java.util.List;
 
 public class DublinCoreElementName {
 
-    public static final String DEFAULT_TITLE = "WFS service (download service) published by ARLAS";
-    public static final String DEFAULT_DESCRIPTION = "WFS service (download service) published by ARLAS";
-
     public DublinCoreElementName(){
     }
 

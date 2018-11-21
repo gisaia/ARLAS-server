@@ -22,10 +22,10 @@ package io.arlas.server.ogc.csw.utils;
 import io.arlas.server.app.INSPIREConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.inspire.common.constants.INSPIREConstants;
+import io.arlas.server.inspire.common.constants.InspireConstants;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.DublinCoreElementName;
-import io.arlas.server.model.INSPIREConformity;
+import io.arlas.server.model.InspireConformity;
 import io.arlas.server.model.Keyword;
 import io.arlas.server.model.enumerations.AccessConstraintEnum;
 import io.arlas.server.ogc.common.utils.OGCConstant;
@@ -114,8 +114,8 @@ public class MDMetadataBuilder {
         dqScopeType.setLevel(mdScopeCodePropertyType);
         dqScopePropertyType.setDQScope(dqScopeType);
         dataQualityType.setScope(dqScopePropertyType);
-        DQElementPropertyType networkConformity = createDomainConsistency(INSPIREConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE, INSPIREConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE, DATE_TYPE);
-        DQElementPropertyType metadataConformity = createDomainConsistency(INSPIREConformity.INSPIRE_METADATA_CONFORMITY_TITLE, INSPIREConformity.INSPIRE_METADATA_CONFORMITY_DATE, DATE_TYPE);
+        DQElementPropertyType networkConformity = createDomainConsistency(InspireConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE, InspireConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE, DATE_TYPE);
+        DQElementPropertyType metadataConformity = createDomainConsistency(InspireConformity.INSPIRE_METADATA_CONFORMITY_TITLE, InspireConformity.INSPIRE_METADATA_CONFORMITY_DATE, DATE_TYPE);
         dataQualityType.getReport().add(networkConformity);
         dataQualityType.getReport().add(metadataConformity);
         dataQualityPropertyType.setDQDataQuality(dataQualityType);
@@ -202,7 +202,7 @@ public class MDMetadataBuilder {
         mdLegalConstraintsType.getAccessConstraints().add(mdRestrictionCodePropertyType);
         if (legalConstraint.equals(AccessConstraintEnum.otherRestrictions.name())) {
             String otherConstraint = Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.inspireLimitationAccess)
-                    .map(inspireLimitationAccess -> inspireLimitationAccess.otherConstraints).orElse(INSPIREConstants.LIMITATION_ON_PUBLIC_ACCESS);
+                    .map(inspireLimitationAccess -> inspireLimitationAccess.otherConstraints).orElse(InspireConstants.LIMITATION_ON_PUBLIC_ACCESS);
             mdLegalConstraintsType.getOtherConstraints().add(createCharacterStringPropertyType(otherConstraint));
         }
         mdLegalConstraintsPropertyType.setMDConstraints(gmdObjectFactory.createMDConstraints(mdLegalConstraintsType));
@@ -307,7 +307,7 @@ public class MDMetadataBuilder {
 
     private static String formatDublinCoreDate(String date) throws OGCException {
         Date dublincoreDate = CSWParamsParser.getMetadataDate(date);
-        DateFormat df = new SimpleDateFormat(INSPIREConstants.CSW_METADATA_DATE_FORMAT);
+        DateFormat df = new SimpleDateFormat(InspireConstants.CSW_METADATA_DATE_FORMAT);
         return df.format(dublincoreDate);
     }
 

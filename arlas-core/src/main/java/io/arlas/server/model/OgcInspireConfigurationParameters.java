@@ -34,7 +34,7 @@ public class OgcInspireConfigurationParameters {
     @JsonProperty(value = "creation_date", required = false)
     public String creationDate;
     @JsonProperty(value = "inspire_conformity_list", required = false)
-    public List<INSPIREConformity> inspireConformityList;
+    public List<InspireConformity> inspireConformityList;
     @JsonProperty(value = "access_and_use_conditions", required = false)
     public String accessAndUseConditions;
     @JsonProperty(value = "public_access_limitations", required = false)
@@ -43,23 +43,23 @@ public class OgcInspireConfigurationParameters {
 
     public void setConformityParameter() {
         inspireConformityList = new ArrayList<>();
-        INSPIREConformity networkServiceConformity = new INSPIREConformity();
-        networkServiceConformity.specificationTitle = INSPIREConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE;
-        networkServiceConformity.specificationDate = INSPIREConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE;
+        InspireConformity networkServiceConformity = new InspireConformity();
+        networkServiceConformity.specificationTitle = InspireConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE;
+        networkServiceConformity.specificationDate = InspireConformity.INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE;
         networkServiceConformity.specificationDateType = "publication";
         networkServiceConformity.degree = "conformant";
         inspireConformityList.add(networkServiceConformity);
 
-        INSPIREConformity metadataConformity = new INSPIREConformity();
-        metadataConformity.specificationTitle = INSPIREConformity.INSPIRE_METADATA_CONFORMITY_TITLE;
-        metadataConformity.specificationDate = INSPIREConformity.INSPIRE_METADATA_CONFORMITY_DATE;
+        InspireConformity metadataConformity = new InspireConformity();
+        metadataConformity.specificationTitle = InspireConformity.INSPIRE_METADATA_CONFORMITY_TITLE;
+        metadataConformity.specificationDate = InspireConformity.INSPIRE_METADATA_CONFORMITY_DATE;
         metadataConformity.specificationDateType = "publication";
         metadataConformity.degree = "conformant";
         inspireConformityList.add(metadataConformity);
 
-        INSPIREConformity interOperabilityConformity = new INSPIREConformity();
-        interOperabilityConformity.specificationTitle = INSPIREConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_TITLE;
-        interOperabilityConformity.specificationDate = INSPIREConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_DATE;
+        InspireConformity interOperabilityConformity = new InspireConformity();
+        interOperabilityConformity.specificationTitle = InspireConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_TITLE;
+        interOperabilityConformity.specificationDate = InspireConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_DATE;
         interOperabilityConformity.specificationDateType = "publication";
         interOperabilityConformity.degree = "notEvaluated";
         inspireConformityList.add(interOperabilityConformity);

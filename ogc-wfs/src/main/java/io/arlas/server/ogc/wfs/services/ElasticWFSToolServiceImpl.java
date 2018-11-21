@@ -18,7 +18,7 @@
  */
 package io.arlas.server.ogc.wfs.services;
 
-import io.arlas.server.ElasticFilter;
+import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
 import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;

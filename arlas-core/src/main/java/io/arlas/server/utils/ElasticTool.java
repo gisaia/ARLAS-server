@@ -36,12 +36,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class ESTool {
+public class ElasticTool {
 
     public static CreateIndexResponse createArlasIndex(Client client, String arlasIndexName, String arlasMappingName, String arlasMappingFileName)  {
         CreateIndexResponse createIndexResponse = null;
         try {
-            String arlasMapping = IOUtils.toString(new InputStreamReader(ESTool.class.getClassLoader().getResourceAsStream(arlasMappingFileName)));
+            String arlasMapping = IOUtils.toString(new InputStreamReader(ElasticTool.class.getClassLoader().getResourceAsStream(arlasMappingFileName)));
             createIndexResponse = client.admin().indices().prepareCreate(arlasIndexName).addMapping(arlasMappingName, arlasMapping, XContentType.JSON).get();
         } catch (IOException e) {
             new InternalServerErrorException("Can not initialize the collection database", e);

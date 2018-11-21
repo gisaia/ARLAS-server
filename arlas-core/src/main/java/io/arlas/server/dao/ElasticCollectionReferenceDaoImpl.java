@@ -26,33 +26,25 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import io.arlas.server.app.INSPIREConfiguration;
-import io.arlas.server.app.OGCConfiguration;
-import io.arlas.server.exceptions.*;
-import io.arlas.server.model.*;
-import io.arlas.server.model.OgcInspireConfigurationParameters;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InternalServerErrorException;
+import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.exceptions.NotFoundException;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.enumerations.AccessConstraintEnum;
 import io.arlas.server.model.enumerations.InspireAccessClassificationEnum;
-import io.arlas.server.utils.BoundingBox;
 import io.arlas.server.utils.CheckParams;
-import io.arlas.server.utils.ESTool;
-import org.apache.logging.log4j.core.util.IOUtils;
+import io.arlas.server.utils.ElasticTool;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
-import org.elasticsearch.common.geo.builders.PolygonBuilder;
-import org.elasticsearch.common.geo.builders.ShapeBuilder;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.IndexNotFoundException;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
@@ -61,8 +53,6 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -95,7 +85,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 .build(
                         new CacheLoader<String, CollectionReference>() {
                             public CollectionReference load(String ref) throws ArlasException {
-                                return ESTool.getCollectionReferenceFromES(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, reader, ref);
+                                return ElasticTool.getCollectionReferenceFromES(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, reader, ref);
                             }
                         });
     }
@@ -104,9 +94,9 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     public void initCollectionDatabase() {
         try {
             client.admin().indices().prepareGetIndex().setIndices(arlasIndex).get();
-            ESTool.putExtendedMapping(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, this.getClass().getClassLoader().getResourceAsStream(ARLAS_MAPPING_FILE_NAME));
+            ElasticTool.putExtendedMapping(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, this.getClass().getClassLoader().getResourceAsStream(ARLAS_MAPPING_FILE_NAME));
         } catch (IndexNotFoundException e) {
-            ESTool.createArlasIndex(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, ARLAS_MAPPING_FILE_NAME);
+            ElasticTool.createArlasIndex(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, ARLAS_MAPPING_FILE_NAME);
         }
     }
 
@@ -224,7 +214,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
                 //check fields
                 if (!fields.isEmpty()) {
-                    ESTool.checkIndexMappingFields(client, index, collectionReference.params.typeName, fields.toArray(new String[fields.size()]));
+                    ElasticTool.checkIndexMappingFields(client, index, collectionReference.params.typeName, fields.toArray(new String[fields.size()]));
                     setTimestampFormatOfCollectionReference(index, collectionReference.params);
                 }
 
@@ -242,8 +232,6 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     @Override
     public CollectionReference putCollectionReference(CollectionReference collectionReference) throws ArlasException {
         checkCollectionReferenceParameters(collectionReference);
-        setDefaultInspireParameters(collectionReference);
-        setDefaultDublinCoreParameters(collectionReference);
         IndexResponse response = null;
         try {
             response = client.prepareIndex(arlasIndex, "collection", collectionReference.collectionName)
@@ -264,29 +252,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         }
     }
 
-    private void setDefaultInspireParameters(CollectionReference collectionReference) {
-        if (collectionReference.params.inspire == null) {
-            collectionReference.params.inspire = new Inspire();
-        }
-        if (collectionReference.params.inspire.inspireURI == null) {
-            collectionReference.params.inspire.inspireURI = new InspireURI();
-        }
-        if (Strings.isNullOrEmpty(collectionReference.params.inspire.inspireURI.code)) {
-            collectionReference.params.inspire.inspireURI.code = "ARLAS.INSPIRE." + collectionReference.collectionName.toUpperCase();
-        }
-        if (Strings.isNullOrEmpty(collectionReference.params.inspire.inspireURI.namespace)) {
-            collectionReference.params.inspire.inspireURI.namespace = "ARLAS.INSPIRE." + collectionReference.collectionName.toUpperCase();
-        }
-    }
 
-    private void setDefaultDublinCoreParameters(CollectionReference collectionReference) {
-        if (Strings.isNullOrEmpty(collectionReference.params.dublinCoreElementName.title)) {
-            collectionReference.params.dublinCoreElementName.title = DublinCoreElementName.DEFAULT_TITLE + " for " + collectionReference.collectionName;
-        }
-        if (Strings.isNullOrEmpty(collectionReference.params.dublinCoreElementName.description)) {
-            collectionReference.params.dublinCoreElementName.description = DublinCoreElementName.DEFAULT_DESCRIPTION + " for " + collectionReference.collectionName;
-        }
-    }
 
     private void setTimestampFormatOfCollectionReference(String index, CollectionReferenceParameters collectionRefParams) {
         String timestampField = collectionRefParams.timestampPath;

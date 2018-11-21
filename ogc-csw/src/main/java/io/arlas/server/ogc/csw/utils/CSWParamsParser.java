@@ -21,7 +21,7 @@ package io.arlas.server.ogc.csw.utils;
 
 import io.arlas.server.exceptions.INSPIRE.INSPIREException;
 import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
-import io.arlas.server.inspire.common.constants.INSPIREConstants;
+import io.arlas.server.inspire.common.constants.InspireConstants;
 import io.arlas.server.ogc.common.model.Service;
 
 import java.text.ParseException;
@@ -32,7 +32,7 @@ public class CSWParamsParser {
 
     public static Date getMetadataDate(String value) throws INSPIREException {
         try {
-            return new SimpleDateFormat(INSPIREConstants.DUBLIN_CORE_DATE_FORMAT).parse(value);
+            return new SimpleDateFormat(InspireConstants.DUBLIN_CORE_DATE_FORMAT).parse(value);
         } catch (ParseException e) {
             throw new INSPIREException(INSPIREExceptionCode.INTERNAL_SERVER_ERROR, "Metadata date of collection is not well formatted", Service.CSW);
         }

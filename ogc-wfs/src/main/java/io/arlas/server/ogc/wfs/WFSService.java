@@ -19,11 +19,9 @@
 
 package io.arlas.server.ogc.wfs;
 
-import io.arlas.server.ElasticFilter;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.services.ElasticWFSToolServiceImpl;
 import io.arlas.server.services.ExploreServices;
 

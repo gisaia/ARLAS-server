@@ -17,13 +17,12 @@
  * under the License.
  */
 
-package io.arlas.server;
+package io.arlas.server.ogc.common.requestfilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
-import io.arlas.server.ogc.common.requestfilter.FilterToElastic;
 import io.arlas.server.utils.BoundingBox;
 import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
 import org.elasticsearch.common.geo.builders.PolygonBuilder;

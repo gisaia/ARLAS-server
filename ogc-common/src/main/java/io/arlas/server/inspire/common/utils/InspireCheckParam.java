@@ -21,15 +21,14 @@ package io.arlas.server.inspire.common.utils;
 
 import io.arlas.server.exceptions.INSPIRE.INSPIREException;
 import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
-import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.inspire.common.constants.INSPIREConstants;
+import io.arlas.server.inspire.common.constants.InspireConstants;
 import io.arlas.server.inspire.common.enums.InspireSupportedLanguages;
 import io.arlas.server.ogc.common.model.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-public class INSPIRECheckParam {
+public class InspireCheckParam {
     public static void checkLanguageInspireCompliance(String language, Service service) throws INSPIREException {
         try {
             InspireSupportedLanguages.valueOf(language);
@@ -40,7 +39,7 @@ public class INSPIRECheckParam {
 
     public static boolean isDateFormatValidForGetRecords(String date) {
         try {
-            new SimpleDateFormat(INSPIREConstants.CSW_METADATA_DATE_FORMAT).parse(date);
+            new SimpleDateFormat(InspireConstants.CSW_METADATA_DATE_FORMAT).parse(date);
             return true;
         } catch (ParseException e) {
             return false;

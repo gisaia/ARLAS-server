@@ -21,7 +21,7 @@ package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class INSPIREConformity {
+public class InspireConformity {
     public static final String INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE = "Commission Regulation (EC) No 1088/2010 - Conformance to Download services";
     public static final String INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE = "2010-11-23";
     public static final String INSPIRE_METADATA_CONFORMITY_TITLE = "Commission Regulation (EC) No 1205/2008";

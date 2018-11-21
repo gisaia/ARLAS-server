@@ -34,7 +34,7 @@ import io.arlas.server.exceptions.OGC.OGCExceptionMessage;
 import io.arlas.server.inspire.common.enums.AdditionalQueryables;
 import io.arlas.server.inspire.common.enums.SupportedDublinCoreQueryables;
 import io.arlas.server.inspire.common.enums.SupportedISOQueryables;
-import io.arlas.server.inspire.common.utils.INSPIRECheckParam;
+import io.arlas.server.inspire.common.utils.InspireCheckParam;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
@@ -1383,7 +1383,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             isConfigurationQuery = true;
             return "ogc_inspire_configuration_parameters.spatial_data_service_type";
         } else if (key.equals(SupportedISOQueryables.creationDate.value)) {
-            if(!INSPIRECheckParam.isDateFormatValidForGetRecords(value)) {
+            if(!InspireCheckParam.isDateFormatValidForGetRecords(value)) {
                 throwDateException();
             }
             isConfigurationQuery = true;
@@ -1398,7 +1398,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             isConfigurationQuery = true;
             return "ogc_inspire_configuration_parameters.inspire_conformity_list.specification_title";
         } else if (key.equals(AdditionalQueryables.specificationDate.value)) {
-            if(!INSPIRECheckParam.isDateFormatValidForGetRecords(value)) {
+            if(!InspireCheckParam.isDateFormatValidForGetRecords(value)) {
                 throwDateException();
             }
             nested = true;

@@ -25,15 +25,12 @@ import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.INSPIRE.INSPIREException;
 import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
-import io.arlas.server.exceptions.InternalServerErrorException;
-import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.inspire.common.constants.INSPIREConstants;
+import io.arlas.server.inspire.common.constants.InspireConstants;
 import io.arlas.server.inspire.common.enums.AdditionalQueryables;
 import io.arlas.server.inspire.common.enums.SupportedISOQueryables;
-import io.arlas.server.inspire.common.utils.INSPIRECheckParam;
+import io.arlas.server.inspire.common.utils.InspireCheckParam;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.INSPIREConformity;
+import io.arlas.server.model.InspireConformity;
 import io.arlas.server.ns.GML;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.csw.CSWHandler;
@@ -48,10 +45,7 @@ import org.elasticsearch.common.Strings;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class GetCapabilitiesHandler {
@@ -131,8 +125,8 @@ public class GetCapabilitiesHandler {
     private void addECConformity() {
         Conformity interoperabilityConformity = new Conformity();
         CitationConformity citationConformity = new CitationConformity();
-        citationConformity.setTitle(INSPIREConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_TITLE);
-        citationConformity.setDateOfCreation(INSPIREConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_DATE);
+        citationConformity.setTitle(InspireConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_TITLE);
+        citationConformity.setDateOfCreation(InspireConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_DATE);
         interoperabilityConformity.setSpecification(citationConformity);
         interoperabilityConformity.setDegree(DegreeOfConformity.NOT_EVALUATED);
         inspireExtendedCapabilitiesType.getConformity().clear();
@@ -157,7 +151,7 @@ public class GetCapabilitiesHandler {
         // Add INSPIRE Madatory Keyword
         inspireExtendedCapabilitiesType.getMandatoryKeyword().clear();
         ClassificationOfSpatialDataService classificationOfSpatialDataService = new ClassificationOfSpatialDataService();
-        classificationOfSpatialDataService.setKeywordValue(INSPIREConstants.CSW_MANDATORY_KEYWORD);
+        classificationOfSpatialDataService.setKeywordValue(InspireConstants.CSW_MANDATORY_KEYWORD);
         inspireExtendedCapabilitiesType.getMandatoryKeyword().add(classificationOfSpatialDataService);
         List<io.arlas.server.model.Keyword> keywords = new ArrayList<>();
         if (collections != null) {
@@ -173,8 +167,8 @@ public class GetCapabilitiesHandler {
             /* If keyword is in CLASSIFICATION_SPATIAL_DATA_SERVICES, set the vocabulary */
             try {
                 KeywordValueEnum.valueOf(keyword.value);
-                keyword.vocabulary = INSPIREConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES;
-                keyword.dateOfPublication = INSPIREConstants.DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES;
+                keyword.vocabulary = InspireConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES;
+                keyword.dateOfPublication = InspireConstants.DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES;
             } catch (IllegalArgumentException e) {}
             /* Check if other keywords have a Controled vocabulary*/
             eu.europa.ec.inspire.schemas.common._1.Keyword inspireKeyword = new eu.europa.ec.inspire.schemas.common._1.Keyword();
@@ -220,7 +214,7 @@ public class GetCapabilitiesHandler {
         if (metadataDate == null) {
             throw new INSPIREException(INSPIREExceptionCode.MISSING_INSPIRE_METADATA, "Metadata date is missing", Service.CSW);
         } else {
-            DateFormat df = new SimpleDateFormat(INSPIREConstants.CSW_METADATA_DATE_FORMAT);
+            DateFormat df = new SimpleDateFormat(InspireConstants.CSW_METADATA_DATE_FORMAT);
             inspireExtendedCapabilitiesType.setMetadataDate(df.format(metadataDate));
         }
     }
@@ -228,7 +222,7 @@ public class GetCapabilitiesHandler {
     private void addECMetadataLanguage() throws INSPIREException{
         SupportedLanguagesType supportedLanguagesType = new SupportedLanguagesType();
         String defaultLanguage = cswHandler.cswConfiguration.serviceIdentificationLanguage;
-        INSPIRECheckParam.checkLanguageInspireCompliance(defaultLanguage, Service.CSW);
+        InspireCheckParam.checkLanguageInspireCompliance(defaultLanguage, Service.CSW);
         LanguageElementISO6392B defaultLanguageIso = new LanguageElementISO6392B();
         defaultLanguageIso.setLanguage(defaultLanguage);
         supportedLanguagesType.setDefaultLanguage(defaultLanguageIso);
@@ -263,7 +257,7 @@ public class GetCapabilitiesHandler {
     private void setInspireServiceIdentification(String language) throws INSPIREException {
         // FOR NOW we just check if the language is correct but we always return the only language declared in the inspire configuration
         if (language != null) {
-            INSPIRECheckParam.checkLanguageInspireCompliance(language, Service.WFS);
+            InspireCheckParam.checkLanguageInspireCompliance(language, Service.WFS);
         }
         ServiceIdentification serviceIdentification = capabilitiesType.getServiceIdentification();
 
@@ -281,13 +275,13 @@ public class GetCapabilitiesHandler {
         abstractTitle.setLang(cswHandler.cswConfiguration.serviceIdentificationLanguage);
 
         // Add INSPIRE 'Conditions for Access and Use'
-        String conditionsForAccessAndUse = Optional.ofNullable(cswHandler.inspireConfiguration).map(c -> c.accessAndUseConditions).map(String::toString).orElse(INSPIREConstants.NO_CONDITIONS_FOR_ACCESS_AND_USE);
+        String conditionsForAccessAndUse = Optional.ofNullable(cswHandler.inspireConfiguration).map(c -> c.accessAndUseConditions).map(String::toString).orElse(InspireConstants.NO_CONDITIONS_FOR_ACCESS_AND_USE);
         serviceIdentification.setFees(conditionsForAccessAndUse);
 
         // Add INSPIRE 'Limitations on Public Access'
         // For CSW We specify publicAccessLimitations from Inspire configuration
         serviceIdentification.getAccessConstraints().clear();
-        String limitationsOnPublicAccess = Optional.ofNullable(cswHandler.inspireConfiguration).map(c -> c.publicAccessLimitations).map(String::toString).orElse(INSPIREConstants.LIMITATION_ON_PUBLIC_ACCESS);
+        String limitationsOnPublicAccess = Optional.ofNullable(cswHandler.inspireConfiguration).map(c -> c.publicAccessLimitations).map(String::toString).orElse(InspireConstants.LIMITATION_ON_PUBLIC_ACCESS);
         serviceIdentification.getAccessConstraints().add(limitationsOnPublicAccess);
         capabilitiesType.setServiceIdentification(serviceIdentification);
     }

@@ -22,7 +22,7 @@ package io.arlas.server.ogc.common.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import io.arlas.server.ElasticFilter;
+import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
 import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
@@ -32,7 +32,7 @@ import io.arlas.server.model.CollectionReferences;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.utils.BoundingBox;
-import io.arlas.server.utils.ESTool;
+import io.arlas.server.utils.ElasticTool;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.IndexNotFoundException;
@@ -129,7 +129,7 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
 
     private CollectionReferenceDescription getMetacollectionDescription() throws ArlasException, IOException {
         ElasticAdmin elasticAdmin = new ElasticAdmin(client);
-        CollectionReference metaCollection = ESTool.getCollectionReferenceFromES(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, reader, "metacollection");
+        CollectionReference metaCollection = ElasticTool.getCollectionReferenceFromES(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, reader, "metacollection");
         return elasticAdmin.describeCollection(metaCollection);
     }
 }

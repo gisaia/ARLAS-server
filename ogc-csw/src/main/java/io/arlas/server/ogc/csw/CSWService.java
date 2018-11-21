@@ -19,7 +19,6 @@
 
 package io.arlas.server.ogc.csw;
 
-import io.arlas.server.ElasticFilter;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.INSPIREConfiguration;
 import io.arlas.server.app.OGCConfiguration;
@@ -52,10 +51,11 @@ public class CSWService extends CSWRESTService {
     private void initMetaCollection(String index, OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException {
         List<CollectionReference> collectionReferences =  dao.getAllCollectionReferences();
         long count = collectionReferences.stream().filter(collectionReference -> collectionReference.collectionName.equals(getMetacollactionName())).count();
-        if (count == 0) {
-            CollectionReference metacolletion = createMetaCollection(index, ogcConfiguration, inspireConfiguration);
-            dao.putCollectionReference(metacolletion);
+        if (count > 0) {
+            dao.deleteCollectionReference(getMetacollactionName());
         }
+        CollectionReference metacolletion = createMetaCollection(index, ogcConfiguration, inspireConfiguration);
+        dao.putCollectionReference(metacolletion);
     }
 
     private CollectionReference createMetaCollection(String index, OGCConfiguration ogcConfiguration, INSPIREConfiguration inspireConfiguration) throws ArlasException {

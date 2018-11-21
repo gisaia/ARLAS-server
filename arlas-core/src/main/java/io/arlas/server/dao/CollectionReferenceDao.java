@@ -19,15 +19,9 @@
 
 package io.arlas.server.dao;
 
-import io.arlas.server.app.INSPIREConfiguration;
-import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.CollectionReferences;
-import io.arlas.server.utils.BoundingBox;
-import org.elasticsearch.index.query.QueryBuilder;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
