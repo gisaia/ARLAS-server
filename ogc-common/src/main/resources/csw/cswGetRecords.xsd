@@ -6,7 +6,6 @@
    xmlns:ows="http://www.opengis.net/ows/2.0"
    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
    xmlns:gmd="http://www.isotc211.org/2005/gmd"
-   xmlns:srv="http://www.isotc211.org/2005/srv"
    elementFormDefault="qualified"
    version="3.0.0"
    id="cswGetRecords">
@@ -27,7 +26,6 @@
    <xsd:import namespace="http://www.opengis.net/ows/2.0"
                schemaLocation="ows/owsAll.xsd"/>
    <xsd:import namespace="http://www.isotc211.org/2005/gmd" schemaLocation="http://schemas.opengis.net/iso/19139/20070417/gmd/gmd.xsd"/>
-   <xsd:import namespace="http://www.isotc211.org/2005/srv" schemaLocation="srv/srv.xsd"/>
    <xsd:import namespace="http://www.opengis.net/fes/2.0"
       schemaLocation="fes-2.0/filterAll.xsd"/>
    <!-- =================================================================== -->
