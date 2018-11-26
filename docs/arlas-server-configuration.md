@@ -114,24 +114,45 @@ docker run -ti -d \
 
 ### OGC
 
-| Environment variable | ARLAS OGC Server configuration variable | Default |
-| --- | --- | --- |
-| ARLAS_OGC_SERVER_URI | arlas-ogc.serverUri | http://localhost:9999/arlas/ |
-| ARLAS_OGC_SERVICE_PROVIDER_NAME | arlas-ogc.serviceProviderName | ARLAS |
-| ARLAS_OGC_SERVICE_PROVIDER_SITE | arlas-ogc.serviceProviderSite | www.gisaia.com |
-| ARLAS_OGC_SERVICE_PROVIDER_ROLE | arlas-ogc.serviceProviderRole | Developer |
-| ARLAS_OGC_SERVICE_CONTACT_NAME | arlas-ogc.serviceContactIndividualName | John Doe |
-| ARLAS_OGC_SERVICE_CONTACT_CITY | arlas-ogc.serviceContactAdressCity | Toulouse |
-| ARLAS_OGC_SERVICE_CONTACT_CODE | arlas-ogc.serviceContactAdressPostalCode | 31000 |
-| ARLAS_OGC_SERVICE_CONTACT_COUNTRY | arlas-ogc.serviceContactAdressCountry | France |
-| ARLAS_OGC_QUERYMAXFEATURE | arlas-ogc.featureNamespace | 1000 |
+| Environment variable | ARLAS OGC Server configuration variable | Default | Description |
+| --- | --- | --- | --- |
+| ARLAS_OGC_SERVER_URI | arlas-ogc.serverUri | http://localhost:9999/arlas/ | URI to ARLAS Server |
+| ARLAS_OGC_SERVICE_PROVIDER_NAME | arlas-ogc.serviceProviderName | OrganisationName | Name of the organization responsible for the establishment, management, maintenance and distribution of the WFS & CSW services |
+| ARLAS_OGC_SERVICE_PROVIDER_SITE | arlas-ogc.serviceProviderSite | OrganisationWebSite | A link to the site of the WFS & CSW service provider |
+| ARLAS_OGC_SERVICE_PROVIDER_ROLE | arlas-ogc.serviceProviderRole | pointOfContact | Function performed by the party responsible for the WFS & CSW services |
+| ARLAS_OGC_SERVICE_CONTACT_NAME | arlas-ogc.serviceContactIndividualName | John Doe | The primary contact person for the WFS & CSW services provider |
+| ARLAS_OGC_SERVICE_CONTACT_MAIL | arlas-ogc.serviceContactMail | j.doe@mail.com | Email of the person/organization responsible for WFS & CSW services|
+| ARLAS_OGC_SERVICE_CONTACT_CITY | arlas-ogc.serviceContactAdressCity | Toulouse | City of the organization responsible for WFS & CSW services |
+| ARLAS_OGC_SERVICE_CONTACT_CODE | arlas-ogc.serviceContactAdressPostalCode | 31000 | Postal code of the organization responsible for WFS & CSW services |
+| ARLAS_OGC_SERVICE_CONTACT_COUNTRY | arlas-ogc.serviceContactAdressCountry | France | Country of the organization responsible for WFS & CSW services |
+| ARLAS_OGC_QUERYMAXFEATURE | arlas-ogc.queryMaxFeature | 1000 | Maximum number of features returned by OGC queries |
 
 
 ### WFS
 
-| Environment variable | ARLAS WFS Server configuration variable | Default |
-| --- | --- | --- |
-| ARLAS_WFS_FEATURE_NAMESPACE | arlas-wfs.queryMaxFeature | arlas |
+| Environment variable | ARLAS WFS Server configuration variable | Default | Description |
+| --- | --- | --- | --- |
+| ARLAS_WFS_FEATURE_NAMESPACE | arlas-wfs.featureNamespace | arlas | Namespace of WFS features |
+| ARLAS_WFS_REPLACE_CHAR | arlas-wfs.replaceChar | _ | Character that replaces `.` in object paths |
+
+### CSW
+
+| Environment variable | ARLAS CSW Server configuration variable | Default | Description |
+| --- | --- | --- | --- |
+| ARLAS_CSW_TITLE | arlas-csw.serviceIdentificationTitle | Discovery Service - CSW | Title of the CSW service. It's returned in the GetCapabilities Response |
+| ARLAS_CSW_ABSTRACT | arlas-csw.serviceIdentificationAbstract | Discovery Service - CSW | Description of the CSW service. It's returned in the GetCapabilities Response |
+| ARLAS_CSW_LANGUAGE | arlas-csw.serviceIdentificationLanguage | eng | Language of the CSW title and description |
+| ARLAS_CSW_OPENSEARCH_DESCRIPTION | arlas-csw.openSearchDescription | Geo-BigData Collection Catalog | Opensearch description of CSW |
+| ARLAS_CSW_OPENSEARCH_SHORTNAME | arlas-csw.openSearchShortName | Geo-BigData Collection Catalog | Opensearch short name for CSW |
+
+### INSPIRE
+
+| Environment variable | ARLAS INSPIRE Server configuration variable | Default | Description |
+| --- | --- | --- | --- |
+| ARLAS_INSPIRE_ENABLED | arlas-inspire.enabled | false | Whether to activate INSPIRE compliant response elements |
+| ARLAS_INSPIRE_SERVICES_DATE_OF_CREATION | arlas-inspire.services_date_of_creation | 2018-11-16 | Date of creation of WFS & CSW services. It must be in YYYY-MM-DD format |
+| ARLAS_INSPIRE_ACCESS_AND_USE_CONDITIONS | arlas-inspire.access_and_use_conditions | no conditons apply | Conditions applied to access and use CSW and WFS services. If no conditions apply to the access and use of the resource, `no conditions apply` shall be used. If conditions are unknown, `conditions unknown` shall be used. This element shall also provide information on any fees necessary to access and use the resource, if applicable, or refer to a uniform resource locator (URL) where information on fees is available.|
+| ARLAS_INSPIRE_PUBLIC_ACCESS_LIMITATIONS | arlas-inspire.public_access_limitations | no limitations apply | Limitations applied to access CSW. When Member States limit public access to CSW under Article 13 of Directive 2007/2/EC, this metadata element shall provide information on the limitations and the reasons for them. |
 
 ### OPENSEARCH
 

@@ -44,7 +44,18 @@
             <source> src/main/resources/csw/atom/atom.xsd</source>
             <source> src/main/resources/csw/atom/opensearch.xsd</source>
           </sources>
+          <arguments>
+            <argument>-Xannotate</argument>
+          </arguments>
+
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-annotate</artifactId>
+            <version>1.1.0</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>

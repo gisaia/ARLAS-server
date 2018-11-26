@@ -19,8 +19,8 @@
 
 package io.arlas.server.ogc.csw.utils;
 
-import io.arlas.server.exceptions.OGCException;
-import io.arlas.server.exceptions.OGCExceptionCode;
+import io.arlas.server.exceptions.OGC.OGCException;
+import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.Version;
 import io.arlas.server.ogc.common.utils.VersionUtils;
@@ -34,7 +34,8 @@ public class CSWCheckParam {
 
     public static void checkQuerySyntax(CSWRequestType requestType,String elementName, String elementSetName, String acceptVersions,
                                         String version, String service, String outputSchema,String typeNames,
-                                        String bbox, String resourceid,String query,String id )throws OGCException {
+                                        String bbox, String resourceid,String query,String id, String constraintLanguage)throws OGCException {
+
         if(service==null){
             throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, "Missing service", "service", Service.CSW);
         }
@@ -94,6 +95,10 @@ public class CSWCheckParam {
         } else {
             requestVersion = VersionUtils.getVersion(version, Service.CSW);
             VersionUtils.checkVersion(requestVersion, CSWConstant.SUPPORTED_CSW_VERSION, Service.CSW);
+        }
+
+        if (constraintLanguage != null && !constraintLanguage.equals("") && !Arrays.asList(CSWConstant.SUPPORTED_CSW_CONSTRAINTLANGUAGE).contains(constraintLanguage)) {
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid constraintLanguage. Supported constraint languages are : 'Filter'. ", "outputSchema", Service.CSW);
         }
     }
 }

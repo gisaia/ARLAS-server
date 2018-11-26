@@ -27,11 +27,13 @@ import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.MultiValueFilter;
+import io.arlas.server.model.*;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -91,6 +93,14 @@ public class CollectionTool extends AbstractTestContext {
         params.rasterTileURL = DataSetTool.DATASET_TILE_URL;
         params.rasterTileWidth=256;
         params.rasterTileHeight=256;
+        params.inspire = new Inspire();
+        params.inspire.lineage = DataSetTool.DATASET_INSPIRE_LINEAGE;
+        params.inspire.topicCategories = new ArrayList<>();
+        params.inspire.topicCategories.add(DataSetTool.DATASET_INSPIRE_TOPIC_CATEGORY);
+        params.dublinCoreElementName = new DublinCoreElementName();
+        params.dublinCoreElementName.title = DataSetTool.DATASET_DUBLIN_CORE_TITLE;
+        params.dublinCoreElementName.description = DataSetTool.DATASET_DUBLIN_CORE_DESCRIPTION;
+        params.dublinCoreElementName.language = DataSetTool.DATASET_DUBLIN_CORE_LANGUAGE;
 
 
         // PUT new collection

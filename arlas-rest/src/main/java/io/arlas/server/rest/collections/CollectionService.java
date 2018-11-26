@@ -23,15 +23,15 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import io.arlas.server.app.Documentation;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.CollectionReferenceParameters;
+import io.arlas.server.model.*;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Success;
+import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ResponseFormatter;
-import io.arlas.server.app.Documentation;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -56,6 +56,8 @@ import java.util.concurrent.ExecutionException;
 public abstract class CollectionService extends CollectionRESTServices {
 
     protected CollectionReferenceDao dao = null;
+    protected boolean inspireConfigurationEnabled;
+    private static final String META_COLLECTION_NAME = "metacollection";
 
     @Timed
     @Path("/")
@@ -103,6 +105,7 @@ public abstract class CollectionService extends CollectionRESTServices {
         List<CollectionReference> collections = dao.getAllCollectionReferences();
         String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
         String fileName = "arlas-collections-export_" + date + ".json";
+        removeMetacollection(collections);
         return ResponseFormatter.getFileResponse(collections, fileName);
     }
 
@@ -125,6 +128,7 @@ public abstract class CollectionService extends CollectionRESTServices {
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         List<CollectionReference> collections = getCollectionsFromInputStream(inputStream);
         List<CollectionReference> savedCollections = new ArrayList<>();
+        removeMetacollection(collections);
         for (CollectionReference collection : collections) {
             try {
                 savedCollections.add(save(collection.collectionName, collection.params));
@@ -222,11 +226,19 @@ public abstract class CollectionService extends CollectionRESTServices {
             @QueryParam(value = "pretty") Boolean pretty
 
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+        if (collection != null && collection.equals(META_COLLECTION_NAME)) {
+            throw new NotAllowedException("'" + META_COLLECTION_NAME + "' is not allowed as a name for collections");
+        }
         return ResponseFormatter.getResultResponse(save(collection, collectionReferenceParameters));
     }
 
     public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters) throws ArlasException, JsonProcessingException {
-        CollectionReference cr = dao.putCollectionReference(new CollectionReference(collection, collectionReferenceParameters));
+        CollectionReference collectionReference = new CollectionReference(collection, collectionReferenceParameters);
+        setDefaultInspireParameters(collectionReference);
+        if (inspireConfigurationEnabled) {
+            CheckParams.checkInspireParamsInCollectionReference(collectionReference);
+        }
+        CollectionReference cr = dao.putCollectionReference(collectionReference);
         return cr;
     }
 
@@ -262,7 +274,45 @@ public abstract class CollectionService extends CollectionRESTServices {
                     required = false)
             @QueryParam(value = "pretty") Boolean pretty
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+        if (collection != null && collection.equals(META_COLLECTION_NAME)) {
+            throw new NotAllowedException("Forbidden operation on '" + META_COLLECTION_NAME + "'");
+        }
         dao.deleteCollectionReference(collection);
         return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
+    }
+
+    private void removeMetacollection(List<CollectionReference> collectionReferences) {
+        if (collectionReferences != null) {
+            collectionReferences.removeIf(collectionReference -> collectionReference.collectionName.equals(META_COLLECTION_NAME));
+        }
+    }
+
+    private void setDefaultInspireParameters(CollectionReference collectionReference) {
+        if (collectionReference.params.inspire == null) {
+            collectionReference.params.inspire = new Inspire();
+        }
+        if (collectionReference.params.inspire.keywords == null ||collectionReference.params.inspire.keywords.size() == 0) {
+            collectionReference.params.inspire.keywords = new ArrayList<>();
+            Keyword k = new Keyword();
+            k.value = collectionReference.collectionName;
+            collectionReference.params.inspire.keywords.add(k);
+        }
+        if (collectionReference.params.inspire.inspireUseConditions == null || collectionReference.params.inspire.inspireUseConditions.equals("")) {
+            collectionReference.params.inspire.inspireUseConditions = "no conditions apply";
+        }
+        if (collectionReference.params.inspire.inspireURI == null) {
+            collectionReference.params.inspire.inspireURI = new InspireURI();
+        }
+        if (collectionReference.params.inspire.inspireURI.code == null || collectionReference.params.inspire.inspireURI.code.equals("")) {
+            collectionReference.params.inspire.inspireURI.code = collectionReference.params.dublinCoreElementName.identifier;
+        }
+        if (collectionReference.params.inspire.inspireURI.namespace == null || collectionReference.params.inspire.inspireURI.namespace.equals("")) {
+            collectionReference.params.inspire.inspireURI.namespace = "ARLAS." + collectionReference.collectionName.toUpperCase();
+        }
+        //a default language must be specified
+        if (collectionReference.params.inspire.languages == null || collectionReference.params.inspire.languages.size() == 0) {
+            collectionReference.params.inspire.languages = new ArrayList<>();
+            collectionReference.params.inspire.languages.add("eng");
+        }
     }
 }

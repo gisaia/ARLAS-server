@@ -19,19 +19,34 @@
 
 package io.arlas.server.ogc.csw.operation.getcapabilities;
 
+import eu.europa.ec.inspire.schemas.common._1.*;
+import eu.europa.ec.inspire.schemas.inspire_dls._1.ExtendedCapabilitiesType;
 import io.arlas.server.app.OGCConfiguration;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.INSPIRE.INSPIREException;
+import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
+import io.arlas.server.inspire.common.constants.InspireConstants;
+import io.arlas.server.inspire.common.enums.AdditionalQueryables;
+import io.arlas.server.inspire.common.enums.SupportedISOQueryables;
+import io.arlas.server.inspire.common.utils.InspireCheckParam;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.InspireConformity;
 import io.arlas.server.ns.GML;
+import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.utils.CSWConstant;
+import io.arlas.server.ogc.csw.utils.CSWParamsParser;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
 import net.opengis.cat.csw._3.CapabilitiesType;
 import net.opengis.fes._2.*;
 import net.opengis.ows._2.*;
+import org.elasticsearch.common.Strings;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
-import java.util.Arrays;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class GetCapabilitiesHandler {
 
@@ -52,6 +67,10 @@ public class GetCapabilitiesHandler {
 
     public CSWHandler cswHandler;
     public OGCConfiguration ogcConfiguration;
+    public CapabilitiesType capabilitiesType;
+    public ExtendedCapabilitiesType inspireExtendedCapabilitiesType = new ExtendedCapabilitiesType();
+    private List<String> sections;
+
 
 
 
@@ -65,29 +84,206 @@ public class GetCapabilitiesHandler {
         trueValueType.setValue(TRUE);
         falseValueType.setValue(FALSE);
     }
-    public JAXBElement<CapabilitiesType> getCSWCapabilitiesResponse(List<String> sections, String url, String urlOpenSearch) {
-        CapabilitiesType getCapabilitiesType = new CapabilitiesType();
-        getCapabilitiesType.setVersion(CSWConstant.SUPPORTED_CSW_VERSION);
+    public void setCapabilitiesType(List<String> sections, String url, String urlOpenSearch) {
+        capabilitiesType = new CapabilitiesType();
+        capabilitiesType.setVersion(CSWConstant.SUPPORTED_CSW_VERSION);
+        this.sections = sections;
 
         if(sections.contains("ServiceIdentification") || sections.contains("All")){
-            setServiceIdentification(getCapabilitiesType);
+            setServiceIdentification(capabilitiesType);
         }
         if(sections.contains("ServiceProvider") || sections.contains("All")){
-            setServiceProvider(getCapabilitiesType);
+            setServiceProvider(capabilitiesType);
         }
         if(sections.contains("OperationsMetadata") || sections.contains("All")){
-            setOperations(getCapabilitiesType,urlOpenSearch);
-            setOperationsUrl(getCapabilitiesType,url);
+            setOperations(capabilitiesType,urlOpenSearch);
+            setOperationsUrl(capabilitiesType,url);
         }
         if(sections.contains("Filter_Capabilities") || sections.contains("All")){
-            setFilterCapabilities(getCapabilitiesType);
+            setFilterCapabilities(capabilitiesType);
         }
         if(sections.contains("Languages") || sections.contains("All")){
             CapabilitiesBaseType.Languages languages = new CapabilitiesBaseType.Languages();
             languages.getLanguage().add("FILTER");
-            getCapabilitiesType.setLanguages(languages);
+            capabilitiesType.setLanguages(languages);
         }
-        return cswHandler.cswFactory.createCapabilities(getCapabilitiesType);
+    }
+    public JAXBElement<CapabilitiesType> getCSWCapabilitiesResponse() {
+        return cswHandler.cswFactory.createCapabilities(capabilitiesType);
+    }
+
+    public void addINSPIRECompliantElements(List<CollectionReference> collections, List<String> sections, String serviceUrl, String language) throws ArlasException {
+        if(sections.contains("OperationsMetadata") || sections.contains("All")){
+            addExtendedCapabilities(collections, serviceUrl);
+        }
+        if(sections.contains("ServiceIdentification") || sections.contains("All")){
+            setInspireServiceIdentification(language);
+        }
+       // setInspireFeatureTypeBoundingBox(collectionReference);
+    }
+
+    private void addECConformity() {
+        Conformity interoperabilityConformity = new Conformity();
+        CitationConformity citationConformity = new CitationConformity();
+        citationConformity.setTitle(InspireConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_TITLE);
+        citationConformity.setDateOfCreation(InspireConformity.INSPIRE_INTEROPERABILITY_CONFORMITY_DATE);
+        interoperabilityConformity.setSpecification(citationConformity);
+        interoperabilityConformity.setDegree(DegreeOfConformity.NOT_EVALUATED);
+        inspireExtendedCapabilitiesType.getConformity().clear();
+        inspireExtendedCapabilitiesType.getConformity().add(interoperabilityConformity);
+    }
+
+    private void addECTemporalReference() {
+        TemporalReference temporalReference = new TemporalReference();
+        temporalReference.setDateOfCreation(cswHandler.inspireConfiguration.servicesDateOfCreation);
+        inspireExtendedCapabilitiesType.getTemporalReference().clear();
+        inspireExtendedCapabilitiesType.getTemporalReference().add(temporalReference);
+    }
+
+    private void addECResourceLocator(String serviceUrl) {
+        ResourceLocatorType resourceLocatorType = new ResourceLocatorType();
+        resourceLocatorType.setURL(serviceUrl + CSWConstant.CSW_GET_CAPABILITIES_PARAMETERS);
+        inspireExtendedCapabilitiesType.getResourceLocator().clear();
+        inspireExtendedCapabilitiesType.getResourceLocator().add(resourceLocatorType);
+    }
+
+    private void addECKeywords(List<CollectionReference> collections){
+        // Add INSPIRE Madatory Keyword
+        inspireExtendedCapabilitiesType.getMandatoryKeyword().clear();
+        ClassificationOfSpatialDataService classificationOfSpatialDataService = new ClassificationOfSpatialDataService();
+        classificationOfSpatialDataService.setKeywordValue(InspireConstants.CSW_MANDATORY_KEYWORD);
+        inspireExtendedCapabilitiesType.getMandatoryKeyword().add(classificationOfSpatialDataService);
+        List<io.arlas.server.model.Keyword> keywords = new ArrayList<>();
+        if (collections != null) {
+            collections.forEach(collectionReference -> {
+                keywords.addAll(Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.keywords).orElse(new ArrayList<>()));
+            });
+        }
+        inspireExtendedCapabilitiesType.getKeyword().clear();
+        if(sections.contains("ServiceIdentification") || sections.contains("All")){
+            capabilitiesType.getServiceIdentification().getKeywords().clear();
+        }
+        keywords.forEach(keyword -> {
+            /* If keyword is in CLASSIFICATION_SPATIAL_DATA_SERVICES, set the vocabulary */
+            try {
+                KeywordValueEnum.valueOf(keyword.value);
+                keyword.vocabulary = InspireConstants.CLASSIFICATION_SPATIAL_DATA_SERVICES;
+                keyword.dateOfPublication = InspireConstants.DATE_CLASSIFICATION_SPATIAL_DATA_SERVICES;
+            } catch (IllegalArgumentException e) {}
+            /* Check if other keywords have a Controled vocabulary*/
+            eu.europa.ec.inspire.schemas.common._1.Keyword inspireKeyword = new eu.europa.ec.inspire.schemas.common._1.Keyword();
+            inspireKeyword.setKeywordValue(keyword.value);
+            OriginatingControlledVocabulary vocabulary = new OriginatingControlledVocabulary();
+            Optional.ofNullable(keyword.vocabulary).map(k -> {vocabulary.setTitle(keyword.vocabulary); return k;});
+            Optional.ofNullable(keyword.dateOfPublication).map(k -> {vocabulary.setDateOfCreation(keyword.dateOfPublication); return k;});
+            if (!Strings.isNullOrEmpty(keyword.vocabulary)) {
+                inspireKeyword.setOriginatingControlledVocabulary(vocabulary);
+            }
+            inspireExtendedCapabilitiesType.getKeyword().add(inspireKeyword);
+            if(sections.contains("ServiceIdentification") || sections.contains("All")){
+                KeywordsType ke = new KeywordsType();
+                LanguageStringType languageStringType = new LanguageStringType();
+                languageStringType.setValue(keyword.value);
+                ke.getKeyword().add(languageStringType);
+                capabilitiesType.getServiceIdentification().getKeywords().add(ke);
+            }
+        });
+    }
+
+    private void addECMetadataPointOfContact() {
+        MetadataPointOfContact metadataPointOfContact = new MetadataPointOfContact();
+        String email = cswHandler.ogcConfiguration.serviceContactMail;
+        String name = cswHandler.ogcConfiguration.serviceProviderName;
+        metadataPointOfContact.setEmailAddress(email);
+        metadataPointOfContact.setOrganisationName(name);
+        inspireExtendedCapabilitiesType.getMetadataPointOfContact().clear();
+        inspireExtendedCapabilitiesType.getMetadataPointOfContact().add(metadataPointOfContact);
+    }
+
+    private void addECMetadataDate(List<CollectionReference> collections) throws INSPIREException {
+        /* The latest date of all the collections is returned*/
+        Date metadataDate = null;
+        if (collections != null) {
+            for(CollectionReference collectionReference : collections) {
+                Date collectionDate = CSWParamsParser.getMetadataDate(collectionReference.params.dublinCoreElementName.getDate());
+                if (metadataDate == null || metadataDate.compareTo(collectionDate) < 0) {
+                    metadataDate = collectionDate;
+                }
+            }
+        }
+        if (metadataDate == null) {
+            throw new INSPIREException(INSPIREExceptionCode.MISSING_INSPIRE_METADATA, "Metadata date is missing", Service.CSW);
+        } else {
+            DateFormat df = new SimpleDateFormat(InspireConstants.CSW_METADATA_DATE_FORMAT);
+            inspireExtendedCapabilitiesType.setMetadataDate(df.format(metadataDate));
+        }
+    }
+
+    private void addECMetadataLanguage() throws INSPIREException{
+        SupportedLanguagesType supportedLanguagesType = new SupportedLanguagesType();
+        String defaultLanguage = cswHandler.cswConfiguration.serviceIdentificationLanguage;
+        InspireCheckParam.checkLanguageInspireCompliance(defaultLanguage, Service.CSW);
+        LanguageElementISO6392B defaultLanguageIso = new LanguageElementISO6392B();
+        defaultLanguageIso.setLanguage(defaultLanguage);
+        supportedLanguagesType.setDefaultLanguage(defaultLanguageIso);
+        inspireExtendedCapabilitiesType.setSupportedLanguages(supportedLanguagesType);
+        inspireExtendedCapabilitiesType.setResponseLanguage(defaultLanguageIso);
+    }
+
+    private void addExtendedCapabilities(List<CollectionReference> collections, String serviceUrl) throws INSPIREException {
+        // Add INSPIRE Resource type
+        inspireExtendedCapabilitiesType.setResourceType(ResourceType.SERVICE);
+        // Add Resource locator
+        addECResourceLocator(serviceUrl);
+        // Add INSPIRE Spatial data service type
+        inspireExtendedCapabilitiesType.setSpatialDataServiceType(SpatialDataServiceType.DISCOVERY);
+        // Add INSPIRE keywords
+        addECKeywords(collections);
+        // Add INSPIRE Temporal Reference
+        addECTemporalReference();
+        // Add INSPIRE Conformity
+        addECConformity();
+        // Add INSPIRE Metadata Point Of Contact
+        addECMetadataPointOfContact();
+        // Add INSPIRE Metadata date
+        addECMetadataDate(collections);
+        // Add INSPIRE Metadata language
+        addECMetadataLanguage();
+        ExtendedCapabilities extendedCapabilities  = new ExtendedCapabilities();
+        extendedCapabilities.setExtendedCapabilities(inspireExtendedCapabilitiesType);
+        capabilitiesType.getOperationsMetadata().setExtendedCapabilities(extendedCapabilities);
+    }
+
+    private void setInspireServiceIdentification(String language) throws INSPIREException {
+        // FOR NOW we just check if the language is correct but we always return the only language declared in the inspire configuration
+        if (language != null) {
+            InspireCheckParam.checkLanguageInspireCompliance(language, Service.WFS);
+        }
+        ServiceIdentification serviceIdentification = capabilitiesType.getServiceIdentification();
+
+        // Add INSPIRE 'Resource Title'
+        serviceIdentification.getTitle().clear();
+        LanguageStringType title = new LanguageStringType();
+        title.setValue(cswHandler.cswConfiguration.serviceIdentificationTitle);
+        title.setLang(cswHandler.cswConfiguration.serviceIdentificationLanguage);
+        serviceIdentification.getTitle().add(title);
+
+        // Add INSPIRE 'Resource Abstract'
+        serviceIdentification.getAbstract().clear();
+        LanguageStringType abstractTitle = new LanguageStringType();
+        abstractTitle.setValue(cswHandler.cswConfiguration.serviceIdentificationAbstract);
+        abstractTitle.setLang(cswHandler.cswConfiguration.serviceIdentificationLanguage);
+
+        // Add INSPIRE 'Conditions for Access and Use'
+        String conditionsForAccessAndUse = Optional.ofNullable(cswHandler.inspireConfiguration).map(c -> c.accessAndUseConditions).map(String::toString).orElse(InspireConstants.NO_CONDITIONS_FOR_ACCESS_AND_USE);
+        serviceIdentification.setFees(conditionsForAccessAndUse);
+
+        // Add INSPIRE 'Limitations on Public Access'
+        // For CSW We specify publicAccessLimitations from Inspire configuration
+        serviceIdentification.getAccessConstraints().clear();
+        String limitationsOnPublicAccess = Optional.ofNullable(cswHandler.inspireConfiguration).map(c -> c.publicAccessLimitations).map(String::toString).orElse(InspireConstants.LIMITATION_ON_PUBLIC_ACCESS);
+        serviceIdentification.getAccessConstraints().add(limitationsOnPublicAccess);
+        capabilitiesType.setServiceIdentification(serviceIdentification);
     }
 
     private void setServiceProvider(CapabilitiesType getCapabilitiesType) {
@@ -104,7 +300,10 @@ public class GetCapabilitiesHandler {
         addressType.setCity(ogcConfiguration.serviceContactAdressCity);
         addressType.setCountry(ogcConfiguration.serviceContactAdressCountry);
         addressType.setPostalCode(ogcConfiguration.serviceContactAdressPostalCode);
+        addressType.getElectronicMailAddress().clear();
+        addressType.getElectronicMailAddress().add(ogcConfiguration.serviceContactMail);
         contactType.setAddress(addressType);
+
         responsiblePartySubsetType.setContactInfo(contactType);
         serviceProvider.setServiceContact(responsiblePartySubsetType);
         getCapabilitiesType.setServiceProvider(serviceProvider);
@@ -184,7 +383,12 @@ public class GetCapabilitiesHandler {
         resolve.getAllowedValues().getValueOrRange().add(local);
         //add  operations
         DomainType[] getCapabilitiesParameters = {acceptVersions, sections,outputSchema,outputFormat,acceptFormats};
-        DomainType[] getRecordsConstraint = {opensearch};
+        String[] additionalQueryablesStringArray = Arrays.stream(AdditionalQueryables.values()).map(aq -> aq.value).toArray(String[]::new);
+        String[] supportedIsoQueryablesStringArray = Arrays.stream(SupportedISOQueryables.values()).map(siq -> siq.value).toArray(String[]::new);
+        DomainType additionalQueryables = createDomain("AdditionalQueryables", additionalQueryablesStringArray);
+        DomainType supportedIsoQueryables = createDomain("SupportedISOQueryables", supportedIsoQueryablesStringArray);
+
+        DomainType[] getRecordsConstraint = {opensearch, additionalQueryables, supportedIsoQueryables};
 
         addOperation(CSWRequestType.GetCapabilities.name() ,operationsMetadata, getCapabilitiesParameters,noParameters);
         addOperation(CSWRequestType.GetRecords.name(), operationsMetadata,noParameters,getRecordsConstraint);
@@ -294,4 +498,6 @@ public class GetCapabilitiesHandler {
         addConformanceType(conformanceType, "ImplementsSpatialFilter", trueValueType);
         addConformanceType(conformanceType, "ImplementsMinSpatialFilter", trueValueType);
     }
+
+
 }

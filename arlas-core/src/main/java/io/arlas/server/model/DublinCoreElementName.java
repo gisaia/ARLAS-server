@@ -22,6 +22,7 @@ package io.arlas.server.model;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.geojson.LngLatAlt;
+import org.geojson.Polygon;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -60,7 +61,7 @@ public class DublinCoreElementName {
     public String format = "";
 
     @JsonProperty(value = "identifier", required = false)
-    public String identifier = String.valueOf(java.util.UUID.randomUUID());;
+    public String identifier = String.valueOf(java.util.UUID.randomUUID());
 
     @JsonProperty(value = "source", required = false)
     public String source = "";
@@ -78,19 +79,22 @@ public class DublinCoreElementName {
        return simpleDateFormat.format(date);
     }
 
+    private Polygon coverageGeometry;
+
     private JSONObject coverage;
     @JsonGetter(value = "coverage")
     public JSONObject getCoverage(){
-        org.geojson.Polygon polygon = new org.geojson.Polygon();
+        coverageGeometry = new org.geojson.Polygon();
         List<LngLatAlt> exteriorRing = new ArrayList<>();
         exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
+        exteriorRing.add(new LngLatAlt(bbox.east, bbox.south));
         exteriorRing.add(new LngLatAlt(bbox.east, bbox.north));
         exteriorRing.add(new LngLatAlt(bbox.west, bbox.north));
         exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
-        polygon.setExteriorRing(exteriorRing);
-        this.coverage = new JSONObject();
+        coverageGeometry.setExteriorRing(exteriorRing);
+        coverage = new JSONObject();
         JSONArray jsonArayExt = new JSONArray();
-        polygon.getExteriorRing().forEach(lngLatAlt -> {
+        coverageGeometry.getExteriorRing().forEach(lngLatAlt -> {
             JSONArray jsonArayLngLat = new JSONArray();
             jsonArayLngLat.add(0, lngLatAlt.getLongitude());
             jsonArayLngLat.add(1, lngLatAlt.getLatitude());
@@ -98,9 +102,24 @@ public class DublinCoreElementName {
         });
         JSONArray jsonAray = new JSONArray();
         jsonAray.add(jsonArayExt);
-        this.coverage.put("type", "Polygon");
-        this.coverage.put("coordinates", jsonAray);
-        return this.coverage;
+        coverage.put("type", "Polygon");
+        coverage.put("coordinates", jsonAray);
+        return coverage;
+    }
+
+    private String coverageCentroid;
+    @JsonGetter(value = "coverage_centroid")
+    public String getCoverageCentroid(){
+        if (coverageGeometry != null) {
+            LngLatAlt bottomLeft = coverageGeometry.getExteriorRing().get(0);
+            LngLatAlt topRight = coverageGeometry.getExteriorRing().get(2);
+            double centroidLat = (bottomLeft.getLatitude() + topRight.getLatitude()) / 2;
+            double centroidLng = (bottomLeft.getLongitude() + topRight.getLongitude()) / 2;
+            coverageCentroid = centroidLat + "," + centroidLng;
+        } else {
+            coverageCentroid = "0,0";
+        }
+        return coverageCentroid;
     }
 
     public class Bbox {

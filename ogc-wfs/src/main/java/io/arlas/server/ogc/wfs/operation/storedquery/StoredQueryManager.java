@@ -23,8 +23,8 @@ package io.arlas.server.ogc.wfs.operation.storedquery;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import net.opengis.wfs._2.*;
-import io.arlas.server.exceptions.OGCException;
-import io.arlas.server.exceptions.OGCExceptionCode;
+import io.arlas.server.exceptions.OGC.OGCException;
+import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

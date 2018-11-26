@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <schema targetNamespace="http://www.opengis.net/ows/2.0"
+        xmlns:inspire_dls="http://inspire.ec.europa.eu/schemas/inspire_dls/1.0"
         xmlns:ows="http://www.opengis.net/ows/2.0"
         xmlns="http://www.w3.org/2001/XMLSchema"
         elementFormDefault="qualified"
@@ -23,6 +24,8 @@
   <include schemaLocation="owsCommon.xsd" />
   <include schemaLocation="ows19115subset.xsd" />
   <include schemaLocation="owsDomainType.xsd" />
+  <import namespace="http://inspire.ec.europa.eu/schemas/inspire_dls/1.0" schemaLocation="../atom/inspire_dls.xsd"/>
+
 
   <!-- ==============================================================
                 elements and types
@@ -77,12 +80,22 @@
   </element>
   <!-- ========================================================== -->
   <element name="ExtendedCapabilities"
-           type="anyType">
+           >
     <annotation>
       <documentation>Individual software vendors and servers can use this
       element to provide metadata about any additional server
       abilities.</documentation>
     </annotation>
+    <complexType>
+      <sequence>
+        <element ref="inspire_dls:ExtendedCapabilities"
+                 minOccurs="1">
+          <annotation>
+            <documentation>Inspire ExtentedCapabilities</documentation>
+          </annotation>
+        </element>
+      </sequence>
+    </complexType>
   </element>
   <!-- ========================================================== -->
   <element name="Operation">

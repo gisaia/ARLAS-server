@@ -35,6 +35,114 @@
     "exclude_fields": {
       "type": "text"
     },
+    "ogc_inspire_configuration_parameters": {
+      "properties": {
+        "responsible_party": {
+          "type": "keyword",
+          "copy_to": ["internal.fulltext"]
+        },
+        "responsible_party_role": {
+          "type": "keyword",
+          "copy_to": ["internal.fulltext"]
+        },
+        "resource_type": {
+          "type": "keyword"
+        },
+        "inspire_conformity_list": {
+          "type": "nested",
+          "properties": {
+            "specification_title": {
+              "type": "text"
+            },
+            "specification_date": {
+              "type": "date",
+              "format": "YYYY-MM-DD"
+            },
+            "specification_date_type": {
+              "type": "keyword"
+            },
+            "degree": {
+              "type": "keyword"
+            }
+          }
+        },
+        "creation_date" : {
+          "type": "date",
+          "format": "YYYY-MM-DD"
+        },
+        "access_and_use_conditions": {
+          "type": "text"
+        },
+        "public_access_limitations": {
+          "type": "text"
+        }
+      }
+
+    },
+    "inspire": {
+      "properties": {
+        "keywords": {
+          "type": "nested",
+          "properties": {
+            "value": { "type": "keyword" },
+            "vocabulary": { "type": "keyword"},
+            "date_of_publication": {
+              "type": "date",
+              "format": "YYYY-MM-dd"
+            }
+          }
+        },
+        "languages": {
+          "type": "keyword"
+        },
+        "topic_categories": {
+          "type": "keyword"
+        },
+        "lineage": {
+          "type": "text"
+        },
+        "spatial_resolution": {
+          "type": "nested",
+          "properties": {
+            "value": {
+              "type": "float"
+            },
+            "unit_of_measure": {
+              "type": "keyword"
+            }
+          }
+        },
+        "inspire_uri" :{
+          "type": "nested",
+          "properties": {
+            "code": {
+              "type": "keyword",
+              "copy_to": ["internal.fulltext"]
+            }
+          }
+        },
+        "inspire_use_conditions": {
+          "type": "text"
+        },
+        "inspire_limitation_access" :{
+          "type": "nested",
+          "properties": {
+            "access_constraints": {
+              "type": "keyword",
+              "copy_to": ["internal.fulltext"]
+            },
+            "other_constraints": {
+              "type": "text",
+              "copy_to": ["internal.fulltext"]
+            },
+            "classification": {
+              "type": "keyword",
+              "copy_to": ["internal.fulltext"]
+            }
+          }
+        }
+      }
+    },
     "dublin_core_element_name":{
       "properties": {
         "title": {
@@ -66,12 +174,19 @@
           "type": "text",
           "copy_to": ["internal.fulltext"]
         },
+        "language": {
+          "type": "keyword",
+          "copy_to": ["internal.fulltext"]
+        },
         "source": {
           "type": "text",
           "copy_to": ["internal.fulltext"]
         },
         "coverage": {
           "type": "geo_shape"
+        },
+        "coverage_centroid": {
+          "type": "geo_point"
         }
       }
     }

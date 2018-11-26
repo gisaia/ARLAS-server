@@ -19,8 +19,8 @@
 
 package io.arlas.server.model.response;
 
-import io.arlas.server.exceptions.OGCException;
-import io.arlas.server.exceptions.OGCExceptionMessage;
+import io.arlas.server.exceptions.OGC.OGCException;
+import io.arlas.server.exceptions.OGC.OGCExceptionMessage;
 import net.opengis.ows._1.ExceptionReport;
 import net.opengis.ows._1.ExceptionType;
 import net.opengis.ows._1.ObjectFactory;

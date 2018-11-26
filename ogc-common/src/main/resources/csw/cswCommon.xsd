@@ -24,7 +24,7 @@
    <xsd:import namespace="http://www.opengis.net/ows/2.0"
       schemaLocation="ows/owsAll.xsd"/>
    <xsd:import namespace="http://www.opengis.net/fes/2.0"
-      schemaLocation="http://schemas.opengis.net/filter/2.0/filterAll.xsd"/>
+      schemaLocation="fes-2.0/filterAll.xsd"/>
    <!-- ==================================================================== -->
    <!-- REQUEST BASE TYPE                                                  -->
    <!-- ==================================================================== -->

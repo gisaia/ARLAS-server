@@ -19,6 +19,7 @@
 
 package io.arlas.server.ogc.wfs;
 
+import io.arlas.server.app.InspireConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.app.WFSConfiguration;
 import io.arlas.server.ogc.wfs.operation.describefeaturetype.DescribeFeatureTypeHandler;
@@ -26,7 +27,7 @@ import io.arlas.server.ogc.wfs.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.ogc.wfs.operation.getfeature.GetFeatureHandler;
 import io.arlas.server.ogc.wfs.operation.storedquery.ListStoredQueriesHandler;
 import io.arlas.server.ogc.wfs.operation.storedquery.StoredQueryManager;
-import io.arlas.server.ogc.wfs.utils.XmlUtils;
+import io.arlas.server.ogc.common.utils.XmlUtils;
 import net.opengis.wfs._2.ObjectFactory;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,6 +36,7 @@ public class WFSHandler {
 
     public WFSConfiguration wfsConfiguration;
     public OGCConfiguration ogcConfiguration;
+    public InspireConfiguration inspireConfiguration;
 
     public GetCapabilitiesHandler getCapabilitiesHandler;
     public DescribeFeatureTypeHandler describeFeatureTypeHandler;
@@ -45,10 +47,11 @@ public class WFSHandler {
     public net.opengis.fes._2.ObjectFactory fesFactory = new net.opengis.fes._2.ObjectFactory();
     public StoredQueryManager storedQueryManager = new StoredQueryManager();
 
-    public WFSHandler(WFSConfiguration wfsconfiguration, OGCConfiguration ogcConfiguration) throws ParserConfigurationException {
+    public WFSHandler(WFSConfiguration wfsconfiguration, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws ParserConfigurationException {
         this.wfsConfiguration = wfsconfiguration;
         this.ogcConfiguration = ogcConfiguration;
-        getCapabilitiesHandler = new GetCapabilitiesHandler(wfsconfiguration, ogcConfiguration, this);
+        this.inspireConfiguration = inspireConfiguration;
+        getCapabilitiesHandler = new GetCapabilitiesHandler(this);
         describeFeatureTypeHandler = new DescribeFeatureTypeHandler(this);
         listStoredQueriesHandler = new ListStoredQueriesHandler(this);
         getFeatureHandler = new GetFeatureHandler(this);

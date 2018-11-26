@@ -22,7 +22,7 @@ package io.arlas.server.ogc.csw.writer.getrecords;
 import com.a9.opensearch.QueryType;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.ns.ATOM;
-import io.arlas.server.ogc.csw.CSWService;
+import io.arlas.server.ogc.csw.CSWRESTService;
 import io.arlas.server.ogc.csw.utils.AtomBuilder;
 import net.opengis.cat.csw._3.GetRecordsResponseType;
 import org.slf4j.Logger;
@@ -101,7 +101,7 @@ public class AtomGetRecordsMessageBodyWriter implements MessageBodyWriter<GetRec
             new WebApplicationException(e);
         }
         LinkType linkType = new LinkType();
-        linkType.setType(CSWService.MIME_TYPE__OPENSEARCH_XML);
+        linkType.setType(CSWRESTService.MIME_TYPE__OPENSEARCH_XML);
         linkType.setHref(arlasServerConfiguration.ogcConfiguration.serverUri + "ogc/opensearch/{collection}");
         linkType.setRel("search");
         feedType.getLink().add(linkType);

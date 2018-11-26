@@ -22,7 +22,14 @@ package io.arlas.server.app;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CSWConfiguration {
+    @JsonProperty("serviceIdentificationTitle")
+    public String serviceIdentificationTitle;
 
+    @JsonProperty("serviceIdentificationAbstract")
+    public String serviceIdentificationAbstract;
+
+    @JsonProperty("serviceIdentificationLanguage")
+    public String serviceIdentificationLanguage;
     @JsonProperty("openSearchDescription")
     public String openSearchDescription;
 

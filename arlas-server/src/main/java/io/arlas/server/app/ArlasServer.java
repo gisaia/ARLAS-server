@@ -28,13 +28,14 @@ import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.health.ElasticsearchHealthCheck;
 import io.arlas.server.ogc.csw.CSWHandler;
-import io.arlas.server.ogc.csw.ElasticCSWService;
+import io.arlas.server.ogc.csw.CSWService;
 import io.arlas.server.ogc.csw.writer.getrecords.AtomGetRecordsMessageBodyWriter;
 import io.arlas.server.ogc.csw.writer.getrecords.XmlGetRecordsMessageBodyWriter;
 import io.arlas.server.ogc.csw.writer.record.AtomRecordMessageBodyWriter;
-import io.arlas.server.ogc.csw.writer.record.XmlRecordMessageBodyWriter;
-import io.arlas.server.ogc.wfs.WFSHandler;
+import io.arlas.server.ogc.csw.writer.record.XmlRecordMessageBodyBuilder;
+import io.arlas.server.ogc.csw.writer.record.XmlMDMetadataMessageBodyWriter;
 import io.arlas.server.ogc.wfs.WFSService;
+import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.rest.collections.ElasticCollectionService;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
 import io.arlas.server.rest.explore.aggregate.GeoAggregateRESTService;
@@ -149,7 +150,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new AtomHitsMessageBodyWriter(exploration));
         environment.jersey().register(new AtomGetRecordsMessageBodyWriter(configuration));
         environment.jersey().register(new XmlGetRecordsMessageBodyWriter());
-        environment.jersey().register(new XmlRecordMessageBodyWriter());
+        environment.jersey().register(new XmlMDMetadataMessageBodyWriter());
+        environment.jersey().register(new XmlRecordMessageBodyBuilder());
         environment.jersey().register(new AtomRecordMessageBodyWriter());
 
         if (configuration.arlasServiceExploreEnabled) {
@@ -177,8 +179,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         if(configuration.arlasServiceWFSEnabled){
             LOGGER.info("WFS Service enabled");
-            WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration, configuration.ogcConfiguration);
-            environment.jersey().register(new WFSService(exploration, wfsHandler));
+            WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration, configuration.ogcConfiguration, configuration.inspireConfiguration);
+            environment.jersey().register(new WFSService(exploration, configuration, wfsHandler));
         } else {
             LOGGER.info("WFS Service disabled");
         }
@@ -193,8 +195,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         if (configuration.arlasServiceCSWEnabled) {
             LOGGER.info("CSW Service enabled");
-            CSWHandler cswHandler = new CSWHandler(configuration.ogcConfiguration,configuration.cswConfiguration);
-            environment.jersey().register(new ElasticCSWService(cswHandler,client,configuration));
+            CSWHandler cswHandler = new CSWHandler(configuration.ogcConfiguration,configuration.cswConfiguration, configuration.inspireConfiguration);
+            environment.jersey().register(new CSWService(client, cswHandler,configuration));
         } else {
             LOGGER.info("CSW Service disabled");
         }

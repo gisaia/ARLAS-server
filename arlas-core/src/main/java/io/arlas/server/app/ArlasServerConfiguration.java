@@ -42,6 +42,9 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("arlas-ogc")
     public OGCConfiguration ogcConfiguration;
 
+    @JsonProperty("arlas-inspire")
+    public InspireConfiguration inspireConfiguration;
+
     @JsonProperty("arlas-csw")
     public CSWConfiguration cswConfiguration;
 

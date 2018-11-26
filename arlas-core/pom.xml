@@ -95,5 +95,14 @@
             <artifactId>jts-core</artifactId>
             <version>${jts.version}</version>
         </dependency>
+
+        <!-- ____________________________________________________ -->
+        <!-- LANGUAGE -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>com.neovisionaries</groupId>
+            <artifactId>nv-i18n</artifactId>
+            <version>1.4</version>
+        </dependency>
     </dependencies>
 </project>

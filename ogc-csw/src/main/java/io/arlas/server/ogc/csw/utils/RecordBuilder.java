@@ -19,32 +19,44 @@
 
 package io.arlas.server.ogc.csw.utils;
 
+import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.DublinCoreElementName;
+import io.arlas.server.model.Inspire;
+import io.arlas.server.ogc.common.utils.OGCConstant;
 import net.opengis.cat.csw._3.AbstractRecordType;
 import net.opengis.cat.csw._3.BriefRecordType;
 import net.opengis.cat.csw._3.RecordType;
 import net.opengis.cat.csw._3.SummaryRecordType;
 import net.opengis.ows._2.WGS84BoundingBoxType;
+import org.elasticsearch.common.Strings;
 import org.purl.dc.elements._1.SimpleLiteral;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBElement;
 import java.util.Arrays;
 
 public class RecordBuilder {
 
+    private static final String RESOURCE_TYPE = "dataset";
+
+
     public static final org.purl.dc.elements._1.ObjectFactory dcObjectFactory = new org.purl.dc.elements._1.ObjectFactory();
+    public static final org.purl.dc.terms.ObjectFactory dctObjectFactory = new org.purl.dc.terms.ObjectFactory();
+
     public static final net.opengis.ows._2.ObjectFactory owsObjectFactory = new net.opengis.ows._2.ObjectFactory();
 
-    public static BriefRecordType getBriefResult(CollectionReference collectionReference, String[] elements) {
+    public static BriefRecordType getBriefResult(CollectionReference collectionReference, String[] elements, boolean inspireIsEnabled) {
         BriefRecordType briefRecord = new BriefRecordType();
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
+        addIdentifier(briefRecord, dublinCoreElementName.identifier);
         if (elements.length == 0 || elements == null) {
             // ADD ALL field
             addTitle(briefRecord, dublinCoreElementName.title);
-            addType(briefRecord, dublinCoreElementName.type);
+            if (inspireIsEnabled) {
+                addType(briefRecord, RESOURCE_TYPE);
+            } else {
+                addType(briefRecord, dublinCoreElementName.type);
+            }
             addBbox(briefRecord, dublinCoreElementName.bbox);
         } else {
             for (String element : Arrays.asList(elements)) {
@@ -53,35 +65,46 @@ public class RecordBuilder {
                         addTitle(briefRecord, dublinCoreElementName.title);
                         break;
                     case CSWConstant.DC_FIELD_TYPE:
-                        addType(briefRecord, dublinCoreElementName.type);
-                        break;
+                        if (inspireIsEnabled) {
+                            addType(briefRecord, RESOURCE_TYPE);
+                        } else {
+                            addType(briefRecord, dublinCoreElementName.type);
+                        }                         break;
                     case CSWConstant.DC_FIELD_BBOX:
                         addBbox(briefRecord, dublinCoreElementName.bbox);
                         break;
                 }
             }
         }
-        if (dublinCoreElementName.identifier != "") {
-            addIdentifier(briefRecord, dublinCoreElementName.identifier);
-        } else {
-            addIdentifier(briefRecord, String.valueOf(collectionReference.collectionName.hashCode()));
-        }
         return briefRecord;
-
     }
 
-    public static SummaryRecordType getSummaryResult(CollectionReference collectionReference, String[] elements) {
+    public static SummaryRecordType getSummaryResult(CollectionReference collectionReference, String[] elements, String serverUri, boolean inspireIsEnabled) {
         SummaryRecordType summaryRecord = new SummaryRecordType();
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
+        Inspire inspire = collectionReference.params.inspire;
+        addIdentifier(summaryRecord, dublinCoreElementName.identifier);
         if (elements.length == 0) {
             // ADD ALL field
             addTitle(summaryRecord, dublinCoreElementName.title);
-            addSubject(summaryRecord, dublinCoreElementName.subject);
-            addType(summaryRecord, dublinCoreElementName.type);
-            addBbox(summaryRecord, dublinCoreElementName.bbox);
+            if (inspire != null && inspire.keywords != null) {
+                inspire.keywords.forEach(keyword -> {
+                    addSubject(summaryRecord, keyword.value);
+
+                });
+            }
+            if (!Strings.isNullOrEmpty(dublinCoreElementName.subject)) {
+                addSubject(summaryRecord, dublinCoreElementName.subject);
+            }
+            if (inspireIsEnabled) {
+                addType(summaryRecord, RESOURCE_TYPE);
+            } else {
+                addType(summaryRecord, dublinCoreElementName.type);
+            }             addBbox(summaryRecord, dublinCoreElementName.bbox);
             addModified(summaryRecord, dublinCoreElementName.getDate());
             addFormat(summaryRecord, dublinCoreElementName.format);
             addAbstract(summaryRecord, dublinCoreElementName.description);
+            addUrlToWFS(summaryRecord, serverUri + "ogc/wfs/" + collectionReference.collectionName + "/?" + OGCConstant.WFS_GET_CAPABILITIES_PARAMETERS);
         } else {
             for (String element : Arrays.asList(elements)) {
                 switch (element.toLowerCase()) {
@@ -89,13 +112,21 @@ public class RecordBuilder {
                         addTitle(summaryRecord, dublinCoreElementName.title);
                         break;
                     case CSWConstant.DC_FIELD_TYPE:
-                        addType(summaryRecord, dublinCoreElementName.type);
-                        break;
+                        if (inspireIsEnabled) {
+                            addType(summaryRecord, RESOURCE_TYPE);
+                        } else {
+                            addType(summaryRecord, dublinCoreElementName.type);
+                        }                        break;
                     case CSWConstant.DC_FIELD_BBOX:
                         addBbox(summaryRecord, dublinCoreElementName.bbox);
                         break;
                     case CSWConstant.DC_FIELD_SUBJECT:
-                        addSubject(summaryRecord, dublinCoreElementName.subject);
+                        if (inspire.keywords != null) {
+                            inspire.keywords.forEach(keyword -> addSubject(summaryRecord, keyword.value));
+                        }
+                        if (!Strings.isNullOrEmpty(dublinCoreElementName.subject)) {
+                            addSubject(summaryRecord, dublinCoreElementName.subject);
+                        }
                         break;
                     case CSWConstant.DC_FIELD_MODIFIED:
                         addModified(summaryRecord, dublinCoreElementName.getDate());
@@ -109,22 +140,37 @@ public class RecordBuilder {
                 }
             }
         }
-        addIdentifier(summaryRecord, dublinCoreElementName.identifier);
         return summaryRecord;
     }
 
-    public static RecordType getFullResult(CollectionReference collectionReference, String[] elements) {
+    public static RecordType getFullResult(CollectionReference collectionReference, String[] elements, OGCConfiguration ogcConfiguration, boolean inspireIsEnabled) {
         RecordType record = new RecordType();
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
+        Inspire inspire = collectionReference.params.inspire;
+        addIdentifier(record, dublinCoreElementName.identifier);
         if (elements.length == 0 || elements == null) {
             // ADD ALL field
             addTitle(record, dublinCoreElementName.title);
-            addSubject(record, dublinCoreElementName.subject);
-            addType(record, dublinCoreElementName.type);
+            if (inspire != null && inspire.keywords != null) {
+                inspire.keywords.forEach(keyword -> {
+                    if (keyword.value != null) {
+                        addSubject(record, keyword.value);
+                    }
+                });
+            }
+            if (!Strings.isNullOrEmpty(dublinCoreElementName.subject)) {
+                addSubject(record, dublinCoreElementName.subject);
+            }
+            if (inspireIsEnabled) {
+                addType(record, RESOURCE_TYPE);
+            } else {
+                addType(record, dublinCoreElementName.type);
+            }
             addBbox(record, dublinCoreElementName.bbox);
             addModified(record, dublinCoreElementName.getDate());
             addFormat(record, dublinCoreElementName.format);
             addAbstract(record, dublinCoreElementName.description);
+            addUrlToWFS(record, ogcConfiguration.serverUri + "ogc/wfs/" + collectionReference.collectionName + "/?" + OGCConstant.WFS_GET_CAPABILITIES_PARAMETERS);
         } else {
             for (String element : Arrays.asList(elements)) {
                 switch (element.toLowerCase()) {
@@ -132,13 +178,21 @@ public class RecordBuilder {
                         addTitle(record, dublinCoreElementName.title);
                         break;
                     case CSWConstant.DC_FIELD_TYPE:
-                        addType(record, dublinCoreElementName.type);
-                        break;
+                        if (inspireIsEnabled) {
+                            addType(record, RESOURCE_TYPE);
+                        } else {
+                            addType(record, dublinCoreElementName.type);
+                        }                        break;
                     case CSWConstant.DC_FIELD_BBOX:
                         addBbox(record, dublinCoreElementName.bbox);
                         break;
                     case CSWConstant.DC_FIELD_SUBJECT:
-                        addSubject(record, dublinCoreElementName.subject);
+                        if (inspire.keywords != null) {
+                            inspire.keywords.forEach(keyword -> addSubject(record, keyword.value));
+                        }
+                        if (!Strings.isNullOrEmpty(dublinCoreElementName.subject)) {
+                            addSubject(record, dublinCoreElementName.subject);
+                        }
                         break;
                     case CSWConstant.DC_FIELD_MODIFIED:
                         addModified(record, dublinCoreElementName.getDate());
@@ -152,7 +206,6 @@ public class RecordBuilder {
                 }
             }
         }
-        addIdentifier(record, dublinCoreElementName.identifier);
         return record;
     }
 
@@ -186,6 +239,25 @@ public class RecordBuilder {
             case "RecordType":
                 JAXBElement<SimpleLiteral> JAXBElementType = dcObjectFactory.createType(simpleLiteral);
                 ((RecordType) abstractRecordType).getDCElement().add(JAXBElementType);
+                break;
+        }
+    }
+
+    public static void addUrlToWFS(AbstractRecordType abstractRecordType, String url) {
+        SimpleLiteral simpleLiteral = new SimpleLiteral();
+        simpleLiteral.getContent().add(url);
+        simpleLiteral.setScheme("http://www.opengis.net/wfs/2.0");
+
+        JAXBElement<SimpleLiteral> JAXBElementIdentifier = dctObjectFactory.createReferences((simpleLiteral));
+        switch (abstractRecordType.getClass().getSimpleName()) {
+            case "BriefRecordType":
+                ((BriefRecordType) abstractRecordType).getIdentifier().add(JAXBElementIdentifier);
+                break;
+            case "SummaryRecordType":
+                ((SummaryRecordType) abstractRecordType).getIdentifier().add(JAXBElementIdentifier);
+                break;
+            case "RecordType":
+                ((RecordType) abstractRecordType).getDCElement().add(JAXBElementIdentifier);
                 break;
         }
     }
@@ -258,6 +330,9 @@ public class RecordBuilder {
 
     public static void addFormat(AbstractRecordType abstractRecordType, String format) {
         SimpleLiteral simpleLiteral = new SimpleLiteral();
+        if (format == null || format.equals("")) {
+            format = "unknown";
+        }
         simpleLiteral.getContent().add(format);
         JAXBElement<SimpleLiteral> JAXBElementFormat = dcObjectFactory.createFormat(simpleLiteral);
         switch (abstractRecordType.getClass().getSimpleName()) {

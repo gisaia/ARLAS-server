@@ -59,6 +59,11 @@ public class DataSetTool {
     public final static String DATASET_TAGGABLE_FIELDS="params.tags,params.job";
     public final static String DATASET_EXCLUDE_WFS_FIELDS="params.country";
     public final static String DATASET_TIMESTAMP_FORMAT = "epoch_millis";
+    public static final String DATASET_INSPIRE_LINEAGE = "Dataset loaded for testing";
+    public static final String DATASET_INSPIRE_TOPIC_CATEGORY = "biota";
+    public static final String DATASET_DUBLIN_CORE_TITLE = "geodata";
+    public static final String DATASET_DUBLIN_CORE_DESCRIPTION = "geodata set for testing";
+    public static final String DATASET_DUBLIN_CORE_LANGUAGE = "eng";
     public final static RasterTileURL DATASET_TILE_URL = new RasterTileURL(Optional.ofNullable(System.getenv("ARLAS_TILE_URL")).orElse("{id}/{z}/{x}/{y}.png"),5,18,true);
     public static final String[] jobs = {"Actor", "Announcers", "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter"};
     public static final String[] cities = {"Paris", "London", "New York", "Tokyo", "Toulouse", "Marseille", "Lyon", "Bordeaux", "Lille", "Albi", "Calais"};

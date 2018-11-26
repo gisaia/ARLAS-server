@@ -19,12 +19,13 @@
 
 package io.arlas.server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.server.model.request.Filter;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.Map;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CollectionReferenceParameters {
 
     @NotEmpty
@@ -67,6 +68,9 @@ public class CollectionReferenceParameters {
 
     @JsonProperty(value = "open_search", required = false)
     public OpenSearch openSearch = null;
+
+    @JsonProperty(value = "inspire", required = false)
+    public Inspire inspire = new Inspire();
 
     @JsonProperty(value = "dublin_core_element_name", required = false)
     public DublinCoreElementName dublinCoreElementName = new DublinCoreElementName();

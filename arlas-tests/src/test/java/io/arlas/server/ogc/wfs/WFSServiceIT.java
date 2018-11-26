@@ -37,8 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.isOneOf;
+import static org.hamcrest.Matchers.*;
 
 public class WFSServiceIT extends AbstractTestWithCollection {
 
@@ -74,6 +73,24 @@ public class WFSServiceIT extends AbstractTestWithCollection {
     }
 
     @Test
+    public void testInspireGetCapabilities() throws Exception {
+        handleInspireGetCapabilities(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("REQUEST", "GetCapabilities")), new Filter()));
+        handleInspireGetCapabilities(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("REQUEST", "GetCapabilities"),
+                new ImmutablePair<>("LANGUAGE", "eng")), new Filter()));
+        handleInspireInvalidLanguageGetCapabilities(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("REQUEST", "GetCapabilities"),
+                new ImmutablePair<>("LANGUAGE", "english")), new Filter()));
+    }
+
+    @Test
     public void testDescribeFeature() throws Exception {
         handleDescribeFeature(
                 get(Arrays.asList(
@@ -97,6 +114,15 @@ public class WFSServiceIT extends AbstractTestWithCollection {
                 .body("wfs:FeatureCollection.member[1].geodata.params_job", isOneOf(DataSetTool.jobs))
                 .body("wfs:FeatureCollection.member[1].geodata.params_country.size()", equalTo(0))
                 .body("wfs:FeatureCollection.member[1].geodata.params_city.size()", equalTo(0));
+    }
+
+    public void handleInspireGetCapabilities(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+                .body("ns5:WFS_Capabilities.ns1:OperationsMetadata.ns1:ExtendedCapabilities.ns4:ExtendedCapabilities", notNullValue());
+    }
+
+    public void handleInspireInvalidLanguageGetCapabilities(ValidatableResponse then) throws Exception {
+        then.statusCode(400);
     }
 
     public void handleDescribeFeature(ValidatableResponse then) throws Exception {

@@ -20,37 +20,21 @@
 package io.arlas.server.ogc.wfs.utils;
 
 
-import io.arlas.server.exceptions.OGCException;
-import io.arlas.server.exceptions.OGCExceptionCode;
-import io.arlas.server.model.response.CollectionReferenceDescription;
+import eu.europa.ec.inspire.schemas.common._1.KeywordValueEnum;
+import io.arlas.server.exceptions.INSPIRE.INSPIREException;
+import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
+import io.arlas.server.exceptions.OGC.OGCException;
+import io.arlas.server.exceptions.OGC.OGCExceptionCode;
+import io.arlas.server.model.Keyword;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.Version;
 import io.arlas.server.ogc.common.utils.VersionUtils;
-import io.arlas.server.utils.MapExplorer;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class WFSCheckParam {
-
-
-    public static boolean isFieldInMapping(CollectionReferenceDescription collectionReference, String... fields) throws RuntimeException {
-        String[] cleanField = new String[fields.length];
-        boolean isFieldInMapping = true;
-        for (int i = 0; i < fields.length; i++) {
-            if (fields.clone()[i].contains(":")) {
-                cleanField[i] = fields.clone()[i].split(":")[1];
-            } else {
-                cleanField[i] = fields.clone()[i];
-            }
-        }
-        for (String field : cleanField) {
-            Object data = MapExplorer.getObjectFromPath(field, collectionReference.properties);
-            if (data == null) {
-                isFieldInMapping = false;
-            }
-        }
-        return isFieldInMapping;
-    }
 
     public static void checkQuerySyntax(String service, String bbox, String resourceid, String filter, WFSRequestType requestType, Version requestVersion) throws OGCException {
 
@@ -96,16 +80,5 @@ public class WFSCheckParam {
         if (isCrsUnSupported) {
             throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid CRS :" + srsname, "srsname", Service.WFS);
         }
-    }
-
-    public static String formatValueReference(String valuereference, CollectionReferenceDescription collectionReferenceDescription) throws OGCException {
-        if (valuereference == null || valuereference.equals("")) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid valuereference value", "valuereference", Service.WFS);
-        } else if (valuereference.equals("@gml:id")) {
-            valuereference = collectionReferenceDescription.params.idPath;
-        } else if (!WFSCheckParam.isFieldInMapping(collectionReferenceDescription, valuereference)) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid valuereference value, " + valuereference + " is not in queryable", "valuereference", Service.WFS);
-        }
-        return valuereference;
     }
 }

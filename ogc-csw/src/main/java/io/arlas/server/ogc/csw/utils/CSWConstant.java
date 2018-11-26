@@ -24,10 +24,11 @@ public class CSWConstant {
     public static final String CSW = "CSW";
     public static final String SUPPORTED_CSW_VERSION = "3.0.0";
     public static final String[] SUPPORTED_CSW_REQUESTYPE = {"GetCapabilities", "GetRecords", "GetRecordById"};
-    public static final String[] SUPPORTED_CSW_OUTPUT_SCHEMA = {"http://www.opengis.net/cat/csw/3.0", "http://www.w3.org/2005/Atom"};
-    public static final String[] SUPPORTED_TYPE_NAME_PATTERN = {"Record", ".*:Record"};
+    public static final String[] SUPPORTED_CSW_OUTPUT_SCHEMA = {"http://www.opengis.net/cat/csw/3.0", "http://www.w3.org/2005/Atom", "http://www.isotc211.org/2005/gmd"};
+    public static final String[] SUPPORTED_TYPE_NAME_PATTERN = {"Record", ".*:Record", "gmd:MD_Metadata"};
     public static final String[] SUPPORTED_CSW_OUTPUT_FORMAT = {"application/xml", "application/atom+xml"};
     public static final String[] SUPPORTED_CSW_ACCEPT_FORMATS = {"text/xml","application/xml"};
+    public static final String[] SUPPORTED_CSW_CONSTRAINTLANGUAGE = {"Filter"};
     public static final String[] SECTION_NAMES = {"ServiceIdentification", "ServiceProvider", "OperationsMetadata","Filter_Capabilities","All"};
     public static final String DC_FIELD_ABSTRACT = "abstract";
     public static final String DC_FIELD_TITLE = "title";
@@ -45,6 +46,8 @@ public class CSWConstant {
     public static final  String[] DC_FIELDS = {DC_FIELD_ABSTRACT,DC_FIELD_TITLE,DC_FIELD_CREATOR,
             DC_FIELD_SUBJECT,DC_FIELD_PUBLISHER,DC_FIELD_CONTRIB,DC_FIELD_TYPE,DC_FIELD_FORMAT
             ,DC_FIELD_ID,DC_FIELD_SOURCE,DC_FIELD_LANG,DC_FIELD_MODIFIED,DC_FIELD_BBOX};
+    public static final String CSW_GET_CAPABILITIES_PARAMETERS = "service=CSW&request=GetCapabilities&version=3.0.0";
+
 
 }
 
