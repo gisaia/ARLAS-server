@@ -1,6 +1,23 @@
 # Change Log
 
-## [v8.6.1](https://github.com/gisaia/ARLAS-server/tree/v8.6.1) (2018-10-31)
+## [v9.6.0](https://github.com/gisaia/ARLAS-server/tree/v9.6.0) (2018-11-26)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v8.6.1...v9.6.0)
+
+**New stuff:**
+
+- Support multi-polygon for WFS [\#364](https://github.com/gisaia/ARLAS-server/issues/364) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
+- Collection : Add the possibility to define a filter in collection declaration [\#363](https://github.com/gisaia/ARLAS-server/issues/363) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Make WFS and CSW Inspire compliant [\#356](https://github.com/gisaia/ARLAS-server/issues/356) [[API](https://github.com/gisaia/ARLAS-server/labels/API)] [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
+- Add a filter in Collection param [\#366](https://github.com/gisaia/ARLAS-server/pull/366) [[API](https://github.com/gisaia/ARLAS-server/labels/API)] ([mbarbet](https://github.com/mbarbet))
+- Support multipolygon, multipoint, multilinestring in WFS result [\#365](https://github.com/gisaia/ARLAS-server/pull/365) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)] ([mbarbet](https://github.com/mbarbet))
+
+**Miscellaneous:**
+
+- Document the CSW and WFS endpoints [\#295](https://github.com/gisaia/ARLAS-server/issues/295) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- Support TimeFilter on WFS [\#192](https://github.com/gisaia/ARLAS-server/issues/192) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
+
+## [v8.6.1](https://github.com/gisaia/ARLAS-server/tree/v8.6.1) (2018-11-04)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v8.6.0...v8.6.1)
 
