@@ -31,6 +31,8 @@ import org.elasticsearch.common.Strings;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -169,6 +171,26 @@ public class ArlasServerConfiguration extends Configuration {
         }
         if (arlasServiceExploreEnabled == null) {
             arlasServiceExploreEnabled = true;
+        }
+        if (inspireConfiguration == null) {
+            inspireConfiguration = new InspireConfiguration();
+            inspireConfiguration.enabled = false;
+            inspireConfiguration.publicAccessLimitations = "no limitations apply";
+            inspireConfiguration.accessAndUseConditions = "no conditions apply";
+            inspireConfiguration.servicesDateOfCreation = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        } else {
+            if (inspireConfiguration.servicesDateOfCreation == null ) {
+                inspireConfiguration.servicesDateOfCreation = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+            }
+            if (inspireConfiguration.enabled == null) {
+                inspireConfiguration.enabled = false;
+            }
+            if (inspireConfiguration.publicAccessLimitations == null) {
+                inspireConfiguration.publicAccessLimitations = "no limitations apply";
+            }
+            if (inspireConfiguration.accessAndUseConditions == null) {
+                inspireConfiguration.accessAndUseConditions = "no conditions apply";
+            }
         }
         if (arlasServiceWFSEnabled == null) {
             arlasServiceWFSEnabled = false;
