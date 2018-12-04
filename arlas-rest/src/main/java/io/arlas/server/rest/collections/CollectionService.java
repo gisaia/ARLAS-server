@@ -236,8 +236,10 @@ public abstract class CollectionService extends CollectionRESTServices {
         CollectionReference collectionReference = new CollectionReference(collection, collectionReferenceParameters);
         setDefaultInspireParameters(collectionReference);
         if (inspireConfigurationEnabled) {
-            CheckParams.checkInspireParamsInCollectionReference(collectionReference);
+            CheckParams.checkMissingInspireParameters(collectionReference);
+            CheckParams.checkInvalidDublinCoreElementsForInspire(collectionReference);
         }
+        CheckParams.checkInvalidInspireParameters(collectionReference);
         CollectionReference cr = dao.putCollectionReference(collectionReference);
         return cr;
     }
