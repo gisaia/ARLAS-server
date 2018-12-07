@@ -28,7 +28,6 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.dropwizard.jersey.params.IntParam;
-import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoPoint;
 
 import java.io.IOException;
@@ -177,7 +176,6 @@ public class ParamsParser {
         } else {
             return null;
         }
-
     }
 
     public static Interval getHistogramAggregationInterval(String intervalString) throws ArlasException {
@@ -216,7 +214,7 @@ public class ParamsParser {
         for (String multiF : filters) {
             MultiValueFilter<Expression> multiFilter = new MultiValueFilter<>();
             for (String f : getMultiFiltersFromSemiColonsSeparatedString(multiF)) {
-                if (!Strings.isNullOrEmpty(f)) {
+                if (!StringUtil.isNullOrEmpty(f)) {
                     String operands[] = f.split(":");
                     StringBuffer value = new StringBuffer();
                     if (operands.length < 3) {
@@ -250,7 +248,7 @@ public class ParamsParser {
             for (String multiFilterString : filters) {
                 MultiValueFilter<String> multiFilter = new MultiValueFilter<>();
                 for (String filter : getMultiFiltersFromSemiColonsSeparatedString(multiFilterString)) {
-                    if (!Strings.isNullOrEmpty(filter)) {
+                    if (!StringUtil.isNullOrEmpty(filter)) {
                         multiFilter.add(filter);
                     }
                 }

@@ -21,7 +21,7 @@ package io.arlas.server.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.server.exceptions.ArlasConfigurationException;
-import org.elasticsearch.common.Strings;
+import io.arlas.server.utils.StringUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +44,7 @@ public class CollectionAutoDiscoverConfiguration {
     public int schedule;
 
     private List<String> getFields(String fieldsComaSeparated) throws ArlasConfigurationException {
-        if (Strings.isNullOrEmpty(fieldsComaSeparated)) {
+        if (StringUtil.isNullOrEmpty(fieldsComaSeparated)) {
             throw new ArlasConfigurationException("Collection auto discover configuration is missing or empty : " + this.toString());
         }
         return Arrays.asList(fieldsComaSeparated.split(","));

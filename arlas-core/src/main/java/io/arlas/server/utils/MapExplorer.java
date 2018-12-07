@@ -22,17 +22,15 @@ package io.arlas.server.utils;
 import com.google.common.collect.Streams;
 import cyclops.data.tuple.Tuple2;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
-import org.elasticsearch.common.Strings;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class MapExplorer {
 
     public static Object getObjectFromPath(String path, Object source) {
-        if (Strings.isNullOrEmpty(path)) {
+        if (StringUtil.isNullOrEmpty(path)) {
             return source;
         } else {
             String[] pathLevels = path.split("\\.");
