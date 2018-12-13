@@ -31,6 +31,9 @@ import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.RangeResponse;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -367,12 +370,11 @@ public class CheckParams {
             }
     }
 
-    public static void checkInspireParamsInCollectionReference(CollectionReference collectionReference) throws ArlasException {
+    public static void checkMissingInspireParameters(CollectionReference collectionReference) throws ArlasException {
         Inspire collectionReferenceInspire = collectionReference.params.inspire;
         if (collectionReferenceInspire == null) {
             throw new BadRequestException("Inspire node must be set in Collection Reference parameters");
         }
-
         // check keywords
         if (collectionReferenceInspire.keywords == null || collectionReferenceInspire.keywords.size() == 0 ) {
             throw new BadRequestException("Missing keywords");
@@ -386,74 +388,18 @@ public class CheckParams {
         //Check if topic category is set
         if (collectionReferenceInspire.topicCategories == null || collectionReferenceInspire.topicCategories.isEmpty()) {
             throw new BadRequestException("inspire.topic_categories must not be null nor empty");
-        } else {
-            for(String topicCategory: collectionReferenceInspire.topicCategories) {
-                try {
-                    TopicCategory.fromValue(topicCategory);
-                } catch (IllegalArgumentException e) {
-                    String listOfTopicCategories = "";
-                    for (TopicCategory tc : TopicCategory.values()) {
-                        listOfTopicCategories += "'" + tc.value() + "', ";
-                    }
-                    throw new BadRequestException("Invalid topic category " + topicCategory + ". Must be one of : " + listOfTopicCategories);
-                }
-            }
-
         }
-        // check languages
-        if (collectionReferenceInspire.languages != null) {
-            for (String language : collectionReferenceInspire.languages) {
-                if (LanguageAlpha3Code.getByCode(language) == null) {
-                    throw new InvalidParameterException(language + " is not a valid language. Languages must be one of the languages expressed in ISO 639-2");
-                }
-            }
-        }
-        // check spatial resolution
-        if (collectionReferenceInspire.spatialResolution != null) {
-            if (collectionReferenceInspire.spatialResolution.unitOfMeasure == null || collectionReferenceInspire.spatialResolution.unitOfMeasure.equals("")) {
-               try {
-                   Integer.parseInt(collectionReferenceInspire.spatialResolution.value.toString());
-               } catch (IllegalArgumentException e) {
-                   throw new InvalidParameterException("The equivalent scale must be an Integer. If you meant to specify a resolution distance, then please set the unit of measure.");
-               }
-            } else {
-                try {
-                    Double.parseDouble(collectionReferenceInspire.spatialResolution.value.toString());
-                } catch (IllegalArgumentException e) {
-                    throw new InvalidParameterException("The resolution distance should be a decimal number");
-                }
-            }
-        }
-
         // Check Lineage
         if (collectionReferenceInspire.lineage == null || collectionReferenceInspire.lineage.equals("")) {
             throw new BadRequestException("inspire.lineage must not be null or empty");
         }
-
         // Check limitation access
         if (collectionReferenceInspire.inspireLimitationAccess == null) {
             throw new BadRequestException("inspire.inspire_limitation_access must not be null");
-        } else {
-            try {
-                AccessConstraintEnum.valueOf(collectionReference.params.inspire.inspireLimitationAccess.accessConstraints);
-            } catch (IllegalArgumentException e) {
-                String listOfAccessConstraintEnum = "";
-                for (AccessConstraintEnum ace : AccessConstraintEnum.values()) {
-                    listOfAccessConstraintEnum += "'" + ace.name() + "', ";
-                }
-                throw new InvalidParameterException("accessConstraints is invalid. Please choose one of : " + listOfAccessConstraintEnum);
-            }
-            try {
-                InspireAccessClassificationEnum.valueOf(collectionReference.params.inspire.inspireLimitationAccess.classification);
-            } catch (IllegalArgumentException e) {
-                String listOfClassificationEnum = "";
-                for (InspireAccessClassificationEnum iace : InspireAccessClassificationEnum.values()) {
-                    listOfClassificationEnum += "'" + iace.name() + "', ";
-                }
-                throw new InvalidParameterException("Inspire Access Classification is invalid. Please choose one of : " + listOfClassificationEnum);
-            }
         }
+    }
 
+    public static void checkInvalidDublinCoreElementsForInspire(CollectionReference collectionReference) throws ArlasException {
         // check title
         if (collectionReference.params.dublinCoreElementName.title == null || collectionReference.params.dublinCoreElementName.title.equals("")) {
             throw new BadRequestException("dublin_core_element_name.title must not be null nor empty");
@@ -473,10 +419,91 @@ public class CheckParams {
                 for (InspireSupportedLanguages sl : InspireSupportedLanguages.values()) {
                     listOfLanguages += "'" + sl.name() + "', ";
                 }
-                throw new InvalidParameterException(collectionReference.params.dublinCoreElementName.language + " is not a valid language. Languages must be one of the 24 Official languages of the EU in ISO 639-2 (B) : " + listOfLanguages);
+                throw new InvalidParameterException("'dublin_core_element_name.language : " + collectionReference.params.dublinCoreElementName.language + "' is not a valid language. Metadata languages must be one of the 24 Official languages of the EU in ISO 639-2 (B) : " + listOfLanguages);
+            }
+        }
+    }
+
+    public static void checkInvalidInspireParameters(CollectionReference collectionReference) throws ArlasException {
+        Inspire collectionReferenceInspire = collectionReference.params.inspire;
+
+        // check keywords
+        if (collectionReferenceInspire != null && collectionReferenceInspire.keywords != null) {
+            for (Keyword k : collectionReferenceInspire.keywords) {
+                if (k.dateOfPublication != null) {
+                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                    try {
+                        df.parse(k.dateOfPublication);
+                    } catch (ParseException e) {
+                        throw new InvalidParameterException("'dateOfPublication' of the keyword '" + k.value + "' must be a date which format is yyyy-MM-dd");
+                    }
+                }
+            }
+        }
+        //Check if topic category is set
+        if (collectionReferenceInspire != null && collectionReferenceInspire.topicCategories != null) {
+            for(String topicCategory: collectionReferenceInspire.topicCategories) {
+                try {
+                    TopicCategory.fromValue(topicCategory);
+                } catch (IllegalArgumentException e) {
+                    String listOfTopicCategories = "";
+                    for (TopicCategory tc : TopicCategory.values()) {
+                        listOfTopicCategories += "'" + tc.value() + "', ";
+                    }
+                    throw new BadRequestException("Invalid topic category " + topicCategory + ". Must be one of : " + listOfTopicCategories);
+                }
+            }
+
+        }
+        // check languages
+        if (collectionReferenceInspire != null && collectionReferenceInspire.languages != null) {
+            for (String language : collectionReferenceInspire.languages) {
+                if (LanguageAlpha3Code.getByCode(language) == null) {
+                    throw new InvalidParameterException(language + " is not a valid language. Languages must be one of the languages expressed in ISO 639-2");
+                }
+            }
+        }
+        // check spatial resolution
+        if (collectionReferenceInspire != null && collectionReferenceInspire.spatialResolution != null) {
+            if (collectionReferenceInspire.spatialResolution.value == null) {
+                throw new BadRequestException("The spatial resolution value must not be null nor empty");
+            }
+            if (collectionReferenceInspire.spatialResolution.unitOfMeasure == null) {
+                try {
+                    Integer.parseInt(collectionReferenceInspire.spatialResolution.value.toString());
+                } catch (IllegalArgumentException e) {
+                    throw new InvalidParameterException("The equivalent scale must be an Integer. If you meant to specify a resolution distance, then please set the unit of measure.");
+                }
+            } else {
+                try {
+                    Double.parseDouble(collectionReferenceInspire.spatialResolution.value.toString());
+                } catch (IllegalArgumentException e) {
+                    throw new InvalidParameterException("The resolution distance should be a decimal number");
+                }
             }
         }
 
+        // Check limitation access
+        if (collectionReferenceInspire != null && collectionReferenceInspire.inspireLimitationAccess != null) {
+            try {
+                AccessConstraintEnum.valueOf(collectionReferenceInspire.inspireLimitationAccess.accessConstraints);
+            } catch (IllegalArgumentException e) {
+                String listOfAccessConstraintEnum = "";
+                for (AccessConstraintEnum ace : AccessConstraintEnum.values()) {
+                    listOfAccessConstraintEnum += "'" + ace.name() + "', ";
+                }
+                throw new InvalidParameterException("accessConstraints is invalid. Please choose one of : " + listOfAccessConstraintEnum);
+            }
+            try {
+                InspireAccessClassificationEnum.valueOf(collectionReferenceInspire.inspireLimitationAccess.classification);
+            } catch (IllegalArgumentException e) {
+                String listOfClassificationEnum = "";
+                for (InspireAccessClassificationEnum iace : InspireAccessClassificationEnum.values()) {
+                    listOfClassificationEnum += "'" + iace.name() + "', ";
+                }
+                throw new InvalidParameterException("Inspire Access Classification is invalid. Please choose one of : " + listOfClassificationEnum);
+            }
+        }
 
     }
 

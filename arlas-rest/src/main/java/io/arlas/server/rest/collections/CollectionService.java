@@ -133,6 +133,9 @@ public abstract class CollectionService extends CollectionRESTServices {
             try {
                 savedCollections.add(save(collection.collectionName, collection.params));
             } catch (Exception e) {
+                if (inspireConfigurationEnabled) {
+                    throw new io.arlas.server.exceptions.InternalServerErrorException("Invalid inspire parameters : " + e.getMessage());
+                }
                 //NOT saved
             }
         }
@@ -236,8 +239,10 @@ public abstract class CollectionService extends CollectionRESTServices {
         CollectionReference collectionReference = new CollectionReference(collection, collectionReferenceParameters);
         setDefaultInspireParameters(collectionReference);
         if (inspireConfigurationEnabled) {
-            CheckParams.checkInspireParamsInCollectionReference(collectionReference);
+            CheckParams.checkMissingInspireParameters(collectionReference);
+            CheckParams.checkInvalidDublinCoreElementsForInspire(collectionReference);
         }
+        CheckParams.checkInvalidInspireParameters(collectionReference);
         CollectionReference cr = dao.putCollectionReference(collectionReference);
         return cr;
     }
