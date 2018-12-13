@@ -37,10 +37,10 @@ import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.CSWParamsParser;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
+import io.arlas.server.utils.StringUtil;
 import net.opengis.cat.csw._3.CapabilitiesType;
 import net.opengis.fes._2.*;
 import net.opengis.ows._2.*;
-import org.elasticsearch.common.Strings;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -176,7 +176,7 @@ public class GetCapabilitiesHandler {
             OriginatingControlledVocabulary vocabulary = new OriginatingControlledVocabulary();
             Optional.ofNullable(keyword.vocabulary).map(k -> {vocabulary.setTitle(keyword.vocabulary); return k;});
             Optional.ofNullable(keyword.dateOfPublication).map(k -> {vocabulary.setDateOfCreation(keyword.dateOfPublication); return k;});
-            if (!Strings.isNullOrEmpty(keyword.vocabulary)) {
+            if (!StringUtil.isNullOrEmpty(keyword.vocabulary)) {
                 inspireKeyword.setOriginatingControlledVocabulary(vocabulary);
             }
             inspireExtendedCapabilitiesType.getKeyword().add(inspireKeyword);

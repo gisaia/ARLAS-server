@@ -35,11 +35,11 @@ import io.arlas.server.services.ExploreServices;
 import io.arlas.server.rest.explore.opensearch.model.Image;
 import io.arlas.server.rest.explore.opensearch.model.OpenSearchDescription;
 import io.arlas.server.rest.explore.opensearch.model.Url;
+import io.arlas.server.utils.StringUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.elasticsearch.common.Strings;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -111,7 +111,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             description.contact = os.contact;
             description.description = os.description;
             description.developer = os.developer;
-            if (!Strings.isNullOrEmpty(os.imageUrl)) {
+            if (!StringUtil.isNullOrEmpty(os.imageUrl)) {
                 description.image = new Image();
                 description.image.content = os.imageUrl;
                 description.image.height = os.imageHeight;

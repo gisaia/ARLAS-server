@@ -24,12 +24,12 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.DublinCoreElementName;
 import io.arlas.server.model.Inspire;
 import io.arlas.server.ogc.common.utils.OGCConstant;
+import io.arlas.server.utils.StringUtil;
 import net.opengis.cat.csw._3.AbstractRecordType;
 import net.opengis.cat.csw._3.BriefRecordType;
 import net.opengis.cat.csw._3.RecordType;
 import net.opengis.cat.csw._3.SummaryRecordType;
 import net.opengis.ows._2.WGS84BoundingBoxType;
-import org.elasticsearch.common.Strings;
 import org.purl.dc.elements._1.SimpleLiteral;
 
 import javax.xml.bind.JAXBElement;
@@ -93,7 +93,7 @@ public class RecordBuilder {
 
                 });
             }
-            if (!Strings.isNullOrEmpty(dublinCoreElementName.subject)) {
+            if (!StringUtil.isNullOrEmpty(dublinCoreElementName.subject)) {
                 addSubject(summaryRecord, dublinCoreElementName.subject);
             }
             if (inspireIsEnabled) {
@@ -124,7 +124,7 @@ public class RecordBuilder {
                         if (inspire.keywords != null) {
                             inspire.keywords.forEach(keyword -> addSubject(summaryRecord, keyword.value));
                         }
-                        if (!Strings.isNullOrEmpty(dublinCoreElementName.subject)) {
+                        if (!StringUtil.isNullOrEmpty(dublinCoreElementName.subject)) {
                             addSubject(summaryRecord, dublinCoreElementName.subject);
                         }
                         break;
@@ -158,7 +158,7 @@ public class RecordBuilder {
                     }
                 });
             }
-            if (!Strings.isNullOrEmpty(dublinCoreElementName.subject)) {
+            if (!StringUtil.isNullOrEmpty(dublinCoreElementName.subject)) {
                 addSubject(record, dublinCoreElementName.subject);
             }
             if (inspireIsEnabled) {
@@ -190,7 +190,7 @@ public class RecordBuilder {
                         if (inspire.keywords != null) {
                             inspire.keywords.forEach(keyword -> addSubject(record, keyword.value));
                         }
-                        if (!Strings.isNullOrEmpty(dublinCoreElementName.subject)) {
+                        if (!StringUtil.isNullOrEmpty(dublinCoreElementName.subject)) {
                             addSubject(record, dublinCoreElementName.subject);
                         }
                         break;

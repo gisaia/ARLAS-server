@@ -22,12 +22,12 @@ package io.arlas.server.app;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.exceptions.ArlasConfigurationException;
+import io.arlas.server.utils.StringUtil;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.elasticsearch.common.Strings;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -113,7 +113,7 @@ public class ArlasServerConfiguration extends Configuration {
 
     public static List<Pair<String,Integer>> getElasticNodes(String esNodes) {
         List<Pair<String,Integer>> elasticNodes = new ArrayList<>();
-        if(!Strings.isNullOrEmpty(esNodes)) {
+        if(!StringUtil.isNullOrEmpty(esNodes)) {
             String[] nodes = esNodes.split(",");
             for(String node : nodes) {
                 String[] hostAndPort = node.split(":");
@@ -127,9 +127,9 @@ public class ArlasServerConfiguration extends Configuration {
 
     public List<Pair<String,Integer>> getElasticNodes() {
         List<Pair<String,Integer>> elasticNodes = new ArrayList<>();
-        if(!Strings.isNullOrEmpty(elasticnodes)) {
+        if(!StringUtil.isNullOrEmpty(elasticnodes)) {
             elasticNodes.addAll(getElasticNodes(elasticnodes));
-        } else if(!Strings.isNullOrEmpty(elastichost) && elasticport > 0) {
+        } else if(!StringUtil.isNullOrEmpty(elastichost) && elasticport > 0) {
             elasticNodes.add(new ImmutablePair<>(elastichost, elasticport));
         }
         return elasticNodes;
@@ -152,7 +152,7 @@ public class ArlasServerConfiguration extends Configuration {
                 throw new ArlasConfigurationException("The url-template-prefix of Opensearch is invalid.");
             }
         }
-        if (Strings.isNullOrEmpty(arlasindex)) {
+        if (StringUtil.isNullOrEmpty(arlasindex)) {
             arlasindex = ".arlas";
         }
         if (arlascachesize < 0) {

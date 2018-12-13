@@ -42,7 +42,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.elasticsearch.common.Strings;
 import org.geojson.FeatureCollection;
 
 import javax.imageio.ImageIO;
@@ -205,7 +204,7 @@ public class TileRESTService extends ExploreRESTServices {
         if(collectionReference.params.rasterTileURL == null ){
             throw new NotFoundException(collectionReference.collectionName+" has no URL defined for fetching the tiles.");
         }
-        if(Strings.isNullOrEmpty(collectionReference.params.rasterTileURL.url)){
+        if(StringUtil.isNullOrEmpty(collectionReference.params.rasterTileURL.url)){
             throw new NotFoundException(collectionReference.collectionName+" has no URL defined for fetching the tiles.");
         }
         if(z<collectionReference.params.rasterTileURL.minZ || z>collectionReference.params.rasterTileURL.maxZ){

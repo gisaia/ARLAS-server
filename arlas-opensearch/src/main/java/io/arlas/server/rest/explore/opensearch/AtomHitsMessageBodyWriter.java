@@ -31,7 +31,7 @@ import io.arlas.server.ns.OPENSEARCH;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.MapExplorer;
-import org.elasticsearch.common.Strings;
+import io.arlas.server.utils.StringUtil;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -186,7 +186,7 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
     }
 
     private void writeElement(XMLStreamWriter writer, String namespace, String tag, String value) {
-        if (!Strings.isNullOrEmpty(value)) {
+        if (!StringUtil.isNullOrEmpty(value)) {
             try {
                 writer.writeStartElement(namespace, tag);
                 writer.writeCharacters(value);
