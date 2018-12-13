@@ -495,9 +495,13 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                 feature.setGeometry(centroidGeoJson);
             }
             exclude.stream().forEach(e->{
-                String pathToRemove = e.substring(0,e.lastIndexOf("."));
-                String keyToRemove = e.substring(e.lastIndexOf(".")+1);
-                Optional.ofNullable((Map) MapExplorer.getObjectFromPath(pathToRemove, source)).map(objectWithAttributeToRemove -> objectWithAttributeToRemove.remove(keyToRemove));
+                if (e.contains(".")) {
+                    String pathToRemove = e.substring(0,e.lastIndexOf("."));
+                    String keyToRemove = e.substring(e.lastIndexOf(".")+1);
+                    Optional.ofNullable((Map) MapExplorer.getObjectFromPath(pathToRemove, source)).map(objectWithAttributeToRemove -> objectWithAttributeToRemove.remove(keyToRemove));
+                } else {
+                    source.remove(e);
+                }
             });
             feature.setProperties(flat?MapExplorer.flat(source,new MapExplorer.ReduceArrayOnKey("_"), exclude):source);
             feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
