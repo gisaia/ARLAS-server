@@ -81,9 +81,11 @@ docker run -ti -d \
 | ARLAS_ELASTIC_NODES    | elastic-nodes    | localhost:9300 | coma separated list of elasticsearch nodes as host:port values |
 | ARLAS_ELASTIC_HOST     | elastic-host     | localhost      | (DEPRECATED) hostname or ip address of the elasticsearch node that is used for storing ARLAS configuration |
 | ARLAS_ELASTIC_PORT     | elastic-port     | 9300           | (DEPRECATED) port of the elasticsearch node that is used for storing ARLAS configuration  |
-| ARLAS_ELASTIC_SNIFFING | elastic-sniffing | false          | allow elasticsearch to dynamically add new hosts and remove old ones |
+| ARLAS_ELASTIC_SNIFFING | elastic-sniffing | false          | allow elasticsearch to dynamically add new hosts and remove old ones (*)|
 | ARLAS_ELASTIC_CLUSTER  | elastic-cluster  | elasticsearch  | clustername of the elasticsearch cluster that is used for storing ARLAS configuration |
 | ARLAS_ELASTIC_INDEX    | arlas-index      | .arlas         | name of the index that is used for storing ARLAS configuration |
+
+(*) Note that the IP addresses the sniffer connects to are the ones declared as the publish address in those node’s Elasticsearch config.
 
 ### Collection Cache & Disovery
 
