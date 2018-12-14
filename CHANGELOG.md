@@ -1,6 +1,20 @@
 # Change Log
 
-## [v9.6.0](https://github.com/gisaia/ARLAS-server/tree/v9.6.0) (2018-11-26)
+## [v9.6.1](https://github.com/gisaia/ARLAS-server/tree/v9.6.1) (2018-12-13)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v9.6.0...v9.6.1)
+
+**Fixed bugs:**
+
+- Exclude geometry in Geosearch : handle geometry paths that don't contain '.' [\#377](https://github.com/gisaia/ARLAS-server/issues/377)
+- Initialize InspireConfiguration when it is not initialized in yaml conf [\#376](https://github.com/gisaia/ARLAS-server/issues/376)
+
+**Miscellaneous:**
+
+- INFO Logs at startup as well as Admin REST API displays the list of ES nodes [\#378](https://github.com/gisaia/ARLAS-server/issues/378)
+- Remove `Strings.isNullOrEmpty` from logic tier [\#370](https://github.com/gisaia/ARLAS-server/issues/370)
+
+## [v9.6.0](https://github.com/gisaia/ARLAS-server/tree/v9.6.0) (2018-11-27)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v8.6.1...v9.6.0)
 
