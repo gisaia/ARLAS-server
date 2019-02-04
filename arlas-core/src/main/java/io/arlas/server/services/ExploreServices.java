@@ -29,6 +29,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationMetric;
 import io.arlas.server.model.response.AggregationResponse;
+import io.arlas.server.model.response.CountDistinctResponse;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ResponseCacheManager;
@@ -46,6 +47,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.InternalAggregation;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.cardinality.InternalCardinality;
 import org.elasticsearch.search.aggregations.metrics.geobounds.GeoBounds;
 import org.elasticsearch.search.aggregations.metrics.geocentroid.GeoCentroid;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
@@ -100,6 +102,21 @@ public class ExploreServices {
         return fluidSearch.exec().getHits();
     }
 
+    public CountDistinctResponse countDistinct(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
+        FluidSearch fluidSearch = new FluidSearch(client);
+        fluidSearch.setCollectionReference(collectionReference);
+        applyFilter(collectionReference.params.filter, fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch);
+        applyFilter(request.headerRequest.filter, fluidSearch);
+        fluidSearch.countDistinct(((CountDistinct) request.basicRequest).field);
+        SearchResponse searchResponse = fluidSearch.exec();
+        CountDistinctResponse countDistinctResponse = new CountDistinctResponse();
+        countDistinctResponse.field = ((CountDistinct) request.basicRequest).field;
+        countDistinctResponse.value = ((InternalCardinality)searchResponse.getAggregations().get(fluidSearch.getCountDistinctKey(countDistinctResponse.field))).getValue();
+        countDistinctResponse.totalnb = searchResponse.getHits().getTotalHits();
+        return countDistinctResponse;
+    }
+
     public SearchHits search(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
@@ -150,7 +167,6 @@ public class ExploreServices {
     protected void applyRangeRequest(String field, FluidSearch fluidSearch) throws ArlasException {
         fluidSearch = fluidSearch.getFieldRange(field);
     }
-
 
     public void applyFilter(Filter filter, FluidSearch fluidSearch) throws ArlasException, IOException {
         if (filter != null) {

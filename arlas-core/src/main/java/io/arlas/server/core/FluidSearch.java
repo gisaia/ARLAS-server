@@ -176,6 +176,10 @@ public class FluidSearch {
         return result;
     }
 
+    public String getCountDistinctKey(String field) {
+        return "distinct-" + field + "-values";
+    }
+
     public FluidSearch filter(MultiValueFilter<Expression> f) throws ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (Expression fFilter : f) {
@@ -466,6 +470,12 @@ public class FluidSearch {
                 }
             }
         }
+        return this;
+    }
+
+    public FluidSearch countDistinct(String field) throws ArlasException {
+        ValuesSourceAggregationBuilder countDistinctAggregationBuilder = AggregationBuilders.cardinality(getCountDistinctKey(field)).field(field);
+        searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(countDistinctAggregationBuilder);
         return this;
     }
 

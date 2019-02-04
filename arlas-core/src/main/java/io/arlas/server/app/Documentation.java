@@ -232,4 +232,5 @@ public class Documentation {
             "\n \n" +
             "- This param works only combined whith sort param" +
             "\n \n";
+    public static final String COUNT_DISTINCT_FIELD = "The field which values are distinctly counted";
 }

@@ -40,6 +40,7 @@ import io.arlas.server.rest.collections.ElasticCollectionService;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
 import io.arlas.server.rest.explore.aggregate.GeoAggregateRESTService;
 import io.arlas.server.rest.explore.count.CountRESTService;
+import io.arlas.server.rest.explore.countDistinct.CountDistinctRESTService;
 import io.arlas.server.rest.explore.describe.DescribeCollectionRESTService;
 import io.arlas.server.rest.explore.describe.DescribeRESTService;
 import io.arlas.server.rest.explore.opensearch.AtomHitsMessageBodyWriter;
@@ -160,6 +161,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         if (configuration.arlasServiceExploreEnabled) {
             environment.jersey().register(new CountRESTService(exploration));
+            environment.jersey().register(new CountDistinctRESTService(exploration));
             environment.jersey().register(new SearchRESTService(exploration));
             environment.jersey().register(new AggregateRESTService(exploration));
             environment.jersey().register(new GeoSearchRESTService(exploration));
