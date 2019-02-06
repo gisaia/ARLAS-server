@@ -19,6 +19,7 @@
 
 package io.arlas.server.rest.explore;
 
+import cyclops.data.tuple.Tuple3;
 import io.arlas.server.model.request.*;
 
 import static org.hamcrest.Matchers.*;
@@ -109,18 +110,16 @@ public abstract class AbstractSortedTest extends AbstractProjectedTest {
         ExtractableResponse response = req.body(handlePostRequest(search))
                 .when().post(getUrlPath("geodata"))
                 .then().extract();
-        String id_0 = response.path("hits[0].data.id");
-        Integer date_0 = response.path("hits[0].data.params.startdate");
-        String id_1 = response.path("hits[1].data.id");
-        String id_2 = response.path("hits[2].data.id");
+        Tuple3 ids = getIdsAfterFirstSearch(response);
+        String id_0 = ids._1().toString();
+        String id_1 = ids._2().toString();
+        String id_2 = ids._3().toString();
+        Integer date_0 = getDateAfterFirstSearch(response);
         search.size.size = 2;
         search.sort.searchAfter = date_0.toString().concat(",").concat(id_0);
-        req.body(handlePostRequest(search))
+        handleSortAndSearchAfter(req.body(handlePostRequest(search))
                 .when().post(getUrlPath("geodata"))
-                .then()
-                .body("hits[0].data.id", equalTo(id_1))
-                .body("hits[1].data.id", equalTo(id_2))
-                .statusCode(200);
+                .then(), id_1, id_2);
         search.sort.searchAfter = null;
     }
 
@@ -128,29 +127,27 @@ public abstract class AbstractSortedTest extends AbstractProjectedTest {
     public void testGetSortWithSearchAfter() throws Exception {
         search.sort.sort = "params.startdate,id";
         search.size.size = 3;
-        RequestSpecification req = givenFilterableRequestBody();
+        RequestSpecification req = givenFilterableRequestParams();
 
         ExtractableResponse response = req
                 .param("sort", search.sort.sort)
                 .param("size", search.size.size)
                 .when().get(getUrlPath("geodata"))
                 .then().extract();
-
-        String id_0 = response.path("hits[0].data.id");
-        Integer date_0 = response.path("hits[0].data.params.startdate");
-        String id_1 = response.path("hits[1].data.id");
-        String id_2 = response.path("hits[2].data.id");
+        Tuple3 ids = getIdsAfterFirstSearch(response);
+        String id_0 = ids._1().toString();
+        String id_1 = ids._2().toString();
+        String id_2 = ids._3().toString();
+        Integer date_0 = getDateAfterFirstSearch(response);
         search.size.size = 2;
         search.sort.searchAfter = date_0.toString().concat(",").concat(id_0);
 
-        req.param("sort", search.sort.sort)
+        handleSortAndSearchAfter(req.param("sort", search.sort.sort)
                 .param("size", search.size.size)
                 .param("search-after", search.sort.searchAfter)
                 .when().get(getUrlPath("geodata"))
-                .then()
-                .body("hits[0].data.id", equalTo(id_1))
-                .body("hits[1].data.id", equalTo(id_2))
-                .statusCode(200);
+                .then(), id_1, id_2);
+
         search.sort.searchAfter = null;
     }
 
@@ -158,6 +155,12 @@ public abstract class AbstractSortedTest extends AbstractProjectedTest {
     protected abstract void handleSortParameter(ValidatableResponse then, String firstElement) throws Exception;
 
     protected abstract void handleGeoSortParameter(ValidatableResponse then, String firstElement) throws Exception;
+
+    protected abstract Integer getDateAfterFirstSearch(ExtractableResponse response) throws Exception;
+
+    protected abstract Tuple3 getIdsAfterFirstSearch(ExtractableResponse response) throws Exception;
+
+    protected abstract void handleSortAndSearchAfter(ValidatableResponse then, String id1, String id2) throws Exception;
 
     protected abstract void handleInvalidGeoSortParameter(ValidatableResponse then) throws Exception;
 

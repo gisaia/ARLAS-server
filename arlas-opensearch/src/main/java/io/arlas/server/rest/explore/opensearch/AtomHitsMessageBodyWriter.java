@@ -47,10 +47,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 @Provider
 @Produces(ATOM.APPLICATION_ATOM_XML)
@@ -141,7 +138,16 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
                     writeElement(writer, ATOM.XML_NS, "title", hit.md.id);
                     writeElement(writer, ATOM.XML_NS, "update", dateFormater.format(new Date(hit.md.timestamp)));
                     writer.writeStartElement(ATOM.XML_NS, "content");
-                    writeFields(writer, fields.properties, ATOM.XML_NS, new Stack<>(), hit.data);
+                    if (hit.isFlat()) {
+                        Iterator<String> keysIt = hit.getDataAsMap().keySet().iterator();
+                        while (keysIt.hasNext()) {
+                            String key = keysIt.next();
+                            writeElement(writer, ATOM.XML_NS, key, hit.getDataAsMap().get(key).toString());
+                        }
+
+                    } else {
+                        writeFields(writer, fields.properties, ATOM.XML_NS, new Stack<>(), hit.data);
+                    }
                     writer.writeEndElement();
                     writer.writeStartElement(GEORSS.XML_NS, "where");
                     if (hit.md.geometry != null) {

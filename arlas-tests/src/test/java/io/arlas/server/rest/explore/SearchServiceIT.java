@@ -19,11 +19,16 @@
 
 package io.arlas.server.rest.explore;
 
+import cyclops.data.tuple.Tuple3;
+import io.arlas.server.model.request.Form;
 import io.arlas.server.model.request.MultiValueFilter;
+import io.arlas.server.model.request.Request;
+import io.restassured.response.ExtractableResponse;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -111,6 +116,51 @@ public class SearchServiceIT extends AbstractSortedTest {
         then.statusCode(200)
                 .body("totalnb", equalTo(nbResults))
                 .body("hits.data.geo_params.centroid", centroidMatcher);
+    }
+
+    //----------------------------------------------------------------
+    //----------------------- FORM PART ------------------------------
+    //----------------------------------------------------------------
+
+    @Override
+    protected RequestSpecification givenFlattenRequestParams() {
+        return given();
+    }
+
+    @Override
+    protected Request flattenRequestParamsPost(Request request) {
+        return request;
+    }
+
+    @Override
+    protected List<String> getFlattenedItems() {
+        List<String> flattenedItems = new ArrayList<>();
+        flattenedItems.add("params_age");
+        flattenedItems.add("params_country");
+        flattenedItems.add("params_job");
+        flattenedItems.add("params_startdate");
+        flattenedItems.add("params_stopdate");
+        flattenedItems.add("geo_params_centroid");
+        flattenedItems.add("geo_params_geometry_type");
+        flattenedItems.add("geo_params_geometry_coordinates_0_0_0");
+        flattenedItems.add("geo_params_geometry_coordinates_0_0_1");
+        flattenedItems.add("geo_params_geometry_coordinates_0_1_0");
+        flattenedItems.add("geo_params_geometry_coordinates_0_1_1");
+        flattenedItems.add("geo_params_geometry_coordinates_0_2_0");
+        flattenedItems.add("geo_params_geometry_coordinates_0_2_1");
+        flattenedItems.add("geo_params_geometry_coordinates_0_3_0");
+        flattenedItems.add("geo_params_geometry_coordinates_0_3_1");
+        flattenedItems.add("geo_params_geometry_coordinates_0_4_0");
+        flattenedItems.add("geo_params_geometry_coordinates_0_4_1");
+        return flattenedItems;
+    }
+
+    @Override
+    protected void handleFlatFormatRequest(ValidatableResponse then, List<String> flattenedItems) {
+        flattenedItems.forEach(flattenedItem -> {
+            then.statusCode(200)
+                    .body("hits.data", hasItem(hasKey(flattenedItem)));
+        });
     }
 
     //----------------------------------------------------------------
@@ -202,4 +252,23 @@ public class SearchServiceIT extends AbstractSortedTest {
     protected void handleInvalidSortParameterWithSearchAfter(ValidatableResponse then) {
         then.statusCode(400);
     }
+
+    @Override
+    protected Integer getDateAfterFirstSearch(ExtractableResponse response) throws Exception {
+        return response.path("hits[0].data.params.startdate");
+    }
+
+    @Override
+    protected Tuple3 getIdsAfterFirstSearch(ExtractableResponse response) throws Exception {
+        return new Tuple3(response.path("hits[0].data.id"), response.path("hits[1].data.id"), response.path("hits[2].data.id"));
+    }
+
+    @Override
+    protected void handleSortAndSearchAfter(ValidatableResponse then, String id1, String id2) throws Exception {
+        then.statusCode(200)
+                .body("hits[0].data.id", equalTo(id1))
+                .body("hits[1].data.id", equalTo(id2));
+    }
+
+
 }

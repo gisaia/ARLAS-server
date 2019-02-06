@@ -19,6 +19,7 @@
 
 package io.arlas.server.model.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.utils.GeoTypeMapper;
@@ -26,6 +27,7 @@ import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.TimestampTypeMapper;
 import io.dropwizard.jackson.JsonSnakeCase;
 
+import java.util.HashSet;
 import java.util.Map;
 
 @JsonSnakeCase
@@ -35,11 +37,19 @@ public class Hit {
 
     public Object data;
 
+    @JsonIgnore
+    private Map<String, Object> dataAsMap;
+
+    @JsonIgnore
+    private boolean flat;
+
     public Hit() {
     }
 
-    public Hit(CollectionReference collectionReference, Map<String, Object> source) throws ArlasException {
-        data = source;
+    public Hit(CollectionReference collectionReference, Map<String, Object> source, Boolean flat) throws ArlasException {
+        this.flat = flat;
+        dataAsMap = flat ? MapExplorer.flat(source,new MapExplorer.ReduceArrayOnKey("_"), new HashSet<>()) : source;
+        data = dataAsMap;
         md = new MD();
         if (collectionReference.params.idPath != null) {
             md.id = "" + MapExplorer.getObjectFromPath(collectionReference.params.idPath, source);
@@ -63,5 +73,13 @@ public class Hit {
                 md.timestamp = TimestampTypeMapper.getTimestamp(t, f);
             }
         }
+    }
+
+    public boolean isFlat() {
+        return flat;
+    }
+
+    public Map<String, Object> getDataAsMap() {
+        return dataAsMap;
     }
 }

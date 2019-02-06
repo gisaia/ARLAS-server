@@ -20,10 +20,14 @@
 package io.arlas.server.rest.explore;
 
 import io.arlas.server.model.enumerations.AggregationTypeEnum;
-import io.arlas.server.model.request.Interval;
+import io.arlas.server.model.enumerations.CollectionFunction;
+import io.arlas.server.model.request.*;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -278,5 +282,46 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     protected void handleMatchingGeometryFilter(ValidatableResponse then, int nbResults, Matcher<?> centroidMatcher) throws Exception {
         then.statusCode(200)
                 .body("elements.size()", equalTo(nbResults));
+    }
+
+    //----------------------------------------------------------------
+    //----------------------- FORM PART ------------------------------
+    //----------------------------------------------------------------
+
+    @Override
+    protected RequestSpecification givenFlattenRequestParams() {
+        return given().param("agg", "term:params.job:collect_fct-avg:collect_field-params.age");
+    }
+
+    @Override
+    protected Request flattenRequestParamsPost(Request request) {
+        AggregationsRequest aggregationRequest = new AggregationsRequest();
+        aggregationRequest.aggregations = new ArrayList<>();
+        Aggregation aggregationModel = new Aggregation();
+        aggregationRequest.aggregations.add(aggregationModel);
+        aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
+        aggregationRequest.aggregations.get(0).field = "params.job";
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.age", CollectionFunction.AVG));
+        aggregationRequest.form = request.form;
+        return aggregationRequest;
+    }
+
+    @Override
+    protected List<String> getFlattenedItems() {
+        List<String> flattenedItems = new ArrayList<>();
+        flattenedItems.add("params-age_avg_");
+        flattenedItems.add("count");
+        flattenedItems.add("key");
+        flattenedItems.add("keyAsString");
+        return flattenedItems;
+    }
+
+    @Override
+    protected void handleFlatFormatRequest(ValidatableResponse then, List<String>   flattenedItems) {
+        flattenedItems.forEach(flattenedItem -> {
+            then.statusCode(200)
+                    .body("elements.flattened_elements", hasItem(hasKey(flattenedItem)));
+        });
     }
 }

@@ -22,6 +22,7 @@ package io.arlas.server.rest.explore;
 import io.arlas.server.AbstractTestWithCollection;
 import org.junit.Test;
 
+import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
@@ -31,7 +32,7 @@ public class RawServiceIT extends AbstractTestWithCollection {
     @Test
     public void testGetArlasHit() throws Exception {
 
-        // GET existing document
+        // GET existing document (flat == false)
         when().get(getUrlPath(COLLECTION_NAME) + "/ID__170__20DI")
                 .then().statusCode(200)
                 .body("md.id", equalTo("ID__170__20DI"))
@@ -40,6 +41,16 @@ public class RawServiceIT extends AbstractTestWithCollection {
                 .body("data.fullname", equalTo("My name is ID__170__20DI"))
                 .body("data.params.startdate", equalTo(813400))
                 .body("data.params.city", isEmptyOrNullString());
+
+        // GET existing document (flat == true)
+        given().param("flat", true).when().get(getUrlPath(COLLECTION_NAME) + "/ID__170__20DI")
+                .then().statusCode(200)
+                .body("md.id", equalTo("ID__170__20DI"))
+                .body("data.geo_params_centroid", equalTo("-20,-170"))
+                .body("data.id", equalTo("ID__170__20DI"))
+                .body("data.fullname", equalTo("My name is ID__170__20DI"))
+                .body("data.params_startdate", equalTo(813400))
+                .body("data.params_city", isEmptyOrNullString());
 
 
         // GET invalid collection
