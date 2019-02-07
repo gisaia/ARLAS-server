@@ -204,7 +204,7 @@ public class ATOMSearchServiceIT extends AbstractSortedTest {
     protected void handleSizeParameter(ValidatableResponse then, int nbResults) throws Exception {
         if (nbResults > 0) {
             if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
-                then.statusCode(200).body(ATOM.XML_PREFIX + ":feed.totalResults", equalTo("" + nbResults));
+                assertThat(then.statusCode(200).extract().xmlPath().getList(ATOM.XML_PREFIX + ":feed.entry").size(), equalTo(nbResults));
             } else {
                 then.statusCode(200)
                         .body("nbhits", equalTo(nbResults))
@@ -212,7 +212,7 @@ public class ATOMSearchServiceIT extends AbstractSortedTest {
             }
         } else {
             if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
-                then.body(ATOM.XML_PREFIX + ":feed.totalResults", equalTo("" + nbResults));
+                assertThat(then.statusCode(200).extract().xmlPath().getList(ATOM.XML_PREFIX + ":feed.entry").size(), equalTo(nbResults));
             } else {
                 then.statusCode(200)
                         .body("nbhits", equalTo(nbResults));
@@ -264,7 +264,7 @@ public class ATOMSearchServiceIT extends AbstractSortedTest {
     @Override
     protected void handleSortParameter(ValidatableResponse then, String firstElement) throws Exception {
         if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
-            assertThat(then.statusCode(200).extract().xmlPath().getList("atom:feed.entry[0].content.params.job"), equalTo(firstElement));
+            assertThat(then.statusCode(200).extract().xmlPath().get("atom:feed.entry[0].content.params.job"), equalTo(firstElement));
         } else {
             then.statusCode(200)
                     .body("hits[0].data.params.job", equalTo(firstElement));
@@ -275,7 +275,7 @@ public class ATOMSearchServiceIT extends AbstractSortedTest {
     protected void handleGeoSortParameter(ValidatableResponse then, String firstElement) throws Exception {
 
         if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
-            assertThat(then.statusCode(200).extract().xmlPath().getList("atom:feed.entry[0].content.geo_params.centroid"), equalTo(firstElement));
+            assertThat(then.statusCode(200).extract().xmlPath().get("atom:feed.entry[0].content.geo_params.centroid"), equalTo(firstElement));
         } else {
             then.statusCode(200)
                     .body("hits[0].data.geo_params.centroid", equalTo(firstElement));

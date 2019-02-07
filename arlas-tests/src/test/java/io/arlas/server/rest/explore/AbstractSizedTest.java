@@ -127,7 +127,7 @@ public abstract class AbstractSizedTest extends AbstractFilteredTest {
     //----------------------------------------------------------------
 
     protected ValidatableResponse get(String param, Object paramValue) {
-        return givenFilterableRequestBody().param(param, paramValue)
+        return givenFilterableRequestParams().param(param, paramValue)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
