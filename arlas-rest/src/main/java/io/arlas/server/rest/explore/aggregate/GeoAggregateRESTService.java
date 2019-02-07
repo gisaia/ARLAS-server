@@ -26,6 +26,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.model.request.AggregationsRequest;
+import io.arlas.server.model.request.Interval;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.Error;
@@ -41,21 +42,19 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
-import org.geojson.Point;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
 
@@ -183,7 +182,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
-        FeatureCollection fc = getFeatureCollection(request, collectionReference, (flat!=null && flat));
+        FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), Optional.empty());
         return cache(Response.ok(fc), maxagecache);
     }
 
@@ -320,22 +319,17 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 // if sizes are not equals, it means one multi-value pwithin does not intersects bbox => no results
                 && pwithin.size() == simplifiedPwithin.size()) {
             simplifiedPwithin.add(pwithinBbox);
-            return this.geoaggregate(
-                    collection,
-                    agg,
-                    f,
-                    q,
-                    simplifiedPwithin,
-                    gwithin,
-                    gintersect,
-                    notpwithin,
-                    notgwithin,
-                    notgintersect,
-                    dateformat,
-                    partitionFilter,
-                    pretty,
-                    flat,
-                    maxagecache);
+
+            AggregationsRequest aggregationsRequest = new AggregationsRequest();
+            aggregationsRequest.filter = ParamsParser.getFilter(f, q, simplifiedPwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
+            aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
+            AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
+            aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+            MixedRequest request = new MixedRequest();
+            request.basicRequest = aggregationsRequest;
+            request.headerRequest = aggregationsRequestHeader;
+            FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), Optional.of(geohash));
+            return cache(Response.ok(fc), maxagecache);
         } else {
             return Response.ok(new FeatureCollection()).build();
         }
@@ -400,29 +394,39 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationRequest;
         request.headerRequest = aggregationsRequestHeader;
 
-        FeatureCollection fc = getFeatureCollection(request, collectionReference, (aggregationRequest.form!=null && aggregationRequest.form.flat));
+        FeatureCollection fc = getFeatureCollection(request, collectionReference, (aggregationRequest.form != null && aggregationRequest.form.flat), Optional.empty());
 
         return cache(Response.ok(fc), maxagecache);
     }
 
-    private FeatureCollection getFeatureCollection(MixedRequest request, CollectionReference collectionReference, boolean flat) throws ArlasException, IOException {
+    private FeatureCollection getFeatureCollection(MixedRequest request, CollectionReference collectionReference, boolean flat, Optional<String> geohash) throws ArlasException, IOException {
+        Optional<Interval> interval = Optional.ofNullable(((AggregationsRequest) request.basicRequest).aggregations.get(0).interval);
+        Optional<Number> precision = interval.map(i -> i.value);
         FeatureCollection fc;
         AggregationResponse aggregationResponse = new AggregationResponse();
-        AggregationTypeEnum maintAggregationType = ((AggregationsRequest)request.basicRequest).aggregations.get(0).type;
+        AggregationTypeEnum maintAggregationType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
         SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, true);
         MultiBucketsAggregation aggregation;
         aggregation = (MultiBucketsAggregation) response.getAggregations().asList().get(0);
         aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse, collectionReference.collectionName);
-        fc = toGeoJson(aggregationResponse, maintAggregationType, flat);
+        fc = toGeoJson(aggregationResponse, maintAggregationType, flat, geohash, precision.map(p->p.intValue()));
         return fc;
     }
 
-    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat) throws IOException {
+    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat, Optional<String> geohash, Optional<Integer> precision) throws IOException {
         FeatureCollection fc = new FeatureCollection();
         ObjectMapper mapper = new ObjectMapper();
         List<AggregationResponse> elements = aggregationResponse.elements;
+        if (geohash.isPresent() && precision.isPresent()) {
+            if (geohash.get().length() < precision.get()) {
+                elements = aggregationResponse.elements.stream()
+                        .filter(element -> element.keyAsString.toString().startsWith(geohash.get())).collect(Collectors.toList());
+            } else {
+                elements = aggregationResponse.elements.stream()
+                        .filter(element -> element.keyAsString.toString().equals(geohash.get().substring(0, precision.get()))).collect(Collectors.toList());
+            }
+        }
         if (elements != null && elements.size() > 0) {
-
             for (AggregationResponse element : elements) {
                 Feature feature = new Feature();
                 Map<String, Object> properties = new HashMap<>();
@@ -432,11 +436,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 } else {
                     properties.put("term", element.keyAsString);
                 }
-                if(flat){
-                    this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey("_"), s ->(!"elements".equals(s))).forEach((key, value) -> {
-                        properties.put(key,value);
+                if (flat) {
+                    this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey("_"), s -> (!"elements".equals(s))).forEach((key, value) -> {
+                        properties.put(key, value);
                     });
-                }else{
+                } else {
                     properties.put("elements", element.elements);
                     properties.put("metrics", element.metrics);
                 }
