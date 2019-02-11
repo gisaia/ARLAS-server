@@ -30,6 +30,7 @@ import io.arlas.server.model.Keyword;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.RangeResponse;
+import org.joda.time.format.DateTimeFormat;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -37,7 +38,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class CheckParams {
@@ -143,6 +143,23 @@ public class CheckParams {
                 for (String npw : multiNotPwithin) {
                     checkBbox(npw);
                 }
+            }
+        }
+        if ((filter.f == null || filter.f.isEmpty()) && !StringUtil.isNullOrEmpty(filter.dateformat)) {
+            throw new BadRequestException("Date format is specified but no date field is queried in f filter");
+        }
+        checkDateFormat(filter.dateformat);
+    }
+
+    public static void checkDateFormat(String dateFormat) throws ArlasException {
+        if (!StringUtil.isNullOrEmpty(dateFormat)) {
+            if (dateFormat.contains("||")) {
+                throw new NotAllowedException("'||' are not allowed for date formats");
+            }
+            try {
+                DateTimeFormat.forPattern(dateFormat);
+            } catch (IllegalArgumentException e) {
+                throw new InvalidParameterException("Invalid date format '" + dateFormat + "'. Reason : " + e.getMessage());
             }
         }
     }

@@ -131,6 +131,11 @@ public class AggregateRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "notgintersect") List<String> notgintersect,
 
+            @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "dateformat") String dateformat,
+
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
@@ -161,7 +166,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
-        aggregationsRequest.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect);
+        aggregationsRequest.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);

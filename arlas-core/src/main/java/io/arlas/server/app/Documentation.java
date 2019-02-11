@@ -73,6 +73,7 @@ public class Documentation {
     public static final String FILTER_PARAM_NOTPWITHIN = "Any element having its centroid outside the given bbox : 'top, left, bottom, right'.";
     public static final String FILTER_PARAM_NOTGWITHIN = "Any element having its geometry outside the given geometry (WKT)";
     public static final String FILTER_PARAM_NOTGINTERSECT = "Any element having its geometry not intersecting the given geometry (WKT)";
+    public static final String FILTER_DATE_FORMAT = "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations";
 
 
     public static final String AGGREGATION_OPERATION = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters";
