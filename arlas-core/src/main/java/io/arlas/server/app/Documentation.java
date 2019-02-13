@@ -159,6 +159,18 @@ public class Documentation {
             "\n \n" +
             "- {include} Specifies the values for which buckets will be created. This values are comma separated. If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created." +
             "\n \n" +
+            "- **fetchHits** " +
+            "\n \n" +
+            "    > **What it does**: Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits." +
+            "\n \n" +
+            "    > __**Syntax**__: `fetchHits-{sizeOfHitsToFetch}(+{field1}, {field2}, -{field3}, ...)`." +
+            "\n \n" +
+            "    > **Note 1**: `{sizeOfHitsToFetch}` is optional, if not specified, 1 is considered as default." +
+            "\n \n" +
+            "    > **Note 2**: `{field}` can be preceded by **+** or **-** for **ascending** or **descending** sort of the hits. Order matters." +
+            "\n \n" +
+            "    > __**Example**__: `fetchHits-3(-timestamp, geometry)`. Fetches the 3 last positions for each bucket." +
+            "\n \n" +
             "**agg** parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. " +
             "\n \n" +
             "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md.";
@@ -239,6 +251,18 @@ public class Documentation {
             "If {fetchGeometry} is specified, the returned geometry is the one used in the geojson." +
             "\n \n" +
             "If **fetchGeometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics. Same for **fetchGeometry-bbox** and **collect_fct**=`geobbox`" +
+            "\n \n" +
+            "- **fetchHits** " +
+            "\n \n" +
+            "    > **What it does**: Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits." +
+            "\n \n" +
+            "    > __**Syntax**__: `fetchHits-{sizeOfHitsToFetch}(+{field1}, {field2}, -{field3}, ...)`." +
+            "\n \n" +
+            "    > **Note 1**: `{sizeOfHitsToFetch}` is optional, if not specified, 1 is considered as default." +
+            "\n \n" +
+            "    > **Note 2**: `{field}` can be preceded by **+** or **-** for **ascending** or **descending** sort of the hits. Order matters." +
+            "\n \n" +
+            "    > __**Example**__: `fetchHits-3(-timestamp, geometry)`. Fetches the 3 last positions for each bucket." +
             "\n \n" +
             "**agg** parameter is multiple. The first (main) aggregation must be geohash. Every agg parameter specified is a subaggregation of the previous one : order matters. " +
             "\n \n" +

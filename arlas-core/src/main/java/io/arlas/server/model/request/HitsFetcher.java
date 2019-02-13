@@ -19,25 +19,21 @@
 
 package io.arlas.server.model.request;
 
-import io.arlas.server.model.enumerations.AggregationTypeEnum;
-import io.arlas.server.model.enumerations.Order;
-import io.arlas.server.model.enumerations.OrderOn;
-
 import java.util.List;
 
-public class Aggregation {
-    public AggregationTypeEnum type;
-    public String field;
-    public Interval interval;
-    public String format;
-    public List<Metric> metrics;
-    public Order order;
-    public OrderOn on;
-    public String size;
-    public String include;
-    public AggregatedGeometry fetchGeometry;
-    public HitsFetcher fetchHits;
+public class HitsFetcher {
+    public Integer size;
+    public List<String> include;
 
-    public Aggregation() {
+    public HitsFetcher() {
+    }
+
+    public HitsFetcher(List<String> include) {
+        this.include = include;
+    }
+
+    public HitsFetcher(Integer size, List<String> include) {
+        this.size = size;
+        this.include = include;
     }
 }

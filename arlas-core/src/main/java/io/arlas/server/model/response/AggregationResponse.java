@@ -37,6 +37,7 @@ public class AggregationResponse extends OperationInfo {
     public Object keyAsString;
     public List<AggregationResponse> elements;
     public List<AggregationMetric> metrics;
+    public List<Object> hits;
     public GeoJsonObject geometry;
     public Map<String, Object> flattenedElements;
 }

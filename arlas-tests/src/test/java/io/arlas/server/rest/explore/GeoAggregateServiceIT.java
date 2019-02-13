@@ -28,6 +28,7 @@ import org.hamcrest.Matcher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -224,6 +225,49 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features.size()", equalTo(featuresSize))
                 .body("features.properties.elements.elements", hasSize(featuresSize));
     }
+
+    @Override
+    protected void handleMatchingAggregateWithFetchedHits(ValidatableResponse then, int featuresSize, int nbhits, String... items) throws Exception {
+        then.statusCode(200)
+                .body("features.size()", equalTo(featuresSize))
+                .body("features.properties.hits", everyItem(hasSize(lessThanOrEqualTo(nbhits))));
+        for (String key : Arrays.asList(items)) {
+            String path = "features.properties.hits";
+            String lastKey = key;
+            if (key.contains(".")) {
+                path += ("." + key.substring(0, key.lastIndexOf(".")));
+                lastKey = key.substring(key.lastIndexOf(".") + 1, key.length());
+            }
+            then.body(path, everyItem(everyItem(hasKey(lastKey))));
+        }
+    }
+
+    @Override
+    protected void handleMatchingHistogramAggregateWithFetchedHits(ValidatableResponse then, int featuresSize, int nbhits, String... items) throws Exception {
+        then.statusCode(400);
+    }
+
+    @Override
+    protected void handleMatchingAggregateWithSortedFetchedDates(ValidatableResponse then, int featuresSize, int nbhits, int minDate, int maxDate, String item) throws Exception {
+        then.statusCode(200)
+                .body("features.size()", equalTo(featuresSize))
+                .body("features.properties.hits", everyItem(hasSize(lessThanOrEqualTo(nbhits))));
+        String path = "features.properties.hits";
+        String lastKey = item;
+        if (item.contains(".")) {
+            path += ("." + item.substring(0, item.lastIndexOf(".")));
+            lastKey = item.substring(item.lastIndexOf(".") + 1, item.length());
+        }
+        then.body(path, everyItem(everyItem(hasKey(lastKey))));
+        then.body(path, everyItem(everyItem(hasValue(greaterThanOrEqualTo(minDate)))));
+        then.body(path, everyItem(everyItem(hasValue(lessThanOrEqualTo(maxDate)))));
+    }
+
+    @Override
+    protected void handleMatchingHistogramAggregateWithSortedFetchedDates(ValidatableResponse then, int featuresSize, int nbhits, int minDate, int maxDate, String item) throws Exception {
+        then.statusCode(400);
+    }
+
 
     //----------------------------------------------------------------
     //----------------------- FILTER PART ----------------------------

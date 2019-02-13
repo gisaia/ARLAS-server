@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
@@ -91,6 +92,15 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:fetchGeometry-params.age-last"), 32, 16, 25, -171F, -81F, 171F, 81F);
 
         aggregationRequest.aggregations.get(0).fetchGeometry = null;
+
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("params.country", "params.startdate"));
+        handleMatchingAggregateWithFetchedHits(post(aggregationRequest), 32, 3, "params.country", "params.startdate");
+        handleMatchingAggregateWithFetchedHits(get("geohash:geo_params.centroid:interval-1:fetchHits-3(params.country,params.startdate)"), 32, 3, "params.country", "params.startdate");
+
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("-params.startdate"));
+        handleMatchingAggregateWithSortedFetchedDates(post(aggregationRequest), 32, 3, 807500, 1263600, "params.startdate");
+        handleMatchingAggregateWithSortedFetchedDates(get("geohash:geo_params.centroid:interval-1:fetchHits-3(-params.startdate)"), 32, 3, 807500, 1263600, "params.startdate");
+        aggregationRequest.aggregations.get(0).fetchHits = null;
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.AVG));
@@ -199,6 +209,15 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleSumOtherCountsExistence(post(aggregationRequest), 10, 1, 104);
         handleSumOtherCountsExistence(get("datehistogram:interval-1minute"),
                 10, 1, 104);
+
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("params.country", "params.startdate"));
+        handleMatchingHistogramAggregateWithFetchedHits(post(aggregationRequest), 10, 3, "params.country", "params.startdate");
+        handleMatchingHistogramAggregateWithFetchedHits(get("datehistogram:interval-1minute:fetchHits-3(params.country,params.startdate)"), 10, 3, "params.country", "params.startdate");
+
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("-params.startdate"));
+        handleMatchingHistogramAggregateWithSortedFetchedDates(post(aggregationRequest), 10, 3, 763600, 1263600, "params.startdate");
+        handleMatchingHistogramAggregateWithSortedFetchedDates(get("datehistogram:interval-1minute:fetchHits-3(-params.startdate)"), 10, 3, 763600, 1263600, "params.startdate");
+        aggregationRequest.aggregations.get(0).fetchHits = null;
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.AVG));
@@ -334,6 +353,17 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleSumOtherCountsExistence(post(aggregationRequest), 6, 14, 176, -1);
         handleSumOtherCountsExistence(get("histogram:params.startdate:interval-100000"), 6, 14, 176);
 
+        aggregationRequest.aggregations.get(0).interval = new Interval(60000, null); //"1minute";
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("params.country", "params.startdate"));
+        handleMatchingHistogramAggregateWithFetchedHits(post(aggregationRequest), 10, 3, "params.country", "params.startdate");
+        handleMatchingHistogramAggregateWithFetchedHits(get("histogram:params.startdate:interval-60000:fetchHits-3(params.country,params.startdate)"), 10, 3, "params.country", "params.startdate");
+
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("-params.startdate"));
+        handleMatchingHistogramAggregateWithSortedFetchedDates(post(aggregationRequest), 10, 3, 763600, 1263600, "params.startdate");
+        handleMatchingHistogramAggregateWithSortedFetchedDates(get("histogram:params.startdate:interval-60000:fetchHits-3(-params.startdate)"), 10, 3, 763600, 1263600, "params.startdate");
+        aggregationRequest.aggregations.get(0).fetchHits = null;
+
+        aggregationRequest.aggregations.get(0).interval = new Interval(100000, null); //"1minute";
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.AVG));
         handleMatchingAggregateWithCollect(post(aggregationRequest),
@@ -564,6 +594,19 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last, "params.age");
         handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -151F, -81F, 171F, 81F);
         handleMatchingAggregateWithGeometry(get("term:params.job:fetchGeometry-params.age-last"), DataSetTool.jobs.length - 1, 58, 64, -151F, -81F, 171F, 81F);
+        aggregationRequest.aggregations.get(0).fetchGeometry = null;
+
+        //FETCHHITS TESTS
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
+
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("params.country", "params.startdate"));
+        handleMatchingAggregateWithFetchedHits(post(aggregationRequest), DataSetTool.jobs.length - 1, 3, "params.country", "params.startdate");
+        handleMatchingAggregateWithFetchedHits(get("term:params.job:fetchHits-3(params.country,params.startdate):fetchGeometry"), DataSetTool.jobs.length - 1, 3, "params.country", "params.startdate");
+
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("-params.startdate"));
+        handleMatchingAggregateWithSortedFetchedDates(post(aggregationRequest), DataSetTool.jobs.length - 1, 3, 1144900, 1263600, "params.startdate");
+        handleMatchingAggregateWithSortedFetchedDates(get("term:params.job:fetchHits-3(-params.startdate):fetchGeometry"), DataSetTool.jobs.length - 1, 3, 1144900, 1263600, "params.startdate");
+        aggregationRequest.aggregations.get(0).fetchHits = null;
 
     }
 
@@ -658,7 +701,6 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:order-desc:on-result"));
 
-
         aggregationRequest.aggregations.get(0).order = Order.asc;
         aggregationRequest.aggregations.get(0).on = OrderOn.result;
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
@@ -666,14 +708,12 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:order-asc:on-result:collect_fct-geocentroid:collect_field-geo_params.centroid"));
 
-
         aggregationRequest.aggregations.get(0).order = null;
         aggregationRequest.aggregations.get(0).on = null;
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.job", CollectionFunction.GEOCENTROID));
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-params.job:collect_fct-geocentroid"));
-
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("foo", null));
@@ -758,15 +798,17 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("term:params.job:interval-1"));
 
+        // INVALID FETCHGEOMETRY
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
         aggregationRequest.aggregations.get(0).interval = null;
         aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.centroid, "params.age");
         handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("term:params.job:interval-1:fetchGeometry-params.age-centroid"));
+        handleInvalidParameters(get("term:params.job:fetchGeometry-params.age-centroid"));
 
         aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.geohash);
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("term:params.job:interval-1:fetchGeometry-geohash"));
+        aggregationRequest.aggregations.get(0).fetchGeometry = null;
 
         invalidAggregationRequest.invalidAggregations.get(0).type = "term";
         invalidAggregationRequest.invalidAggregations.get(0).field = "params.job";
@@ -776,6 +818,26 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(get("term:params.job:fetchGeometry-boo"));
         handleInvalidParameters(get("term:params.job:fetchGeometry-"));
         invalidAggregationRequest.invalidAggregations.get(0).fetchGeometry = null;
+
+        // INVALID FETCHGEOMETRY
+        // Non-existing field
+        aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
+        aggregationRequest.aggregations.get(0).field = "params.job";
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("foo", "params.age"));
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
+        handleNotFoundField(post(aggregationRequest));
+        handleNotFoundField(get("term:params.job:fetchHits-3(foo, params.age):fetchGeometry"));
+
+        // Invalid syntax of the include part
+        invalidAggregationRequest.invalidAggregations.get(0).type = "term";
+        invalidAggregationRequest.invalidAggregations.get(0).field = "params.job";
+        invalidAggregationRequest.invalidAggregations.get(0).fetchHits = "boo";
+        handleInvalidParameters(post(invalidAggregationRequest));
+        handleInvalidParameters(get("term:params.job:fetchGeometry-3(params.age"));
+        handleInvalidParameters(get("term:params.job:fetchGeometry-3[params.age]"));
+        invalidAggregationRequest.invalidAggregations.get(0).fetchHits = null;
+
+
     }
 
     @Test
@@ -800,6 +862,14 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
     protected abstract void handleMatchingGeohashAggregateCenter(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
 
     protected abstract void handleMatchingAggregateWithGeometry(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
+
+    protected abstract void handleMatchingAggregateWithFetchedHits(ValidatableResponse then, int featuresSize, int nbhits, String... items) throws Exception;
+
+    protected abstract void handleMatchingHistogramAggregateWithFetchedHits(ValidatableResponse then, int featuresSize, int nbhits, String... items) throws Exception;
+
+    protected abstract void handleMatchingAggregateWithSortedFetchedDates(ValidatableResponse then, int featuresSize, int nbhits, int minDate, int maxDate, String item) throws Exception;
+
+    protected abstract void handleMatchingHistogramAggregateWithSortedFetchedDates(ValidatableResponse then, int featuresSize, int nbhits, int minDate, int maxDate, String item) throws Exception;
 
     protected abstract void handleMatchingAggregateWithCentroid(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
 
@@ -872,6 +942,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         public OrderOn on;
         public String size;
         public String fetchGeometry;
+        public String fetchHits;
 
         public InvalidAggregation() {
         }

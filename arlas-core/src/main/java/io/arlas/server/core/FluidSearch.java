@@ -19,6 +19,12 @@
 
 package io.arlas.server.core;
 
+
+import io.arlas.server.utils.ElasticTool;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
@@ -28,7 +34,6 @@ import io.arlas.server.model.request.Metric;
 import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.response.TimestampType;
 import io.arlas.server.utils.CheckParams;
-import io.arlas.server.utils.ElasticTool;
 import io.arlas.server.utils.ParamsParser;
 import io.arlas.server.utils.StringUtil;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -50,7 +55,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.max.MaxAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -59,6 +63,7 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.operation.valid.IsValidOp;
 import org.locationtech.jts.operation.valid.TopologyValidationError;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,6 +93,7 @@ public class FluidSearch {
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
     public static final String GEOHASH_AGG = "Geohash aggregation";
+    public static final String FETCH_HITS_AGG = "fetched_hits";
     public static final String GEOHASH_AGG_WITH_GEOASH_STRATEGY = "Geohash aggregation with geoash strategy";
     public static final String GEO_DISTANCE = "geodistance";
     public static final String NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE = " aggregation type is not allowed as main aggregation. Please make sure that geohash or term is the main aggregation or use '_aggregate' service instead.";
@@ -595,6 +601,7 @@ public class FluidSearch {
         dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(intervalUnit);
         //get the field, format, collect_field, collect_fct, order, on
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
+        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setHitsToFetch(aggregationModel, dateHistogramAggregationBuilder);
         return dateHistogramAggregationBuilder;
     }
 
@@ -609,6 +616,7 @@ public class FluidSearch {
         //get the field, format, collect_field, collect_fct, order, on
         geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
         geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggeragatedGeometryStrategy(aggregationModel, geoHashAggregationBuilder);
+        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setHitsToFetch(aggregationModel, geoHashAggregationBuilder);
         return geoHashAggregationBuilder;
     }
 
@@ -618,6 +626,7 @@ public class FluidSearch {
         histogramAggregationBuilder = histogramAggregationBuilder.interval((Double)aggregationModel.interval.value);
         //get the field, format, collect_field, collect_fct, order, on
         histogramAggregationBuilder = (HistogramAggregationBuilder) setAggregationParameters(aggregationModel, histogramAggregationBuilder);
+        histogramAggregationBuilder = (HistogramAggregationBuilder) setHitsToFetch(aggregationModel, histogramAggregationBuilder);
         return histogramAggregationBuilder;
     }
 
@@ -627,6 +636,7 @@ public class FluidSearch {
         //get the field, format, collect_field, collect_fct, order, on
         termsAggregationBuilder = (TermsAggregationBuilder) setAggregationParameters(aggregationModel, termsAggregationBuilder);
         termsAggregationBuilder = (TermsAggregationBuilder) setAggeragatedGeometryStrategy(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregationBuilder) setHitsToFetch(aggregationModel, termsAggregationBuilder);
         if (aggregationModel.include != null && !aggregationModel.include.isEmpty()) {
             String[] includeList = aggregationModel.include.split(",");
             IncludeExclude includeExclude;
@@ -754,6 +764,31 @@ public class FluidSearch {
                     aggregationBuilder.subAggregation(topHitsAggregationBuilder);
                 }
             }
+        }
+        return aggregationBuilder;
+    }
+
+    private ValuesSourceAggregationBuilder setHitsToFetch(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
+        if (aggregationModel.fetchHits != null) {
+            TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(FETCH_HITS_AGG);
+            Integer size = Optional.ofNullable(aggregationModel.fetchHits.size).orElse(1);
+            topHitsAggregationBuilder.size(size);
+            List<String> includes = new ArrayList<>();
+            if (aggregationModel.fetchHits.include != null) {
+                for (String field : aggregationModel.fetchHits.include) {
+                    String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
+                    ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, collectionReference.params.typeName, unsignedField);
+                    includes.add(unsignedField);
+                    if (field.startsWith("+")) {
+                        topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
+                    } else if (field.startsWith("-")) {
+                        topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
+                    }
+                }
+                String[] hitsToInclude = includes.toArray(new String[includes.size()]);
+                topHitsAggregationBuilder.fetchSource(hitsToInclude, null);
+            }
+            aggregationBuilder.subAggregation(topHitsAggregationBuilder);
         }
         return aggregationBuilder;
     }

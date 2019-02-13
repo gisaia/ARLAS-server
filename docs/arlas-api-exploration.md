@@ -51,15 +51,16 @@ Where the `{type}:{field}` part is mandatory
 
 The other parts must be specified or not depending on the aggregation type. All the cases are sum up in the following table.
 
-| Parameter                 | Aggregation type          | Description                 |
-| ---------                 | -------------                       | ---------------------------------------- |
-| **interval**              | `datehistogram, histogram, geohash` | mandatory |
+| Parameter                 | Aggregation type                    | Description                                      |
+| ---------                 | -------------                       | ------------------------------------------------ |
+| **interval**              | `datehistogram, histogram, geohash` | mandatory                                        |
 | **format**                | `datehistogram`                     | optional (default value : `yyyy-MM-dd-HH:mm:ss`) |
-| (**collect_field**,**collect_fct**) | All types                 | optional and multiple |
-| (**order**,**on**)        | `term, histogram, datehistogram`    | optional |
-| **size**                  | `term, geohash`                     | optional |
-| **include**               | `term`                              | optional |
-
+| (**collect_field**,**collect_fct**) | All types                 | optional and multiple                            |
+| (**order**,**on**)        | `term, histogram, datehistogram`    | optional                                         |
+| **size**                  | `term, geohash`                     | optional                                         |
+| **include**               | `term`                              | optional                                         |
+| **fetchGeometry**         | `term`, `geohash`                   | optional                                         |
+| **fetchHits**             | All types                           | optional                                         |
 
 
 > Example: `agg=datehistogram:date:interval-20day:format-dd.MM.yyyy`&`agg=term:sexe:collect_field-age:collect_fct-avg:order-asc:on-result:size-5`
@@ -78,7 +79,8 @@ The sub-parameters possible values are:
 | **on**            | `field,count,result` (3) (3')                       | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
 | **size**          | {size}                                          | Defines how many buckets should be returned. |
 | **include**       | Comma separated strings (4)                     | Specifies the values for which buckets will be created. |
-| **fetchGeometry**   | `bbox`, `centroid`, `byDefault`, `first`, `last`, `{field}-first`, `{field}-last`, `geohash`  or nothing specified      | Specifies which geometry to fetch for each bucket (5)(6)|
+| **fetchGeometry** | `bbox`, `centroid`, `byDefault`, `first`, `last`, `{field}-first`, `{field}-last`, `geohash`  or nothing specified      | Specifies which geometry to fetch for each bucket (5)(6)|
+| **fetchHits**     | `{optionalNumberOfHist}(+{field1}, {field2}, -{field3}, ...)       | Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits. The hits can be sorted according 0-* fields by preceding the field name by `+` for ascending sort, `-` for descending sort or nothing if no sort is desired on a field.|
 
 (1) Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
 
@@ -110,6 +112,13 @@ The `order` is applied on the first collect_fct `avg` (that is different from `g
  - If `fetchGeometry-geohash`, then the returned geometry is the geohash extend of each bucket. It's applied only for Geohash aggregation type. It is not supported for term aggregation type.
 
 (6) If **fetchGeometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics. Same for **fetchGeometry-bbox** and **collect_fct**=`geobbox`
+
+ - > Example: `fetchHits-3(-timestamp, geometry)`. The 3 last positions are retrieved for each bucket 
+
+*Note* that if the number of hits to fetch is not specified, 1 is considered as default.
+
+ - > Example: `fetchHits:(-timestamp, geometry)`. The last position is retrieved for each bucket 
+
 
 | Service             | Aggregation type    | Interval                                 | Description                              |
 | ------------------- | ------------------- | ---------------------------------------- | ---------------------------------------- |
