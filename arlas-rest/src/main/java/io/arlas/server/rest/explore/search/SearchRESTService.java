@@ -177,6 +177,16 @@ public class SearchRESTService extends ExploreRESTServices {
             @QueryParam(value = "sort") String sort,
 
             // --------------------------------------------------------
+            // -----------------------  SEARCH_AFTER   -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(name = "search-after",
+                    value = Documentation.SEARCH_AFTER_PARAM_SEARCH_AFTER,
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "search-after") String searchAfter,
+
+            // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
@@ -203,9 +213,8 @@ public class SearchRESTService extends ExploreRESTServices {
         Search search = new Search();
         search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect);
         search.size = ParamsParser.getSize(size, from);
-        search.sort = ParamsParser.getSort(sort);
+        search.sort = ParamsParser.getSort(sort,searchAfter);
         search.projection = ParamsParser.getProjection(include, exclude);
-
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();

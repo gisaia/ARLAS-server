@@ -439,6 +439,13 @@ public class FluidSearch {
         return this;
     }
 
+
+    public FluidSearch searchAfter(String searchAfter) {
+        searchRequestBuilder = searchRequestBuilder.searchAfter(searchAfter.split(","));
+        return this;
+    }
+
+
     public FluidSearch sort(String sort) throws ArlasException {
         List<String> fieldList = Arrays.asList(sort.split(","));
         String field;

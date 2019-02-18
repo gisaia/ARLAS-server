@@ -286,4 +286,9 @@ public class ATOMSearchServiceIT extends AbstractSortedTest {
     protected void handleInvalidGeoSortParameter(ValidatableResponse then) {
         then.statusCode(400);
     }
+
+    @Override
+    protected void handleInvalidSortParameterWithSearchAfter(ValidatableResponse then) {
+        then.statusCode(400);
+    }
 }

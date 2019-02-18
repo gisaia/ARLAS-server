@@ -269,11 +269,15 @@ public class ParamsParser {
         return sizeObject;
     }
 
-    public static Sort getSort(String sort) {
+    public static Sort getSort(String sort,String searchAfter) {
         Sort sortObject = new Sort();
         sortObject.sort = sort;
+        sortObject.searchAfter =searchAfter;
         return sortObject;
     }
+
+
+
 
     public static GeoPoint getGeoSortParams(String geoSort) throws ArlasException {
         List<String> geoSortList = Arrays.asList(geoSort.split(":"));

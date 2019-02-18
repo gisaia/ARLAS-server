@@ -12,12 +12,12 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/explore/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
 | /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Count the number of elements found in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_range**?`field` & `filter` & `form` | Calculates the min and max values of a field in the collection, given the filters |
-| /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection, given the filters |
-| /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection as features, given the filters |
-| /arlas/explore/`{collection}`/**_geosearch**/`{z}`/`{x}`/`{y}`?`filter` & `form` & `projection` & `size` & `sort` | Search and return the elements found in the collection and localized in the given tile(x,y,z) as features, given the filters |
+| /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `size` & `sort` & `search-after` | Search and return the elements found in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `size` & `sort` & `search-after` | Search and return the elements found in the collection as features, given the filters |
+| /arlas/explore/`{collection}`/**_geosearch**/`{z}`/`{x}`/`{y}`?`filter` & `form` & `projection` & `size` & `sort` & `search-after` | Search and return the elements found in the collection and localized in the given tile(x,y,z) as features, given the filters |
 | /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s), given the filters and the aggregation parameters |
-| /arlas/explore/`{collections}`/**_geoaggregate**?`aggregation` &`filter` & `form` & `size` & `sort` | Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters |
-| /arlas/explore/`{collections}`/**_geoaggregate**/`{geohash}`?`aggregation` &`filter` & `form` & `size` & `sort` | Aggregate the elements in the collection(s) and localized in the given `{geohash}` as features, given the filters and the aggregation parameters |
+| /arlas/explore/`{collections}`/**_geoaggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters |
+| /arlas/explore/`{collections}`/**_geoaggregate**/`{geohash}`?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) and localized in the given `{geohash}` as features, given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_suggest**?`filter` & `form` & `size` & `suggest` | Suggest the the n (n=`size`) most relevant terms given the filters |
 
 When multiple collections are permitted ({collections}), the comma is used for separating the collection names.
@@ -283,10 +283,11 @@ The `sort` url part allows the following parameters to be specified:
 
 | Parameter | Default value | Values                         | Description                              | Multiple                                 |
 | --------- | ------------- | ------------------------------ | ---------------------------------------- | ---------------------------------------- |
-| **sort**  | None          | `((-?)({field}||geodistance:lat lon))(,(-?){field})*` | Sort the result on the given fields ascending or descending.
-Fields can be provided several times by separating them with a comma. The order matters. For a descending sort, precede the field with '-'. The sort will be ascending otherwise. For aggregation, provide the `agg` keyword as the `{field}`. For a geodistance sort, specify the point, from which the distances are calculated, as follow : `geodistance:lat lon`  | false (separate fields with comma in the same parameter) |
+| **sort**  | None          | `((-?)({field}||geodistance:lat lon))(,(-?){field})*` | Sort the result on the given fields ascending or descending.Fields can be provided several times by separating them with a comma. The order matters. For a descending sort, precede the field with '-'. The sort will be ascending otherwise. For aggregation, provide the `agg` keyword as the `{field}`. For a geodistance sort, specify the point, from which the distances are calculated, as follow : `geodistance:lat lon`  | false (separate fields with comma in the same parameter) |
+| **search-after**  | None          | `{value},{value}` | List of values of fields present in sort param that are used to search after.Values must be provided  by separating them with a comma. The order matters . The last value must be md.id field . This param works only combined whith sort param. | false (separate values with comma in the same parameter) |
 
 > Example: `sort=-country,city,geodistance:-50 -110`
+> Example: `search-after=-3454,35345345345`
 
 ## OpenSearch
 

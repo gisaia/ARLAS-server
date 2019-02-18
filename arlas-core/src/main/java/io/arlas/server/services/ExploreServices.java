@@ -94,7 +94,7 @@ public class ExploreServices {
     public SearchHits count(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(collectionReference.params.filter,fluidSearch);
+        applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
         return fluidSearch.exec().getHits();
@@ -103,11 +103,12 @@ public class ExploreServices {
     public SearchHits search(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(collectionReference.params.filter,fluidSearch);
+        applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
         applySize(((Search) request.basicRequest).size, fluidSearch);
         applySort(((Search) request.basicRequest).sort, fluidSearch);
+        applySearchAfter((((Search) request.basicRequest).sort), collectionReference.params.idPath, fluidSearch);
         applyProjection(((Search) request.basicRequest).projection, fluidSearch);
         return fluidSearch.exec().getHits();
     }
@@ -116,7 +117,7 @@ public class ExploreServices {
         CheckParams.checkAggregationRequest(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(collectionReference.params.filter,fluidSearch);
+        applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
         applyAggregation(((AggregationsRequest) request.basicRequest).aggregations, fluidSearch, isGeoAggregation);
@@ -127,7 +128,7 @@ public class ExploreServices {
         CheckParams.checkRangeRequestField(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(collectionReference.params.filter,fluidSearch);
+        applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
         applyRangeRequest(((RangeRequest) request.basicRequest).field, fluidSearch);
@@ -206,6 +207,13 @@ public class ExploreServices {
         }
     }
 
+    protected void applySearchAfter( Sort sort, String idCollectionField, FluidSearch fluidSearch) throws ArlasException, IOException {
+        if (sort != null && sort.searchAfter != null) {
+            CheckParams.checkSearchAfter(sort, idCollectionField);
+            fluidSearch = fluidSearch.searchAfter(sort.searchAfter);
+        }
+    }
+
     protected void applySort(Sort sort, FluidSearch fluidSearch) throws ArlasException, IOException {
         if (sort != null && sort.sort != null) {
             fluidSearch = fluidSearch.sort(sort.sort);
@@ -262,7 +270,7 @@ public class ExploreServices {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection);
                     } else if (subAggregationResponse.name.equals(FluidSearch.FIRST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.LAST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.TERM_RANDOM_GEOMETRY)) {
                         subAggregationResponse = null;
-                        Map source = ((TopHits)subAggregation).getHits().getHits()[0].getSourceAsMap();
+                        Map source = ((TopHits) subAggregation).getHits().getHits()[0].getSourceAsMap();
                         GeoJsonObject geometryGeoJson = null;
                         try {
                             CollectionReference collectionReference = getDaoCollectionReference().getCollectionReference(collection);
@@ -329,46 +337,46 @@ public class ExploreServices {
     }
 
 
-    public Map<String, Object> flat(AggregationResponse element, Function<Map<List<String>, Object>,Map<String, Object>> keyStringifier, Predicate<String> keyPartFiler) {
-        Map<List<String>, Object> flatted= new HashMap<>();
-        flat(flatted,element,new ArrayList<>());
-        return keyStringifier.apply(flatted.entrySet().stream().collect(Collectors.toMap(e->e.getKey().stream().filter(keyPartFiler).collect(Collectors.toList()), e->e.getValue())));
+    public Map<String, Object> flat(AggregationResponse element, Function<Map<List<String>, Object>, Map<String, Object>> keyStringifier, Predicate<String> keyPartFiler) {
+        Map<List<String>, Object> flatted = new HashMap<>();
+        flat(flatted, element, new ArrayList<>());
+        return keyStringifier.apply(flatted.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().stream().filter(keyPartFiler).collect(Collectors.toList()), e -> e.getValue())));
     }
 
-    public Map<String,Object> flat(AggregationResponse element, Function<Map<List<String>, Object>,Map<String, Object>> keyStringifier) {
-        Map<List<String>,Object> flatted = new HashMap<>();
+    public Map<String, Object> flat(AggregationResponse element, Function<Map<List<String>, Object>, Map<String, Object>> keyStringifier) {
+        Map<List<String>, Object> flatted = new HashMap<>();
         flat(flatted, element, new ArrayList<>());
         return keyStringifier.apply(flatted);
     }
 
 
-    private void flat(Map<List<String>,Object> flat, AggregationResponse element, List<String> keyParts){
-        addToFlat(flat, keyParts, "count",element.count);
-        addToFlat(flat, keyParts, "key",element.key);
-        addToFlat(flat, keyParts, "keyAsString",element.keyAsString);
-        addToFlat(flat, keyParts, "name",element.name);
-        addToFlat(flat, keyParts, "queryTime",element.queryTime);
-        addToFlat(flat, keyParts, "sumotherdoccounts",element.sumotherdoccounts);
-        addToFlat(flat, keyParts, "totalnb",element.totalnb);
-        addToFlat(flat, keyParts, "totalTime",element.totalTime);
-        if(element.metrics!=null){
-            element.metrics.forEach(metric -> addToFlat(flat, newKeyParts(newKeyParts(keyParts,metric.field),  metric.type), "", metric.value));
+    private void flat(Map<List<String>, Object> flat, AggregationResponse element, List<String> keyParts) {
+        addToFlat(flat, keyParts, "count", element.count);
+        addToFlat(flat, keyParts, "key", element.key);
+        addToFlat(flat, keyParts, "keyAsString", element.keyAsString);
+        addToFlat(flat, keyParts, "name", element.name);
+        addToFlat(flat, keyParts, "queryTime", element.queryTime);
+        addToFlat(flat, keyParts, "sumotherdoccounts", element.sumotherdoccounts);
+        addToFlat(flat, keyParts, "totalnb", element.totalnb);
+        addToFlat(flat, keyParts, "totalTime", element.totalTime);
+        if (element.metrics != null) {
+            element.metrics.forEach(metric -> addToFlat(flat, newKeyParts(newKeyParts(keyParts, metric.field), metric.type), "", metric.value));
         }
         int idx = 0;
-        if(element.elements!=null){
-            for(AggregationResponse subElement: element.elements){
-                flat(flat,subElement, newKeyParts(newKeyParts(keyParts,"elements"),""+(idx++)));
+        if (element.elements != null) {
+            for (AggregationResponse subElement : element.elements) {
+                flat(flat, subElement, newKeyParts(newKeyParts(keyParts, "elements"), "" + (idx++)));
             }
         }
     }
 
-    private void addToFlat(Map<List<String>,Object> flat, List<String> keyParts, String key, Object value) {
-        if(value!=null){
+    private void addToFlat(Map<List<String>, Object> flat, List<String> keyParts, String key, Object value) {
+        if (value != null) {
             flat.put(newKeyParts(keyParts, key), value);
         }
     }
 
-    private List<String> newKeyParts(List<String> keyParts, String key){
+    private List<String> newKeyParts(List<String> keyParts, String key) {
         List<String> newOne = new ArrayList<>(keyParts);
         newOne.add(key);
         return newOne;

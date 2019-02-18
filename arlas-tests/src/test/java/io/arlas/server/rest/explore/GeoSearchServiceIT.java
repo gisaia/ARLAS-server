@@ -22,9 +22,11 @@ package io.arlas.server.rest.explore;
 import io.arlas.server.model.request.Form;
 import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.request.Request;
+import io.restassured.response.ExtractableResponse;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -197,6 +199,12 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
         then.statusCode(400);
     }
 
+
+    @Override
+    protected void handleInvalidSortParameterWithSearchAfter(ValidatableResponse then) {
+        then.statusCode(400);
+    }
+
     //----------------------- XYZ TILES PART -------------------------
     //----------------------------------------------------------------
 
@@ -223,5 +231,59 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
         if (req.form==null)req.form=new Form();
         req.form.flat=false;
         return req;
+    }
+
+    @Override
+    public void testPostSortWithSearchAfter() throws Exception {
+        search.sort.sort = "params.startdate,id";
+        search.size.size=3;
+        RequestSpecification req = givenFilterableRequestBody();
+        ExtractableResponse response = req.body(handlePostRequest(search))
+                .when().post(getUrlPath("geodata"))
+                .then().extract();
+        String id_0 = response.path("features[0].properties.id");
+        Integer date_0 = response.path("features[0].properties.params.startdate");
+        String id_1 = response.path("features[1].properties.id");
+        String id_2 = response.path("features[2].properties.id");
+        search.size.size=2;
+        search.sort.searchAfter= date_0.toString().concat(",").concat(id_0);
+        req.body(handlePostRequest(search))
+                .when().post(getUrlPath("geodata"))
+                .then()
+                .body("features[0].properties.id",equalTo(id_1))
+                .body("features[1].properties.id",equalTo(id_2))
+                .statusCode(200);
+        search.sort.searchAfter=null;
+    }
+
+
+    @Override
+    public void testGetSortWithSearchAfter() throws Exception {
+        search.sort.sort = "params.startdate,id";
+        search.size.size = 3;
+        RequestSpecification req = givenFilterableRequestBody();
+
+        ExtractableResponse response = req
+                .param("sort", search.sort.sort)
+                .param("size", search.size.size)
+                .when().get(getUrlPath("geodata"))
+                .then().extract();
+
+        String id_0 = response.path("features[0].properties.id");
+        Integer date_0 = response.path("features[0].properties.params.startdate");
+        String id_1 = response.path("features[1].properties.id");
+        String id_2 = response.path("features[2].properties.id");
+        search.size.size = 2;
+        search.sort.searchAfter = date_0.toString().concat(",").concat(id_0);
+
+        req.param("sort", search.sort.sort)
+                .param("size", search.size.size)
+                .param("search-after", search.sort.searchAfter)
+                .when().get(getUrlPath("geodata"))
+                .then()
+                .body("features[0].properties.id", equalTo(id_1))
+                .body("features[1].properties.id", equalTo(id_2))
+                .statusCode(200);
+        search.sort.searchAfter = null;
     }
 }
