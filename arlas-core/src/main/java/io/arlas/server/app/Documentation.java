@@ -224,4 +224,12 @@ public class Documentation {
     public static final String RANGE_OPERATION = "Calculates the min and max values of a field in the collection, given the filters";
     public static final String RANGE_FIELD = "The field whose range is calculated";
 
+    public static final String SEARCH_AFTER_PARAM_SEARCH_AFTER = "List of values of fields present in sort param that are used to search after. " +
+            "\n \n" +
+            "- Values must be provided by separating them with a comma. The order matters. " +
+            "\n \n" +
+            "- The last value must be md.id field ." +
+            "\n \n" +
+            "- This param works only combined whith sort param" +
+            "\n \n";
 }

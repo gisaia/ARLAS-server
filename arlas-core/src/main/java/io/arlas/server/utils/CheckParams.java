@@ -139,7 +139,7 @@ public class CheckParams {
     }
 
     public static void checkRangeFieldExists(RangeResponse rangeResponse) throws ArlasException {
-        if ( rangeResponse.min.toString().equals(MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD) || rangeResponse.min.toString().equals("-"+MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD)) {
+        if (rangeResponse.min.toString().equals(MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD) || rangeResponse.min.toString().equals("-" + MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD)) {
             throw new InvalidParameterException(UNEXISTING_FIELD);
         }
     }
@@ -163,7 +163,7 @@ public class CheckParams {
             if (aggregationModel.fetchGeometry != null) {
                 AggregatedGeometryStrategyEnum fetchGeometryOption = aggregationModel.fetchGeometry.strategy;
                 if ((fetchGeometryOption == AggregatedGeometryStrategyEnum.byDefault || fetchGeometryOption == AggregatedGeometryStrategyEnum.centroid
-                        ||fetchGeometryOption == AggregatedGeometryStrategyEnum.bbox) && aggregationModel.fetchGeometry.field != null) {
+                        || fetchGeometryOption == AggregatedGeometryStrategyEnum.bbox) && aggregationModel.fetchGeometry.field != null) {
                     throw new BadRequestException("field should not be specified for centroid & bbox fetchGeometry strategy");
                 }
                 if (fetchGeometryOption == AggregatedGeometryStrategyEnum.geohash && aggregationModel.type == AggregationTypeEnum.term) {
@@ -196,13 +196,16 @@ public class CheckParams {
                     Number intervalValue = 0;
                     switch (aggregationModel.type) {
                         case datehistogram:
-                            intervalValue = ParamsParser.tryParseInteger(interval.value.toString());break;
+                            intervalValue = ParamsParser.tryParseInteger(interval.value.toString());
+                            break;
                         case geohash:
-                            intervalValue = ParamsParser.tryParseInteger(interval.value.toString());break;
+                            intervalValue = ParamsParser.tryParseInteger(interval.value.toString());
+                            break;
                         case histogram:
-                            intervalValue = ParamsParser.tryParseDouble(interval.value.toString());break;
+                            intervalValue = ParamsParser.tryParseDouble(interval.value.toString());
+                            break;
                     }
-                    if (intervalValue == null || intervalValue.doubleValue() <=0) {
+                    if (intervalValue == null || intervalValue.doubleValue() <= 0) {
                         switch (aggregationModel.type) {
                             case datehistogram:
                                 throw new InvalidParameterException("The datehistogram interval must be a positive integer.");
@@ -214,7 +217,7 @@ public class CheckParams {
                     }
                     if (intervalValue != null && aggregationModel.type == AggregationTypeEnum.geohash && ParamsParser.tryParseInteger(interval.value.toString()) >= 13) {
                         throw new InvalidParameterException("The geohash precision is not valid. It must be an integer between 1 and 12.");
-                    } else if (intervalValue != null){
+                    } else if (intervalValue != null) {
                         aggregationModel.interval.value = intervalValue;
                     }
                 }
@@ -358,16 +361,16 @@ public class CheckParams {
     }
 
     public static void checkExcludeField(List<String> excludeFields, List<String> fields) throws NotAllowedException {
-            ArrayList<Pattern> excludeFieldsPattern = new ArrayList<>();
-            excludeFields.forEach(field ->
+        ArrayList<Pattern> excludeFieldsPattern = new ArrayList<>();
+        excludeFields.forEach(field ->
                 excludeFieldsPattern.add(Pattern.compile("^" + field.replace(".", "\\.").replace("*", ".*") + ".*$"))
-            );
-            boolean excludePath;
-            for (String field : fields) {
-                excludePath = excludeFieldsPattern.stream().anyMatch(pattern -> pattern.matcher(field).matches());
-                if (excludePath)
-                    throw new NotAllowedException("Unable to exclude field "+field+ " used for id, geometry, centroid or timestamp.");
-            }
+        );
+        boolean excludePath;
+        for (String field : fields) {
+            excludePath = excludeFieldsPattern.stream().anyMatch(pattern -> pattern.matcher(field).matches());
+            if (excludePath)
+                throw new NotAllowedException("Unable to exclude field " + field + " used for id, geometry, centroid or timestamp.");
+        }
     }
 
     public static void checkMissingInspireParameters(CollectionReference collectionReference) throws ArlasException {
@@ -376,7 +379,7 @@ public class CheckParams {
             throw new BadRequestException("Inspire node must be set in Collection Reference parameters");
         }
         // check keywords
-        if (collectionReferenceInspire.keywords == null || collectionReferenceInspire.keywords.size() == 0 ) {
+        if (collectionReferenceInspire.keywords == null || collectionReferenceInspire.keywords.size() == 0) {
             throw new BadRequestException("Missing keywords");
         } else {
             for (Keyword k : collectionReferenceInspire.keywords) {
@@ -442,7 +445,7 @@ public class CheckParams {
         }
         //Check if topic category is set
         if (collectionReferenceInspire != null && collectionReferenceInspire.topicCategories != null) {
-            for(String topicCategory: collectionReferenceInspire.topicCategories) {
+            for (String topicCategory : collectionReferenceInspire.topicCategories) {
                 try {
                     TopicCategory.fromValue(topicCategory);
                 } catch (IllegalArgumentException e) {
@@ -507,6 +510,30 @@ public class CheckParams {
 
     }
 
+    public static void checkSearchAfter( Sort sort, String idCollectionField) throws InvalidParameterException {
+        if (sort != null && sort.searchAfter != null) {
+            List<String> searchAfterList = Arrays.asList(sort.searchAfter.split(","));
+            int searchAfterSize = searchAfterList.size();
+            if ( sort.sort == null) {
+                throw new InvalidParameterException("search-after param can not be used whitout sort param");
+            } else {
+                String[] sortList = sort.sort.split(",");
+                int sortSize = sortList.length;
+                if(searchAfterSize!=sortSize){
+                    throw new InvalidParameterException("search-after list size must be equal to number of sort elements");
+                }else{
+                    String lastSortElement = sortList[sortSize-1];
+                    if(lastSortElement.startsWith(("-"))){
+                        lastSortElement= lastSortElement.substring(1);
+                    }
+                    if(lastSortElement.compareTo(idCollectionField)!=0){
+                        throw new InvalidParameterException("if search-after param is set, last element of sort must be equal to md id collection field");
+                    }
+                }
+            }
+        }
+    }
+
     public static double[] toDoubles(String doubles) throws InvalidParameterException {
         try {
             return Arrays.stream(doubles.split(",")).mapToDouble(Double::parseDouble).toArray();
@@ -515,7 +542,7 @@ public class CheckParams {
         }
     }
 
-    private static void checkPostAnchorValidity(String postAnchor) throws ArlasException{
+    private static void checkPostAnchorValidity(String postAnchor) throws ArlasException {
         // Check if it starts with an operator
         // "/" operator is for rounding the date up or down
         String op = postAnchor.substring(0, 1);
@@ -560,7 +587,7 @@ public class CheckParams {
         }
     }
 
-    private static void checkDateMathUnit(String unit) throws ArlasException{
+    private static void checkDateMathUnit(String unit) throws ArlasException {
         try {
             DateUnitEnum.valueOf(unit);
         } catch (IllegalArgumentException e) {
