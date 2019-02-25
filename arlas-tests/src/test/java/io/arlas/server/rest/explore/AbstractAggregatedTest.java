@@ -432,10 +432,8 @@ public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
         handleMatchingAggregateWithOrder(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-sum:order-desc:on-result"),
                 6, 14, 176, "1000000");
 
-        handleMatchingAggregateWithOrder(
-                given().param("agg", "histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-sum:order-asc:on-result")
-                        .when().get(getUrlPath("geodata"))
-                        .then(), 6, 14, 176, "700000");
+        handleMatchingAggregateWithOrder(get("histogram:params.startdate:interval-100000:collect_field-params.startdate:collect_fct-sum:order-asc:on-result")
+                        , 6, 14, 176, "700000");
     }
 
     @Test

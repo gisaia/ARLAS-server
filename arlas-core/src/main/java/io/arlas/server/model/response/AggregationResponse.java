@@ -26,6 +26,7 @@ import org.geojson.Polygon;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @JsonSnakeCase
 public class AggregationResponse extends OperationInfo {
@@ -37,5 +38,6 @@ public class AggregationResponse extends OperationInfo {
     public List<AggregationResponse> elements;
     public List<AggregationMetric> metrics;
     public GeoJsonObject geometry;
+    public Map<String, Object> flattenedElements;
 }
 
