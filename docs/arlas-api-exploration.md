@@ -9,8 +9,9 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | PATH Template                            | Description                              |
 | ---------------------------------------- | ---------------------------------------- |
 | /arlas/explore/**_list**                 | List  the collections configured in ARLAS |
-| /arlas/explore/`{collection}`/**_describe**?`form` | Describe the structure and the content of the given collection |
-| /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Count the number of elements found in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_describe**?`form` | Describes the structure and the content of the given collection |
+| /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Counts the number of elements found in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_countDistinct**?`field` & `filter` & `form` | Counts the number of distinct values of a given field, given the filters |
 | /arlas/explore/`{collection}`/**_range**?`field` & `filter` & `form` | Calculates the min and max values of a field in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `size` & `sort` & `search-after` | Search and return the elements found in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `size` & `sort` & `search-after` | Search and return the elements found in the collection as features, given the filters |
@@ -233,11 +234,9 @@ The `form` url part allows the following parameters to be specified:
 ---
 ### Part: `field`
 
-The `field` url part is used by the Range service only:
-
-| Parameter   | Default value | Values               | Description                              | Multiple |
-| ----------- | ------------- | -------------------- | ---------------------------------------- | -------- |
-| **field**   | None          | `{fieldNamePattern}` | The name pattern of the field on which the range service is applied | false     |
+The `field` url part is used in services `_range` and `_countDistinct` services.
+ 
+It's the name pattern of the field used to calculate its values range (`_range` service) or to count its distinct values (`_countDistinct` service).
 
 > Example: `field=timestamp`
 
