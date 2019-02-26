@@ -19,7 +19,9 @@
 
 package io.arlas.server.model.request;
 
-public class Size {
+public class Page {
     public Integer size;
     public Integer from;
+    public String sort;
+    public String after;
 }

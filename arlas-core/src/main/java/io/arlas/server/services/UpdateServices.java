@@ -60,8 +60,8 @@ public class UpdateServices extends ExploreServices{
         applyFilter(request.headerRequest.filter, updater);
         if(request.basicRequest!=null){
             applyFilter(request.basicRequest.filter,updater);
-            applySize(((Search)request.basicRequest).size,updater);
-            applySort(((Search) request.basicRequest).sort, updater);
+            setPageSizeAndFrom(((Search)request.basicRequest).page,updater);
+            sortPage(((Search) request.basicRequest).page, updater);
             applyProjection(((Search) request.basicRequest).projection, updater);
         }
         return updater;

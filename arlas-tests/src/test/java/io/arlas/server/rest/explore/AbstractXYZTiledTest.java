@@ -28,12 +28,11 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class AbstractXYZTiledTest extends AbstractSortedTest {
+public abstract class AbstractXYZTiledTest extends AbstractProjectedTest {
     @Before
     public void setUpSearch() {
-        search.size = new Size();
         search.filter = new Filter();
-        search.sort = new Sort();
+        search.page = new Page();
         search.projection = new Projection();
         search.filter = new Filter();
     }

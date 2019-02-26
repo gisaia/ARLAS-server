@@ -126,9 +126,7 @@ public class ExploreServices {
         applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
-        applySize(((Search) request.basicRequest).size, fluidSearch);
-        applySort(((Search) request.basicRequest).sort, fluidSearch);
-        applySearchAfter((((Search) request.basicRequest).sort), collectionReference.params.idPath, fluidSearch);
+        paginate(((Search) request.basicRequest).page, collectionReference, fluidSearch);
         applyProjection(((Search) request.basicRequest).projection, fluidSearch);
         return fluidSearch.exec().getHits();
     }
@@ -239,25 +237,32 @@ public class ExploreServices {
                 );
     }
 
-    protected void applySize(Size size, FluidSearch fluidSearch) throws ArlasException, IOException {
-        if (size != null) {
-            CheckParams.checkSize(size);
-            if (size.size != null && size.from != null) {
-                fluidSearch = fluidSearch.filterSize(size.size, size.from);
+    protected void paginate(Page page, CollectionReference collectionReference, FluidSearch fluidSearch) throws ArlasException {
+        setPageSizeAndFrom(page, fluidSearch);
+        sortPage(page, fluidSearch);
+        searchAfterPage(page, collectionReference.params.idPath, fluidSearch);
+    }
+
+    protected void setPageSizeAndFrom(Page page, FluidSearch fluidSearch) throws ArlasException {
+        if (page != null) {
+            CheckParams.checkPageSize(page);
+            CheckParams.checkPageFrom(page);
+            if (page.size != null && page.from != null) {
+                fluidSearch = fluidSearch.filterSize(page.size, page.from);
             }
         }
     }
 
-    protected void applySearchAfter( Sort sort, String idCollectionField, FluidSearch fluidSearch) throws ArlasException, IOException {
-        if (sort != null && sort.searchAfter != null) {
-            CheckParams.checkSearchAfter(sort, idCollectionField);
-            fluidSearch = fluidSearch.searchAfter(sort.searchAfter);
+    protected void searchAfterPage(Page page, String idCollectionField, FluidSearch fluidSearch) throws ArlasException {
+        if (page != null && page.after != null) {
+            CheckParams.checkPageAfter(page, idCollectionField);
+            fluidSearch = fluidSearch.searchAfter(page.after);
         }
     }
 
-    protected void applySort(Sort sort, FluidSearch fluidSearch) throws ArlasException, IOException {
-        if (sort != null && sort.sort != null) {
-            fluidSearch = fluidSearch.sort(sort.sort);
+    protected void sortPage(Page page, FluidSearch fluidSearch) throws ArlasException {
+        if (page != null && page.sort != null) {
+            fluidSearch = fluidSearch.sort(page.sort);
         }
     }
 

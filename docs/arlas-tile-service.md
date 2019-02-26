@@ -36,8 +36,7 @@ The service accepts the query parameters of a search (except for the include/exc
 - a filter
 - a full text search
 - geometric query (intersect, within, etc)
-- size/from
-- sort
+- pagination (size, from, sort, after)
 
 and also two further parameters:
 - sampling: step for transparent pixel testing: 1-> test every pixel, 10-> test every 10 pixel in x and every 10 pixel in y

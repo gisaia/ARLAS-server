@@ -20,7 +20,6 @@
 package io.arlas.server.rest.explore;
 
 import cyclops.data.tuple.Tuple3;
-import io.arlas.server.model.request.Form;
 import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.request.Request;
 import io.restassured.response.ExtractableResponse;
@@ -35,7 +34,7 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-public class SearchServiceIT extends AbstractSortedTest {
+public class SearchServiceIT extends AbstractProjectedTest {
 
     @Override
     public String getUrlPath(String collection) {
@@ -249,7 +248,7 @@ public class SearchServiceIT extends AbstractSortedTest {
 
 
     @Override
-    protected void handleInvalidSortParameterWithSearchAfter(ValidatableResponse then) {
+    protected void handleInvalidSortWithAfterParameters(ValidatableResponse then) {
         then.statusCode(400);
     }
 
@@ -264,7 +263,7 @@ public class SearchServiceIT extends AbstractSortedTest {
     }
 
     @Override
-    protected void handleSortAndSearchAfter(ValidatableResponse then, String id1, String id2) throws Exception {
+    protected void handleSortAndAfterParameters(ValidatableResponse then, String id1, String id2) throws Exception {
         then.statusCode(200)
                 .body("hits[0].data.id", equalTo(id1))
                 .body("hits[1].data.id", equalTo(id2));

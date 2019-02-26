@@ -30,17 +30,42 @@ public class Documentation {
     public static final String OPENSEARCH_CSW_OPERATION = "Access to the OpenSearch CSW Description document";
     public static final String PROJECTION_PARAM_INCLUDE = "List the name patterns of the field to be included in the result. Seperate patterns with a comma.";
     public static final String PROJECTION_PARAM_EXCLUDE = "List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.";
-    public static final String SIZE_PARAM_SIZE = "The maximum number of entries or sub-entries to be returned. The default value is 10";
-    public static final String SIZE_PARAM_FROM = "From index to start the search from. Defaults to 0.";
-    public static final String SORT_PARAM_SORT = "- Sort the result on the given fields ascending or descending. " +
+    public static final String PAGE_PARAM_SIZE = "The maximum number of entries or sub-entries to be returned. The default value is 10";
+    public static final String PAGE_PARAM_FROM = "From index to start the search from. Defaults to 0.";
+    public static final String PAGE_PARAM_SORT = "Sorts the resulted hits on the given fields and/or by distance to a given point :" +
             "\n \n" +
-            "- Fields can be provided several times by separating them with a comma. The order matters. " +
+            "> __**Syntax**__: `{field1},{field2},-{field3},geodistance:{lat} {lon},{field4}  ...`." +
             "\n \n" +
-            "- For a descending sort, precede the field with '-'. The sort will be ascending otherwise." +
+            "> **Note 1**: `{field}` can be preceded by **'-'**  for **descending** sort. By default, sort is ascending." +
             "\n \n" +
-            "- For a geodistance sort, specify the point, from which the distances are calculated, as follow : 'geodistance:lat lon'" +
+            "> **Note 2**: The order of fields matters." +
+            "\n \n" +
+            "> **Note 3** ***geodistance sort***: Sorts the hits centroids by distance to the given **{lat} {lon}** (ascending distance sort). It can be specified at most 1 time." +
+            "\n \n" +
+            "> __**Example 1**__: sort=`age,-timestamp`. Resulted hits are sorted by age. For same age hits, they are decreasingly sorted in time." +
+            "\n \n" +
+            "> __**Example 2**__: sort=`age,geodistance:89 179`. Resulted hits are sorted by age. For same age hits, they are sorted by closest distance to the point(89°,179°)" +
             "\n \n";
-
+    public static final String PAGE_PARAM_AFTER = "List of values of fields present in sort param that are used to search after. " +
+            "\n \n" +
+            "> **What it does**: Allows to get the following hits of a previous search." +
+            "\n \n" +
+            "> __**Restriction 1**__: **after** param works only combined with **sort** param." +
+            "\n \n" +
+            "> __**Syntax**__: `after={value1},{value2},...,{valueN} & sort={field1},{field2},...,{fieldN}`." +
+            "\n \n" +
+            "> **Note 1**: *{value1}` and `{value2}` are the values of `{field1}` and `{field2}` in the last hit returned in the previous search" +
+            "\n \n" +
+            "> **Note 2**: The order of fields and values matters. *{value1},{value2}* must be in the same order of *{field1},{field2}* in **sort** param" +
+            "\n \n" +
+            "> **Note 3**:  The last field `{fieldN}` must be the id field specified in the collection **collection.params.idPath** (returned as **md.id**) and `{valueN}` its corresponding value." +
+            "\n \n" +
+            "> __**Example**__: *sort=`-date,id` & **after**=`01/02/2019,abcd1234`*. Gets the following hits of the previous search that stopped at date *01/02/2019* and id *abcd1234*." +
+            "\n \n" +
+            "> __**Restriction 2**__: **sort** param cannot include *geodistance* sort." +
+            "\n \n" +
+            "> __**Restriction 3**__: **from** param must be set to 0 or kept unset" +
+            "\n \n";
     public static final String FILTER_PARAM_F = "- A triplet for filtering the result. Multiple filter can be provided in distinct parameters (AND operator is applied) or in the same parameter separated by semi-colons (OR operator is applied). " +
             "The order does not matter. " +
             "\n \n" +
@@ -225,13 +250,5 @@ public class Documentation {
     public static final String RANGE_OPERATION = "Calculates the min and max values of a field in the collection, given the filters";
     public static final String RANGE_FIELD = "The field whose range is calculated";
 
-    public static final String SEARCH_AFTER_PARAM_SEARCH_AFTER = "List of values of fields present in sort param that are used to search after. " +
-            "\n \n" +
-            "- Values must be provided by separating them with a comma. The order matters. " +
-            "\n \n" +
-            "- The last value must be md.id field ." +
-            "\n \n" +
-            "- This param works only combined whith sort param" +
-            "\n \n";
     public static final String COUNT_DISTINCT_FIELD = "The field which values are distinctly counted";
 }
