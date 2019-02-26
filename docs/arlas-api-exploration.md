@@ -248,7 +248,7 @@ The `form` url part allows the following parameters to be specified:
 | Parameter  | Default value | Values       | Description          | Multiple |
 | ---------- | ------------- | ------------ | -------------------- | -------- |
 | **pretty** | `false`       | `true,false` | Pretty print         | false    |
-| **flat**   | `false`       | `true,false` | Flat the data property map  | false    |
+| **flat**   | `false`       | `true,false` | Flats the data property map  | false    |
 
 > Example: `pretty=true&flat=false`
 

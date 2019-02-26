@@ -28,7 +28,7 @@ import io.restassured.specification.RequestSpecification;
 import org.junit.Before;
 import org.junit.Test;
 
-public abstract class AbstractSizedTest extends AbstractFilteredTest {
+public abstract class AbstractSizedTest extends AbstractFormattedTest{
     protected static Search search = new Search();
 
     @Before

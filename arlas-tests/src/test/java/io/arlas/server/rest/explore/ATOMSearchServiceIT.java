@@ -19,15 +19,20 @@
 
 package io.arlas.server.rest.explore;
 
+import cyclops.data.tuple.Tuple3;
 import io.arlas.server.model.request.MultiValueFilter;
+import io.arlas.server.model.request.Request;
 import io.arlas.server.ns.ATOM;
 import io.arlas.server.ns.OPENSEARCH;
 import io.arlas.server.rest.explore.opensearch.AtomHitsMessageBodyWriter;
 import io.restassured.RestAssured;
+import io.restassured.response.ExtractableResponse;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
+import io.swagger.models.auth.In;
 import org.hamcrest.Matcher;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -182,6 +187,54 @@ public class ATOMSearchServiceIT extends AbstractSortedTest {
     }
 
     //----------------------------------------------------------------
+    //----------------------- FORM PART ------------------------------
+    //----------------------------------------------------------------
+
+    @Override
+    protected RequestSpecification givenFlattenRequestParams() {
+        return givenFilterableRequestParams();
+    }
+
+    @Override
+    protected Request flattenRequestParamsPost(Request request) {
+        return request;
+    }
+
+    @Override
+    protected List<String> getFlattenedItems() {
+        List<String> flattenedItems = new ArrayList<>();
+        flattenedItems.add("params_age");
+        flattenedItems.add("params_country");
+        flattenedItems.add("params_job");
+        flattenedItems.add("params_startdate");
+        flattenedItems.add("params_stopdate");
+        flattenedItems.add("geo_params_centroid");
+        flattenedItems.add("geo_params_geometry_type");
+        flattenedItems.add("geo_params_geometry_coordinates_0_0_0");
+        flattenedItems.add("geo_params_geometry_coordinates_0_0_1");
+        flattenedItems.add("geo_params_geometry_coordinates_0_1_0");
+        flattenedItems.add("geo_params_geometry_coordinates_0_1_1");
+        flattenedItems.add("geo_params_geometry_coordinates_0_2_0");
+        flattenedItems.add("geo_params_geometry_coordinates_0_2_1");
+        flattenedItems.add("geo_params_geometry_coordinates_0_3_0");
+        flattenedItems.add("geo_params_geometry_coordinates_0_3_1");
+        flattenedItems.add("geo_params_geometry_coordinates_0_4_0");
+        flattenedItems.add("geo_params_geometry_coordinates_0_4_1");
+        return flattenedItems;
+    }
+
+    @Override
+    protected void handleFlatFormatRequest(ValidatableResponse then, List<String> flattenedItems) {
+        flattenedItems.forEach(flattenedItem -> {
+            if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
+                assertThat(then.statusCode(200).extract().xmlPath().getList("atom:feed.entry.content." + flattenedItem), everyItem(not(isEmptyOrNullString())));
+            } else {
+                then.statusCode(200)
+                        .body("hits.data", hasItem(hasKey(flattenedItem)));
+            }
+        });
+    }
+    //----------------------------------------------------------------
     //----------------------- SIZE PART ------------------------------
     //----------------------------------------------------------------
     @Override
@@ -273,12 +326,41 @@ public class ATOMSearchServiceIT extends AbstractSortedTest {
 
     @Override
     protected void handleGeoSortParameter(ValidatableResponse then, String firstElement) throws Exception {
-
         if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
             assertThat(then.statusCode(200).extract().xmlPath().get("atom:feed.entry[0].content.geo_params.centroid"), equalTo(firstElement));
         } else {
             then.statusCode(200)
                     .body("hits[0].data.geo_params.centroid", equalTo(firstElement));
+        }
+    }
+
+    @Override
+    protected Integer getDateAfterFirstSearch(ExtractableResponse response) throws Exception {
+        if (response.contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
+            return Integer.parseInt(response.path("atom:feed.entry[0].content.params.startdate"));
+        } else {
+            return response.path("hits[0].data.params.startdate");
+        }
+    }
+
+    @Override
+    protected Tuple3 getIdsAfterFirstSearch(ExtractableResponse response) throws Exception {
+        if (response.contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
+            return new Tuple3(response.path("atom:feed.entry[0].content.id"), response.path("atom:feed.entry[1].content.id"), response.path("atom:feed.entry[2].content.id"));
+        } else {
+            return new Tuple3(response.path("hits[0].data.id"), response.path("hits[1].data.id"), response.path("hits[2].data.id"));
+        }
+    }
+
+    @Override
+    protected void handleSortAndSearchAfter(ValidatableResponse then, String id1, String id2) throws Exception {
+        if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
+            assertThat(then.statusCode(200).extract().xmlPath().get("atom:feed.entry[0].content.id"), equalTo(id1));
+            assertThat(then.statusCode(200).extract().xmlPath().get("atom:feed.entry[1].content.id"), equalTo(id2));
+        } else {
+            then.statusCode(200)
+                    .body("hits[0].data.id", equalTo(id1))
+                    .body("hits[1].data.id", equalTo(id2));
         }
     }
 

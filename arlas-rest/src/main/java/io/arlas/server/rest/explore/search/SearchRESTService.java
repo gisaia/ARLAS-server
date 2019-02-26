@@ -32,12 +32,15 @@ import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
+import io.arlas.server.utils.StringUtil;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
@@ -46,6 +49,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -134,6 +138,12 @@ public class SearchRESTService extends ExploreRESTServices {
                     required = false)
             @DefaultValue("false")
             @QueryParam(value = "pretty") Boolean pretty,
+
+            @ApiParam(name = "flat", value = Documentation.FORM_FLAT,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required = false)
+            @QueryParam(value = "flat") Boolean flat,
 
             // --------------------------------------------------------
             // -----------------------  PROJECTION   -----------------------
@@ -226,7 +236,7 @@ public class SearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         request.headerRequest = searchHeader;
 
-        Hits hits = getArlasHits(request, collectionReference);
+        Hits hits = getArlasHits(request, collectionReference, (BooleanUtils.isTrue(flat)));
         return cache(Response.ok(hits), maxagecache);
     }
 
@@ -287,12 +297,11 @@ public class SearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-
-        Hits hits = getArlasHits(request, collectionReference);
+        Hits hits = getArlasHits(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)));
         return cache(Response.ok(hits), maxagecache);
     }
 
-    protected Hits getArlasHits(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
+    protected Hits getArlasHits(MixedRequest request, CollectionReference collectionReference, Boolean flat) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
 
         Hits hits = new Hits(collectionReference.collectionName);
@@ -300,7 +309,7 @@ public class SearchRESTService extends ExploreRESTServices {
         hits.nbhits = searchHits.getHits().length;
         hits.hits = new ArrayList<>((int) hits.nbhits);
         for (SearchHit hit : searchHits.getHits()) {
-            hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap()));
+            hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), flat));
         }
         return hits;
     }

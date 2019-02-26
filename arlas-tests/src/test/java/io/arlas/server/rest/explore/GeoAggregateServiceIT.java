@@ -20,10 +20,14 @@
 package io.arlas.server.rest.explore;
 
 import io.arlas.server.model.enumerations.AggregationTypeEnum;
-import io.arlas.server.model.request.Interval;
+import io.arlas.server.model.enumerations.CollectionFunction;
+import io.arlas.server.model.request.*;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -307,6 +311,50 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     @Override
     protected void handleInvalidGeohashTile(ValidatableResponse then) {
         then.statusCode(400);
+    }
+
+    //----------------------------------------------------------------
+    //----------------------- FORM PART ------------------------------
+    //----------------------------------------------------------------
+
+    @Override
+    protected RequestSpecification givenFlattenRequestParams() {
+        return given().param("agg", "geohash:geo_params.centroid:interval-1:collect_fct-sum:collect_field-params.startdate");
+    }
+
+    @Override
+    protected Request flattenRequestParamsPost(Request request) {
+        AggregationsRequest aggregationRequest = new AggregationsRequest();
+        aggregationRequest.aggregations = new ArrayList<>();
+        Aggregation aggregationModel = new Aggregation();
+        aggregationRequest.aggregations.add(aggregationModel);
+        aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.geohash;
+        aggregationRequest.aggregations.get(0).field = "geo_params.centroid";
+        aggregationRequest.aggregations.get(0).interval = new Interval();
+        aggregationRequest.aggregations.get(0).interval.value = 1;
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.SUM));
+        aggregationRequest.form = request.form;
+        return aggregationRequest;
+    }
+
+    @Override
+    protected List<String> getFlattenedItems() {
+        List<String> flattenedItems = new ArrayList<>();
+        flattenedItems.add("params-startdate_sum_");
+        flattenedItems.add("count");
+        flattenedItems.add("key");
+        flattenedItems.add("keyAsString");
+        flattenedItems.add("feature_type");
+        return flattenedItems;
+    }
+
+    @Override
+    protected void handleFlatFormatRequest(ValidatableResponse then, List<String>   flattenedItems) {
+        flattenedItems.forEach(flattenedItem -> {
+            then.statusCode(200)
+                    .body("features.properties", hasItem(hasKey(flattenedItem)));
+        });
     }
 
 

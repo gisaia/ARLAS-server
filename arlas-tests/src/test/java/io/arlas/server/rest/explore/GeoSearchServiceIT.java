@@ -19,6 +19,7 @@
 
 package io.arlas.server.rest.explore;
 
+import cyclops.data.tuple.Tuple3;
 import io.arlas.server.model.request.Form;
 import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.request.Request;
@@ -28,6 +29,7 @@ import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -114,6 +116,41 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
         then.statusCode(200)
                 .body("features.size()", equalTo(Math.min(nbResults, 10)))
                 .body("features.properties.geo_params.centroid", centroidMatcher);
+    }
+
+    //----------------------------------------------------------------
+    //----------------------- FORM PART ------------------------------
+    //----------------------------------------------------------------
+
+    @Override
+    protected RequestSpecification givenFlattenRequestParams() {
+        return given();
+    }
+
+    @Override
+    protected Request flattenRequestParamsPost(Request request) {
+        return request;
+    }
+
+    @Override
+    protected List<String> getFlattenedItems() {
+        List<String> flattenedItems = new ArrayList<>();
+        flattenedItems.add("params_age");
+        flattenedItems.add("params_country");
+        flattenedItems.add("params_job");
+        flattenedItems.add("params_startdate");
+        flattenedItems.add("params_stopdate");
+
+        // Geometry params are not returned in geosearch
+        return flattenedItems;
+    }
+
+    @Override
+    protected void handleFlatFormatRequest(ValidatableResponse then, List<String> flattenedItems) {
+        flattenedItems.forEach(flattenedItem -> {
+            then.statusCode(200)
+                    .body("features.properties", hasItem(hasKey(flattenedItem)));
+        });
     }
 
     //----------------------------------------------------------------
@@ -234,56 +271,20 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     }
 
     @Override
-    public void testPostSortWithSearchAfter() throws Exception {
-        search.sort.sort = "params.startdate,id";
-        search.size.size=3;
-        RequestSpecification req = givenFilterableRequestBody();
-        ExtractableResponse response = req.body(handlePostRequest(search))
-                .when().post(getUrlPath("geodata"))
-                .then().extract();
-        String id_0 = response.path("features[0].properties.id");
-        Integer date_0 = response.path("features[0].properties.params.startdate");
-        String id_1 = response.path("features[1].properties.id");
-        String id_2 = response.path("features[2].properties.id");
-        search.size.size=2;
-        search.sort.searchAfter= date_0.toString().concat(",").concat(id_0);
-        req.body(handlePostRequest(search))
-                .when().post(getUrlPath("geodata"))
-                .then()
-                .body("features[0].properties.id",equalTo(id_1))
-                .body("features[1].properties.id",equalTo(id_2))
-                .statusCode(200);
-        search.sort.searchAfter=null;
+    protected Integer getDateAfterFirstSearch(ExtractableResponse response) throws Exception {
+        return response.path("features[0].properties.params.startdate");
     }
-
 
     @Override
-    public void testGetSortWithSearchAfter() throws Exception {
-        search.sort.sort = "params.startdate,id";
-        search.size.size = 3;
-        RequestSpecification req = givenFilterableRequestBody();
-
-        ExtractableResponse response = req
-                .param("sort", search.sort.sort)
-                .param("size", search.size.size)
-                .when().get(getUrlPath("geodata"))
-                .then().extract();
-
-        String id_0 = response.path("features[0].properties.id");
-        Integer date_0 = response.path("features[0].properties.params.startdate");
-        String id_1 = response.path("features[1].properties.id");
-        String id_2 = response.path("features[2].properties.id");
-        search.size.size = 2;
-        search.sort.searchAfter = date_0.toString().concat(",").concat(id_0);
-
-        req.param("sort", search.sort.sort)
-                .param("size", search.size.size)
-                .param("search-after", search.sort.searchAfter)
-                .when().get(getUrlPath("geodata"))
-                .then()
-                .body("features[0].properties.id", equalTo(id_1))
-                .body("features[1].properties.id", equalTo(id_2))
-                .statusCode(200);
-        search.sort.searchAfter = null;
+    protected Tuple3 getIdsAfterFirstSearch(ExtractableResponse response) throws Exception {
+        return new Tuple3(response.path("features[0].properties.id"), response.path("features[1].properties.id"), response.path("features[2].properties.id"));
     }
+
+    @Override
+    protected void handleSortAndSearchAfter(ValidatableResponse then, String id1, String id2) throws Exception {
+        then.statusCode(200)
+                .body("features[0].properties.id", equalTo(id1))
+                .body("features[1].properties.id", equalTo(id2));
+    }
+
 }

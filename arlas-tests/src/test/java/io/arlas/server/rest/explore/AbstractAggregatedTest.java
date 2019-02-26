@@ -32,7 +32,7 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 
-public abstract class AbstractAggregatedTest extends AbstractFilteredTest {
+public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
     protected static AggregationsRequest aggregationRequest;
     protected static Aggregation aggregationModel;
 

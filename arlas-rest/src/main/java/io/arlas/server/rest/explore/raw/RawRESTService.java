@@ -20,6 +20,7 @@
 package io.arlas.server.rest.explore.raw;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.app.Documentation;
 import io.arlas.server.core.ElasticDocument;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.NotFoundException;
@@ -32,6 +33,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.lang.BooleanUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -80,6 +82,12 @@ public class RawRESTService extends ExploreRESTServices {
                     defaultValue = "false",
                     required = false)
             @QueryParam(value = "pretty") Boolean pretty,
+            @ApiParam(name = "flat", value = Documentation.FORM_FLAT,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required = false)
+            @QueryParam(value = "flat") Boolean flat,
+
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
@@ -99,7 +107,7 @@ public class RawRESTService extends ExploreRESTServices {
             throw new NotFoundException("Document " + identifier + " not found.");
         }
 
-        Hit hit = new Hit(collectionReference, source);
+        Hit hit = new Hit(collectionReference, source, BooleanUtils.isTrue(flat));
         return cache(Response.ok(hit), maxagecache);
     }
 }
