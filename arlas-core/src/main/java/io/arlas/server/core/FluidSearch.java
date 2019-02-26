@@ -19,17 +19,18 @@
 
 package io.arlas.server.core;
 
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.WKTReader;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
-import io.arlas.server.model.request.*;
+import io.arlas.server.model.request.Aggregation;
+import io.arlas.server.model.request.Expression;
+import io.arlas.server.model.request.Metric;
+import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.response.TimestampType;
 import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.ElasticTool;
 import io.arlas.server.utils.ParamsParser;
+import io.arlas.server.utils.StringUtil;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -49,9 +50,13 @@ import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.max.MaxAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +78,7 @@ public class FluidSearch {
     public static final String INVALID_DATE_UNIT = "Invalid date unit.";
     public static final String INVALID_GEOSORT_LAT_LON = "'lat lon' must be numeric values separated by a space";
     public static final String INVALID_GEOSORT_LABEL = "To sort by geo_distance, please specifiy the point, from which the distances are calculated, as following 'geodistance:lat lon'";
-    public static final String INVALID_TIMESTAMP_RANGE = "Timestamp range values must be numbers or a date expression";
+    public static final String INVALID_TIMESTAMP_RANGE = "Timestamp range values must be a timestamp in millisecond or a date expression. Otherwise, please set the `dateformat` parameter if your date value has a custom format";
 
     public static final String DATEHISTOGRAM_AGG = "Datehistogram aggregation";
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
@@ -90,7 +95,6 @@ public class FluidSearch {
     public static final String COLLECT_FCT_NOT_SPECIFIED = "The aggregation function 'collect_fct' is not specified.";
     public static final String COLLECT_FIELD_NOT_SPECIFIED = "The aggregation field 'collect_field' is not specified.";
     public static final String BAD_COLLECT_FIELD_FOR_GEO_METRICS = "For GeoBBOX and GeoCentroid, 'collect_field' should be the centroid path";
-    public static final String BAD_FIELD_ALIAS = "This alias does not represent a collection configured field. ";
     public static final String NOT_SUPPORTED_BBOX_INTERSECTION = "Unsupported case : pwithin bbox intersects the tile/geohash twice.";
     public static final String ORDER_NOT_SPECIFIED = "'order-' is not specified.";
     public static final String ON_NOT_SPECIFIED = "'on-' is not specified.";
@@ -180,18 +184,18 @@ public class FluidSearch {
         return "distinct-" + field + "-values";
     }
 
-    public FluidSearch filter(MultiValueFilter<Expression> f) throws ArlasException {
+    public FluidSearch filter(MultiValueFilter<Expression> f, String dateFormat) throws ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (Expression fFilter : f) {
             orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(filter(fFilter));
+                    .should(filter(fFilter, dateFormat));
         }
         orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
         boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
         return this;
     }
 
-    private BoolQueryBuilder filter(Expression expression) throws ArlasException {
+    private BoolQueryBuilder filter(Expression expression, String dateFormat) throws ArlasException {
         BoolQueryBuilder ret = QueryBuilders.boolQuery();
         if (Strings.isNullOrEmpty(expression.field) || expression.op == null || Strings.isNullOrEmpty(expression.value)) {
             throw new InvalidParameterException(INVALID_PARAMETER_F);
@@ -213,21 +217,33 @@ public class FluidSearch {
                 }
                 break;
             case gte:
+                if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
+                    value = ParamsParser.parseDate(value, dateFormat);
+                }
                 RangeQueryBuilder gteRangeQuery = QueryBuilders.rangeQuery(field).gte(value);
                 applyFormatOnRangeQuery(field, value, gteRangeQuery);
                 ret = ret.filter(gteRangeQuery);
                 break;
             case gt:
+                if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
+                    value = ParamsParser.parseDate(value, dateFormat);
+                }
                 RangeQueryBuilder gtRangeQuery = QueryBuilders.rangeQuery(field).gt(value);
                 applyFormatOnRangeQuery(field, value, gtRangeQuery);
                 ret = ret.filter(gtRangeQuery);
                 break;
             case lte:
+                if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
+                    value = ParamsParser.parseDate(value, dateFormat);
+                }
                 RangeQueryBuilder lteRangeQuery = QueryBuilders.rangeQuery(field).lte(value);
                 applyFormatOnRangeQuery(field, value, lteRangeQuery);
                 ret = ret.filter(lteRangeQuery);
                 break;
             case lt:
+                if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
+                    value = ParamsParser.parseDate(value, dateFormat);
+                }
                 RangeQueryBuilder ltRangeQuery = QueryBuilders.rangeQuery(field).lt(value);
                 applyFormatOnRangeQuery(field, value, ltRangeQuery);
                 ret = ret.filter(ltRangeQuery);
@@ -244,37 +260,23 @@ public class FluidSearch {
                 }
                 break;
             case range:
-                field = getFieldFromFieldAliases(field);
+                field = ParamsParser.getFieldFromFieldAliases(field, collectionReference);
                 if (fieldValues.length > 1) {
                     BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
                     for (String valueInValues : fieldValues) {
                         CheckParams.checkRangeValidity(valueInValues);
-                        orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(field, valueInValues));
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(field, valueInValues, dateFormat));
                     }
                     ret = ret.filter(orBoolQueryBuilder);
                 } else {
                     CheckParams.checkRangeValidity(value);
-                    ret = ret.filter(getRangeQueryBuilder(field, value));
+                    ret = ret.filter(getRangeQueryBuilder(field, value, dateFormat));
                 }
                 break;
             default:
                 throw new InvalidParameterException(INVALID_OPERATOR);
         }
         return ret;
-    }
-
-    public String getFieldFromFieldAliases(String fieldAlias) throws ArlasException {
-        boolean isAlias = fieldAlias.startsWith(RANGE_ALIASES_CHARACTER);
-        if (isAlias) {
-            String alias = fieldAlias.substring(1, fieldAlias.length());
-            if (alias.equals(TIMESTAMP_ALIAS)) {
-                return collectionReference.params.timestampPath;
-            } else {
-                throw new BadRequestException(BAD_FIELD_ALIAS);
-            }
-        } else {
-            return fieldAlias;
-        }
     }
 
     public void applyFormatOnRangeQuery(String field, String value, RangeQueryBuilder rangeQuery) throws ArlasException {
@@ -284,14 +286,20 @@ public class FluidSearch {
         }
     }
 
-    protected RangeQueryBuilder getRangeQueryBuilder(String field, String value) throws ArlasException {
+    protected RangeQueryBuilder getRangeQueryBuilder(String field, String value, String dateFormat) throws ArlasException {
         boolean incMin = value.startsWith("[");
         boolean incMax = value.endsWith("]");
-        Object min = value.substring(1, value.lastIndexOf("<"));
-        Object max = value.substring(value.lastIndexOf("<") + 1, value.length() - 1);
+        String min = value.substring(1, value.lastIndexOf("<"));
+        String max = value.substring(value.lastIndexOf("<") + 1, value.length() - 1);
+
+        if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
+            min = ParamsParser.parseDate(min, dateFormat);
+            max = ParamsParser.parseDate(max, dateFormat);
+        }
+
         if (field.equals(collectionReference.params.timestampPath)) {
-            CheckParams.checkTimestampFormatValidity((String) min);
-            CheckParams.checkTimestampFormatValidity((String) max);
+            CheckParams.checkTimestampFormatValidity(min);
+            CheckParams.checkTimestampFormatValidity(max);
         }
         RangeQueryBuilder ret = QueryBuilders.rangeQuery(field);
         if (incMin) {
@@ -891,9 +899,17 @@ public class FluidSearch {
         return Pattern.compile("^" + bboxPattern + "$").matcher(geometry).matches();
     }
 
+    public boolean isDateField(String field) throws ArlasException {
+        return ElasticTool.isDateField(field, client, collectionReference.params.indexName, collectionReference.params.typeName);
+    }
+
     public void setCollectionReference(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
         searchRequestBuilder = client.prepareSearch(collectionReference.params.indexName).setTypes(collectionReference.params.typeName);
+    }
+
+    public CollectionReference getCollectionReference() {
+        return collectionReference;
     }
 
     public List<String> getCollectionPaths() {

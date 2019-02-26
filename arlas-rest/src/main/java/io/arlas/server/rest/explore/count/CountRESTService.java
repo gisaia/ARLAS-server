@@ -112,6 +112,11 @@ public class CountRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "notgintersect") List<String> notgintersect,
 
+            @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "dateformat") String dateformat,
+
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionfilter,
 
@@ -139,7 +144,7 @@ public class CountRESTService extends ExploreRESTServices {
         fluidSearch.setCollectionReference(collectionReference);
 
         Count count = new Count();
-        count.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect);
+        count.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
         MixedRequest request = new MixedRequest();
         request.basicRequest = count;
         Count countHeader = new Count();

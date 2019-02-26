@@ -141,6 +141,11 @@ public class TileRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "notgintersect") List<String> notgintersect,
 
+            @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "dateformat") String dateformat,
+
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
@@ -234,7 +239,7 @@ public class TileRESTService extends ExploreRESTServices {
             simplifiedGintersect.add(gIntersectBbox);
 
             Search search = new Search();
-            search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, simplifiedGintersect, notpwithin, notgwithin, notgintersect);
+            search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, simplifiedGintersect, notpwithin, notgwithin, notgintersect, dateformat);
             search.size = ParamsParser.getSize(size, from);
             search.sort = ParamsParser.getSort(sort,searchAfter);
             search.projection = ParamsParser.getProjection(collectionReference.params.rasterTileURL.idPath+","+collectionReference.params.geometryPath, null);

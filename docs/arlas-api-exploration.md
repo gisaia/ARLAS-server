@@ -156,6 +156,7 @@ The `filter` url part allows the following parameters to be specified:
 | **notpwithin**    | None          | geometry                       | Any element having its centroid outside the given BBOX : `west, south, east, north` | false    |
 | **notgwithin**    | None          | geometry                       | Any element having its geometry not contained within the given geometry (WKT) or the given BBOX : `west, south, east, north` | false    |
 | **notgintersect** | None          | geometry                       | Any element having its geometry not intersecting the given geometry (WKT) or the given BBOX : `west, south, east, north` | false    |
+| **dateformat**    | None          | [Joda time pattern](https://www.joda.org/joda-time/apidocs/org/joda/time/format/DateTimeFormat.html)                       | A date format pattern that respects the Joda-time syntax | false    |
 
 #### Filter parameters algebra
 
@@ -198,17 +199,37 @@ On top of that, `:range:` operator supports generic aliases to represent collect
 
 > Example: `f=city:eq:Toulouse&f=city:eq:Bordeaux&f=$timestamp:range:[0<1490613808000]`
 
-!!! note
-    For `:range:`, `lt`, `lte`, `gt` and `gte` operation, if the field's type is date, then the values should be timestamps in millisecond or a [Date expression](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math).
-    Note that dates in date expressions can either be "now" or timestamp in millisecond. Other date formats are not supported.
+###### Special syntax for date queries using *lt*, *gt*, *lte*, *gte* and *range* operations
+
+In the case of `lt`, `gt`, `lte`, `gte`, `range` operations that are applied on *date fields*, the *date values* have four possible forms :
+
+- a timestamp in millisecond OR a date in a custom format(*).
+- a timestamp in millisecond OR a date in a custom format(*) followed by `||` and followed by a date [operation](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math) (+1h, /M, -2y, ...)
+- `now`
+- `now` followed by a date [operation](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math) (+1h, /M, -2y, ...)
 
 !!! note
-    Date expressions start with a date value. It can either be "now" or timestamp in millisecond followed by "||". Other date formats are not supported.
-    The date value is followed by one or two opeations :
-    - +1h : add one hour
-    - -1M : substract one month
-    - /d : round up or down to the nearest day
-    The resulted date is rounded up for `lte` and `gt` and rounded down for `lt` and `gte`
+    (*) If a custom format is given in the query, then the `dateformat` parameter must be set.
+    
+!!! note
+    The `dateformat` parameter must not contain `||`.
+
+!!! note
+    The `dateformat` parameter can be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations.
+    
+!!! note
+    Some examples of dates operations :
+    
+    - +1h : adds one hour
+    
+    - -1M : substracts one month
+    
+    - /d : rounds up or down to the nearest day
+    
+    The date is rounded up when using `lte` and `gt` and rounded down when using `lt` and `gte`
+    
+    A date operation can be the concatenation of an `add/substract` operation and a `round` operation : i.e `now-1M/d`
+    
 
  > The date expression: `timestamp:gte:now-1M/M` substracts 1 month from now then the resulted date is rounded down to the beginning of the month.
  > Assuming `now` is 2018-06-15. `timestamp:gte:now-1M/M` is equivalent to `timestamp:gte:2016-05-01`

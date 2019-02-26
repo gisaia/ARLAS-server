@@ -24,8 +24,11 @@ import io.arlas.server.core.FluidSearch;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.enumerations.CollectionFunction;
+import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationMetric;
 import io.arlas.server.model.response.AggregationResponse;
@@ -33,8 +36,8 @@ import io.arlas.server.model.response.CountDistinctResponse;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ResponseCacheManager;
-import io.arlas.server.model.enumerations.CollectionFunction;
 import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.*;
 import org.apache.lucene.geo.Rectangle;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -172,8 +175,12 @@ public class ExploreServices {
         if (filter != null) {
             CheckParams.checkFilter(filter);
             if (filter.f != null && !filter.f.isEmpty()) {
+                CollectionReference collectionReference = fluidSearch.getCollectionReference();
+                if (!filterFHasDateQuery(filter, collectionReference) && !StringUtil.isNullOrEmpty(filter.dateformat)) {
+                    throw new BadRequestException("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
+                }
                 for (MultiValueFilter<Expression> f : filter.f) {
-                    fluidSearch = fluidSearch.filter(f);
+                    fluidSearch = fluidSearch.filter(f, filter.dateformat);
                 }
             }
             if (filter.q != null && !filter.q.isEmpty()) {
@@ -212,6 +219,24 @@ public class ExploreServices {
                 }
             }
         }
+    }
+
+    /**
+     * This method checks whether in all the expressions of the filter `f`, a date field has been queried using `lte`, `gte`, `lt`, `gt` or `range` operations
+     * **/
+    protected boolean filterFHasDateQuery(Filter filter, CollectionReference collectionReference) {
+        return filter.f.stream()
+                .anyMatch(expressions -> expressions
+                        .stream()
+                        .filter(expression -> expression.op == OperatorEnum.gt || expression.op == OperatorEnum.lt || expression.op == OperatorEnum.gte || expression.op == OperatorEnum.lte || expression.op == OperatorEnum.range)
+                        .anyMatch(expression -> {
+                            try {
+                                return ElasticTool.isDateField(ParamsParser.getFieldFromFieldAliases(expression.field, collectionReference), client, collectionReference.params.indexName, collectionReference.params.typeName);
+                            } catch (ArlasException e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                );
     }
 
     protected void applySize(Size size, FluidSearch fluidSearch) throws ArlasException, IOException {

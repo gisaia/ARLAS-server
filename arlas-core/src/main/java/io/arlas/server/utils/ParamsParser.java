@@ -29,8 +29,10 @@ import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.dropwizard.jersey.params.IntParam;
 import org.elasticsearch.common.geo.GeoPoint;
+import org.joda.time.format.DateTimeFormat;
 
 import java.io.IOException;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +50,11 @@ public class ParamsParser {
     private static final String AGG_SIZE_PARAM = "size-";
     private static final String AGG_INCLUDE_PARAM = "include-";
     private static final String AGG_FETCHGEOMETRY_PARAM = "fetchGeometry";
+    private static final String INVALID_DATE_MATH_EXPRESSION = "Invalid date math expression";
+
+    public static final String RANGE_ALIASES_CHARACTER = "$";
+    public static final String TIMESTAMP_ALIAS = "timestamp";
+    public static final String BAD_FIELD_ALIAS = "This alias does not represent a collection configured field. ";
 
     public static List<Aggregation> getAggregations(List<String> agg) throws ArlasException {
         List<Aggregation> aggregations = new ArrayList<>();
@@ -186,6 +193,20 @@ public class ParamsParser {
         return new Interval(tryParseInteger(intervalString), null);
     }
 
+    public static String getFieldFromFieldAliases(String fieldAlias, CollectionReference collectionReference) throws ArlasException {
+        boolean isAlias = fieldAlias.startsWith(RANGE_ALIASES_CHARACTER);
+        if (isAlias) {
+            String alias = fieldAlias.substring(1, fieldAlias.length());
+            if (alias.equals(TIMESTAMP_ALIAS)) {
+                return collectionReference.params.timestampPath;
+            } else {
+                throw new BadRequestException(BAD_FIELD_ALIAS);
+            }
+        } else {
+            return fieldAlias;
+        }
+    }
+
     public static String getValidAggregationFormat(String aggFormat) {
         //TODO: check if format is in DateTimeFormat (joda)
         if (aggFormat != null) {
@@ -207,7 +228,7 @@ public class ParamsParser {
         }
     }
 
-    public static Filter getFilter(List<String> filters, List<String> q, List<String> pwithin, List<String> gwithin, List<String> gintersect, List<String> notpwithin, List<String> notgwithin, List<String> notgintersect) throws ArlasException {
+    public static Filter getFilter(List<String> filters, List<String> q, List<String> pwithin, List<String> gwithin, List<String> gintersect, List<String> notpwithin, List<String> notgwithin, List<String> notgintersect, String dateFormat) throws ArlasException {
         Filter filter = new Filter();
         filter.f = new ArrayList<>();
 
@@ -238,7 +259,40 @@ public class ParamsParser {
         filter.notpwithin = getStringMultiFilter(notpwithin);
         filter.notgwithin = getStringMultiFilter(notgwithin);
         filter.notgintersect = getStringMultiFilter(notgintersect);
+        filter.dateformat = dateFormat;
         return filter;
+    }
+
+    public static String parseDate(String dateValue, String dateFormat) throws ArlasException {
+        String dateToParse = dateValue;
+        String parsedDate = dateToParse;
+        if (!StringUtil.isNullOrEmpty(dateFormat)) {
+            // REMINDER : dateValue can be :
+            // - a timestamp in millisecond OR a date in a custom format(*).
+            // - a timestamp in millisecond OR a date in a custom format(*) followed by `||` and followed by a date operation (+1h, /M, -2y, ...)
+            // - `now`
+            // - `now` followed by a date operation (+1h, /M, -2y, ...)
+            if (!dateToParse.equals("now")) {
+                List<String> splitDate = Arrays.asList(dateValue.split("\\|\\|"));
+                if (dateValue.contains("||")) {
+                    if (splitDate.size() != 2) {
+                        throw new InvalidParameterException(INVALID_DATE_MATH_EXPRESSION);
+                    }
+                    dateToParse = splitDate.get(0);
+                }
+                try {
+                    parsedDate = String.valueOf(DateTimeFormat.forPattern(dateFormat).withZoneUTC().parseDateTime(dateToParse).getMillis());
+                } catch (DateTimeParseException e) {
+                    throw new InvalidParameterException(dateValue + " doesn't match the date format '" + dateFormat + "'. Reason : " + e.getMessage());
+                } catch (IllegalArgumentException e) {
+                    throw new InvalidParameterException(dateValue + " doesn't match the date format '" + dateFormat + "'. Reason : " + e.getMessage());
+                }
+                if (dateValue.contains("||")) {
+                    parsedDate += "||" + splitDate.get(1);
+                }
+            }
+        }
+        return parsedDate;
     }
 
     public static List<MultiValueFilter<String>> getStringMultiFilter(List<String> filters) {

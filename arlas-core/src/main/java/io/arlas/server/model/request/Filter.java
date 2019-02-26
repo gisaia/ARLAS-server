@@ -30,4 +30,5 @@ public class Filter {
     public List<MultiValueFilter<String>> notpwithin;
     public List<MultiValueFilter<String>> notgwithin;
     public List<MultiValueFilter<String>> notgintersect;
+    public String dateformat;
 }

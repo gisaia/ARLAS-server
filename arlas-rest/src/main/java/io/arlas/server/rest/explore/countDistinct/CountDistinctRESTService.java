@@ -118,6 +118,12 @@ public class CountDistinctRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "notgintersect") List<String> notgintersect,
 
+            @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "dateformat") String dateformat,
+
+
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionfilter,
 
@@ -142,7 +148,7 @@ public class CountDistinctRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         CountDistinct countDistinct = new CountDistinct();
-        countDistinct.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect);
+        countDistinct.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
         countDistinct.field = field;
         CountDistinctResponse countDistinctResponse = getCountDistinctResponse(countDistinct, partitionfilter, collectionReference);
         countDistinctResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
@@ -186,7 +192,7 @@ public class CountDistinctRESTService extends ExploreRESTServices {
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
-            // -----------------------  COUNT DISTINC  -----------------------
+            // -----------------------  COUNT DISTINCT  -----------------------
             // --------------------------------------------------------
             CountDistinct countDistinct
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {

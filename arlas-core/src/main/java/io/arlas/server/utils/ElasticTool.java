@@ -31,12 +31,18 @@ import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.IndexNotFoundException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Map;
+import java.util.Optional;
 
 public class ElasticTool {
+
+    private static final String ES_DATE_TYPE = "date";
+    private static final String ES_TYPE = "type";
 
     public static CreateIndexResponse createArlasIndex(Client client, String arlasIndexName, String arlasMappingName, String arlasMappingFileName)  {
         CreateIndexResponse createIndexResponse = null;
@@ -86,5 +92,31 @@ public class ElasticTool {
             throw new NotFoundException("Collection " + ref + " not found.");
         }
         return collection;
+    }
+
+    public static boolean isDateField(String field, Client client, String index, String typeName) throws ArlasException {
+        GetFieldMappingsResponse response;
+        try {
+            response = client.admin().indices().prepareGetFieldMappings(index).setTypes(typeName).setFields(field).get();
+        } catch (IndexNotFoundException e) {
+            throw new NotFoundException("Index " + index + " does not exist.");
+        }
+        String lastKey = field.substring(field.lastIndexOf(".") + 1);
+        return response.mappings().keySet()
+                .stream()
+                .anyMatch(indexName -> {
+                    GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(indexName, typeName, field);
+                    boolean isFieldMetadaAMap = (data != null && !data.isNull() && data.sourceAsMap().get(lastKey) instanceof Map);
+                    if (isFieldMetadaAMap) {
+                        return Optional.of(((Map)data.sourceAsMap().get(lastKey)))
+                                .map(m -> m.get(ES_TYPE))
+                                .map(Object::toString)
+                                .filter(t -> t.equals(ES_DATE_TYPE))
+                                .isPresent();
+                    } else {
+                        // TODO : check if there is another way to fetch field type in this case
+                        return false;
+                    }
+                });
     }
 }

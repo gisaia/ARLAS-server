@@ -464,6 +464,52 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     public void testComplexFilter() throws Exception {
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),//"job:eq:Architect"
                 new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1009799<1009801]")));
+        handleFieldFilter(post(request), 2, "Architect");
+        handleFieldFilter(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
+                        .param("f", "params.startdate:range:[1009799<1009801]").when().get(getUrlPath("geodata"))
+                        .then(),
+                2, "Architect");
+        handleFieldFilter(header(request.filter), 2, "Architect");
+
+        //
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),//"job:eq:Architect"
+                new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1970/01/01 00:16:49:799<1970/01/01 00:16:49:801]")));
+        request.filter.dateformat = "yyyy/MM/dd HH:mm:ss:SSS";
+        handleFieldFilter(post(request), 2, "Architect");
+        handleFieldFilter(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
+                        .param("f", "params.startdate:range:[1970/01/01 00:16:49:799<1970/01/01 00:16:49:801]")
+                        .param("dateformat", request.filter.dateformat).when().get(getUrlPath("geodata")).then(),
+                2, "Architect");
+        handleFieldFilter(header(request.filter), 2, "Architect");
+
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.lte, "01-01-1970 00:12:55")));
+        request.filter.dateformat = "dd-MM-yyyy HH:mm:ss";
+        handleFieldFilter(post(request), 3, "Chemist", "Brain Scientist");
+        handleFieldFilter(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
+                .param("dateformat", request.filter.dateformat).when().get(getUrlPath("geodata")).then(),
+                3, "Chemist", "Brain Scientist");
+        handleFieldFilter(header(request.filter), 3, "Chemist", "Brain Scientist");
+
+        // DATEFORMAT : check that date operations (||/s) works when specifying dates with custom format
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.lte, "01-01-1970 00:12:55||/s")));
+        request.filter.dateformat = "dd-MM-yyyy HH:mm:ss";
+        handleFieldFilter(post(request), 3, "Chemist", "Brain Scientist");
+        handleFieldFilter(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
+                        .param("dateformat", request.filter.dateformat).when().get(getUrlPath("geodata")).then(),
+                3, "Chemist", "Brain Scientist");
+        handleFieldFilter(header(request.filter), 3, "Chemist", "Brain Scientist");
+
+        // DATEFORMAT : check that dateformat works when we specify an alias ($timestamp) in range operation
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("$timestamp", OperatorEnum.range, "[01-01-1970 00:00:00<01-01-1970 00:12:55||-3s/s[")));
+        request.filter.dateformat = "dd-MM-yyyy HH:mm:ss";
+        handleMatchingTimestampRangeFilter(post(request), 0, 772000, 2);
+        handleMatchingTimestampRangeFilter(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
+                .param("dateformat", request.filter.dateformat).when().get(getUrlPath("geodata")).then(), 0, 772000, 2);
+        handleMatchingTimestampRangeFilter(header(request.filter), 0, 772000, 2);
+        request.filter.dateformat = null;
+
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),//"job:eq:Architect"
+                new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1009799<1009801]")));
         request.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-50,-50,50,50"));
         request.filter.notpwithin = Arrays.asList(new MultiValueFilter<>("20,-50,60,50"));
         request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((30 30,30 -30,-30 -30,-30 30,30 30))"));
@@ -700,8 +746,30 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleInvalidParameters(header(request.filter));
         request.filter.notgintersect = null;
 
-    }
+        // DATEFORMAT : format not matching the given date
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.lte, "01-01-1970 00:12:55")));
+        request.filter.dateformat = "dd-MM-yyyy";
+        handleInvalidParameters(post(request));
+        handleInvalidParameters(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
+                .param("dateformat", request.filter.dateformat).when().get(getUrlPath("geodata")).then());
+        handleInvalidParameters(header(request.filter));
 
+        // DATEFORMAT : format containing `||`
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.lte, "01-01||1970 ||-1h")));
+        request.filter.dateformat = "dd-MM||yyyy";
+        handleInvalidParameters(post(request));
+        handleInvalidParameters(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
+                .param("dateformat", request.filter.dateformat).when().get(getUrlPath("geodata")).then());
+        handleInvalidParameters(header(request.filter));
+
+        // DATEFORMAT : format set when no date field is queried
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")));
+        request.filter.dateformat = "dd-MM-yyyy";
+        handleInvalidParameters(post(request));
+        handleInvalidParameters(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
+                .param("dateformat", request.filter.dateformat).when().get(getUrlPath("geodata")).then());
+        handleInvalidParameters(header(request.filter));
+    }
 
     //----------------------------------------------------------------
     //----------------------- COMMON BEHAVIORS -----------------------
