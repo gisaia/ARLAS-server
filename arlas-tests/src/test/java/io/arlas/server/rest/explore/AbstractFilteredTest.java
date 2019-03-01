@@ -645,6 +645,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleInvalidParameters(header(request.filter));
         request.filter.gintersect = null;
 
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((1000 10000,10 -10,0 -10,1000 10000))"));
+        handleInvalidParameters(post(request));
+        handleInvalidParameters(get("gintersect", request.filter.gintersect.get(0).get(0)));
+        handleInvalidParameters(header(request.filter));
+        request.filter.gintersect = null;
+
         request.filter.notgintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((10 10,10 -10,0 -10))"));
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("notgintersect", request.filter.notgintersect.get(0).get(0)));

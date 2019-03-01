@@ -52,12 +52,15 @@ import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.locationtech.jts.operation.valid.IsValidOp;
+import org.locationtech.jts.operation.valid.TopologyValidationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 public class FluidSearch {
@@ -67,6 +70,7 @@ public class FluidSearch {
     public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'eq', gte', 'gt', 'lte', 'lt', 'like' or 'ne'. ";
     public static final String INVALID_Q_FILTER = "Invalid parameter. Please specify the text to search directly or '{fieldname}:{text to search}'. ";
     public static final String INVALID_WKT = "Invalid WKT geometry.";
+    public static final String INVALID_WKT_RANGE = "Invalid WKT geometry.Coordinate out of range";
     public static final String INVALID_BBOX = "Invalid BBOX";
     public static final String INVALID_SIZE = "Invalid size parameter.";
     public static final String INVALID_FROM = "Invalid from parameter.";
@@ -74,7 +78,6 @@ public class FluidSearch {
     public static final String INVALID_GEOSORT_LAT_LON = "'lat lon' must be numeric values separated by a space";
     public static final String INVALID_GEOSORT_LABEL = "To sort by geo_distance, please specifiy the point, from which the distances are calculated, as following 'geodistance:lat lon'";
     public static final String INVALID_TIMESTAMP_RANGE = "Timestamp range values must be numbers or a date expression";
-
     public static final String DATEHISTOGRAM_AGG = "Datehistogram aggregation";
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
@@ -792,10 +795,22 @@ public class FluidSearch {
     }
 
     private Geometry readWKT(String geometry) throws ArlasException {
-        WKTReader wkt = new WKTReader();
+        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+        Envelope affectedBounds = new Envelope(-360, 360, -180, 180);
+        WKTReader wkt = new WKTReader(geometryFactory);
         Geometry polygon = null;
         try {
             polygon = wkt.read(geometry);
+            List<Coordinate> filteredCoord = Arrays.stream(polygon.getCoordinates()).filter(coordinate -> affectedBounds.contains(coordinate)).collect(Collectors.toList());
+            if(filteredCoord.size() != polygon.getCoordinates().length){
+                throw new InvalidParameterException(INVALID_WKT_RANGE);
+            }
+            IsValidOp vaildOp = new IsValidOp(polygon);
+            TopologyValidationError err = vaildOp.getValidationError();
+            if (err != null)
+            {
+                throw new InvalidParameterException(INVALID_WKT);
+            }
         } catch (ParseException ex) {
             throw new InvalidParameterException(INVALID_WKT);
         }
