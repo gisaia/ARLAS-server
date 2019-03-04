@@ -41,7 +41,7 @@
     <zipkin.dropwizard.version>1.3.5-5</zipkin.dropwizard.version>
 
     <!-- ELASTICSEARCH-->
-    <elastic.version>6.5.4</elastic.version>
+    <elastic.version>6.6.1</elastic.version>
 
     <!-- GEO-->
     <geotools.version>18.0</geotools.version>
