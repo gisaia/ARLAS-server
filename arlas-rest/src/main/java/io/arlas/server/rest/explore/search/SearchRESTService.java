@@ -22,6 +22,7 @@ package io.arlas.server.rest.explore.search;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.Link;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.model.response.Error;
@@ -32,6 +33,7 @@ import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.annotations.ApiOperation;
@@ -43,12 +45,13 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class SearchRESTService extends ExploreRESTServices {
 
@@ -65,6 +68,7 @@ public class SearchRESTService extends ExploreRESTServices {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Hits.class, responseContainer = "ArlasHits"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
     public Response search(
+            @Context UriInfo uriInfo,
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
@@ -225,8 +229,7 @@ public class SearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-
-        Hits hits = getArlasHits(request, collectionReference, (BooleanUtils.isTrue(flat)));
+        Hits hits = getArlasHits(request, collectionReference,BooleanUtils.isTrue(flat),uriInfo,"GET");
         return cache(Response.ok(hits), maxagecache);
     }
 
@@ -240,6 +243,7 @@ public class SearchRESTService extends ExploreRESTServices {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Hits.class, responseContainer = "ArlasHits"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
     public Response searchPost(
+            @Context UriInfo uriInfo,
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
@@ -287,17 +291,57 @@ public class SearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        Hits hits = getArlasHits(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)));
+        Hits hits = getArlasHits(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)),uriInfo,"POST");
         return cache(Response.ok(hits), maxagecache);
     }
 
-    protected Hits getArlasHits(MixedRequest request, CollectionReference collectionReference, Boolean flat) throws ArlasException, IOException {
-        SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
 
+    protected Hits getArlasHits(MixedRequest request, CollectionReference collectionReference, Boolean flat,UriInfo uriInfo,String method) throws ArlasException, IOException {
+        SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
         Hits hits = new Hits(collectionReference.collectionName);
         hits.totalnb = searchHits.getTotalHits();
         hits.nbhits = searchHits.getHits().length;
+        HashMap<String,Link> links = new HashMap<>();
         hits.hits = new ArrayList<>((int) hits.nbhits);
+        Link self = new Link();
+        self.href = uriInfo.getRequestUri().toURL().toString();
+        self.method = method;
+        int lastIndex = (int) hits.nbhits -1;
+        switch (method){
+            case"GET":
+                links.put("self",self);
+                if(uriInfo.getQueryParameters().get("after")!=null){
+                    String searchAfterParam = uriInfo.getQueryParameters().get("sort").get(0);
+                    String searchAfter =  Arrays.stream(searchAfterParam.split(","))
+                            .map(field-> MapExplorer.getObjectFromPath(field,searchHits.getHits()[lastIndex].getSourceAsMap()).toString())
+                            .collect(Collectors.joining(","));
+                    Link next = new Link();
+                    next.href = uriInfo.getRequestUriBuilder().replaceQueryParam("after",searchAfter).build().toURL().toString();
+                    next.method=method;
+                    links.put("next",next);
+                }
+                break;
+            case"POST":
+                self.body = (Search)request.basicRequest;
+                links.put("self",self);
+                if(self.body.page!=null){
+                    if(self.body.page.sort!=null&&self.body.page.after!=null){
+                        String searchAfterParam = self.body.page.sort;
+                        String searchAfter =  Arrays.stream(searchAfterParam.split(","))
+                                .map(field-> MapExplorer.getObjectFromPath(field,searchHits.getHits()[lastIndex].getSourceAsMap()).toString())
+                                .collect(Collectors.joining(","));
+                        Link next = new Link();
+                        next.body =self.body;
+                        next.body.page.after = searchAfter;
+                        next.href = uriInfo.getRequestUri().toURL().toString();
+                        next.method=method;
+                        links.put("next",next);
+                    }
+                }
+
+                break;
+        }
+        hits.links = links;
         for (SearchHit hit : searchHits.getHits()) {
             hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), flat));
         }

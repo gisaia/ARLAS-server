@@ -20,6 +20,7 @@
 package io.arlas.server.rest.explore;
 
 import cyclops.data.tuple.Tuple3;
+import io.arlas.server.exceptions.NotImplementedException;
 import io.arlas.server.model.request.Form;
 import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.request.Request;
@@ -29,6 +30,7 @@ import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -287,4 +289,13 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
                 .body("features[1].properties.id", equalTo(id2));
     }
 
+    @Override
+    public void testGETLinkSearchAfter() {
+        // No next links in a geoJSON response, no need to test
+    }
+
+    @Override
+    public void testPOSTLinkSearchAfter() {
+        // No next links in a geoJSON response, no need to test
+    }
 }

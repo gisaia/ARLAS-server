@@ -17,32 +17,17 @@
  * under the License.
  */
 
-package io.arlas.server.model.response;
+package io.arlas.server.model;
 
-import io.arlas.server.model.Link;
-import io.dropwizard.jackson.JsonSnakeCase;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.arlas.server.model.request.Search;
 
-import java.util.HashMap;
-import java.util.List;
+public class Link {
+    @JsonProperty(value = "href", required = true)
+    public String href;
+    @JsonProperty(value = "method", required = true)
+    public String method;
+    @JsonProperty(value = "body")
+    public Search body;
 
-@JsonSnakeCase
-public class Hits {
-    public String collection;
-    public List<Hit> hits;
-    public long nbhits;
-    public long totalnb;
-    public HashMap<String,Link> links;
-
-    public Hits(String collection) {
-        this.collection = collection;
-    }
-
-    public Hits(String collection, List<Hit> hits, long totalnb, HashMap<String,Link> links) {
-        this.collection = collection;
-        this.hits = hits;
-        this.nbhits = hits.size();
-        this.totalnb = totalnb;
-        this.links = links;
-
-    }
 }
