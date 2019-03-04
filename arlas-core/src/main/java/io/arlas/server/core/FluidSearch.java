@@ -74,7 +74,7 @@ public class FluidSearch {
     public static final String INVALID_WKT = "Invalid WKT geometry.";
     public static final String INVALID_BBOX = "Invalid BBOX";
     public static final String INVALID_SIZE = "Invalid size parameter.";
-    public static final String INVALID_FROM = "Invalid from parameter.";
+    public static final String INVALID_FROM = "Invalid from parameter: should be a positive integer.";
     public static final String INVALID_DATE_UNIT = "Invalid date unit.";
     public static final String INVALID_GEOSORT_LAT_LON = "'lat lon' must be numeric values separated by a space";
     public static final String INVALID_GEOSORT_LABEL = "To sort by geo_distance, please specifiy the point, from which the distances are calculated, as following 'geodistance:lat lon'";
@@ -452,8 +452,8 @@ public class FluidSearch {
     }
 
 
-    public FluidSearch searchAfter(String searchAfter) {
-        searchRequestBuilder = searchRequestBuilder.searchAfter(searchAfter.split(","));
+    public FluidSearch searchAfter(String after) {
+        searchRequestBuilder = searchRequestBuilder.searchAfter(after.split(","));
         return this;
     }
 

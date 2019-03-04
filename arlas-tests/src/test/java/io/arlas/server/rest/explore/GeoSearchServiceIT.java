@@ -238,7 +238,7 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
 
 
     @Override
-    protected void handleInvalidSortParameterWithSearchAfter(ValidatableResponse then) {
+    protected void handleInvalidSortWithAfterParameters(ValidatableResponse then) {
         then.statusCode(400);
     }
 
@@ -281,7 +281,7 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     }
 
     @Override
-    protected void handleSortAndSearchAfter(ValidatableResponse then, String id1, String id2) throws Exception {
+    protected void handleSortAndAfterParameters(ValidatableResponse then, String id1, String id2) throws Exception {
         then.statusCode(200)
                 .body("features[0].properties.id", equalTo(id1))
                 .body("features[1].properties.id", equalTo(id2));

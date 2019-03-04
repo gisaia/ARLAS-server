@@ -150,10 +150,10 @@ public class TileRESTService extends ExploreRESTServices {
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             // --------------------------------------------------------
-            // -----------------------  SIZE    -----------------------
+            // -----------------------  PAGE    -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(name = "size", value = Documentation.SIZE_PARAM_SIZE,
+            @ApiParam(name = "size", value = Documentation.PAGE_PARAM_SIZE,
                     defaultValue = "10",
                     allowableValues = "range[1, infinity]",
                     type = "integer",
@@ -161,7 +161,7 @@ public class TileRESTService extends ExploreRESTServices {
             @DefaultValue("10")
             @QueryParam(value = "size") IntParam size,
 
-            @ApiParam(name = "from", value = Documentation.SIZE_PARAM_FROM,
+            @ApiParam(name = "from", value = Documentation.PAGE_PARAM_FROM,
                     defaultValue = "0",
                     allowableValues = "range[0, infinity]",
                     type = "integer",
@@ -169,25 +169,17 @@ public class TileRESTService extends ExploreRESTServices {
             @DefaultValue("0")
             @QueryParam(value = "from") IntParam from,
 
-            // --------------------------------------------------------
-            // -----------------------  SORT    -----------------------
-            // --------------------------------------------------------
-
             @ApiParam(name = "sort",
-                    value = Documentation.SORT_PARAM_SORT,
+                    value = Documentation.PAGE_PARAM_SORT,
                     allowMultiple = true,
                     required = false)
             @QueryParam(value = "sort") String sort,
 
-            // --------------------------------------------------------
-            // -----------------------  SEARCH_AFTER   -----------------------
-            // --------------------------------------------------------
-
-            @ApiParam(name = "search-after",
-                    value = Documentation.SEARCH_AFTER_PARAM_SEARCH_AFTER,
+            @ApiParam(name = "after",
+                    value = Documentation.PAGE_PARAM_AFTER,
                     allowMultiple = false,
                     required = false)
-            @QueryParam(value = "search-after") String searchAfter,
+            @QueryParam(value = "after") String after,
 
             // --------------------------------------------------------
             // -----------------------  RENDERING  -----------------------
@@ -240,8 +232,7 @@ public class TileRESTService extends ExploreRESTServices {
 
             Search search = new Search();
             search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, simplifiedGintersect, notpwithin, notgwithin, notgintersect, dateformat);
-            search.size = ParamsParser.getSize(size, from);
-            search.sort = ParamsParser.getSort(sort,searchAfter);
+            search.page = ParamsParser.getPage(size, from, sort, after);
             search.projection = ParamsParser.getProjection(collectionReference.params.rasterTileURL.idPath+","+collectionReference.params.geometryPath, null);
 
             Search searchHeader = new Search();

@@ -22,7 +22,7 @@ package io.arlas.server.rest.explore;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.Projection;
 import io.arlas.server.model.request.Request;
-import io.arlas.server.model.request.Size;
+import io.arlas.server.model.request.Page;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.junit.Before;
@@ -31,11 +31,11 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class AbstractProjectedTest extends AbstractSizedTest {
+public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
 
     @Before
     public void setUpSearch() {
-        search.size = new Size();
+        search.page = new Page();
         search.filter = new Filter();
         search.projection = new Projection();
     }

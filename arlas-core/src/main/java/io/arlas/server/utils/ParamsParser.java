@@ -316,22 +316,14 @@ public class ParamsParser {
         return filters.split(";");
     }
 
-    public static Size getSize(IntParam size, IntParam from) throws ArlasException {
-        Size sizeObject = new Size();
-        sizeObject.size = size.get();
-        sizeObject.from = from.get();
-        return sizeObject;
+    public static Page getPage(IntParam size, IntParam from, String sort, String after) throws ArlasException {
+        Page page = new Page();
+        page.size = size.get();
+        page.from = from.get();
+        page.sort = sort;
+        page.after = after;
+        return page;
     }
-
-    public static Sort getSort(String sort,String searchAfter) {
-        Sort sortObject = new Sort();
-        sortObject.sort = sort;
-        sortObject.searchAfter =searchAfter;
-        return sortObject;
-    }
-
-
-
 
     public static GeoPoint getGeoSortParams(String geoSort) throws ArlasException {
         List<String> geoSortList = Arrays.asList(geoSort.split(":"));

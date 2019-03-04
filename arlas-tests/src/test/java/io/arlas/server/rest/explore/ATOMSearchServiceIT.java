@@ -43,7 +43,7 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Every.everyItem;
 import static org.junit.Assert.assertThat;
 
-public class ATOMSearchServiceIT extends AbstractSortedTest {
+public class ATOMSearchServiceIT extends AbstractProjectedTest {
 
     @Override
     public String getUrlPath(String collection) {
@@ -353,7 +353,7 @@ public class ATOMSearchServiceIT extends AbstractSortedTest {
     }
 
     @Override
-    protected void handleSortAndSearchAfter(ValidatableResponse then, String id1, String id2) throws Exception {
+    protected void handleSortAndAfterParameters(ValidatableResponse then, String id1, String id2) throws Exception {
         if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
             assertThat(then.statusCode(200).extract().xmlPath().get("atom:feed.entry[0].content.id"), equalTo(id1));
             assertThat(then.statusCode(200).extract().xmlPath().get("atom:feed.entry[1].content.id"), equalTo(id2));
@@ -370,7 +370,7 @@ public class ATOMSearchServiceIT extends AbstractSortedTest {
     }
 
     @Override
-    protected void handleInvalidSortParameterWithSearchAfter(ValidatableResponse then) {
+    protected void handleInvalidSortWithAfterParameters(ValidatableResponse then) {
         then.statusCode(400);
     }
 }

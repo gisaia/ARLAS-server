@@ -257,28 +257,56 @@ public class CheckParams {
         }
     }
 
-    public static void checkSize(Size size) throws ArlasException {
-        if (size.size != null && size.size > 0) {
-            if (size.from != null) {
-                if (size.from < 0) {
-                    throw new InvalidParameterException(FluidSearch.INVALID_FROM);
-                }
-            } else {
+    public static void checkPageSize(Page page) throws ArlasException {
+        if (page != null) {
+            if (page.size == null) {
                 //Default Value
-                size.from = 0;
+                page.size = 10;
+            } else if (page.size <= 0){
+                throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
             }
-        } else if (size.size == null) {
-            size.size = 10;
-            if (size.from != null) {
-                if (size.from < 0) {
-                    throw new InvalidParameterException(FluidSearch.INVALID_FROM);
-                }
-            } else {
+        }
+    }
+
+    public static void checkPageFrom(Page page) throws ArlasException {
+        if (page != null) {
+            if (page.from == null) {
                 //Default Value
-                size.from = 0;
+                page.from = 0;
+            } else if (page.from < 0) {
+                throw new InvalidParameterException(FluidSearch.INVALID_FROM);
             }
-        } else {
-            throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
+        }
+    }
+
+    public static void checkPageAfter(Page page, String idCollectionField) throws ArlasException {
+        if (page != null && page.after != null) {
+            /** check compatibility between after with from*/
+            if (page.from != null && page.from != 0) {
+                throw new BadRequestException("'after' parameter cannot be used if 'from' parameter is higher than 0. If you want to use 'after', please set 'from' to 0 or keep it empty");
+            }
+            /** check compatibility between after and sort parameters*/
+            List<String> afterList = Arrays.asList(page.after.split(","));
+            int afterSize = afterList.size();
+            if (page.sort == null) {
+                throw new BadRequestException("'after' parameter cannot be used without setting 'sort' parameter.");
+            }
+            /** check if sort contains geodistance */
+            if (page.sort.toLowerCase().contains(FluidSearch.GEO_DISTANCE)) {
+                throw new BadRequestException("'after' parameter cannot be used when geodistance is set in 'sort' parameter");
+            }
+            String[] sortList = page.sort.split(",");
+            int sortSize = sortList.length;
+            if (afterSize != sortSize){
+                throw new BadRequestException("The number of 'after' elements must be equal to the number of 'sort' elements");
+            }
+            String lastSortElement = sortList[sortSize-1];
+            if(lastSortElement.startsWith(("-"))){
+                lastSortElement = lastSortElement.substring(1);
+            }
+            if(lastSortElement.compareTo(idCollectionField) != 0){
+                throw new InvalidParameterException("If 'after' parameter is set, the last element of 'sort' must be equal to {collection.params.idPath} and the corresponding value for `after` must be the one returned in {md.id}");
+            }
         }
     }
 
@@ -534,30 +562,6 @@ public class CheckParams {
             }
         }
 
-    }
-
-    public static void checkSearchAfter( Sort sort, String idCollectionField) throws InvalidParameterException {
-        if (sort != null && sort.searchAfter != null) {
-            List<String> searchAfterList = Arrays.asList(sort.searchAfter.split(","));
-            int searchAfterSize = searchAfterList.size();
-            if ( sort.sort == null) {
-                throw new InvalidParameterException("search-after param can not be used whitout sort param");
-            } else {
-                String[] sortList = sort.sort.split(",");
-                int sortSize = sortList.length;
-                if(searchAfterSize!=sortSize){
-                    throw new InvalidParameterException("search-after list size must be equal to number of sort elements");
-                }else{
-                    String lastSortElement = sortList[sortSize-1];
-                    if(lastSortElement.startsWith(("-"))){
-                        lastSortElement= lastSortElement.substring(1);
-                    }
-                    if(lastSortElement.compareTo(idCollectionField)!=0){
-                        throw new InvalidParameterException("if search-after param is set, last element of sort must be equal to md id collection field");
-                    }
-                }
-            }
-        }
     }
 
     public static double[] toDoubles(String doubles) throws InvalidParameterException {
