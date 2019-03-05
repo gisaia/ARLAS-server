@@ -77,7 +77,12 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
         then.statusCode(200)
                 .body("features[0].properties.params.job", equalTo("Architect"))
                 .body("features[0].properties.params.startdate", equalTo(1009800))
-                .body("features[0].properties.geo_params.centroid", equalTo("20,-10"));
+                .body("features[0].properties.geo_params.centroid", equalTo("20,-10"))
+                .body("features[0].properties.md.id", equalTo("ID__10_20DI"))
+                .body("features[0].properties.md.timestamp", equalTo(1009800))
+                .body("features[0].properties.md.centroid.type", equalTo("Point"))
+                .body("features[0].properties.md.centroid", hasKey("coordinates"))
+                .body("features[0].properties.md.geometry", isEmptyOrNullString());
     }
 
     @Override

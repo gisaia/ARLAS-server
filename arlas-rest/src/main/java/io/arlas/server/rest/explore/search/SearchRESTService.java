@@ -343,7 +343,7 @@ public class SearchRESTService extends ExploreRESTServices {
         }
         hits.links = links;
         for (SearchHit hit : searchHits.getHits()) {
-            hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), flat));
+            hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), flat, false));
         }
         return hits;
     }
