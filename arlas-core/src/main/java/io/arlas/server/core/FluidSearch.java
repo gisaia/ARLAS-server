@@ -205,6 +205,10 @@ public class FluidSearch {
             throw new InvalidParameterException(INVALID_PARAMETER_F);
         }
         String field = expression.field;
+        FieldMD fieldMD = getFieldStatus(field);
+        if (fieldMD.exists && !fieldMD.isIndexed) {
+            throw new BadRequestException("The field " + field + " is stored but not indexed. It cannot be queried");
+        }
         OperatorEnum op = expression.op;
         String value = expression.value;
         String fieldValues[] = value.split(",");
@@ -221,7 +225,7 @@ public class FluidSearch {
                 }
                 break;
             case gte:
-                if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
+                if (isDateField(fieldMD) && !StringUtil.isNullOrEmpty(dateFormat)) {
                     value = ParamsParser.parseDate(value, dateFormat);
                 }
                 RangeQueryBuilder gteRangeQuery = QueryBuilders.rangeQuery(field).gte(value);
@@ -229,7 +233,7 @@ public class FluidSearch {
                 ret = ret.filter(gteRangeQuery);
                 break;
             case gt:
-                if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
+                if (isDateField(fieldMD) && !StringUtil.isNullOrEmpty(dateFormat)) {
                     value = ParamsParser.parseDate(value, dateFormat);
                 }
                 RangeQueryBuilder gtRangeQuery = QueryBuilders.rangeQuery(field).gt(value);
@@ -237,7 +241,7 @@ public class FluidSearch {
                 ret = ret.filter(gtRangeQuery);
                 break;
             case lte:
-                if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
+                if (isDateField(fieldMD) && !StringUtil.isNullOrEmpty(dateFormat)) {
                     value = ParamsParser.parseDate(value, dateFormat);
                 }
                 RangeQueryBuilder lteRangeQuery = QueryBuilders.rangeQuery(field).lte(value);
@@ -245,7 +249,7 @@ public class FluidSearch {
                 ret = ret.filter(lteRangeQuery);
                 break;
             case lt:
-                if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
+                if (isDateField(fieldMD) && !StringUtil.isNullOrEmpty(dateFormat)) {
                     value = ParamsParser.parseDate(value, dateFormat);
                 }
                 RangeQueryBuilder ltRangeQuery = QueryBuilders.rangeQuery(field).lt(value);
@@ -269,12 +273,12 @@ public class FluidSearch {
                     BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
                     for (String valueInValues : fieldValues) {
                         CheckParams.checkRangeValidity(valueInValues);
-                        orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(field, valueInValues, dateFormat));
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(fieldMD, valueInValues, dateFormat));
                     }
                     ret = ret.filter(orBoolQueryBuilder);
                 } else {
                     CheckParams.checkRangeValidity(value);
-                    ret = ret.filter(getRangeQueryBuilder(field, value, dateFormat));
+                    ret = ret.filter(getRangeQueryBuilder(fieldMD, value, dateFormat));
                 }
                 break;
             default:
@@ -290,22 +294,22 @@ public class FluidSearch {
         }
     }
 
-    protected RangeQueryBuilder getRangeQueryBuilder(String field, String value, String dateFormat) throws ArlasException {
+    protected RangeQueryBuilder getRangeQueryBuilder(FieldMD fieldStatus, String value, String dateFormat) throws ArlasException {
         boolean incMin = value.startsWith("[");
         boolean incMax = value.endsWith("]");
         String min = value.substring(1, value.lastIndexOf("<"));
         String max = value.substring(value.lastIndexOf("<") + 1, value.length() - 1);
 
-        if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
+        if (isDateField(fieldStatus) && !StringUtil.isNullOrEmpty(dateFormat)) {
             min = ParamsParser.parseDate(min, dateFormat);
             max = ParamsParser.parseDate(max, dateFormat);
         }
 
-        if (field.equals(collectionReference.params.timestampPath)) {
+        if (fieldStatus.path.equals(collectionReference.params.timestampPath)) {
             CheckParams.checkTimestampFormatValidity(min);
             CheckParams.checkTimestampFormatValidity(max);
         }
-        RangeQueryBuilder ret = QueryBuilders.rangeQuery(field);
+        RangeQueryBuilder ret = QueryBuilders.rangeQuery(fieldStatus.path);
         if (incMin) {
             ret = ret.gte(min);
         } else {
@@ -316,7 +320,7 @@ public class FluidSearch {
         } else {
             ret = ret.lt(max);
         }
-        if (field.equals(collectionReference.params.timestampPath)) {
+        if (fieldStatus.path.equals(collectionReference.params.timestampPath)) {
             ret = ret.format(TimestampType.epoch_millis.name());
         }
         return ret;
@@ -915,13 +919,18 @@ public class FluidSearch {
         return Pattern.compile("^" + bboxPattern + "$").matcher(geometry).matches();
     }
 
-    public boolean isDateField(String field) throws ArlasException {
-        return ElasticTool.isDateField(field, client, collectionReference.params.indexName, collectionReference.params.typeName);
+    public boolean isDateField(FieldMD fieldMD) throws ArlasException {
+        return ElasticTool.isDateField(fieldMD);
     }
 
     public void setCollectionReference(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
         searchRequestBuilder = client.prepareSearch(collectionReference.params.indexName).setTypes(collectionReference.params.typeName);
+    }
+
+    public FieldMD getFieldStatus(String field) throws ArlasException {
+        return ElasticTool.getFieldMD(field, client, collectionReference.params.indexName, collectionReference.params.typeName);
+
     }
 
     public CollectionReference getCollectionReference() {

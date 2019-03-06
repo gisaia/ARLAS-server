@@ -20,10 +20,12 @@
 package io.arlas.server.utils;
 
 import com.fasterxml.jackson.databind.ObjectReader;
+import io.arlas.server.core.FieldMD;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
@@ -94,7 +96,11 @@ public class ElasticTool {
         return collection;
     }
 
-    public static boolean isDateField(String field, Client client, String index, String typeName) throws ArlasException {
+    public static FieldMD getFieldMD (String field, Client client, String index, String typeName) throws ArlasException {
+        FieldMD fieldMD = new FieldMD();
+        fieldMD.path = field;
+        fieldMD.exists = false;
+        fieldMD.isIndexed = false;
         GetFieldMappingsResponse response;
         try {
             response = client.admin().indices().prepareGetFieldMappings(index).setTypes(typeName).setFields(field).get();
@@ -102,21 +108,35 @@ public class ElasticTool {
             throw new NotFoundException("Index " + index + " does not exist.");
         }
         String lastKey = field.substring(field.lastIndexOf(".") + 1);
-        return response.mappings().keySet()
+        response.mappings().keySet()
                 .stream()
-                .anyMatch(indexName -> {
+                .forEach(indexName -> {
                     GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(indexName, typeName, field);
+                    if(!fieldMD.exists) {
+                        fieldMD.exists = (data != null);
+                    }
                     boolean isFieldMetadaAMap = (data != null && !data.isNull() && data.sourceAsMap().get(lastKey) instanceof Map);
                     if (isFieldMetadaAMap) {
-                        return Optional.of(((Map)data.sourceAsMap().get(lastKey)))
-                                .map(m -> m.get(ES_TYPE))
-                                .map(Object::toString)
-                                .filter(t -> t.equals(ES_DATE_TYPE))
-                                .isPresent();
-                    } else {
-                        // TODO : check if there is another way to fetch field type in this case
-                        return false;
+                        if (StringUtil.isNullOrEmpty(fieldMD.type)) {
+                            fieldMD.type = Optional.ofNullable(((Map)data.sourceAsMap().get(lastKey)))
+                                    .map(m -> m.get(ES_TYPE))
+                                    .map(Object::toString).get();
+                        }
+                        if (!fieldMD.isIndexed) {
+                            fieldMD.isIndexed = BooleanUtils.toBoolean(Optional.ofNullable(((Map)data.sourceAsMap().get(lastKey)))
+                                    .map(m -> m.get("index"))
+                                    .map(Object::toString).get());
+                        }
+
                     }
                 });
+
+        return fieldMD;
+    }
+    public static boolean isDateField(FieldMD fieldStatus) throws ArlasException {
+        if (fieldStatus != null) {
+            return ES_DATE_TYPE.equals(fieldStatus.type);
+        }
+        return false;
     }
 }
