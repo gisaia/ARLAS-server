@@ -1,11 +1,8 @@
 {
-  "_all": {
-    "enabled": true
-  },
   "_source": {
     "enabled": true
   },
-  "dynamic": true,
+  "dynamic": false,
   "properties": {
     "id": {
       "type": "keyword"

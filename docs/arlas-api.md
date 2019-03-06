@@ -1,6 +1,6 @@
 # ARLAS API Overview
 
-The ARLAS Server offers 6 enpoints:
+The ARLAS Server offers 6 endpoints:
 
 - a collection API for [managing collections](arlas-api-collection.md) (`http://.../arlas/collections/`)
 - an exploration API for [exploring](arlas-api-exploration.md), meaning searching and analyzing, spatial-temoral big data (`http://.../arlas/explore/`)

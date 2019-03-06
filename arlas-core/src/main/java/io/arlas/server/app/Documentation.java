@@ -92,12 +92,12 @@ public class Documentation {
             "       :range:  | {fieldName} is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, then min & max should be timestamps in millisecond or a Date expression";
 
     public static final String FILTER_PARAM_Q = "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}";
-    public static final String FILTER_PARAM_PWITHIN = "Any element having its centroid contained within the given bbox : 'top, left, bottom, right'. ";
-    public static final String FILTER_PARAM_GWITHIN = "Any element having its geometry contained within the given geometry (WKT)";
-    public static final String FILTER_PARAM_GINTERSECT = "Any element having its geometry intersecting the given geometry (WKT)";
-    public static final String FILTER_PARAM_NOTPWITHIN = "Any element having its centroid outside the given bbox : 'top, left, bottom, right'.";
-    public static final String FILTER_PARAM_NOTGWITHIN = "Any element having its geometry outside the given geometry (WKT)";
-    public static final String FILTER_PARAM_NOTGINTERSECT = "Any element having its geometry not intersecting the given geometry (WKT)";
+    public static final String FILTER_PARAM_PWITHIN = "Any element having its centroid contained within the given bbox : `west, south, east, north`. ";
+    public static final String FILTER_PARAM_GWITHIN = "Any element having its geometry contained within the given geometry (WKT) or the given BBOX : `west, south, east, north`";
+    public static final String FILTER_PARAM_GINTERSECT = "Any element having its geometry intersecting the given geometry (WKT) or the given BBOX : `west, south, east, north`";
+    public static final String FILTER_PARAM_NOTPWITHIN = "Any element having its centroid outside the given bbox : `west, south, east, north`.";
+    public static final String FILTER_PARAM_NOTGWITHIN = "Any element having its geometry outside the given geometry (WKT) or the given BBOX : `west, south, east, north`";
+    public static final String FILTER_PARAM_NOTGINTERSECT = "Any element having its geometry not intersecting the given geometry (WKT) nor the given BBOX : `west, south, east, north`";
     public static final String FILTER_DATE_FORMAT = "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations";
 
 
