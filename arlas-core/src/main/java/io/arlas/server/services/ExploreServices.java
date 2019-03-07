@@ -20,6 +20,7 @@
 package io.arlas.server.services;
 
 import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.core.FieldMD;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
@@ -174,6 +175,7 @@ public class ExploreServices {
             CheckParams.checkFilter(filter);
             if (filter.f != null && !filter.f.isEmpty()) {
                 CollectionReference collectionReference = fluidSearch.getCollectionReference();
+                List<FieldMD> fieldsMD = new ArrayList<>();
                 if (!filterFHasDateQuery(filter, collectionReference) && !StringUtil.isNullOrEmpty(filter.dateformat)) {
                     throw new BadRequestException("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
                 }
@@ -223,6 +225,22 @@ public class ExploreServices {
      * This method checks whether in all the expressions of the filter `f`, a date field has been queried using `lte`, `gte`, `lt`, `gt` or `range` operations
      * **/
     protected boolean filterFHasDateQuery(Filter filter, CollectionReference collectionReference) {
+        return filter.f.stream()
+                .anyMatch(expressions -> expressions
+                        .stream()
+                        .filter(expression -> expression.op == OperatorEnum.gt || expression.op == OperatorEnum.lt || expression.op == OperatorEnum.gte || expression.op == OperatorEnum.lte || expression.op == OperatorEnum.range)
+                        .anyMatch(expression -> {
+                            try {
+                                return ElasticTool.isDateField(ParamsParser.getFieldFromFieldAliases(expression.field, collectionReference), client, collectionReference.params.indexName, collectionReference.params.typeName);
+                            } catch (ArlasException e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                );
+    }
+
+    protected List<FieldMD> getFieldsMD(Filter filter, CollectionReference collectionReference) {
+        List<FieldMD> fieldsMD = new ArrayList<>();
         return filter.f.stream()
                 .anyMatch(expressions -> expressions
                         .stream()

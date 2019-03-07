@@ -205,7 +205,7 @@ public class FluidSearch {
             throw new InvalidParameterException(INVALID_PARAMETER_F);
         }
         String field = expression.field;
-        FieldMD fieldMD = getFieldStatus(field);
+        FieldMD fieldMD = getFieldMD(field);
         if (fieldMD.exists && !fieldMD.isIndexed) {
             throw new BadRequestException("The field " + field + " is stored but not indexed. It cannot be queried");
         }
@@ -928,8 +928,8 @@ public class FluidSearch {
         searchRequestBuilder = client.prepareSearch(collectionReference.params.indexName).setTypes(collectionReference.params.typeName);
     }
 
-    public FieldMD getFieldStatus(String field) throws ArlasException {
-        return ElasticTool.getFieldMD(field, client, collectionReference.params.indexName, collectionReference.params.typeName);
+    public FieldMD getFieldMD(String field) throws ArlasException {
+        return ElasticTool.getFieldMD(ParamsParser.getFieldFromFieldAliases(field, collectionReference), client, collectionReference.params.indexName, collectionReference.params.typeName);
 
     }
 
