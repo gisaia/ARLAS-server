@@ -59,9 +59,8 @@ The other parts must be specified or not depending on the aggregation type. All 
 | (**order**,**on**)        | `term, histogram, datehistogram`    | optional                                         |
 | **size**                  | `term, geohash`                     | optional                                         |
 | **include**               | `term`                              | optional                                         |
-| **fetchGeometry**         | `term`, `geohash`                   | optional                                         |
+| **fetchGeometry**         | All types                           | optional                                         |
 | **fetchHits**             | All types                           | optional                                         |
-
 
 > Example: `agg=datehistogram:date:interval-20day:format-dd.MM.yyyy`&`agg=term:sexe:collect_field-age:collect_fct-avg:order-asc:on-result:size-5`
 
@@ -100,16 +99,16 @@ The `order` is applied on the first collect_fct `avg` (that is different from `g
 
 (4) If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created.
 
-(5) **fetchGeometry** is to be specified for `geohash` and `term` aggregations only. If **fetchGeometry** is specified, the returned geometry depends on the value it takes :
+(5) If **fetchGeometry** is specified, the returned geometry depends on the value it takes :
 
- - If `fetchGeometry-bbox`, then the returned geometry is the extend of data in each bucket
- - If `fetchGeometry-centroid`, then the returned geometry is the centroid of data in each bucket
- - If `fetchGeometry` or `fetchGeometry-byDefault` , then the returned geometry is the centroid of the geohash
- - If `fetchGeometry-first`, then the returned geometry is the geometry of the first document in each bucket (chronogically)
- - If `fetchGeometry-last`, then the returned geometry is the geometry of the last document in each bucket (chronogically)
- - If `fetchGeometry-{field}-first`, then the returned geometry is the geometry of the first document in each bucket (ordered on the {field})
- - If `fetchGeometry-{field}-last`, then the returned geometry is the geometry of the last document in each bucket (ordered on the {field})
- - If `fetchGeometry-geohash`, then the returned geometry is the geohash extend of each bucket. It's applied only for Geohash aggregation type. It is not supported for term aggregation type.
+ - `fetchGeometry-bbox`: the returned geometry is the extend of data in each bucket
+ - `fetchGeometry-centroid`: the returned geometry is the centroid of data in each bucket
+ - `fetchGeometry` or `fetchGeometry-byDefault`: , the returned geometry is the centroid of the geohash for **geohash** aggregation and a random geometry for the other aggregation types.
+ - `fetchGeometry-first`: the returned geometry is the geometry of the first hit in each bucket (chronogically)
+ - `fetchGeometry-last`: the returned geometry is the geometry of the last hit in each bucket (chronogically)
+ - `fetchGeometry-{field}-first`: then the returned geometry is the geometry of the first hiy in each bucket (ordered on the {field})
+ - `fetchGeometry-{field}-last`: then the returned geometry is the geometry of the last hit in each bucket (ordered on the {field})
+ - `fetchGeometry-geohash`: the returned geometry is the geohash extend of each bucket. It's applied only for **geohash** aggregation type. It is not supported for the rest of aggregation type.
 
 (6) If **fetchGeometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics. Same for **fetchGeometry-bbox** and **collect_fct**=`geobbox`
 
