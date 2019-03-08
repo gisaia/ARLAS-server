@@ -434,7 +434,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 if (mainAggregationType == AggregationTypeEnum.geohash) {
                     properties.put("geohash", element.keyAsString);
                 } else {
-                    properties.put("term", element.keyAsString);
+                    properties.put("key", element.keyAsString);
                 }
                 if (flat) {
                     this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey("_"), s -> (!"elements".equals(s))).forEach((key, value) -> {

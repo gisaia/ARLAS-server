@@ -95,7 +95,6 @@ public class FluidSearch {
     public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
     public static final String NO_SIZE_TO_SPECIFY = "'size-' should not be specified for this aggregation.";
     public static final String NO_ORDER_ON_TO_SPECIFY = "'order-' and 'on-' should not be specified for this aggregation.";
-    public static final String NO_GEOBBOX_GEOCENTROID_TO_SPECIFY = "'fetchGeometry-' should be specified only for geohash aggregations.";
     public static final String COLLECT_FCT_NOT_SPECIFIED = "The aggregation function 'collect_fct' is not specified.";
     public static final String COLLECT_FIELD_NOT_SPECIFIED = "The aggregation field 'collect_field' is not specified.";
     public static final String BAD_COLLECT_FIELD_FOR_GEO_METRICS = "For GeoBBOX and GeoCentroid, 'collect_field' should be the centroid path";
@@ -112,7 +111,7 @@ public class FluidSearch {
     public static final String FIELD_MIN_VALUE = "field_min_value";
     public static final String FIELD_MAX_VALUE = "field_max_value";
 
-    public static final String TERM_RANDOM_GEOMETRY = "term_random_geometry";
+    public static final String RANDOM_GEOMETRY = "random_geometry";
     public static final String FIRST_GEOMETRY = "first_geometry";
     public static final String LAST_GEOMETRY = "last_geometry";
 
@@ -502,31 +501,23 @@ public class FluidSearch {
         //check the agg syntax is correct
         Aggregation aggregationModel = aggregations.get(0);
         if (isGeoAggregate && counter == 0) {
-            if (aggregationModel.type == AggregationTypeEnum.geohash ) {
+            if (aggregationModel.type != AggregationTypeEnum.geohash && aggregationModel.fetchGeometry == null) {
+                throw new NotAllowedException("'" + aggregationModel.type.name() +"' aggregation type is not allowed in _geoaggregate service if fetchGeometry strategy is not specified");
+            }
+        }
+        switch (aggregationModel.type) {
+            case datehistogram:
+                aggregationBuilder = buildDateHistogramAggregation(aggregationModel);
+                break;
+            case geohash:
                 aggregationBuilder = buildGeohashAggregation(aggregationModel);
-            } else if (aggregationModel.type == AggregationTypeEnum.term) {
-                if (aggregationModel.fetchGeometry == null) {
-                    throw new NotAllowedException("'term' aggregation type is not allowed in _geoaggregate service if fetchGeometry strategy is not specified");
-                }
+                break;
+            case histogram:
+                aggregationBuilder = buildHistogramAggregation(aggregationModel);
+                break;
+            case term:
                 aggregationBuilder = buildTermsAggregation(aggregationModel);
-            } else {
-                throw new NotAllowedException(aggregationModel.type + NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE);
-            }
-        } else {
-            switch (aggregationModel.type) {
-                case datehistogram:
-                    aggregationBuilder = buildDateHistogramAggregation(aggregationModel);
-                    break;
-                case geohash:
-                    aggregationBuilder = buildGeohashAggregation(aggregationModel);
-                    break;
-                case histogram:
-                    aggregationBuilder = buildHistogramAggregation(aggregationModel);
-                    break;
-                case term:
-                    aggregationBuilder = buildTermsAggregation(aggregationModel);
-                    break;
-            }
+                break;
         }
         aggregations.remove(0);
         if (aggregations.size() == 0) {
@@ -595,6 +586,8 @@ public class FluidSearch {
         dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(intervalUnit);
         //get the field, format, collect_field, collect_fct, order, on
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
+        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggeragatedGeometryStrategy(aggregationModel, dateHistogramAggregationBuilder);
+
         return dateHistogramAggregationBuilder;
     }
 
@@ -618,6 +611,8 @@ public class FluidSearch {
         histogramAggregationBuilder = histogramAggregationBuilder.interval((Double)aggregationModel.interval.value);
         //get the field, format, collect_field, collect_fct, order, on
         histogramAggregationBuilder = (HistogramAggregationBuilder) setAggregationParameters(aggregationModel, histogramAggregationBuilder);
+        histogramAggregationBuilder = (HistogramAggregationBuilder) setAggeragatedGeometryStrategy(aggregationModel, histogramAggregationBuilder);
+
         return histogramAggregationBuilder;
     }
 
@@ -737,9 +732,9 @@ public class FluidSearch {
             } else if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.geohash) {
                 // aggregationModel.type is necesseraly AggregationTypeEnum.geohash. We already return the centroid of each geohash by default => nothing to implement here => create geohash geometry at response stage
             } else if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.byDefault) {
-                if (aggregationModel.type ==  AggregationTypeEnum.term) {
+                if (aggregationModel.type !=  AggregationTypeEnum.geohash) {
                     String[] includes = {collectionReference.params.geometryPath, collectionReference.params.centroidPath};
-                    TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(TERM_RANDOM_GEOMETRY).size(1).fetchSource(includes, null);
+                    TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(RANDOM_GEOMETRY).size(1).fetchSource(includes, null);
                     aggregationBuilder.subAggregation(topHitsAggregationBuilder);
                 }
                 // if aggregationModel.type ==  AggregationTypeEnum.geohash then we already return the centroid of each geohash by default => nothing to implement
