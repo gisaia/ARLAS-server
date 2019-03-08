@@ -58,10 +58,7 @@ import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
 import org.geojson.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -173,12 +170,12 @@ public class ExploreServices {
     public void applyFilter(Filter filter, FluidSearch fluidSearch) throws ArlasException, IOException {
         if (filter != null) {
             CheckParams.checkFilter(filter);
+            CollectionReference collectionReference = fluidSearch.getCollectionReference();
+            Set<FieldMD> fieldsMD = getFilterFieldsMD(filter, collectionReference);
+            fluidSearch.setFilterFieldsMD(fieldsMD);
+            checkFilterWithDateFormatButNotDateQuery(fieldsMD, filter.dateformat);
+            checkFilterWithStoredButNotIndexedField(fieldsMD);
             if (filter.f != null && !filter.f.isEmpty()) {
-                CollectionReference collectionReference = fluidSearch.getCollectionReference();
-                List<FieldMD> fieldsMD = new ArrayList<>();
-                if (!filterFHasDateQuery(filter, collectionReference) && !StringUtil.isNullOrEmpty(filter.dateformat)) {
-                    throw new BadRequestException("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
-                }
                 for (MultiValueFilter<Expression> f : filter.f) {
                     fluidSearch = fluidSearch.filter(f, filter.dateformat);
                 }
@@ -222,37 +219,68 @@ public class ExploreServices {
     }
 
     /**
-     * This method checks whether in all the expressions of the filter `f`, a date field has been queried using `lte`, `gte`, `lt`, `gt` or `range` operations
+     * This method checks whether in all the expressions of the filter `f` and the fields set in filter `q`, a date field has been queried
      * **/
-    protected boolean filterFHasDateQuery(Filter filter, CollectionReference collectionReference) {
-        return filter.f.stream()
-                .anyMatch(expressions -> expressions
-                        .stream()
-                        .filter(expression -> expression.op == OperatorEnum.gt || expression.op == OperatorEnum.lt || expression.op == OperatorEnum.gte || expression.op == OperatorEnum.lte || expression.op == OperatorEnum.range)
-                        .anyMatch(expression -> {
-                            try {
-                                return ElasticTool.isDateField(ParamsParser.getFieldFromFieldAliases(expression.field, collectionReference), client, collectionReference.params.indexName, collectionReference.params.typeName);
-                            } catch (ArlasException e) {
-                                throw new RuntimeException(e);
-                            }
-                        })
-                );
+    protected boolean filterHasDateQuery(Set<FieldMD> filterFieldsMD) {
+        return filterFieldsMD.stream()
+                .anyMatch(fieldMD -> {
+                    try {
+                        return ElasticTool.isDateField(fieldMD);
+                    } catch (ArlasException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
-    protected List<FieldMD> getFieldsMD(Filter filter, CollectionReference collectionReference) {
-        List<FieldMD> fieldsMD = new ArrayList<>();
-        return filter.f.stream()
-                .anyMatch(expressions -> expressions
-                        .stream()
-                        .filter(expression -> expression.op == OperatorEnum.gt || expression.op == OperatorEnum.lt || expression.op == OperatorEnum.gte || expression.op == OperatorEnum.lte || expression.op == OperatorEnum.range)
-                        .anyMatch(expression -> {
-                            try {
-                                return ElasticTool.isDateField(ParamsParser.getFieldFromFieldAliases(expression.field, collectionReference), client, collectionReference.params.indexName, collectionReference.params.typeName);
-                            } catch (ArlasException e) {
-                                throw new RuntimeException(e);
-                            }
-                        })
-                );
+    protected Optional<String> getStoredButNotIndexedField(Set<FieldMD> filterFieldsMD) {
+        return filterFieldsMD.stream().filter(fieldMD -> (fieldMD.exists && !fieldMD.isIndexed)).map(fieldMD -> fieldMD.path).findAny();
+    }
+
+    protected void checkFilterWithStoredButNotIndexedField(Set<FieldMD> filterFieldsMD) throws ArlasException {
+        String storedButNotIndexedField = getStoredButNotIndexedField(filterFieldsMD).orElse("");
+        if (!StringUtil.isNullOrEmpty(storedButNotIndexedField)) {
+            throw new BadRequestException("The field " + storedButNotIndexedField + " is stored but not indexed. It cannot be queried");
+        }
+    }
+
+    protected void checkFilterWithDateFormatButNotDateQuery(Set<FieldMD> filterFieldsMD, String dateformat) throws ArlasException {
+        if (!filterHasDateQuery(filterFieldsMD) && !StringUtil.isNullOrEmpty(dateformat)) {
+            throw new BadRequestException("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
+        }
+    }
+
+    protected Set<FieldMD> getFilterFieldsMD(Filter filter, CollectionReference collectionReference) throws ArlasException {
+        Set<FieldMD> fieldsMD = new HashSet<>();
+        Set<String> fields = new HashSet<>();
+
+        /** Get fields from f filter*/
+        if (filter.f != null && !filter.f.isEmpty()) {
+
+            filter.f.stream()
+                    .forEach(expressions -> expressions
+                            .stream()
+                            .forEach(expression -> {
+                                fields.add(expression.field);
+                            })
+                    );
+        }
+        /** Get fields from q filter*/
+        if (filter.q != null && !filter.q.isEmpty()) {
+            filter.q.forEach(q-> {
+                        fields.addAll(q.stream()
+                                .map(t -> t.split(":", 2))
+                                .filter(splitT -> splitT.length == 2)
+                                .map(splitT -> splitT[0]).collect(Collectors.toSet()));
+                    });
+        }
+        /** Get Fields MD */
+        for (String field : fields) {
+            FieldMD fieldMD = ElasticTool.getFieldMD(ParamsParser.getFieldFromFieldAliases(field, collectionReference), client, collectionReference.params.indexName, collectionReference.params.typeName);
+            fieldsMD.add(fieldMD);
+        }
+
+        return fieldsMD;
+
     }
 
     protected void paginate(Page page, CollectionReference collectionReference, FluidSearch fluidSearch) throws ArlasException {

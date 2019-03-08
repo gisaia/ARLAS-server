@@ -126,9 +126,22 @@ public class FluidSearch {
     private List<String> include = new ArrayList<>();
     private List<String> exclude = new ArrayList<>();
 
+    private Set<FieldMD> filterFieldsMD = new HashSet<>();
+
     public FluidSearch(Client client) {
         this.client = client;
         boolQueryBuilder = QueryBuilders.boolQuery();
+    }
+
+    public void setFilterFieldsMD(Set<FieldMD> filterFieldsMD) {
+        this.filterFieldsMD = filterFieldsMD;
+    }
+
+    public FieldMD getFilterFieldMD(String fieldPath) {
+        if (filterFieldsMD != null && !StringUtil.isNullOrEmpty(fieldPath)) {
+            return filterFieldsMD.stream().filter(fieldMD -> fieldPath.equals(fieldMD.path)).findFirst().orElse(null);
+        }
+        return null;
     }
 
     protected Client getClient(){return client;}
@@ -205,10 +218,6 @@ public class FluidSearch {
             throw new InvalidParameterException(INVALID_PARAMETER_F);
         }
         String field = expression.field;
-        FieldMD fieldMD = getFieldMD(field);
-        if (fieldMD.exists && !fieldMD.isIndexed) {
-            throw new BadRequestException("The field " + field + " is stored but not indexed. It cannot be queried");
-        }
         OperatorEnum op = expression.op;
         String value = expression.value;
         String fieldValues[] = value.split(",");
@@ -225,7 +234,7 @@ public class FluidSearch {
                 }
                 break;
             case gte:
-                if (isDateField(fieldMD) && !StringUtil.isNullOrEmpty(dateFormat)) {
+                if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
                     value = ParamsParser.parseDate(value, dateFormat);
                 }
                 RangeQueryBuilder gteRangeQuery = QueryBuilders.rangeQuery(field).gte(value);
@@ -233,7 +242,7 @@ public class FluidSearch {
                 ret = ret.filter(gteRangeQuery);
                 break;
             case gt:
-                if (isDateField(fieldMD) && !StringUtil.isNullOrEmpty(dateFormat)) {
+                if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
                     value = ParamsParser.parseDate(value, dateFormat);
                 }
                 RangeQueryBuilder gtRangeQuery = QueryBuilders.rangeQuery(field).gt(value);
@@ -241,7 +250,7 @@ public class FluidSearch {
                 ret = ret.filter(gtRangeQuery);
                 break;
             case lte:
-                if (isDateField(fieldMD) && !StringUtil.isNullOrEmpty(dateFormat)) {
+                if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
                     value = ParamsParser.parseDate(value, dateFormat);
                 }
                 RangeQueryBuilder lteRangeQuery = QueryBuilders.rangeQuery(field).lte(value);
@@ -249,7 +258,7 @@ public class FluidSearch {
                 ret = ret.filter(lteRangeQuery);
                 break;
             case lt:
-                if (isDateField(fieldMD) && !StringUtil.isNullOrEmpty(dateFormat)) {
+                if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
                     value = ParamsParser.parseDate(value, dateFormat);
                 }
                 RangeQueryBuilder ltRangeQuery = QueryBuilders.rangeQuery(field).lt(value);
@@ -273,12 +282,12 @@ public class FluidSearch {
                     BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
                     for (String valueInValues : fieldValues) {
                         CheckParams.checkRangeValidity(valueInValues);
-                        orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(fieldMD, valueInValues, dateFormat));
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(field, valueInValues, dateFormat));
                     }
                     ret = ret.filter(orBoolQueryBuilder);
                 } else {
                     CheckParams.checkRangeValidity(value);
-                    ret = ret.filter(getRangeQueryBuilder(fieldMD, value, dateFormat));
+                    ret = ret.filter(getRangeQueryBuilder(field, value, dateFormat));
                 }
                 break;
             default:
@@ -294,22 +303,22 @@ public class FluidSearch {
         }
     }
 
-    protected RangeQueryBuilder getRangeQueryBuilder(FieldMD fieldStatus, String value, String dateFormat) throws ArlasException {
+    protected RangeQueryBuilder getRangeQueryBuilder(String field, String value, String dateFormat) throws ArlasException {
         boolean incMin = value.startsWith("[");
         boolean incMax = value.endsWith("]");
         String min = value.substring(1, value.lastIndexOf("<"));
         String max = value.substring(value.lastIndexOf("<") + 1, value.length() - 1);
 
-        if (isDateField(fieldStatus) && !StringUtil.isNullOrEmpty(dateFormat)) {
+        if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
             min = ParamsParser.parseDate(min, dateFormat);
             max = ParamsParser.parseDate(max, dateFormat);
         }
 
-        if (fieldStatus.path.equals(collectionReference.params.timestampPath)) {
+        if (field.equals(collectionReference.params.timestampPath)) {
             CheckParams.checkTimestampFormatValidity(min);
             CheckParams.checkTimestampFormatValidity(max);
         }
-        RangeQueryBuilder ret = QueryBuilders.rangeQuery(fieldStatus.path);
+        RangeQueryBuilder ret = QueryBuilders.rangeQuery(field);
         if (incMin) {
             ret = ret.gte(min);
         } else {
@@ -320,7 +329,7 @@ public class FluidSearch {
         } else {
             ret = ret.lt(max);
         }
-        if (fieldStatus.path.equals(collectionReference.params.timestampPath)) {
+        if (field.equals(collectionReference.params.timestampPath)) {
             ret = ret.format(TimestampType.epoch_millis.name());
         }
         return ret;
@@ -919,8 +928,8 @@ public class FluidSearch {
         return Pattern.compile("^" + bboxPattern + "$").matcher(geometry).matches();
     }
 
-    public boolean isDateField(FieldMD fieldMD) throws ArlasException {
-        return ElasticTool.isDateField(fieldMD);
+    public boolean isDateField(String field) throws ArlasException {
+        return ElasticTool.isDateField(getFieldMD(field));
     }
 
     public void setCollectionReference(CollectionReference collectionReference) {

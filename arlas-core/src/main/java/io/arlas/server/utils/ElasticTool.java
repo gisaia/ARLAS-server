@@ -45,6 +45,10 @@ public class ElasticTool {
 
     private static final String ES_DATE_TYPE = "date";
     private static final String ES_TYPE = "type";
+    private static final String ES_INDEX = "index";
+    private static final String IS_INDEXED = "true";
+    private static final String UNKNOWN_TYPE = "unknown";
+
 
     public static CreateIndexResponse createArlasIndex(Client client, String arlasIndexName, String arlasMappingName, String arlasMappingFileName)  {
         CreateIndexResponse createIndexResponse = null;
@@ -119,23 +123,20 @@ public class ElasticTool {
                     if (isFieldMetadaAMap) {
                         if (StringUtil.isNullOrEmpty(fieldMD.type)) {
                             fieldMD.type = Optional.ofNullable(((Map)data.sourceAsMap().get(lastKey)))
-                                    .map(m -> m.get(ES_TYPE))
-                                    .map(Object::toString).get();
+                                    .map(m -> m.get(ES_TYPE)).orElse(UNKNOWN_TYPE).toString();
                         }
                         if (!fieldMD.isIndexed) {
                             fieldMD.isIndexed = BooleanUtils.toBoolean(Optional.ofNullable(((Map)data.sourceAsMap().get(lastKey)))
-                                    .map(m -> m.get("index"))
-                                    .map(Object::toString).get());
+                                    .map(m -> m.get(ES_INDEX)).orElse(IS_INDEXED).toString());
                         }
-
                     }
                 });
 
         return fieldMD;
     }
-    public static boolean isDateField(FieldMD fieldStatus) throws ArlasException {
-        if (fieldStatus != null) {
-            return ES_DATE_TYPE.equals(fieldStatus.type);
+    public static boolean isDateField(FieldMD fieldMD) throws ArlasException {
+        if (fieldMD != null) {
+            return ES_DATE_TYPE.equals(fieldMD.type);
         }
         return false;
     }

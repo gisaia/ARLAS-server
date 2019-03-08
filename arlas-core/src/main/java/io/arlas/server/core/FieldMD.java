@@ -24,4 +24,28 @@ public class FieldMD {
     public String type;
     public boolean exists;
     public boolean isIndexed;
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof FieldMD)) {
+            return false;
+        }
+        if (path != null) {
+            return path.equals(((FieldMD) object).path);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        if (path != null) {
+            result = 31 * result + path.hashCode();
+        }
+        return result;
+    }
 }

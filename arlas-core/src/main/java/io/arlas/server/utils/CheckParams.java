@@ -149,6 +149,7 @@ public class CheckParams {
             throw new BadRequestException("Date format is specified but no date field is queried in f filter");
         }
         checkDateFormat(filter.dateformat);
+
     }
 
     public static void checkDateFormat(String dateFormat) throws ArlasException {

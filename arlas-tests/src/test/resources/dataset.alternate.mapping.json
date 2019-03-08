@@ -15,6 +15,10 @@
         "age": {
           "type": "integer"
         },
+        "height": {
+          "type": "integer",
+          "index": false
+        },
         "weight": {
           "type": "integer"
         },

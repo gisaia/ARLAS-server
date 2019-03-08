@@ -793,6 +793,14 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleInvalidParameters(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
                 .param("dateformat", request.filter.dateformat).when().get(getUrlPath("geodata")).then());
         handleInvalidParameters(header(request.filter));
+        request.filter.dateformat = null;
+
+        // FILTER CONTAINS A STORED BUT NOT INDEXED FIELD
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.height", OperatorEnum.gte, "100")));
+        handleInvalidParameters(post(request));
+        handleInvalidParameters(get("f", request.filter.f.get(0).get(0).toString()));
+        handleInvalidParameters(header(request.filter));
+
     }
 
     //----------------------------------------------------------------
