@@ -1348,6 +1348,18 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         return  "";
     }
 
+    public String getFilterField() {
+        if (key != null) {
+            String[] splitKey = key.split(":");
+            if (splitKey.length <= 1) {
+                return key;
+            } else {
+                return key.replace(splitKey[0] + ":", "");
+            }
+        }
+        return key;
+    }
+
     public static boolean isPathDate(String[] pathElements ,Map<String, CollectionReferenceDescriptionProperty> properties){
         for (String key : pathElements) {
             CollectionReferenceDescriptionProperty property = properties.get(key);

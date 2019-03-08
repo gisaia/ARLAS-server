@@ -31,6 +31,7 @@ import io.arlas.server.model.CollectionReferences;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
+import io.arlas.server.ogc.common.requestfilter.FilterToElastic;
 import io.arlas.server.utils.BoundingBox;
 import io.arlas.server.utils.ElasticTool;
 import org.elasticsearch.action.search.SearchResponse;
@@ -72,7 +73,9 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
 
         BoolQueryBuilder ogcBoolQuery = QueryBuilders.boolQuery();
         BoolQueryBuilder ogcIdsQBoundingBoxBoolQuery = ElasticFilter.filter(ids, "dublin_core_element_name.identifier", q, "internal.fulltext", boundingBox, "dublin_core_element_name.coverage");
-        BoolQueryBuilder ogcConstraintBoolQuery = ElasticFilter.filter(constraint, getMetacollectionDescription(), service);
+        FilterToElastic ogcFilterToElasticFilter = ElasticFilter.getFilterToElastic(constraint, getMetacollectionDescription(), service);
+        ElasticFilter.checkConstraintFieldIsStoredAndIndexed(client, ogcFilterToElasticFilter, getMetacollection());
+        BoolQueryBuilder ogcConstraintBoolQuery = ElasticFilter.filter(ogcFilterToElasticFilter);
         ogcBoolQuery.filter(ogcIdsQBoundingBoxBoolQuery).filter(ogcConstraintBoolQuery);
         return getCollectionReferences(ogcBoolQuery, includes, excludes, size, from);
     }
@@ -83,7 +86,9 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
 
         BoolQueryBuilder ogcBoolQuery = QueryBuilders.boolQuery();
         BoolQueryBuilder ogcIdsQBoundingBoxBoolQuery = ElasticFilter.filter(ids, "dublin_core_element_name.identifier", q, "internal.fulltext", boundingBox, "dublin_core_element_name.coverage");
-        BoolQueryBuilder ogcConstraintBoolQuery = ElasticFilter.filter(constraint, getMetacollectionDescription(), service);
+        FilterToElastic ogcFilterToElasticFilter = ElasticFilter.getFilterToElastic(constraint, getMetacollectionDescription(), service);
+        ElasticFilter.checkConstraintFieldIsStoredAndIndexed(client, ogcFilterToElasticFilter, getMetacollection());
+        BoolQueryBuilder ogcConstraintBoolQuery = ElasticFilter.filter(ogcFilterToElasticFilter);
         ogcBoolQuery.filter(ogcIdsQBoundingBoxBoolQuery).filter(ogcConstraintBoolQuery);
         ogcBoolQuery.filter(QueryBuilders.boolQuery().mustNot(QueryBuilders.matchQuery("dublin_core_element_name.identifier", collectionReferenceToRemove.params.dublinCoreElementName.identifier)));
         return getCollectionReferences(ogcBoolQuery, includes, excludes, size, from);
@@ -137,7 +142,12 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
 
     private CollectionReferenceDescription getMetacollectionDescription() throws ArlasException, IOException {
         ElasticAdmin elasticAdmin = new ElasticAdmin(client);
-        CollectionReference metaCollection = ElasticTool.getCollectionReferenceFromES(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, reader, "metacollection");
+        CollectionReference metaCollection = getMetacollection();
         return elasticAdmin.describeCollection(metaCollection);
+    }
+
+    private CollectionReference getMetacollection() throws ArlasException, IOException {
+        ElasticAdmin elasticAdmin = new ElasticAdmin(client);
+        return ElasticTool.getCollectionReferenceFromES(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, reader, "metacollection");
     }
 }

@@ -18,6 +18,8 @@
  */
 package io.arlas.server.ogc.wfs.services;
 
+import io.arlas.server.core.FieldMD;
+import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
 import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.core.FluidSearch;
@@ -29,10 +31,12 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
+import io.arlas.server.ogc.common.requestfilter.FilterToElastic;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
 import io.arlas.server.services.ExploreServices;
+import io.arlas.server.utils.ElasticTool;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
 import net.opengis.wfs._2.MemberPropertyType;
@@ -152,7 +156,9 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
         fluidSearch.setCollectionReference(getCollectionReferenceDescription(collectionReference));
         addCollectionFilter(fluidSearch, collectionReference);
         if (constraint != null) {
-            wfsQuery.filter(ElasticFilter.filter(constraint, getCollectionReferenceDescription(collectionReference), Service.WFS));
+            FilterToElastic ogcFilterToElasticFilter = ElasticFilter.getFilterToElastic(constraint, getCollectionReferenceDescription(collectionReference), Service.WFS);
+            ElasticFilter.checkConstraintFieldIsStoredAndIndexed(exploreServices.getClient(), ogcFilterToElasticFilter, collectionReference);
+            wfsQuery.filter(ElasticFilter.filter(ogcFilterToElasticFilter));
         } else if (bbox != null) {
             buildBboxQuery(bbox, collectionReference);
         } else if (resourceid != null) {

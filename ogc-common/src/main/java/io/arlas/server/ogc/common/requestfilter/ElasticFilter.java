@@ -20,10 +20,15 @@
 package io.arlas.server.ogc.common.requestfilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.arlas.server.core.FieldMD;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.BadRequestException;
+import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.utils.BoundingBox;
+import io.arlas.server.utils.ElasticTool;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
 import org.elasticsearch.common.geo.builders.PolygonBuilder;
 import org.elasticsearch.common.geo.builders.ShapeBuilder;
@@ -74,8 +79,23 @@ public class ElasticFilter {
         return boolQuery;
     }
 
-    public static BoolQueryBuilder filter(String constraint, CollectionReferenceDescription collectionDescription, Service service) throws IOException, ArlasException {
+    public static BoolQueryBuilder filter(FilterToElastic filterToElastic) throws IOException, ArlasException {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        if (filterToElastic != null) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                String filterQuery = mapper.writeValueAsString(filterToElastic.getQueryBuilder());
+                // TODO : find a better way to remove prefix xml in field name
+                boolQuery.filter(QueryBuilders.wrapperQuery(filterQuery.replace("tns:", "")));
+            } catch (RuntimeException e) {
+                throw filterToElastic.ogcException;
+            }
+        }
+        return boolQuery;
+    }
+
+    public static FilterToElastic getFilterToElastic(String constraint, CollectionReferenceDescription collectionDescription, Service service) throws IOException, ArlasException{
+        FilterToElastic filterToElastic = null;
         FESConfiguration configuration = new FESConfiguration();
         Parser parser = new Parser(configuration);
         if (constraint != null) {
@@ -83,16 +103,11 @@ public class ElasticFilter {
                 // TODO : find a better way to replace EPSG for test suite
                 constraint = constraint.replace("srsName=\"urn:ogc:def:crs:EPSG::4326\"", "srsName=\"http://www.opengis.net/def/crs/epsg/0/4326\"");
             }
-            FilterToElastic filterToElastic = new FilterToElastic(collectionDescription, service);
+            filterToElastic = new FilterToElastic(collectionDescription, service);
             try {
                 InputStream stream = new ByteArrayInputStream(constraint.getBytes(StandardCharsets.UTF_8));
                 org.opengis.filter.Filter openGisFilter = (org.opengis.filter.Filter) parser.parse(stream);
-
                 filterToElastic.encode(openGisFilter);
-                ObjectMapper mapper = new ObjectMapper();
-                String filterQuery = mapper.writeValueAsString(filterToElastic.getQueryBuilder());
-                // TODO : find a better way to remove prefix xml in field name
-                boolQuery.filter(QueryBuilders.wrapperQuery(filterQuery.replace("tns:", "")));
             } catch (SAXException e) {
                 throw filterToElastic.ogcException;
             } catch (ParserConfigurationException e) {
@@ -101,6 +116,13 @@ public class ElasticFilter {
                 throw filterToElastic.ogcException;
             }
         }
-        return boolQuery;
+        return filterToElastic;
+    }
+
+    public static void checkConstraintFieldIsStoredAndIndexed(Client client, FilterToElastic filterToElastic, CollectionReference collectionReference) throws ArlasException {
+        FieldMD fieldMD = ElasticTool.getFieldMD(filterToElastic.getFilterField(), client, collectionReference.params.indexName, collectionReference.params.typeName);
+        if (fieldMD != null & fieldMD.exists && !fieldMD.isIndexed) {
+            throw new BadRequestException("The field " + filterToElastic.getFilterField() + " is stored but not indexed. It cannot be queried");
+        }
     }
 }
