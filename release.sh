@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -o errexit -o pipefail
 
 npmlogin=`npm whoami`
 if  [ -z "$npmlogin"  ] ; then echo "your are not logged on npm"; exit -1; else  echo "logged as "$npmlogin ; fi
@@ -39,6 +39,73 @@ usage(){
 	echo " --simulate                     do not publish artifacts and git push local branches"
 	exit 1
 }
+
+################################################################################
+# Setup for executing containers as current user:group, instead of root:root
+# Avoids outputing root-owned files through bind-mounts
+################################################################################
+
+EXECUTE_DOCKER_ALPINE_COMMAND_AS_CURRENT_OWNER="
+HOST_CURRENT_GROUP_ID='$(id -g)'
+HOST_CURRENT_GROUP_NAME='$(id -g -n)'
+HOST_CURRENT_USER_ID='$(id -u)'
+HOST_CURRENT_USER_NAME='$(id -n -u)'
+
+
+################################################################################
+# Ensure a group with same ID as current host group is available (create it if it does not exist)
+################################################################################
+if ! getent group \"\$HOST_CURRENT_GROUP_ID\"; then
+    addgroup -g \"\$HOST_CURRENT_GROUP_ID\" \"\$HOST_CURRENT_GROUP_NAME\"
+fi
+
+################################################################################
+# Find the name of the group to be used
+################################################################################
+CONTAINER_GROUP_NAME=\"\$(getent group \"\$HOST_CURRENT_GROUP_ID\" | cut -d : -f 1)\"
+
+################################################################################
+# Add a user with same ID as the current host user, and same group ID
+################################################################################
+adduser -D -G \"\$CONTAINER_GROUP_NAME\" -s /bin/ash -u \"\$HOST_CURRENT_USER_ID\" \"\$HOST_CURRENT_USER_NAME\"
+
+################################################################################
+# Execute command as the new user
+################################################################################
+su - \"\$HOST_CURRENT_USER_NAME\" -c"
+
+
+EXECUTE_DOCKER_DEBIAN_COMMAND_AS_CURRENT_OWNER="
+HOST_CURRENT_GROUP_ID='$(id -g)'
+HOST_CURRENT_GROUP_NAME='$(id -g -n)'
+HOST_CURRENT_USER_ID='$(id -u)'
+HOST_CURRENT_USER_NAME='$(id -n -u)'
+
+
+################################################################################
+# Ensure a group with same ID as current host group is available (create it if it does not exist)
+################################################################################
+if ! getent group \"\$HOST_CURRENT_GROUP_ID\"; then
+    groupadd -g \"\$HOST_CURRENT_GROUP_ID\" \"\$HOST_CURRENT_GROUP_NAME\"
+fi
+
+################################################################################
+# Find the name of the group to be used
+################################################################################
+CONTAINER_GROUP_NAME=\"\$(getent group \"\$HOST_CURRENT_GROUP_ID\" | cut -d : -f 1)\"
+
+################################################################################
+# Add a user with same ID as the current host user, and same group ID
+################################################################################
+useradd -g \"\$CONTAINER_GROUP_NAME\" -s /bin/bash -u \"\$HOST_CURRENT_USER_ID\" \"\$HOST_CURRENT_USER_NAME\"
+
+################################################################################
+# Execute command as the new user
+################################################################################
+su - \"\$HOST_CURRENT_USER_NAME\" -c"
+
+################################################################################
+
 
 TESTS="YES"
 SIMULATE="NO"
@@ -136,11 +203,13 @@ if [ "$SIMULATE" == "NO" ]; then
 else
     echo "=> Build arlas-server"
     docker run --rm \
-        -w /opt/maven \
 	    -v $PWD:/opt/maven \
-	    -v $HOME/.m2:/root/.m2 \
+	    -v $HOME/.m2:"/home/$(id -n -u)/.m2" \
 	    maven:3.5.0-jdk-8 \
-	    mvn clean install
+	    bash -c "$EXECUTE_DOCKER_DEBIAN_COMMAND_AS_CURRENT_OWNER '
+            cd /opt/maven
+            mvn clean install
+        '"
 fi
 
 echo "=> Start arlas-server stack"
@@ -175,13 +244,28 @@ ls target/tmp/
 #@see scripts/build-swagger-codegen.sh if you need a fresher version of swagger codegen
 docker run --rm \
 	-v $PWD:/opt/gen \
-	-v $HOME/.m2:/root/.m2 \
-	gisaia/swagger-codegen:2.3.1
+	gisaia/swagger-codegen:2.3.1 \
+    ash -c "$EXECUTE_DOCKER_ALPINE_COMMAND_AS_CURRENT_OWNER '
+        java \
+            -jar /opt/swagger/swagger-codegen-cli.jar \
+            generate \
+            -i /opt/gen/target/tmp/swagger.json \
+            -l typescript-fetch \
+            -o /opt/gen/target/tmp/typescript-fetch
+    '"
 
 docker run --rm \
 	-v $PWD:/opt/gen \
-	-v $HOME/.m2:/root/.m2 \
-	gisaia/swagger-codegen-python:2.2.3
+	gisaia/swagger-codegen-python:2.2.3 \
+    ash -c "$EXECUTE_DOCKER_ALPINE_COMMAND_AS_CURRENT_OWNER '
+        java \
+            -jar /opt/swagger/swagger-codegen-cli.jar \
+            generate \
+            -i /opt/gen/target/tmp/swagger.json \
+            -l python \
+            -o /opt/gen/target/tmp/python-api \
+            -c /opt/swagger/python-config.json
+    '"
 
 echo "=> Build Typescript API "${FULL_API_VERSION}
 cd ${BASEDIR}/target/tmp/typescript-fetch/
@@ -208,10 +292,12 @@ cp ${BASEDIR}/conf/python/setup.py setup.py
 sed -i.bak 's/\"api_version\"/\"'${FULL_API_VERSION}'\"/' setup.py
 
 docker run --rm \
-    -w /opt/python \
 	-v $PWD:/opt/python \
 	python:3 \
-	python setup.py sdist bdist_wheel
+    bash -c "$EXECUTE_DOCKER_DEBIAN_COMMAND_AS_CURRENT_OWNER '
+        cd /opt/python
+        python setup.py sdist bdist_wheel
+    '"	
 
 echo "=> Publish Python API "
 if [ "$SIMULATE" == "NO" ]; then
