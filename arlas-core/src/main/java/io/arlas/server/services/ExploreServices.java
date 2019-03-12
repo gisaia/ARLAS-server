@@ -402,9 +402,9 @@ public class ExploreServices {
     private void flat(Map<List<String>, Object> flat, AggregationResponse element, List<String> keyParts) {
         addToFlat(flat, keyParts, "count", element.count);
         addToFlat(flat, keyParts, "key", element.key);
-        addToFlat(flat, keyParts, "keyAsString", element.keyAsString);
+        addToFlat(flat, keyParts, "key_as_string", element.keyAsString);
         addToFlat(flat, keyParts, "name", element.name);
-        addToFlat(flat, keyParts, "queryTime", element.queryTime);
+        addToFlat(flat, keyParts, "query_time", element.queryTime);
         addToFlat(flat, keyParts, "sumotherdoccounts", element.sumotherdoccounts);
         addToFlat(flat, keyParts, "totalnb", element.totalnb);
         addToFlat(flat, keyParts, "totalTime", element.totalTime);

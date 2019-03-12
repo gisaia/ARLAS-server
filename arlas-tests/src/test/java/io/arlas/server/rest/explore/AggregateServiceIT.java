@@ -357,7 +357,7 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
         flattenedItems.add("params-age_avg_");
         flattenedItems.add("count");
         flattenedItems.add("key");
-        flattenedItems.add("keyAsString");
+        flattenedItems.add("key_as_string");
         return flattenedItems;
     }
 

@@ -59,8 +59,8 @@ The other parts must be specified or not depending on the aggregation type. All 
 | (**order**,**on**)        | `term, histogram, datehistogram`    | optional                                         |
 | **size**                  | `term, geohash`                     | optional                                         |
 | **include**               | `term`                              | optional                                         |
-| **fetchGeometry**         | All types                           | optional                                         |
-| **fetchHits**             | All types                           | optional                                         |
+| **fetch_geometry**         | All types                           | optional                                         |
+| **fetch_hits**             | All types                           | optional                                         |
 
 > Example: `agg=datehistogram:date:interval-20day:format-dd.MM.yyyy`&`agg=term:sexe:collect_field-age:collect_fct-avg:order-asc:on-result:size-5`
 
@@ -78,8 +78,8 @@ The sub-parameters possible values are:
 | **on**            | `field,count,result` (3) (3')                       | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
 | **size**          | {size}                                          | Defines how many buckets should be returned. |
 | **include**       | Comma separated strings (4)                     | Specifies the values for which buckets will be created. |
-| **fetchGeometry** | `bbox`, `centroid`, `byDefault`, `first`, `last`, `{field}-first`, `{field}-last`, `geohash`  or nothing specified      | Specifies which geometry to fetch for each bucket (5)(6)|
-| **fetchHits**     | `{optionalNumberOfHist}(+{field1}, {field2}, -{field3}, ...)       | Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits. The hits can be sorted according 0-* fields by preceding the field name by `+` for ascending sort, `-` for descending sort or nothing if no sort is desired on a field.|
+| **fetch_geometry** | `bbox`, `centroid`, `byDefault`, `first`, `last`, `{field}-first`, `{field}-last`, `geohash`  or nothing specified      | Specifies which geometry to fetch for each bucket (5)(6)|
+| **fetch_hits**     | `{optionalNumberOfHist}(+{field1}, {field2}, -{field3}, ...)       | Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits. The hits can be sorted according 0-* fields by preceding the field name by `+` for ascending sort, `-` for descending sort or nothing if no sort is desired on a field.|
 
 (1) Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
 
@@ -99,24 +99,24 @@ The `order` is applied on the first collect_fct `avg` (that is different from `g
 
 (4) If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created.
 
-(5) If **fetchGeometry** is specified, the returned geometry depends on the value it takes :
+(5) If **fetch_geometry** is specified, the returned geometry depends on the value it takes :
 
- - `fetchGeometry-bbox`: the returned geometry is the extend of data in each bucket
- - `fetchGeometry-centroid`: the returned geometry is the centroid of data in each bucket
- - `fetchGeometry` or `fetchGeometry-byDefault`: , the returned geometry is the centroid of the geohash for **geohash** aggregation and a random geometry for the other aggregation types.
- - `fetchGeometry-first`: the returned geometry is the geometry of the first hit in each bucket (chronogically)
- - `fetchGeometry-last`: the returned geometry is the geometry of the last hit in each bucket (chronogically)
- - `fetchGeometry-{field}-first`: then the returned geometry is the geometry of the first hiy in each bucket (ordered on the {field})
- - `fetchGeometry-{field}-last`: then the returned geometry is the geometry of the last hit in each bucket (ordered on the {field})
- - `fetchGeometry-geohash`: the returned geometry is the geohash extend of each bucket. It's applied only for **geohash** aggregation type. It is not supported for the rest of aggregation type.
+ - `fetch_geometry-bbox`: the returned geometry is the extend of data in each bucket
+ - `fetch_geometry-centroid`: the returned geometry is the centroid of data in each bucket
+ - `fetch_geometry` or `fetch_geometry-byDefault`: , the returned geometry is the centroid of the geohash for **geohash** aggregation and a random geometry for the other aggregation types.
+ - `fetch_geometry-first`: the returned geometry is the geometry of the first hit in each bucket (chronogically)
+ - `fetch_geometry-last`: the returned geometry is the geometry of the last hit in each bucket (chronogically)
+ - `fetch_geometry-{field}-first`: then the returned geometry is the geometry of the first hiy in each bucket (ordered on the {field})
+ - `fetch_geometry-{field}-last`: then the returned geometry is the geometry of the last hit in each bucket (ordered on the {field})
+ - `fetch_geometry-geohash`: the returned geometry is the geohash extend of each bucket. It's applied only for **geohash** aggregation type. It is not supported for the rest of aggregation type.
 
-(6) If **fetchGeometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics. Same for **fetchGeometry-bbox** and **collect_fct**=`geobbox`
+(6) If **fetch_geometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics. Same for **fetch_geometry-bbox** and **collect_fct**=`geobbox`
 
- - > Example: `fetchHits-3(-timestamp, geometry)`. The 3 last positions are retrieved for each bucket 
+ - > Example: `fetch_hits-3(-timestamp, geometry)`. The 3 last positions are retrieved for each bucket 
 
 *Note* that if the number of hits to fetch is not specified, 1 is considered as default.
 
- - > Example: `fetchHits:(-timestamp, geometry)`. The last position is retrieved for each bucket 
+ - > Example: `fetch_hits:(-timestamp, geometry)`. The last position is retrieved for each bucket 
 
 
 | Service             | Aggregation type    | Interval                                 | Description                              |

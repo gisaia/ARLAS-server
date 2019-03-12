@@ -6,4 +6,5 @@ ADD swagger-codegen/modules/swagger-codegen-cli/target/swagger-codegen-cli.jar /
 CMD java -jar /opt/swagger/swagger-codegen-cli.jar generate \
    -i /opt/gen/target/tmp/swagger.json \
    -l typescript-fetch \
+   --additional-properties modelPropertyNaming=snake_case \
    -o /opt/gen/target/tmp/typescript-fetch
