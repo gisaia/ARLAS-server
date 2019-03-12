@@ -19,6 +19,7 @@
 
 package io.arlas.server.rest.explore;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cyclops.data.tuple.Tuple3;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.Request;
@@ -29,6 +30,11 @@ import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.junit.Before;
 import org.junit.Test;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.notNullValue;
+
+import java.net.URLDecoder;
+import java.util.HashMap;
 
 public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     protected static Search search = new Search();
@@ -117,6 +123,36 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     }
 
     @Test
+    public void testPOSTLinkSearchAfter() throws Exception {
+        search.page.sort = "params.startdate,id";
+        search.page.size = 3;
+        RequestSpecification req0 = givenFilterableRequestBody();
+        ExtractableResponse response0 = req0.body(handlePostRequest(search))
+                .when().post(getUrlPath("geodata"))
+                .then().extract();
+        String id_0 = response0.path("hits[0].data.id");
+        Integer date_0 = response0.path("hits[0].data.params.startdate");
+        String id_2 = response0.path("hits[2].data.id");
+        search.page.sort = "params.startdate,id";
+        search.page.size = 1;
+        search.page.after = date_0.toString().concat(",").concat(id_0);
+        RequestSpecification req = givenFilterableRequestBody();
+        ExtractableResponse response = req.body(handlePostRequest(search))
+                .when().post(getUrlPath("geodata"))
+                .then().extract();
+        HashMap data = response.path("links.next.body");
+        String href = response.path("links.next.href");
+        ObjectMapper objectMapper = new ObjectMapper();
+        Search searchFromLink = objectMapper.convertValue(data,Search.class);
+        req.body(handlePostRequest(searchFromLink))
+                .when().post(href)
+                .then()
+                .body("hits[0].data.id", equalTo(id_2))
+                .body("links.next",notNullValue())
+                .statusCode(200);
+    }
+
+    @Test
     public void testGETSortWithAfterParameters() throws Exception {
         search.page.sort = "params.startdate,id";
         search.page.size = 3;
@@ -142,6 +178,41 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
 
         search.page.after = null;
     }
+
+    @Test
+    public void testGETLinkSearchAfter() throws Exception {
+        search.page.sort = "params.startdate,id";
+        search.page.size = 3;
+        RequestSpecification req0 = givenFilterableRequestBody();
+
+        ExtractableResponse response0 = req0
+                .param("sort", search.page.sort)
+                .param("size", search.page.size)
+                .when().get(getUrlPath("geodata"))
+                .then().extract();
+
+        String id_0 = response0.path("hits[0].data.id");
+        Integer date_0 = response0.path("hits[0].data.params.startdate");
+
+        String id_2 = response0.path("hits[2].data.id");
+        search.page.size = 1;
+        search.page.after = date_0.toString().concat(",").concat(id_0);
+        ExtractableResponse response = givenFilterableRequestBody()
+                .param("sort", search.page.sort)
+                .param("size", search.page.size)
+                .param("after", search.page.after)
+                .when().get(getUrlPath("geodata"))
+                .then().extract();
+        String href = response.path("links.next.href");
+        givenFilterableRequestBody().urlEncodingEnabled(true)
+                .when().get(URLDecoder.decode(href,"UTF-8"))
+                .then()
+                .body("hits[0].data.id", equalTo(id_2))
+                .body("links.next",notNullValue())
+                .statusCode(200);
+    }
+
+
 
     //----------------------------------------------------------------
     //------------------------- ERROR TESTS --------------------------
