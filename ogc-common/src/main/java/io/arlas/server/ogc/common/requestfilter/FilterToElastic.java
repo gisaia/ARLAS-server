@@ -27,6 +27,7 @@ import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
@@ -36,13 +37,15 @@ import io.arlas.server.inspire.common.enums.AdditionalQueryables;
 import io.arlas.server.inspire.common.enums.SupportedDublinCoreQueryables;
 import io.arlas.server.inspire.common.enums.SupportedISOQueryables;
 import io.arlas.server.inspire.common.utils.InspireCheckParam;
+import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.model.response.TimestampType;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.OGCCheckParam;
 import io.arlas.server.ogc.common.utils.XmlUtils;
-import org.elasticsearch.common.joda.Joda;
+import io.arlas.server.utils.TimestampTypeMapper;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
 import org.geotools.filter.Capabilities;
@@ -87,7 +90,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
     private static final ObjectReader mapReader = mapper.readerWithView(Map.class).forType(HashMap.class);
 
-    private static final DateTimeFormatter DEFAULT_DATE_FORMATTER = Joda.forPattern("epoch_millis").printer();
+    private static final DateTimeFormatter DEFAULT_DATE_FORMATTER = getDateTimeFormatter(TimestampType.epoch_millis.name());
 
     /**
      * The filter types that this class can encode
@@ -163,8 +166,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         nativeQueryBuilder = ImmutableMap.of("match_all", Collections.EMPTY_MAP);
         this.collectionReference = collectionReference;
         helper = new FilterToElasticHelper(this);
-        String dateFormat = collectionReference.params.customParams.get("timestamp_format");
-        dateFormatter = Joda.forPattern(dateFormat).printer();
+        String dateFormat = collectionReference.params.customParams.get(CollectionReference.TIMESTAMP_FORMAT);
+        dateFormatter = getDateTimeFormatter(dateFormat);
         this.service = service;
     }
 
@@ -1232,7 +1235,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         if (attType != null) {
             final String format = (String) attType.getUserData().get(DATE_FORMAT);
             if (format != null) {
-                dateFormatter = Joda.forPattern(format).printer();
+                dateFormatter = getDateTimeFormatter(format);
             }
         }
     }
@@ -1240,9 +1243,8 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     protected void updateDateFormatter(String key) {
         String[] pathElements = getPathElements(key);
         String format = getFormatFromPath(pathElements,collectionReference.properties);
-        dateFormatter = Joda.forPattern(format).printer();
+        dateFormatter = getDateTimeFormatter(format);
     }
-
 
     /*
      * helper to do a safe convesion of expression to a number
@@ -1491,6 +1493,14 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
             keyToSplit = splittedKeyList[1];
         }
         return keyToSplit.split("\\.");
+    }
+
+    private static DateTimeFormatter getDateTimeFormatter(String format) {
+        try {
+            return TimestampTypeMapper.getDateTimeFormatter(format).get();
+        } catch (ArlasException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

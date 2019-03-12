@@ -20,13 +20,19 @@
 package io.arlas.server.utils;
 
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.response.TimestampType;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.*;
+import org.joda.time.format.*;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class TimestampTypeMapper {
 
@@ -57,6 +63,24 @@ public class TimestampTypeMapper {
         return timestamp;
     }
 
+    public static Optional<DateTimeFormatter> getDateTimeFormatter(String format) throws ArlasException {
+        DateTimeFormatter dtf = null;
+        if (!StringUtil.isNullOrEmpty(format)) {
+            TimestampType type = TimestampType.getElasticsearchPatternName(format);
+            if (type.name().equals(TimestampType.UNKNOWN.name())) {
+                CheckParams.checkDateFormat(format);
+                dtf = DateTimeFormat.forPattern(format).withZoneUTC();
+            } else if (!type.name().equals(TimestampType.epoch_second.name()) && !type.name().equals(TimestampType.epoch_millis.name())) {
+                dtf = type.dateTimeFormatter.withZoneUTC();
+            } else if (type.name().equals(TimestampType.epoch_second.name())) {
+                dtf = (new DateTimeFormatterBuilder()).append(ElasticTool.getElasticEpochTimePrinter(false), ElasticTool.getElasticEpochTimeParser(false)).toFormatter().withZoneUTC();
+            } else if (type.name().equals(TimestampType.epoch_millis.name())) {
+                dtf = (new DateTimeFormatterBuilder()).append(ElasticTool.getElasticEpochTimePrinter(true), ElasticTool.getElasticEpochTimeParser(true)).toFormatter().withZoneUTC();
+            }
+        }
+        return Optional.ofNullable(dtf);
+    }
+
     public static void formatDate(Object timestamp, String elasticsearchDateFormat) {
         List<String> formatList = Arrays.asList(elasticsearchDateFormat.split("\\|\\|"));
         DateTime timestampDate = new DateTime((Long) timestamp);
@@ -66,7 +90,7 @@ public class TimestampTypeMapper {
             String format = formatList.get(0);
             TimestampType type = TimestampType.getElasticsearchPatternName(format);
             if (!type.name().equals(TimestampType.epoch_second.name()) && !type.name().equals(TimestampType.epoch_millis.name())) {
-                if (type.name().equals("UNKNOWN")) {
+                if (type.name().equals(TimestampType.UNKNOWN.name())) {
                     dtf = DateTimeFormat.forPattern(format);
                 } else {
                     dtf = type.dateTimeFormatter;
@@ -84,19 +108,8 @@ public class TimestampTypeMapper {
         // ==> no formatting needed
     }
 
-    private static Long parseDate(String format, String timestampPath) {
-        DateTimeFormatter dtf = null;
-        TimestampType type = TimestampType.getElasticsearchPatternName(format);
-        if (type.name().equals("UNKNOWN")) {
-            dtf = DateTimeFormat.forPattern(format);
-        } else {
-            dtf = type.dateTimeFormatter;
-        }
-        if (dtf != null) {
-            DateTime jodatime = dtf.parseDateTime(timestampPath);
-            return jodatime.getMillis();
-        } else {
-            return null;
-        }
+    public static Long parseDate(String format, String dateValue) throws ArlasException {
+        return getDateTimeFormatter(format).map(dtf -> dtf.parseDateTime(dateValue).getMillis()).orElse(null);
     }
+
 }
