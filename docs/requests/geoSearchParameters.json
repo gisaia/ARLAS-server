@@ -1,15 +1,24 @@
 {
   "filter": {
     "f": [
-      "country:eq:France",
-      "area:gte:10"
+      [
+        {
+          "field": "country",
+          "op": "eq",
+          "value": "France"
+        }
+      ],
+      [
+        {
+          "field": "area",
+          "op": "gte",
+          "value": "10"
+        }
+      ]
     ],
-    "pwithin": "45.3,-1,42.6,2.7"
+    "pwithin": [["-1,42.6,2.7,45.3"]]
   },
-  "form": {
-    "pretty": true
-  },
-  "sort": {
+  "page": {
     "sort": "-departure_passengers"
   }
 }

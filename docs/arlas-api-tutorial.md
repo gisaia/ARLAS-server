@@ -5,7 +5,7 @@
 This tutorial shows several examples of how to use the ARLAS API requests on a set of data. It will guide you through the
 various steps needed to :
 
-1. create an elasticsearch index and dump custom data in it;
+1. create an Elasticsearch index and dump custom data in it;
 2. reference the created index in ARLAS catalog to make it available for exploration and browsing, by creating an ARLAS
 collection reference;
 3. explore the data using the ARLAS API.
@@ -69,11 +69,12 @@ In this example, you 'll index 130 documents formatted according the **airport**
  - whose area is between 0,1 and 30 km²
  - whose number of passengers for departures and arrivals per year is between 5000 and 1500000 passengers
 
- Those airports are fictive and created randomly in each country.
+!!! info
+    These airports are fictional and are created randomly in each country.
 
 #### Indexing documents
 
-To index this documents in **airport_index** :
+To index these documents in **airport_index** :
 
 ```shell
 curl -H "Content-Type: application/json" \
@@ -83,8 +84,8 @@ curl -H "Content-Type: application/json" \
 
 ## Referencing the index in ARLAS
 
-In order to make your data available for exploration and browsing, you need to reference it in the ARLAS catalog.
-To do so, create a collection reference, which is an arbitrary name chosen by the user, using the ARLAS API request :
+Now, in order to make your data available for exploration and browsing, you need to reference it in the ARLAS catalog.
+To do so, create a collection reference with ARLAS collection API, using the following request :
 
 > **PUT** `/arlas/collections/{collection}`
 
@@ -96,63 +97,69 @@ curl -X PUT \
   --data @resources/collectionParams.json
 ```
 
-Where :
+!!! note "Note 1"
+    `airport_collection` is the collection reference name.
 
-- airport_collection is the collection reference name
-- collectionParams contains parameters that describe **airport_index**
+!!! note "Note 2"
+    `collectionParams.json` sums up the parameters that describe `airport_index` index
+    ```JSON
+            {
+              "index_name": "airport_index",
+              "type_name": "airport",
+              "id_path": "id",
+              "geometry_path": "geometry",
+              "centroid_path": "centroid",
+              "timestamp_path": "startdate",
+              "include_fields": "*"
+            }
+    ```
 
-```JSON
-        {
-          "index_name": "airport_index",
-          "type_name": "airport",
-          "id_path": "id",
-          "geometry_path": "geometry",
-          "centroid_path": "centroid",
-          "timestamp_path": "startdate",
-          "include_fields": "*"
-        }
-```
+## Examples using exploration API of ARLAS
 
-## Request examples
+ARLAS exploration API allows to search and analyse spatial-temporal big data.
 
-Here are some request examples using Arlas API. Please refer to the documentation.
+Here are some request examples using exploration API to discover `airport_collection` that we have just created. *Please refer to the [documentation](arlas-api-exploration.md)*.
 
 ### List
 
-To list and describe all the collections configured in ARLAS, use this service :
+To list and describe all the collections configured in ARLAS, you can use `_list` service :
 
 > **GET** `/explore/_list`
 
 ```shell
 curl -X GET \
   --header 'Accept: application/json' \
-  'http://localhost:9999/arlas/explore/_list'
+  'http://localhost:9999/arlas/explore/_list?pretty=true'
 ```
-
-The resulting list contains one item which is **airport_collection**.
+!!! success "Response"
+    The resulting list contains one item which is `airport_collection`.
 
 ### Describe
 
-If you want to describe a collection reference specifically, use :
+If you want to describe a collection reference specifically, you may use `_describe` service this way :
 
 > **GET** `/explore/{collection}/_describe`
 
 ```shell
 curl -X GET \
   --header 'Accept: application/json' \
-  'http://localhost:9999/arlas/explore/airport_collection/_describe?pretty=false'
+  'http://localhost:9999/arlas/explore/airport_collection/_describe?pretty=true'
 ```
 
 ### Count
 
-Assuming you want to know the number of airports located in France and whose area is above 10km². You can use the ***count*** service:
+`_count` service counts the number of elements found in a collection, given the filters.
+
+##### Example
+
+Assuming you want to know the number of airports located in France and whose area is above 10km². You can use `_count` service as follows:
 
 > **GET** `/explore/{collection}/_count`
 
 ```shell
 curl -X GET \
   --header 'Accept: application/json' \
-  'http://localhost:9999/arlas/explore/airport_collection/_count?f=country%3Aeq%3AFrance&f=area%3Agte%3A10&pretty=false'
+  'http://localhost:9999/arlas/explore/airport_collection/_count?f=country%3Aeq%3AFrance&f=area%3Agte%3A10&pretty=true'
 ```
 
 > **POST** `/explore/{collection}/_count`
@@ -161,37 +168,111 @@ curl -X GET \
 curl -X POST \
   --header 'Content-Type: application/json;charset=utf-8' \
   --header 'Accept: application/json' \
-  'http://localhost:9999/arlas/explore/airport_collection/_count' \
+  'http://localhost:9999/arlas/explore/airport_collection/_count?pretty=true' \
   --data @requests/countParameters.json
 ```
 
-where countParameters is :
-
-```JSON
+!!! note "Note"
+    In `countParameters.json` is defined the filter :
+    ```JSON
             {
               "filter": {
                 "f": [
-                  "country:eq:France",
-                  "area:gte:10"
+                  [
+                    {
+                      "field": "country",
+                      "op": "eq",
+                      "value": "France"
+                    }
+                  ],
+                  [
+                    {
+                      "field": "area",
+                      "op": "gte",
+                      "value": "10"
+                    }
+                  ]
                 ]
-              },
+              }
+            }
+    ```
+
+!!! success "Response"
+    ```JSON
+            {
+              "collection" : "airport_collection",
+              "nbhits" : 10,
+              "totalnb" : 16
+            }
+    ```
+    There is 16 airports in our data set.
+    
+### Count Distinct
+
+`_countDistinct` service counts the number of distinct values of a given field, given the filters
+
+##### Example
+
+In our data set, all airports have a `country` field. Assuming you want to know the number of countries of all the airports combined, ou can use the `_countDistinct` service:
+
+> **GET** `/explore/{collection}/_countDistinct`
+
+```shell
+curl -X GET \
+  --header 'Accept: application/json' \
+  'http://localhost:9999/arlas/explore/airport_collection/_countDistinct?field=country&pretty=true'
+```
+
+> **POST** `/explore/{collection}/_count`
+
+```shell
+curl -X POST \
+  --header 'Content-Type: application/json;charset=utf-8' \
+  --header 'Accept: application/json' \
+  'http://localhost:9999/arlas/explore/airport_collection/_countDistinct?pretty=true' \
+  --data @requests/countDistinctParameters.json
+```
+
+!!! note "Note"
+    In `countDistinctParameters.json` is defined the field :
+    ```JSON
+            {
+              "field": "country",
               "form": {
                 "pretty": true
               }
             }
-```
+    ```
 
-The result should be 16 airports.
+!!! success "Response"
+    ```JSON
+            {
+              "total_time" : 9,
+              "totalnb" : 140,
+              "field" : "country",
+              "value" : 4
+            }
+    ```
+     All the airports of our data set are within 4 countries.
 
+    
 ### Search - GeoSearch
 
-The **search** and **geosearch** services return the elements found in the collection, given the filters. Both services take the same
-parameters. Only, they return different formats : **search** service returns elements as JSON and **geosearch** service as GeoJSON.
+The `_search` and `_geosearch` services return the elements found in the collection, given the filters. Both services take the same
+parameters. Only, they return different formats : **_search** service returns elements as JSON and **_geosearch** service as GeoJSON.
 
 ##### Example 1
 
 Assuming you look for airports located in the US, whose number of arrival passengers per year is less than 120000 passengers and
-that you're only interested in the 3 smallest ones.
+that you're only interested in the 2 smallest ones.
+
+> **GET** `/arlas/explore/{collection}/_search`
+
+```shell
+curl -X GET \
+  --header 'Accept: application/json' \
+  'http://localhost:9999/arlas/explore/airport_collection/_search?f=country%3Aeq%3AUS&f=arrival_passengers%3Alte%3A120000&size=2&from=0&sort=area&pretty=true'
+```
 
 > **POST** `/arlas/explore/airport_collection/_search`
 
@@ -199,45 +280,114 @@ that you're only interested in the 3 smallest ones.
 curl -X POST \
   --header 'Content-Type: application/json;charset=utf-8' \
   --header 'Accept: application/json' \
-  'http://localhost:9999/arlas/explore/airport_collection/_search' \
+  'http://localhost:9999/arlas/explore/airport_collection/_search?pretty=true' \
   --data @requests/searchParameters.json
 ```
 
-where searchParameters is :
-
-```JSON
+!!! note "Note"
+    `searchParameters.json` is the corresponding request's body
+    ```JSON
             {
               "filter": {
-                "f": [
-                  "country:eq:US",
-                  "arrival_passengers:lte:120000"
-                ]
-              },
-              "form": {
-                "pretty": true
-              },
-              "size": {
-                "size": 3,
-                "from": 0
-              },
-              "sort": {
-                "sort": "area"
-              }
+                  "f": [
+                    [
+                      {
+                        "field": "country",
+                        "op": "eq",
+                        "value": "US"
+                      }
+                    ],
+                    [
+                      {
+                        "field": "arrival_passengers",
+                        "op": "lte",
+                        "value": "120000"
+                      }
+                    ]
+                  ]
+                },
+                "page": {
+                  "size": 2,
+                  "from": 0,
+                  "sort": "area"
+                }
             }
-```
+    ```
 
-> **GET** `/arlas/explore/{collection}/_search`
-
-```shell
-curl -X GET \
-  --header 'Accept: application/json' \
-  'http://localhost:9999/arlas/explore/airport_collection/_search?f=country%3Aeq%3AUS&f=arrival_passengers%3Alte%3A120000&pretty=false&include=*&size=3&from=0&sort=area'
-```
+!!! success "Response"
+    ```JSON
+            {
+              "collection" : "airport_collection",
+              "hits" : [ {
+                "md" : {
+                  "id" : "101",
+                  "timestamp" : 872632800000,
+                  "geometry" : {
+                    "type" : "Point",
+                    "coordinates" : [ -103.0069, 44.5 ]
+                  },
+                  "centroid" : {
+                    "type" : "Point",
+                    "coordinates" : [ -103.0069, 44.5 ]
+                  }
+                },
+                "data" : {
+                  "airport_type" : "heliport",
+                  "continent" : "America",
+                  "area" : 2,
+                  "country" : "US",
+                  "departure_passengers" : 581533,
+                  "arrival_passengers" : 103471,
+                  "centroid" : "44.5,-103.0069",
+                  "name" : "airport 101",
+                  "geometry" : "44.5,-103.0069",
+                  "id" : 101,
+                  "startdate" : "1997-08-27"
+                }
+              }, {
+                "md" : {
+                  "id" : "23",
+                  "timestamp" : 1408312800000,
+                  "geometry" : {
+                    "type" : "Point",
+                    "coordinates" : [ -90.1384, 45.4 ]
+                  },
+                  "centroid" : {
+                    "type" : "Point",
+                    "coordinates" : [ -90.1384, 45.4 ]
+                  }
+                },
+                "data" : {
+                  "airport_type" : "airport",
+                  "continent" : "America",
+                  "area" : 3.1,
+                  "country" : "US",
+                  "departure_passengers" : 821528,
+                  "arrival_passengers" : 118860,
+                  "centroid" : "45.4,-90.1384",
+                  "name" : "airport 23",
+                  "geometry" : "45.4,-90.1384",
+                  "id" : 23,
+                  "startdate" : "2014-08-18"
+                }
+              } ],
+              "nbhits" : 2,
+              "totalnb" : 8
+    ```
+     There are 8 airports matching the filter. Only the two smallest ones are returned.
 
 ##### Example 2
 
 Assuming you look for airports located in a specific region in the south of France, whose area is greater than 10km² and
 that you want the result to be sorted decreasingly on the number of departure passengers .
+
+> **GET** `/arlas/explore/{collection}/_geosearch`
+
+```shell
+curl -X GET \
+  --header 'Accept: application/json' \
+  'http://localhost:9999/arlas/explore/airport_collection/_geosearch?f=country%3Aeq%3AFrance&f=area%3Agte%3A5&pwithin=-1%2C42.6%2C2.7%2C45.3&sort=-departure_passengers&pretty=true'
+```
 
 > **POST** `/arlas/explore/{collection}/_geosearch`
 
@@ -245,90 +395,184 @@ that you want the result to be sorted decreasingly on the number of departure pa
 curl -X POST \
   --header 'Content-Type: application/json;charset=utf-8' \
   --header 'Accept: application/json' \
- 'http://localhost:9999/arlas/explore/airport_collection/_geosearch' \
+ 'http://localhost:9999/arlas/explore/airport_collection/_geosearch?pretty=true' \
   --data @requests/geoSearchParameters.json
 ```
 
-where geoSearchParameters is
+!!! note "Note"
+    `geoSearchParameters.json` is the corresponding request's body 
+    ```JSON
+    {
+      "filter": {
+        "f": [
+          [
+            {
+              "field": "country",
+              "op": "eq",
+              "value": "France"
+            }
+          ],
+          [
+            {
+              "field": "area",
+              "op": "gte",
+              "value": 10
+            }
+          ]
+        ],
+        "pwithin": [["-1,42.6,2.7,45.3"]]
+      },
+      "page": {
+        "sort": "-departure_passengers"
+      }
+    }
+    ```
+    
+!!! success "Response"
+    ```JSON
+            {
+              "type" : "FeatureCollection",
+              "features" : [ {
+                "type" : "Feature",
+                "properties" : {
+                  "airport_type" : "heliport",
+                  "continent" : "Europe",
+                  "area" : 19.3,
+                  "feature_type" : "hit",
+                  "country" : "France",
+                  "departure_passengers" : 1102773,
+                  "arrival_passengers" : 92077,
+                  "centroid" : "45.0835,0.3",
+                  "name" : "airport 8",
+                  "id" : 8,
+                  "startdate" : "1990-04-16"
+                },
+                "geometry" : {
+                  "type" : "Point",
+                  "coordinates" : [ 0.3, 45.0835 ]
+                }
+              }, {
+                "type" : "Feature",
+                "properties" : {
+                  "airport_type" : "heliport",
+                  "continent" : "Europe",
+                  "area" : 13.9,
+                  "feature_type" : "hit",
+                  "country" : "France",
+                  "departure_passengers" : 808842,
+                  "arrival_passengers" : 1195080,
+                  "centroid" : "44.6379,2",
+                  "name" : "airport 10",
+                  "id" : 10,
+                  "startdate" : "1980-12-13"
+                },
+                "geometry" : {
+                  "type" : "Point",
+                  "coordinates" : [ 2.0, 44.6379 ]
+                }
+              } ]
+            }
+    ```
+    There are 2 airports matching the filter
 
-```JSON
-{
-  "filter": {
-    "f": [
-      "country:eq:France",
-      "area:gte:10"
-      ],
-    "pwithin": "45.3,-1,42.6,2.7"
-  },
-  "form": {
-  "pretty": true
-  },
-  "sort": {
-    "sort": "-departure_passengers"
-  }
-}
-```
-
-> **GET** `/arlas/explore/{collection}/_geosearch`
-
-```shell
-curl -X GET \
-  --header 'Accept: application/json' \
-  'http://localhost:9999/arlas/explore/airport_collection/_geosearch?f=country%3Aeq%3AFrance&f=area%3Agte%3A5&pwithin=45.3%2C-1%2C42.6%2C2.7&pretty=false&exclude=city%2Cstate&size=10&from=0&sort=-departure_passengers'`
-```
 
 ### Aggregate - GeoAggregate
 
-The **aggregate** and **geoaggregate** services aggregate the elements in the collection, given the filters and the aggregation parameters. Both services take the same
-parameters. Only, they return different formats : **aggregate** service returns elements as JSON and **geoaggregate** service as GeoJSON.
+The `_aggregate` and `_geoaggregate` services aggregate the elements in the collection, given the filters and the aggregation parameters. Both services take the same
+parameters. Only, they return different formats : **_aggregate** service returns elements as JSON and **_geoaggregate** service as GeoJSON.
 
 ##### Example 1
 
-Assuming you want to know the number of airports and the area of the largest one in each country of Europe.
-
-> **POST** `/arlas/explore/{collection}/_aggregate`
-
-```shell
-curl -X POST --header 'Content-Type: application/json;charset=utf-8' --header 'Accept: application/json' --data @requests/aggregateParameters.json 'http://localhost:9999/arlas/explore/airport_collection/_aggregate'
-```
-
-Where aggregateParameters is :
-
-```JSON
-            {
-              "filter": {
-                "f": [
-                  "continent:eq:Europe"
-                ]
-              },
-              "form": {
-                "pretty": true
-              },
-              "aggregations": {
-                "aggregations": [
-                  {
-                    "type": "term",
-                    "field": "country",
-                    "collectField": "area",
-                    "collectFct": "max"
-                  }
-                ]
-              }
-            }
-```
+Assuming you want to know how many airports are in each country of Europe and the area of the largest ones.
 
 > **GET** `/arlas/explore/{collection}/_aggregate`
 
 ```shell
 curl -X GET \
   --header 'Accept: application/json' \
-   'http://localhost:9999/arlas/explore/airport_collection/_aggregate?agg=term%3Acountry%3Acollect_field-area%3Acollect_fct-max&f=continent%3Aeq%3AEurope&pretty=false'
+   'http://localhost:9999/arlas/explore/airport_collection/_aggregate?f=continent%3Aeq%3AEurope&agg=term%3Acountry%3Acollect_field-area%3Acollect_fct-max&&pretty=true'
 ```
+
+> **POST** `/arlas/explore/{collection}/_aggregate`
+
+```shell
+curl -X POST --header 'Content-Type: application/json;charset=utf-8' --header 'Accept: application/json' --data @requests/aggregateParameters.json 'http://localhost:9999/arlas/explore/airport_collection/_aggregate?pretty=true'
+```
+
+!!! note "Note"
+    `aggregateParameters.json` is the corresponding request's body 
+    ```JSON
+            {
+              "filter": {
+                "f": [
+                  [
+                    {
+                      "field": "continent",
+                      "op": "eq",
+                      "value": "Europe"
+                    }
+                  ]
+                ]
+              },
+              "aggregations": [
+                {
+                  "type": "term",
+                  "field": "country",
+                  "metrics": [
+                    {
+                      "collectField": "area",
+                      "collectFct": "max"
+                    }
+                  ]
+                }
+              ]
+            }
+    ```
+
+!!! success "Response"
+    ```JSON
+            {
+              "query_time" : 68,
+              "total_time" : 78,
+              "totalnb" : 30,
+              "name" : "Term aggregation",
+              "sumotherdoccounts" : 0,
+              "elements" : [ {
+                "count" : 20,
+                "key" : "France",
+                "key_as_string" : "France",
+                "metrics" : [ {
+                  "type" : "max",
+                  "field" : "area",
+                  "value" : 31.1
+                } ]
+              }, {
+                "count" : 10,
+                "key" : "Germany",
+                "key_as_string" : "Germany",
+                "metrics" : [ {
+                  "type" : "max",
+                  "field" : "area",
+                  "value" : 32.3
+                } ]
+              } ]
+            }
+    ```
+    There are 20 airports in France, the largest one is 31.1km².
+    In Germany, there are 10 airports. The largest one is 32.3km².
 
 
 ##### Example 2
 
-Assuming you want to aggregate the airports on geohashes which length is 1 . Then in each geohash you want to know the number of arrival passengers for each airport type.
+Assuming you want to aggregate the airports on geohashes which precision is 1 . Then in each geohash you want to know the total number of arrival passengers for each airport type.
+
+> **GET** `/arlas/explore/{collection}/_geoaggregate`
+
+```shell
+curl -X GET \
+  --header 'Accept: application/json' \
+  'http://localhost:9999/arlas/explore/airport_collection/_geoaggregate?agg=geohash%3Acentroid%3Ainterval-1&agg=term%3Aairport_type%3Acollect_field-arrival_passengers%3Acollect_fct-sum&pretty=true'
+```
 
 > **POST** `/arlas/explore/{collection}/_geoaggregate`
 
@@ -336,39 +580,72 @@ Assuming you want to aggregate the airports on geohashes which length is 1 . The
 curl -X POST \
   --header 'Content-Type: application/json;charset=utf-8' \
   --header 'Accept: application/json' \
-  'http://localhost:9999/arlas/explore/airport_collection/_geoaggregate' \
+  'http://localhost:9999/arlas/explore/airport_collection/_geoaggregate?pretty=true' \
   --data @requests/geoAggregateParameters.json
 ```
 
-Where geoAggregateParameters is :
+!!! note "Note"
+    `geoAggregateParameters.json` is the corresponding request's body
+    ```JSON
+        {
+          "aggregations": [
+            {
+              "type": "geohash",
+              "field": "centroid",
+              "interval": {
+                "value": 1
+              }
+            },
+            {
+              "type": "term",
+              "field": "airport_type",
+              "metrics": [
+                {
+                  "collectField": "arrival_passengers",
+                  "collectFct": "sum"
+                }
+              ]
+            }
+          ]
+        }
+    ```
 
-```JSON
-    {
-      "form": {
-        "pretty": true
-      },
-      "aggregations": {
-        "aggregations": [
-          {
-            "type": "geohash",
-            "field": "centroid",
-            "interval": "1"
-          },
-          {
-            "type": "term",
-            "field": "airport_type",
-            "collectField": "arrival_passengers",
-            "collectFct": "sum"
-          }
-        ]
-      }
-    }
-```
-
- > **GET** `/arlas/explore/{collection}/_geoaggregate`
-
-```shell
-curl -X GET \
-  --header 'Accept: application/json' \
-  'http://localhost:9999/arlas/explore/airport_collection/_geoaggregate?agg=geohash%3Acentroid%3Ainterval-1&agg=term%3Aairport_type%3Acollect_field-arrival_passengers%3Acollect_fct-sum&pretty=false'
-```
+!!! success "Response"
+    ```JSON
+        {
+          "type" : "FeatureCollection",
+          "features" : [
+            {
+              "type" : "Feature",
+              "properties" : {
+                "feature_type" : "aggregation",
+                "geohash" : "9",
+                "elements" : [{
+                  "name" : "Term aggregation",
+                  "sumotherdoccounts" : 0,
+                  "elements" : [ 
+                    {
+                      "count" : 48,
+                      "key" : "heliport",
+                      "key_as_string" : "heliport",
+                      "metrics" : [{
+                        "type" : "sum",
+                        "field" : "arrival_passengers",
+                        "value" : 4.0138731E7
+                      }]
+                    }, 
+                    ...
+                  ]
+                }],
+                "count" : 88,
+                "metrics" : [ ]
+              },
+              "geometry" : {
+                "type" : "Point",
+                "coordinates" : [ -112.5, 22.5 ]
+              }
+            }, 
+            ...
+          ]
+        }
+    ```

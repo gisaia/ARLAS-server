@@ -1,18 +1,25 @@
 {
   "filter": {
     "f": [
-      "country:eq:US",
-      "arrival_passengers:lte:120000"
+      [
+        {
+          "field": "country",
+          "op": "eq",
+          "value": "US"
+        }
+      ],
+      [
+        {
+          "field": "arrival_passengers",
+          "op": "lte",
+          "value": "120000"
+        }
+      ]
     ]
   },
-  "form": {
-    "pretty": true
-  },
-  "size": {
-    "size": 3,
-    "from": 0
-  },
-  "sort": {
+  "page": {
+    "size": 2,
+    "from": 0,
     "sort": "area"
   }
 }
