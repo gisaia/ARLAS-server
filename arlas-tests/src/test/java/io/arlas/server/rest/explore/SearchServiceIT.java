@@ -70,7 +70,12 @@ public class SearchServiceIT extends AbstractProjectedTest {
                 .body("hits[0].data.params.city", isEmptyOrNullString())
                 .body("hits[0].data.params.country", equalTo("Andorra"))
                 .body("hits[0].data.geo_params.centroid", equalTo("20,-10"))
-                .body("hits[0].md.timestamp", equalTo(1009800));
+                .body("hits[0].md.id", equalTo("ID__10_20DI"))
+                .body("hits[0].md.timestamp", equalTo(1009800))
+                .body("hits[0].md.centroid.type", equalTo("Point"))
+                .body("hits[0].md.centroid", hasKey("coordinates"))
+                .body("hits[0].md.geometry.type", equalTo("Polygon"))
+                .body("hits[0].md.geometry", hasKey("coordinates"));
     }
 
     @Override

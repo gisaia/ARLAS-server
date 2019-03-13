@@ -24,11 +24,14 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
+import io.arlas.server.utils.StringUtil;
 import io.arlas.server.utils.TimestampTypeMapper;
 import io.dropwizard.jackson.JsonSnakeCase;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @JsonSnakeCase
 public class Hit {
@@ -46,24 +49,27 @@ public class Hit {
     public Hit() {
     }
 
-    public Hit(CollectionReference collectionReference, Map<String, Object> source, Boolean flat) throws ArlasException {
+    public Hit(CollectionReference collectionReference, Map<String, Object> source, Boolean flat, Boolean ignoreGeo) throws ArlasException {
         this.flat = flat;
-        dataAsMap = flat ? MapExplorer.flat(source,new MapExplorer.ReduceArrayOnKey("_"), new HashSet<>()) : source;
-        data = dataAsMap;
+
         md = new MD();
         if (collectionReference.params.idPath != null) {
             md.id = "" + MapExplorer.getObjectFromPath(collectionReference.params.idPath, source);
         }
         if (collectionReference.params.centroidPath != null) {
-            Object m = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
-            if (m != null) {
-                md.centroid = GeoTypeMapper.getGeoJsonObject(m);
+            try {
+                Object m = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
+                md.centroid = m != null ? GeoTypeMapper.getGeoJsonObject(m) : null;
+            } catch (ArlasException e) {
+                e.printStackTrace();
             }
         }
         if (collectionReference.params.geometryPath != null) {
-            Object m = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
-            if (m != null) {
-                md.geometry = GeoTypeMapper.getGeoJsonObject(m);
+            try {
+                Object m = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
+                md.geometry = m != null ? GeoTypeMapper.getGeoJsonObject(m) : null;
+            } catch (ArlasException e) {
+                e.printStackTrace();
             }
         }
         if (collectionReference.params.timestampPath != null) {
@@ -73,6 +79,19 @@ public class Hit {
                 md.timestamp = TimestampTypeMapper.getTimestamp(t, f);
             }
         }
+        if (ignoreGeo) {
+            getGeoPathsToExcludeFromResponse(collectionReference).stream().forEach(e->{
+                if (e.contains(".")) {
+                    String pathToRemove = e.substring(0,e.lastIndexOf("."));
+                    String keyToRemove = e.substring(e.lastIndexOf(".")+1);
+                    Optional.ofNullable((Map) MapExplorer.getObjectFromPath(pathToRemove, source)).map(objectWithAttributeToRemove -> objectWithAttributeToRemove.remove(keyToRemove));
+                } else {
+                    source.remove(e);
+                }
+            });
+        }
+        dataAsMap = flat ? MapExplorer.flat(source,new MapExplorer.ReduceArrayOnKey("_"), new HashSet<>()) : source;
+        data = dataAsMap;
     }
 
     public boolean isFlat() {
@@ -81,5 +100,14 @@ public class Hit {
 
     public Map<String, Object> getDataAsMap() {
         return dataAsMap;
+    }
+
+    private Set<String> getGeoPathsToExcludeFromResponse(CollectionReference collectionReference){
+        Set<String> excludeFromData = new HashSet<>();
+        //excludeFromData.add(collectionReference.params.centroidPath); TODO : decide whether the centroid should be in the response or not
+        if(!StringUtil.isNullOrEmpty(collectionReference.params.geometryPath)){
+            excludeFromData.add(collectionReference.params.geometryPath);
+        }
+        return excludeFromData;
     }
 }

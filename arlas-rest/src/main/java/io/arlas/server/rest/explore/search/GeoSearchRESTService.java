@@ -27,6 +27,8 @@ import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.app.Documentation;
+import io.arlas.server.model.response.Hit;
+import io.arlas.server.model.response.MD;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.*;
@@ -212,7 +214,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         request.headerRequest = searchHeader;
 
-        FeatureCollection fc = getFeatures(collectionReference, request, (flat!=null && flat), getExcludeFromData(collectionReference));
+        FeatureCollection fc = getFeatures(collectionReference, request, (flat!=null && flat));
         return cache(Response.ok(fc), maxagecache);
     }
 
@@ -469,11 +471,11 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat), getExcludeFromData(collectionReference));
+        FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat));
         return cache(Response.ok(fc), maxagecache);
     }
 
-    protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request, boolean flat, Set<String> exclude) throws ArlasException, IOException {
+    protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request, boolean flat) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
         FeatureCollection fc = new FeatureCollection();
         SearchHit[] results = searchHits.getHits();
@@ -481,53 +483,31 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             Feature feature = new Feature();
             Map<String, Object> source = hit.getSourceAsMap();
 
-            //Check geometry and centroid value
-            GeoJsonObject geometryGeoJson = null;
-            GeoJsonObject centroidGeoJson = null;
-            try {
-                Object geometry = collectionReference.params.geometryPath != null ?
-                        MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source) : null;
-                geometryGeoJson = geometry != null ?
-                        GeoTypeMapper.getGeoJsonObject(geometry) : null;
-            } catch (ArlasException e) {
-                e.printStackTrace();
-            }
-            try {
-                Object centroid = (geometryGeoJson == null && collectionReference.params.centroidPath != null) ?
-                        MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source) : null;
-                centroidGeoJson = centroid != null ?
-                        GeoTypeMapper.getGeoJsonObject(centroid) : null;
-            } catch (ArlasException e) {
-                e.printStackTrace();
+            Hit arlasHit = new Hit(collectionReference, source, flat, true);
+
+            /** Setting geometry of geojson */
+            //Apply geometry or centroid to geo json feature
+            if (arlasHit.md.geometry != null) {
+                feature.setGeometry(arlasHit.md.geometry);
+            } else if (arlasHit.md.centroid != null) {
+                feature.setGeometry(arlasHit.md.centroid);
             }
 
-            //Apply geometry or centroid to geo json feature
-            if (geometryGeoJson != null) {
-                feature.setGeometry(geometryGeoJson);
-            } else if (centroidGeoJson != null) {
-                feature.setGeometry(centroidGeoJson);
-            }
-            exclude.stream().forEach(e->{
-                if (e.contains(".")) {
-                    String pathToRemove = e.substring(0,e.lastIndexOf("."));
-                    String keyToRemove = e.substring(e.lastIndexOf(".")+1);
-                    Optional.ofNullable((Map) MapExplorer.getObjectFromPath(pathToRemove, source)).map(objectWithAttributeToRemove -> objectWithAttributeToRemove.remove(keyToRemove));
-                } else {
-                    source.remove(e);
-                }
-            });
-            feature.setProperties(flat?MapExplorer.flat(source,new MapExplorer.ReduceArrayOnKey("_"), exclude):source);
+            /** setting the properties of the geojson */
+            feature.setProperties(arlasHit.getDataAsMap());
+
+            /** Setting the Metadata (md) in properties of geojson.
+             * Only id, timestamp and centroid are set in the MD. The geometry is already returned in the geojson.*/
+            MD md = new MD();
+            md.id = arlasHit.md.id;
+            md.timestamp = arlasHit.md.timestamp;
+            md.centroid = arlasHit.md.centroid;
+            feature.setProperty(MD.class.getSimpleName().toLowerCase(), md);
+
+            /** Setting the feature type of the geojson */
             feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
             fc.add(feature);
         }
         return fc;
-    }
-    private Set<String> getExcludeFromData(CollectionReference collectionReference){
-    Set<String> excludeFromData = new HashSet<>();
-        //excludeFromData.add(collectionReference.params.centroidPath); TODO : decide whether the centroid should be in the response or not
-        if(!StringUtil.isNullOrEmpty(collectionReference.params.geometryPath)){
-            excludeFromData.add(collectionReference.params.geometryPath);
-        }
-        return excludeFromData;
     }
 }

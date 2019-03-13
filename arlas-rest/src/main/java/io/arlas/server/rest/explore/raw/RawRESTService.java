@@ -107,7 +107,7 @@ public class RawRESTService extends ExploreRESTServices {
             throw new NotFoundException("Document " + identifier + " not found.");
         }
 
-        Hit hit = new Hit(collectionReference, source, BooleanUtils.isTrue(flat));
+        Hit hit = new Hit(collectionReference, source, BooleanUtils.isTrue(flat), false);
         return cache(Response.ok(hit), maxagecache);
     }
 }
