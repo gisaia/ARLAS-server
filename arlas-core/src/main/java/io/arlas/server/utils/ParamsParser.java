@@ -36,6 +36,9 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -51,10 +54,14 @@ public class ParamsParser {
     private static final String AGG_INCLUDE_PARAM = "include-";
     private static final String AGG_FETCHGEOMETRY_PARAM = "fetchGeometry";
     private static final String INVALID_DATE_MATH_EXPRESSION = "Invalid date math expression";
+    private static final String AGG_FETCHHITS_PARAM = "fetchHits-";
+
+    private static final Pattern HITS_FETCHER_PATTERN = Pattern.compile("(\\d*)(\\()(.*)(\\))");
 
     public static final String RANGE_ALIASES_CHARACTER = "$";
     public static final String TIMESTAMP_ALIAS = "timestamp";
     public static final String BAD_FIELD_ALIAS = "This alias does not represent a collection configured field. ";
+
 
     public static List<Aggregation> getAggregations(List<String> agg) throws ArlasException {
         List<Aggregation> aggregations = new ArrayList<>();
@@ -97,12 +104,28 @@ public class ParamsParser {
                 aggregationModel.include = parameter.substring(AGG_INCLUDE_PARAM.length());
             } else if (parameter.contains(AGG_FETCHGEOMETRY_PARAM)) {
                 aggregationModel.fetchGeometry = getAggregatedGeometry(parameter.substring(AGG_FETCHGEOMETRY_PARAM.length()));
+            } else if (parameter.contains(AGG_FETCHHITS_PARAM)) {
+                aggregationModel.fetchHits = getHitsFetcher(parameter.substring(AGG_FETCHHITS_PARAM.length()));
             } else if (parameter.equals(agg.get(1))) {
                 aggregationModel.field = parameter;
             }
         }
         aggregationModel.metrics = getAggregationMetrics(agg);
         return aggregationModel;
+    }
+
+    private static HitsFetcher getHitsFetcher(String fetchHitsString) throws ArlasException {
+        HitsFetcher hitsFetcher = new HitsFetcher();
+        if (StringUtil.isNullOrEmpty(fetchHitsString)) {
+            throw new BadRequestException("fetchHits should not be null nor empty");
+        }
+        Matcher matcher = HITS_FETCHER_PATTERN.matcher(fetchHitsString);
+        if (!matcher.matches()) {
+            throw new InvalidParameterException("Invalid fetchHits syntax. It should respect the following pattern : {size*}(+{field1}, -{field2}, {field3}, ...)");
+        }
+        hitsFetcher.size = Optional.ofNullable(ParamsParser.tryParseInteger(matcher.group(1))).orElse(1);
+        hitsFetcher.include = Arrays.asList(matcher.group(3).split(","));
+        return hitsFetcher;
     }
 
     private static AggregatedGeometry getAggregatedGeometry(String fetchGeometryString) throws ArlasException {

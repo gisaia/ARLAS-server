@@ -36,6 +36,7 @@ import io.arlas.server.model.enumerations.AccessConstraintEnum;
 import io.arlas.server.model.enumerations.InspireAccessClassificationEnum;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ElasticTool;
+import io.arlas.server.utils.StringUtil;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -153,59 +154,24 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     private void checkCollectionReferenceParameters(CollectionReference collectionReference) throws ArlasException {
-        GetMappingsResponse response;
-        try {
-            //check index
-            response = client.admin().indices().prepareGetMappings(collectionReference.params.indexName)/*.setTypes(collectionReference.params.typeName)*/.get();
-            if (response.getMappings().isEmpty()) {
-                throw new NotFoundException("No types in " + collectionReference.params.indexName + ".");
-            }
-
-            //get fields
-            List<String> fields = new ArrayList<>();
-            if (collectionReference.params.idPath != null)
-                fields.add(collectionReference.params.idPath);
-            if (collectionReference.params.geometryPath != null)
-                fields.add(collectionReference.params.geometryPath);
-            if (collectionReference.params.centroidPath != null)
-                fields.add(collectionReference.params.centroidPath);
-            if (collectionReference.params.timestampPath != null)
-                fields.add(collectionReference.params.timestampPath);
-            if(collectionReference.params.excludeFields!=null && collectionReference.params.excludeFields!=""){
-                List<String> excludeField = Arrays.asList(collectionReference.params.excludeFields.split(","));
-                CheckParams.checkExcludeField(excludeField, fields);
-            }
-
-            Iterator<String> indeces = response.getMappings().keysIt();
-            while (indeces.hasNext()) {
-                String index = indeces.next();
-                //check type
-                try {
-                    if (!response.getMappings().get(index).containsKey(collectionReference.params.typeName)) {
-                        throw new NotFoundException("Type " + collectionReference.params.typeName + " does not exist in " + collectionReference.params.indexName + ".");
-                    }
-                    Object properties = response.getMappings().get(index).get(collectionReference.params.typeName).sourceAsMap().get("properties");
-                    if (properties == null) {
-                        throw new NotFoundException("Unable to find properties from " + collectionReference.params.typeName + " in " + index + ".");
-                    }
-                } catch (Exception e) {
-                    throw new NotFoundException("Unable to get " + collectionReference.params.typeName + " in " + index + ".");
-                }
-
-                //check fields
-                if (!fields.isEmpty()) {
-                    ElasticTool.checkIndexMappingFields(client, index, collectionReference.params.typeName, fields.toArray(new String[fields.size()]));
-                    setTimestampFormatOfCollectionReference(index, collectionReference.params);
-                }
-
-
-            }
-        } catch (ArlasException e) {
-            throw e;
-        } catch (IndexNotFoundException e) {
-            throw new NotFoundException("Index " + collectionReference.params.indexName + " does not exist.");
-        } catch (Exception e) {
-            throw new NotFoundException("Unable to access " + collectionReference.params.typeName + " in " + collectionReference.params.indexName + ".");
+        //get fields
+        List<String> fields = new ArrayList<>();
+        if (collectionReference.params.idPath != null)
+            fields.add(collectionReference.params.idPath);
+        if (collectionReference.params.geometryPath != null)
+            fields.add(collectionReference.params.geometryPath);
+        if (collectionReference.params.centroidPath != null)
+            fields.add(collectionReference.params.centroidPath);
+        if (collectionReference.params.timestampPath != null)
+            fields.add(collectionReference.params.timestampPath);
+        if(!StringUtil.isNullOrEmpty(collectionReference.params.excludeFields)){
+            List<String> excludeField = Arrays.asList(collectionReference.params.excludeFields.split(","));
+            CheckParams.checkExcludeField(excludeField, fields);
+        }
+        ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, collectionReference.params.typeName, fields.toArray(new String[fields.size()]));
+        List<String> indeces = ElasticTool.getIndecesName(client, collectionReference.params.indexName, collectionReference.params.typeName);
+        for (String index : indeces) {
+            setTimestampFormatOfCollectionReference(index, collectionReference.params);
         }
     }
 

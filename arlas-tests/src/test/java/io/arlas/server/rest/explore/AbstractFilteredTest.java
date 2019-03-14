@@ -802,6 +802,10 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         then.statusCode(404);
     }
 
+    protected void handleNotFoundField(ValidatableResponse then) throws Exception {
+        then.statusCode(404);
+    }
+
     protected void handleInvalidParameters(ValidatableResponse then) throws Exception {
         then.statusCode(400);
     }

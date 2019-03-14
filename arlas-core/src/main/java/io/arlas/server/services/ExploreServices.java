@@ -57,10 +57,7 @@ import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
 import org.geojson.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -311,8 +308,13 @@ public class ExploreServices {
                     if (subAggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
                         subAggregationResponse.sumotherdoccounts = ((Terms) subAggregation).getSumOfOtherDocCounts();
                     }
-
-                    if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().startsWith(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
+                    if (subAggregation.getName().equals(FluidSearch.FETCH_HITS_AGG)) {
+                        subAggregationResponse = null;
+                        element.hits = Optional.ofNullable(((TopHits)subAggregation).getHits().getHits())
+                                .map(hitsArray -> Arrays.asList(hitsArray))
+                                .map(hitsList -> hitsList.stream().map(hit -> hit.getSourceAsMap()).collect(Collectors.toList()))
+                                .orElse(new ArrayList());
+                    } else if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().startsWith(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection);
                     } else if (subAggregationResponse.name.equals(FluidSearch.FIRST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.LAST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.TERM_RANDOM_GEOMETRY)) {
                         subAggregationResponse = null;

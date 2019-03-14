@@ -51,7 +51,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 
-
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -440,9 +439,16 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey("_"), s -> (!"elements".equals(s))).forEach((key, value) -> {
                         properties.put(key, value);
                     });
-                } else {
+
+                    if (element.hits != null) {
+                        properties.put("hits", element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey("_"), new HashSet<>())));
+                    }
+                }else{
                     properties.put("elements", element.elements);
                     properties.put("metrics", element.metrics);
+                    if (element.hits != null) {
+                        properties.put("hits", element.hits);
+                    }
                 }
                 feature.setProperties(properties);
                 feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);

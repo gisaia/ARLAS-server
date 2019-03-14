@@ -24,9 +24,11 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.Client;
@@ -38,6 +40,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
 
 public class ElasticTool {
 
@@ -75,6 +78,46 @@ public class ElasticTool {
             }
         }
         return true;
+    }
+
+    public static boolean checkAliasMappingFields(Client client, String alias, String typeName, String... fields) throws ArlasException {
+        List<String> indeces = ElasticTool.getIndecesName(client, alias, typeName);
+        for (String index : indeces) { checkIndexMappingFields(client, index, typeName, fields); }
+        return true;
+    }
+
+    public static List<String> getIndecesName(Client client, String alias, String typeName) throws ArlasException {
+        GetMappingsResponse response;
+        try {
+            //check index
+            response = client.admin().indices().prepareGetMappings(alias)/*.setTypes(collectionReference.params.typeName)*/.get();
+            if (response.getMappings().isEmpty()) {
+                throw new NotFoundException("No types in " + alias + ".");
+            }
+        } catch (ArlasException e) {
+            throw e;
+        } catch (IndexNotFoundException e) {
+            throw new NotFoundException("Index " + alias + " does not exist.");
+        } catch (Exception e) {
+            throw new NotFoundException("Unable to access " + typeName + " in " + alias + ".");
+        }
+
+        List<String> indeces = IteratorUtils.toList(response.getMappings().keysIt());
+        for (String index : indeces) {
+            //check type
+            try {
+                if (!response.getMappings().get(index).containsKey(typeName)) {
+                    throw new NotFoundException("Type " + typeName + " does not exist in " + alias + ".");
+                }
+                Object properties = response.getMappings().get(index).get(typeName).sourceAsMap().get("properties");
+                if (properties == null) {
+                    throw new NotFoundException("Unable to find properties from " + typeName + " in " + index + ".");
+                }
+            } catch (Exception e) {
+                throw new NotFoundException("Unable to get " + typeName + " in " + index + ".");
+            }
+        };
+        return indeces;
     }
 
     public static CollectionReference getCollectionReferenceFromES(Client client, String index, String type, ObjectReader reader, String ref) throws ArlasException {

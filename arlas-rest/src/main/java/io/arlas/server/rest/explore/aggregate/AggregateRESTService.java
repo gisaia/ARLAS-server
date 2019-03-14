@@ -45,10 +45,12 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class AggregateRESTService extends ExploreRESTServices {
 
@@ -267,7 +269,12 @@ public class AggregateRESTService extends ExploreRESTServices {
                 });
                 element.elements = null;
                 element.metrics = null;
+                if (element.hits != null) {
+                    List<Object> flattenedHits = element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey("_"), new HashSet<>())).collect(Collectors.toList());
+                    element.hits = flattenedHits;
+                }
             }
+
         }
         return aggregationResponse;
     }
