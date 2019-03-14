@@ -316,9 +316,10 @@ public class ExploreServices {
                                 .orElse(new ArrayList());
                     } else if (subAggregation.getName().equals(FluidSearch.DATEHISTOGRAM_AGG) || subAggregation.getName().startsWith(FluidSearch.GEOHASH_AGG) || subAggregation.getName().equals(FluidSearch.HISTOGRAM_AGG) || subAggregation.getName().equals(FluidSearch.TERM_AGG)) {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection);
-                    } else if (subAggregationResponse.name.equals(FluidSearch.FIRST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.LAST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.TERM_RANDOM_GEOMETRY)) {
+                    } else if (subAggregationResponse.name.equals(FluidSearch.FIRST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.LAST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.RANDOM_GEOMETRY)) {
                         subAggregationResponse = null;
-                        Map source = ((TopHits) subAggregation).getHits().getHits()[0].getSourceAsMap();
+                        long nbHits = ((TopHits) subAggregation).getHits().totalHits;
+                        Map source = nbHits > 0 ? ((TopHits) subAggregation).getHits().getHits()[0].getSourceAsMap() : null;
                         GeoJsonObject geometryGeoJson = null;
                         try {
                             CollectionReference collectionReference = getDaoCollectionReference().getCollectionReference(collection);

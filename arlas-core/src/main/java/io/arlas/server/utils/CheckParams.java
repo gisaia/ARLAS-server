@@ -64,14 +64,14 @@ public class CheckParams {
     private static final String UNEXISTING_FIELD = "The field name/pattern doesn't exist in the collection";
     private static final String MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD = "Infinity";
     private static final String DATE_NOW = "now";
-    private static final String GEOHASH_STRATEGY_NOT_SUPPORTED = "geohash strategy is not supported for term aggregations.";
+    private static final String GEOHASH_STRATEGY_NOT_SUPPORTED = "'geohash' strategy is only supported for geohash aggregation type.";
 
     public static final String INTERVAL_NOT_SPECIFIED = "Interval parameter is not specified.";
     public static final String INTERVAL_VALUE_NOT_SPECIFIED = "Interval value is missing.";
     public static final String INTERVAL_UNIT_NOT_SPECIFIED = "Interval unit is missing.";
     public static final String NO_INTERVAL_UNIT_FOR_GEOHASH_NOR_HISTOGRAM = "Interval unit must not be specified for geohash nor histogram aggregations.";
     public static final String NO_TERM_INTERVAL = "'Interval' should not be specified for term aggregation.";
-    public static final String INVALID_FETCHGEOMETRY = "Invalid aggregation geometry type. Should be `fetchGeometry-bbox`, `fetchGeometry-centroid`, `fetchGeometry-byDefault`" +
+    public static final String INVALID_FETCHGEOMETRY = "Invalid `fetchGeometry` strategy. It should be `fetchGeometry-bbox`, `fetchGeometry-centroid`, `fetchGeometry-byDefault`" +
             "`fetchGeometry-first`, `fetchGeometry-last`, `fetchGeometry-{field}-first`, `fetchGeometry-{field}-last` or `fetchGeometry";
 
 
@@ -185,20 +185,14 @@ public class CheckParams {
     }
 
     public static void checkFetchGeometryParameter(Aggregation aggregationModel) throws ArlasException {
-        if (aggregationModel.type == AggregationTypeEnum.geohash || aggregationModel.type == AggregationTypeEnum.term) {
-            if (aggregationModel.fetchGeometry != null) {
-                AggregatedGeometryStrategyEnum fetchGeometryOption = aggregationModel.fetchGeometry.strategy;
-                if ((fetchGeometryOption == AggregatedGeometryStrategyEnum.byDefault || fetchGeometryOption == AggregatedGeometryStrategyEnum.centroid
-                        || fetchGeometryOption == AggregatedGeometryStrategyEnum.bbox) && aggregationModel.fetchGeometry.field != null) {
-                    throw new BadRequestException("field should not be specified for centroid & bbox fetchGeometry strategy");
-                }
-                if (fetchGeometryOption == AggregatedGeometryStrategyEnum.geohash && aggregationModel.type == AggregationTypeEnum.term) {
-                    throw new NotAllowedException(GEOHASH_STRATEGY_NOT_SUPPORTED);
-                }
+        if (aggregationModel.fetchGeometry != null) {
+            AggregatedGeometryStrategyEnum fetchGeometryOption = aggregationModel.fetchGeometry.strategy;
+            if ((fetchGeometryOption == AggregatedGeometryStrategyEnum.byDefault || fetchGeometryOption == AggregatedGeometryStrategyEnum.centroid
+                    || fetchGeometryOption == AggregatedGeometryStrategyEnum.bbox) && aggregationModel.fetchGeometry.field != null) {
+                throw new BadRequestException("field should not be specified for byDefault & centroid & bbox fetchGeometry strategies");
             }
-        } else {
-            if (aggregationModel.fetchGeometry != null) {
-                throw new BadRequestException("fetchGeometry should be specified for geohash and term aggregation only");
+            if (fetchGeometryOption == AggregatedGeometryStrategyEnum.geohash && aggregationModel.type != AggregationTypeEnum.geohash) {
+                throw new NotAllowedException(GEOHASH_STRATEGY_NOT_SUPPORTED);
             }
         }
     }

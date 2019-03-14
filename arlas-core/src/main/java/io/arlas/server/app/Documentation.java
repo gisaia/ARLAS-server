@@ -159,6 +159,32 @@ public class Documentation {
             "\n \n" +
             "- {include} Specifies the values for which buckets will be created. This values are comma separated. If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created." +
             "\n \n" +
+            "- **fetchGeometry**" +
+            "\n \n" +
+            "    > **What it does**: Specifies the strategy of fetching a geometry in each aggregation bucket." +
+            "\n \n" +
+            "    > __**Syntax**__: `fetchGeometry` || `fetchGeometry-{strategy}` || `fetchGeometry-{field}-(first||last)`." +
+            "\n \n" +
+            "    > **fetchGeometry** or **fetchGeometry-byDefault**: the fetched geometry is the centroid of the geohash for `geohash` aggregation or a random geometry for the rest of aggregation types." +
+            "\n \n" +
+            "    > **fetchGeometry-centroid**: the fetched geometry is the centroid of data inside each bucket." +
+            "\n \n" +
+            "    > **fetchGeometry-bbox**: the fetched geometry is the data extend (bbox) in each bucket." +
+            "\n \n" +
+            "    > **fetchGeometry-geohash**: the fetched geometry is the 'geohash' extend of each bucket. This strategy is supported for **geohash** aggregation type only." +
+            "\n \n" +
+            "    > **fetchGeometry-first**: the fetched geometry is the first hit's geometry fetched in each bucket (chronologically)" +
+            "\n \n" +
+            "    > **fetchGeometry-last**: the fetched geometry is the first hit's geometry fetched in each bucket (chronologically)" +
+            "\n \n" +
+            "    > **fetchGeometry-{field}-first**: the fetched geometry is the geometry of the first hit - ordered by the {field} - fetched in each bucket." +
+            "\n \n" +
+            "    > **fetchGeometry-{field}-last**: the fetched geometry is the geometry of the first hit - ordered by the {field} - fetched in each bucket." +
+            "\n \n" +
+            "    > **Note 1**: if **fetchGeometry** is specified, the returned geometry is set int the 'geometry' attribute of the json response." +
+            "\n \n" +
+            "    > **Note 2**: If **fetchGeometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned in 'geometry' attribute of the json response but not in the metrics. Same for **fetchGeometry-bbox** and **collect_fct**=`geobbox`"+
+            "\n \n" +
             "- **fetchHits** " +
             "\n \n" +
             "    > **What it does**: Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits." +
@@ -219,22 +245,6 @@ public class Documentation {
             "\n \n" +
             "       avg,cardinality,max,min,sum,geobbox,geocentroid" +
             "\n \n" +
-            "- {fetchGeometry} is to be specified for `geohash` and `term` aggregations only" +
-            "\n \n" +
-            "- {fetchGeometry} : When it's centroid : the geoaggregation geometry is the centroid of each bucket." +
-            "\n \n" +
-            "- {fetchGeometry} : When it's bbox: the geoaggregation geometry is the data extend (bbox) in each bucket." +
-            "\n \n" +
-            "- {fetchGeometry} : When it's geohash: the geoaggregation geometry is the geohash extend of each bucket. It's applied only for Geohash aggregation tye. It is not supported for term aggregation type. " +
-            "\n \n" +
-            "- {fetchGeometry} : When it's first: the geoaggregation geometry is the geometry of the first document in each bucket (chronogically)" +
-            "\n \n" +
-            "- {fetchGeometry} : When it's last: the geoaggregation geometry is the geometry of the last document in each bucket (chronogically)" +
-            "\n \n" +
-            "- {fetchGeometry} : When it's {field}-first: the geoaggregation geometry is the geometry of the first document in each bucket (ordered on the {field})" +
-            "\n \n" +
-            "- {fetchGeometry} : When it's {field}-last: the geoaggregation geometry is the geometry of the last document in each bucket (ordered on the {field})" +
-            "\n \n" +
             "- (collect_field,collect_fct) should both be specified, except when collect_fct = `geobbox` or `geocentroid`, it could be specified alone. The metrics `geobbox` and `geocentroid` are returned as features collections." +
             "\n \n" +
             "- {order} is set to sort the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation. " +
@@ -248,9 +258,31 @@ public class Documentation {
             "\n \n" +
             "- {include} Specifies the values for which buckets will be created. This values are comma separated. If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created." +
             "\n \n" +
-            "If {fetchGeometry} is specified, the returned geometry is the one used in the geojson." +
+            "- **fetchGeometry**" +
             "\n \n" +
-            "If **fetchGeometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned as the geo-aggregation geometry and not in the metrics. Same for **fetchGeometry-bbox** and **collect_fct**=`geobbox`" +
+            "    > **What it does**: Specifies the strategy of fetching a geometry in each aggregation bucket." +
+            "\n \n" +
+            "    > __**Syntax**__: `fetchGeometry` || `fetchGeometry-{strategy}` || `fetchGeometry-{field}-(first||last)`." +
+            "\n \n" +
+            "    > **fetchGeometry** or **fetchGeometry-byDefault**: the fetched geometry is the centroid of the geohash for `geohash` aggregation or a random geometry for the rest of aggregation types." +
+            "\n \n" +
+            "    > **fetchGeometry-centroid**: the fetched geometry is the centroid of data inside each bucket." +
+            "\n \n" +
+            "    > **fetchGeometry-bbox**: the fetched geometry is the data extend (bbox) in each bucket." +
+            "\n \n" +
+            "    > **fetchGeometry-geohash**: the fetched geometry is the 'geohash' extend of each bucket. This strategy is supported for **geohash** aggregation type only." +
+            "\n \n" +
+            "    > **fetchGeometry-first**: the fetched geometry is the first hit's geometry fetched in each bucket (chronologically)" +
+            "\n \n" +
+            "    > **fetchGeometry-last**: the fetched geometry is the first hit's geometry fetched in each bucket (chronologically)" +
+            "\n \n" +
+            "    > **fetchGeometry-{field}-first**: the fetched geometry is the geometry of the first hit - ordered by the {field} - fetched in each bucket." +
+            "\n \n" +
+            "    > **fetchGeometry-{field}-last**: the fetched geometry is the geometry of the first hit - ordered by the {field} - fetched in each bucket." +
+            "\n \n" +
+            "    > **Note 1**: if **fetchGeometry** is specified, the returned geometry is set int the 'geometry' attribute of the geojson." +
+            "\n \n" +
+            "    > **Note 2**: If **fetchGeometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned in the geojson 'geometry' attribute but not in the metrics. Same for **fetchGeometry-bbox** and **collect_fct**=`geobbox`" +
             "\n \n" +
             "- **fetchHits** " +
             "\n \n" +

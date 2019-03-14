@@ -219,6 +219,34 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingHistogramAggregateWithSortedFetchedDates(get("datehistogram:interval-1minute:fetchHits-3(-params.startdate)"), 10, 3, 763600, 1263600, "params.startdate");
         aggregationRequest.aggregations.get(0).fetchHits = null;
 
+        // FETCHGEOMETRY TESTS
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
+        handleMatchingGeohashAggregate(post(aggregationRequest), 10, 1, 104);
+        handleMatchingGeohashAggregate(get("datehistogram:interval-1minute:fetchGeometry"),  10, 1, 104);
+        handleMatchingGeohashAggregate(get("datehistogram:interval-1minute:fetchGeometry-byDefault"),  10, 1, 104);
+
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -180F, -90F, 180F, 90F);
+        handleMatchingAggregateWithGeometry(get("datehistogram:interval-1minute:fetchGeometry"), 10, 1, 104, -180F, -90F, 180F, 90F);
+        handleMatchingAggregateWithGeometry(get("datehistogram:interval-1minute:fetchGeometry-byDefault"), 10, 1, 104, -180F, -90F, 180F, 90F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -81F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("datehistogram:interval-1minute:fetchGeometry-first"), 10, 1, 104, -171F, -81F, 171F, 81F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -81F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("datehistogram:interval-1minute:fetchGeometry-last"), 10, 1, 104, -171F, -81F, 171F, 81F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first, "params.age");
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -71F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("datehistogram:interval-1minute:fetchGeometry-params.age-first"), 10, 1, 104, -171F, -71F, 171F, 81F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last, "params.age");
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -81F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("datehistogram:interval-1minute:fetchGeometry-params.age-last"), 10, 1, 104, -171F, -81F, 171F, 81F);
+        aggregationRequest.aggregations.get(0).fetchGeometry = null;
+
+        // METRICS TESTS
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.AVG));
         handleMatchingAggregateWithCollect(post(aggregationRequest),
@@ -363,7 +391,36 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingHistogramAggregateWithSortedFetchedDates(get("histogram:params.startdate:interval-60000:fetchHits-3(-params.startdate)"), 10, 3, 763600, 1263600, "params.startdate");
         aggregationRequest.aggregations.get(0).fetchHits = null;
 
-        aggregationRequest.aggregations.get(0).interval = new Interval(100000, null); //"1minute";
+        // FETCHGEOMETRY TESTS
+        aggregationRequest.aggregations.get(0).interval = new Interval(60000, null);
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
+        handleMatchingGeohashAggregate(post(aggregationRequest), 10, 1, 104);
+        handleMatchingGeohashAggregate(get("histogram:params.startdate:interval-60000:fetchGeometry"),  10, 1, 104);
+        handleMatchingGeohashAggregate(get("histogram:params.startdate:interval-60000:fetchGeometry-byDefault"),  10, 1, 104);
+
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -180F, -90F, 180F, 90F);
+        handleMatchingAggregateWithGeometry(get("histogram:params.startdate:interval-60000:fetchGeometry"), 10, 1, 104, -180F, -90F, 180F, 90F);
+        handleMatchingAggregateWithGeometry(get("histogram:params.startdate:interval-60000:fetchGeometry-byDefault"), 10, 1, 104, -180F, -90F, 180F, 90F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -81F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("histogram:params.startdate:interval-60000:fetchGeometry-first"), 10, 1, 104, -171F, -81F, 171F, 81F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -81F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("histogram:params.startdate:interval-60000:fetchGeometry-last"), 10, 1, 104, -171F, -81F, 171F, 81F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first, "params.age");
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -71F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("histogram:params.startdate:interval-60000:fetchGeometry-params.age-first"), 10, 1, 104, -171F, -71F, 171F, 81F);
+
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last, "params.age");
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -81F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("histogram:params.startdate:interval-60000:fetchGeometry-params.age-last"), 10, 1, 104, -171F, -81F, 171F, 81F);
+        aggregationRequest.aggregations.get(0).fetchGeometry = null;
+        aggregationRequest.aggregations.get(0).interval = new Interval(100000, null);
+
+        // METRICS TESTS
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
         aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.AVG));
         handleMatchingAggregateWithCollect(post(aggregationRequest),
@@ -768,9 +825,15 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("datehistogram:params.startdate:interval-1.5day"));
 
-        aggregationRequest.aggregations.get(0).interval = new Interval(null, UnitEnum.day); // "1day";
+        aggregationRequest.aggregations.get(0).interval = new Interval(null, UnitEnum.day); // "day";
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("datehistogram:params.startdate:interval-day"));
+
+        aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.day); // "1day";
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.geohash);
+        handleInvalidParameters(post(aggregationRequest));
+        handleInvalidParameters(get("datehistogram:params.startdate:interval-1day:fetchGeometry-geohash"));
+        aggregationRequest.aggregations.get(0).fetchGeometry = null;
 
         // INVALID HISTOGRAM
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.histogram;
@@ -786,11 +849,17 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(get("histogram:params.startdate:interval-100000:include-foo"));
 
         aggregationRequest.aggregations.get(0).field = "params.job";
-        aggregationRequest.aggregations.get(0).interval = null;
         aggregationRequest.aggregations.get(0).format = null;
         aggregationRequest.aggregations.get(0).include = null;
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("histogram:params.job"));
+
+        aggregationRequest.aggregations.get(0).interval = new Interval(100000, null); // "1day";
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.geohash);
+        handleInvalidParameters(post(aggregationRequest));
+        handleInvalidParameters(get("histogram:params.startdate:interval-100000:fetchGeometry-geohash"));
+        aggregationRequest.aggregations.get(0).fetchGeometry = null;
+        aggregationRequest.aggregations.get(0).interval = null;
 
         // INVALID TERM
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
