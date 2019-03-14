@@ -353,12 +353,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 4, hasItems("-70,170", "-80,170", "-70,160", "-80,160"));
         handleMatchingGeometryFilter(header(request.filter), 4, hasItems("-70,170", "-80,170", "-70,160", "-80,160"));
 
-        request.filter.notgwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("POLYGON((180 90,-180 90,-180 -80,100 -80,100 -70,180 -70,180 90))", "POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))")));
-        handleMatchingGeometryFilter(post(request), 42, everyItem(notNullValue()));
+        request.filter.notgwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("POLYGON((180 90,-180 90,-180 -80,99 -80,99 -68,180 -68,180 90))", "POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))")));
+        handleMatchingGeometryFilter(post(request), 43, everyItem(notNullValue()));
         handleMatchingGeometryFilter(
                 get("notgwithin", request.filter.notgwithin.get(0).get(0) + ";" + request.filter.notgwithin.get(0).get(1)),
-                42, everyItem(notNullValue()));
-        handleMatchingGeometryFilter(header(request.filter), 42, everyItem(notNullValue()));
+                43, everyItem(notNullValue()));
+        handleMatchingGeometryFilter(header(request.filter), 43, everyItem(notNullValue()));
 
         request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((12 12,12 -12,-12 -12,-12 12,12 12))"));
         request.filter.notgwithin = Arrays.asList(new MultiValueFilter<>("-8,-8,8,8"));
