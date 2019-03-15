@@ -107,6 +107,8 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 
+    public static final String FLATTEN_CHAR = "_";
+
     public static List<Pair<String,Integer>> getElasticNodes(String esNodes) {
         List<Pair<String,Integer>> elasticNodes = new ArrayList<>();
         if(!StringUtil.isNullOrEmpty(esNodes)) {

@@ -19,6 +19,7 @@
 
 package io.arlas.server.ogc.common.utils;
 
+import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
@@ -108,7 +109,7 @@ public class XmlUtils {
     //Function used to avoid point in XML name element, replace point in path property of object json
     public static String replacePointPath(String originalName) {
         if (pointPathSubstitute == null) {
-            pointPathSubstitute = "_";
+            pointPathSubstitute = ArlasServerConfiguration.FLATTEN_CHAR;
         }
         return originalName.replace(pointPathSubstitute, pointPathSubstitute.concat(pointPathSubstitute)).replace(".", pointPathSubstitute);
     }
@@ -116,7 +117,7 @@ public class XmlUtils {
     //Function used to retrieve original path property of object json after replacePointPath
     public static String retrievePointPath(String originalName) {
         if (pointPathSubstitute == null) {
-            pointPathSubstitute = "_";
+            pointPathSubstitute = ArlasServerConfiguration.FLATTEN_CHAR;
         }
         return originalName.replace(pointPathSubstitute, ".").replace("..", pointPathSubstitute);
     }
@@ -148,8 +149,7 @@ public class XmlUtils {
                 writeEmptyElement(writer, nameToDisplay, "boolean", 0);
                 break;
             case DATE:
-                    writeEmptyElement(writer, nameToDisplay, "dateTime", 0);
-
+                writeEmptyElement(writer, nameToDisplay, "dateTime", 0);
         }
     }
 

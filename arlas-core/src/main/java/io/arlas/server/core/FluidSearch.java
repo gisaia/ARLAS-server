@@ -20,6 +20,7 @@
 package io.arlas.server.core;
 
 
+import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.utils.ElasticTool;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
 import org.locationtech.jts.geom.*;
@@ -664,7 +665,7 @@ public class FluidSearch {
                 } else if (m.collectField == null && m.collectFct != null) {
                     throw new BadRequestException(COLLECT_FIELD_NOT_SPECIFIED);
                 }
-                String collectField = m.collectField.replace(".", "-");
+                String collectField = m.collectField.replace(".", ArlasServerConfiguration.FLATTEN_CHAR);
                 switch (m.collectFct) {
                     case AVG:
                         metricAggregationBuilder = AggregationBuilders.avg("avg:" + collectField).field(m.collectField);
@@ -685,7 +686,7 @@ public class FluidSearch {
                         setGeoMetricAggregationCollectField(m);
                         // This suffix will be used in the AggregationResponse construction in order to distinguish the case when the centroid
                         // should be provided as metrics only and when it should be the geometry of the geoagragation
-                        String centroidSuffix = ":" + collectionReference.params.centroidPath.replace(".", "-");
+                        String centroidSuffix = ":" + collectionReference.params.centroidPath.replace(".", ArlasServerConfiguration.FLATTEN_CHAR);
                         if (aggregationModel.fetchGeometry != null && aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.centroid) {
                             centroidSuffix = "-bucket";
                         }
@@ -693,7 +694,7 @@ public class FluidSearch {
                         break;
                     case GEOBBOX:
                         setGeoMetricAggregationCollectField(m);
-                        String bboxSuffix = ":" + collectionReference.params.centroidPath.replace(".", "-");
+                        String bboxSuffix = ":" + collectionReference.params.centroidPath.replace(".", ArlasServerConfiguration.FLATTEN_CHAR);
                         if (aggregationModel.fetchGeometry != null && aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.bbox) {
                             bboxSuffix = "-bucket";
                         }

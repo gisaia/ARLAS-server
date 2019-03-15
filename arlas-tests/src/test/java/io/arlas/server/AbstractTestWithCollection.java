@@ -19,6 +19,7 @@
 
 package io.arlas.server;
 
+import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.Request;
 import org.junit.AfterClass;
@@ -30,6 +31,7 @@ public abstract class AbstractTestWithCollection extends AbstractTestContext {
 
     public static String COLLECTION_NAME = CollectionTool.COLLECTION_NAME;
     public static String COLLECTION_NAME_ACTOR = CollectionTool.COLLECTION_NAME_ACTOR;
+    protected static final String FLATTEN_CHAR = ArlasServerConfiguration.FLATTEN_CHAR;
 
     protected static Request request = new Request();
 

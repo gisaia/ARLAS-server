@@ -102,7 +102,6 @@ zipkin: # The ZIPIN configuration, not active by default
 ########################################################
 arlas-wfs:
   featureNamespace: ${ARLAS_WFS_FEATURE_NAMESPACE:-arlas}
-  replaceChar: ${ARLAS_WFS_REPLACE_CHAR:-_}
 
 arlas-ogc:
   serverUri: ${ARLAS_OGC_SERVER_URI:-http://localhost:9999/arlas/}

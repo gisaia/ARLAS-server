@@ -20,6 +20,7 @@
 package io.arlas.server.model.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.utils.GeoTypeMapper;
@@ -90,7 +91,7 @@ public class Hit {
                 }
             });
         }
-        dataAsMap = flat ? MapExplorer.flat(source,new MapExplorer.ReduceArrayOnKey("_"), new HashSet<>()) : source;
+        dataAsMap = flat ? MapExplorer.flat(source,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>()) : source;
         data = dataAsMap;
     }
 
