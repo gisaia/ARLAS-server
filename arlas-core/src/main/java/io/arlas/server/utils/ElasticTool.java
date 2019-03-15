@@ -25,13 +25,15 @@ import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.joda.Joda;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.IndexNotFoundException;
 
@@ -58,8 +60,8 @@ public class ElasticTool {
         return createIndexResponse;
     }
 
-    public static PutMappingResponse putExtendedMapping(Client client, String arlasIndexName, String arlasMappingName, InputStream in) {
-        PutMappingResponse putMappingResponse = null;
+    public static AcknowledgedResponse putExtendedMapping(Client client, String arlasIndexName, String arlasMappingName, InputStream in) {
+        AcknowledgedResponse putMappingResponse = null;
         try {
             String arlasMapping = IOUtils.toString(new InputStreamReader(in));
             putMappingResponse = client.admin().indices().preparePutMapping(arlasIndexName).setType(arlasMappingName).setSource(arlasMapping, XContentType.JSON).get();
@@ -161,5 +163,13 @@ public class ElasticTool {
                         return false;
                     }
                 });
+    }
+
+    public static Joda.EpochTimeParser getElasticEpochTimeParser(boolean isMilliSecond) {
+        return new Joda.EpochTimeParser(BooleanUtils.isTrue(isMilliSecond));
+    }
+
+    public static Joda.EpochTimePrinter getElasticEpochTimePrinter(boolean isMilliSecond) {
+        return new Joda.EpochTimePrinter(BooleanUtils.isTrue(isMilliSecond));
     }
 }
