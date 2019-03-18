@@ -62,12 +62,6 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("elastic-nodes")
     public String elasticnodes;
 
-    @JsonProperty("elastic-host")
-    public String elastichost;
-
-    @JsonProperty("elastic-port")
-    public Integer elasticport;
-
     @JsonProperty("elastic-sniffing")
     public Boolean elasticsniffing;
 
@@ -131,8 +125,6 @@ public class ArlasServerConfiguration extends Configuration {
         List<Pair<String,Integer>> elasticNodes = new ArrayList<>();
         if(!StringUtil.isNullOrEmpty(elasticnodes)) {
             elasticNodes.addAll(getElasticNodes(elasticnodes));
-        } else if(!StringUtil.isNullOrEmpty(elastichost) && elasticport > 0) {
-            elasticNodes.add(new ImmutablePair<>(elastichost, elasticport));
         }
         return elasticNodes;
     }
