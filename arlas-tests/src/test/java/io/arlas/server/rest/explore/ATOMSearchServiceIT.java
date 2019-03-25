@@ -203,23 +203,23 @@ public class ATOMSearchServiceIT extends AbstractProjectedTest {
     @Override
     protected List<String> getFlattenedItems() {
         List<String> flattenedItems = new ArrayList<>();
-        flattenedItems.add("params_age");
-        flattenedItems.add("params_country");
-        flattenedItems.add("params_job");
-        flattenedItems.add("params_startdate");
-        flattenedItems.add("params_stopdate");
-        flattenedItems.add("geo_params_centroid");
-        flattenedItems.add("geo_params_geometry_type");
-        flattenedItems.add("geo_params_geometry_coordinates_0_0_0");
-        flattenedItems.add("geo_params_geometry_coordinates_0_0_1");
-        flattenedItems.add("geo_params_geometry_coordinates_0_1_0");
-        flattenedItems.add("geo_params_geometry_coordinates_0_1_1");
-        flattenedItems.add("geo_params_geometry_coordinates_0_2_0");
-        flattenedItems.add("geo_params_geometry_coordinates_0_2_1");
-        flattenedItems.add("geo_params_geometry_coordinates_0_3_0");
-        flattenedItems.add("geo_params_geometry_coordinates_0_3_1");
-        flattenedItems.add("geo_params_geometry_coordinates_0_4_0");
-        flattenedItems.add("geo_params_geometry_coordinates_0_4_1");
+        flattenedItems.add("params" + FLATTEN_CHAR + "age");
+        flattenedItems.add("params" + FLATTEN_CHAR + "country");
+        flattenedItems.add("params" + FLATTEN_CHAR + "job");
+        flattenedItems.add("params" + FLATTEN_CHAR + "startdate");
+        flattenedItems.add("params" + FLATTEN_CHAR + "stopdate");
+        flattenedItems.add("geo_params" + FLATTEN_CHAR + "centroid");
+        flattenedItems.add("geo_params" + FLATTEN_CHAR + "geometry" + FLATTEN_CHAR + "type");
+        flattenedItems.add("geo_params" + FLATTEN_CHAR + "geometry" + FLATTEN_CHAR + "coordinates" + FLATTEN_CHAR + "0" + FLATTEN_CHAR + "0" + FLATTEN_CHAR + "0");
+        flattenedItems.add("geo_params" + FLATTEN_CHAR + "geometry" + FLATTEN_CHAR + "coordinates" + FLATTEN_CHAR + "0" + FLATTEN_CHAR + "0" + FLATTEN_CHAR + "1");
+        flattenedItems.add("geo_params" + FLATTEN_CHAR + "geometry" + FLATTEN_CHAR + "coordinates" + FLATTEN_CHAR + "0" + FLATTEN_CHAR + "1" + FLATTEN_CHAR + "0");
+        flattenedItems.add("geo_params" + FLATTEN_CHAR + "geometry" + FLATTEN_CHAR + "coordinates" + FLATTEN_CHAR + "0" + FLATTEN_CHAR + "1" + FLATTEN_CHAR + "1");
+        flattenedItems.add("geo_params" + FLATTEN_CHAR + "geometry" + FLATTEN_CHAR + "coordinates" + FLATTEN_CHAR + "0" + FLATTEN_CHAR + "2" + FLATTEN_CHAR + "0");
+        flattenedItems.add("geo_params" + FLATTEN_CHAR + "geometry" + FLATTEN_CHAR + "coordinates" + FLATTEN_CHAR + "0" + FLATTEN_CHAR + "2" + FLATTEN_CHAR + "1");
+        flattenedItems.add("geo_params" + FLATTEN_CHAR + "geometry" + FLATTEN_CHAR + "coordinates" + FLATTEN_CHAR + "0" + FLATTEN_CHAR + "3" + FLATTEN_CHAR + "0");
+        flattenedItems.add("geo_params" + FLATTEN_CHAR + "geometry" + FLATTEN_CHAR + "coordinates" + FLATTEN_CHAR + "0" + FLATTEN_CHAR + "3" + FLATTEN_CHAR + "1");
+        flattenedItems.add("geo_params" + FLATTEN_CHAR + "geometry" + FLATTEN_CHAR + "coordinates" + FLATTEN_CHAR + "0" + FLATTEN_CHAR + "4" + FLATTEN_CHAR + "0");
+        flattenedItems.add("geo_params" + FLATTEN_CHAR + "geometry" + FLATTEN_CHAR + "coordinates" + FLATTEN_CHAR + "0" + FLATTEN_CHAR + "4" + FLATTEN_CHAR + "1");
         return flattenedItems;
     }
 

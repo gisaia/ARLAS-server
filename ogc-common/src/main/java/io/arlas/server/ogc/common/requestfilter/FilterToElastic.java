@@ -27,6 +27,7 @@ import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
+import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
 import io.arlas.server.exceptions.OGC.OGCException;
@@ -1072,10 +1073,10 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     protected void writeLiteral(Object literal) {
         boolean isDate = false;
         if(((String) field).split(":").length>1){
-            String[] pathElements = ((String) field).split(":")[1].split("_");
+            String[] pathElements = ((String) field).split(":")[1].split(ArlasServerConfiguration.FLATTEN_CHAR);
             isDate = isPathDate(pathElements,collectionReference.properties);
         }else if(((String) field).split(":").length==1){
-            String[] pathElements = ((String) field).split("_");
+            String[] pathElements = ((String) field).split(ArlasServerConfiguration.FLATTEN_CHAR);
             isDate = isPathDate(pathElements,collectionReference.properties);
         }
         field = literal;
@@ -1095,7 +1096,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
                 }else if(lastElement.trim().length()==2){
                     literal =firstElement.concat(".").concat(millisPart).concat("0").concat("Z");
                 }
-                //TO DO change the test
+                //TODO change the test
                 field = dateFormatter.print((f.parse((String)literal)).getTime());
             } catch (ParseException e) {
                 List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();

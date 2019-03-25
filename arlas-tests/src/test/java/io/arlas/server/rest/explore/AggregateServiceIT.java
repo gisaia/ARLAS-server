@@ -123,8 +123,8 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
                 .body("elements.metrics[1].value", everyItem(lessThanOrEqualTo(Math.max(featureCollectMax1, featureCollectMax2))))
                 .body("elements.metrics[0].type", hasItem(equalTo(collectFct1)))
                 .body("elements.metrics[1].type", hasItem(equalTo(collectFct2)))
-                .body("elements.metrics[0].field", hasItem(equalTo(collectField1.replace(".", "-"))))
-                .body("elements.metrics[1].field", hasItem(equalTo(collectField2.replace(".", "-"))));
+                .body("elements.metrics[0].field", hasItem(equalTo(collectField1.replace(".", FLATTEN_CHAR))))
+                .body("elements.metrics[1].field", hasItem(equalTo(collectField2.replace(".", FLATTEN_CHAR))));
     }
 
     @Override
@@ -354,7 +354,7 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     @Override
     protected List<String> getFlattenedItems() {
         List<String> flattenedItems = new ArrayList<>();
-        flattenedItems.add("params-age_avg_");
+        flattenedItems.add("params" + FLATTEN_CHAR + "age" + FLATTEN_CHAR + "avg" + FLATTEN_CHAR );
         flattenedItems.add("count");
         flattenedItems.add("key");
         flattenedItems.add("key_as_string");

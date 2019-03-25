@@ -22,6 +22,7 @@ package io.arlas.server.rest.explore.aggregate;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.AggregationTypeEnum;
@@ -436,12 +437,12 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     properties.put("key", element.keyAsString);
                 }
                 if (flat) {
-                    this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey("_"), s -> (!"elements".equals(s))).forEach((key, value) -> {
+                    this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))).forEach((key, value) -> {
                         properties.put(key, value);
                     });
 
                     if (element.hits != null) {
-                        properties.put("hits", element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey("_"), new HashSet<>())));
+                        properties.put("hits", element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>())));
                     }
                 }else{
                     properties.put("elements", element.elements);

@@ -21,6 +21,7 @@ package io.arlas.server.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.arlas.server.app.ArlasServerConfiguration;
 import org.hamcrest.collection.IsMapContaining;
 import org.hamcrest.core.IsNot;
 import org.junit.Assert;
@@ -38,7 +39,7 @@ public class MapExplorerTest {
         Map<String, Object> flat =
                 MapExplorer.flat(
                         new ObjectMapper().reader(new TypeReference<Map<String, Object>>(){}).readValue(this.getClass().getClassLoader().getResourceAsStream("flatMapTest.json")),
-                        new MapExplorer.ReduceArrayOnKey("_"), Collections.singleton("a.e.g.2"));
+                        new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), Collections.singleton("a.e.g.2"));
         Assert.assertThat(flat,IsMapContaining.hasEntry("a_b_0_c", 1));
         Assert.assertThat(flat,IsMapContaining.hasEntry("a_b_1_c", 2));
         Assert.assertThat(flat,IsMapContaining.hasEntry("a_b_2_d", "a"));

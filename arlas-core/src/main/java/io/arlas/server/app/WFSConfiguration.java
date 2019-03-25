@@ -26,15 +26,8 @@ public class WFSConfiguration {
     @JsonProperty("featureNamespace")
     public String featureNamespace;
 
-    @JsonProperty("replaceChar")
-    public String replaceChar;
-
     public String getFeatureNamespace() {
         return featureNamespace;
     }
 
-    public String getReplaceChar() {
-        return replaceChar;
-    }
-    
 }

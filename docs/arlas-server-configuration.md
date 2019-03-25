@@ -137,7 +137,6 @@ docker run -ti -d \
 | Environment variable | ARLAS WFS Server configuration variable | Default | Description |
 | --- | --- | --- | --- |
 | ARLAS_WFS_FEATURE_NAMESPACE | arlas-wfs.featureNamespace | arlas | Namespace of WFS features |
-| ARLAS_WFS_REPLACE_CHAR | arlas-wfs.replaceChar | _ | Character that replaces `.` in object paths |
 
 ### CSW
 

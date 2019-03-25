@@ -103,17 +103,17 @@ public class WFSServiceIT extends AbstractTestWithCollection {
     public void handleHeaderFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
                 .body("wfs:FeatureCollection.@numberReturned", equalTo("2"))
-                .body("wfs:FeatureCollection.member[1].geodata.params_job", equalTo("Architect"))
-                .body("wfs:FeatureCollection.member[1].geodata.params_country.size()", equalTo(0))
-                .body("wfs:FeatureCollection.member[1].geodata.params_city.size()", equalTo(0));
+                .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "job", equalTo("Architect"))
+                .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "country.size()", equalTo(0))
+                .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "city.size()", equalTo(0));
     }
 
     public void handleNoHeaderFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
                 .body("wfs:FeatureCollection.@numberReturned", equalTo("595"))
-                .body("wfs:FeatureCollection.member[1].geodata.params_job", isOneOf(DataSetTool.jobs))
-                .body("wfs:FeatureCollection.member[1].geodata.params_country.size()", equalTo(0))
-                .body("wfs:FeatureCollection.member[1].geodata.params_city.size()", equalTo(0));
+                .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "job", isOneOf(DataSetTool.jobs))
+                .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "country.size()", equalTo(0))
+                .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "city.size()", equalTo(0));
     }
 
     public void handleInspireGetCapabilities(ValidatableResponse then) throws Exception {

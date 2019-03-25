@@ -19,6 +19,7 @@
 
 package io.arlas.server.ogc.wfs;
 
+import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.InspireConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.app.WFSConfiguration;
@@ -55,6 +56,6 @@ public class WFSHandler {
         describeFeatureTypeHandler = new DescribeFeatureTypeHandler(this);
         listStoredQueriesHandler = new ListStoredQueriesHandler(this);
         getFeatureHandler = new GetFeatureHandler(this);
-        XmlUtils.pointPathSubstitute = wfsConfiguration.replaceChar;
+        XmlUtils.pointPathSubstitute = ArlasServerConfiguration.FLATTEN_CHAR;
     }
 }

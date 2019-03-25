@@ -21,6 +21,7 @@ package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.AggregationTypeEnum;
@@ -264,17 +265,16 @@ public class AggregateRESTService extends ExploreRESTServices {
         if (elements != null && elements.size() > 0) {
             for (AggregationResponse element : elements) {
                 element.flattenedElements = new HashMap<>();
-                this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey("_"), s ->(!"elements".equals(s))).forEach((key, value) -> {
+                this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s ->(!"elements".equals(s))).forEach((key, value) -> {
                     element.flattenedElements.put(key,value);
                 });
                 element.elements = null;
                 element.metrics = null;
                 if (element.hits != null) {
-                    List<Object> flattenedHits = element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey("_"), new HashSet<>())).collect(Collectors.toList());
+                    List<Object> flattenedHits = element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>())).collect(Collectors.toList());
                     element.hits = flattenedHits;
                 }
             }
-
         }
         return aggregationResponse;
     }

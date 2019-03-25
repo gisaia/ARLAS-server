@@ -142,11 +142,11 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     @Override
     protected List<String> getFlattenedItems() {
         List<String> flattenedItems = new ArrayList<>();
-        flattenedItems.add("params_age");
-        flattenedItems.add("params_country");
-        flattenedItems.add("params_job");
-        flattenedItems.add("params_startdate");
-        flattenedItems.add("params_stopdate");
+        flattenedItems.add("params" + FLATTEN_CHAR + "age");
+        flattenedItems.add("params" + FLATTEN_CHAR + "country");
+        flattenedItems.add("params" + FLATTEN_CHAR + "job");
+        flattenedItems.add("params" + FLATTEN_CHAR + "startdate");
+        flattenedItems.add("params" + FLATTEN_CHAR + "stopdate");
 
         // Geometry params are not returned in geosearch
         return flattenedItems;

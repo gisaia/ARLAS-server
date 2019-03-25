@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.AbstractTestWithCollection;
 import io.arlas.server.DataSetTool;
+import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.*;
 import io.restassured.response.ValidatableResponse;
@@ -41,7 +42,6 @@ import static org.hamcrest.Matchers.*;
 public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
     private static ObjectMapper objectMapper = new ObjectMapper();
-
     @Before
     public void setUpFilter() {
         request = new Request();

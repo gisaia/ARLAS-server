@@ -46,11 +46,11 @@ public class RawServiceIT extends AbstractTestWithCollection {
         given().param("flat", true).when().get(getUrlPath(COLLECTION_NAME) + "/ID__170__20DI")
                 .then().statusCode(200)
                 .body("md.id", equalTo("ID__170__20DI"))
-                .body("data.geo_params_centroid", equalTo("-20,-170"))
+                .body("data.geo_params" + FLATTEN_CHAR + "centroid", equalTo("-20,-170"))
                 .body("data.id", equalTo("ID__170__20DI"))
                 .body("data.fullname", equalTo("My name is ID__170__20DI"))
-                .body("data.params_startdate", equalTo(813400))
-                .body("data.params_city", isEmptyOrNullString());
+                .body("data.params" + FLATTEN_CHAR + "startdate", equalTo(813400))
+                .body("data.params" + FLATTEN_CHAR + "city", isEmptyOrNullString());
 
 
         // GET invalid collection
