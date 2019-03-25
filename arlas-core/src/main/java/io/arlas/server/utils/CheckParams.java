@@ -71,8 +71,8 @@ public class CheckParams {
     public static final String INTERVAL_UNIT_NOT_SPECIFIED = "Interval unit is missing.";
     public static final String NO_INTERVAL_UNIT_FOR_GEOHASH_NOR_HISTOGRAM = "Interval unit must not be specified for geohash nor histogram aggregations.";
     public static final String NO_TERM_INTERVAL = "'Interval' should not be specified for term aggregation.";
-    public static final String INVALID_FETCHGEOMETRY = "Invalid `fetchGeometry` strategy. It should be `fetchGeometry-bbox`, `fetchGeometry-centroid`, `fetchGeometry-byDefault`" +
-            "`fetchGeometry-first`, `fetchGeometry-last`, `fetchGeometry-{field}-first`, `fetchGeometry-{field}-last` or `fetchGeometry";
+    public static final String INVALID_FETCHGEOMETRY = "Invalid `fetch_geometry` strategy. It should be `fetch_geometry-bbox`, `fetch_geometry-centroid`, `fetch_geometry-byDefault`" +
+            "`fetch_geometry-first`, `fetch_geometry-last`, `fetch_geometry-{field}-first`, `fetch_geometry-{field}-last` or `fetch_geometry";
 
 
     public CheckParams() {
@@ -116,7 +116,7 @@ public class CheckParams {
         checkAggregationIntervalParameter(aggregation);
         // Check include parameter validity according to aggregation type
         checkAggregationIncludeParameter(aggregation);
-        // Check fetchGeometry validity according to aggregation type
+        // Check fetch_geometry validity according to aggregation type
         checkFetchGeometryParameter(aggregation);
     }
 
@@ -189,7 +189,7 @@ public class CheckParams {
             AggregatedGeometryStrategyEnum fetchGeometryOption = aggregationModel.fetchGeometry.strategy;
             if ((fetchGeometryOption == AggregatedGeometryStrategyEnum.byDefault || fetchGeometryOption == AggregatedGeometryStrategyEnum.centroid
                     || fetchGeometryOption == AggregatedGeometryStrategyEnum.bbox) && aggregationModel.fetchGeometry.field != null) {
-                throw new BadRequestException("field should not be specified for byDefault & centroid & bbox fetchGeometry strategies");
+                throw new BadRequestException("field should not be specified for byDefault & centroid & bbox fetch_geometry strategies");
             }
             if (fetchGeometryOption == AggregatedGeometryStrategyEnum.geohash && aggregationModel.type != AggregationTypeEnum.geohash) {
                 throw new NotAllowedException(GEOHASH_STRATEGY_NOT_SUPPORTED);

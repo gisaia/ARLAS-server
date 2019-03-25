@@ -176,7 +176,7 @@ ls target/tmp/
 docker run --rm \
 	-v $PWD:/opt/gen \
 	-v $HOME/.m2:/root/.m2 \
-	gisaia/swagger-codegen:2.3.1
+	gisaia/swagger-codegen-typescript:2.3.1
 
 docker run --rm \
 	-v $PWD:/opt/gen \

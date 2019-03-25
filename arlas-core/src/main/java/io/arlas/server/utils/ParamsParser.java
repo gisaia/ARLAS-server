@@ -52,9 +52,9 @@ public class ParamsParser {
     private static final String AGG_ON_PARAM = "on-";
     private static final String AGG_SIZE_PARAM = "size-";
     private static final String AGG_INCLUDE_PARAM = "include-";
-    private static final String AGG_FETCHGEOMETRY_PARAM = "fetchGeometry";
+    private static final String AGG_FETCHGEOMETRY_PARAM = "fetch_geometry";
     private static final String INVALID_DATE_MATH_EXPRESSION = "Invalid date math expression";
-    private static final String AGG_FETCHHITS_PARAM = "fetchHits-";
+    private static final String AGG_FETCHHITS_PARAM = "fetch_hits-";
 
     private static final Pattern HITS_FETCHER_PATTERN = Pattern.compile("(\\d*)(\\()(.*)(\\))");
 

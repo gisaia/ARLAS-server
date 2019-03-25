@@ -388,7 +388,7 @@ public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
         flattenedItems.add("params-startdate_sum_");
         flattenedItems.add("count");
         flattenedItems.add("key");
-        flattenedItems.add("keyAsString");
+        flattenedItems.add("key_as_string");
         flattenedItems.add("feature_type");
         return flattenedItems;
     }
