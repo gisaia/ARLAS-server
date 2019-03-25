@@ -61,9 +61,7 @@ logging:
 ############ DATASOURCE                  ###############
 ########################################################
 # Configuration of the datasource
-elastic-nodes: ${ARLAS_ELASTIC_NODES:-}
-elastic-host: ${ARLAS_ELASTIC_HOST:-localhost}
-elastic-port: ${ARLAS_ELASTIC_PORT:-9300}
+elastic-nodes: ${ARLAS_ELASTIC_NODES:-localhost:9300}
 elastic-sniffing: ${ARLAS_ELASTIC_SNIFFING:-false}
 elastic-cluster: ${ARLAS_ELASTIC_CLUSTER:-elasticsearch}
 arlas-index:  ${ARLAS_ELASTIC_INDEX:-.arlas}
