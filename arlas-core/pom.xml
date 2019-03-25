@@ -40,7 +40,18 @@
             <groupId>com.smoketurner</groupId>
             <artifactId>dropwizard-swagger</artifactId>
             <version>${dropwizard.swagger.version}</version>
-            <exclusions><exclusion><groupId>org.glassfish.jersey.containers</groupId><artifactId>jersey-container-servlet-core</artifactId></exclusion></exclusions>
+            <exclusions>
+                <exclusion><groupId>org.glassfish.jersey.containers</groupId><artifactId>jersey-container-servlet-core</artifactId></exclusion>
+                <exclusion><groupId>org.reflections</groupId><artifactId>reflections</artifactId></exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.10</version>
+            <exclusions>
+                <exclusion><groupId>com.google.guava</groupId><artifactId>guava</artifactId></exclusion>
+            </exclusions>
         </dependency>
 
         <!-- ____________________________________________________ -->
