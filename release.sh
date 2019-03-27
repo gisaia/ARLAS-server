@@ -1,5 +1,8 @@
 #!/bin/bash
-set -e
+set -o errexit -o pipefail
+
+SCRIPT_DIRECTORY="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
+PROJECT_ROOT_DIRECTORY="$SCRIPT_DIRECTORY"
 
 npmlogin=`npm whoami`
 if  [ -z "$npmlogin"  ] ; then echo "your are not logged on npm"; exit -1; else  echo "logged as "$npmlogin ; fi
@@ -137,10 +140,10 @@ else
     echo "=> Build arlas-server"
     docker run --rm \
         -w /opt/maven \
-	    -v $PWD:/opt/maven \
-	    -v $HOME/.m2:/root/.m2 \
-	    maven:3.5.0-jdk-8 \
-	    mvn clean install
+            -v $PWD:/opt/maven \
+            -v $HOME/.m2:/root/.m2 \
+            maven:3.5.0-jdk-8 \
+            mvn clean install
 fi
 
 echo "=> Start arlas-server stack"
@@ -172,16 +175,25 @@ if [ "$TESTS" == "YES" ]; then itests; else echo "=> Skip integration tests"; fi
 echo "=> Generate client APIs"
 BASEDIR=$PWD
 ls target/tmp/
-#@see scripts/build-swagger-codegen.sh if you need a fresher version of swagger codegen
-docker run --rm \
-	-v $PWD:/opt/gen \
-	-v $HOME/.m2:/root/.m2 \
-	gisaia/swagger-codegen-typescript:2.3.1
 
+mkdir -p target/tmp/typescript-fetch
 docker run --rm \
-	-v $PWD:/opt/gen \
-	-v $HOME/.m2:/root/.m2 \
-	gisaia/swagger-codegen-python:2.2.3
+    -e GROUP_ID="$(id -g)" \
+    -e USER_ID="$(id -u)" \
+    --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
+    --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
+	gisaia/swagger-codegen-2.3.1 \
+        -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
+
+mkdir -p target/tmp/python-api
+docker run --rm \
+    -e GROUP_ID="$(id -g)" \
+    -e USER_ID="$(id -u)" \
+    --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
+    --mount dst=/input/config.json,src="$PROJECT_ROOT_DIRECTORY/conf/swagger/python-config.json",type=bind,ro \
+    --mount dst=/output,src="$PWD/target/tmp/python-api",type=bind \
+	gisaia/swagger-codegen-2.2.3 \
+        -l python
 
 echo "=> Build Typescript API "${FULL_API_VERSION}
 cd ${BASEDIR}/target/tmp/typescript-fetch/
@@ -209,9 +221,9 @@ sed -i.bak 's/\"api_version\"/\"'${FULL_API_VERSION}'\"/' setup.py
 
 docker run --rm \
     -w /opt/python \
-	-v $PWD:/opt/python \
-	python:3 \
-	python setup.py sdist bdist_wheel
+        -v $PWD:/opt/python \
+        python:3 \
+        python setup.py sdist bdist_wheel
 
 echo "=> Publish Python API "
 if [ "$SIMULATE" == "NO" ]; then
