@@ -138,12 +138,14 @@ if [ "$SIMULATE" == "NO" ]; then
     export DOCKERFILE="Dockerfile"
 else
     echo "=> Build arlas-server"
-    docker run --rm \
-        -w /opt/maven \
-            -v $PWD:/opt/maven \
-            -v $HOME/.m2:/root/.m2 \
-            maven:3.5.0-jdk-8 \
-            mvn clean install
+    docker run \
+        -e GROUP_ID="$(id -g)" \
+        -e USER_ID="$(id -u)" \
+        --mount dst=/mnt/.m2,src="$HOME/.m2/",type=bind \
+        --mount dst=/opt/maven,src="$PWD",type=bind \
+        --rm \
+        gisaia/maven-3.5-jdk8-alpine \
+            clean install
 fi
 
 echo "=> Start arlas-server stack"
@@ -219,11 +221,13 @@ cd ${BASEDIR}/target/tmp/python-api/
 cp ${BASEDIR}/conf/python/setup.py setup.py
 sed -i.bak 's/\"api_version\"/\"'${FULL_API_VERSION}'\"/' setup.py
 
-docker run --rm \
-    -w /opt/python \
-        -v $PWD:/opt/python \
-        python:3 \
-        python setup.py sdist bdist_wheel
+docker run \
+      -e GROUP_ID="$(id -g)" \
+      -e USER_ID="$(id -u)" \
+      --mount dst=/opt/python,src="$PWD",type=bind \
+      --rm \
+      gisaia/python-3-alpine \
+            setup.py sdist bdist_wheel
 
 echo "=> Publish Python API "
 if [ "$SIMULATE" == "NO" ]; then
