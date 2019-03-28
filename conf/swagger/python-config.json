@@ -1,4 +1,3 @@
 {
-  "packageName" : "arlas_api_python",
-  "modelPropertyNaming": "snake_case"
-} 
+  "packageName" : "arlas_api_python"
+}
