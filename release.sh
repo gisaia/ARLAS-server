@@ -195,7 +195,7 @@ docker run --rm \
     --mount dst=/input/config.json,src="$PROJECT_ROOT_DIRECTORY/conf/swagger/python-config.json",type=bind,ro \
     --mount dst=/output,src="$PWD/target/tmp/python-api",type=bind \
 	gisaia/swagger-codegen-2.2.3 \
-        -l python
+        -l python --type-mappings GeoJsonObject=object
 
 echo "=> Build Typescript API "${FULL_API_VERSION}
 cd ${BASEDIR}/target/tmp/typescript-fetch/
