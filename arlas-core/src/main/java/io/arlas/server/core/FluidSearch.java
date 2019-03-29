@@ -59,9 +59,6 @@ import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.operation.valid.IsValidOp;
 import org.locationtech.jts.operation.valid.TopologyValidationError;
 
@@ -188,10 +185,6 @@ public class FluidSearch {
         SearchResponse result = null;
         result = searchRequestBuilder.get();
         return result;
-    }
-
-    public String getCountDistinctKey(String field) {
-        return "distinct-" + field + "-values";
     }
 
     public FluidSearch filter(MultiValueFilter<Expression> f, String dateFormat) throws ArlasException {
@@ -488,12 +481,6 @@ public class FluidSearch {
                 }
             }
         }
-        return this;
-    }
-
-    public FluidSearch countDistinct(String field) throws ArlasException {
-        ValuesSourceAggregationBuilder countDistinctAggregationBuilder = AggregationBuilders.cardinality(getCountDistinctKey(field)).field(field);
-        searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(countDistinctAggregationBuilder);
         return this;
     }
 
