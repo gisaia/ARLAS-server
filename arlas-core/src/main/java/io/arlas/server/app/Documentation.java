@@ -305,6 +305,4 @@ public class Documentation {
 
     public static final String RANGE_OPERATION = "Calculates the min and max values of a field in the collection, given the filters";
     public static final String RANGE_FIELD = "The field whose range is calculated";
-
-    public static final String COUNT_DISTINCT_FIELD = "The field which values are distinctly counted";
 }

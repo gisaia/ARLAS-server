@@ -86,15 +86,6 @@ public class CheckParams {
         }
     }
 
-    public static void checkCountDistinctRequest(CountDistinct request) throws ArlasException {
-        if (request == null) {
-            throw new BadRequestException("CountDistinct request should not be null");
-        }
-        if (StringUtil.isNullOrEmpty(request.field)) {
-            throw new BadRequestException("CountDistinct request field should not be null nor empty");
-        }
-    }
-
     public static void checkAggregationModel(Aggregation aggregation) throws ArlasException {
         // Check 'type' & 'field'
         if (aggregation.type == null || (aggregation.field == null && aggregation.type != AggregationTypeEnum.datehistogram)) {

@@ -11,7 +11,6 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/explore/**_list**                 | List  the collections configured in ARLAS |
 | /arlas/explore/`{collection}`/**_describe**?`form` | Describes the structure and the content of the given collection |
 | /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Counts the number of elements found in the collection, given the filters |
-| /arlas/explore/`{collection}`/**_countDistinct**?`field` & `filter` & `form` | Counts the number of distinct values of a given field, given the filters |
 | /arlas/explore/`{collection}`/**_range**?`field` & `filter` & `form` | Calculates the min and max values of a field in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `page` | Search and return the elements found in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `page` | Search and return the elements found in the collection as features, given the filters |
@@ -263,9 +262,9 @@ The `form` url part allows the following parameters to be specified:
 ---
 ### Part: `field`
 
-The `field` url part is used in services `_range` and `_countDistinct` services.
+The `field` url part is used in `_range` service.
  
-It's the name pattern of the field used to calculate its values range (`_range` service) or to count its distinct values (`_countDistinct` service).
+It's the name pattern of the field used to calculate its values range (`_range` service).
 
 > Example: `field=timestamp`
 
