@@ -1,6 +1,58 @@
 # Change Log
 
-## [v9.6.1](https://github.com/gisaia/ARLAS-server/tree/v9.6.1) (2018-12-13)
+## [v10.6.0](https://github.com/gisaia/ARLAS-server/tree/v10.6.0) (2019-03-29)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v9.6.2...v10.6.0)
+
+**Breaking changes:**
+
+- make Explore API request & response models definitions in snake\_case [\#432](https://github.com/gisaia/ARLAS-server/issues/432) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Refactor `Size` and `Sort` classes: both are combined into `Page` class [\#405](https://github.com/gisaia/ARLAS-server/issues/405) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Remove ARLAS\_ELASTIC\_HOST and ARLAS\_ELASTIC\_PORT from configuration. [\#254](https://github.com/gisaia/ARLAS-server/issues/254) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
+
+**New stuff:**
+
+- Aggregations : Extend fetch\_geometry option to all types of aggregations [\#417](https://github.com/gisaia/ARLAS-server/issues/417) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Check validity of WKT passed to geographic filters \(gintersect, gwithin, notgintersect, notgwithin\) [\#407](https://github.com/gisaia/ARLAS-server/issues/407)
+- Add \_link object to specify next page for search end point [\#403](https://github.com/gisaia/ARLAS-server/issues/403) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- extend the `flat` option to Aggregate REST service [\#397](https://github.com/gisaia/ARLAS-server/issues/397) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Add a the possibility to fetch an attribute \(first, last, default, ...\) in aggregation responses [\#391](https://github.com/gisaia/ARLAS-server/issues/391) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Add `dateformat` option in \[range, lt, gt, lte, gte\] queries for date fields [\#389](https://github.com/gisaia/ARLAS-server/issues/389) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- extend the `flat` option to Search and Raw REST services [\#388](https://github.com/gisaia/ARLAS-server/issues/388) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Add `md` in `\_geosearch` response [\#387](https://github.com/gisaia/ARLAS-server/issues/387)
+- Implement search\_after query parameter in search request. [\#289](https://github.com/gisaia/ARLAS-server/issues/289) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Add search after param [\#402](https://github.com/gisaia/ARLAS-server/pull/402) [[API](https://github.com/gisaia/ARLAS-server/labels/API)] ([mbarbet](https://github.com/mbarbet))
+
+**Fixed bugs:**
+
+- Python client of ARLAS-api returns incorrect geometries [\#429](https://github.com/gisaia/ARLAS-server/issues/429) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Release script fails to clean root-owned previously generated files [\#421](https://github.com/gisaia/ARLAS-server/issues/421)
+- Release process breaks on root-generated file [\#412](https://github.com/gisaia/ARLAS-server/issues/412)
+- Fix false-positive geohashes returned in `\_geoaggregate/{geohash}` service [\#395](https://github.com/gisaia/ARLAS-server/issues/395)
+- Aggregation and Search responses are snake\_case while it's camelCase in typescript generated api [\#381](https://github.com/gisaia/ARLAS-server/issues/381) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Fix Atom search tests when content type is application/atom+xml [\#394](https://github.com/gisaia/ARLAS-server/pull/394) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
+**Miscellaneous:**
+
+- Fix warnings logs arlas server startup [\#419](https://github.com/gisaia/ARLAS-server/issues/419)
+- arlas-api-tutorial : Aggregation examples are not updated to the latest versions of arlas-api [\#385](https://github.com/gisaia/ARLAS-server/issues/385) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- Update arlas-api-tutorial : Elasticsearch 6.x no longer supports enabling \[\_all\] for mapping  [\#384](https://github.com/gisaia/ARLAS-server/issues/384) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- Bump Elasticsearch dependency to 6.5 [\#383](https://github.com/gisaia/ARLAS-server/issues/383)
+- Use configurable character for replacing the dot within the field path [\#305](https://github.com/gisaia/ARLAS-server/issues/305)
+
+## [v9.6.2](https://github.com/gisaia/ARLAS-server/tree/v9.6.2) (2019-03-01)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v8.6.2...v9.6.2)
+
+## [v8.6.2](https://github.com/gisaia/ARLAS-server/tree/v8.6.2) (2019-03-01)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v9.6.1...v8.6.2)
+
+**New stuff:**
+
+- Add a new service \_countDistinct to the explore api [\#390](https://github.com/gisaia/ARLAS-server/issues/390) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+## [v9.6.1](https://github.com/gisaia/ARLAS-server/tree/v9.6.1) (2018-12-14)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v9.6.0...v9.6.1)
 
