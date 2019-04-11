@@ -316,6 +316,7 @@ public class SearchRESTService extends ExploreRESTServices {
         if (lastIndex >= 0 && sizeParam == hits.nbhits && sortParam != null && afterParam != null) {
             next = new Link();
             lastHitAfter =  Arrays.stream(sortParam.split(","))
+                    .map(field -> field.startsWith("-") ? field.substring(1) : field)
                     .map(field-> MapExplorer.getObjectFromPath(field,searchHits.getHits()[lastIndex].getSourceAsMap()).toString())
                     .collect(Collectors.joining(","));
             next.method = method;
