@@ -296,7 +296,7 @@ public class SearchRESTService extends ExploreRESTServices {
     }
 
 
-    protected Hits getArlasHits(MixedRequest request, CollectionReference collectionReference, Boolean flat,UriInfo uriInfo,String method) throws ArlasException, IOException {
+    protected Hits getArlasHits(MixedRequest request, CollectionReference collectionReference, Boolean flat, UriInfo uriInfo, String method) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
         Hits hits = new Hits(collectionReference.collectionName);
         hits.totalnb = searchHits.getTotalHits();
@@ -306,39 +306,37 @@ public class SearchRESTService extends ExploreRESTServices {
         Link self = new Link();
         self.href = uriInfo.getRequestUri().toURL().toString();
         self.method = method;
+        Link next = null;
         int lastIndex = (int) hits.nbhits -1;
+        Search searchRequest  = (Search)request.basicRequest;
+        String sortParam = searchRequest.page != null ? searchRequest.page.sort : null;
+        String afterParam = searchRequest.page != null ? searchRequest.page.after : null;
+        Integer sizeParam = searchRequest.page != null ? searchRequest.page.size : ExploreServices.SEARCH_DEFAULT_PAGE_SIZE;
+        String lastHitAfter = "";
+        if (lastIndex >= 0 && sizeParam == hits.nbhits && sortParam != null && afterParam != null) {
+            next = new Link();
+            lastHitAfter =  Arrays.stream(sortParam.split(","))
+                    .map(field-> MapExplorer.getObjectFromPath(field,searchHits.getHits()[lastIndex].getSourceAsMap()).toString())
+                    .collect(Collectors.joining(","));
+            next.method = method;
+        }
         switch (method){
             case"GET":
-                links.put("self",self);
-                if(uriInfo.getQueryParameters().get("after")!=null){
-                    String searchAfterParam = uriInfo.getQueryParameters().get("sort").get(0);
-                    String searchAfter =  Arrays.stream(searchAfterParam.split(","))
-                            .map(field-> MapExplorer.getObjectFromPath(field,searchHits.getHits()[lastIndex].getSourceAsMap()).toString())
-                            .collect(Collectors.joining(","));
-                    Link next = new Link();
-                    next.href = uriInfo.getRequestUriBuilder().replaceQueryParam("after",searchAfter).build().toURL().toString();
-                    next.method=method;
-                    links.put("next",next);
+                links.put("self", self);
+                if (next != null){
+                    next.href = uriInfo.getRequestUriBuilder().replaceQueryParam("after", lastHitAfter).build().toURL().toString();
+                    links.put("next", next);
                 }
                 break;
             case"POST":
-                self.body = (Search)request.basicRequest;
-                links.put("self",self);
-                if(self.body.page!=null){
-                    if(self.body.page.sort!=null&&self.body.page.after!=null){
-                        String searchAfterParam = self.body.page.sort;
-                        String searchAfter =  Arrays.stream(searchAfterParam.split(","))
-                                .map(field-> MapExplorer.getObjectFromPath(field,searchHits.getHits()[lastIndex].getSourceAsMap()).toString())
-                                .collect(Collectors.joining(","));
-                        Link next = new Link();
-                        next.body =self.body;
-                        next.body.page.after = searchAfter;
-                        next.href = uriInfo.getRequestUri().toURL().toString();
-                        next.method=method;
-                        links.put("next",next);
-                    }
+                self.body = searchRequest;
+                links.put("self", self);
+                if (next != null){
+                    next.body = self.body;
+                    next.body.page.after = lastHitAfter;
+                    next.href = uriInfo.getRequestUri().toURL().toString();
+                    links.put("next", next);
                 }
-
                 break;
         }
         hits.links = links;

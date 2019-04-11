@@ -244,10 +244,7 @@ public class CheckParams {
 
     public static void checkPageSize(Page page) throws ArlasException {
         if (page != null) {
-            if (page.size == null) {
-                //Default Value
-                page.size = 10;
-            } else if (page.size <= 0){
+            if (page.size == null || page.size <= 0){
                 throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
             }
         }
@@ -255,10 +252,7 @@ public class CheckParams {
 
     public static void checkPageFrom(Page page) throws ArlasException {
         if (page != null) {
-            if (page.from == null) {
-                //Default Value
-                page.from = 0;
-            } else if (page.from < 0) {
+            if (page.from == null || page.from < 0) {
                 throw new InvalidParameterException(FluidSearch.INVALID_FROM);
             }
         }

@@ -80,7 +80,7 @@ public class FluidSearch {
     public static final String INVALID_WKT = "Invalid WKT geometry.";
     public static final String INVALID_WKT_RANGE = "Invalid WKT geometry.Coordinate out of range";
     public static final String INVALID_BBOX = "Invalid BBOX";
-    public static final String INVALID_SIZE = "Invalid size parameter.";
+    public static final String INVALID_SIZE = "Invalid size parameter. It should be a strictly positive integer";
     public static final String INVALID_FROM = "Invalid from parameter: should be a positive integer.";
     public static final String INVALID_DATE_UNIT = "Invalid date unit.";
     public static final String INVALID_GEOSORT_LAT_LON = "'lat lon' must be numeric values separated by a space";

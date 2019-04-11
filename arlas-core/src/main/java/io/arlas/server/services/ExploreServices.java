@@ -61,6 +61,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ExploreServices {
+
+    public static final Integer SEARCH_DEFAULT_PAGE_SIZE = 10;
+    public static final Integer SEARCH_DEFAULT_PAGE_FROM = 0;
+
     private Client client;
     private CollectionReferenceDao daoCollectionReference;
     private ResponseCacheManager responseCacheManager = null;
@@ -225,11 +229,15 @@ public class ExploreServices {
 
     protected void setPageSizeAndFrom(Page page, FluidSearch fluidSearch) throws ArlasException {
         if (page != null) {
+            if (page.size == null) {
+                page.size = SEARCH_DEFAULT_PAGE_SIZE;
+            }
+            if (page.from == null) {
+                page.from = SEARCH_DEFAULT_PAGE_FROM;
+            }
             CheckParams.checkPageSize(page);
             CheckParams.checkPageFrom(page);
-            if (page.size != null && page.from != null) {
-                fluidSearch = fluidSearch.filterSize(page.size, page.from);
-            }
+            fluidSearch = fluidSearch.filterSize(page.size, page.from);
         }
     }
 
