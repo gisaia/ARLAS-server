@@ -303,6 +303,9 @@ public class SearchRESTService extends ExploreRESTServices {
         hits.nbhits = searchHits.getHits().length;
         HashMap<String,Link> links = new HashMap<>();
         hits.hits = new ArrayList<>((int) hits.nbhits);
+        for (SearchHit hit : searchHits.getHits()) {
+            hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), flat, false));
+        }
         Link self = new Link();
         self.href = uriInfo.getRequestUri().toURL().toString();
         self.method = method;
@@ -317,7 +320,8 @@ public class SearchRESTService extends ExploreRESTServices {
             next = new Link();
             lastHitAfter =  Arrays.stream(sortParam.split(","))
                     .map(field -> field.startsWith("-") ? field.substring(1) : field)
-                    .map(field-> MapExplorer.getObjectFromPath(field,searchHits.getHits()[lastIndex].getSourceAsMap()).toString())
+                    .map(field-> !field.equals(collectionReference.params.timestampPath) ?
+                            MapExplorer.getObjectFromPath(field,searchHits.getHits()[lastIndex].getSourceAsMap()).toString() : hits.hits.get(lastIndex).md.timestamp.toString())
                     .collect(Collectors.joining(","));
             next.method = method;
         }
@@ -341,9 +345,7 @@ public class SearchRESTService extends ExploreRESTServices {
                 break;
         }
         hits.links = links;
-        for (SearchHit hit : searchHits.getHits()) {
-            hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), flat, false));
-        }
+
         return hits;
     }
 }
