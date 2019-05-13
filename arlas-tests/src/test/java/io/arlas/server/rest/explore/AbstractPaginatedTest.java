@@ -144,11 +144,24 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
         String href = response.path("links.next.href");
         ObjectMapper objectMapper = new ObjectMapper();
         Search searchFromLink = objectMapper.convertValue(data,Search.class);
-        req.body(handlePostRequest(searchFromLink))
+        ExtractableResponse secondResponse = req.body(handlePostRequest(searchFromLink))
                 .when().post(href)
                 .then()
                 .body("hits[0].data.id", equalTo(id_2))
                 .body("links.next",notNullValue())
+                .body("links.self",notNullValue())
+                .statusCode(200).extract();
+        /** WE FETCH NOW THE LAST PAGE. 'link.next' SHOULD BE NULL */
+        HashMap lastRequestBody = response.path("links.next.body");
+        String lastHref = response.path("links.next.href");
+        Search lastSearchFromLink = objectMapper.convertValue(lastRequestBody,Search.class);
+        lastSearchFromLink.page.size = 595;
+        givenFilterableRequestBody().body(handlePostRequest(lastSearchFromLink))
+                .when().post(lastHref)
+                .then()
+                .body("nbhits", lessThan(lastSearchFromLink.page.size))
+                .body("links.next",nullValue())
+                .body("links.self",notNullValue())
                 .statusCode(200);
     }
 
@@ -204,11 +217,24 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
                 .when().get(getUrlPath("geodata"))
                 .then().extract();
         String href = response.path("links.next.href");
-        givenFilterableRequestBody().urlEncodingEnabled(true)
+        ExtractableResponse secondResponse  = givenFilterableRequestBody().urlEncodingEnabled(true)
                 .when().get(URLDecoder.decode(href,"UTF-8"))
                 .then()
                 .body("hits[0].data.id", equalTo(id_2))
                 .body("links.next",notNullValue())
+                .statusCode(200).extract();
+        /** WE FETCH NOW THE LAST PAGE. 'link.next' SHOULD BE NULL */
+        String lastId = secondResponse.path("hits[0].data.id");
+        String lastDate = secondResponse.path("hits[0].data.params.startdate").toString();
+        search.page.size = 595;
+        givenFilterableRequestBody().param("sort", search.page.sort)
+                .param("size", search.page.size)
+                .param("after", lastDate.concat(",").concat(lastId))
+                .when().get(getUrlPath("geodata"))
+                .then()
+                .body("nbhits", lessThan(search.page.size))
+                .body("links.next",nullValue())
+                .body("links.self",notNullValue())
                 .statusCode(200);
     }
 
