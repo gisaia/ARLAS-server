@@ -1,8 +1,13 @@
 # ARLAS Tagging API
 
-This API is available for tagging `hits` in ARLAS `collections`.  
+This API is available for tagging `hits` in ARLAS `collections`.
+
 By tagging, we mean here adding a value to a field that is of type `Array`.
+
+The field to tag must be declared in the [ARLAS collection](arlas-collection-model#model).
+
 The value is added to the field of all the hits of a collection matching the `Search` part of the TagRequest.
+
 If no `Search` is provided, then the whole collection is tagged.
 
 
