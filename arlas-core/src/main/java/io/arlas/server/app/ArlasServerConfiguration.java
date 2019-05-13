@@ -28,6 +28,8 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArlasServerConfiguration extends Configuration {
+
+    protected static Logger LOGGER = LoggerFactory.getLogger(ArlasServerConfiguration.class);
 
     @JsonProperty("arlas-wfs")
     public WFSConfiguration wfsConfiguration;
@@ -70,6 +74,9 @@ public class ArlasServerConfiguration extends Configuration {
 
     @JsonProperty("arlas-index")
     public String arlasindex;
+
+    @JsonProperty("arlas-base-uri")
+    public String arlasBaseUri;
 
     @JsonProperty("arlas-cache-size")
     public int arlascachesize;
@@ -140,6 +147,14 @@ public class ArlasServerConfiguration extends Configuration {
         }
         if (swaggerBundleConfiguration == null) {
             throw new ArlasConfigurationException("Swagger configuration missing in config file.");
+        }
+        LOGGER.info("========>   arlasBaseUri : " + arlasBaseUri);
+        if (arlasBaseUri != null) {
+            try {
+                URI uri = new URI(arlasBaseUri);
+            } catch (URISyntaxException e) {
+                throw new ArlasConfigurationException("The arlas-base-uri is invalid.");
+            }
         }
         if (opensearchConfiguration != null && opensearchConfiguration.urlTemplatePrefix != null) {
             try {

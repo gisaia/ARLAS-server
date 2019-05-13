@@ -59,4 +59,8 @@ public abstract class ExploreRESTServices {
     public Response cache(Response.ResponseBuilder response, Integer maxagecache) {
         return exploreServices.getResponseCacheManager().cache(response, maxagecache);
     }
+
+    public String getExplorePathUri() {
+        return "explore/";
+    }
 }
