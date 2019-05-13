@@ -316,7 +316,7 @@ public class SearchRESTService extends ExploreRESTServices {
         String afterParam = searchRequest.page != null ? searchRequest.page.after : null;
         Integer sizeParam = searchRequest.page != null ? searchRequest.page.size : ExploreServices.SEARCH_DEFAULT_PAGE_SIZE;
         String lastHitAfter = "";
-        if (lastIndex >= 0 && sizeParam == hits.nbhits && sortParam != null && afterParam != null) {
+        if (lastIndex >= 0 && sizeParam == hits.nbhits && sortParam != null && (afterParam != null || sortParam.contains(collectionReference.params.idPath))) {
             next = new Link();
             lastHitAfter =  Arrays.stream(sortParam.split(","))
                     .map(field -> field.startsWith("-") ? field.substring(1) : field)
