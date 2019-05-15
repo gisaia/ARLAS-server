@@ -68,11 +68,21 @@ public class ExploreServices {
     private Client client;
     private CollectionReferenceDao daoCollectionReference;
     private ResponseCacheManager responseCacheManager = null;
+    private ArlasServerConfiguration configuration;
 
     public ExploreServices(Client client, ArlasServerConfiguration configuration) {
         this.client = client;
+        this.configuration = configuration;
         this.daoCollectionReference = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
         this.responseCacheManager = new ResponseCacheManager(configuration.arlasrestcachetimeout);
+    }
+
+    public String getBaseUri() {
+        String baseUri = null;
+        if (configuration.arlasBaseUri != null) {
+            baseUri =  configuration.arlasBaseUri;
+        }
+        return baseUri;
     }
 
     public Client getClient() {

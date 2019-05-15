@@ -35,6 +35,7 @@ import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
+import io.arlas.server.utils.StringUtil;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -307,7 +308,7 @@ public class SearchRESTService extends ExploreRESTServices {
             hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), flat, false));
         }
         Link self = new Link();
-        self.href = uriInfo.getRequestUri().toURL().toString();
+        self.href = getRequestUri(uriInfo);
         self.method = method;
         Link next = null;
         int lastIndex = (int) hits.nbhits -1;
@@ -329,7 +330,7 @@ public class SearchRESTService extends ExploreRESTServices {
             case"GET":
                 links.put("self", self);
                 if (next != null){
-                    next.href = uriInfo.getRequestUriBuilder().replaceQueryParam("after", lastHitAfter).build().toURL().toString();
+                    next.href = getNextHref(uriInfo, lastHitAfter);
                     links.put("next", next);
                 }
                 break;
@@ -337,15 +338,46 @@ public class SearchRESTService extends ExploreRESTServices {
                 self.body = searchRequest;
                 links.put("self", self);
                 if (next != null){
+                    next.href = self.href;
                     next.body = self.body;
                     next.body.page.after = lastHitAfter;
-                    next.href = uriInfo.getRequestUri().toURL().toString();
                     links.put("next", next);
                 }
                 break;
         }
         hits.links = links;
-
         return hits;
+    }
+
+    private String getBaseUri(UriInfo uriInfo) {
+        String baseUri = this.exploreServices.getBaseUri();
+        if (StringUtil.isNullOrEmpty(baseUri)) {
+            baseUri = uriInfo.getBaseUri().toString();
+        }
+        return baseUri;
+    }
+
+    private String getPathUri(UriInfo uriInfo) {
+        return uriInfo.getPath();
+    }
+
+    private String getAbsoluteUri(UriInfo uriInfo) {
+        return getBaseUri(uriInfo) + getPathUri(uriInfo);
+    }
+
+    private String getQueryParameters(UriInfo uriInfo) {
+       return uriInfo.getRequestUriBuilder().toTemplate().replace(uriInfo.getAbsolutePath().toString(), "");
+    }
+
+    private String getNextQueryParameters(UriInfo uriInfo, String afterValue) {
+        return uriInfo.getRequestUriBuilder().replaceQueryParam("after", afterValue).toTemplate().replace(uriInfo.getAbsolutePath().toString(), "");
+    }
+
+    private String getRequestUri(UriInfo uriInfo) {
+        return getAbsoluteUri(uriInfo) + getQueryParameters(uriInfo);
+    }
+
+    private String getNextHref(UriInfo uriInfo, String afterValue) {
+        return getAbsoluteUri(uriInfo) + getNextQueryParameters(uriInfo, afterValue);
     }
 }
