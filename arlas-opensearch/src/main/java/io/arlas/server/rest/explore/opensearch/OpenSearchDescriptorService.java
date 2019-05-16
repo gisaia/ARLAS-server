@@ -102,9 +102,13 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
         //[scheme:][//authority][path][?query][#fragment]
         if (cr.params.openSearch != null) {
             OpenSearch os = cr.params.openSearch;
-            if (opensearchConfiguration != null && opensearchConfiguration.urlTemplatePrefix != null) {
+            String baseUri = this.getExploreServices().getBaseUri();
+            if (!StringUtil.isNullOrEmpty(baseUri)) {
+                prefix = this.getExploreServices().getBaseUri() + this.getExplorePathUri() + collection + "/_search";
+            } else  if (opensearchConfiguration != null && opensearchConfiguration.urlTemplatePrefix != null) {
                 prefix = opensearchConfiguration.urlTemplatePrefix;
                 prefix = prefix.replace(OpensearchConfiguration.COLLECTION_PLACEMARK, collection);
+                LOGGER.warn("[opensearch.url-template-prefix] is deprecated. Use [arlas-base-uri] instead.");
             }
             description.adultContent = os.adultContent;
             description.attribution = os.attribution;
