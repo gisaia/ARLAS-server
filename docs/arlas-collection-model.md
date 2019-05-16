@@ -13,7 +13,7 @@ And, by referencing your data in a **Collection**, you make your REST calls ligh
 
 A Collection has the following structure : 
 
-```JSON
+```json
 {
   "collection_name": "string",
   "params": {
@@ -47,7 +47,9 @@ A Collection has the following structure :
 }
 ```
 
-The `atom_feed`, `dublin_core_element_name`, `inspire`, `open_search` and `ratser_tiles` nodes are optionals. The most important fields are:
+The `atom_feed`, `dublin_core_element_name`, `inspire`, `open_search` and `ratser_tiles` nodes are optionals.
+
+The most important fields are:
 
 | Attribute      | Description                                       | Mention   |
 | ---------------| ------------------------------------------------- | --------- |
@@ -61,13 +63,28 @@ The `atom_feed`, `dublin_core_element_name`, `inspire`, `open_search` and `ratse
 | exclude_fields | Comma separated fields names that will be excluded from ARLAS-server responses. By default, none of the fields are excluded | Optional|
 | raster_tile_width | In case the tile is too big, the crop width to apply. Set to -1 if not check must be applied |  Optional |  -1 |
 | raster_tile_height | In case the tile is too big, the crop height to apply. Set to -1 if not check must be applied  |  Optional |  -1 |
+| taggable_fields| Comma separated fields names/paths that are allowed to be updated by the [tag service](arlas-api-tagging). By default no field is taggable| Optional|
+| update_max_hits | Maximum number of hits you can tag with one `tag request` | Optional|
 
+!!! info "Important 1"
+    Taggable fields paths should not contain `tags`. It's a reserved word.
+    
+!!! info "Important 2"
+    Taggable fields must initially be set to a value or to null at index time in ES.
+    For instance, if you use [`Logstash`](https://www.elastic.co/products/logstash) to index in ES, you can add in this line in Logstash config file to set the field values to null
+    
+    ```
+        ruby {
+            code => "event.set('[labels][status]', nil);"
+        }
+    ```
+    `labels.status` being the taggable field.
 
 ## ATOM
 
 In case the ATOM output type on a collection is used in searches, the following properties can be set to customize the result:
 
-```JSON
+```json
    "atom_feed": {
      "author": {
        "name": "string",
@@ -111,7 +128,7 @@ In case the ATOM output type on a collection is used in searches, the following 
 
 The Dublin Core Description document of the collection can be customized with the following properties:
 
-```JSON
+```json
    "dublin_core_element_name": {
        "title": "string",
        "creator": "string",
@@ -163,7 +180,7 @@ The Dublin Core Description document of the collection can be customized with th
 
 In case the INSPIRE option is enabled in `configuration.yaml`, the following properties can be set to customize the result of WFS GetCapabilities and CSW GetCapabilities, GetRecords & GetRecordById:
 
-```JSON
+```json
    "inspire": {
         "keywords": [
         {
@@ -218,7 +235,7 @@ The `inspire` node is mandatory only if INSPIRE option is enabled in `configurat
 
 The OPENSEARCH Description document of the collection can be customized with the following properties:
 
-```JSON
+```json
    "open_search": {
      "short_name": "string",
      "description": "string",
@@ -266,7 +283,7 @@ If the data in the collection are metadata of images and the images are availabl
 then ARLAS can, for a given tile, dynamically stack the tiles aligned with the requested one and for the images matching a given filter. 
 In case the tile server does not provide the tiles always with the right size (too big), then you can set the `raster_tile_width` and `raster_tile_height` to the desired dimensions, such as 256 or 512. A crop operation is done to meet the right size when the tile is too big. The "too small" case is not handled.
 
-```JSON
+```json
    "raster_tile_url": {
      "url": "string",
      "id_path": "string",

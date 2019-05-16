@@ -235,7 +235,7 @@ curl -X POST \
 
 !!! note "Note"
     In `countDistinctParameters.json` is defined the field :
-    ```JSON
+    ```json
             {
               "field": "country",
               "form": {
@@ -245,7 +245,7 @@ curl -X POST \
     ```
 
 !!! success "Response"
-    ```JSON
+    ```json
             {
               "total_time" : 9,
               "totalnb" : 140,
