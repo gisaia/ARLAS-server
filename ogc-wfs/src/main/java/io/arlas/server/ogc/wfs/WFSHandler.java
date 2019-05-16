@@ -29,15 +29,21 @@ import io.arlas.server.ogc.wfs.operation.getfeature.GetFeatureHandler;
 import io.arlas.server.ogc.wfs.operation.storedquery.ListStoredQueriesHandler;
 import io.arlas.server.ogc.wfs.operation.storedquery.StoredQueryManager;
 import io.arlas.server.ogc.common.utils.XmlUtils;
+import io.arlas.server.utils.StringUtil;
 import net.opengis.wfs._2.ObjectFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 public class WFSHandler {
 
+    protected static Logger LOGGER = LoggerFactory.getLogger(WFSHandler.class);
+
     public WFSConfiguration wfsConfiguration;
     public OGCConfiguration ogcConfiguration;
     public InspireConfiguration inspireConfiguration;
+    public String baseUri;
 
     public GetCapabilitiesHandler getCapabilitiesHandler;
     public DescribeFeatureTypeHandler describeFeatureTypeHandler;
@@ -48,10 +54,16 @@ public class WFSHandler {
     public net.opengis.fes._2.ObjectFactory fesFactory = new net.opengis.fes._2.ObjectFactory();
     public StoredQueryManager storedQueryManager = new StoredQueryManager();
 
-    public WFSHandler(WFSConfiguration wfsconfiguration, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws ParserConfigurationException {
+    public WFSHandler(WFSConfiguration wfsconfiguration, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration, String baseUri) throws ParserConfigurationException {
         this.wfsConfiguration = wfsconfiguration;
         this.ogcConfiguration = ogcConfiguration;
         this.inspireConfiguration = inspireConfiguration;
+        if (StringUtil.isNullOrEmpty(baseUri)) {
+            this.baseUri = ogcConfiguration.serverUri;
+            LOGGER.warn("[arlas-ogc.serverUri] is deprecated. Use [arlas-base-uri] instead.");
+        } else {
+            this.baseUri = baseUri;
+        }
         getCapabilitiesHandler = new GetCapabilitiesHandler(this);
         describeFeatureTypeHandler = new DescribeFeatureTypeHandler(this);
         listStoredQueriesHandler = new ListStoredQueriesHandler(this);

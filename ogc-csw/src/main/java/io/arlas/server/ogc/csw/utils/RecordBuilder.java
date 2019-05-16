@@ -19,7 +19,6 @@
 
 package io.arlas.server.ogc.csw.utils;
 
-import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.DublinCoreElementName;
 import io.arlas.server.model.Inspire;
@@ -79,7 +78,7 @@ public class RecordBuilder {
         return briefRecord;
     }
 
-    public static SummaryRecordType getSummaryResult(CollectionReference collectionReference, String[] elements, String serverUri, boolean inspireIsEnabled) {
+    public static SummaryRecordType getSummaryResult(CollectionReference collectionReference, String[] elements, String baseUri, boolean inspireIsEnabled) {
         SummaryRecordType summaryRecord = new SummaryRecordType();
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
         Inspire inspire = collectionReference.params.inspire;
@@ -104,7 +103,7 @@ public class RecordBuilder {
             addModified(summaryRecord, dublinCoreElementName.getDate());
             addFormat(summaryRecord, dublinCoreElementName.format);
             addAbstract(summaryRecord, dublinCoreElementName.description);
-            addUrlToWFS(summaryRecord, serverUri + "ogc/wfs/" + collectionReference.collectionName + "/?" + OGCConstant.WFS_GET_CAPABILITIES_PARAMETERS);
+            addUrlToWFS(summaryRecord, baseUri + "ogc/wfs/" + collectionReference.collectionName + "/?" + OGCConstant.WFS_GET_CAPABILITIES_PARAMETERS);
         } else {
             for (String element : Arrays.asList(elements)) {
                 switch (element.toLowerCase()) {
@@ -143,7 +142,7 @@ public class RecordBuilder {
         return summaryRecord;
     }
 
-    public static RecordType getFullResult(CollectionReference collectionReference, String[] elements, OGCConfiguration ogcConfiguration, boolean inspireIsEnabled) {
+    public static RecordType getFullResult(CollectionReference collectionReference, String[] elements, String baseUri, boolean inspireIsEnabled) {
         RecordType record = new RecordType();
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
         Inspire inspire = collectionReference.params.inspire;
@@ -170,7 +169,7 @@ public class RecordBuilder {
             addModified(record, dublinCoreElementName.getDate());
             addFormat(record, dublinCoreElementName.format);
             addAbstract(record, dublinCoreElementName.description);
-            addUrlToWFS(record, ogcConfiguration.serverUri + "ogc/wfs/" + collectionReference.collectionName + "/?" + OGCConstant.WFS_GET_CAPABILITIES_PARAMETERS);
+            addUrlToWFS(record, baseUri + "ogc/wfs/" + collectionReference.collectionName + "/?" + OGCConstant.WFS_GET_CAPABILITIES_PARAMETERS);
         } else {
             for (String element : Arrays.asList(elements)) {
                 switch (element.toLowerCase()) {

@@ -65,6 +65,7 @@ function test_rest() {
     export ARLAS_SERVICE_WFS_ENABLE=true
     export ARLAS_INSPIRE_ENABLED=true
     export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
+    export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"
     export ARLAS_TILE_URL="jar:file:///opt/app/arlas-server.jar!/{id}/{z}/{x}/{y}.png"
     start_stack
     docker run --rm \
@@ -89,7 +90,7 @@ function test_rest() {
 function test_wfs() {
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
-    export ARLAS_OGC_SERVER_URI="http://arlas-server:9999/pathtest/arlastest/"
+    export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"
     export ARLAS_SERVICE_WFS_ENABLE=true
     export ARLAS_INSPIRE_ENABLED=true
     start_stack
@@ -133,7 +134,7 @@ function test_wfs() {
 function test_csw() {
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
-    export ARLAS_OGC_SERVER_URI="http://arlas-server:9999/pathtest/arlastest/"
+    export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"
     export ARLAS_SERVICE_CSW_ENABLE=true
     start_stack
     docker run --rm \

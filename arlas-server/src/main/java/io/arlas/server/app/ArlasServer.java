@@ -183,7 +183,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         if(configuration.arlasServiceWFSEnabled){
             LOGGER.info("WFS Service enabled");
-            WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration, configuration.ogcConfiguration, configuration.inspireConfiguration);
+            WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration, configuration.ogcConfiguration, configuration.inspireConfiguration, configuration.arlasBaseUri);
             environment.jersey().register(new WFSService(exploration, configuration, wfsHandler));
         } else {
             LOGGER.info("WFS Service disabled");
@@ -199,8 +199,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         if (configuration.arlasServiceCSWEnabled) {
             LOGGER.info("CSW Service enabled");
-            CSWHandler cswHandler = new CSWHandler(configuration.ogcConfiguration,configuration.cswConfiguration, configuration.inspireConfiguration);
-            environment.jersey().register(new CSWService(client, cswHandler,configuration));
+            CSWHandler cswHandler = new CSWHandler(configuration.ogcConfiguration, configuration.cswConfiguration, configuration.inspireConfiguration, configuration.arlasBaseUri);
+            environment.jersey().register(new CSWService(client, cswHandler, configuration));
         } else {
             LOGGER.info("CSW Service disabled");
         }

@@ -25,7 +25,7 @@ services:
       - ARLAS_ELASTIC_NODES="elasticsearch:9300"
       - ARLAS_PREFIX="${ARLAS_PREFIX:-/arlas}"
       - ARLAS_APP_PATH="${ARLAS_APP_PATH:-/}"
-      - ARLAS_OGC_SERVER_URI="${ARLAS_OGC_SERVER_URI:-http://arlas-server:9999/arlas/}"
+      - ARLAS_BASE_URI="${ARLAS_BASE_URI:-http://arlas-server:9999/arlas/}"
       - ARLAS_SERVICE_WFS_ENABLE="${ARLAS_SERVICE_WFS_ENABLE:-false}"
       - ARLAS_INSPIRE_ENABLED="${ARLAS_INSPIRE_ENABLED:-false}"
       - ARLAS_SERVICE_CSW_ENABLE="${ARLAS_SERVICE_CSW_ENABLE:-false}"
