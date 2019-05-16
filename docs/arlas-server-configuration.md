@@ -171,6 +171,9 @@ docker run -ti -d \
 !!! note "Note"
     If the placemark `COLLECTION` is specified in the url template, then it will be replaced by the collection name by ARLAS server.
     
+!!! info "Important"
+    `ARLAS_OPENSEARCH_URL_TEMPLATE` is deprecated starting from v10.6.1. It's recommended to use `ARLAS_BASE_URI` instead. `ARLAS_OPENSEARCH_URL_TEMPLATE` is taken into account only if `ARLAS_BASE_URI` is not specified.
+
 ### Logging
 
 | Environment variable | ARLAS Server configuration variable | Default |

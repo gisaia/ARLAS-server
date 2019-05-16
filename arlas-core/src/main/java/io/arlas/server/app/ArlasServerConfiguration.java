@@ -40,8 +40,6 @@ import java.util.List;
 
 public class ArlasServerConfiguration extends Configuration {
 
-    protected static Logger LOGGER = LoggerFactory.getLogger(ArlasServerConfiguration.class);
-
     @JsonProperty("arlas-wfs")
     public WFSConfiguration wfsConfiguration;
 
@@ -148,7 +146,6 @@ public class ArlasServerConfiguration extends Configuration {
         if (swaggerBundleConfiguration == null) {
             throw new ArlasConfigurationException("Swagger configuration missing in config file.");
         }
-        LOGGER.info("========>   arlasBaseUri : " + arlasBaseUri);
         if (arlasBaseUri != null) {
             try {
                 URI uri = new URI(arlasBaseUri);
