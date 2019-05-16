@@ -66,7 +66,7 @@ public class WFSRESTService extends OGCRESTService {
     public WFSHandler wfsHandler;
     private WFSConfiguration wfsConfiguration;
     private OGCConfiguration ogcConfiguration;
-    private String serverUrl;
+    private String serverBaseUrl;
     protected WFSToolService wfsToolService;
 
     //TODO extends and create a wfsexploreService not inject it
@@ -74,7 +74,7 @@ public class WFSRESTService extends OGCRESTService {
         this.wfsHandler = wfsHandler;
         this.wfsConfiguration = wfsHandler.wfsConfiguration;
         this.ogcConfiguration = wfsHandler.ogcConfiguration;
-        this.serverUrl = ogcConfiguration.serverUri;
+        this.serverBaseUrl = wfsHandler.baseUri;
     }
 
     @Timed
@@ -202,7 +202,7 @@ public class WFSRESTService extends OGCRESTService {
 
         CollectionReferenceDescription collectionReferenceDescription = wfsToolService.getCollectionReferenceDescription(collectionReference);
         String collectionName = collectionReferenceDescription.collectionName;
-        String serviceUrl = serverUrl + "ogc/wfs/" + collectionName + "/?";
+        String serviceUrl = serverBaseUrl + "ogc/wfs/" + collectionName + "/?";
         QName featureQname = new QName(serviceUrl, collectionName, wfsConfiguration.featureNamespace);
         WFSCheckParam.checkTypeNames(collectionName, typenames);
         String[] exludes = null;

@@ -26,19 +26,24 @@ import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.ogc.csw.operation.getrecordbyid.GetRecordsByIdHandler;
 import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
 import io.arlas.server.ogc.csw.operation.opensearch.OpenSearchHandler;
+import io.arlas.server.utils.StringUtil;
 import net.opengis.cat.csw._3.ObjectFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CSWHandler {
+
+    protected static Logger LOGGER = LoggerFactory.getLogger(CSWHandler.class);
 
     public GetCapabilitiesHandler getCapabilitiesHandler;
     public GetRecordsHandler getRecordsHandler;
     public GetRecordsByIdHandler getRecordsByIdHandler;
     public OpenSearchHandler openSearchHandler;
 
-
     public OGCConfiguration ogcConfiguration;
     public CSWConfiguration cswConfiguration;
     public InspireConfiguration inspireConfiguration;
+    public String baseUri;
 
     public ObjectFactory cswFactory = new ObjectFactory();
     public net.opengis.ows._2.ObjectFactory owsFactory = new net.opengis.ows._2.ObjectFactory();
@@ -46,10 +51,16 @@ public class CSWHandler {
     public net.opengis.fes._2.ObjectFactory fesFactory = new net.opengis.fes._2.ObjectFactory();
 
 
-    public CSWHandler(OGCConfiguration ogcConfiguration, CSWConfiguration cswConfiguration, InspireConfiguration inspireConfiguration) {
+    public CSWHandler(OGCConfiguration ogcConfiguration, CSWConfiguration cswConfiguration, InspireConfiguration inspireConfiguration, String baseUri) {
         this.ogcConfiguration = ogcConfiguration;
         this.cswConfiguration = cswConfiguration;
         this.inspireConfiguration = inspireConfiguration;
+        if (StringUtil.isNullOrEmpty(baseUri)) {
+            this.baseUri = ogcConfiguration.serverUri;
+            LOGGER.warn("[arlas-ogc.serverUri] is deprecated. Use [arlas-base-uri] instead.");
+        } else {
+            this.baseUri = baseUri;
+        }
         getCapabilitiesHandler = new GetCapabilitiesHandler(this);
         getRecordsHandler = new GetRecordsHandler(this);
         getRecordsByIdHandler = new GetRecordsByIdHandler(this);

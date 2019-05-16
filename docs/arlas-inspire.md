@@ -69,7 +69,7 @@ The table below sums up these metadata elements and how to customize them throug
 |Unique resource identifier|A value uniquely identifying the resource | Same identifier of the data set it serves* : [`inspire.inspire_uri` node in CollectionReference model](arlas-collection-model/#inspire) |
 |Coupled Resource| Link to all the INSPIRE metadata elements in GMD format respecting the ISO 19139 | Nothing to customize |
 
-*) Each data set is served by a WFS endpoint : `{ogcConfiguration.serverUri}/ogc/wfs/{collectionName}?service=WFS`. 
+*) Each data set is served by a WFS endpoint : `{arlas-base-uri}/ogc/wfs/{collectionName}?service=WFS`. 
 
 All this INSPIRE metadata elements are also accessible via a **link** to a Download Service metadata record given in `<inspire_common:MetadataURL>` in the extended capabilities section.
 

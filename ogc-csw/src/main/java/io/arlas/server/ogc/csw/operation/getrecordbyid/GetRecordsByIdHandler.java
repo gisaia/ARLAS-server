@@ -37,7 +37,6 @@ public class GetRecordsByIdHandler {
 
     public CSWHandler cswHandler;
 
-
     public GetRecordsByIdHandler(CSWHandler cswHandler) {
         this.cswHandler = cswHandler;
     }
@@ -52,17 +51,17 @@ public class GetRecordsByIdHandler {
                     break;
 
                 case summary:
-                    MDMetadataType summaryMDMetadata = MDMetadataBuilder.getSummaryMDMetadata(collections.get(0),cswHandler.ogcConfiguration, cswHandler.inspireConfiguration);
+                    MDMetadataType summaryMDMetadata = MDMetadataBuilder.getSummaryMDMetadata(collections.get(0),cswHandler.ogcConfiguration, cswHandler.inspireConfiguration, cswHandler.baseUri);
                     getRecordByIdResponse.getMdMetadata().add(summaryMDMetadata);
                     break;
 
                 case full:
-                    MDMetadataType fullMDMetadata = MDMetadataBuilder.getFullMDMetadata(collections.get(0),cswHandler.ogcConfiguration, cswHandler.inspireConfiguration);
+                    MDMetadataType fullMDMetadata = MDMetadataBuilder.getFullMDMetadata(collections.get(0),cswHandler.ogcConfiguration, cswHandler.inspireConfiguration, cswHandler.baseUri);
                     getRecordByIdResponse.getMdMetadata().add(fullMDMetadata);
                     break;
 
                 default:
-                    MDMetadataType defaultMDMetadata = MDMetadataBuilder.getSummaryMDMetadata(collections.get(0),cswHandler.ogcConfiguration, cswHandler.inspireConfiguration);
+                    MDMetadataType defaultMDMetadata = MDMetadataBuilder.getSummaryMDMetadata(collections.get(0),cswHandler.ogcConfiguration, cswHandler.inspireConfiguration, cswHandler.baseUri);
                     getRecordByIdResponse.getMdMetadata().add(defaultMDMetadata);
                     break;
             }
@@ -79,13 +78,13 @@ public class GetRecordsByIdHandler {
                     BriefRecordType briefRecord = RecordBuilder.getBriefResult(collections.get(0), new String[]{}, cswHandler.inspireConfiguration.enabled);
                     return briefRecord;
                 case summary:
-                    SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collections.get(0), new String[]{}, cswHandler.ogcConfiguration.serverUri,cswHandler.inspireConfiguration.enabled);
+                    SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collections.get(0), new String[]{}, cswHandler.baseUri, cswHandler.inspireConfiguration.enabled);
                     return summaryRecord;
                 case full:
-                    RecordType record = RecordBuilder.getFullResult(collections.get(0), new String[]{}, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration.enabled);
+                    RecordType record = RecordBuilder.getFullResult(collections.get(0), new String[]{}, cswHandler.baseUri, cswHandler.inspireConfiguration.enabled);
                     return record;
                 default:
-                    SummaryRecordType summaryDefaultRecord = RecordBuilder.getSummaryResult(collections.get(0), new String[]{}, cswHandler.ogcConfiguration.serverUri, cswHandler.inspireConfiguration.enabled);
+                    SummaryRecordType summaryDefaultRecord = RecordBuilder.getSummaryResult(collections.get(0), new String[]{}, cswHandler.baseUri, cswHandler.inspireConfiguration.enabled);
                     return summaryDefaultRecord;
             }
         }else{

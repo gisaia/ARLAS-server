@@ -193,7 +193,7 @@ public class GetCapabilitiesHandler {
         QName qname = new QName(uri, collectionReference.collectionName, wfsConfiguration.featureNamespace);
         featureTypeType.setName(qname);
         MetadataURLType metadataURLType = new MetadataURLType();
-        String url = ogcConfiguration.serverUri + METADATA_URL + collectionReference.params.dublinCoreElementName.identifier;
+        String url = wfsHandler.baseUri + METADATA_URL + collectionReference.params.dublinCoreElementName.identifier;
         metadataURLType.setHref(url);
         metadataURLType.setType(TypeType.SIMPLE);
         featureTypeType.getMetadataURL().add(metadataURLType);
@@ -469,7 +469,7 @@ public class GetCapabilitiesHandler {
 
     private void addECMetadaURL(CollectionReference collectionReference) {
         ResourceLocatorType resourceLocatorType = new ResourceLocatorType();
-        resourceLocatorType.setURL(ogcConfiguration.serverUri + METADATA_URL + collectionReference.params.dublinCoreElementName.identifier);
+        resourceLocatorType.setURL(wfsHandler.baseUri + METADATA_URL + collectionReference.params.dublinCoreElementName.identifier);
         inspireExtendedCapabilitiesType.setMetadataUrl(resourceLocatorType);
     }
 

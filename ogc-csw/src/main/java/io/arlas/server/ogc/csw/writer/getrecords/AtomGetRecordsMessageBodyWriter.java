@@ -24,6 +24,7 @@ import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.ns.ATOM;
 import io.arlas.server.ogc.csw.CSWRESTService;
 import io.arlas.server.ogc.csw.utils.AtomBuilder;
+import io.arlas.server.utils.StringUtil;
 import net.opengis.cat.csw._3.GetRecordsResponseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +103,14 @@ public class AtomGetRecordsMessageBodyWriter implements MessageBodyWriter<GetRec
         }
         LinkType linkType = new LinkType();
         linkType.setType(CSWRESTService.MIME_TYPE__OPENSEARCH_XML);
-        linkType.setHref(arlasServerConfiguration.ogcConfiguration.serverUri + "ogc/opensearch/{collection}");
+        String baseUri;
+        if (StringUtil.isNullOrEmpty(arlasServerConfiguration.arlasBaseUri)) {
+            baseUri = arlasServerConfiguration.ogcConfiguration.serverUri;
+            LOGGER.warn("[arlas-ogc.serverUri] is deprecated. Use [arlas-base-uri] instead.");
+        } else {
+            baseUri = arlasServerConfiguration.arlasBaseUri;
+        }
+        linkType.setHref(baseUri + "ogc/opensearch/{collection}");
         linkType.setRel("search");
         feedType.getLink().add(linkType);
         com.a9.opensearch.ObjectFactory openSearchFactory = new com.a9.opensearch.ObjectFactory();

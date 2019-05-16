@@ -65,7 +65,7 @@ public class MDMetadataBuilder {
         return mdMetadataType;
     }
 
-    public static MDMetadataType getSummaryMDMetadata(CollectionReference collectionReference, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws OGCException {
+    public static MDMetadataType getSummaryMDMetadata(CollectionReference collectionReference, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration, String baseUri) throws OGCException {
         MDMetadataType mdMetadataType = new MDMetadataType();
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
         addFileIdentifier(mdMetadataType, dublinCoreElementName.identifier);
@@ -74,11 +74,11 @@ public class MDMetadataBuilder {
         addDateStamp(mdMetadataType, dublinCoreElementName.getDate());
         addMetadataStandardName(mdMetadataType);
         addSummaryIdentificationInfo(mdMetadataType, collectionReference, ogcConfiguration, inspireConfiguration);
-        addDistibutionInfo(mdMetadataType, collectionReference, ogcConfiguration, ElementSetName.summary);
+        addDistibutionInfo(mdMetadataType, collectionReference, baseUri, ElementSetName.summary);
         return mdMetadataType;
     }
 
-    public static MDMetadataType getFullMDMetadata(CollectionReference collectionReference, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws OGCException {
+    public static MDMetadataType getFullMDMetadata(CollectionReference collectionReference, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration, String baseUri) throws OGCException {
         MDMetadataType mdMetadataType = new MDMetadataType();
         DublinCoreElementName dublinCoreElementName = collectionReference.params.dublinCoreElementName;
         addFileIdentifier(mdMetadataType, dublinCoreElementName.identifier);
@@ -91,7 +91,7 @@ public class MDMetadataBuilder {
         addMetadataStandardName(mdMetadataType);
         addSummaryIdentificationInfo(mdMetadataType, collectionReference, ogcConfiguration, inspireConfiguration);
         addReferenceSystemInfo(mdMetadataType, "http://www.opengis.net/def/crs/EPSG/0/4258", "EPSG:4258", "UTC");
-        addDistibutionInfo(mdMetadataType, collectionReference, ogcConfiguration, ElementSetName.full);
+        addDistibutionInfo(mdMetadataType, collectionReference, baseUri, ElementSetName.full);
         addDataQuality(mdMetadataType, collectionReference, inspireConfiguration.enabled);
         return mdMetadataType;
     }
@@ -120,12 +120,12 @@ public class MDMetadataBuilder {
         mdMetadataType.getReferenceSystemInfo().add(temporalReferenceSystemPropertyType);
     }
 
-    public static void addDistibutionInfo(MDMetadataType mdMetadataType, CollectionReference collectionReference, OGCConfiguration ogcConfiguration, ElementSetName elementSetName) {
+    public static void addDistibutionInfo(MDMetadataType mdMetadataType, CollectionReference collectionReference, String baseUri, ElementSetName elementSetName) {
         MDDistributionPropertyType mdDistributionPropertyType = new MDDistributionPropertyType();
         MDDistributionType mdDistributionType = new MDDistributionType();
         String format = Optional.ofNullable(collectionReference.params.dublinCoreElementName.format).filter(f -> !f.equals("")).orElse("json");
         addDistributionFormat(mdDistributionType, format);
-        addTransferOptions(mdDistributionType, collectionReference, ogcConfiguration, elementSetName);
+        addTransferOptions(mdDistributionType, collectionReference, baseUri, elementSetName);
         mdDistributionPropertyType.setMDDistribution(mdDistributionType);
         mdMetadataType.setDistributionInfo(mdDistributionPropertyType);
     }
@@ -167,13 +167,13 @@ public class MDMetadataBuilder {
         mdFormatPropertyType.setMDFormat(mdFormatType);
         mdDistributionType.getDistributionFormat().add(mdFormatPropertyType);
     }
-    public static void addTransferOptions(MDDistributionType mdDistributionType, CollectionReference collectionReference, OGCConfiguration ogcConfiguration, ElementSetName elementSetName) {
+    public static void addTransferOptions(MDDistributionType mdDistributionType, CollectionReference collectionReference, String baseUri, ElementSetName elementSetName) {
         MDDigitalTransferOptionsPropertyType mdDigitalTransferOptionsPropertyType = new MDDigitalTransferOptionsPropertyType();
         MDDigitalTransferOptionsType mdDigitalTransferOptionsType = new MDDigitalTransferOptionsType();
         CIOnlineResourcePropertyType ciOnlineResourcePropertyType = new CIOnlineResourcePropertyType();
         CIOnlineResourceType ciOnlineResourceType = new CIOnlineResourceType();
         URLPropertyType urlPropertyType = new URLPropertyType();
-        urlPropertyType.setURL(ogcConfiguration.serverUri + "ogc/wfs/" + collectionReference.collectionName + "/?" + OGCConstant.WFS_GET_GETFEATURE_PARAMETERS);
+        urlPropertyType.setURL(baseUri + "ogc/wfs/" + collectionReference.collectionName + "/?" + OGCConstant.WFS_GET_GETFEATURE_PARAMETERS);
         ciOnlineResourceType.setLinkage(urlPropertyType);
         ciOnlineResourceType.setProtocol(createCharacterStringPropertyType("OGC:WFS"));
         String description = "WFS GetFeature request to download the Dataset";

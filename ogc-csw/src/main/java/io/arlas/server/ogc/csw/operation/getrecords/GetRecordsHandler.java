@@ -75,13 +75,13 @@ public class GetRecordsHandler {
                 collections.forEach(collectionReference -> {
                     if (outputSchema !=null && outputSchema.equals(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA[2])) {
                         try {
-                            MDMetadataType summaryMDMetadata = MDMetadataBuilder.getSummaryMDMetadata(collectionReference, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration);
+                            MDMetadataType summaryMDMetadata = MDMetadataBuilder.getSummaryMDMetadata(collectionReference, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration, cswHandler.baseUri);
                             searchResultType.getMDMetadata().add(summaryMDMetadata);
                         } catch (OGCException e) {
                             throw new RuntimeException(e);
                         }
                     } else {
-                        SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements, cswHandler.ogcConfiguration.serverUri, cswHandler.inspireConfiguration.enabled);
+                        SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements, cswHandler.baseUri, cswHandler.inspireConfiguration.enabled);
                         JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
                         searchResultType.getAbstractRecord().add(summaryRecordType);
                     }
@@ -91,13 +91,13 @@ public class GetRecordsHandler {
                 collections.forEach(collectionReference -> {
                     if (outputSchema !=null && outputSchema.equals(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA[2])) {
                         try {
-                            MDMetadataType summaryMDMetadata = MDMetadataBuilder.getFullMDMetadata(collectionReference, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration);
+                            MDMetadataType summaryMDMetadata = MDMetadataBuilder.getFullMDMetadata(collectionReference, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration, cswHandler.baseUri);
                             searchResultType.getMDMetadata().add(summaryMDMetadata);
                         } catch (OGCException e) {
                             throw new RuntimeException(e);
                         }
                     } else {
-                        RecordType record = RecordBuilder.getFullResult(collectionReference, elements, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration.enabled);
+                        RecordType record = RecordBuilder.getFullResult(collectionReference, elements, cswHandler.baseUri, cswHandler.inspireConfiguration.enabled);
                         JAXBElement<RecordType> recordType = cswHandler.cswFactory.createRecord(record);
                         searchResultType.getAbstractRecord().add(recordType);
                     }
@@ -108,13 +108,13 @@ public class GetRecordsHandler {
                 collections.forEach(collectionReference -> {
                     if (outputSchema !=null && outputSchema.equals(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA[2])) {
                         try {
-                            MDMetadataType summaryMDMetadata = MDMetadataBuilder.getSummaryMDMetadata(collectionReference, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration);
+                            MDMetadataType summaryMDMetadata = MDMetadataBuilder.getSummaryMDMetadata(collectionReference, cswHandler.ogcConfiguration, cswHandler.inspireConfiguration, cswHandler.baseUri);
                             searchResultType.getMDMetadata().add(summaryMDMetadata);
                         } catch (OGCException e) {
                             throw new RuntimeException(e);
                         }
                     } else {
-                        SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements, cswHandler.ogcConfiguration.serverUri, cswHandler.inspireConfiguration.enabled);
+                        SummaryRecordType summaryRecord = RecordBuilder.getSummaryResult(collectionReference, elements, cswHandler.baseUri, cswHandler.inspireConfiguration.enabled);
                         JAXBElement<SummaryRecordType> summaryRecordType = cswHandler.cswFactory.createSummaryRecord(summaryRecord);
                         searchResultType.getAbstractRecord().add(summaryRecordType);
                     }

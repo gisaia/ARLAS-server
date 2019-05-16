@@ -74,11 +74,11 @@ public class CSWRESTService extends OGCRESTService {
 
     public CSWHandler cswHandler;
 
-    private String serverUrl;
+    private String serverBaseUri;
 
     public CSWRESTService(CSWHandler cswHandler) {
         this.cswHandler = cswHandler;
-        this.serverUrl = cswHandler.ogcConfiguration.serverUri;
+        this.serverBaseUri = cswHandler.baseUri;
     }
 
     @Context
@@ -240,7 +240,7 @@ public class CSWRESTService extends OGCRESTService {
         for (MediaType mediaType : headers.getAcceptableMediaTypes()) {
             if (mediaType.getSubtype().contains("opensearchdescription")) {
                 OpenSearchHandler openSearchHandler = cswHandler.openSearchHandler;
-                OpenSearchDescription description = openSearchHandler.getOpenSearchDescription(serverUrl);
+                OpenSearchDescription description = openSearchHandler.getOpenSearchDescription(serverBaseUri);
                 return Response.ok(description).build();
             } else if (mediaType.getSubtype().contains("atom")) {
                 outputFormatMediaType = MediaType.APPLICATION_ATOM_XML;
@@ -326,8 +326,8 @@ public class CSWRESTService extends OGCRESTService {
             case GetCapabilities:
                 GetCapabilitiesHandler getCapabilitiesHandler = cswHandler.getCapabilitiesHandler;
                 List<String> responseSections = Arrays.asList(sectionList);
-                String serviceUrl = serverUrl + "ogc/csw/?";
-                getCapabilitiesHandler.setCapabilitiesType(responseSections, serviceUrl, serverUrl + "ogc/csw/opensearch");
+                String serviceUrl = serverBaseUri + "ogc/csw/?";
+                getCapabilitiesHandler.setCapabilitiesType(responseSections, serviceUrl, serverBaseUri + "ogc/csw/opensearch");
                 if (cswHandler.inspireConfiguration.enabled) {
                     List<CollectionReference> allCollections = dao.getAllCollectionReferences();
                     allCollections.removeIf(collectionReference -> collectionReference.collectionName.equals(getMetacollactionName()));
@@ -382,7 +382,7 @@ public class CSWRESTService extends OGCRESTService {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws ArlasException {
         OpenSearchHandler openSearchHandler = cswHandler.openSearchHandler;
-        OpenSearchDescription description = openSearchHandler.getOpenSearchDescription(serverUrl);
+        OpenSearchDescription description = openSearchHandler.getOpenSearchDescription(serverBaseUri);
         return Response.ok(description).build();
     }
 
