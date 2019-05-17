@@ -1,6 +1,30 @@
 # Change Log
 
-## [v10.6.0](https://github.com/gisaia/ARLAS-server/tree/v10.6.0) (2019-03-29)
+## [v10.6.1](https://github.com/gisaia/ARLAS-server/tree/v10.6.1) (2019-05-16)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v10.6.0...v10.6.1)
+
+**New stuff:**
+
+- Add a new configuration variable to configure the base uri of the server [\#451](https://github.com/gisaia/ARLAS-server/issues/451)
+- \_search : Add link.next when search request is sorted by collectionReference.idPath [\#436](https://github.com/gisaia/ARLAS-server/issues/436)
+
+**Fixed bugs:**
+
+- DOC: Fix link to inspire configuration in arlas-inspire.md [\#442](https://github.com/gisaia/ARLAS-server/issues/442) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- \_search : handle the case of descending 'sort' with 'after'  [\#440](https://github.com/gisaia/ARLAS-server/issues/440)
+- \_search: search after a date not formatted as timestamp throws a parse exception [\#439](https://github.com/gisaia/ARLAS-server/issues/439)
+- \_search : configure the address of ARLAS-server in link "next&self" [\#437](https://github.com/gisaia/ARLAS-server/issues/437)
+- \_search : link to the last page throws ArrayIndexOutOfBoundsException [\#435](https://github.com/gisaia/ARLAS-server/issues/435)
+
+**Miscellaneous:**
+
+- Deprecate \[arlas-ogc.serverUrl\] configuration variable [\#454](https://github.com/gisaia/ARLAS-server/issues/454) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
+- Deprecate \[opensearch.url-template-prefix\] configuration variable [\#453](https://github.com/gisaia/ARLAS-server/issues/453) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
+- \_tag: In logstash \(/elasticsearch?\), taggable field path should not contain `tags`  [\#448](https://github.com/gisaia/ARLAS-server/issues/448) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- \_tag : Taggable fields have to be initialized with null value at indexation [\#447](https://github.com/gisaia/ARLAS-server/issues/447) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
+## [v10.6.0](https://github.com/gisaia/ARLAS-server/tree/v10.6.0) (2019-04-01)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v9.6.2...v10.6.0)
 
