@@ -17,11 +17,26 @@
  * under the License.
  */
 
-package io.arlas.server.model.request;
+package io.arlas.server.app;
 
-public class TagRequest {
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    public Search search;
-    public Tag tag;
-    public Propagation propagation;
+public class TaggerConfiguration {
+    @JsonProperty("kafka-batch-size")
+    public Integer batchSize;
+
+    @JsonProperty("kafka-bootstrap-servers")
+    public String bootstrapServers;
+
+    @JsonProperty("kafka-consumer-group-id-tagref-log")
+    public String tagRefLogConsumerGroupId;
+
+    @JsonProperty("kafka-consumer-group-id-execute-tags")
+    public String executeTagsConsumerGroupId;
+
+    @JsonProperty("kafka-topic-tagref-log")
+    public String tagRefLogTopic;
+
+    @JsonProperty("kafka-topic-execute-tags")
+    public String executeTagsTopic;
 }

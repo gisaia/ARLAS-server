@@ -20,30 +20,36 @@
 package io.arlas.server.rest.tag;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.request.MixedRequest;
-import io.arlas.server.model.request.Search;
+import io.arlas.server.app.Documentation;
+import io.arlas.server.kafka.TagKafkaProducer;
+import io.arlas.server.model.TagRefRequest;
+import io.arlas.server.model.TaggingStatus;
+import io.arlas.server.model.enumerations.Action;
 import io.arlas.server.model.request.TagRequest;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.UpdateResponse;
-import io.arlas.server.app.Documentation;
 import io.arlas.server.services.UpdateServices;
-import io.arlas.server.utils.ParamsParser;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
-public class TagRESTService extends UpdateRESTServices {
+import static io.arlas.server.model.enumerations.Action.*;
 
-    public TagRESTService(UpdateServices updateServices) {
-        super(updateServices);
+@Path("/write")
+@Api(value = "/write")
+
+public class TagRESTService {
+    protected static Logger LOGGER = LoggerFactory.getLogger(TagRESTService.class);
+    public static final String UTF8JSON = MediaType.APPLICATION_JSON + ";charset=utf-8";
+
+    private TagKafkaProducer tagKafkaProducer;
+
+    public TagRESTService(TagKafkaProducer tagKafkaProducer) {
+        this.tagKafkaProducer = tagKafkaProducer;
     }
 
     @Timed
@@ -84,18 +90,18 @@ public class TagRESTService extends UpdateRESTServices {
                     defaultValue = "false",
                     required=false)
             @QueryParam(value="pretty") Boolean pretty
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
-        CollectionReference collectionReference = updateServices.getDaoCollectionReference()
-                .getCollectionReference(collection);
-        if (collectionReference == null) {
-            throw new NotFoundException(collection);
+    ) {
+
+        if (tagRequest.tag != null && tagRequest.tag.path != null && tagRequest.tag.value != null) {
+            TagRefRequest tagRefRequest = TagRefRequest.fromTagRequest(tagRequest, collection, partitionFilter, ADD);
+            tagKafkaProducer.sendToTagRefLog(tagRefRequest);
+            UpdateResponse updateResponse = new UpdateResponse();
+            updateResponse.id = tagRefRequest.id;
+            TaggingStatus.getInstance().updateStatus(tagRefRequest.id, updateResponse);
+            return Response.ok(updateResponse).build();
+        } else {
+            throw new BadRequestException("Tag element is missing required data.");
         }
-            Search searchHeader = new Search();
-            searchHeader.filter = ParamsParser.getFilter(partitionFilter);
-            MixedRequest request = new MixedRequest();
-            request.basicRequest = tagRequest.search;
-            request.headerRequest = searchHeader;
-            return Response.ok(updateServices.tag(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE)).build();
     }
 
 
@@ -137,21 +143,18 @@ public class TagRESTService extends UpdateRESTServices {
                     defaultValue = "false",
                     required=false)
             @QueryParam(value="pretty") Boolean pretty
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
-        CollectionReference collectionReference = updateServices.getDaoCollectionReference()
-                .getCollectionReference(collection);
-        if (collectionReference == null) {
-            throw new NotFoundException(collection);
-        }
-        Search searchHeader = new Search();
-        searchHeader.filter = ParamsParser.getFilter(partitionFilter);
-        MixedRequest request = new MixedRequest();
-        request.basicRequest = tagRequest.search;
-        request.headerRequest = searchHeader;
-        if(tagRequest.tag.value!=null){
-            return Response.ok(updateServices.unTag(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE)).build();
-        }else{
-            return Response.ok(updateServices.removeAll(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE)).build();
+    ) {
+
+        if (tagRequest.tag != null && tagRequest.tag.path != null) {
+            TagRefRequest tagRefRequest = TagRefRequest.fromTagRequest(tagRequest, collection, partitionFilter,
+                    tagRequest.tag.value != null ? REMOVE : REMOVEALL);
+            UpdateResponse updateResponse = new UpdateResponse();
+            updateResponse.id = tagRefRequest.id;
+            tagKafkaProducer.sendToTagRefLog(tagRefRequest);
+
+            return Response.ok(updateResponse).build();
+        } else {
+            throw new BadRequestException("Tag element is missing required data.");
         }
     }
 }

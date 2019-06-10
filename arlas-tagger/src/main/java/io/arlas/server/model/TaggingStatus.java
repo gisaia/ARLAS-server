@@ -17,11 +17,30 @@
  * under the License.
  */
 
-package io.arlas.server.model.request;
+package io.arlas.server.model;
 
-public class TagRequest {
+import io.arlas.server.model.response.UpdateResponse;
+import io.arlas.server.util.SelfExpiringHashMap;
+import io.arlas.server.util.SelfExpiringMap;
 
-    public Search search;
-    public Tag tag;
-    public Propagation propagation;
+import java.util.Optional;
+
+public class TaggingStatus {
+    private SelfExpiringMap<String, UpdateResponse> statusMap;
+    private TaggingStatus() {
+        statusMap = new SelfExpiringHashMap<>(3600000l);
+    }
+
+    public void updateStatus(String id, UpdateResponse status) {
+        statusMap.put(id, status);
+    }
+
+    public Optional<UpdateResponse> getStatus(String id) {
+        return Optional.ofNullable(statusMap.get(id));
+    }
+    private static TaggingStatus INSTANCE = new TaggingStatus();
+
+    public static TaggingStatus getInstance() {
+        return INSTANCE;
+    }
 }
