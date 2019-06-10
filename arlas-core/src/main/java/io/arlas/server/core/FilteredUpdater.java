@@ -88,9 +88,13 @@ public class FilteredUpdater extends FluidSearch{
                 throw new io.arlas.server.exceptions.BadRequestException("The tag value must be provided and must not be empty");
             }
             if(tag.value instanceof Number){
+                script+="if (!(ctx._source."+tag.path+".contains("+tag.value+"))) {\n";
                 script+="ctx._source."+tag.path+".add("+tag.value+")\n";
+                script+="}\n";
             }else{
+                script+="if (!(ctx._source."+tag.path+".contains('"+tag.value.toString()+"'))) {\n";
                 script+="ctx._source."+tag.path+".add('"+tag.value.toString()+"')\n";
+                script+="}\n";
             }
         }
         if(action.equals(Action.REMOVE)){
