@@ -28,7 +28,18 @@ public class UpdateResponse {
     public List<Failure> failures = new ArrayList<>();
     public long failed = 0;
     public long updated = 0;
+    public float progress = 0f;
+    public String id;
     public Action action;
+    public long propagated;
+    public long startTime;
+    public long endTime;
+    public long processingTime;
+
+    public UpdateResponse() {
+        this.startTime = System.currentTimeMillis();
+        this.endTime = System.currentTimeMillis();
+    }
 
     public static class Failure{
         public String id;
@@ -40,5 +51,14 @@ public class UpdateResponse {
             this.message = message;
             this.type = type;
         }
+    }
+
+    public void add(UpdateResponse r) {
+        this.failures.addAll(r.failures);
+        this.failed += r.failed;
+        this.updated += r.updated;
+        this.action = r.action;
+        this.endTime = System.currentTimeMillis();
+        this.processingTime = endTime - startTime;
     }
 }

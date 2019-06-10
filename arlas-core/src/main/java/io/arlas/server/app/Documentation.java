@@ -24,15 +24,16 @@ public class Documentation {
     public static final String GEOSEARCH_OPERATION = "Search and return the elements found in the collection(s) as features, given the filters"; // TODO: different?
     public static final String TILED_GEOSEARCH_OPERATION = "Search and return the elements found in the collection(s) and localized in the given tile(x,y,z) as features, given the filters";
     public static final String SEARCH_OPERATION = "Search and return the elements found in the collection, given the filters";
-    public static final String TAG_OPERATION=   "Search and tag the elements found in the collection, given the filters";
-    public static final String UNTAG_OPERATION=   "Search and untag the elements found in the collection, given the filters";
+    public static final String TAG_OPERATION = "Search and tag the elements found in the collection, given the filters";
+    public static final String UNTAG_OPERATION = "Search and untag the elements found in the collection, given the filters";
+    public static final String TAGSTATUS_OPERATION = "Get the status of the (un)tagging operation, given the id of a previously requested operation";
     public static final String OPENSEARCH_OPERATION = "Access to the OpenSearch Description document for the given collection";
     public static final String OPENSEARCH_CSW_OPERATION = "Access to the OpenSearch CSW Description document";
-    public static final String PROJECTION_PARAM_INCLUDE = "List the name patterns of the field to be included in the result. Seperate patterns with a comma.";
-    public static final String PROJECTION_PARAM_EXCLUDE = "List the name patterns of the field to be excluded in the result. Seperate patterns with a comma.";
+    public static final String PROJECTION_PARAM_INCLUDE = "List the name patterns of the field to be included in the result. Separate patterns with a comma.";
+    public static final String PROJECTION_PARAM_EXCLUDE = "List the name patterns of the field to be excluded in the result. Separate patterns with a comma.";
     public static final String PAGE_PARAM_SIZE = "The maximum number of entries or sub-entries to be returned. The default value is 10";
     public static final String PAGE_PARAM_FROM = "From index to start the search from. Defaults to 0.";
-    public static final String PAGE_PARAM_SORT = "Sorts the resulted hits on the given fields and/or by distance to a given point :" +
+    public static final String PAGE_PARAM_SORT = "Sorts the resulted hits on the given fields and/or by distance to a given point:" +
             "\n \n" +
             "> __**Syntax**__: `{field1},{field2},-{field3},geodistance:{lat} {lon},{field4}  ...`." +
             "\n \n" +
@@ -305,4 +306,6 @@ public class Documentation {
 
     public static final String RANGE_OPERATION = "Calculates the min and max values of a field in the collection, given the filters";
     public static final String RANGE_FIELD = "The field whose range is calculated";
+    public static final String TAGSTATUS_PARAM_ID = "The id of a previously requested (un)tag operation.";
+
 }
