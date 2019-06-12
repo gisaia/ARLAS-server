@@ -30,7 +30,7 @@ public class TagRefRequest extends TagRequest {
     public String collection;
     public String partitionFilter;
     public String id; // id used to follow up the request, automatically generated
-    public float progress; // value between 0 and 1 giving an indication of the request progress
+    public float progress; // value between 0 and 100 giving an indication of the request progress
 
     public static TagRefRequest fromTagRequest(TagRequest t, String collection, String partitionFilter, Action action) {
         TagRefRequest tagRefRequest = new TagRefRequest();

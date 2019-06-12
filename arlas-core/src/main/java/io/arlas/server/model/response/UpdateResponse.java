@@ -34,7 +34,7 @@ public class UpdateResponse {
     public long propagated;
     public long startTime;
     public long endTime;
-    public long processingTime;
+    public long processingTimeMs; // ms
 
     public UpdateResponse() {
         this.startTime = System.currentTimeMillis();
@@ -59,6 +59,6 @@ public class UpdateResponse {
         this.updated += r.updated;
         this.action = r.action;
         this.endTime = System.currentTimeMillis();
-        this.processingTime = endTime - startTime;
+        this.processingTimeMs = endTime - startTime;
     }
 }

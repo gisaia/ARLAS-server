@@ -98,7 +98,7 @@ public class TagRefService extends KafkaConsumerRunner {
 
                         Search search = new Search();
                         search.filter = filter;
-                        tagKafkaProducer.sendToExecuteTags(TagRefRequest.fromTagRefRequest(tagRequest, search, (float)(i+1)/nbResult));
+                        tagKafkaProducer.sendToExecuteTags(TagRefRequest.fromTagRefRequest(tagRequest, search, (int)(i+1)*100/nbResult));
                         taggingStatus.updateStatus(tagRequest.id, updateResponse);
 
                     }
