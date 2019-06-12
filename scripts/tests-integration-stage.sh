@@ -61,7 +61,6 @@ function start_stack() {
 function test_rest() {
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
-    export ARLAS_SERVICE_TAG_ENABLE=true
     export ARLAS_SERVICE_WFS_ENABLE=true
     export ARLAS_INSPIRE_ENABLED=true
     export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
@@ -76,7 +75,6 @@ function test_rest() {
         -e ARLAS_PORT="9999" \
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
-        -e ARLAS_SERVICE_TAG_ENABLE=${ARLAS_SERVICE_TAG_ENABLE} \
         -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED=true}\
         -e ARLAS_SERVICE_RASTER_TILES_ENABLE=${ARLAS_SERVICE_RASTER_TILES_ENABLE} \
         -e ARLAS_TILE_URL=${ARLAS_TILE_URL} \
@@ -84,7 +82,27 @@ function test_rest() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
-        mvn verify -DskipTests=false
+        mvn -Dit.test="*,!TagIT" verify -DskipTests=false  -DfailIfNoTests=false
+}
+
+function test_tagger() {
+    export ARLAS_PREFIX="/arlastest"
+    export ARLAS_APP_PATH="/pathtest"
+    export ARLAS_BASE_URI="http://arlas-tagger:9999/pathtest/arlastest/"
+    start_stack
+    docker run --rm \
+        -w /opt/maven \
+        -v $PWD:/opt/maven \
+        -v $HOME/.m2:/root/.m2 \
+        -e ARLAS_HOST="arlas-tagger" \
+        -e ARLAS_PORT="9999" \
+        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+        --net arlas_default \
+        maven:3.5.0-jdk-8 \
+        mvn -Dit.test=TagIT verify -DskipTests=false -DfailIfNoTests=false
 }
 
 function test_wfs() {
@@ -178,6 +196,7 @@ function test_doc() {
 echo "===> run integration tests"
 export ALIASED_COLLECTION="false"
 if [ "$STAGE" == "REST" ]; then test_rest; fi
+if [ "$STAGE" == "TAG" ]; then test_tagger; fi
 if [ "$STAGE" == "WFS" ]; then test_wfs; fi
 if [ "$STAGE" == "CSW" ]; then test_csw; fi
 if [ "$STAGE" == "REST_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_rest; fi

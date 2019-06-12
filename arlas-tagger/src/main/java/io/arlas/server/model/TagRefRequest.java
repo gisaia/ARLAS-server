@@ -22,7 +22,6 @@ package io.arlas.server.model;
 import io.arlas.server.model.enumerations.Action;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.model.request.TagRequest;
-import io.arlas.server.services.UpdateServices;
 
 import java.util.UUID;
 
