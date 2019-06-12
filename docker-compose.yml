@@ -20,7 +20,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-6.5.4}
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-6.6.2}
     container_name: elasticsearch
     environment:
       - cluster.name=docker-cluster
@@ -66,6 +66,7 @@ services:
       - ARLAS_PREFIX="${ARLAS_PREFIX:-/arlas}"
       - ARLAS_APP_PATH="${ARLAS_APP_PATH:-/}"
       - ARLAS_BASE_URI="${ARLAS_BASE_URI:-http://arlas-tagger:9999/arlas/}"
+      - ARLAS_SERVICE_EXPLORE_ENABLE=false
       - KAFKA_BATCH_SIZE="${KAFKA_BATCH_SIZE:-10}"
       - KAFKA_BROKERS=${KAFKA_BROKERS:-kafka:9092}
       - KAFKA_CONSUMER_GROUP_ID_TAGREF_LOG="${KAFKA_CONSUMER_GROUP_ID_TAGREF_LOG:-tagref_log_consumer_group}"
