@@ -29,9 +29,11 @@ import io.arlas.server.exceptions.*;
 import io.arlas.server.health.ElasticsearchHealthCheck;
 import io.arlas.server.kafka.TagKafkaProducer;
 import io.arlas.server.rest.collections.ElasticCollectionService;
+import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.tag.TagRESTService;
 import io.arlas.server.rest.tag.TagStatusRESTService;
 import io.arlas.server.service.ManagedKafkaConsumers;
+import io.arlas.server.services.ExploreServices;
 import io.arlas.server.services.UpdateServices;
 import io.arlas.server.utils.PrettyPrintFilter;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
@@ -132,6 +134,11 @@ public class ArlasTagger extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new ElasticsearchExceptionMapper());
         environment.jersey().register(new TagRESTService(tagKafkaProducer));
         environment.jersey().register(new TagStatusRESTService());
+
+        if (configuration.arlasServiceExploreEnabled) {
+            ExploreServices exploration = new ExploreServices(client, configuration);
+            environment.jersey().register(new SearchRESTService(exploration));
+        }
 
         environment.jersey().register(new ElasticCollectionService(client, configuration));
 
