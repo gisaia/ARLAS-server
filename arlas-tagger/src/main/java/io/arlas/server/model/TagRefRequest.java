@@ -35,6 +35,7 @@ public class TagRefRequest extends TagRequest {
     public static TagRefRequest fromTagRequest(TagRequest t, String collection, String partitionFilter, Action action) {
         TagRefRequest tagRefRequest = new TagRefRequest();
         tagRefRequest.id = UUID.randomUUID().toString();
+        tagRefRequest.label = t.label;
         tagRefRequest.search = t.search;
         tagRefRequest.tag = t.tag;
         tagRefRequest.propagation = t.propagation;
@@ -47,6 +48,7 @@ public class TagRefRequest extends TagRequest {
     public static TagRefRequest fromTagRefRequest(TagRefRequest t, Search search, float progress) {
         TagRefRequest tagRefRequest = new TagRefRequest();
         tagRefRequest.id = t.id;
+        tagRefRequest.label = t.label;
         tagRefRequest.search = search;
         tagRefRequest.tag = t.tag;
         tagRefRequest.collection = t.collection;
@@ -62,6 +64,7 @@ public class TagRefRequest extends TagRequest {
                 ", collection='" + collection + '\'' +
                 ", partitionFilter='" + partitionFilter + '\'' +
                 ", id=" + id +
+                ", label=" + label +
                 ", progress=" + progress +
                 '}';
     }

@@ -28,8 +28,8 @@ import java.util.Optional;
 public class TaggingStatus {
     private SelfExpiringMap<String, UpdateResponse> statusMap;
     private TaggingStatus() {
-        statusMap = new SelfExpiringHashMap<>(3600000l);
-    }
+        statusMap = new SelfExpiringHashMap<>(36000000l);
+    } // 10h by default
 
     public void updateStatus(String id, UpdateResponse status) {
         statusMap.put(id, status);
