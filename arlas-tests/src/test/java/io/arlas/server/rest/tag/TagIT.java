@@ -161,7 +161,7 @@ public class TagIT extends AbstractTestContext {
                 .then()
                 .statusCode(200);
 
-        Thread.currentThread().sleep(10000);
+        Thread.currentThread().sleep(12000);
 
         // TAG v2
         tr.tag.value = "v2";
@@ -172,7 +172,7 @@ public class TagIT extends AbstractTestContext {
                 .then()
                 .statusCode(200);
 
-        Thread.currentThread().sleep(10000);
+        Thread.currentThread().sleep(12000);
 
         // UNTAG v1
         tr.tag.value = "v1";
@@ -183,7 +183,7 @@ public class TagIT extends AbstractTestContext {
                 .then()
                 .statusCode(200);
 
-        Thread.currentThread().sleep(10000);
+        Thread.currentThread().sleep(15000);
 
         // Only v2 remains
         given()
@@ -202,7 +202,7 @@ public class TagIT extends AbstractTestContext {
                 .post(getUrlPath(CollectionTool.COLLECTION_NAME)+TAG_SUFFIX)
                 .then()
                 .statusCode(200);
-        Thread.currentThread().sleep(5000);
+        Thread.currentThread().sleep(10000);
 
         // UNTAG all
         TagRequest remove = new TagRequest();
