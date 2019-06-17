@@ -20,6 +20,7 @@ ARLAS-server embeds the following components and their dependencies :
     - geojson-jackson       (Apache License Version 2.0 - http://blog.opendatalab.de/)
     - JTS Topology Suite    (Lesser General Public License - http://sourceforge.net/projects/jts-topo-suite)
     - Spatial4J             (Apache License Version 2.0 - https://www.locationtech.org/)
+    - SelfExpiringHashMap   (MIT License - https://gist.github.com/pcan)
 
 + TESTS
     - Rest-assured          (Apache License Version 2.0 - https://github.com/rest-assured/rest-assured)
