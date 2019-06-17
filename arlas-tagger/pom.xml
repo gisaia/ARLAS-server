@@ -28,11 +28,6 @@
             <artifactId>arlas-admin</artifactId>
             <version>10.6.2-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>io.arlas</groupId>
-            <artifactId>ogc-csw</artifactId>
-            <version>10.6.2-SNAPSHOT</version>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>

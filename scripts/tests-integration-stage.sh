@@ -54,8 +54,8 @@ if [ -z ${STAGE+x} ]; then usage; else echo "Tests stage : ${STAGE}"; fi
 function start_stack() {
     # START ARLAS STACK
     ./scripts/docker-clean.sh
-    if [ "$STAGE" == "REST" ]; then TAGGER="--tagger"; fi
-    ./scripts/docker-run.sh $TAGGER -es=/tmp -k=/tmp --build
+    if [ "$STAGE" == "TAG" ]; then OPTIONS="--tagger -k=/tmp "; else OPTIONS=""; fi
+    ./scripts/docker-run.sh $OPTIONS -es=/tmp --build
 }
 
 # TEST
@@ -90,6 +90,7 @@ function test_tagger() {
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
     export ARLAS_BASE_URI="http://arlas-tagger:9999/pathtest/arlastest/"
+    export ARLAS_SERVICE_EXPLORE_ENABLE=true
     start_stack
     docker run --rm \
         -w /opt/maven \
@@ -197,11 +198,11 @@ function test_doc() {
 echo "===> run integration tests"
 export ALIASED_COLLECTION="false"
 if [ "$STAGE" == "REST" ]; then test_rest; fi
-if [ "$STAGE" == "TAG" ]; then test_tagger; fi
 if [ "$STAGE" == "WFS" ]; then test_wfs; fi
 if [ "$STAGE" == "CSW" ]; then test_csw; fi
 if [ "$STAGE" == "REST_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_rest; fi
 if [ "$STAGE" == "WFS_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_wfs; fi
 if [ "$STAGE" == "CSW_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_csw; fi
 if [ "$STAGE" == "DOC" ]; then test_doc; fi
+if [ "$STAGE" == "TAG" ]; then test_tagger; fi
 

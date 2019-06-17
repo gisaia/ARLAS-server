@@ -22,11 +22,17 @@ package io.arlas.server.app;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class TaggerConfiguration {
+    @JsonProperty("status-timeout")
+    public Long statusTimeout;
+
     @JsonProperty("kafka-batch-size")
     public Integer batchSize;
 
     @JsonProperty("kafka-bootstrap-servers")
     public String bootstrapServers;
+
+    @JsonProperty("kafka-consumer-poll-timeout")
+    public Long consumerPollTimeout;
 
     @JsonProperty("kafka-consumer-group-id-tagref-log")
     public String tagRefLogConsumerGroupId;

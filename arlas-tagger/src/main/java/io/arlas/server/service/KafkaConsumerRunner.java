@@ -56,7 +56,7 @@ public abstract class KafkaConsumerRunner implements Runnable {
             consumer = TagKafkaConsumer.build(configuration, topic, consumerGroupId);
             while (true) {
 
-                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100l));
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(configuration.taggerConfiguration.consumerPollTimeout));
                 processRecords(records);
                 consumer.commitSync();
             }

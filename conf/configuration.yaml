@@ -141,6 +141,8 @@ opensearch:
 ############ ARLAS TAGGER                ###############
 ########################################################
 arlas-tagger:
+  status-timeout: ${TAGGING_STATUS_TIMEOUT:-3600000}
+  kafka-consumer-poll-timeout: ${KAFKA_CONSUMER_POLL_TIMEOUT:-100}
   kafka-batch-size: ${KAFKA_BATCH_SIZE:-10}
   kafka-bootstrap-servers: ${KAFKA_BROKERS:-kafka:9092}
   kafka-consumer-group-id-tagref-log: ${KAFKA_CONSUMER_GROUP_ID_TAGREF_LOG:-tagref_log_consumer_group}

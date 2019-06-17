@@ -47,9 +47,11 @@ public class TagRESTService {
     public static final String UTF8JSON = MediaType.APPLICATION_JSON + ";charset=utf-8";
 
     private TagKafkaProducer tagKafkaProducer;
+    private Long statusTimeout;
 
-    public TagRESTService(TagKafkaProducer tagKafkaProducer) {
+    public TagRESTService(TagKafkaProducer tagKafkaProducer, Long statusTimeout) {
         this.tagKafkaProducer = tagKafkaProducer;
+        this.statusTimeout = statusTimeout;
     }
 
     @Timed
@@ -97,7 +99,7 @@ public class TagRESTService {
             tagKafkaProducer.sendToTagRefLog(tagRefRequest);
             UpdateResponse updateResponse = new UpdateResponse();
             updateResponse.id = tagRefRequest.id;
-            TaggingStatus.getInstance().updateStatus(tagRefRequest.id, updateResponse);
+            TaggingStatus.getInstance().updateStatus(tagRefRequest.id, updateResponse, statusTimeout);
             return Response.ok(updateResponse).build();
         } else {
             throw new BadRequestException("Tag element is missing required data.");

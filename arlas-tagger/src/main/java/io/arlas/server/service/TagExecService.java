@@ -44,12 +44,14 @@ public class TagExecService extends KafkaConsumerRunner {
     private Logger LOGGER = LoggerFactory.getLogger(TagExecService.class);
     private UpdateServices updateServices;
     private TaggingStatus taggingStatus;
+    private Long statusTimeout;
 
 
     public TagExecService(ArlasServerConfiguration configuration, String topic, String consumerGroupId, UpdateServices updateServices) {
         super(configuration, topic, consumerGroupId);
         this.updateServices = updateServices;
         this.taggingStatus = TaggingStatus.getInstance();
+        this.statusTimeout = configuration.taggerConfiguration.statusTimeout;
     }
 
     @Override
@@ -88,7 +90,7 @@ public class TagExecService extends KafkaConsumerRunner {
                         LOGGER.warn("Unknown action received in tag request: " + tagRequest.action);
                         break;
                 }
-                taggingStatus.updateStatus(tagRequest.id, updateResponse);
+                taggingStatus.updateStatus(tagRequest.id, updateResponse, statusTimeout);
             } catch (IOException e) {
                 LOGGER.warn("Could not parse record " + record.value());
             } catch (NotFoundException e) {

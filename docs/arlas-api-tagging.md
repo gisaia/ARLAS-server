@@ -48,7 +48,7 @@ that can be used to request the status of the tagging process itself.
 curl -X GET  \
     --header 'Accept: application/json;charset=utf-8' \
     -d '{ "search": {}, "tag": { "path": "plant.color"}}' \
-    'http://<arlas-tagger-host>:<arlas-tagger-port>/arlas/status/geodata/_tagging?id=...'
+    'http://<arlas-tagger-host>:<arlas-tagger-port>/arlas/status/geodata/_tag?id=...'
 ```
 
 

@@ -19,12 +19,9 @@
 
 package io.arlas.server.app;
 
-import brave.http.HttpTracing;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
-import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.health.ElasticsearchHealthCheck;
 import io.arlas.server.kafka.TagKafkaProducer;
@@ -35,6 +32,7 @@ import io.arlas.server.rest.tag.TagStatusRESTService;
 import io.arlas.server.service.ManagedKafkaConsumers;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.services.UpdateServices;
+import io.arlas.server.utils.ElasticNodesInfo;
 import io.arlas.server.utils.PrettyPrintFilter;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
 import io.dropwizard.Application;
@@ -47,11 +45,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.elasticsearch.action.ActionFuture;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -64,7 +58,6 @@ import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import java.net.InetAddress;
 import java.util.EnumSet;
-import java.util.Optional;
 
 public class ArlasTagger extends Application<ArlasServerConfiguration> {
     Logger LOGGER = LoggerFactory.getLogger(ArlasTagger.class);
@@ -82,12 +75,6 @@ public class ArlasTagger extends Application<ArlasServerConfiguration> {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ArlasServerConfiguration configuration) {
                 return configuration.swaggerBundleConfiguration;
-            }
-        });
-        bootstrap.addBundle(new ZipkinBundle<ArlasServerConfiguration>(getName()) {
-            @Override
-            public ZipkinFactory getZipkinFactory(ArlasServerConfiguration configuration) {
-                return configuration.zipkinConfiguration;
             }
         });
         bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
@@ -115,10 +102,6 @@ public class ArlasTagger extends Application<ArlasServerConfiguration> {
         }
         Client client = transportClient;
 
-        if (configuration.zipkinConfiguration != null) {
-            Optional<HttpTracing> tracing = configuration.zipkinConfiguration.build(environment);
-        }
-
         UpdateServices updateServices = new UpdateServices(client, configuration);
         TagKafkaProducer tagKafkaProducer = TagKafkaProducer.build(configuration);
         ManagedKafkaConsumers consumersManager = new ManagedKafkaConsumers(configuration, tagKafkaProducer, updateServices);
@@ -132,7 +115,7 @@ public class ArlasTagger extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new JsonProcessingExceptionMapper());
         environment.jersey().register(new ConstraintViolationExceptionMapper());
         environment.jersey().register(new ElasticsearchExceptionMapper());
-        environment.jersey().register(new TagRESTService(tagKafkaProducer));
+        environment.jersey().register(new TagRESTService(tagKafkaProducer, configuration.taggerConfiguration.statusTimeout));
         environment.jersey().register(new TagStatusRESTService());
 
         if (configuration.arlasServiceExploreEnabled) {
@@ -153,30 +136,8 @@ public class ArlasTagger extends Application<ArlasServerConfiguration> {
         if (configuration.arlascorsenabled) {
             configureCors(environment);
         }
-        NodesInfoRequest nodesInfoRequest = new NodesInfoRequest();
-        nodesInfoRequest.clear().jvm(false).os(false).process(true);
-        ActionFuture<NodesInfoResponse> nodesInfoResponseActionFuture = client.admin().cluster().nodesInfo(nodesInfoRequest);
-        LOGGER.info("Number of  Node : ".concat(String.valueOf(nodesInfoResponseActionFuture.actionGet().getNodes().size())));
-        nodesInfoResponseActionFuture.actionGet().getNodes().forEach(nodeInfo -> {
-            DiscoveryNode node = nodeInfo.getNode();
-            LOGGER.info("Node Name : ".concat(node.getName()));
-            LOGGER.info("Node Id : ".concat(node.getId()));
-            LOGGER.info("Node EphemeralId : ".concat(node.getEphemeralId()));
-            LOGGER.info("Node Host address : ".concat(node.getHostAddress()));
-            LOGGER.info("Node Host name : ".concat(node.getHostName()));
-            LOGGER.info("Node Transport address : ".concat(node.getAddress().getAddress()));
-            LOGGER.info("Node role : ".concat(node.getRoles().toString()));
-        });
-        LOGGER.info("Number of Connected Node : ".concat(String.valueOf(transportClient.connectedNodes().size())));
-        transportClient.connectedNodes().forEach(node -> {
-            LOGGER.info("Connected Name : ".concat(node.getName()));
-            LOGGER.info("Connected Id : ".concat(node.getId()));
-            LOGGER.info("Connected EphemeralId : ".concat(node.getEphemeralId()));
-            LOGGER.info("Connected Host address : ".concat(node.getHostAddress()));
-            LOGGER.info("Connected Host name : ".concat(node.getHostName()));
-            LOGGER.info("Connected Transport address : ".concat(node.getAddress().getAddress()));
-            LOGGER.info("Connected role : ".concat(node.getRoles().toString()));
-        });
+
+        ElasticNodesInfo.printNodesInfo(client, transportClient);
     }
 
     private void configureCors(Environment environment) {

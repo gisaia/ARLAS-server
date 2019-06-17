@@ -28,11 +28,11 @@ import java.util.Optional;
 public class TaggingStatus {
     private SelfExpiringMap<String, UpdateResponse> statusMap;
     private TaggingStatus() {
-        statusMap = new SelfExpiringHashMap<>(36000000l);
-    } // 10h by default
+        statusMap = new SelfExpiringHashMap<>();
+    }
 
-    public void updateStatus(String id, UpdateResponse status) {
-        statusMap.put(id, status);
+    public void updateStatus(String id, UpdateResponse status, long timeout) {
+        statusMap.put(id, status, timeout);
     }
 
     public Optional<UpdateResponse> getStatus(String id) {

@@ -20,15 +20,10 @@
 package io.arlas.server.rest.tag;
 
 import com.codahale.metrics.annotation.Timed;
-import com.google.common.base.Optional;
 import io.arlas.server.app.Documentation;
-import io.arlas.server.kafka.TagKafkaProducer;
-import io.arlas.server.model.TagRefRequest;
 import io.arlas.server.model.TaggingStatus;
-import io.arlas.server.model.request.TagRequest;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.UpdateResponse;
-import io.arlas.server.services.UpdateServices;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,11 +45,11 @@ public class TagStatusRESTService {
     }
 
     @Timed
-    @Path("/{collection}/_tagging")
+    @Path("/{collection}/_tag")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "TaggingStatus", produces = UTF8JSON, notes = Documentation.TAGSTATUS_OPERATION, consumes = UTF8JSON, response = UpdateResponse.class)
+    @ApiOperation(value = "TagStatus", produces = UTF8JSON, notes = Documentation.TAGSTATUS_OPERATION, consumes = UTF8JSON, response = UpdateResponse.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Successful operation", response = UpdateResponse.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class) })
     public Response taggingGet(

@@ -32,10 +32,10 @@ import io.arlas.server.ogc.csw.CSWService;
 import io.arlas.server.ogc.csw.writer.getrecords.AtomGetRecordsMessageBodyWriter;
 import io.arlas.server.ogc.csw.writer.getrecords.XmlGetRecordsMessageBodyWriter;
 import io.arlas.server.ogc.csw.writer.record.AtomRecordMessageBodyWriter;
-import io.arlas.server.ogc.csw.writer.record.XmlRecordMessageBodyBuilder;
 import io.arlas.server.ogc.csw.writer.record.XmlMDMetadataMessageBodyWriter;
-import io.arlas.server.ogc.wfs.WFSService;
+import io.arlas.server.ogc.csw.writer.record.XmlRecordMessageBodyBuilder;
 import io.arlas.server.ogc.wfs.WFSHandler;
+import io.arlas.server.ogc.wfs.WFSService;
 import io.arlas.server.rest.collections.ElasticCollectionService;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
 import io.arlas.server.rest.explore.aggregate.GeoAggregateRESTService;
@@ -53,6 +53,7 @@ import io.arlas.server.rest.plugins.eo.TileRESTService;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.services.UpdateServices;
 import io.arlas.server.task.CollectionAutoDiscover;
+import io.arlas.server.utils.ElasticNodesInfo;
 import io.arlas.server.utils.PrettyPrintFilter;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
 import io.dropwizard.Application;
@@ -66,11 +67,7 @@ import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.elasticsearch.action.ActionFuture;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -233,30 +230,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         if (configuration.arlascorsenabled) {
             configureCors(environment);
         }
-        NodesInfoRequest nodesInfoRequest = new NodesInfoRequest();
-        nodesInfoRequest.clear().jvm(false).os(false).process(true);
-        ActionFuture<NodesInfoResponse> nodesInfoResponseActionFuture = client.admin().cluster().nodesInfo(nodesInfoRequest);
-        LOGGER.info("Number of  Node : ".concat(String.valueOf(nodesInfoResponseActionFuture.actionGet().getNodes().size())));
-        nodesInfoResponseActionFuture.actionGet().getNodes().forEach(nodeInfo -> {
-            DiscoveryNode node = nodeInfo.getNode();
-            LOGGER.info("Node Name : ".concat(node.getName()));
-            LOGGER.info("Node Id : ".concat(node.getId()));
-            LOGGER.info("Node EphemeralId : ".concat(node.getEphemeralId()));
-            LOGGER.info("Node Host adress : ".concat(node.getHostAddress()));
-            LOGGER.info("Node Host name : ".concat(node.getHostName()));
-            LOGGER.info("Node Transport adress : ".concat(node.getAddress().getAddress()));
-            LOGGER.info("Node role : ".concat(node.getRoles().toString()));
-        });
-        LOGGER.info("Number of Connected Node : ".concat(String.valueOf(transportClient.connectedNodes().size())));
-        transportClient.connectedNodes().forEach(node -> {
-            LOGGER.info("Connected Name : ".concat(node.getName()));
-            LOGGER.info("Connected Id : ".concat(node.getId()));
-            LOGGER.info("Connected EphemeralId : ".concat(node.getEphemeralId()));
-            LOGGER.info("Connected Host adress : ".concat(node.getHostAddress()));
-            LOGGER.info("Connected Host name : ".concat(node.getHostName()));
-            LOGGER.info("Connected Transport adress : ".concat(node.getAddress().getAddress()));
-            LOGGER.info("Connected role : ".concat(node.getRoles().toString()));
-        });
+        ElasticNodesInfo.printNodesInfo(client, transportClient);
     }
 
     private void configureCors(Environment environment) {

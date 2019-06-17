@@ -53,6 +53,7 @@ public class TagRefService extends KafkaConsumerRunner {
     private final TagKafkaProducer tagKafkaProducer;
     private final UpdateServices updateServices;
     private TaggingStatus taggingStatus;
+    private Long statusTimeout;
 
     public TagRefService(ArlasServerConfiguration configuration, String topic, String consumerGroupId,
                          TagKafkaProducer tagKafkaProducer, UpdateServices updateServices) {
@@ -60,6 +61,7 @@ public class TagRefService extends KafkaConsumerRunner {
         this.tagKafkaProducer = tagKafkaProducer;
         this.updateServices = updateServices;
         this.taggingStatus = TaggingStatus.getInstance();
+        this.statusTimeout = configuration.taggerConfiguration.statusTimeout;
     }
 
     @Override
@@ -73,10 +75,10 @@ public class TagRefService extends KafkaConsumerRunner {
             try {
                 final TagRefRequest tagRequest = MAPPER.readValue(record.value(), TagRefRequest.class);
                 if (tagRequest.propagation == null) {
-                    LOGGER.info("No propagation requested: " + record.value());
+                    LOGGER.debug("No propagation requested: " + record.value());
                     tagKafkaProducer.sendToExecuteTags(tagRequest);
                 } else {
-                    LOGGER.info("Propagation requested: " + record.value());
+                    LOGGER.debug("Propagation requested: " + record.value());
                     AggregationResponse aggregationResponse = getArlasAggregation(tagRequest);
                     int nbResult = aggregationResponse.elements.size();
                     UpdateResponse updateResponse = taggingStatus.getStatus(tagRequest.id).orElse(new UpdateResponse());
@@ -99,7 +101,7 @@ public class TagRefService extends KafkaConsumerRunner {
                         Search search = new Search();
                         search.filter = filter;
                         tagKafkaProducer.sendToExecuteTags(TagRefRequest.fromTagRefRequest(tagRequest, search, (int)(i+1)*100/nbResult));
-                        taggingStatus.updateStatus(tagRequest.id, updateResponse);
+                        taggingStatus.updateStatus(tagRequest.id, updateResponse, statusTimeout);
 
                     }
                 }
