@@ -83,7 +83,7 @@ function test_rest() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
-        mvn -Dit.test="*,!TagIT" verify -DskipTests=false  -DfailIfNoTests=false
+        mvn -Dit.test="*,!TagIT,!CollectionTool" verify -DskipTests=false  -DfailIfNoTests=false
 }
 
 function test_tagger() {
