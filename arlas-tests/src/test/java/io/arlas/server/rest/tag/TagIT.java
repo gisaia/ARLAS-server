@@ -183,7 +183,7 @@ public class TagIT extends AbstractTestContext {
                 .then()
                 .statusCode(200);
 
-        Thread.currentThread().sleep(5000);
+        Thread.currentThread().sleep(10000);
 
         // Only v2 remains
         given()
