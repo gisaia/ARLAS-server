@@ -10,8 +10,8 @@ RUN apk add --update netcat-openbsd curl && rm -rf /var/cache/apk/*
 WORKDIR /opt/app
 ADD arlas-server/target/arlas-server*.jar /opt/app/arlas-server.jar
 ADD conf/configuration.yaml /opt/app/configuration.yaml
-ADD scripts/wait-for-elasticsearch.sh /opt/app/wait-for-elasticsearch.sh
-ADD scripts/start.sh /opt/app/start.sh
+ADD docker-resources/wait-for-elasticsearch.sh /opt/app/wait-for-elasticsearch.sh
+ADD docker-resources/start.sh /opt/app/start.sh
 EXPOSE 9999
 
 HEALTHCHECK --interval=5m --timeout=3s \

@@ -41,7 +41,7 @@ mvn clean package
 ### Docker
 
 ```sh
-docker build --tag=arlas-server:latest .
+docker build --tag=gisaia/arlas-server:latest --tag=arlas-server:latest .
 ```
 
 ## Run

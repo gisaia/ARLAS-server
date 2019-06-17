@@ -10,8 +10,8 @@ RUN apk add --update bash netcat-openbsd curl && rm -rf /var/cache/apk/*
 WORKDIR /opt/app
 ADD arlas-tagger/target/arlas-tagger*.jar /opt/app/arlas-tagger.jar
 ADD conf/configuration.yaml /opt/app/configuration.yaml
-ADD scripts/wait-for-tagger-deps.sh /opt/app/wait-for-tagger-deps.sh
-ADD scripts/start-tagger.sh /opt/app/start-tagger.sh
+ADD docker-resources/wait-for-tagger-deps.sh /opt/app/wait-for-tagger-deps.sh
+ADD docker-resources/start-tagger.sh /opt/app/start-tagger.sh
 EXPOSE 9999
 
 ENTRYPOINT ["bash", "-c"]
