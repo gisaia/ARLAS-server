@@ -19,7 +19,7 @@ If needed a `Search` can be provided to specify the hits to be tagged:
 ```shell
 curl -X POST  \
     --header 'Accept: application/json;charset=utf-8' \
-    -d '{ "search": {}, "tag": { "path": "plant.color","value": "pink"}, "propagation": { "field": "id" }}' \
+    -d '{ "search": {}, "tag": { "path": "plant.color","value": "pink"}, "propagation": { "field": "id", "filter": {} }, "label": "pinktag" }' \
     'http://<arlas-tagger-host>:<arlas-tagger-port>/arlas/write/geodata/_tag?pretty=false'
 ```
 
