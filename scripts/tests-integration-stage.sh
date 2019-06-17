@@ -54,7 +54,8 @@ if [ -z ${STAGE+x} ]; then usage; else echo "Tests stage : ${STAGE}"; fi
 function start_stack() {
     # START ARLAS STACK
     ./scripts/docker-clean.sh
-    ./scripts/docker-run.sh
+    if [ "$STAGE" == "REST" ]; then TAGGER="--tagger"; fi
+    ./scripts/docker-run.sh $TAGGER --build
 }
 
 # TEST
