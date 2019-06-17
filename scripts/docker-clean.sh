@@ -8,4 +8,4 @@ function clean_exit {
 trap clean_exit EXIT
 
 echo "===> stop arlas-server stack"
-docker-compose --project-name arlas down -v
+docker-compose -f docker-compose.yml -f docker-compose-tagger.yml -f docker-compose-kafka.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v

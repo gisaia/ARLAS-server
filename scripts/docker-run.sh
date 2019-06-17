@@ -1,6 +1,35 @@
 #!/bin/bash
 set -e
 
+BUILD_OPTS="--no-build"
+
+for i in "$@"
+do
+case $i in
+    -es=*|--elasticsearch=*)
+    export ELASTIC_DATADIR="${i#*=}"
+    DOCKER_COMPOSE_ARGS="${DOCKER_COMPOSE_ARGS} -f docker-compose-elasticsearch.yml"
+    shift # past argument=value
+    ;;
+    -k=*|--kafka=*)
+    export KAFKA_DATADIR="${i#*=}"
+    DOCKER_COMPOSE_ARGS="${DOCKER_COMPOSE_ARGS} -f docker-compose-kafka.yml"
+    shift # past argument=value
+    ;;
+    --tagger)
+    DOCKER_COMPOSE_ARGS="${DOCKER_COMPOSE_ARGS} -f docker-compose-tagger.yml"
+    shift # past argument with no value
+    ;;
+    --build)
+    BUILD_OPTS="--build"
+    shift # past argument with no value
+    ;;
+    *)
+            # unknown option
+    ;;
+esac
+done
+
 function clean_exit {
     ARG=$?
     exit $ARG
@@ -24,7 +53,7 @@ docker run --rm \
 echo "arlas-server:${ARLAS_VERSION}"
 
 echo "===> start arlas-server stack"
-docker-compose --project-name arlas up -d --build
+docker-compose -f docker-compose.yml ${DOCKER_COMPOSE_ARGS} --project-name arlas up -d ${BUILD_OPTS}
 
 #docker logs -f arlas-server &
 
