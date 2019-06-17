@@ -19,7 +19,7 @@ cd ${SCRIPT_PATH}
 
 # START ARLAS STACK
 ./scripts/docker-clean.sh
-./scripts/docker-run.sh --build
+./scripts/docker-run.sh -es=/tmp -k=/tmp --build
 
 echo "=> Get swagger documentation"
 docker run --rm \

@@ -55,7 +55,7 @@ function start_stack() {
     # START ARLAS STACK
     ./scripts/docker-clean.sh
     if [ "$STAGE" == "REST" ]; then TAGGER="--tagger"; fi
-    ./scripts/docker-run.sh $TAGGER --build
+    ./scripts/docker-run.sh $TAGGER -es=/tmp -k=/tmp --build
 }
 
 # TEST
