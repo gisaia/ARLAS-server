@@ -22,7 +22,7 @@ unset ARLAS_SERVICE_RASTER_TILES_ENABLE
 ./scripts/docker-clean.sh
 
 # START STACK
-./scripts/docker-run.sh
+./scripts/docker-run.sh -es=/tmp -k=/tmp --build
 DOCKER_IP=$(docker-machine ip || echo "localhost")
 echo "===> arlas-server running on http://${DOCKER_IP}:19999/arlas/"
 

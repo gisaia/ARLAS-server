@@ -19,40 +19,19 @@
 
 package io.arlas.server.app;
 
-import brave.http.HttpTracing;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
-import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.health.ElasticsearchHealthCheck;
-import io.arlas.server.ogc.csw.CSWHandler;
-import io.arlas.server.ogc.csw.CSWService;
-import io.arlas.server.ogc.csw.writer.getrecords.AtomGetRecordsMessageBodyWriter;
-import io.arlas.server.ogc.csw.writer.getrecords.XmlGetRecordsMessageBodyWriter;
-import io.arlas.server.ogc.csw.writer.record.AtomRecordMessageBodyWriter;
-import io.arlas.server.ogc.csw.writer.record.XmlMDMetadataMessageBodyWriter;
-import io.arlas.server.ogc.csw.writer.record.XmlRecordMessageBodyBuilder;
-import io.arlas.server.ogc.wfs.WFSHandler;
-import io.arlas.server.ogc.wfs.WFSService;
+import io.arlas.server.kafka.TagKafkaProducer;
 import io.arlas.server.rest.collections.ElasticCollectionService;
-import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
-import io.arlas.server.rest.explore.aggregate.GeoAggregateRESTService;
-import io.arlas.server.rest.explore.count.CountRESTService;
-import io.arlas.server.rest.explore.describe.DescribeCollectionRESTService;
-import io.arlas.server.rest.explore.describe.DescribeRESTService;
-import io.arlas.server.rest.explore.opensearch.AtomHitsMessageBodyWriter;
-import io.arlas.server.rest.explore.opensearch.OpenSearchDescriptorService;
-import io.arlas.server.rest.explore.range.RangeRESTService;
-import io.arlas.server.rest.explore.raw.RawRESTService;
-import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
-import io.arlas.server.rest.explore.suggest.SuggestRESTService;
-import io.arlas.server.rest.plugins.eo.TileRESTService;
+import io.arlas.server.rest.tag.TagRESTService;
+import io.arlas.server.rest.tag.TagStatusRESTService;
+import io.arlas.server.service.ManagedKafkaConsumers;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.services.UpdateServices;
-import io.arlas.server.task.CollectionAutoDiscover;
 import io.arlas.server.utils.ElasticNodesInfo;
 import io.arlas.server.utils.PrettyPrintFilter;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
@@ -60,7 +39,6 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
-import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
@@ -80,15 +58,12 @@ import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import java.net.InetAddress;
 import java.util.EnumSet;
-import java.util.Optional;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-public class ArlasServer extends Application<ArlasServerConfiguration> {
-    Logger LOGGER = LoggerFactory.getLogger(ArlasServer.class);
+public class ArlasTagger extends Application<ArlasServerConfiguration> {
+    Logger LOGGER = LoggerFactory.getLogger(ArlasTagger.class);
 
     public static void main(String... args) throws Exception {
-        new ArlasServer().run(args);
+        new ArlasTagger().run(args);
     }
 
     @Override
@@ -100,12 +75,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ArlasServerConfiguration configuration) {
                 return configuration.swaggerBundleConfiguration;
-            }
-        });
-        bootstrap.addBundle(new ZipkinBundle<ArlasServerConfiguration>(getName()) {
-            @Override
-            public ZipkinFactory getZipkinFactory(ArlasServerConfiguration configuration) {
-                return configuration.zipkinConfiguration;
             }
         });
         bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
@@ -133,12 +102,11 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         }
         Client client = transportClient;
 
-        if (configuration.zipkinConfiguration != null) {
-            Optional<HttpTracing> tracing = configuration.zipkinConfiguration.build(environment);
-        }
-
-        ExploreServices exploration = new ExploreServices(client, configuration);
         UpdateServices updateServices = new UpdateServices(client, configuration);
+        TagKafkaProducer tagKafkaProducer = TagKafkaProducer.build(configuration);
+        ManagedKafkaConsumers consumersManager = new ManagedKafkaConsumers(configuration, tagKafkaProducer, updateServices);
+        environment.lifecycle().manage(consumersManager);
+
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
         environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         environment.jersey().register(MultiPartFeature.class);
@@ -147,81 +115,19 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new JsonProcessingExceptionMapper());
         environment.jersey().register(new ConstraintViolationExceptionMapper());
         environment.jersey().register(new ElasticsearchExceptionMapper());
-        environment.jersey().register(new AtomHitsMessageBodyWriter(exploration));
-        environment.jersey().register(new AtomGetRecordsMessageBodyWriter(configuration));
-        environment.jersey().register(new XmlGetRecordsMessageBodyWriter());
-        environment.jersey().register(new XmlMDMetadataMessageBodyWriter());
-        environment.jersey().register(new XmlRecordMessageBodyBuilder());
-        environment.jersey().register(new AtomRecordMessageBodyWriter());
+        environment.jersey().register(new TagRESTService(tagKafkaProducer, configuration.taggerConfiguration.statusTimeout));
+        environment.jersey().register(new TagStatusRESTService());
 
         if (configuration.arlasServiceExploreEnabled) {
-            environment.jersey().register(new CountRESTService(exploration));
+            ExploreServices exploration = new ExploreServices(client, configuration);
             environment.jersey().register(new SearchRESTService(exploration));
-            environment.jersey().register(new AggregateRESTService(exploration));
-            environment.jersey().register(new GeoSearchRESTService(exploration));
-            environment.jersey().register(new GeoAggregateRESTService(exploration));
-            environment.jersey().register(new SuggestRESTService(exploration));
-            environment.jersey().register(new DescribeRESTService(exploration));
-            environment.jersey().register(new RawRESTService(exploration));
-            environment.jersey().register(new DescribeCollectionRESTService(exploration));
-            environment.jersey().register(new RangeRESTService(exploration));
-            LOGGER.info("Explore API enabled");
-        } else {
-            LOGGER.info("Explore API disabled");
         }
 
-        if(configuration.arlasServiceCollectionsEnabled) {
-            LOGGER.info("Collection API enabled");
-            environment.jersey().register(new ElasticCollectionService(client, configuration));
-        } else {
-            LOGGER.info("Collection API disabled");
-        }
-
-        if(configuration.arlasServiceWFSEnabled){
-            LOGGER.info("WFS Service enabled");
-            WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration, configuration.ogcConfiguration, configuration.inspireConfiguration, configuration.arlasBaseUri);
-            environment.jersey().register(new WFSService(exploration, configuration, wfsHandler));
-        } else {
-            LOGGER.info("WFS Service disabled");
-        }
-
-        if(configuration.arlasServiceOPENSEARCHEnabled){
-            LOGGER.info("OPENSEARCH Service enabled");
-            OpensearchConfiguration opensearchConfiguration = configuration.opensearchConfiguration;
-            environment.jersey().register(new OpenSearchDescriptorService(exploration, opensearchConfiguration));
-        } else {
-            LOGGER.info("OPENSEARCH Service disabled");
-        }
-
-        if (configuration.arlasServiceCSWEnabled) {
-            LOGGER.info("CSW Service enabled");
-            CSWHandler cswHandler = new CSWHandler(configuration.ogcConfiguration, configuration.cswConfiguration, configuration.inspireConfiguration, configuration.arlasBaseUri);
-            environment.jersey().register(new CSWService(client, cswHandler, configuration));
-        } else {
-            LOGGER.info("CSW Service disabled");
-        }
-
-        if(configuration.arlasServiceRasterTileEnabled){
-            LOGGER.info("Raster Tile Service enabled");
-            environment.jersey().register(new TileRESTService(updateServices));
-        }else{
-            LOGGER.info("Raster Tile Service disabled");
-        }
+        environment.jersey().register(new ElasticCollectionService(client, configuration));
 
         //filters
         environment.jersey().register(PrettyPrintFilter.class);
         environment.jersey().register(InsensitiveCaseFilter.class);
-
-        //tasks
-        environment.admin().addTask(new CollectionAutoDiscover(client, configuration));
-        int scheduleAutoDiscover = configuration.collectionAutoDiscoverConfiguration.schedule;
-        if (scheduleAutoDiscover > 0) {
-            String nameFormat = "collection-auto-discover-%d";
-            ScheduledExecutorServiceBuilder sesBuilder = environment.lifecycle().scheduledExecutorService(nameFormat);
-            ScheduledExecutorService ses = sesBuilder.build();
-            Runnable autoDiscoverTask = new CollectionAutoDiscover(client, configuration);
-            ses.scheduleWithFixedDelay(autoDiscoverTask, 10, scheduleAutoDiscover, TimeUnit.SECONDS);
-        }
 
         //healthchecks
         environment.healthChecks().register("elasticsearch", new ElasticsearchHealthCheck(client));
@@ -230,6 +136,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         if (configuration.arlascorsenabled) {
             configureCors(environment);
         }
+
         ElasticNodesInfo.printNodesInfo(client, transportClient);
     }
 
