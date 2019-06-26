@@ -99,6 +99,7 @@ public class TagRESTService {
             tagKafkaProducer.sendToTagRefLog(tagRefRequest);
             UpdateResponse updateResponse = new UpdateResponse();
             updateResponse.id = tagRefRequest.id;
+            updateResponse.label = tagRefRequest.label;
             TaggingStatus.getInstance().updateStatus(tagRefRequest.id, updateResponse, statusTimeout);
             return Response.ok(updateResponse).build();
         } else {
@@ -152,6 +153,7 @@ public class TagRESTService {
                     tagRequest.tag.value != null ? REMOVE : REMOVEALL);
             UpdateResponse updateResponse = new UpdateResponse();
             updateResponse.id = tagRefRequest.id;
+            updateResponse.label = tagRefRequest.label;
             tagKafkaProducer.sendToTagRefLog(tagRefRequest);
 
             return Response.ok(updateResponse).build();
