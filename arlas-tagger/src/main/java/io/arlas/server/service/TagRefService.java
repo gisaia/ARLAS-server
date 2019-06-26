@@ -74,16 +74,19 @@ public class TagRefService extends KafkaConsumerRunner {
 
             try {
                 final TagRefRequest tagRequest = MAPPER.readValue(record.value(), TagRefRequest.class);
+                UpdateResponse updateResponse = taggingStatus.getStatus(tagRequest.id).orElse(new UpdateResponse());
+                updateResponse.id = tagRequest.id;
+                updateResponse.action = tagRequest.action;
+                updateResponse.label = tagRequest.label;
                 if (tagRequest.propagation == null) {
                     LOGGER.debug("No propagation requested: " + record.value());
+                    tagRequest.progress = 100f; // only one request
                     tagKafkaProducer.sendToExecuteTags(tagRequest);
+                    taggingStatus.updateStatus(tagRequest.id, updateResponse, statusTimeout);
                 } else {
                     LOGGER.debug("Propagation requested: " + record.value());
                     AggregationResponse aggregationResponse = getArlasAggregation(tagRequest);
                     int nbResult = aggregationResponse.elements.size();
-                    UpdateResponse updateResponse = taggingStatus.getStatus(tagRequest.id).orElse(new UpdateResponse());
-                    updateResponse.id = tagRequest.id;
-                    updateResponse.action = tagRequest.action;
                     updateResponse.propagated = nbResult;
                     for (int i = 0; i < nbResult; i++) {
                         AggregationResponse a = aggregationResponse.elements.get(i);

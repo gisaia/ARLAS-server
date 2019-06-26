@@ -31,10 +31,11 @@ public class UpdateResponse {
     public float progress = 0f;
     public String id;
     public Action action;
-    public long propagated;
+    public long propagated = 0;
     public long startTime;
     public long endTime;
     public long processingTimeMs; // ms
+    public String label;
 
     public UpdateResponse() {
         this.startTime = System.currentTimeMillis();
