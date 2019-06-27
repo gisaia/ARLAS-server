@@ -43,9 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.*;
 
 
 public class TagRefService extends KafkaConsumerRunner {
@@ -90,7 +88,7 @@ public class TagRefService extends KafkaConsumerRunner {
                     updateResponse.propagated = nbResult;
                     for (int i = 0; i < nbResult; i++) {
                         AggregationResponse a = aggregationResponse.elements.get(i);
-                        Filter filter = Optional.ofNullable(tagRequest.propagation.filter).orElse(new Filter());
+                        Filter filter = getFilter(tagRequest.propagation.filter);
 
                         MultiValueFilter<Expression> expression =
                                 new MultiValueFilter<>(new Expression(tagRequest.propagation.field,
@@ -121,6 +119,25 @@ public class TagRefService extends KafkaConsumerRunner {
             }
         }
         LOGGER.debug("End of records processing");
+    }
+
+    private Filter getFilter(Filter inFilter) {
+        Filter outFilter = new Filter();
+        if (inFilter != null) {
+            if (inFilter.f != null) {
+                outFilter.f = new ArrayList<>();
+                Collections.copy(inFilter.f, outFilter.f);
+            }
+            outFilter.q = inFilter.q;
+            outFilter.pwithin = inFilter.pwithin;
+            outFilter.gwithin = inFilter.gwithin;
+            outFilter.gintersect = inFilter.gintersect;
+            outFilter.notpwithin = inFilter.notpwithin;
+            outFilter.notgwithin = inFilter.notgwithin;
+            outFilter.notgintersect = inFilter.notgintersect;
+            outFilter.dateformat = inFilter.dateformat;
+        }
+        return outFilter;
     }
 
     private AggregationResponse getArlasAggregation(final TagRefRequest tagRequest) throws ArlasException, IOException {
