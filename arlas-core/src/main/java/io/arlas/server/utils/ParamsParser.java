@@ -31,6 +31,7 @@ import io.dropwizard.jersey.params.IntParam;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.joda.time.format.DateTimeFormat;
 
+import javax.lang.model.type.ArrayType;
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -415,6 +416,13 @@ public class ParamsParser {
                 }
             }
         }
+
+        simplifiedPwithin =simplifiedPwithin.stream()
+                    .map(p -> p.split(","))
+                    .filter(s->!s[0].equals(s[2])&&!s[1].equals(s[3]))
+                    .map(sp->String.join(",",Arrays.asList(sp)))
+                .collect(Collectors.toList());
+
         return simplifiedPwithin;
     }
 
