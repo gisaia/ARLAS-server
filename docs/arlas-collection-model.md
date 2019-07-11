@@ -63,7 +63,7 @@ The most important fields are:
 | exclude_fields | Comma separated fields names that will be excluded from ARLAS-server responses. By default, none of the fields are excluded | Optional|
 | raster_tile_width | In case the tile is too big, the crop width to apply. Set to -1 if not check must be applied |  Optional |  -1 |
 | raster_tile_height | In case the tile is too big, the crop height to apply. Set to -1 if not check must be applied  |  Optional |  -1 |
-| taggable_fields| Comma separated fields names/paths that are allowed to be updated by the [tag service](arlas-api-tagging). By default no field is taggable| Optional|
+| taggable_fields| Comma separated fields names/paths that are allowed to be updated TO-COMPLETE. By default no field is taggable| Optional|
 | update_max_hits | Maximum number of hits you can tag with one `tag request` | Optional|
 
 !!! info "Important 1"

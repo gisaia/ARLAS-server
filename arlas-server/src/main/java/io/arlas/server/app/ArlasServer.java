@@ -51,7 +51,6 @@ import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
 import io.arlas.server.rest.plugins.eo.TileRESTService;
 import io.arlas.server.services.ExploreServices;
-import io.arlas.server.services.UpdateServices;
 import io.arlas.server.task.CollectionAutoDiscover;
 import io.arlas.server.utils.ElasticNodesInfo;
 import io.arlas.server.utils.PrettyPrintFilter;
@@ -138,7 +137,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         }
 
         ExploreServices exploration = new ExploreServices(client, configuration);
-        UpdateServices updateServices = new UpdateServices(client, configuration);
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
         environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         environment.jersey().register(MultiPartFeature.class);
@@ -203,7 +201,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         if(configuration.arlasServiceRasterTileEnabled){
             LOGGER.info("Raster Tile Service enabled");
-            environment.jersey().register(new TileRESTService(updateServices));
+            environment.jersey().register(new TileRESTService(exploration));
         }else{
             LOGGER.info("Raster Tile Service disabled");
         }

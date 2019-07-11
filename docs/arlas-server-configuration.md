@@ -115,19 +115,6 @@ docker run -ti -d \
 | ARLAS_MIN_THREADS | server.minThreads | 8 |
 | ARLAS_MAX_QUEUED_REQUESTS | server.maxQueuedRequests | 1024 |
 
-### Tagger
-
-| Environment variable | ARLAS Tagger configuration variable | Default | Description |
-| --- | --- | --- | --- |
-| TAGGING_STATUS_TIMEOUT | arlas-tagger.status-timeout | 3600000 | Delay before tagging status is discarded |
-| KAFKA_CONSUMER_POLL_TIMEOUT | arlas-tagger.kafka-consumer-poll-timeout | 100 | Kafka consumer poll timeout |
-| KAFKA_BATCH_SIZE | arlas-tagger.kafka-batch-size | 10 | Kafka consumer batch size |
-| KAFKA_BROKERS | arlas-tagger.kafka-bootstrap-servers | kafka:9092 | Kafka brokers|
-| KAFKA_CONSUMER_GROUP_ID_TAGREF_LOG | arlas-tagger.kafka-consumer-group-id-tagref-log | tagref_log_consumer_group | Kafka consumer group for `tagref_log` topic |
-| KAFKA_CONSUMER_GROUP_ID_EXECUTE_TAGS | arlas-tagger.kafka-consumer-group-id-execute-tags | execute_tags_consumer_group | Kafka consumer group for `execute_tags` topic |
-| KAFKA_TOPIC_TAGREF_LOG | arlas-tagger.kafka-topic-tagref-log | tagref_log | Kafka topic for tag requests queue (tag log, retained) |
-| KAFKA_TOPIC_EXECUTE_TAGS | arlas-tagger.kafka-topic-execute-tags | execute_tags | Kafka topic for actual tag requests (actually executed, not retained) |
-
 ### URL Masking
 
 | Environment variable | ARLAS Server configuration variable | Default | Description |

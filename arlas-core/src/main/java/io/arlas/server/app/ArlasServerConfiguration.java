@@ -52,9 +52,6 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("arlas-csw")
     public CSWConfiguration cswConfiguration;
 
-    @JsonProperty("arlas-tagger")
-    public TaggerConfiguration taggerConfiguration;
-
     @JsonProperty("opensearch")
     public OpensearchConfiguration opensearchConfiguration;
 

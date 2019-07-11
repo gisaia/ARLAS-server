@@ -41,6 +41,3 @@ cd ${SCRIPT_PATH}/..
 ./scripts/tests-integration-stage.sh --stage=WFS
 ./scripts/tests-integration-stage.sh --stage=CSW
 ./scripts/tests-integration-stage.sh --stage=DOC
-./scripts/tests-integration-stage.sh --stage=TAG
-
-
