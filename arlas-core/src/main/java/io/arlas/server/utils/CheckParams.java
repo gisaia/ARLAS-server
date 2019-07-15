@@ -270,10 +270,6 @@ public class CheckParams {
             if (page.sort == null) {
                 throw new BadRequestException("'after' parameter cannot be used without setting 'sort' parameter.");
             }
-            /** check if sort contains geodistance */
-            if (page.sort.toLowerCase().contains(FluidSearch.GEO_DISTANCE)) {
-                throw new BadRequestException("'after' parameter cannot be used when geodistance is set in 'sort' parameter");
-            }
             String[] sortList = page.sort.split(",");
             int sortSize = sortList.length;
             if (afterSize != sortSize){

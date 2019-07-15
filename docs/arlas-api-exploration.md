@@ -333,7 +333,6 @@ The `page` url part allows the following parameters to be specified:
 !!! abstract "Notes"
     - `{value1}` and `{value2}` are the values of `{field1}` and `{field2}` in the last hit returned in the previous search.
     - The last field `{fieldN}` must be the id field specified in the collection **collection.params.idPath** (returned as **md.id**) and `{valueN}` its corresponding value.
-    - **sort** parameter cannot include *geodistance* sort
     - **from** parameter must be set to 0 or kept unset
 
 !!! tip "The difference between `after` and `from`"

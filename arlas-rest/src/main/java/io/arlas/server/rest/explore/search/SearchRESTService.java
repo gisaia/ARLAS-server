@@ -33,7 +33,6 @@ import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.CheckParams;
-import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
 import io.arlas.server.utils.StringUtil;
 import io.dropwizard.jersey.params.IntParam;
@@ -319,12 +318,9 @@ public class SearchRESTService extends ExploreRESTServices {
         String lastHitAfter = "";
         if (lastIndex >= 0 && sizeParam == hits.nbhits && sortParam != null && (afterParam != null || sortParam.contains(collectionReference.params.idPath))) {
             next = new Link();
-            lastHitAfter =  Arrays.stream(sortParam.split(","))
-                    .map(field -> field.startsWith("-") ? field.substring(1) : field)
-                    .map(field-> !field.equals(collectionReference.params.timestampPath) ?
-                            MapExplorer.getObjectFromPath(field,searchHits.getHits()[lastIndex].getSourceAsMap()).toString() : hits.hits.get(lastIndex).md.timestamp.toString())
-                    .collect(Collectors.joining(","));
             next.method = method;
+            // Use sorted value of last element return by ES to build after param of next link
+            lastHitAfter = Arrays.stream(searchHits.getHits()[lastIndex].getSortValues()).map(value->value.toString()).collect(Collectors.joining(","));
         }
         switch (method){
             case"GET":
@@ -380,4 +376,5 @@ public class SearchRESTService extends ExploreRESTServices {
     private String getNextHref(UriInfo uriInfo, String afterValue) {
         return getAbsoluteUri(uriInfo) + getNextQueryParameters(uriInfo, afterValue);
     }
+
 }
