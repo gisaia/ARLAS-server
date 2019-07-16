@@ -235,8 +235,17 @@ public class ExploreServices {
 
     protected void paginate(Page page, CollectionReference collectionReference, FluidSearch fluidSearch) throws ArlasException {
         setPageSizeAndFrom(page, fluidSearch);
-        sortPage(page, fluidSearch);
         searchAfterPage(page, collectionReference.params.idPath, fluidSearch);
+        if(page!=null){
+            if(page.before != null){
+                Page newPage = page;
+                newPage.sort = Arrays.stream(page.sort.split(","))
+                        .map(field -> field.startsWith("-") ? field.substring(1) : "-".concat(field)).collect(Collectors.joining(","));
+                sortPage(newPage, fluidSearch);
+            }else{
+                sortPage(page, fluidSearch);
+            }
+        }
     }
 
     protected void setPageSizeAndFrom(Page page, FluidSearch fluidSearch) throws ArlasException {
@@ -257,6 +266,10 @@ public class ExploreServices {
         if (page != null && page.after != null) {
             CheckParams.checkPageAfter(page, idCollectionField);
             fluidSearch = fluidSearch.searchAfter(page.after);
+        }
+        if (page != null && page.before != null) {
+            CheckParams.checkPageAfter(page, idCollectionField);
+            fluidSearch = fluidSearch.searchAfter(page.before);
         }
     }
 

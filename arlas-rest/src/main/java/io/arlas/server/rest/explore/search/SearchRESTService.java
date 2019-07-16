@@ -24,6 +24,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.Link;
 import io.arlas.server.model.request.MixedRequest;
+import io.arlas.server.model.request.Page;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Hit;
@@ -182,7 +183,6 @@ public class SearchRESTService extends ExploreRESTServices {
             @DefaultValue("0")
             @QueryParam(value = "from") IntParam from,
 
-
             @ApiParam(name = "sort",
                     value = Documentation.PAGE_PARAM_SORT,
                     allowMultiple = false,
@@ -195,6 +195,13 @@ public class SearchRESTService extends ExploreRESTServices {
                     allowMultiple = false,
                     required = false)
             @QueryParam(value = "after") String after,
+
+            @ApiParam(name = "before",
+                    value = Documentation.PAGE_PARAM_BEFORE,
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "before") String before,
+
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
@@ -222,7 +229,7 @@ public class SearchRESTService extends ExploreRESTServices {
         }
         Search search = new Search();
         search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
-        search.page = ParamsParser.getPage(size, from, sort,after);
+        search.page = ParamsParser.getPage(size, from, sort,after,before);
         search.projection = ParamsParser.getProjection(include, exclude);
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
@@ -298,30 +305,43 @@ public class SearchRESTService extends ExploreRESTServices {
 
     protected Hits getArlasHits(MixedRequest request, CollectionReference collectionReference, Boolean flat, UriInfo uriInfo, String method) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
+        Search searchRequest  = (Search)request.basicRequest;
         Hits hits = new Hits(collectionReference.collectionName);
         hits.totalnb = searchHits.getTotalHits();
         hits.nbhits = searchHits.getHits().length;
         HashMap<String,Link> links = new HashMap<>();
         hits.hits = new ArrayList<>((int) hits.nbhits);
-        for (SearchHit hit : searchHits.getHits()) {
+        List<SearchHit>searchHitList= Arrays.asList(searchHits.getHits());
+        if(searchRequest.page != null && searchRequest.page.before != null ){
+            Collections.reverse(searchHitList);
+        }
+        for (SearchHit hit : searchHitList) {
             hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), flat, false));
         }
         Link self = new Link();
         self.href = getRequestUri(uriInfo);
         self.method = method;
         Link next = null;
+        Link previous = null;
         int lastIndex = (int) hits.nbhits -1;
-        Search searchRequest  = (Search)request.basicRequest;
         String sortParam = searchRequest.page != null ? searchRequest.page.sort : null;
         String afterParam = searchRequest.page != null ? searchRequest.page.after : null;
+        String beforeParam = searchRequest.page != null ? searchRequest.page.before : null;
         Integer sizeParam = searchRequest.page != null ? searchRequest.page.size : ExploreServices.SEARCH_DEFAULT_PAGE_SIZE;
         String lastHitAfter = "";
+        String firstHitAfter = "";
         if (lastIndex >= 0 && sizeParam == hits.nbhits && sortParam != null && (afterParam != null || sortParam.contains(collectionReference.params.idPath))) {
             next = new Link();
             next.method = method;
-            // Use sorted value of last element return by ES to build after param of next link
-            lastHitAfter = Arrays.stream(searchHits.getHits()[lastIndex].getSortValues()).map(value->value.toString()).collect(Collectors.joining(","));
+            // Use sorted value of last element return by ES to build after param of next & previous link
+            lastHitAfter = Arrays.stream(searchHitList.get(lastIndex).getSortValues()).map(value->value.toString()).collect(Collectors.joining(","));
         }
+        if (searchHitList.size()>0 && sortParam != null && (beforeParam != null || sortParam.contains(collectionReference.params.idPath))) {
+            previous = new Link();
+            previous.method = method;
+            firstHitAfter = Arrays.stream(searchHitList.get(0).getSortValues()).map(value->value.toString()).collect(Collectors.joining(","));
+        }
+
         switch (method){
             case"GET":
                 links.put("self", self);
@@ -329,15 +349,43 @@ public class SearchRESTService extends ExploreRESTServices {
                     next.href = getNextHref(uriInfo, lastHitAfter);
                     links.put("next", next);
                 }
+                if (previous != null){
+                    previous.href = getPreviousHref(uriInfo, firstHitAfter);
+                    links.put("previous", previous);
+                }
                 break;
             case"POST":
                 self.body = searchRequest;
                 links.put("self", self);
                 if (next != null){
+                    Page nextPage = new Page();
+                    Search search = new Search();
+                    search.filter = searchRequest.filter;
+                    search.form = searchRequest.form;
+                    search.projection =searchRequest.projection;
+                    nextPage.sort=searchRequest.page.sort;
+                    nextPage.size=searchRequest.page.size;
+                    nextPage.from =searchRequest.page.from;
+                    nextPage.after = lastHitAfter;
+                    search.page = nextPage;
                     next.href = self.href;
-                    next.body = self.body;
-                    next.body.page.after = lastHitAfter;
+                    next.body = search;
                     links.put("next", next);
+                }
+                if (previous != null){
+                    Page previousPage = new Page();
+                    Search search = new Search();
+                    search.filter = searchRequest.filter;
+                    search.form = searchRequest.form;
+                    search.projection =searchRequest.projection;
+                    previousPage.sort=searchRequest.page.sort;
+                    previousPage.size=searchRequest.page.size;
+                    previousPage.from =searchRequest.page.from;
+                    previousPage.before = firstHitAfter;
+                    search.page = previousPage;
+                    previous.href = self.href;
+                    previous.body = search;
+                    links.put("previous", previous);
                 }
                 break;
         }
@@ -366,7 +414,19 @@ public class SearchRESTService extends ExploreRESTServices {
     }
 
     private String getNextQueryParameters(UriInfo uriInfo, String afterValue) {
-        return uriInfo.getRequestUriBuilder().replaceQueryParam("after", afterValue).toTemplate().replace(uriInfo.getAbsolutePath().toString(), "");
+        return uriInfo.getRequestUriBuilder()
+                .replaceQueryParam("after", afterValue)
+                .replaceQueryParam("before", "")
+                .toTemplate()
+                .replace(uriInfo.getAbsolutePath().toString(), "").replace("&before=","");
+    }
+
+    private String getPreviousQueryParameters(UriInfo uriInfo, String afterValue) {
+        return uriInfo.getRequestUriBuilder()
+                .replaceQueryParam("after", "")
+                .replaceQueryParam("before", afterValue)
+                .toTemplate()
+                .replace(uriInfo.getAbsolutePath().toString(), "").replace("&after=","");
     }
 
     private String getRequestUri(UriInfo uriInfo) {
@@ -376,5 +436,7 @@ public class SearchRESTService extends ExploreRESTServices {
     private String getNextHref(UriInfo uriInfo, String afterValue) {
         return getAbsoluteUri(uriInfo) + getNextQueryParameters(uriInfo, afterValue);
     }
-
+    private String getPreviousHref(UriInfo uriInfo, String afterValue) {
+        return getAbsoluteUri(uriInfo) + getPreviousQueryParameters(uriInfo, afterValue);
+    }
 }

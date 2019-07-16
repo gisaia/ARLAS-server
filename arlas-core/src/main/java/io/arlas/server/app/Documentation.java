@@ -46,7 +46,7 @@ public class Documentation {
             "\n \n";
     public static final String PAGE_PARAM_AFTER = "List of values of fields present in sort param that are used to search after. " +
             "\n \n" +
-            "> **What it does**: Allows to get the following hits of a previous search." +
+            "> **What it does**: Retrieve the data placed after the pointed element, given the provided order (sort)." +
             "\n \n" +
             "> __**Restriction 1**__: **after** param works only combined with **sort** param." +
             "\n \n" +
@@ -62,6 +62,7 @@ public class Documentation {
             "\n \n" +
             "> __**Restriction 2**__: **from** param must be set to 0 or kept unset" +
             "\n \n";
+    public static final String PAGE_PARAM_BEFORE = "Same idea that after param, but to retrieve the data placed before the pointed element, given the provided order (sort).";
     public static final String FILTER_PARAM_F = "- A triplet for filtering the result. Multiple filter can be provided in distinct parameters (AND operator is applied) or in the same parameter separated by semi-colons (OR operator is applied). " +
             "The order does not matter. " +
             "\n \n" +

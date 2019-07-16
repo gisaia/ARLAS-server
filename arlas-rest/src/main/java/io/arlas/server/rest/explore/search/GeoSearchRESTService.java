@@ -192,6 +192,12 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "after") String after,
 
+            @ApiParam(name = "before",
+                    value = Documentation.PAGE_PARAM_BEFORE,
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "before") String before,
+
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
@@ -206,7 +212,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
         Search search = new Search();
         search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
-        search.page = ParamsParser.getPage(size, from, sort,after);
+        search.page = ParamsParser.getPage(size, from, sort,after,before);
         search.projection = ParamsParser.getProjection(include, exclude);
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
@@ -370,6 +376,12 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "after") String after,
 
+            @ApiParam(name = "before",
+                    value = Documentation.PAGE_PARAM_BEFORE,
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "before") String before,
+
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
@@ -408,6 +420,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     from,
                     sort,
                     after,
+                    before,
                     maxagecache);
         } else {
             return Response.ok(new FeatureCollection()).build();
@@ -477,8 +490,12 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
     protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request, boolean flat) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
+        Search searchRequest  = (Search)request.basicRequest;
         FeatureCollection fc = new FeatureCollection();
-        SearchHit[] results = searchHits.getHits();
+        List<SearchHit>results= Arrays.asList(searchHits.getHits());
+        if(searchRequest.page != null && searchRequest.page.before != null ){
+            Collections.reverse(results);
+        }
         for (SearchHit hit : results) {
             Feature feature = new Feature();
             Map<String, Object> source = hit.getSourceAsMap();

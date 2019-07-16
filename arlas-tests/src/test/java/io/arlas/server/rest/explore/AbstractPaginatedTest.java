@@ -176,6 +176,19 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
                 .body("links.self",notNullValue())
                 .statusCode(200).extract();
 
+        /** This request will use 'before' param using links.previous of the third response (with a size = 1) ==> the first hit id will be id_1*/
+        HashMap thirdBodyPrevious = thirdResponse.path("links.previous.body");
+        String thirdResponsePreviousHref = thirdResponse.path("links.previous.href");
+        Search searchPreviousFromLink = objectMapper.convertValue(thirdBodyPrevious,Search.class);
+        givenFilterableRequestBody()
+                .body(handlePostRequest(searchPreviousFromLink))
+                .when().post(thirdResponsePreviousHref)
+                .then()
+                .body("hits[0].data.id", equalTo(id_1))
+                .body("links.next",notNullValue())
+                .body("links.self",notNullValue())
+                .statusCode(200).extract();
+
         /** We go now to the last page by applying a size = 595. 'link.next' should be null */
         HashMap lastRequestBody = thirdResponse.path("links.next.body");
         String lastHref = thirdResponse.path("links.next.href");
@@ -188,6 +201,59 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
                 .body("links.next",nullValue())
                 .body("links.self",notNullValue())
                 .statusCode(200);
+    }
+
+    @Test
+    public void testPOSTLinkSearchAfterGeoSort() throws Exception {
+        search.page.sort = "geodistance:10.0 10.0,id";
+        search.page.size = 3;
+        RequestSpecification requestWithIdInSort = givenFilterableRequestBody();
+        ExtractableResponse firstResponse = requestWithIdInSort.body(handlePostRequest(search))
+                .when().post(getUrlPath("geodata"))
+                .then()
+                .body("links.next",notNullValue())
+                .body("links.self",notNullValue())
+                .extract();
+        String id_0 = firstResponse.path("hits[0].data.id");
+        String id_1 = firstResponse.path("hits[1].data.id");
+
+
+        /** Second request fetches one document which id is 'id_0'. It returns the links 'next' to use in the third request **/        search.page.sort = "geodistance:10.0 10.0,id";
+        search.page.size = 1;
+        RequestSpecification secondRequest = givenFilterableRequestBody();
+        ExtractableResponse secondResponse = secondRequest.body(handlePostRequest(search))
+                .when().post(getUrlPath("geodata"))
+                .then()
+                .body("hits[0].data.id", equalTo(id_0))
+                .extract();
+
+        /** Third request will use 'after' param using links.next of the second response (with a size = 1) ==> the first hit id will be id_1*/
+        HashMap data = secondResponse.path("links.next.body");
+        String href = secondResponse.path("links.next.href");
+        ObjectMapper objectMapper = new ObjectMapper();
+        Search searchFromLink = objectMapper.convertValue(data,Search.class);
+        ExtractableResponse thirdResponse = givenFilterableRequestBody()
+                .body(handlePostRequest(searchFromLink))
+                .when().post(href)
+                .then()
+                .body("hits[0].data.id", equalTo(id_1))
+                .body("links.next",notNullValue())
+                .body("links.self",notNullValue())
+                .statusCode(200).extract();
+
+        /** Fourth request will use 'before' param using links.previous  of the third response (with a size = 1) ==> the first hit id will be id_0*/
+        HashMap dataPrevious = thirdResponse.path("links.previous.body");
+        String hrefPreivous = thirdResponse.path("links.previous.href");
+        Search searchFromLinkPrevious = objectMapper.convertValue(dataPrevious,Search.class);
+        givenFilterableRequestBody()
+                .body(handlePostRequest(searchFromLinkPrevious))
+                .when().post(hrefPreivous)
+                .then()
+                .body("hits[0].data.id", equalTo(id_0))
+                .body("links.next",notNullValue())
+                .body("links.self",notNullValue())
+                .statusCode(200).extract();
+
     }
 
     @Test
@@ -270,6 +336,16 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
                 .body("links.next",notNullValue())
                 .statusCode(200).extract();
 
+        /** This request will use 'before' param using links.previous of the third response (with a size = 1) ==> the first hit id will be id_1*/
+
+        String hrefPrevious = thirdResponse.path("links.previous.href");
+        givenFilterableRequestBody().urlEncodingEnabled(true)
+                .when().get(URLDecoder.decode(hrefPrevious,"UTF-8"))
+                .then()
+                .body("hits[0].data.id", equalTo(id_1))
+                .body("links.next",notNullValue())
+                .statusCode(200).extract();
+
         /** We go now to the last page by applying a size = 595. 'link.next' should be null */
         String lastId = thirdResponse.path("hits[0].data.id");
         String lastDate = thirdResponse.path("hits[0].data.params.startdate").toString();
@@ -283,6 +359,56 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
                 .body("links.next",nullValue())
                 .body("links.self",notNullValue())
                 .statusCode(200);
+    }
+
+    @Test
+    public void testGETLinkSearchAfterGeoSort() throws Exception {
+
+
+        /** Test sort with md.id field  ==> link.next is not null
+         *  The following request will allow us to apply `after` parameter for the next requests */
+        search.page.sort = "geodistance:10.0 10.0,id";
+        search.page.size = 3;
+        RequestSpecification requestWithIdInSort = givenFilterableRequestBody();
+        ExtractableResponse firstResponse = requestWithIdInSort
+                .param("sort", search.page.sort)
+                .param("size", search.page.size)
+                .when().get(getUrlPath("geodata"))
+                .then()
+                .body("links.next",notNullValue())
+                .body("links.self",notNullValue())
+                .extract();
+
+        String id_0 = firstResponse.path("hits[0].data.id");
+        String id_1 = firstResponse.path("hits[1].data.id");
+
+        /** Second request fetches one document which id is 'id_0'. It returns the links 'next' to use in the third request **/        search.page.size = 1;
+        ExtractableResponse secondResponse = givenFilterableRequestBody()
+                .param("sort", search.page.sort)
+                .param("size", search.page.size)
+                .when().get(getUrlPath("geodata"))
+                .then()
+                .body("hits[0].data.id", equalTo(id_0))
+                .extract();
+
+        /** Third request will use 'after' param using links.next of the second response (with a size = 1) ==> the first hit id will be id_1*/
+        String href = secondResponse.path("links.next.href");
+        ExtractableResponse thirdResponse  = givenFilterableRequestBody().urlEncodingEnabled(true)
+                .when().get(URLDecoder.decode(href,"UTF-8"))
+                .then()
+                .body("hits[0].data.id", equalTo(id_1))
+                .body("links.next",notNullValue())
+                .statusCode(200).extract();
+
+        /** This request will use 'before' param using links.previous of the third response (with a size = 1) ==> the first hit id will be id_1*/
+
+        String hrefPrevious = thirdResponse.path("links.previous.href");
+        givenFilterableRequestBody().urlEncodingEnabled(true)
+                .when().get(URLDecoder.decode(hrefPrevious,"UTF-8"))
+                .then()
+                .body("hits[0].data.id", equalTo(id_0))
+                .body("links.next",notNullValue())
+                .statusCode(200).extract();
     }
 
 
