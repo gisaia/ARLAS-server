@@ -63,9 +63,7 @@ public class Documentation {
             "\n \n" +
             "> __**Example**__: *sort=`-date,id` & **after**=`01/02/2019,abcd1234`*. Gets the following hits of the previous search that stopped at date *01/02/2019* and id *abcd1234*." +
             "\n \n" +
-            "> __**Restriction 2**__: **sort** param cannot include *geodistance* sort." +
-            "\n \n" +
-            "> __**Restriction 3**__: **from** param must be set to 0 or kept unset" +
+            "> __**Restriction 2**__: **from** param must be set to 0 or kept unset" +
             "\n \n";
     public static final String FILTER_PARAM_F = "- A triplet for filtering the result. Multiple filter can be provided in distinct parameters (AND operator is applied) or in the same parameter separated by semi-colons (OR operator is applied). " +
             "The order does not matter. " +
