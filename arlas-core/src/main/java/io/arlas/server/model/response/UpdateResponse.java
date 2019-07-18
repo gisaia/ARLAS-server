@@ -17,8 +17,28 @@
  * under the License.
  */
 
-package io.arlas.server.model.enumerations;
+package io.arlas.server.model.response;
 
-public enum Action {
-    ADD, REMOVE, REMOVEALL;
+import io.arlas.server.model.enumerations.Action;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class UpdateResponse {
+    public List<Failure> failures = new ArrayList<>();
+    public long failed = 0;
+    public long updated = 0;
+    public Action action;
+
+    public static class Failure{
+        public String id;
+        public String message;
+        public String type;
+        public  Failure(){}
+        public  Failure(String id, String message, String type){
+            this.id = id;
+            this.message = message;
+            this.type = type;
+        }
+    }
 }

@@ -1,3 +1,4 @@
+
 /*
  * Licensed to Gisaïa under one or more contributor
  * license agreements. See the NOTICE.txt file distributed with
@@ -17,8 +18,10 @@
  * under the License.
  */
 
-package io.arlas.server.model.enumerations;
+package io.arlas.server.model.request;
 
-public enum Action {
-    ADD, REMOVE, REMOVEALL;
+public class TagRequest {
+
+    public Search search;
+    public Tag tag;
 }

@@ -70,6 +70,7 @@ docker run -ti -d \
 | ARLAS_SERVICE_WFS_ENABLE    | arlas-service-wfs-enabled    | false     | Whether the WFS service is enabled or not |
 | ARLAS_SERVICE_OPENSEARCH_ENABLE    | arlas-service-opensearch-enabled    | true     | Whether the opensearch service is enabled or not |
 | ARLAS_SERVICE_CSW_ENABLE    | arlas-service-csw-enabled    | true     | Whether the CSW service is enabled or not |
+| ARLAS_SERVICE_TAG_ENABLE    | arlas-service-tag-enabled    | false     | Whether the tag service is enabled or not |
 | ARLAS_SERVICE_RASTER_TILES_ENABLE    | arlas-service-raster-tiles-enabled    | false     | Whether the RASTER tile service is enabled or not |
 
 

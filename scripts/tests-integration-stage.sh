@@ -62,6 +62,7 @@ function start_stack() {
 function test_rest() {
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
+    export ARLAS_SERVICE_TAG_ENABLE=true
     export ARLAS_SERVICE_WFS_ENABLE=true
     export ARLAS_INSPIRE_ENABLED=true
     export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
@@ -76,6 +77,7 @@ function test_rest() {
         -e ARLAS_PORT="9999" \
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_SERVICE_TAG_ENABLE=${ARLAS_SERVICE_TAG_ENABLE} \
         -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED=true}\
         -e ARLAS_SERVICE_RASTER_TILES_ENABLE=${ARLAS_SERVICE_RASTER_TILES_ENABLE} \
         -e ARLAS_TILE_URL=${ARLAS_TILE_URL} \

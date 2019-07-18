@@ -50,7 +50,9 @@ import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
 import io.arlas.server.rest.plugins.eo.TileRESTService;
+import io.arlas.server.rest.tag.TagRESTService;
 import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.UpdateServices;
 import io.arlas.server.task.CollectionAutoDiscover;
 import io.arlas.server.utils.ElasticNodesInfo;
 import io.arlas.server.utils.PrettyPrintFilter;
@@ -137,6 +139,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         }
 
         ExploreServices exploration = new ExploreServices(client, configuration);
+        UpdateServices updateServices = new UpdateServices(client, configuration);
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
         environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         environment.jersey().register(MultiPartFeature.class);
@@ -197,6 +200,13 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             environment.jersey().register(new CSWService(client, cswHandler, configuration));
         } else {
             LOGGER.info("CSW Service disabled");
+        }
+
+        if(configuration.arlasServiceTagEnabled){
+            LOGGER.info("Tag Service enabled");
+            environment.jersey().register(new TagRESTService(updateServices));
+        }else{
+            LOGGER.info("Tag Service disabled");
         }
 
         if(configuration.arlasServiceRasterTileEnabled){

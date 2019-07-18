@@ -17,8 +17,9 @@
  * under the License.
  */
 
-package io.arlas.server.model.enumerations;
+package io.arlas.server.model.request;
 
-public enum Action {
-    ADD, REMOVE, REMOVEALL;
+public class Tag {
+    public String path;
+    public Object value;
 }

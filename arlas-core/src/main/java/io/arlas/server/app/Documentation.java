@@ -301,4 +301,8 @@ public class Documentation {
 
     public static final String RANGE_OPERATION = "Calculates the min and max values of a field in the collection, given the filters";
     public static final String RANGE_FIELD = "The field whose range is calculated";
+
+    public static final String TAG_OPERATION=   "Search and tag the elements found in the collection, given the filters";
+    public static final String UNTAG_OPERATION=   "Search and untag the elements found in the collection, given the filters";
+
 }
