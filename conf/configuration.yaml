@@ -16,6 +16,7 @@ arlas-service-explore-enabled: ${ARLAS_SERVICE_EXPLORE_ENABLE:-true}
 arlas-service-opensearch-enabled: ${ARLAS_SERVICE_OPENSEARCH_ENABLE:-true}
 arlas-service-wfs-enabled: ${ARLAS_SERVICE_WFS_ENABLE:-false}
 arlas-service-csw-enabled: ${ARLAS_SERVICE_CSW_ENABLE:-false}
+arlas-service-tag-enabled: ${ARLAS_SERVICE_TAG_ENABLE:-false}
 arlas-service-raster-tiles-enabled: ${ARLAS_SERVICE_RASTER_TILES_ENABLE:-true}
 
 ########################################################
@@ -136,16 +137,3 @@ arlas-inspire:
 ########################################################
 opensearch:
   url-template-prefix: ${ARLAS_OPENSEARCH_URL_TEMPLATE:-http://localhost:9999/arlas/explore/COLLECTION/_search} # If the placemark COLLECTION is specified in the url template, it will be replaced by the collection name in ARLAS server.
-
-########################################################
-############ ARLAS TAGGER                ###############
-########################################################
-arlas-tagger:
-  status-timeout: ${TAGGING_STATUS_TIMEOUT:-3600000}
-  kafka-consumer-poll-timeout: ${KAFKA_CONSUMER_POLL_TIMEOUT:-100}
-  kafka-batch-size: ${KAFKA_BATCH_SIZE:-10}
-  kafka-bootstrap-servers: ${KAFKA_BROKERS:-kafka:9092}
-  kafka-consumer-group-id-tagref-log: ${KAFKA_CONSUMER_GROUP_ID_TAGREF_LOG:-tagref_log_consumer_group}
-  kafka-consumer-group-id-execute-tags: ${KAFKA_CONSUMER_GROUP_ID_EXECUTE_TAGS:-execute_tags_consumer_group}
-  kafka-topic-tagref-log: ${KAFKA_TOPIC_TAGREF_LOG:-tagref_log}
-  kafka-topic-execute-tags: ${KAFKA_TOPIC_EXECUTE_TAGS:-execute_tags}

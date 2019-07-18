@@ -18,7 +18,6 @@
     <module>ogc-wfs</module>
     <module>arlas-server</module>
     <module>arlas-tests</module>
-    <module>arlas-tagger</module>
   </modules>
 
   <properties>

@@ -78,7 +78,7 @@ public class TagIT extends AbstractTestContext {
                 .then()
                 .statusCode(200);
 
-        Thread.currentThread().sleep(10000);
+        Thread.currentThread().sleep(5000);
 
         given()
                 .get(new SearchServiceIT().getUrlPath(CollectionTool.COLLECTION_NAME))
@@ -96,7 +96,7 @@ public class TagIT extends AbstractTestContext {
                 .then()
                 .statusCode(200);
 
-        Thread.currentThread().sleep(10000);
+        Thread.currentThread().sleep(5000);
 
         given()
                 .get(new SearchServiceIT().getUrlPath(CollectionTool.COLLECTION_NAME))
@@ -106,17 +106,16 @@ public class TagIT extends AbstractTestContext {
                 .body("hits[0].data.params.tags[0]", (equalTo("v1")))
                 .body("hits[0].data.params.tags[1]", (equalTo("v2")))
         ;
-        // No longer relevant as the tagging is now asynchronous and we cannot get this error in real time
-//        Thread.currentThread().sleep(5000);
-//        tr.tag.path="params.not.allowed.tags";
-//        given().contentType("application/json")
-//                .body(tr)
-//                .when()
-//                .post(getUrlPath(CollectionTool.COLLECTION_NAME)+TAG_SUFFIX)
-//                .then()
-//                .statusCode(400)
-//                .body("error",equalTo("io.arlas.server.exceptions.NotAllowedException"))
-//        ;
+        Thread.currentThread().sleep(5000);
+        tr.tag.path="params.not.allowed.tags";
+        given().contentType("application/json")
+                .body(tr)
+                .when()
+                .post(getUrlPath(CollectionTool.COLLECTION_NAME)+TAG_SUFFIX)
+                .then()
+                .statusCode(400)
+                .body("error",equalTo("io.arlas.server.exceptions.NotAllowedException"))
+        ;
     }
 
 
@@ -134,7 +133,7 @@ public class TagIT extends AbstractTestContext {
                 .then()
                 .statusCode(200);
 
-        Thread.currentThread().sleep(10000);
+        Thread.currentThread().sleep(5000);
 
         given()
                 .get(new SearchServiceIT().getUrlPath(CollectionTool.COLLECTION_NAME))
@@ -161,7 +160,7 @@ public class TagIT extends AbstractTestContext {
                 .then()
                 .statusCode(200);
 
-        Thread.currentThread().sleep(12000);
+        Thread.currentThread().sleep(5000);
 
         // TAG v2
         tr.tag.value = "v2";
@@ -172,7 +171,7 @@ public class TagIT extends AbstractTestContext {
                 .then()
                 .statusCode(200);
 
-        Thread.currentThread().sleep(12000);
+        Thread.currentThread().sleep(5000);
 
         // UNTAG v1
         tr.tag.value = "v1";
@@ -183,7 +182,7 @@ public class TagIT extends AbstractTestContext {
                 .then()
                 .statusCode(200);
 
-        Thread.currentThread().sleep(15000);
+        Thread.currentThread().sleep(5000);
 
         // Only v2 remains
         given()
@@ -202,7 +201,7 @@ public class TagIT extends AbstractTestContext {
                 .post(getUrlPath(CollectionTool.COLLECTION_NAME)+TAG_SUFFIX)
                 .then()
                 .statusCode(200);
-        Thread.currentThread().sleep(10000);
+        Thread.currentThread().sleep(5000);
 
         // UNTAG all
         TagRequest remove = new TagRequest();
@@ -223,18 +222,17 @@ public class TagIT extends AbstractTestContext {
                 , everyItem(nullValue()), 10, 5);
         Assert.assertTrue("hits.data.params.tags are not null", success);
 
-        // No longer relevant as the tagging is now asynchronous and we cannot get this error in real time
         // Not allowed tag
-//        Thread.currentThread().sleep(5000);
-//        tr.tag.path="params.not.allowed.tags";
-//        given().contentType("application/json")
-//                .body(tr)
-//                .when()
-//                .post(getUrlPath(CollectionTool.COLLECTION_NAME)+UNTAG_SUFFIX)
-//                .then()
-//                .statusCode(400)
-//                .body("error",equalTo("io.arlas.server.exceptions.NotAllowedException"))
-//        ;
+        Thread.currentThread().sleep(5000);
+        tr.tag.path="params.not.allowed.tags";
+        given().contentType("application/json")
+                .body(tr)
+                .when()
+                .post(getUrlPath(CollectionTool.COLLECTION_NAME)+UNTAG_SUFFIX)
+                .then()
+                .statusCode(400)
+                .body("error",equalTo("io.arlas.server.exceptions.NotAllowedException"))
+        ;
     }
 
     public <R> boolean doUntil(Function<R, Object> function, Matcher matcher, int tries, int waitseconds) throws InterruptedException {

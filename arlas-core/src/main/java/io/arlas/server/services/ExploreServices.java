@@ -65,10 +65,12 @@ public class ExploreServices {
     public static final Integer SEARCH_DEFAULT_PAGE_SIZE = 10;
     public static final Integer SEARCH_DEFAULT_PAGE_FROM = 0;
 
-    private Client client;
-    private CollectionReferenceDao daoCollectionReference;
+    protected Client client;
+    protected CollectionReferenceDao daoCollectionReference;
     private ResponseCacheManager responseCacheManager = null;
     private ArlasServerConfiguration configuration;
+
+    public ExploreServices() {}
 
     public ExploreServices(Client client, ArlasServerConfiguration configuration) {
         this.client = client;

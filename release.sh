@@ -149,7 +149,6 @@ else
 fi
 
 echo "=> Start arlas-server stack"
-export ARLAS_SERVICE_TAG_ENABLE=true
 export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
 docker-compose --project-name arlas up -d --build
 DOCKER_IP=$(docker-machine ip || echo "localhost")

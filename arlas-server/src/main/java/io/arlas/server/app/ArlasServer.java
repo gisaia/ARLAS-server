@@ -50,6 +50,7 @@ import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
 import io.arlas.server.rest.plugins.eo.TileRESTService;
+import io.arlas.server.rest.tag.TagRESTService;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.services.UpdateServices;
 import io.arlas.server.task.CollectionAutoDiscover;
@@ -201,9 +202,16 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             LOGGER.info("CSW Service disabled");
         }
 
+        if(configuration.arlasServiceTagEnabled){
+            LOGGER.info("Tag Service enabled");
+            environment.jersey().register(new TagRESTService(updateServices));
+        }else{
+            LOGGER.info("Tag Service disabled");
+        }
+
         if(configuration.arlasServiceRasterTileEnabled){
             LOGGER.info("Raster Tile Service enabled");
-            environment.jersey().register(new TileRESTService(updateServices));
+            environment.jersey().register(new TileRESTService(exploration));
         }else{
             LOGGER.info("Raster Tile Service disabled");
         }

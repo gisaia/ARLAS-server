@@ -11,15 +11,6 @@ case $i in
     DOCKER_COMPOSE_ARGS="${DOCKER_COMPOSE_ARGS} -f docker-compose-elasticsearch.yml"
     shift # past argument=value
     ;;
-    -k=*|--kafka=*)
-    export KAFKA_DATADIR="${i#*=}"
-    DOCKER_COMPOSE_ARGS="${DOCKER_COMPOSE_ARGS} -f docker-compose-kafka.yml"
-    shift # past argument=value
-    ;;
-    --tagger)
-    DOCKER_COMPOSE_ARGS="${DOCKER_COMPOSE_ARGS} -f docker-compose-tagger.yml"
-    shift # past argument with no value
-    ;;
     --build)
     BUILD_OPTS="--build"
     shift # past argument with no value
