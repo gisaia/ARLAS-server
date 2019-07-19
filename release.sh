@@ -243,8 +243,7 @@ cd ${BASEDIR}
 
 if [ "$SIMULATE" == "NO" ]; then
     echo "=> Tag arlas-server docker image"
-    docker tag arlas-server:${ARLAS_VERSION} gisaia/arlas-server:${ARLAS_VERSION}
-    docker tag arlas-server:${ARLAS_VERSION} gisaia/arlas-server:latest
+    docker tag gisaia/arlas-server:${ARLAS_VERSION} gisaia/arlas-server:latest
     echo "=> Push arlas-server docker image"
     docker push gisaia/arlas-server:${ARLAS_VERSION}
     docker push gisaia/arlas-server:latest
