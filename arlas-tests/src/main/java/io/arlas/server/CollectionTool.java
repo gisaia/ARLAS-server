@@ -20,7 +20,6 @@
 package io.arlas.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.DublinCoreElementName;
 import io.arlas.server.model.enumerations.OperatorEnum;
