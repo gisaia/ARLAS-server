@@ -1,6 +1,20 @@
 # Change Log
 
-## [v10.6.1](https://github.com/gisaia/ARLAS-server/tree/v10.6.1) (2019-05-16)
+## [v10.6.2](https://github.com/gisaia/ARLAS-server/tree/v10.6.2) (2019-07-19)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v10.6.1...v10.6.2)
+
+**New stuff:**
+
+- \_search : Allow geodistance sort along with 'after' parameter  [\#481](https://github.com/gisaia/ARLAS-server/issues/481)
+
+**Fixed bugs:**
+
+- \[tiled geosearch\]\[tiled geoaggreagte\] pwithin filter breaks due to shared borders with tiles [\#456](https://github.com/gisaia/ARLAS-server/issues/456)
+- \_search : Error 500 caused by applying a geosort along with a sort on id when returning \_next link in search response  [\#475](https://github.com/gisaia/ARLAS-server/issues/475)
+- Taggable fields can contain duplicate tags [\#266](https://github.com/gisaia/ARLAS-server/issues/266)
+
+## [v10.6.1](https://github.com/gisaia/ARLAS-server/tree/v10.6.1) (2019-05-17)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v10.6.0...v10.6.1)
 
