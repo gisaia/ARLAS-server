@@ -9,7 +9,7 @@ if  [ -z "$npmlogin"  ] ; then echo "your are not logged on npm"; exit -1; else 
 
 function clean_docker {
     echo "===> stop arlas-server stack"
-    docker-compose --project-name arlas down
+    docker-compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v
 }
 
 function clean_exit {
@@ -150,7 +150,8 @@ fi
 
 echo "=> Start arlas-server stack"
 export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
-docker-compose --project-name arlas up -d --build
+export ELASTIC_DATADIR="/tmp"
+docker-compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas up -d --build
 DOCKER_IP=$(docker-machine ip || echo "localhost")
 
 echo "=> Wait for arlas-server up and running"
@@ -162,7 +163,7 @@ i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.json -o target/tmp
 i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.yaml -o target/tmp/swagger.yaml; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 
 echo "=> Stop arlas-server stack"
-docker-compose --project-name arlas down
+docker-compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v
 
 itests() {
 	echo "=> Run integration tests with several elasticsearch versions (${ELASTIC_VERSIONS[*]})"
