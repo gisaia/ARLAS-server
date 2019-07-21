@@ -302,6 +302,7 @@ The `page` url part allows the following parameters to be specified:
 | **from**   | 0             | > 0    | An offset to start the search from. Defaults to 0. | false    |
 | **sort**   | None          | `((-?)({field} OR geodistance:{lat} {lon}))(,(-?){field})*` | Sorts the resulted hits on the given fields and/or by distance to a given point  | false (separate fields with comma in the same parameter) |
 | **after**  | None          | `{value1},{value2},...` | List of values of fields present in sort param that are used to get the following hits of a previous search | false (separate values with comma in the same parameter) |
+| **before** | None          | `{value1},{value2},...` | List of values of fields present in sort param that are used to get the precedent hits of a previous search | false (separate values with comma in the same parameter) |
 
 #### `sort` parameter
 
@@ -322,10 +323,10 @@ The `page` url part allows the following parameters to be specified:
     `sort=age,geodistance:89 179`. Resulted hits are sorted by age. For same age hits, they are sorted by the closest distance to the point (89°,179°).
 
 
-#### `after` parameter 
+#### `after` and `before` parameter
 
 !!! info "Important"
-    **after** parameter works only combined with **sort** parameter.
+    **after** and **before** parameter work only combined with **sort** parameter.
     
 !!! note "Syntax"
     `after={value1},{value2},...,{valueN} & sort={field1},{field2},...,{fieldN}`
@@ -341,7 +342,7 @@ The `page` url part allows the following parameters to be specified:
   
 !!! example "Example"
     `sort=-date,id` & `after=01/02/2019,abcd1234`. Gets the following hits of the previous search that stopped at date *01/02/2019* and id *abcd1234*.
-    
+
 ---
 ## OpenSearch
 

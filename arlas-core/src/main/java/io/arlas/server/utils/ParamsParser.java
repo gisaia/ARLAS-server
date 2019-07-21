@@ -340,12 +340,14 @@ public class ParamsParser {
         return filters.split(";");
     }
 
-    public static Page getPage(IntParam size, IntParam from, String sort, String after) throws ArlasException {
+    public static Page getPage(IntParam size, IntParam from, String sort, String after, String before) throws ArlasException {
         Page page = new Page();
         page.size = size.get();
         page.from = from.get();
         page.sort = sort;
         page.after = after;
+        page.before = before;
+
         return page;
     }
 

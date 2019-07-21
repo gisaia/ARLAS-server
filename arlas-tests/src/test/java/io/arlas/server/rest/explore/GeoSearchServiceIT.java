@@ -303,4 +303,13 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     public void testPOSTLinkSearchAfter() {
         // No next links in a geoJSON response, no need to test
     }
+    @Override
+    public void testGETLinkSearchAfterGeoSort() {
+        // No next links in a geoJSON response, no need to test
+    }
+
+    @Override
+    public void testPOSTLinkSearchAfterGeoSort() {
+        // No next links in a geoJSON response, no need to test
+    }
 }

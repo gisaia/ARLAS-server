@@ -259,28 +259,44 @@ public class CheckParams {
     }
 
     public static void checkPageAfter(Page page, String idCollectionField) throws ArlasException {
-        if (page != null && page.after != null) {
+        if(page != null && page.after != null && page.before != null){
+            throw new BadRequestException("'after' parameter cannot be used with 'before' parameter ");
+        }
+        List<String> afterList;
+        if (page != null && ( page.after != null || page.before != null)) {
+            String mode = "";
+            if(page.after != null){
+                mode="'after'";
+                afterList= Arrays.asList(page.after.split(","));
+            }else{
+                mode="'before'";
+                afterList = Arrays.asList(page.before.split(","));
+            }
+            String message = "";
             /** check compatibility between after with from*/
             if (page.from != null && page.from != 0) {
-                throw new BadRequestException("'after' parameter cannot be used if 'from' parameter is higher than 0. If you want to use 'after', please set 'from' to 0 or keep it empty");
+                message = "%s parameter cannot be used if 'from' parameter is higher than 0. If you want to use %s, please set 'from' to 0 or keep it empty";
+                throw new BadRequestException(String.format(message,mode, mode));
             }
             /** check compatibility between after and sort parameters*/
-            List<String> afterList = Arrays.asList(page.after.split(","));
             int afterSize = afterList.size();
             if (page.sort == null) {
-                throw new BadRequestException("'after' parameter cannot be used without setting 'sort' parameter.");
+                message = "%s parameter cannot be used without setting 'sort' parameter.";
+                throw new BadRequestException(String.format(message,mode));
             }
             String[] sortList = page.sort.split(",");
             int sortSize = sortList.length;
             if (afterSize != sortSize){
-                throw new BadRequestException("The number of 'after' elements must be equal to the number of 'sort' elements");
+                message = "The number of %s elements must be equal to the number of 'sort' elements";
+                throw new BadRequestException(String.format(message,mode));
             }
             String lastSortElement = sortList[sortSize-1];
             if(lastSortElement.startsWith(("-"))){
                 lastSortElement = lastSortElement.substring(1);
             }
             if(lastSortElement.compareTo(idCollectionField) != 0){
-                throw new InvalidParameterException("If 'after' parameter is set, the last element of 'sort' must be equal to {collection.params.idPath} and the corresponding value for `after` must be the one returned in {md.id}");
+                message = "If %s parameter is set, the last element of 'sort' must be equal to {collection.params.idPath} and the corresponding value for %s must be the one returned in {md.id}";
+                throw new BadRequestException(String.format(message,mode));
             }
         }
     }

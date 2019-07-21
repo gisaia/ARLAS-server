@@ -24,4 +24,5 @@ public class Page {
     public Integer from;
     public String sort;
     public String after;
+    public String before;
 }

@@ -181,6 +181,12 @@ public class TileRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "after") String after,
 
+            @ApiParam(name = "before",
+                    value = Documentation.PAGE_PARAM_BEFORE,
+                    allowMultiple = false,
+                    required = false)
+            @QueryParam(value = "before") String before,
+
             // --------------------------------------------------------
             // -----------------------  RENDERING  -----------------------
             // --------------------------------------------------------
@@ -232,7 +238,7 @@ public class TileRESTService extends ExploreRESTServices {
 
             Search search = new Search();
             search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, simplifiedGintersect, notpwithin, notgwithin, notgintersect, dateformat);
-            search.page = ParamsParser.getPage(size, from, sort, after);
+            search.page = ParamsParser.getPage(size, from, sort, after,before);
             search.projection = ParamsParser.getProjection(collectionReference.params.rasterTileURL.idPath+","+collectionReference.params.geometryPath, null);
 
             Search searchHeader = new Search();
