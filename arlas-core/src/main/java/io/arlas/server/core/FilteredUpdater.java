@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class FilteredUpdater extends FluidSearch{
 
     public FilteredUpdater(Client client) {

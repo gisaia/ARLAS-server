@@ -20,6 +20,7 @@
 
 package io.arlas.server.model.request;
 
+@Deprecated
 public class TagRequest {
 
     public Search search;

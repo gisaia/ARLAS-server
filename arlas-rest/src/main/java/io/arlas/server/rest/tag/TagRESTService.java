@@ -39,7 +39,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
-
+@Deprecated
 public class TagRESTService extends UpdateRESTServices {
 
     public TagRESTService(UpdateServices updateServices) {
@@ -49,6 +49,7 @@ public class TagRESTService extends UpdateRESTServices {
     @Timed
     @Path("/{collection}/_tag")
     @POST
+    @Deprecated
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(value = "Tag", produces = UTF8JSON, notes = Documentation.TAG_OPERATION, consumes = UTF8JSON, response = UpdateResponse.class)
@@ -102,6 +103,7 @@ public class TagRESTService extends UpdateRESTServices {
     @Timed
     @Path("/{collection}/_untag")
     @POST
+    @Deprecated
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
     @ApiOperation(value = "Untag", produces = UTF8JSON, notes = Documentation.UNTAG_OPERATION, consumes = UTF8JSON, response = UpdateResponse.class)

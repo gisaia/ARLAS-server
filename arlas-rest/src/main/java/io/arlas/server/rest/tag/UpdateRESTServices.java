@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
-
+@Deprecated
 @Path("/write")
 @Api(value = "/write")
 

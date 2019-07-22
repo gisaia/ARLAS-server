@@ -19,6 +19,7 @@
 
 package io.arlas.server.model.enumerations;
 
+@Deprecated
 public enum Action {
     ADD, REMOVE, REMOVEALL;
 }

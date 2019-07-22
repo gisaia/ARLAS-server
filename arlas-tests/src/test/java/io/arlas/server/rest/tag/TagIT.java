@@ -42,7 +42,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.nullValue;
-
+@Deprecated
 public class TagIT extends AbstractTestContext {
     private static final String TAG_SUFFIX = "/_tag";
     private static final String UNTAG_SUFFIX = "/_untag";
