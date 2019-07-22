@@ -32,6 +32,7 @@ import org.elasticsearch.client.Client;
 
 import java.io.IOException;
 
+@Deprecated
 public class UpdateServices extends ExploreServices{
 
     public enum ACTION {

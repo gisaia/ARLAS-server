@@ -19,6 +19,7 @@
 
 package io.arlas.server.model.request;
 
+@Deprecated
 public class Tag {
     public String path;
     public Object value;

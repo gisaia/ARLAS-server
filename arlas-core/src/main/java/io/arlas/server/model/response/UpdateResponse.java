@@ -24,6 +24,7 @@ import io.arlas.server.model.enumerations.Action;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class UpdateResponse {
     public List<Failure> failures = new ArrayList<>();
     public long failed = 0;

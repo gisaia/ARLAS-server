@@ -1,5 +1,9 @@
 # ARLAS Tagging API
 
+!!! info "Important"
+    The `/write` API will be externalised from ARLAS-server in the next major release. 
+    This API is now deprecated and will be replaced by a new `/tag` API in a new project : ARLAS-tagger.
+    
 This API is available for tagging `hits` in ARLAS `collections`.
 
 By tagging, we mean here adding a value to a field that is of type `Array`.
