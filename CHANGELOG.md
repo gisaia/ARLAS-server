@@ -1,5 +1,20 @@
 # Change Log
 
+## [v11.6.0](https://github.com/gisaia/ARLAS-server/tree/v11.6.0) (2019-07-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v10.6.2...v11.6.0)
+
+**New stuff:**
+
+- Add 'previous' link in search results [\#488](https://github.com/gisaia/ARLAS-server/issues/488)
+- Add 'before' parameter in \_search/\_geosearch [\#477](https://github.com/gisaia/ARLAS-server/issues/477) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Feature/fix \#477 [\#479](https://github.com/gisaia/ARLAS-server/pull/479) [[API](https://github.com/gisaia/ARLAS-server/labels/API)] ([mbarbet](https://github.com/mbarbet))
+
+**Miscellaneous:**
+
+- Deprecate /write API [\#491](https://github.com/gisaia/ARLAS-server/issues/491) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Bump Elasticsearch to 6.8.0 [\#467](https://github.com/gisaia/ARLAS-server/issues/467)
+
 ## [v10.6.2](https://github.com/gisaia/ARLAS-server/tree/v10.6.2) (2019-07-19)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v10.6.1...v10.6.2)
