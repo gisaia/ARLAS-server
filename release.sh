@@ -120,7 +120,7 @@ fi
 export ARLAS_VERSION="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_REL}"
 ARLAS_DEV_VERSION="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_DEV}"
 FULL_API_VERSION=${API_MAJOR_VERSION}"."${API_MINOR_VERSION}"."${API_PATCH_VERSION}
-DEV_API_VERSION=${API_MAJOR_VERSION}"."${API_MINOR_VERSION}"."${ARLAS_DEV}
+API_DEV_VERSION=${API_MAJOR_VERSION}"."${API_MINOR_VERSION}"."${ARLAS_DEV}
 
 echo "Release : ${ARLAS_VERSION}"
 echo "API     : ${FULL_API_VERSION}"
@@ -136,7 +136,6 @@ echo "=> Update project version"
 mvn clean
 mvn versions:set -DnewVersion=${ARLAS_VERSION}
 sed -i.bak 's/\"API_VERSION\"/\"'${FULL_API_VERSION}'\"/' arlas-rest/src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
-sed -i.bak 's/\"API_VERSION\"/\"'${FULL_API_VERSION}'\"/' conf/java/java-config.json
 sed -i.bak 's/^appVersion: .*$/appVersion: '${ARLAS_VERSION}'/' packaging/helm/arlas-server/Chart.yaml
 sed -i.bak 's/^version: .*$/version: '${ARLAS_VERSION}'/' packaging/helm/arlas-server/Chart.yaml
 
@@ -168,9 +167,9 @@ mkdir -p target/tmp || echo "target/tmp exists"
 i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.json -o target/tmp/swagger.json; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.yaml -o target/tmp/swagger.yaml; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 
-mkdir -p arlas-spec
-cp target/tmp/swagger.yaml arlas-spec
-cp target/tmp/swagger.json arlas-spec
+mkdir -p openapi
+cp target/tmp/swagger.yaml openapi
+cp target/tmp/swagger.json openapi
 
 echo "=> Stop arlas-server stack"
 docker-compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v
@@ -262,6 +261,9 @@ else echo "=> Skip docker push image"; fi
 
 if [ "$SIMULATE" == "NO" ]; then
     echo "=> Publish jars in Maven cloudsmith repo"
+    # publish the parent jar
+    mvn -N -s ${BASEDIR}/conf/maven/settings.xml deploy
+    # publish arlas-core jar
     cd ${BASEDIR}/arlas-core
     mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
     cd ${BASEDIR}
@@ -283,8 +285,8 @@ if [ "$SIMULATE" == "NO" ]; then
     git tag -d v${ARLAS_VERSION}
     git push origin :v${ARLAS_VERSION}
     echo "=> Commit release version"
-    git add arlas-spec/swagger.json
-    git add arlas-spec/swagger.yaml
+    git add openapi/swagger.json
+    git add openapi/swagger.yaml
     git commit -a -m "release version ${ARLAS_VERSION}"
     git tag v${ARLAS_VERSION}
     git push origin v${ARLAS_VERSION}
@@ -307,13 +309,12 @@ mvn versions:set -DnewVersion=${ARLAS_DEV_VERSION}-SNAPSHOT
 
 echo "=> Update REST API version in JAVA source code"
 sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' arlas-rest/src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
-sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' conf/java/java-config.json
 
 if [ "$SIMULATE" == "NO" ]; then
-    sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"'${DEV_API_VERSION}-SNAPSHOT'\"/' arlas-spec/swagger.yaml
-    sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"'${DEV_API_VERSION}-SNAPSHOT'\"/' arlas-spec/swagger.json
-    git add arlas-spec/swagger.json
-    git add arlas-spec/swagger.yaml
+    sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"'${API_DEV_VERSION}-SNAPSHOT'\"/' openapi/swagger.yaml
+    sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"'${API_DEV_VERSION}-SNAPSHOT'\"/' openapi/swagger.json
+    git add openapi/swagger.json
+    git add openapi/swagger.yaml
     git commit -a -m "development version ${ARLAS_DEV_VERSION}-SNAPSHOT"
     git push origin develop
 else echo "=> Skip git push develop"; fi

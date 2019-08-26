@@ -4,6 +4,11 @@
         https://maven.apache.org/xsd/settings-1.0.0.xsd">
     <servers>
         <server>
+            <id>io.arlas.server.parent</id>
+            <username>${env.CLOUDSMITH_LOGIN}</username>
+            <password>${env.CLOUDSMITH_API_KEY}</password>
+        </server>
+        <server>
             <id>io.arlas.server.core</id>
             <username>${env.CLOUDSMITH_LOGIN}</username>
             <password>${env.CLOUDSMITH_API_KEY}</password>
