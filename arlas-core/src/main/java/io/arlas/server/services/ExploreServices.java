@@ -26,8 +26,10 @@ import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.CollectionFunction;
+import io.arlas.server.model.enumerations.GeoTypeEnum;
 import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationMetric;
@@ -339,13 +341,18 @@ public class ExploreServices {
                         GeoJsonObject geometryGeoJson = null;
                         try {
                             CollectionReference collectionReference = getDaoCollectionReference().getCollectionReference(collection);
+                            CollectionReferenceManager.setCollectionGeometriesType(source, collectionReference);
+                            GeoTypeEnum geometryType = null;
                             Object geometry = collectionReference.params.geometryPath != null ?
                                     MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source) : null;
-                            if (geometry == null) {
+                            if (geometry != null) {
+                                geometryType = collectionReference.params.getGeometryType();
+                            } else {
                                 geometry = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
+                                geometryType = collectionReference.params.getCentroidType();
                             }
                             geometryGeoJson = geometry != null ?
-                                    GeoTypeMapper.getGeoJsonObject(geometry) : null;
+                                    GeoTypeMapper.getGeoJsonObject(geometry, geometryType) : null;
                         } catch (ArlasException e) {
                             e.printStackTrace();
                         }
@@ -485,4 +492,5 @@ public class ExploreServices {
         polygon.add(bounds);
         return polygon;
     }
+
 }

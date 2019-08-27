@@ -84,7 +84,7 @@ public class CollectionTool extends AbstractTestContext {
         params.indexName = DataSetTool.DATASET_INDEX_NAME;
         params.typeName = DataSetTool.DATASET_TYPE_NAME;
         params.idPath = DataSetTool.DATASET_ID_PATH;
-        params.geometryPath = DataSetTool.DATASET_GEOMETRY_PATH;
+        params.geometryPath = DataSetTool.WKT_GEOMETRIES ? DataSetTool.DATASET_WKT_GEOMETRY_PATH:DataSetTool.DATASET_GEOMETRY_PATH;
         params.centroidPath = DataSetTool.DATASET_CENTROID_PATH;
         params.timestampPath = DataSetTool.DATASET_TIMESTAMP_PATH;
         params.excludeFields = DataSetTool.DATASET_EXCLUDE_FIELDS;

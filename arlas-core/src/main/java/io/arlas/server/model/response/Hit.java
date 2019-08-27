@@ -22,6 +22,7 @@ package io.arlas.server.model.response;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
@@ -57,10 +58,11 @@ public class Hit {
         if (collectionReference.params.idPath != null) {
             md.id = "" + MapExplorer.getObjectFromPath(collectionReference.params.idPath, source);
         }
+        CollectionReferenceManager.setCollectionGeometriesType(source, collectionReference);
         if (collectionReference.params.centroidPath != null) {
             try {
                 Object m = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
-                md.centroid = m != null ? GeoTypeMapper.getGeoJsonObject(m) : null;
+                md.centroid = m != null ? GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getCentroidType()) : null;
             } catch (ArlasException e) {
                 e.printStackTrace();
             }
@@ -68,7 +70,7 @@ public class Hit {
         if (collectionReference.params.geometryPath != null) {
             try {
                 Object m = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
-                md.geometry = m != null ? GeoTypeMapper.getGeoJsonObject(m) : null;
+                md.geometry = m != null ? GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeometryType()) : null;
             } catch (ArlasException e) {
                 e.printStackTrace();
             }

@@ -83,6 +83,7 @@ function test_rest() {
         -e ARLAS_TILE_URL=${ARLAS_TILE_URL} \
         -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+        -e WKT_GEOMETRIES=${WKT_GEOMETRIES} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
         mvn verify -DskipTests=false
@@ -181,6 +182,7 @@ export ALIASED_COLLECTION="false"
 if [ "$STAGE" == "REST" ]; then test_rest; fi
 if [ "$STAGE" == "WFS" ]; then test_wfs; fi
 if [ "$STAGE" == "CSW" ]; then test_csw; fi
+if [ "$STAGE" == "REST_WKT_GEOMETRIES" ]; then export WKT_GEOMETRIES="true"; test_rest; fi
 if [ "$STAGE" == "REST_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_rest; fi
 if [ "$STAGE" == "WFS_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_wfs; fi
 if [ "$STAGE" == "CSW_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_csw; fi
