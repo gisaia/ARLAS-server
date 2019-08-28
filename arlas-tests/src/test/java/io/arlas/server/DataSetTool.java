@@ -100,7 +100,7 @@ public class DataSetTool {
                     .addTransportAddress(new TransportAddress(InetAddress.getByName(nodes.get(0).getLeft()), nodes.get(0).getRight()));
             adminClient = client.admin();
             ALIASED_COLLECTION = Optional.ofNullable(System.getenv("ALIASED_COLLECTION")).orElse("false").equals("true");
-            WKT_GEOMETRIES = Optional.ofNullable(System.getenv("WKT_GEOMETRIES")).orElse("false").equals("true");
+            WKT_GEOMETRIES = false;
             LOGGER.info("Load data in " + nodes.get(0).getLeft() + ":" + nodes.get(0).getRight() + " with ALIASED_COLLECTION=" + ALIASED_COLLECTION);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
@@ -115,14 +115,14 @@ public class DataSetTool {
         if(!ALIASED_COLLECTION) {
             //Create a single index with all data
             createIndex(DATASET_INDEX_NAME,"dataset.mapping.json");
-            fillIndex(DATASET_INDEX_NAME,-170,170,-80,80, WKT_GEOMETRIES);
+            fillIndex(DATASET_INDEX_NAME,-170,170,-80,80);
             LOGGER.info("Index created : " + DATASET_INDEX_NAME);
         } else {
             //Create 2 indeces, split data between them and create an alias above these 2 indeces
             createIndex(DATASET_INDEX_NAME+"_original","dataset.mapping.json");
-            fillIndex(DATASET_INDEX_NAME+"_original",-170,0,-80,80, false);
+            fillIndex(DATASET_INDEX_NAME+"_original",-170,0,-80,80);
             createIndex(DATASET_INDEX_NAME+"_alt","dataset.alternate.mapping.json");
-            fillIndex(DATASET_INDEX_NAME+"_alt",10,170,-80,80, false);
+            fillIndex(DATASET_INDEX_NAME+"_alt",10,170,-80,80);
             adminClient.indices().prepareAliases().addAlias(DATASET_INDEX_NAME+"*",DATASET_INDEX_NAME).get();
             LOGGER.info("Indeces created : " + DATASET_INDEX_NAME + "_original," + DATASET_INDEX_NAME + "_alt");
             LOGGER.info("Alias created : " + DATASET_INDEX_NAME);
@@ -138,7 +138,7 @@ public class DataSetTool {
         adminClient.indices().prepareCreate(indexName).addMapping(DATASET_TYPE_NAME, mapping, XContentType.JSON).get();
     }
 
-    private static void fillIndex(String indexName, int lonMin, int lonMax, int latMin, int latMax, boolean isWKT) throws JsonProcessingException {
+    private static void fillIndex(String indexName, int lonMin, int lonMax, int latMin, int latMax) throws JsonProcessingException {
         Data data;
         ObjectMapper mapper = new ObjectMapper();
 

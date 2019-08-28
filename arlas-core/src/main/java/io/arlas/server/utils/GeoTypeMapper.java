@@ -24,12 +24,12 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotImplementedException;
+import io.arlas.server.exceptions.ParseException;
 import io.arlas.server.model.enumerations.GeoTypeEnum;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.geojson.GeoJsonObject;
 import org.geojson.Point;
 import org.locationtech.jts.geom.*;
-import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.locationtech.jts.operation.valid.IsValidOp;
@@ -51,6 +51,7 @@ public class GeoTypeMapper {
     private static Logger LOGGER = LoggerFactory.getLogger(GeoTypeMapper.class);
     public static final String INVALID_WKT_RANGE = "Invalid WKT geometry. Coordinates out of range";
     public static final String INVALID_WKT = "Invalid WKT geometry.";
+    public static final String NOT_SUPPORTED_GEO_FORMAT = "Not supported geo_point or geo_shape format found.";
 
 
     @SuppressWarnings("rawtypes")
@@ -60,6 +61,8 @@ public class GeoTypeMapper {
 
     public static GeoJsonObject getGeoJsonObject(Object elasticsearchGeoField, GeoTypeEnum type) throws ArlasException {
         GeoJsonObject geoObject = null;
+        String parseExceptionMsg = "Unable to parse " + elasticsearchGeoField.toString() + "as valid " + type;
+        String loggerMsg = "Unable to parse " + elasticsearchGeoField.toString() + "as valid " + type + " from " + elasticsearchGeoField.getClass();
         switch (type) {
             case GEOPOINT_AS_STRING:
             case GEOHASH:
@@ -67,24 +70,24 @@ public class GeoTypeMapper {
                     GeoPoint geoPoint = new GeoPoint(elasticsearchGeoField.toString());
                     geoObject = new Point(geoPoint.getLon(), geoPoint.getLat());
                 } catch (Exception e) {
-                    LOGGER.error("unable to parse geo_point from " + elasticsearchGeoField.getClass() + " :" + elasticsearchGeoField, e);
-                    throw new NotImplementedException("Not supported geo_point format found.");
+                    LOGGER.error(loggerMsg, e);
+                    throw new ParseException(parseExceptionMsg);
                 }
                 break;
             case GEOPOINT_AS_ARRAY:
                 try {
                     geoObject = new Point(((Number) ((ArrayList) elasticsearchGeoField).get(0)).doubleValue(), ((Number) ((ArrayList) elasticsearchGeoField).get(1)).doubleValue());
                 } catch (Exception e) {
-                    LOGGER.error("unable to parse geo_point from " + elasticsearchGeoField.getClass() + " :" + elasticsearchGeoField, e);
-                    throw new NotImplementedException("Not supported geo_point format found.");
+                    LOGGER.error(loggerMsg, e);
+                    throw new ParseException(parseExceptionMsg);
                 }
                 break;
             case GEOPOINT:
                 try {
                     geoObject = new Point(((Number) ((HashMap) elasticsearchGeoField).get("lon")).doubleValue(), ((Number) ((HashMap) elasticsearchGeoField).get("lat")).doubleValue());
                 } catch (Exception e) {
-                    LOGGER.error("unable to parse geo_point from " + elasticsearchGeoField.getClass() + " :" + elasticsearchGeoField, e);
-                    throw new NotImplementedException("Not supported geo_point format found.");
+                    LOGGER.error(loggerMsg, e);
+                    throw new ParseException(parseExceptionMsg);
                 }
                 break;
             case GEOJSON:
@@ -92,8 +95,8 @@ public class GeoTypeMapper {
                 try {
                     geoObject = reader.readValue(mapper.writer().writeValueAsString(elasticsearchGeoField));
                 } catch (IOException e) {
-                    LOGGER.error("unable to parse geo_point or geo_shape from " + elasticsearchGeoField.getClass() + " :" + elasticsearchGeoField, e);
-                    throw new NotImplementedException("Not supported geo_point or geo_shape format found.");
+                    LOGGER.error(loggerMsg, e);
+                    throw new ParseException(parseExceptionMsg);
                 }
                 break;
             case WKT:
@@ -102,18 +105,15 @@ public class GeoTypeMapper {
                     Geometry g = readWKT(elasticsearchGeoField.toString());
                     geoObject = reader.readValue(geoJsonWriter.write(g));
                 } catch (IOException e) {
-                    LOGGER.error("unable to parse geo_point or geo_shape from " + elasticsearchGeoField.getClass() + " :" + elasticsearchGeoField, e);
-                    throw new NotImplementedException("Not supported geo_point or geo_shape format found.");
+                    LOGGER.error(loggerMsg, e);
+                    throw new ParseException(parseExceptionMsg);
                 }
                 break;
-            case UNKNOWN:
-                LOGGER.error("unknwon geo_point or geo_shape from " + elasticsearchGeoField.getClass() + " :" + elasticsearchGeoField);
-                throw new NotImplementedException("Not supported geo_point or geo_shape format found.");
         }
         return geoObject;
     }
 
-    public static GeoTypeEnum getGeometryType(Object geometry) {
+    public static GeoTypeEnum getGeometryType(Object geometry) throws ArlasException {
         if (geometry instanceof String) {
             if (isWkt(geometry.toString())) {
                 return GeoTypeEnum.WKT;
@@ -121,7 +121,10 @@ public class GeoTypeMapper {
                 return GeoTypeEnum.GEOPOINT_AS_STRING;
             } else if (isGeohash(geometry.toString())) {
                 return GeoTypeEnum.GEOHASH;
-            } else return GeoTypeEnum.UNKNOWN;
+            } else {
+                LOGGER.error("Unknown geo_point or geo_shape format from " + geometry.getClass() + " :" + geometry);
+                throw new NotImplementedException(NOT_SUPPORTED_GEO_FORMAT);
+            }
         } else if (geometry instanceof ArrayList  && ((ArrayList) geometry).size() == 2) {
             return GeoTypeEnum.GEOPOINT_AS_ARRAY;
         } else if (geometry instanceof HashMap) {
@@ -130,10 +133,12 @@ public class GeoTypeMapper {
             } else if (((HashMap) geometry).containsKey("lat") && ((HashMap) geometry).containsKey("lon")){
                 return GeoTypeEnum.GEOPOINT;
             } else {
-                return GeoTypeEnum.UNKNOWN;
+                LOGGER.error("Unknown geo_point or geo_shape format from " + geometry.getClass() + " :" + geometry);
+                throw new NotImplementedException(NOT_SUPPORTED_GEO_FORMAT);
             }
         } else {
-            return GeoTypeEnum.UNKNOWN;
+            LOGGER.error("Unknown geo_point or geo_shape format from " + geometry.getClass() + " :" + geometry);
+            throw new NotImplementedException(NOT_SUPPORTED_GEO_FORMAT);
         }
     }
 
@@ -142,7 +147,7 @@ public class GeoTypeMapper {
         try {
             wktReader.read(geomString);
             return true;
-        } catch (ParseException e){
+        } catch (Exception e){
             return false;
         }
     }
@@ -170,14 +175,14 @@ public class GeoTypeMapper {
             if(filteredCoord.size() != geom.getCoordinates().length){
                 throw new InvalidParameterException(INVALID_WKT_RANGE);
             }
-            IsValidOp vaildOp = new IsValidOp(geom);
-            TopologyValidationError err = vaildOp.getValidationError();
+            IsValidOp validOp = new IsValidOp(geom);
+            TopologyValidationError err = validOp.getValidationError();
             if (err != null)
             {
-                throw new InvalidParameterException(INVALID_WKT);
+                throw new InvalidParameterException(INVALID_WKT + ": " + err.getMessage());
             }
-        } catch (ParseException ex) {
-            throw new InvalidParameterException(INVALID_WKT);
+        } catch (org.locationtech.jts.io.ParseException ex) {
+            throw new InvalidParameterException(INVALID_WKT + ": " + ex.getMessage());
         }
         return geom;
     }

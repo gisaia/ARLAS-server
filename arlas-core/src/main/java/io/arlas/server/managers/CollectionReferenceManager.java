@@ -19,13 +19,14 @@
 
 package io.arlas.server.managers;
 
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 
 public class CollectionReferenceManager {
 
-    public static void setCollectionGeometriesType(Object source, CollectionReference collectionReference) {
+    public static void setCollectionGeometriesType(Object source, CollectionReference collectionReference) throws ArlasException {
         if (collectionReference.params.getGeometryType() == null) {
             Object geometry = collectionReference.params.geometryPath != null ?
                     MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source) : null;

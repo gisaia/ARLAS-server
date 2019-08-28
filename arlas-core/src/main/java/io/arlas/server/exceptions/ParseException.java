@@ -17,17 +17,26 @@
  * under the License.
  */
 
-package io.arlas.server.model.enumerations;
+package io.arlas.server.exceptions;
 
-public enum GeoTypeEnum {
-    GEOPOINT("GeoPoint"),
-    GEOPOINT_AS_STRING("GeoPointAsString"),
-    GEOPOINT_AS_ARRAY("GeoPointAsArray"),
-    GEOJSON("Geojson"),
-    GEOHASH("Geohash"),
-    WKT("WKT");
+import javax.ws.rs.core.Response;
 
-    private final String value;
+public class ParseException extends ArlasException {
 
-    GeoTypeEnum(String v) { value = v; }
+    private static final long serialVersionUID = 1L;
+
+    public ParseException() {
+        super();
+        status  = Response.Status.INTERNAL_SERVER_ERROR;
+    }
+
+    public ParseException(String message) {
+        super(message);
+        status  = Response.Status.INTERNAL_SERVER_ERROR;
+    }
+
+    public ParseException(String message, Throwable cause) {
+        super(message, cause);
+        status  = Response.Status.INTERNAL_SERVER_ERROR;
+    }
 }

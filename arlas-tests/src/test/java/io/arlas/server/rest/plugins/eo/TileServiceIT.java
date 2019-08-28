@@ -62,12 +62,20 @@ public class TileServiceIT extends AbstractTestContext {
         data.params.stopdate = 1l * (i + 1000) * (j + 1000) + 100;
         data.geo_params.centroid = j + "," + i;
         List<LngLatAlt> coords = new ArrayList<>();
+        String wktGeometry = "POLYGON ((";
         coords.add(new LngLatAlt(i - 1, j + 1));
+        wktGeometry += (i - 1) + " " + (j + 1) + ",";
         coords.add(new LngLatAlt(i + 1, j + 1));
+        wktGeometry += " " + (i + 1) + " " + (j + 1) + ",";
         coords.add(new LngLatAlt(i + 1, j - 1));
+        wktGeometry += " " + (i + 1) + " " + (j - 1) + ",";
         coords.add(new LngLatAlt(i - 1, j - 1));
+        wktGeometry += " " + (i - 1) + " " + (j - 1) + ",";
         coords.add(new LngLatAlt(i - 1, j + 1));
+        wktGeometry += " " + (i - 1) + " " + (j + 1) + "))";
+
         data.geo_params.geometry = new Polygon(coords);
+        data.geo_params.wktgeometry = wktGeometry;
         String indexName=DataSetTool.ALIASED_COLLECTION?DataSetTool.DATASET_INDEX_NAME+"_original":DataSetTool.DATASET_INDEX_NAME;
         DataSetTool.client.prepareIndex(indexName, DataSetTool.DATASET_TYPE_NAME, "ES_ID_TEST" + data.id)
                 .setSource(mapper.writer().writeValueAsString(data), XContentType.JSON)

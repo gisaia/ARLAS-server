@@ -19,16 +19,26 @@
 
 package io.arlas.server.utils;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotImplementedException;
+import io.arlas.server.managers.CollectionReferenceManager;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.enumerations.GeoTypeEnum;
 import org.apache.lucene.geo.Rectangle;
 import org.elasticsearch.common.geo.GeoHashUtils;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geojson.GeoJsonObject;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 
 public class GeoTileUtil {
 
@@ -39,7 +49,7 @@ public class GeoTileUtil {
     }
 
     public static Polygon toPolygon(BoundingBox bbox){
-        return (Polygon)geoFactory.toGeometry(new ReferencedEnvelope(bbox.east, bbox.west, bbox.north, bbox.south, DefaultGeographicCRS.WGS84));
+        return (Polygon)geoFactory.toGeometry(new Envelope(bbox.east, bbox.west, bbox.north, bbox.south));
     }
 
     public static BoundingBox getBoundingBox(final String geohash) throws ArlasException {
@@ -130,5 +140,21 @@ public class GeoTileUtil {
 
     public static Tile getTile(final double lat, final double lon, final int zoom) throws ArlasException {
         return new Tile(getXTile(lat, lon, zoom), getYTile(lat, lon, zoom), zoom);
+    }
+
+    public static Geometry getGeometryFromSource(Object source, CollectionReference collectionReference) throws ArlasException, JsonProcessingException, ParseException {
+        CollectionReferenceManager.setCollectionGeometriesType(source, collectionReference);
+        Geometry geometry = null;
+        Object geoJsonObject = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
+        if (geoJsonObject != null) {
+            if (collectionReference.params.getGeometryType().equals(GeoTypeEnum.WKT)) {
+                geometry = GeoTypeMapper.readWKT(geoJsonObject.toString());
+            } else {
+                GeoJsonReader reader = new GeoJsonReader();
+                ObjectWriter writer = new ObjectMapper().writer();
+                geometry = reader.read(writer.writeValueAsString(geoJsonObject));
+            }
+        }
+        return geometry;
     }
 }
