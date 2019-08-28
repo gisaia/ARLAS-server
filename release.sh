@@ -111,12 +111,17 @@ if [ -z ${ARLAS_DEV+x} ]; then usage;          else    echo "Next development ve
 if [ "$SIMULATE" == "NO" ]; then
     if  [ -z "$PIP_LOGIN"  ] ; then echo "Please set PIP_LOGIN environment variable"; exit -1; fi
     if  [ -z "$PIP_PASSWORD"  ] ; then echo "Please set PIP_PASSWORD environment variable"; exit -1; fi
+
+    if  [ -z "$CLOUDSMITH_LOGIN"  ] ; then echo "Please set CLOUDSMITH_LOGIN environment variable"; exit -1; fi
+    if  [ -z "$CLOUDSMITH_API_KEY"  ] ; then echo "Please set CLOUDSMITH_API_KEY environment variable"; exit -1; fi
 fi
 
 
 export ARLAS_VERSION="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_REL}"
 ARLAS_DEV_VERSION="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_DEV}"
 FULL_API_VERSION=${API_MAJOR_VERSION}"."${API_MINOR_VERSION}"."${API_PATCH_VERSION}
+API_DEV_VERSION=${API_MAJOR_VERSION}"."${API_MINOR_VERSION}"."${ARLAS_DEV}
+
 echo "Release : ${ARLAS_VERSION}"
 echo "API     : ${FULL_API_VERSION}"
 echo "Dev     : ${ARLAS_DEV_VERSION}"
@@ -161,6 +166,10 @@ echo "=> Get swagger documentation"
 mkdir -p target/tmp || echo "target/tmp exists"
 i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.json -o target/tmp/swagger.json; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.yaml -o target/tmp/swagger.yaml; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
+
+mkdir -p openapi
+cp target/tmp/swagger.yaml openapi
+cp target/tmp/swagger.json openapi
 
 echo "=> Stop arlas-server stack"
 docker-compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v
@@ -249,6 +258,17 @@ if [ "$SIMULATE" == "NO" ]; then
     docker push gisaia/arlas-server:latest
 else echo "=> Skip docker push image"; fi
 
+
+if [ "$SIMULATE" == "NO" ]; then
+    echo "=> Publish jars in Maven cloudsmith repo"
+    # publish the parent jar
+    mvn -N -s ${BASEDIR}/conf/maven/settings.xml deploy
+    # publish arlas-core jar
+    cd ${BASEDIR}/arlas-core
+    mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
+    cd ${BASEDIR}
+else echo "=> Skip pushing jars in maven repo"; fi
+
 if [ "$SIMULATE" == "NO" ]; then
     echo "=> Generate CHANGELOG.md"
     git tag v${ARLAS_VERSION}
@@ -265,6 +285,8 @@ if [ "$SIMULATE" == "NO" ]; then
     git tag -d v${ARLAS_VERSION}
     git push origin :v${ARLAS_VERSION}
     echo "=> Commit release version"
+    git add openapi/swagger.json
+    git add openapi/swagger.yaml
     git commit -a -m "release version ${ARLAS_VERSION}"
     git tag v${ARLAS_VERSION}
     git push origin v${ARLAS_VERSION}
@@ -289,6 +311,10 @@ echo "=> Update REST API version in JAVA source code"
 sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' arlas-rest/src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
 
 if [ "$SIMULATE" == "NO" ]; then
+    sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"'${API_DEV_VERSION}-SNAPSHOT'\"/' openapi/swagger.yaml
+    sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"'${API_DEV_VERSION}-SNAPSHOT'\"/' openapi/swagger.json
+    git add openapi/swagger.json
+    git add openapi/swagger.yaml
     git commit -a -m "development version ${ARLAS_DEV_VERSION}-SNAPSHOT"
     git push origin develop
 else echo "=> Skip git push develop"; fi

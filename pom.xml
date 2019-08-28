@@ -8,6 +8,17 @@
   <packaging>pom</packaging>
   <name>ARLAS server parent</name>
 
+  <distributionManagement>
+    <snapshotRepository>
+      <id>io.arlas.server.parent</id>
+      <url>https://maven.cloudsmith.io/gisaia/public/</url>
+    </snapshotRepository>
+    <repository>
+      <id>io.arlas.server.parent</id>
+      <url>https://maven.cloudsmith.io/gisaia/public/</url>
+    </repository>
+  </distributionManagement>
+
   <modules>
     <module>arlas-core</module>
     <module>arlas-admin</module>
@@ -157,14 +168,6 @@
             <swagger2markup.extensions.dynamicSecurity.contentPath>${project.basedir}src/docs/asciidoc/extensions/security</swagger2markup.extensions.dynamicSecurity.contentPath>
           </config>
         </configuration>
-        <executions>
-          <execution>
-            <phase>deploy</phase>
-            <goals>
-              <goal>convertSwagger2markup</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>
@@ -190,14 +193,6 @@
             <swagger2markup.markupLanguage>MARKDOWN</swagger2markup.markupLanguage>
           </config>
         </configuration>
-        <executions>
-          <execution>
-            <phase>deploy</phase>
-            <goals>
-              <goal>convertSwagger2markup</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
