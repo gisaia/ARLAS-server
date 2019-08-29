@@ -31,7 +31,6 @@ docker run --rm \
         && (mkdir /opt/maven/target/generated-docs || echo "target/generated-docs exists") \
         && (cp -r /opt/maven/docs/* /opt/maven/target/generated-docs)'
 docker run --rm \
-    --net arlas_default \
     -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	--entrypoint sh \
