@@ -207,55 +207,6 @@ curl -X POST \
     ```
     There is 16 airports in our data set.
     
-### Count Distinct
-
-`_countDistinct` service counts the number of distinct values of a given field, given the filters
-
-##### Example
-
-In our data set, all airports have a `country` field. Assuming you want to know the number of countries of all the airports combined, ou can use the `_countDistinct` service:
-
-> **GET** `/explore/{collection}/_countDistinct`
-
-```shell
-curl -X GET \
-  --header 'Accept: application/json' \
-  'http://localhost:9999/arlas/explore/airport_collection/_countDistinct?field=country&pretty=true'
-```
-
-> **POST** `/explore/{collection}/_count`
-
-```shell
-curl -X POST \
-  --header 'Content-Type: application/json;charset=utf-8' \
-  --header 'Accept: application/json' \
-  'http://localhost:9999/arlas/explore/airport_collection/_countDistinct?pretty=true' \
-  --data @requests/countDistinctParameters.json
-```
-
-!!! note "Note"
-    In `countDistinctParameters.json` is defined the field :
-    ```json
-            {
-              "field": "country",
-              "form": {
-                "pretty": true
-              }
-            }
-    ```
-
-!!! success "Response"
-    ```json
-            {
-              "total_time" : 9,
-              "totalnb" : 140,
-              "field" : "country",
-              "value" : 4
-            }
-    ```
-     All the airports of our data set are within 4 countries.
-
-    
 ### Search - GeoSearch
 
 The `_search` and `_geosearch` services return the elements found in the collection, given the filters. Both services take the same
