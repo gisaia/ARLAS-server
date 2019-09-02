@@ -18,6 +18,7 @@ services:
       - ARLAS_SERVICE_CSW_ENABLE="${ARLAS_SERVICE_CSW_ENABLE:-false}"
       - ARLAS_SERVICE_TAG_ENABLE="${ARLAS_SERVICE_TAG_ENABLE:-false}"
       - ARLAS_SERVICE_RASTER_TILES_ENABLE="${ARLAS_SERVICE_RASTER_TILES_ENABLE:-false}"
+      - ARLAS_AUTH_ENABLED="${ARLAS_AUTH_ENABLED:-false}"
     ports:
       - 19999:9999
     command: ["/opt/app/wait-for-elasticsearch.sh"]

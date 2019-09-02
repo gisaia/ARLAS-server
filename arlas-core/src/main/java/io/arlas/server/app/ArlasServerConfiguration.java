@@ -28,8 +28,6 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -111,6 +109,9 @@ public class ArlasServerConfiguration extends Configuration {
 
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
+
+    @JsonProperty("arlas-auth")
+    public ArlasAuthConfiguration arlasAuthConfiguration;
 
     public static final String FLATTEN_CHAR = "_";
 
@@ -216,6 +217,10 @@ public class ArlasServerConfiguration extends Configuration {
         if(collectionAutoDiscoverConfiguration == null) {
             collectionAutoDiscoverConfiguration = new CollectionAutoDiscoverConfiguration();
             collectionAutoDiscoverConfiguration.schedule = 0;
+        }
+        if (arlasAuthConfiguration == null) {
+            arlasAuthConfiguration = new ArlasAuthConfiguration();
+            arlasAuthConfiguration.enabled = false;
         }
     }
 }

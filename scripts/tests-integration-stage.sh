@@ -62,6 +62,7 @@ function start_stack() {
 function test_rest() {
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
+    export ARLAS_AUTH_ENABLED=false
     export ARLAS_SERVICE_TAG_ENABLE=true
     export ARLAS_SERVICE_WFS_ENABLE=true
     export ARLAS_INSPIRE_ENABLED=true
@@ -85,13 +86,44 @@ function test_rest() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
-        mvn verify -DskipTests=false
+        mvn "-Dit.test=*,!AuthServiceIT,!CollectionTool" verify -DskipTests=false -DfailIfNoTests=false
+}
+
+function test_auth() {
+    export ARLAS_PREFIX="/arlastest"
+    export ARLAS_APP_PATH="/pathtest"
+    export ARLAS_AUTH_ENABLED=true
+    export ARLAS_SERVICE_TAG_ENABLE=false
+    export ARLAS_SERVICE_WFS_ENABLE=false
+    export ARLAS_INSPIRE_ENABLED=false
+    export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
+    export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"
+    export ARLAS_TILE_URL="jar:file:///opt/app/arlas-server.jar!/{id}/{z}/{x}/{y}.png"
+    start_stack
+    docker run --rm \
+        -w /opt/maven \
+        -v $PWD:/opt/maven \
+        -v $HOME/.m2:/root/.m2 \
+        -e ARLAS_HOST="arlas-server" \
+        -e ARLAS_PORT="9999" \
+        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_SERVICE_TAG_ENABLE=${ARLAS_SERVICE_TAG_ENABLE} \
+        -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED=true}\
+        -e ARLAS_SERVICE_RASTER_TILES_ENABLE=${ARLAS_SERVICE_RASTER_TILES_ENABLE} \
+        -e ARLAS_TILE_URL=${ARLAS_TILE_URL} \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+        --net arlas_default \
+        maven:3.5.0-jdk-8 \
+        mvn -Dit.test=AuthServiceIT verify -DskipTests=false -DfailIfNoTests=false
 }
 
 function test_wfs() {
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
     export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"
+    export ARLAS_AUTH_ENABLED=false
     export ARLAS_SERVICE_WFS_ENABLE=true
     export ARLAS_INSPIRE_ENABLED=true
     start_stack
@@ -133,6 +165,7 @@ function test_wfs() {
 
 
 function test_csw() {
+    export ARLAS_AUTH_ENABLED=false
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
     export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"
@@ -185,3 +218,4 @@ if [ "$STAGE" == "REST_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_r
 if [ "$STAGE" == "WFS_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_wfs; fi
 if [ "$STAGE" == "CSW_ALIASED" ]; then export ALIASED_COLLECTION="true"; test_csw; fi
 if [ "$STAGE" == "DOC" ]; then test_doc; fi
+if [ "$STAGE" == "AUTH" ]; then test_auth; fi

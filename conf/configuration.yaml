@@ -137,3 +137,11 @@ arlas-inspire:
 ########################################################
 opensearch:
   url-template-prefix: ${ARLAS_OPENSEARCH_URL_TEMPLATE:-http://localhost:9999/arlas/explore/COLLECTION/_search} # If the placemark COLLECTION is specified in the url template, it will be replaced by the collection name in ARLAS server.
+
+########################################################
+############ AUTHENTICATION              ###############
+########################################################
+arlas-auth:
+  enabled: ${ARLAS_AUTH_ENABLED:-false}
+  publicUris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger,swagger.json}]
+  loginUrl: ${ARLAS_AUTH_LOGIN_URL:-}
