@@ -29,6 +29,11 @@ public class RuleClaim implements Comparable {
         this.priority = priority;
     }
 
+    public RuleClaim withResource(String r) {
+        this.resource = r;
+        return this;
+    }
+
     public boolean match(String method, String path) {
         return this.verbs.contains(method.toLowerCase()) && path.matches(this.resource);
     }
