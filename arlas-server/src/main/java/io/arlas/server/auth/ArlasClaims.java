@@ -28,10 +28,12 @@ public class ArlasClaims {
     private final Logger LOGGER = LoggerFactory.getLogger(ArlasClaims.class);
     private List<RuleClaim> rules;
     private Map<String, String> headers;
+    private Map<String, String> variables;
 
     public ArlasClaims(List<String> claims) {
         this.rules = new ArrayList<>();
         this.headers = new HashMap<>();
+        this.variables = new HashMap<>();
 
         for (String claim : claims) {
             String[] splitClaim = claim.split(":");
@@ -46,6 +48,9 @@ public class ArlasClaims {
                     case "header":
                         headers.put(splitClaim[1], splitClaim[2]);
                         break;
+                    case "variable":
+                        variables.put(splitClaim[1], splitClaim[2]);
+                        break;
                     default:
                         LOGGER.warn("Unknown claim format: " + claim);
                 }
@@ -53,7 +58,9 @@ public class ArlasClaims {
                 LOGGER.warn("Skipping invalid claim format: " + claim);
             }
         }
+
         Collections.sort(rules);
+        variables.forEach((var,val) -> injectVariable(var,val));
     }
 
     public boolean isAllowed(String method, String path) {
@@ -67,5 +74,14 @@ public class ArlasClaims {
 
     public void injectHeaders(MultivaluedMap<String, String> requestHeaders) {
         headers.forEach((k,v) -> requestHeaders.add(k, v));
+    }
+
+    private void injectVariable(String var, String val) {
+        rules.replaceAll(rc -> rc.withResource(replaceVar(rc.resource, var, val)));
+        headers.replaceAll((header, value) -> replaceVar(value, var, val));
+    }
+
+    private String replaceVar(String original, String var, String val) {
+        return original.replaceAll("\\$\\{" + var + "}", val);
     }
 }
