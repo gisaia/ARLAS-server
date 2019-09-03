@@ -145,3 +145,4 @@ arlas-auth:
   enabled: ${ARLAS_AUTH_ENABLED:-false}
   publicUris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger,swagger.json}]
   loginUrl: ${ARLAS_AUTH_LOGIN_URL:-}
+  certificateFile: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}

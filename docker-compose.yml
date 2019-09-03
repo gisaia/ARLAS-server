@@ -21,4 +21,6 @@ services:
       - ARLAS_AUTH_ENABLED="${ARLAS_AUTH_ENABLED:-false}"
     ports:
       - 19999:9999
+    volumes:
+      - ${ARLAS_AUTH_LOCAL_CERT_FILE:-/tmp}:${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}:ro
     command: ["/opt/app/wait-for-elasticsearch.sh"]

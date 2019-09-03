@@ -36,6 +36,9 @@ public class ArlasAuthConfiguration {
     @JsonProperty("loginUrl")
     public String loginUrl;
 
+    @JsonProperty("certificateFile")
+    public String certificateFile;
+
     private Set<String> publicUrisSet;
 
     public Set<String> getPublicUrisSet() {
