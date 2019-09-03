@@ -110,7 +110,7 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 
-    @JsonProperty("arlas-auth")
+    @JsonProperty("arlas_auth")
     public ArlasAuthConfiguration arlasAuthConfiguration;
 
     public static final String FLATTEN_CHAR = "_";

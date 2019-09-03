@@ -30,13 +30,13 @@ public class ArlasAuthConfiguration {
     @JsonProperty("enabled")
     public boolean enabled;
 
-    @JsonProperty("publicUris")
+    @JsonProperty("public_uris")
     public List<String> publicUris;
 
-    @JsonProperty("loginUrl")
+    @JsonProperty("login_url")
     public String loginUrl;
 
-    @JsonProperty("certificateFile")
+    @JsonProperty("certificate_file")
     public String certificateFile;
 
     private Set<String> publicUrisSet;
