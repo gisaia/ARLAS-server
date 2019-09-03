@@ -99,6 +99,7 @@ function test_auth() {
     export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
     export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"
     export ARLAS_TILE_URL="jar:file:///opt/app/arlas-server.jar!/{id}/{z}/{x}/{y}.png"
+    export ARLAS_AUTH_LOCAL_CERT_FILE="/opt/app/arlas-test.pem"
     start_stack
     docker run --rm \
         -w /opt/maven \

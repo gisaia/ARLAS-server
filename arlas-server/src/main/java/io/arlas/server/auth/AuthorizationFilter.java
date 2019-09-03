@@ -56,23 +56,25 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext ctx) {
-        try {
-            // header presence and format already checked before in AuthenticationFilter
-            DecodedJWT jwt = jwtVerifier.verify(ctx.getHeaderString(HttpHeaders.AUTHORIZATION).substring(7));
-            Claim jwtClaim = jwt.getClaim(CLAIM_PERMISSIONS);
-            if (!jwtClaim.isNull()) {
-                ArlasClaims arlasClaims = new ArlasClaims(jwtClaim.asList(String.class));
-                if (arlasClaims.isAllowed(ctx.getMethod(), ctx.getUriInfo().getPath())) {
-                    arlasClaims.injectHeaders(ctx.getHeaders());
-                    return;
+        if (!authConf.getPublicUrisSet().contains(ctx.getUriInfo().getPath())) {
+            try {
+                // header presence and format already checked before in AuthenticationFilter
+                DecodedJWT jwt = jwtVerifier.verify(ctx.getHeaderString(HttpHeaders.AUTHORIZATION).substring(7));
+                Claim jwtClaim = jwt.getClaim(CLAIM_PERMISSIONS);
+                if (!jwtClaim.isNull()) {
+                    ArlasClaims arlasClaims = new ArlasClaims(jwtClaim.asList(String.class));
+                    if (arlasClaims.isAllowed(ctx.getMethod(), ctx.getUriInfo().getPath())) {
+                        arlasClaims.injectHeaders(ctx.getHeaders());
+                        return;
+                    }
                 }
+            } catch (JWTVerificationException e) {
+                LOGGER.warn("JWT verification failed.", e);
             }
-        } catch (JWTVerificationException e){
-            LOGGER.warn("JWT verification failed.", e);
-        }
 
-        ctx.abortWith(Response.status(Response.Status.FORBIDDEN)
-                .build());
+            ctx.abortWith(Response.status(Response.Status.FORBIDDEN)
+                    .build());
+        }
     }
 
     /**

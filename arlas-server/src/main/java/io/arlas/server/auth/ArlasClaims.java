@@ -42,8 +42,9 @@ public class ArlasClaims {
                     case "rule":
                         if (splitClaim.length == 4) {
                             rules.add(new RuleClaim(splitClaim[1], splitClaim[2], Integer.valueOf(splitClaim[3])));
+                        } else {
+                            LOGGER.warn("Invalid rule claim format: " + claim);
                         }
-                        LOGGER.warn("Invalid rule claim format: " + claim);
                         break;
                     case "header":
                         headers.put(splitClaim[1], splitClaim[2]);
