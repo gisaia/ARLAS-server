@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.auth.AuthenticationFilter;
+import io.arlas.server.auth.AuthorizationFilter;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.health.ElasticsearchHealthCheck;
 import io.arlas.server.ogc.csw.CSWHandler;
@@ -175,6 +176,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         // Auth
         if (configuration.arlasAuthConfiguration.enabled) {
             environment.jersey().register(new AuthenticationFilter(configuration.arlasAuthConfiguration));
+            environment.jersey().register(new AuthorizationFilter(configuration.arlasAuthConfiguration));
         }
 
         if(configuration.arlasServiceCollectionsEnabled) {
