@@ -63,6 +63,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             if (!jwtClaim.isNull()) {
                 ArlasClaims arlasClaims = new ArlasClaims(jwtClaim.asList(String.class));
                 if (arlasClaims.isAllowed(ctx.getMethod(), ctx.getUriInfo().getPath())) {
+                    arlasClaims.injectHeaders(ctx.getHeaders());
                     return;
                 }
             }

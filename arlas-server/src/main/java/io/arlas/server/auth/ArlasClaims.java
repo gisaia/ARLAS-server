@@ -21,14 +21,17 @@ package io.arlas.server.auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.MultivaluedMap;
 import java.util.*;
 
 public class ArlasClaims {
     private final Logger LOGGER = LoggerFactory.getLogger(ArlasClaims.class);
     private List<RuleClaim> rules;
+    private Map<String, String> headers;
 
     public ArlasClaims(List<String> claims) {
         this.rules = new ArrayList<>();
+        this.headers = new HashMap<>();
 
         for (String claim : claims) {
             String[] splitClaim = claim.split(":");
@@ -39,6 +42,9 @@ public class ArlasClaims {
                             rules.add(new RuleClaim(splitClaim[1], splitClaim[2], Integer.valueOf(splitClaim[3])));
                         }
                         LOGGER.warn("Invalid rule claim format: " + claim);
+                        break;
+                    case "header":
+                        headers.put(splitClaim[1], splitClaim[2]);
                         break;
                     default:
                         LOGGER.warn("Unknown claim format: " + claim);
@@ -57,5 +63,9 @@ public class ArlasClaims {
             }
         }
         return false;
+    }
+
+    public void injectHeaders(MultivaluedMap<String, String> requestHeaders) {
+        headers.forEach((k,v) -> requestHeaders.add(k, v));
     }
 }
