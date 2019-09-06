@@ -22,12 +22,15 @@ package io.arlas.server.model.response;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.StringUtil;
 import io.arlas.server.utils.TimestampTypeMapper;
 import io.dropwizard.jackson.JsonSnakeCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -36,6 +39,7 @@ import java.util.Set;
 
 @JsonSnakeCase
 public class Hit {
+    private static Logger LOGGER = LoggerFactory.getLogger(Hit.class);
 
     public MD md;
 
@@ -57,20 +61,22 @@ public class Hit {
         if (collectionReference.params.idPath != null) {
             md.id = "" + MapExplorer.getObjectFromPath(collectionReference.params.idPath, source);
         }
+        CollectionReferenceManager.setCollectionGeometriesType(source, collectionReference);
         if (collectionReference.params.centroidPath != null) {
             try {
                 Object m = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
-                md.centroid = m != null ? GeoTypeMapper.getGeoJsonObject(m) : null;
+                md.centroid = m != null ? GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getCentroidType()) : null;
             } catch (ArlasException e) {
-                e.printStackTrace();
-            }
+                // no exception is thrown as this Hit is returned as response of a `_search` query where the geometry is not necessarily needed
+                LOGGER.error(e.getMessage());            }
         }
         if (collectionReference.params.geometryPath != null) {
             try {
                 Object m = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
-                md.geometry = m != null ? GeoTypeMapper.getGeoJsonObject(m) : null;
+                md.geometry = m != null ? GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeometryType()) : null;
             } catch (ArlasException e) {
-                e.printStackTrace();
+                // no exception is thrown as this Hit is returned as response of a `_search` query where the geometry is not necessarily needed
+                LOGGER.error(e.getMessage());
             }
         }
         if (collectionReference.params.timestampPath != null) {

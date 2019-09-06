@@ -17,31 +17,26 @@
  * under the License.
  */
 
-package io.arlas.server;
+package io.arlas.server.exceptions;
 
-import org.geojson.Polygon;
+import javax.ws.rs.core.Response;
 
-public class Data {
-    public String id;
-    public String fullname;
-    public DataParams params = new DataParams();
-    public GeometryParams geo_params = new GeometryParams();
+public class ParseException extends ArlasException {
 
-    public class DataParams {
-        public String job;
-        public int age;
-        public Integer weight;
-        public String city;
-        public String country;
-        public Long startdate;
-        public Long stopdate;
+    private static final long serialVersionUID = 1L;
+
+    public ParseException() {
+        super();
+        status  = Response.Status.INTERNAL_SERVER_ERROR;
     }
 
-    public class GeometryParams {
-        public Polygon geometry;
-        public String wktgeometry;
-        public String centroid;
+    public ParseException(String message) {
+        super(message);
+        status  = Response.Status.INTERNAL_SERVER_ERROR;
+    }
+
+    public ParseException(String message, Throwable cause) {
+        super(message, cause);
+        status  = Response.Status.INTERNAL_SERVER_ERROR;
     }
 }
-
-

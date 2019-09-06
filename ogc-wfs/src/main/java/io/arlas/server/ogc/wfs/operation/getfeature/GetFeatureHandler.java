@@ -21,6 +21,7 @@ package io.arlas.server.ogc.wfs.operation.getfeature;
 
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.wfs.WFSHandler;
@@ -179,6 +180,7 @@ public class GetFeatureHandler {
 
         GeoJsonObject geometry = null;
         Object source = ((SearchHit) member).getSourceAsMap();
+        CollectionReferenceManager.setCollectionGeometriesType(source, collectionReference);
         String id = null;
         if (idPath != null) {
             id = "" + MapExplorer.getObjectFromPath(idPath, source);
@@ -186,7 +188,7 @@ public class GetFeatureHandler {
         if (geometryPath != null) {
             Object m = MapExplorer.getObjectFromPath(geometryPath, source);
             if (m != null) {
-                geometry = GeoTypeMapper.getGeoJsonObject(m);
+                geometry = GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeometryType());
 
             }
         }

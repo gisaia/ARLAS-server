@@ -53,6 +53,7 @@ public class DataSetTool {
     public final static String DATASET_ID_PATH="id";
     public final static String DATASET_GEO_PARAMS="geo_params";
     public final static String DATASET_GEOMETRY_PATH="geo_params.geometry";
+    public final static String DATASET_WKT_GEOMETRY_PATH="geo_params.wktgeometry";
     public final static String DATASET_CENTROID_PATH="geo_params.centroid";
     public final static String DATASET_TIMESTAMP_PATH="params.startdate";
     public final static String DATASET_EXCLUDE_FIELDS = "params.ci*";
@@ -84,6 +85,7 @@ public class DataSetTool {
     public static AdminClient adminClient;
     public static Client client;
     public static boolean ALIASED_COLLECTION;
+    public static boolean WKT_GEOMETRIES;
 
     static {
         try {
@@ -98,6 +100,7 @@ public class DataSetTool {
                     .addTransportAddress(new TransportAddress(InetAddress.getByName(nodes.get(0).getLeft()), nodes.get(0).getRight()));
             adminClient = client.admin();
             ALIASED_COLLECTION = Optional.ofNullable(System.getenv("ALIASED_COLLECTION")).orElse("false").equals("true");
+            WKT_GEOMETRIES = false;
             LOGGER.info("Load data in " + nodes.get(0).getLeft() + ":" + nodes.get(0).getRight() + " with ALIASED_COLLECTION=" + ALIASED_COLLECTION);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
@@ -155,13 +158,20 @@ public class DataSetTool {
                 data.params.country = countries[((Math.abs(i) + Math.abs(j)) / 10) % (countries.length - 1)];
                 data.params.city = cities[((Math.abs(i) + Math.abs(j)) / 10) % (cities.length - 1)];
                 List<LngLatAlt> coords = new ArrayList<>();
+                String wktGeometry = "POLYGON ((";
                 coords.add(new LngLatAlt(i - 1, j + 1));
+                wktGeometry += (i - 1) + " " + (j + 1) + ",";
                 coords.add(new LngLatAlt(i + 1, j + 1));
+                wktGeometry += " " + (i + 1) + " " + (j + 1) + ",";
                 coords.add(new LngLatAlt(i + 1, j - 1));
+                wktGeometry += " " + (i + 1) + " " + (j - 1) + ",";
                 coords.add(new LngLatAlt(i - 1, j - 1));
+                wktGeometry += " " + (i - 1) + " " + (j - 1) + ",";
                 coords.add(new LngLatAlt(i - 1, j + 1));
-                data.geo_params.geometry = new Polygon(coords);
+                wktGeometry += " " + (i - 1) + " " + (j + 1) + "))";
 
+                data.geo_params.geometry = new Polygon(coords);
+                data.geo_params.wktgeometry = wktGeometry;
                 IndexResponse response = client.prepareIndex(indexName, DATASET_TYPE_NAME, "ES_ID_TEST" + data.id)
                         .setSource(mapper.writer().writeValueAsString(data), XContentType.JSON)
                         .get();

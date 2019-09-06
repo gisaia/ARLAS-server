@@ -31,7 +31,6 @@ import io.dropwizard.jersey.params.IntParam;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.joda.time.format.DateTimeFormat;
 
-import javax.lang.model.type.ArrayType;
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;

@@ -20,11 +20,7 @@
 package io.arlas.server.rest.plugins.eo;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.geojson.GeoJsonReader;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import cyclops.control.Try;
 import cyclops.data.tuple.Tuple2;
 import io.arlas.server.app.Documentation;
@@ -43,6 +39,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.geojson.FeatureCollection;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
 
 import javax.imageio.ImageIO;
 import javax.ws.rs.*;
@@ -288,13 +286,11 @@ public class TileRESTService extends ExploreRESTServices {
     }
 
     protected List<Tuple2<String,Optional<Geometry>>> findCandidateTiles(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
-        GeoJsonReader reader = new GeoJsonReader();
-        ObjectWriter writer = new ObjectMapper().writer();
         return Arrays.stream(this.getExploreServices().search(request, collectionReference).getHits())
                 .map(hit->Tuple2.of(
                         "" + MapExplorer.getObjectFromPath(collectionReference.params.rasterTileURL.idPath, hit.getSourceAsMap()), // Let's get the ID of the match
-                        Try.withCatch(() ->reader.read(writer.writeValueAsString(MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, hit.getSourceAsMap()))), // and its geometry: must be a polygon
-                                ParseException.class,ClassCastException.class) // there might be some troubles when parsing the geometry
+                        Try.withCatch(() ->GeoTileUtil.getGeometryFromSource(hit.getSourceAsMap(), collectionReference), // and its geometry: must be a polygon
+                                ParseException.class,ClassCastException.class,JsonProcessingException.class) // there might be some troubles when parsing the geometry
                                 .onFail(e ->LOGGER.error("Failed to fetch geometry for "+MapExplorer.getObjectFromPath(collectionReference.params.idPath, hit.getSourceAsMap())))
                                 .toOptional()// in case there's a problem, we don't need the geometry: the optimisation won't be applied on the hit => an empty Optional is good enough
                 )).collect(Collectors.toList());

@@ -19,8 +19,10 @@
 
 package io.arlas.server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.arlas.server.model.enumerations.GeoTypeEnum;
 import io.arlas.server.model.request.Filter;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -87,6 +89,28 @@ public class CollectionReferenceParameters {
     @JsonProperty(value = "filter", required = false)
     public Filter filter = null;
 
+    @JsonIgnore
+    private transient GeoTypeEnum geometryType;
+
+    @JsonIgnore
+    private transient GeoTypeEnum centroidType;
+
     public CollectionReferenceParameters() {
+    }
+
+    public void setGeometryType(GeoTypeEnum geometryType) {
+        this.geometryType = geometryType;
+    }
+
+    public GeoTypeEnum getGeometryType() {
+        return geometryType;
+    }
+
+    public GeoTypeEnum getCentroidType() {
+        return centroidType;
+    }
+
+    public void setCentroidType(GeoTypeEnum centroidType) {
+        this.centroidType = centroidType;
     }
 }

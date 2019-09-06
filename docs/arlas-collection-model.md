@@ -80,6 +80,9 @@ The most important fields are:
     ```
     `labels.status` being the taggable field.
 
+!!! info "Important 3"
+    `geometry_path` field value must have the same format in all documents within the same collection: It's not supported to index documents where `geometry_path` value is WKT and others as GeoJson. Otherwise a ParseException will be thrown. It goes the same for `centroid_path`.
+
 ## ATOM
 
 In case the ATOM output type on a collection is used in searches, the following properties can be set to customize the result:

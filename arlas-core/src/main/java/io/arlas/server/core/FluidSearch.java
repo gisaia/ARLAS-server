@@ -21,11 +21,6 @@ package io.arlas.server.core;
 
 
 import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.utils.ElasticTool;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.WKTReader;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
@@ -34,9 +29,7 @@ import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.Metric;
 import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.response.TimestampType;
-import io.arlas.server.utils.CheckParams;
-import io.arlas.server.utils.ParamsParser;
-import io.arlas.server.utils.StringUtil;
+import io.arlas.server.utils.*;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -56,19 +49,17 @@ import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.max.MaxAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.locationtech.jts.operation.valid.IsValidOp;
-import org.locationtech.jts.operation.valid.TopologyValidationError;
-
+import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 
 public class FluidSearch {
@@ -77,8 +68,6 @@ public class FluidSearch {
     public static final String INVALID_PARAMETER_F = "Parameter f does not respect operation expression. ";
     public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'eq', gte', 'gt', 'lte', 'lt', 'like' or 'ne'. ";
     public static final String INVALID_Q_FILTER = "Invalid parameter. Please specify the text to search directly or '{fieldname}:{text to search}'. ";
-    public static final String INVALID_WKT = "Invalid WKT geometry.";
-    public static final String INVALID_WKT_RANGE = "Invalid WKT geometry.Coordinate out of range";
     public static final String INVALID_BBOX = "Invalid BBOX";
     public static final String INVALID_SIZE = "Invalid size parameter. It should be a strictly positive integer";
     public static final String INVALID_FROM = "Invalid from parameter: should be a positive integer.";
@@ -836,29 +825,6 @@ public class FluidSearch {
         }
     }
 
-    private Geometry readWKT(String geometry) throws ArlasException {
-        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
-        Envelope affectedBounds = new Envelope(-360, 360, -180, 180);
-        WKTReader wkt = new WKTReader(geometryFactory);
-        Geometry polygon = null;
-        try {
-            polygon = wkt.read(geometry);
-            List<Coordinate> filteredCoord = Arrays.stream(polygon.getCoordinates()).filter(coordinate -> affectedBounds.contains(coordinate)).collect(Collectors.toList());
-            if(filteredCoord.size() != polygon.getCoordinates().length){
-                throw new InvalidParameterException(INVALID_WKT_RANGE);
-            }
-            IsValidOp vaildOp = new IsValidOp(polygon);
-            TopologyValidationError err = vaildOp.getValidationError();
-            if (err != null)
-            {
-                throw new InvalidParameterException(INVALID_WKT);
-            }
-        } catch (ParseException ex) {
-            throw new InvalidParameterException(INVALID_WKT);
-        }
-        return polygon;
-    }
-
     private PolygonBuilder createPolygonBuilder(Polygon polygon) {
         // TODO: add interior holes
         CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
@@ -905,7 +871,7 @@ public class FluidSearch {
             return createPolygonBuilder((double[]) CheckParams.toDoubles(geometry));
         } else {
             // TODO: multilinestring
-            Geometry wktGeometry = readWKT(geometry);
+            Geometry wktGeometry = GeoTypeMapper.readWKT(geometry);
             if (wktGeometry != null) {
                 String geometryType = wktGeometry.getGeometryType().toUpperCase();
                 switch (geometryType) {
