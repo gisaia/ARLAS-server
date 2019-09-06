@@ -1,6 +1,33 @@
 # Change Log
 
-## [v11.6.0](https://github.com/gisaia/ARLAS-server/tree/v11.6.0) (2019-07-22)
+## [v11.6.1](https://github.com/gisaia/ARLAS-server/tree/v11.6.1) (2019-09-06)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.6.0...v11.6.1)
+
+**Breaking changes:**
+
+- Change auth configuration to snake case [\#507](https://github.com/gisaia/ARLAS-server/pull/507) ([alainbodiguel](https://github.com/alainbodiguel))
+
+**New stuff:**
+
+- \[Auth-6\] Add more tests to auth module [\#508](https://github.com/gisaia/ARLAS-server/issues/508)
+- \[auth-5\] Change configuration to snake case [\#498](https://github.com/gisaia/ARLAS-server/issues/498) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[auth-4\] Variable support in rules and headers [\#497](https://github.com/gisaia/ARLAS-server/issues/497) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[auth-3\] Authorization mode: headers processing [\#496](https://github.com/gisaia/ARLAS-server/issues/496) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[auth-2\] Authorization mode: rules processing [\#495](https://github.com/gisaia/ARLAS-server/issues/495) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[auth-1\] Authentication mode support [\#494](https://github.com/gisaia/ARLAS-server/issues/494) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Support geometries that are indexed as WKT [\#510](https://github.com/gisaia/ARLAS-server/issues/510)
+- Push arlas jars in maven repos [\#485](https://github.com/gisaia/ARLAS-server/issues/485)
+- Add more tests to auth module  [\#509](https://github.com/gisaia/ARLAS-server/pull/509) ([alainbodiguel](https://github.com/alainbodiguel))
+- Variable support in rules and headers  [\#506](https://github.com/gisaia/ARLAS-server/pull/506) ([alainbodiguel](https://github.com/alainbodiguel))
+- Authorization mode: headers processing [\#505](https://github.com/gisaia/ARLAS-server/pull/505) ([alainbodiguel](https://github.com/alainbodiguel))
+- Authorization mode: rules processing [\#504](https://github.com/gisaia/ARLAS-server/pull/504) ([alainbodiguel](https://github.com/alainbodiguel))
+
+**Fixed bugs:**
+
+- Geometries that are indexed with WKT format are systematically considered as geo\_points [\#482](https://github.com/gisaia/ARLAS-server/issues/482)
+
+## [v11.6.0](https://github.com/gisaia/ARLAS-server/tree/v11.6.0) (2019-07-23)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v10.6.2...v11.6.0)
 
@@ -25,8 +52,8 @@
 
 **Fixed bugs:**
 
-- \[tiled geosearch\]\[tiled geoaggreagte\] pwithin filter breaks due to shared borders with tiles [\#456](https://github.com/gisaia/ARLAS-server/issues/456)
 - \_search : Error 500 caused by applying a geosort along with a sort on id when returning \_next link in search response  [\#475](https://github.com/gisaia/ARLAS-server/issues/475)
+- \[tiled geosearch\]\[tiled geoaggreagte\] pwithin filter breaks due to shared borders with tiles [\#456](https://github.com/gisaia/ARLAS-server/issues/456)
 - Taggable fields can contain duplicate tags [\#266](https://github.com/gisaia/ARLAS-server/issues/266)
 
 ## [v10.6.1](https://github.com/gisaia/ARLAS-server/tree/v10.6.1) (2019-05-17)
