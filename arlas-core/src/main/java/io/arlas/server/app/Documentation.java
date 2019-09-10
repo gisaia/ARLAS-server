@@ -90,11 +90,11 @@ public class Documentation {
 
     public static final String FILTER_PARAM_Q = "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}";
     public static final String FILTER_PARAM_PWITHIN = "Any element having its centroid contained within the given bbox : `west, south, east, north`. ";
-    public static final String FILTER_PARAM_GWITHIN = "Any element having its geometry contained within the given geometry (WKT) or the given BBOX : `west, south, east, north`";
-    public static final String FILTER_PARAM_GINTERSECT = "Any element having its geometry intersecting the given geometry (WKT) or the given BBOX : `west, south, east, north`";
+    public static final String FILTER_PARAM_GWITHIN = "Any element having its geometry contained within the given WKT string (clock-wise) or the given BBOX : `west, south, east, north`";
+    public static final String FILTER_PARAM_GINTERSECT = "Any element having its geometry intersecting the given WKT string (clock-wise) or the given BBOX : `west, south, east, north`";
     public static final String FILTER_PARAM_NOTPWITHIN = "Any element having its centroid outside the given bbox : `west, south, east, north`.";
-    public static final String FILTER_PARAM_NOTGWITHIN = "Any element having its geometry outside the given geometry (WKT) or the given BBOX : `west, south, east, north`";
-    public static final String FILTER_PARAM_NOTGINTERSECT = "Any element having its geometry not intersecting the given geometry (WKT) nor the given BBOX : `west, south, east, north`";
+    public static final String FILTER_PARAM_NOTGWITHIN = "Any element having its geometry outside the given geometry WKT string (clock-wise) or the given BBOX : `west, south, east, north`";
+    public static final String FILTER_PARAM_NOTGINTERSECT = "Any element having its geometry not intersecting the given WKT string (clock-wise) nor the given BBOX : `west, south, east, north`";
     public static final String FILTER_DATE_FORMAT = "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations";
 
 

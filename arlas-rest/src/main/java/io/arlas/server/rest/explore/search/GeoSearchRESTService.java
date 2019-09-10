@@ -21,6 +21,7 @@ package io.arlas.server.rest.explore.search;
 
 
 import com.codahale.metrics.annotation.Timed;
+import com.sun.research.ws.wadl.Param;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.MixedRequest;
@@ -41,7 +42,6 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
-import org.geojson.GeoJsonObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -218,6 +218,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
+        exploreServices.setValidGeoFilters(searchHeader);
         request.headerRequest = searchHeader;
 
         FeatureCollection fc = getFeatures(collectionReference, request, (flat!=null && flat));
@@ -394,7 +395,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         String pwithinBbox = bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth();
 
         //check if every pwithin param has a value that intersects bbox
-        List<String> simplifiedPwithin = ParamsParser.simplifyPwithinAgainstBbox(pwithin, bbox);
+        List<String> simplifiedPwithin = ParamsParser.simplifyPwithinAgainstBbox(ParamsParser.toSemiColonsSeparatedStringList(ParamsParser.getValidGeoFilters(pwithin)), bbox);
 
         if (bbox != null && bbox.getNorth() > bbox.getSouth()
                 // if sizes are not equals, it means one multi-value pwithin does not intersects bbox => no results
@@ -484,6 +485,8 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
+        exploreServices.setValidGeoFilters(search);
+        exploreServices.setValidGeoFilters(searchHeader);
         FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat));
         return cache(Response.ok(fc), maxagecache);
     }

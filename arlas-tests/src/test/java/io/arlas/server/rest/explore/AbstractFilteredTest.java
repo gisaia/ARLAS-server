@@ -309,16 +309,83 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
     @Test
     public void testGwithinFilter() throws Exception {
+        /** west < east bbox */
         request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("-2,-2,2,2"));
         handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(get("gwithin", request.filter.gwithin.get(0).get(0)), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
 
-        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((1 1,2 1,2 2,1 2,1 1))"));
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("-170,-2,170,2"));
+        handleMatchingGeometryFilter(post(request), 33, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gwithin", request.filter.gwithin.get(0).get(0)), 33, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 33, everyItem(startsWith("0,")));
+
+        /** west > east bbox */
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("2,-2,-2,2"));
+        handleMatchingGeometryFilter(post(request), 34, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gwithin", request.filter.gwithin.get(0).get(0)), 34, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 34, everyItem(startsWith("0,")));
+
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("170,-2,-170,2"));
         handleNotMatchingGwithinFilter(post(request));
         handleNotMatchingGwithinFilter(get("gwithin", request.filter.gwithin.get(0).get(0)));
         handleNotMatchingGwithinFilter(header(request.filter));
 
+        /** clock-wise WKT*/
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((-2 -2, -2 2, 2 2, 2 -2, -2 -2))"));
+        handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(get("gwithin", request.filter.gwithin.get(0).get(0)), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
+
+        /** counter clock-wise WKT */
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((-2 -2, 2 -2, 2 2,-2 2, -2 -2))"));
+        handleMatchingGeometryFilter(post(request), 34, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gwithin", request.filter.gwithin.get(0).get(0)), 34, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 34, everyItem(startsWith("0,")));
+
+        /** clock-wise WKT */
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((-330 -2, -330 -1, -290 -1, -290 2, -15 2, -15 1, -40 1, -40 -2, -330 -2))"));
+        handleMatchingGeometryFilter(post(request), 24, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gwithin", request.filter.gwithin.get(0).get(0)), 24, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 24, everyItem(startsWith("0,")));
+
+        /** counter clock-wise WKT */
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((-330 -2, -40 -2, -40 1, -15 1, -15 2, -290 2, -290 -1, -330 -1, -330 -2))"));
+        handleMatchingGeometryFilter(post(request), 10, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gwithin", request.filter.gwithin.get(0).get(0)), 10, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 10, everyItem(startsWith("0,")));
+
+        /** clock-wise WKT */
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((10 -2, 10 2, 350 2, 350 0, 300 0, 350 -2, 10 -2))"));
+        handleMatchingGeometryFilter(post(request), 32, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gwithin", request.filter.gwithin.get(0).get(0)), 32, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 32, everyItem(startsWith("0,")));
+
+        /** counter clock-wise WKT */
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((10 -2, 350 -2, 300 0, 350 0, 350 2, 10 2, 10 -2))"));
+        handleMatchingGeometryFilter(post(request), 1, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gwithin", request.filter.gwithin.get(0).get(0)), 1, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 1, everyItem(startsWith("0,")));
+
+        /** clock-wise WKT with with a point longitude > 180*/
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((-130 -2, -130 2, 220 2, 220 -2, -130 -2))"));
+        handleMatchingGeometryFilter(post(request), 33, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gwithin", request.filter.gwithin.get(0).get(0)), 33, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 33, everyItem(startsWith("0,")));
+
+        /** counter clock-wise WKT with a point longitude > 180*/
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((-130 -2, 220 -2, 220 2, -130 2,  -130 -2))"));
+        handleNotMatchingGwithinFilter(post(request));
+        handleNotMatchingGwithinFilter(get("gwithin", request.filter.gwithin.get(0).get(0)));
+        handleNotMatchingGwithinFilter(header(request.filter));
+
+        /** clock-wise WKT */
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((1 1,1 2,2 2,2 1,1 1))"));
+        handleNotMatchingGwithinFilter(post(request));
+        handleNotMatchingGwithinFilter(get("gwithin", request.filter.gwithin.get(0).get(0)));
+        handleNotMatchingGwithinFilter(header(request.filter));
+
+        /** west < east bbox along with a clock-wise WKT*/
         request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((1 1,10 -20,-10 -20,-10 20,1 1))"), new MultiValueFilter<>("-2,-2,2,2"));
         handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(
@@ -335,17 +402,17 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingGeometryFilter(header(request.filter), 2, everyItem(isOneOf("-10,0", "0,0")));
         request.filter.gwithin = null;
 
-        request.filter.notgwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))"));
+        request.filter.notgwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((180 90, 180 -70, 160 -70, 160 -90,-180 -90,-180 90,180 90))"));
         handleMatchingGeometryFilter(post(request), 4, hasItems("-70,170", "-80,170", "-70,160", "-80,160"));
         handleMatchingGeometryFilter(get("notgwithin", request.filter.notgwithin.get(0).get(0)), 4, hasItems("-70,170", "-80,170", "-70,160", "-80,160"));
         handleMatchingGeometryFilter(header(request.filter), 4, hasItems("-70,170", "-80,170", "-70,160", "-80,160"));
 
-        request.filter.notgwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((180 90,-180 90,-180 -90,180 -90,180 90))"));
+        request.filter.notgwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((180 90,180 -90,-180 -90,-180 90,180 90))"));
         handleNotMatchingNotGwithinFilter(post(request));
         handleNotMatchingNotGwithinFilter(get("notgwithin", request.filter.notgwithin.get(0).get(0)));
         handleNotMatchingNotGwithinFilter(header(request.filter));
 
-        request.filter.notgwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((180 90,-180 90,-180 -80,100 -80,100 -70,180 -70,180 90))"), new MultiValueFilter<>("POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))"));
+        request.filter.notgwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((180 90,180 -70,100 -70,100 -80,-180 -80,-180 90,180 90))"), new MultiValueFilter<>("POLYGON((180 90, 180 -70, 160 -70, 160 -90,-180 -90,-180 90,180 90))"));
         handleMatchingGeometryFilter(post(request), 4, hasItems("-70,170", "-80,170", "-70,160", "-80,160"));
         handleMatchingGeometryFilter(
                 get(Arrays.asList(new ImmutablePair<>("notgwithin", request.filter.notgwithin.get(0).get(0)),
@@ -353,7 +420,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 4, hasItems("-70,170", "-80,170", "-70,160", "-80,160"));
         handleMatchingGeometryFilter(header(request.filter), 4, hasItems("-70,170", "-80,170", "-70,160", "-80,160"));
 
-        request.filter.notgwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("POLYGON((180 90,-180 90,-180 -80,99 -80,99 -68,180 -68,180 90))", "POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))")));
+        request.filter.notgwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("POLYGON((180 90,180 -68,99 -68,99 -80,-180 -80,-180 90,180 90))", "POLYGON((180 90, 180 -70, 160 -70, 160 -90,-180 -90,-180 90,180 90))")));
         handleMatchingGeometryFilter(post(request), 43, everyItem(notNullValue()));
         handleMatchingGeometryFilter(
                 get("notgwithin", request.filter.notgwithin.get(0).get(0) + ";" + request.filter.notgwithin.get(0).get(1)),
@@ -381,16 +448,89 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleNotMatchingGwithinComboFilter(header(request.filter));
         request.filter.gwithin = null;
         request.filter.notgwithin = null;
+
+
     }
 
     @Test
     public void testGintersectFilter() throws Exception {
+        /** west < east bbox */
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("-2,-2,2,2"));
+        handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
+
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("-170,-2,170,2"));
+        handleMatchingGeometryFilter(post(request), 35, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 35, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 35, everyItem(startsWith("0,")));
+
+        /** west > east bbox */
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("2,-2,-2,2"));
+        handleMatchingGeometryFilter(post(request), 34, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 34, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 34, everyItem(startsWith("0,")));
+
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("170,-2,-170,2"));
+        handleMatchingGeometryFilter(post(request), 2, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 2, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 2, everyItem(startsWith("0,")));
+
+        /** clock-wise WKT*/
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((-2 -2, -2 2, 2 2, 2 -2, -2 -2))"));
+        handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
+
+        /** counter clock-wise WKT */
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((-2 -2, 2 -2, 2 2,-2 2, -2 -2))"));
+        handleMatchingGeometryFilter(post(request), 34, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 34, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 34, everyItem(startsWith("0,")));
+
+        /** clock-wise WKT */
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((-330 -2, -330 -1, -290 -1, -290 2, -15 2, -15 1, -40 1, -40 -2, -330 -2))"));
+        handleMatchingGeometryFilter(post(request), 31, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 31, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 31, everyItem(startsWith("0,")));
+
+        /** counter clock-wise WKT */
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((-330 -2, -40 -2, -40 1, -15 1, -15 2, -290 2, -290 -1, -330 -1, -330 -2))"));
+        handleMatchingGeometryFilter(post(request), 12, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 12, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 12, everyItem(startsWith("0,")));
+
+        /** clock-wise WKT */
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((10 -2, 10 2, 350 2, 350 0, 300 0, 350 -2, 10 -2))"));
+        handleMatchingGeometryFilter(post(request), 34, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 34, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 34, everyItem(startsWith("0,")));
+
+        /** counter clock-wise WKT */
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((10 -2, 350 -2, 300 0, 350 0, 350 2, 10 2, 10 -2))"));
+        handleMatchingGeometryFilter(post(request), 8, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 8, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 8, everyItem(startsWith("0,")));
+
+        /** clock-wise WKT with with a point longitude > 180*/
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((-130 -2, -130 2, 220 2, 220 -2, -130 -2))"));
+        handleMatchingGeometryFilter(post(request), 35, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 35, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 35, everyItem(startsWith("0,")));
+
+        /** counter clock-wise WKT with a point longitude > 180*/
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((-130 -2, 220 -2, 220 2, -130 2,  -130 -2))"));
+        handleMatchingGeometryFilter(post(request), 2, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 2, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 2, everyItem(startsWith("0,")));
+
+        /** clock-wise WKT */
         request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((0 1,1 1,1 -1,0 -1,0 1))"));
         handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(get("gintersect", request.filter.gintersect.get(0).get(0)), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
 
-        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((2 2,3 2,3 3,2 3,2 2))"));
+        request.filter.gintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((2 2,2 3,3 3,3 2,2 2))"));
         handleNotMatchingGintersectFilter(post(request));
         handleNotMatchingGintersectFilter(get("gintersect", request.filter.gintersect.get(0).get(0)));
         handleNotMatchingGintersectFilter(header(request.filter));
@@ -411,17 +551,18 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingGeometryFilter(header(request.filter), 9, everyItem(notNullValue()));
         request.filter.gintersect = null;
 
-        request.filter.notgintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))"));
+        /** clock-wise wkt*/
+        request.filter.notgintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((180 90, 180 -70, 160 -70, 160 -90,-180 -90,-180 90,180 90))"));
         handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("-80,170")));
         handleMatchingGeometryFilter(get("notgintersect", request.filter.notgintersect.get(0).get(0)), 1, everyItem(equalTo("-80,170")));
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("-80,170")));
 
-        request.filter.notgintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((180 90,-180 90,-180 -90,180 -90,180 90))"));
+        request.filter.notgintersect = Arrays.asList(new MultiValueFilter<>("POLYGON((180 90,180 -90,-180 -90,-180 90,180 90))"));
         handleNotMatchingNotGintersectFilter(post(request));
         handleNotMatchingNotGintersectFilter(get("notgintersect", request.filter.notgintersect.get(0).get(0)));
         handleNotMatchingNotGintersectFilter(header(request.filter));
 
-        request.filter.notgintersect = Arrays.asList(new MultiValueFilter<>("-12,-12,12,12"), new MultiValueFilter<>("POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))"));
+        request.filter.notgintersect = Arrays.asList(new MultiValueFilter<>("-12,-12,12,12"), new MultiValueFilter<>("POLYGON((180 90, 180 -70, 160 -70, 160 -90,-180 -90,-180 90,180 90))"));
         handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("-80,170")));
         handleMatchingGeometryFilter(
                 get(Arrays.asList(new ImmutablePair<>("notgintersect", request.filter.notgintersect.get(0).get(0)),
@@ -429,7 +570,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 1, everyItem(equalTo("-80,170")));
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("-80,170")));
 
-        request.filter.notgintersect = Arrays.asList(new MultiValueFilter<>(Arrays.asList("POLYGON((12 12,12 -12,-12 -12,-12 12,12 12))", "POLYGON((180 90,-180 90,-180 -90,160 -90,160 -70,180 -70,180 90))")));
+        request.filter.notgintersect = Arrays.asList(new MultiValueFilter<>(Arrays.asList("POLYGON((12 12,12 -12,-12 -12,-12 12,12 12))", "POLYGON((180 90, 180 -70, 160 -70, 160 -90,-180 -90,-180 90,180 90))")));
         handleMatchingGeometryFilter(post(request), 586, everyItem(notNullValue()));
         handleMatchingGeometryFilter(
                 get("notgintersect", request.filter.notgintersect.get(0).get(0) + ";" + request.filter.notgintersect.get(0).get(1)),
@@ -700,6 +841,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleInvalidParameters(get("gwithin", request.filter.gwithin.get(0).get(0)));
         handleInvalidParameters(header(request.filter));
 
+        /** Right oriented polygon that cannot be drawn on the other facet of the globe*/
+        request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((180 90,-180 90,-180 -90,180 -90,180 90))"));
+        handleInvalidParameters(post(request));
+        handleInvalidParameters(get("gwithin", request.filter.gwithin.get(0).get(0)));
+        handleInvalidParameters(header(request.filter));
 
         request.filter.gwithin = Arrays.asList(new MultiValueFilter<>("230,10,100,-10"));
         handleInvalidParameters(post(request));

@@ -21,6 +21,10 @@ package io.arlas.server.core;
 
 
 import io.arlas.server.app.ArlasServerConfiguration;
+
+import io.arlas.server.utils.*;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
+import org.locationtech.jts.geom.*;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
@@ -29,7 +33,6 @@ import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.Metric;
 import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.response.TimestampType;
-import io.arlas.server.utils.*;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -49,11 +52,9 @@ import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.max.MaxAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -333,9 +334,21 @@ public class FluidSearch {
     public FluidSearch filterPWithin(MultiValueFilter<String> pwithin) throws IOException, ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (String pwithinFilter : pwithin) {
-            double[] tlbr = CheckParams.toDoubles(pwithinFilter);
-            orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
+            if (CheckParams.isBboxMatch(pwithinFilter)) {
+                double[] tlbr = CheckParams.toDoubles(pwithinFilter);
+                orBoolQueryBuilder = orBoolQueryBuilder
+                        .should(filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
+            } else {
+                /** In case of tiled geosearch and geoaggregate*/
+                Geometry p = GeoUtil.readWKT(pwithinFilter);
+                if (p.isRectangle()) {
+                    Envelope e = p.getEnvelopeInternal();
+                    orBoolQueryBuilder = orBoolQueryBuilder
+                            .should(filterPWithin(e.getMinX(),e.getMinY(), e.getMaxX(), e.getMaxY()));
+                } else {
+                    /** if wkt is given as a param, an exception would be already thrown in CheckParams */
+                }
+            }
         }
         orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
         boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
@@ -386,6 +399,7 @@ public class FluidSearch {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (String geometry : notgwithin) {
             ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+
             orBoolQueryBuilder = orBoolQueryBuilder
                     .should(QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, shapeBuilder));
         }
@@ -834,14 +848,28 @@ public class FluidSearch {
     }
 
     private PolygonBuilder createPolygonBuilder(double[] bbox) {
+        double west = bbox[0];
+        double east = bbox[2];
+        double south = bbox[1];
+        double north = bbox[3];
+
         CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
-        coordinatesBuilder.coordinate(bbox[2], bbox[1]);
-        coordinatesBuilder.coordinate(bbox[2], bbox[3]);
-        coordinatesBuilder.coordinate(bbox[0], bbox[3]);
-        coordinatesBuilder.coordinate(bbox[0], bbox[1]);
-        coordinatesBuilder.coordinate(bbox[2], bbox[1]);
+        if (west > east) {
+            if (west >= 0) {
+                west -= 360;
+            } else {
+                /** east is necessarily < 0 */
+                east += 360;
+            }
+        }
+        coordinatesBuilder.coordinate(east, south);
+        coordinatesBuilder.coordinate(east, north);
+        coordinatesBuilder.coordinate(west, north);
+        coordinatesBuilder.coordinate(west, south);
+        coordinatesBuilder.coordinate(east, south);
         // NB : In ES api LEFT is clockwise and RIGHT anticlockwise
         return new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.RIGHT);
+
     }
 
     private MultiPolygonBuilder createMultiPolygonBuilder(MultiPolygon multiPolygon) {
@@ -865,13 +893,12 @@ public class FluidSearch {
     }
 
     private ShapeBuilder getShapeBuilder(String geometry) throws ArlasException {
-        // test if geometry is west, south, east, north commat separated
-        if (isBboxMatch(geometry)) {
-            CheckParams.checkBbox(geometry);
+        // test if geometry is 'west,south,east,north' or wkt string
+        if (CheckParams.isBboxMatch(geometry)) {
             return createPolygonBuilder((double[]) CheckParams.toDoubles(geometry));
         } else {
             // TODO: multilinestring
-            Geometry wktGeometry = GeoTypeMapper.readWKT(geometry);
+            Geometry wktGeometry = GeoUtil.readWKT(geometry);
             if (wktGeometry != null) {
                 String geometryType = wktGeometry.getGeometryType().toUpperCase();
                 switch (geometryType) {
@@ -889,12 +916,6 @@ public class FluidSearch {
             }
             throw new InvalidParameterException("The given geometry is invalid.");
         }
-    }
-
-    private boolean isBboxMatch(String geometry) {
-        String floatPattern = "[-+]?[0-9]*\\.?[0-9]+";
-        String bboxPattern = floatPattern + "," + floatPattern + "," + floatPattern + "," + floatPattern;
-        return Pattern.compile("^" + bboxPattern + "$").matcher(geometry).matches();
     }
 
     public boolean isDateField(String field) throws ArlasException {

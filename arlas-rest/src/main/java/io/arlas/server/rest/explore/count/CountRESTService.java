@@ -149,6 +149,7 @@ public class CountRESTService extends ExploreRESTServices {
         request.basicRequest = count;
         Count countHeader = new Count();
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
+        exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
 
         Hits hits = getArlasHits(collectionReference, request);
@@ -202,9 +203,11 @@ public class CountRESTService extends ExploreRESTServices {
         }
 
         MixedRequest request = new MixedRequest();
+        exploreServices.setValidGeoFilters(count);
         request.basicRequest = count;
         Count countHeader = new Count();
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
+        exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
 
         Hits hits = getArlasHits(collectionReference, request);

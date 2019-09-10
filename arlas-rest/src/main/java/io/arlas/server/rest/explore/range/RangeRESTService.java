@@ -161,6 +161,7 @@ public class RangeRESTService extends ExploreRESTServices {
         rangeRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = rangeRequest;
+        exploreServices.setValidGeoFilters(rangeRequestHeader);
         request.headerRequest = rangeRequestHeader;
 
         RangeResponse rangeResponse = getFieldRange(request, collectionReference);
@@ -223,6 +224,9 @@ public class RangeRESTService extends ExploreRESTServices {
         RangeRequest rangeRequestHeader = new RangeRequest();
         rangeRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
+        exploreServices.setValidGeoFilters(rangeRequest);
+        exploreServices.setValidGeoFilters(rangeRequestHeader);
+
         request.basicRequest = rangeRequest;
         request.headerRequest = rangeRequestHeader;
 
