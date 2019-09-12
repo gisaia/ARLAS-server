@@ -395,7 +395,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         String pwithinBbox = bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth();
 
         //check if every pwithin param has a value that intersects bbox
-        List<String> simplifiedPwithin = ParamsParser.simplifyPwithinAgainstBbox(ParamsParser.toSemiColonsSeparatedStringList(ParamsParser.getValidGeoFilters(pwithin)), bbox);
+        List<String> simplifiedPwithin = ParamsParser.simplifyPwithinAgainstBbox(ParamsParser.toSemiColonsSeparatedStringList(ParamsParser.getValidGeoFilters(pwithin, true)), bbox);
 
         if (bbox != null && bbox.getNorth() > bbox.getSouth()
                 // if sizes are not equals, it means one multi-value pwithin does not intersects bbox => no results

@@ -157,18 +157,27 @@ The `filter` url part allows the following parameters to be specified:
 | ----------------- | ------------- | ------------------------------ | ---------------------------------------- | -------- |
 | **f**             | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **`:eq:`** and **`:range:`** filters, values can be comma separated (field`:eq:`v1,v2) which stands for an **OR**. For the **`:ne:`**  filter, values can be comma separated (field`:ne:`v1,v2) which stands for an **AND** | true     |
 | **q**             | None          | `{text}` or `{fieldname}:{text}` | A full text search. Optionally, it's possible to search the text on a specific field                       | false    |
-| **pwithin**       | None          | geometry                       | Any element having its centroid contained within the given BBOX : `west, south, east, north`| false    |
+| **pwithin**       | None          | geometry                       | Any element having its centroid contained within the given WKT Polygon or MultiPolygon (clock-wise) or the given BBOX : `west, south, east, north`| false    |
 | **gwithin**       | None          | geometry                       | Any element having its geometry contained within the given WKT string (clock-wise) or the given BBOX : `west, south, east, north` | false    |
 | **gintersect**    | None          | geometry                       | Any element having its geometry intersecting the given WKT string (clock-wise) or the given BBOX : `west, south, east, north` | false    |
-| **notpwithin**    | None          | geometry                       | Any element having its centroid outside the given BBOX : `west, south, east, north` | false    |
+| **notpwithin**    | None          | geometry                       | Any element having its centroid outside the given WKT Polygon or MultiPolygon (clock-wise) or the given BBOX : `west, south, east, north` | false    |
 | **notgwithin**    | None          | geometry                       | Any element having its geometry not contained within the given WKT string (clock-wise) or the given BBOX : `west, south, east, north` | false    |
 | **notgintersect** | None          | geometry                       | Any element having its geometry not intersecting the given WKT string (clock-wise) or the given BBOX : `west, south, east, north` | false    |
 | **dateformat**    | None          | [Joda time pattern](https://www.joda.org/joda-time/apidocs/org/joda/time/format/DateTimeFormat.html)                       | A date format pattern that respects the Joda-time syntax | false    |
 
+!!! info "Important"
+    The given BBOX must respect the following rules :
+    - `west` and `east` must be between -180 and 180 inclusive
+    - `west` must be different from `east` (west=east is invalid)
+    - You can specify `west`>`east` which means the bbox crosses the dateline
+    - `south` and `north` must be between -90 and 90 inclusive and `south`<`north`
 
 !!! info "Important"
-    For parameters that accept WKT, in case of a **Polygon** or **MultiPolygon**, the orientation should be clock-wise (right). Otherwise, ARLAS-server will attempt to parse it as the "Complementary" Polygon.
+    For parameters that accept WKT, in case of a **Polygon** or **MultiPolygon**, the orientation should be clock-wise (right). Otherwise, ARLAS-server will attempt to parse it as the "Complementary" Polygon on the other facet of the planet.
     For instance the polygon `POLYGON  ((-170 -10, -175 10, 175 10, 170 -10, -170 -10))` is counter clock-wise. If it's passed as a parameter, ARLAS-server will interpret it as the Polygon that crosses the dateline `POLYGON  ((-170 -10, -175 10, 185 10, 180 -10, -170 -10))` which is clock-wise.
+
+!!! info "Important"
+    Coordinates of the given **WKT** must be contained in the Envelope -360, 360, -180, 180
 
 #### Filter parameters algebra
 

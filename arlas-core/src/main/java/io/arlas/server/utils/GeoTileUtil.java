@@ -22,10 +22,8 @@ package io.arlas.server.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.exceptions.NotImplementedException;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.GeoTypeEnum;
@@ -37,11 +35,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.*;
-import org.locationtech.jts.io.WKTReader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,43 +89,17 @@ public class GeoTileUtil {
             Polygon bboxGeometry = new Polygon(new LinearRing(l.toArray(new Coordinate[l.size()]), new PrecisionModel(), 4326), null, geometryFactory);
             Geometry queryGeometry = GeoUtil.readWKT(geoAsString);
             List<Geometry> intersections = new ArrayList<>();
+            /** For the case of Polygon and MultiPolygon that cross the dateline, we split it in order to obtain polygons with longitudes between -180 and 180 and therefore apply the intersection with the bboxGeometry **/
             if (queryGeometry.getGeometryType().equals("Polygon") || queryGeometry.getGeometryType().equals("MultiPolygon")) {
                 for (int i = 0; i< queryGeometry.getNumGeometries(); i++) {
-                    Geometry sousQueryGeometry = queryGeometry.getGeometryN(i);
-                    Envelope sousQueryEnvelope = sousQueryGeometry.getEnvelopeInternal();
+                    Geometry sousGeometry = queryGeometry.getGeometryN(i);
                     // Validity of the WKT is already checked in getValidGeoFilters
-                    double queryWest = sousQueryEnvelope.getMinX();
-                    double queryEast = sousQueryEnvelope.getMaxX();
-                    List<Geometry> sousQueryGeometries = new ArrayList<>();
-                    if (queryWest >= -180 && queryEast <= 180) {
-                        /** Polygon longitudes are between -180 and 180*/
-                        sousQueryGeometries.add(sousQueryGeometry);
-                    } else if (queryWest>=180 || queryEast <= -180) {
-                        /** Polygon longitudes are between -360 and -180  OR  180 and 360*/
-                        sousQueryGeometry = GeoUtil.toCanonicalLongitudes(sousQueryGeometry);
-                        sousQueryGeometries.add(sousQueryGeometry);
-                    } else {
-                        /** Polygon longitudes are between -360 and 180  OR  -180 and 360*/
-                        Geometry middle = geometryFactory.toGeometry(new Envelope(-180, 180, -90, 90));
-                        Geometry left = geometryFactory.toGeometry(new Envelope(-360, -180, -90, 90));
-                        Geometry right = geometryFactory.toGeometry(new Envelope(180, 360, -90, 90));
-                        Geometry middleIntersection = middle.intersection(sousQueryGeometry);
-                        Geometry leftIntersection = left.intersection(sousQueryGeometry);
-                        Geometry rightIntersection = right.intersection(sousQueryGeometry);
-                        if (!middleIntersection.toString().equals("POLYGON EMPTY")) {
-                            sousQueryGeometries.add(middleIntersection);
-                        }
-                        if (!rightIntersection.toString().equals("POLYGON EMPTY")) {
-                            sousQueryGeometries.add(GeoUtil.toCanonicalLongitudes(rightIntersection));
-                        }
-                        if (!leftIntersection.toString().equals("POLYGON EMPTY")) {
-                            sousQueryGeometries.add(GeoUtil.toCanonicalLongitudes(leftIntersection));
-                        }
-                    }
-                    sousQueryGeometries.forEach(geoQuery -> {
-                        Geometry intersectionGeometry = geoQuery.intersection(bboxGeometry);
+                    List<Geometry> sousGeometries = GeoUtil.splitGeometryOnDateline(sousGeometry)._1();
+                    sousGeometries.forEach(geometry -> {
+                        Geometry intersectionGeometry = geometry.intersection(bboxGeometry);
                         if (!intersectionGeometry.toString().equals("POLYGON EMPTY")) {
-                            if (intersectionGeometry.getGeometryType().equals("Polygon") || intersectionGeometry.getGeometryType().equals("MultiPolygon")) {
+                            /** we only consider geometries that intersects the bbox as a Polygon**/
+                            if (intersectionGeometry.getGeometryType().equals("Polygon")) {
                                 intersections.add(intersectionGeometry);
                             }
                         }
@@ -141,6 +109,7 @@ public class GeoTileUtil {
                     if (intersections.size() == 1) {
                         return intersections.get(0);
                     } else {
+                        /** in case the geometry intersects the bbox more than one time, we return a MultiPolygon*/
                         return new MultiPolygon(intersections.toArray(new Polygon[intersections.size()]), geometryFactory);
                     }
                 }

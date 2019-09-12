@@ -219,10 +219,10 @@ public class ExploreServices {
 
     public void setValidGeoFilters(Request request) throws ArlasException {
         if (request != null && request.filter != null) {
-            request.filter.pwithin = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.pwithin));
+            request.filter.pwithin = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.pwithin), true);
             request.filter.gwithin = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.gwithin));
             request.filter.gintersect = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.gintersect));
-            request.filter.notpwithin = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.notpwithin));
+            request.filter.notpwithin = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.notpwithin), true);
             request.filter.notgwithin = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.notgwithin));
             request.filter.notgintersect = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.notgintersect));
         }

@@ -20,11 +20,16 @@
 package io.arlas.server.utils;
 
 import io.arlas.server.exceptions.ArlasException;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class GeoUtilTest {
@@ -58,5 +63,43 @@ public class GeoUtilTest {
         assertEquals(geo.toString(), "POLYGON ((200 -10, 200 10, 150 10, 150 -10, 200 -10))");
         GeoUtil.translateLongitudes(geo, 20, true);
         assertEquals(geo.toString(), "POLYGON ((220 -10, 220 10, 170 10, 170 -10, 220 -10))");
+    }
+
+    @Test
+    public void testSplitPolygon() throws ArlasException {
+        /** east > 180 & west is canonical**/
+        Geometry geo = GeoUtil.readWKT("POLYGON((210 -10,210 10,150 10,150 -10,210 -10))");
+        List<Geometry> geometries = GeoUtil.splitGeometryOnDateline(geo)._1();
+        assertTrue(geometries.size() == 2);
+        List<String> geometriesString = geometries.stream().map(geometry -> geometry.toString()).collect(Collectors.toList());
+        assertThat(geometriesString, CoreMatchers.hasItems("POLYGON ((180 10, 180 -10, 150 -10, 150 10, 180 10))", "POLYGON ((-180 -10, -180 10, -150 10, -150 -10, -180 -10))"));
+
+        /** west < -180 & east is canonical**/
+        geo = GeoUtil.readWKT("POLYGON((-320 -10,-320 10,-40 10,-40 -10,-320 -10))");
+        geometries = GeoUtil.splitGeometryOnDateline(geo)._1();
+        assertTrue(geometries.size() == 2);
+        geometriesString = geometries.stream().map(geometry -> geometry.toString()).collect(Collectors.toList());
+        assertThat(geometriesString, CoreMatchers.hasItems("POLYGON ((180 10, 180 -10, 40 -10, 40 10, 180 10))", "POLYGON ((-180 -10, -180 10, -40 10, -40 -10, -180 -10))"));
+
+        /** west and east are canonical*/
+        geo = GeoUtil.readWKT("POLYGON((-80 -10,-80 10,-40 10,-40 -10,-80 -10))");
+        geometries = GeoUtil.splitGeometryOnDateline(geo)._1();
+        assertTrue(geometries.size() == 1);
+        geometriesString = geometries.stream().map(geometry -> geometry.toString()).collect(Collectors.toList());
+        assertThat(geometriesString, CoreMatchers.hasItems("POLYGON ((-80 -10, -80 10, -40 10, -40 -10, -80 -10))"));
+
+        /** west and east are < -180*/
+        geo = GeoUtil.readWKT("POLYGON((-360 -10,-360 10,-200 10,-200 -10,-360 -10))");
+        geometries = GeoUtil.splitGeometryOnDateline(geo)._1();
+        assertTrue(geometries.size() == 1);
+        geometriesString = geometries.stream().map(geometry -> geometry.toString()).collect(Collectors.toList());
+        assertThat(geometriesString, CoreMatchers.hasItems("POLYGON ((0 -10, 0 10, 160 10, 160 -10, 0 -10))"));
+
+        /** west and east are > 180*/
+        geo = GeoUtil.readWKT("POLYGON((200 -10,200 10,360 10,360 -10,200 -10))");
+        geometries = GeoUtil.splitGeometryOnDateline(geo)._1();
+        assertTrue(geometries.size() == 1);
+        geometriesString = geometries.stream().map(geometry -> geometry.toString()).collect(Collectors.toList());
+        assertThat(geometriesString, CoreMatchers.hasItems("POLYGON ((-160 -10, -160 10, 0 10, 0 -10, -160 -10))"));
     }
 }

@@ -19,6 +19,8 @@
 
 package io.arlas.server.utils;
 
+import cyclops.data.tuple.Tuple;
+import cyclops.data.tuple.Tuple2;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import org.locationtech.jts.geom.*;
@@ -27,6 +29,7 @@ import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.operation.valid.IsValidOp;
 import org.locationtech.jts.operation.valid.TopologyValidationError;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,7 +80,7 @@ public class GeoUtil {
         CoordinateFilter coordinateFilter = new CoordinateFilter() {
             @Override
             public void filter(Coordinate coordinate) {
-                if (coordinate.x > 180) {
+                if (coordinate.x >= 180) {
                     coordinate.x = coordinate.x - 360;
                 } else if (coordinate.x <= -180) {
                     coordinate.x = coordinate.x + 360;
@@ -160,5 +163,45 @@ public class GeoUtil {
         } catch (ParseException ex) {
             throw new InvalidParameterException(INVALID_WKT + ": " + ex.getMessage());
         }
+    }
+
+    /**
+     *
+     * @param geometry CW oriented geometry
+     * @return List of geometries with longitudes between -180 and 180 and a join of thoses geometries in a MultiPolygon
+     * @throws ArlasException
+     */
+    public static Tuple2<List<Geometry>, Geometry> splitGeometryOnDateline(Geometry geometry) throws ArlasException {
+        Envelope envelope = geometry.getEnvelopeInternal();
+        List<Geometry> geometries = new ArrayList<>();
+        double envelopeEast = envelope.getMaxX();
+        double envelopeWest = envelope.getMinX();
+        if (envelopeEast <= 180 && envelopeWest >= -180) {
+            /** longitudes between -180 and 180**/
+            geometries.add(geometry);
+            return new Tuple2(geometries, geometry);
+        } else {
+            GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+            Geometry middle = geometryFactory.toGeometry(new Envelope(-180, 180, -90, 90));
+            Geometry left = geometryFactory.toGeometry(new Envelope(-360, -180, -90, 90));
+            Geometry right = geometryFactory.toGeometry(new Envelope(180, 360, -90, 90));
+            if (envelopeWest >= 180 || envelopeEast <= -180) {
+                /** longitudes between 180 and 360 OR longitudes between -360 and -180**/
+                geometries.add(toCanonicalLongitudes(geometry));
+                return new Tuple2(geometries, geometry);
+            } else if (envelopeEast > 180) {
+                /**  west is between -180 and 180 & east is beyond 180*/
+                Polygon[] polygons = {(Polygon)middle.intersection(geometry), (Polygon)toCanonicalLongitudes(right.intersection(geometry))};
+                geometries.add(polygons[0]);
+                geometries.add(polygons[1]);
+                return new Tuple2<>(geometries, new MultiPolygon(polygons,geometryFactory));
+            } else if (envelopeWest < -180) {
+                /**  west is between -360 and -180 & east is between -180 and 180*/
+                Polygon[] polygons = {(Polygon)middle.intersection(geometry), (Polygon)toCanonicalLongitudes(left.intersection(geometry))};
+                geometries.add(polygons[0]);
+                geometries.add(polygons[1]);
+                return new Tuple2<>(geometries, new MultiPolygon(polygons,geometryFactory));            }
+        }
+        return new Tuple2(geometries, geometry);
     }
 }

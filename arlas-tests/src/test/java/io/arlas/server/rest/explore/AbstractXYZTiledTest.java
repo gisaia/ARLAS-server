@@ -44,20 +44,37 @@ public abstract class AbstractXYZTiledTest extends AbstractProjectedTest {
 
         search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-30,60,50,80"));
         handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()), 2, 2, 0), "66.5,0", "80,50");
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((-30 60, -30 80, 50 80, 50 60, -30 60))"));
+        handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()), 2, 2, 0), "66.5,0", "80,50");
 
         search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("180,-67,-1,-5"));
+        // inverted the order of bottomLeft and topRight parameters because of the negative values
+        handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()), 2, 1, 2), "-10,-10", "-60,-90");
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((-1 -67, 180 -67, 180 -5, -1 -5, -1 -67))"));
+        // inverted the order of bottomLeft and topRight parameters because of the negative values
+        handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()), 2, 1, 2), "-10,-10", "-60,-90");
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((359 -67, 360 -67, 360 -5, 359 -5, 359 -67))"));
         // inverted the order of bottomLeft and topRight parameters because of the negative values
         handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()), 2, 1, 2), "-10,-10", "-60,-90");
 
         search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("-5,5,15,20", "-5,-5,15,5")));
         handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString() + ";" + search.filter.pwithin.get(0).get(1).toString()),
                 4, 8, 7), "0,0", "20,10");
+        // TODO: fix validation of multigeometry
+        /*search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("MULTIPOLYGON(((-5 -5, -5 5, 15 5, 15 -5, -5 -5)),((-5 5, -5 20, 15 20, 15 5, -5 5)))")));
+        handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString() + ";" + search.filter.pwithin.get(0).get(1).toString()),
+                4, 8, 7), "0,0", "20,10");*/
 
         search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("-5,-5,15,20")), new MultiValueFilter<>(Arrays.asList("-5,-5,15,5")));
         handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString(), search.filter.pwithin.get(1).get(0).toString()),
                 4, 8, 7), "0,0", "0,10");
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("POLYGON((-5 -5, -5 20, 15 20, 15 -5, -5 -5))")), new MultiValueFilter<>(Arrays.asList("-5,-5,15,5")));
+        handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString(), search.filter.pwithin.get(1).get(0).toString()),
+                4, 8, 7), "0,0", "0,10");
 
         search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("-5,0,0,5"));
+        handleXYZDisjointFromPwithin(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()), 2, 2, 0));
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>("POLYGON((-5 0, -5 5, 0 5, 0 0, -5 0))"));
         handleXYZDisjointFromPwithin(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()), 2, 2, 0));
         search.filter.pwithin = null;
 

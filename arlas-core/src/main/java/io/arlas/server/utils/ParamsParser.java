@@ -282,17 +282,21 @@ public class ParamsParser {
             filter.f.add(multiFilter);
         }
         filter.q = getStringMultiFilter(q);
-        filter.pwithin = getValidGeoFilters(pwithin);
+        filter.pwithin = getValidGeoFilters(pwithin, true);
         filter.gwithin = getValidGeoFilters(gwithin);
         filter.gintersect = getValidGeoFilters(gintersect);
-        filter.notpwithin = getValidGeoFilters(notpwithin);
+        filter.notpwithin = getValidGeoFilters(notpwithin, true);
         filter.notgwithin = getValidGeoFilters(notgwithin);
         filter.notgintersect = getValidGeoFilters(notgintersect);
         filter.dateformat = dateFormat;
         return filter;
     }
 
-    public static List<MultiValueFilter<String>> getValidGeoFilters(List<String> geoStrings) throws ArlasException{
+    public static List<MultiValueFilter<String>> getValidGeoFilters(List<String> geoStrings) throws ArlasException {
+        return getValidGeoFilters(geoStrings, false);
+    }
+
+    public static List<MultiValueFilter<String>> getValidGeoFilters(List<String> geoStrings, boolean isPwithin) throws ArlasException{
         if (geoStrings != null) {
             List<MultiValueFilter<String>> geoFilters =  getStringMultiFilter(geoStrings);
             List<MultiValueFilter<String>> validGeoFilters = new ArrayList<>();
@@ -305,6 +309,7 @@ public class ParamsParser {
                             validGeoFilter.add(geo);
                         } else {
                             Geometry wkt = getValidWKT(geo, null);
+                            /** For the case of Polygon and MultiPolygon, a check of the coordinates orientation is necessary in order to correctly interpret the "desired" polygon **/
                             if (wkt.getGeometryType().equals("Polygon") || wkt.getGeometryType().equals("MultiPolygon")) {
                                 for (int i = 0; i< wkt.getNumGeometries(); i++) {
                                     Geometry sousWkt = wkt.getGeometryN(i);
@@ -337,7 +342,12 @@ public class ParamsParser {
                                         {
                                             throw new InvalidParameterException("A Polygon of the given WKT is right oriented. Unable to reverse the orientation of the polygon : " + err);
                                         }
-                                        validGeoFilter.add(tmpGeometry.toString());
+                                        if (isPwithin) {
+                                            /** split the polygon if it crosses the dateline */
+                                            validGeoFilter.add(GeoUtil.splitGeometryOnDateline(GeoUtil.readWKT(tmpGeometry.toString()))._2().toString());
+                                        } else {
+                                            validGeoFilter.add(tmpGeometry.toString());
+                                        }
                                     }else {
                                         Envelope e = sousWkt.getEnvelopeInternal();
                                         double west = e.getMinX();

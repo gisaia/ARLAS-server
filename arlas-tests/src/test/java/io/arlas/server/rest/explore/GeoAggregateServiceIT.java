@@ -33,7 +33,7 @@ import java.util.Arrays;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-public class GeoAggregateServiceIT extends AbstractGeohashTiledTest {
+public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
 
     @Override
     protected String getUrlPath(String collection) {
