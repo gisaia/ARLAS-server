@@ -51,9 +51,10 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.InternalAggregation;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.geobounds.GeoBounds;
-import org.elasticsearch.search.aggregations.metrics.geocentroid.GeoCentroid;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
+import org.elasticsearch.search.aggregations.metrics.GeoBounds;
+import org.elasticsearch.search.aggregations.metrics.GeoCentroid;
+import org.elasticsearch.search.aggregations.metrics.TopHits;
+
 import org.geojson.*;
 
 import java.io.IOException;
@@ -347,7 +348,7 @@ public class ExploreServices {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection);
                     } else if (subAggregationResponse.name.equals(FluidSearch.FIRST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.LAST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.RANDOM_GEOMETRY)) {
                         subAggregationResponse = null;
-                        long nbHits = ((TopHits) subAggregation).getHits().totalHits;
+                        long nbHits = ((TopHits) subAggregation).getHits().getTotalHits().value;
                         Map source = nbHits > 0 ? ((TopHits) subAggregation).getHits().getHits()[0].getSourceAsMap() : null;
                         GeoJsonObject geometryGeoJson = null;
                         try {

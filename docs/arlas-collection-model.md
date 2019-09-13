@@ -54,7 +54,7 @@ The most important fields are:
 | Attribute      | Description                                       | Mention   |
 | ---------------| ------------------------------------------------- | --------- |
 | index_name     | Name of the index in elasticsearch                | Mandatory |
-| type_name      | Name of the mapping type used within the index    | Mandatory |
+| type_name      | Name of the mapping type used within the index    | Optional (default to `_doc`) |
 | id_path        | Path to the id field in the indexed documents     | Optional  |
 | geometry_path  | Path to an [Elasticsearch geometric](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/geo-shape.html) field in the indexed documents| Optional  |
 | centroid_path  | Path to an [Elasticsearch Geo-point field](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/geo-point.html)  in the indexed documents. | Optional  |
@@ -67,9 +67,12 @@ The most important fields are:
 | update_max_hits | Maximum number of hits you can tag with one `tag request` | Optional|
 
 !!! info "Important 1"
-    Taggable fields paths should not contain `tags`. It's a reserved word.
+    Starting from 11.7.0 `type_name` is optional (defaults to `_doc`).
     
 !!! info "Important 2"
+    Taggable fields paths should not contain `tags`. It's a reserved word.
+    
+!!! info "Important 3"
     Taggable fields must initially be set to a value or to null at index time in ES.
     For instance, if you use [`Logstash`](https://www.elastic.co/products/logstash) to index in ES, you can add in this line in Logstash config file to set the field values to null
     
@@ -80,7 +83,7 @@ The most important fields are:
     ```
     `labels.status` being the taggable field.
 
-!!! info "Important 3"
+!!! info "Important 4"
     `geometry_path` field value must have the same format in all documents within the same collection: It's not supported to index documents where `geometry_path` value is WKT and others as GeoJson. Otherwise a ParseException will be thrown. It goes the same for `centroid_path`.
 
 ## ATOM

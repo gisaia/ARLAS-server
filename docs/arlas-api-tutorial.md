@@ -29,22 +29,15 @@ First create an index named '**airport_index**'.
 curl -XPUT \
   -H 'Content-Type: application/json' \
   'localhost:9200/airport_index?pretty' \
-  --data @resources/settings.json
+  --data @resources/airport_settings_mappings.json
 ```
 
-Then, create the following '**airport**' mapping type, described in the table below :
-
-```shell
-curl -XPUT \
-  -H 'Content-Type: application/json' \
-  'localhost:9200/airport_index/_mapping/airport?pretty' \
-  --data @resources/airport.mapping.json
-```
+**airport_index** mapping is described in the table below :
 
 | Field                 | Description                                       | Type      |
 | --------------------- | ------------------------------------------------- | --------- |
 | id                    | Airport's id                                      | keyword   |
-| name                  | Airport name                                      | text      |
+| name                  | Airport name                                      | keyword   |
 | airport_type          | Airport type                                      | keyword   |
 | country               | Airport's country                                 | keyword   |
 | continent             | Airport's continent                               | keyword   |
@@ -78,7 +71,7 @@ To index these documents in **airport_index** :
 
 ```shell
 curl -H "Content-Type: application/json" \
-  -XPOST 'localhost:9200/airport_index/airport/_bulk?pretty&refresh' \
+  -XPOST 'localhost:9200/airport_index/_bulk?pretty&refresh' \
   --data-binary "@resources/data.txt"
 ```
 
@@ -105,7 +98,6 @@ curl -X PUT \
     ```JSON
             {
               "index_name": "airport_index",
-              "type_name": "airport",
               "id_path": "id",
               "geometry_path": "geometry",
               "centroid_path": "centroid",

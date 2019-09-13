@@ -217,7 +217,7 @@ public class CountRESTService extends ExploreRESTServices {
     protected Hits getArlasHits(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().count(request, collectionReference);
         Hits hits = new Hits(collectionReference.collectionName);
-        hits.totalnb = searchHits.getTotalHits();
+        hits.totalnb = searchHits.getTotalHits().value;
         hits.nbhits = searchHits.getHits().length;
         return hits;
     }

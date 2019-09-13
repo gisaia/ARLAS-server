@@ -23,7 +23,9 @@ package io.arlas.server.core;
 import io.arlas.server.app.ArlasServerConfiguration;
 
 import io.arlas.server.utils.*;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.MaxAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.MinAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.TopHitsAggregationBuilder;
 import org.locationtech.jts.geom.*;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
@@ -50,8 +52,6 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInter
 import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.max.MaxAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -132,6 +132,7 @@ public class FluidSearch {
 
     public SearchResponse exec() throws ArlasException {
         searchRequestBuilder.setQuery(boolQueryBuilder);
+        searchRequestBuilder.setTrackTotalHits(true);
 
         if (collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
             if (exclude.isEmpty()) {
