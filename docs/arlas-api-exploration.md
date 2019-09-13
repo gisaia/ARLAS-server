@@ -245,7 +245,7 @@ In the case of `lt`, `gt`, `lte`, `gte`, `range` operations that are applied on 
 
 `filter` part can also be passed in request header `Partition-Filter` as a serialized json for partitioning concerns.
 
-> Example: `curl --header "Partition-Filter: {f":[{"field":"city","op":"eq","value":"Bordeaux"}]}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
+> Example: `curl --header "Partition-Filter: {f":[[{"field":"city","op":"eq","value":"Bordeaux"}]]}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
 
 ---
 ### Part: `form`
