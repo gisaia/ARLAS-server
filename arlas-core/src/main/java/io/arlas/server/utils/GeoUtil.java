@@ -162,7 +162,6 @@ public class GeoUtil {
                     throw new InvalidParameterException(INVALID_WKT + ": " + err.getMessage());
                 }
             }
-
         } catch (ParseException ex) {
             throw new InvalidParameterException(INVALID_WKT + ": " + ex.getMessage());
         }

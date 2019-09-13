@@ -312,12 +312,12 @@ public class ParamsParser {
                             /** For the case of Polygon and MultiPolygon, a check of the coordinates orientation is necessary in order to correctly interpret the "desired" polygon **/
                             if (wkt.getGeometryType().equals("Polygon") || wkt.getGeometryType().equals("MultiPolygon")) {
                                 for (int i = 0; i< wkt.getNumGeometries(); i++) {
-                                    Geometry sousWkt = wkt.getGeometryN(i);
-                                    if (Orientation.isCCW(sousWkt.getCoordinates())){
+                                    Geometry subWkt = wkt.getGeometryN(i);
+                                    if (Orientation.isCCW(subWkt.getCoordinates())){
                                         // By convention the passed queryGeometry must be interpreted as CW.
                                         // If the orientation is CCW, we try to build the WKT that goes the other side of the planet.
                                         // If the topology of the resulted geometry is not valid, an exception is thrown
-                                        Geometry tmpGeometry  = sousWkt.copy();
+                                        Geometry tmpGeometry  = subWkt.copy();
                                         Envelope tmpEnvelope = tmpGeometry.getEnvelopeInternal();
                                         /** east is the minX and west is the maxX*/
                                         double east = tmpEnvelope.getMinX();
@@ -349,17 +349,17 @@ public class ParamsParser {
                                             validGeoFilter.add(tmpGeometry.toString());
                                         }
                                     }else {
-                                        Envelope e = sousWkt.getEnvelopeInternal();
+                                        Envelope e = subWkt.getEnvelopeInternal();
                                         double west = e.getMinX();
                                         double east = e.getMaxX();
                                         if ((east - west) == 360) {
                                             if (west < -180) {
-                                                GeoUtil.translateLongitudes(sousWkt, -west - 180, true);
+                                                GeoUtil.translateLongitudes(subWkt, -west - 180, true);
                                             } else if (east > 180) {
-                                                GeoUtil.translateLongitudes(sousWkt, east -180, false);
+                                                GeoUtil.translateLongitudes(subWkt, east -180, false);
                                             }
                                         }
-                                        validGeoFilter.add(sousWkt.toString());
+                                        validGeoFilter.add(subWkt.toString());
                                     }
                                 }
                             } else {
