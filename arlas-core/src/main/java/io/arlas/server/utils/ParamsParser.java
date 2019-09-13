@@ -308,7 +308,7 @@ public class ParamsParser {
                             CheckParams.checkBbox(geo);
                             validGeoFilter.add(geo);
                         } else {
-                            Geometry wkt = getValidWKT(geo, null);
+                            Geometry wkt = getValidWKT(geo);
                             /** For the case of Polygon and MultiPolygon, a check of the coordinates orientation is necessary in order to correctly interpret the "desired" polygon **/
                             if (wkt.getGeometryType().equals("Polygon") || wkt.getGeometryType().equals("MultiPolygon")) {
                                 for (int i = 0; i< wkt.getNumGeometries(); i++) {
@@ -390,7 +390,7 @@ public class ParamsParser {
         return strings;
     }
 
-    public static Geometry getValidWKT(String wktString, String geometryIndex) throws InvalidParameterException, NotImplementedException {
+    public static Geometry getValidWKT(String wktString) throws InvalidParameterException {
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Envelope affectedBounds = new Envelope(-360, 360, -180, 180);
         WKTReader wkt = new WKTReader(geometryFactory);
@@ -401,13 +401,12 @@ public class ParamsParser {
             if(filteredCoord.size() != geom.getCoordinates().length){
                 throw new InvalidParameterException("Coordinates must be contained in the Envelope -360, 360, -180, 180");
             }
-            if (!geom.getGeometryType().equals("Polygon") && !geom.getGeometryType().equals("MultiPolygon") && CheckParams.GEO_POINT.equals(geometryIndex)) {
-                throw new NotImplementedException("Querying points that are within a linestring or a point is not supported.");
-            }
-            IsValidOp validOp = new IsValidOp(geom);
-            TopologyValidationError err = validOp.getValidationError();
-            if (err != null) {
-                throw new InvalidParameterException("Invalid WKT: " + err.getMessage());
+            for(int i = 0; i< geom.getNumGeometries(); i++) {
+                IsValidOp validOp = new IsValidOp(geom.getGeometryN(i));
+                TopologyValidationError err = validOp.getValidationError();
+                if (err != null) {
+                    throw new InvalidParameterException(GeoUtil.INVALID_WKT + ": " + err.getMessage());
+                }
             }
         } catch (org.locationtech.jts.io.ParseException ex) {
             throw new InvalidParameterException("Invalid WKT: " + ex.getMessage());
@@ -536,7 +535,6 @@ public class ParamsParser {
     public static List<String> simplifyPwithinAgainstBbox(List<String> geometries, BoundingBox bbox) throws ArlasException {
         List<String> simplifiedGeometries = new ArrayList<>();
         List<MultiValueFilter<String>> geoFilters = ParamsParser.getStringMultiFilter(geometries);
-        CheckParams.checkGeoFilter(geoFilters);
         if (geoFilters != null && !geoFilters.isEmpty()) {
             for (MultiValueFilter<String> geos : geoFilters) {
                 StringBuffer buff = new StringBuffer();

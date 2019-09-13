@@ -60,10 +60,10 @@ public abstract class AbstractXYZTiledTest extends AbstractProjectedTest {
         search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("-5,5,15,20", "-5,-5,15,5")));
         handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString() + ";" + search.filter.pwithin.get(0).get(1).toString()),
                 4, 8, 7), "0,0", "20,10");
-        // TODO: fix validation of multigeometry
-        /*search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("MULTIPOLYGON(((-5 -5, -5 5, 15 5, 15 -5, -5 -5)),((-5 5, -5 20, 15 20, 15 5, -5 5)))")));
-        handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString() + ";" + search.filter.pwithin.get(0).get(1).toString()),
-                4, 8, 7), "0,0", "20,10");*/
+
+        search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("MULTIPOLYGON(((-5 -5, -5 5, 15 5, 15 -5, -5 -5)),((-5 5, -5 20, 15 20, 15 5, -5 5)))")));
+        handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString()),
+                4, 8, 7), "0,0", "20,10");
 
         search.filter.pwithin = Arrays.asList(new MultiValueFilter<>(Arrays.asList("-5,-5,15,20")), new MultiValueFilter<>(Arrays.asList("-5,-5,15,5")));
         handleXYZ(xyzTileGet("pwithin", Arrays.asList(search.filter.pwithin.get(0).get(0).toString(), search.filter.pwithin.get(1).get(0).toString()),
