@@ -12,6 +12,17 @@
     <version>11.6.2-SNAPSHOT</version>
   </parent>
 
+  <distributionManagement>
+    <snapshotRepository>
+      <id>io.arlas.server.admin</id>
+      <url>https://maven.cloudsmith.io/gisaia/public/</url>
+    </snapshotRepository>
+    <repository>
+      <id>io.arlas.server.admin</id>
+      <url>https://maven.cloudsmith.io/gisaia/public/</url>
+    </repository>
+  </distributionManagement>
+
   <dependencies>
     <dependency>
       <groupId>io.arlas</groupId>

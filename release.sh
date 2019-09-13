@@ -266,6 +266,9 @@ if [ "$SIMULATE" == "NO" ]; then
     # publish arlas-core jar
     cd ${BASEDIR}/arlas-core
     mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
+    # publish arlas-admin jar
+    cd ${BASEDIR}/arlas-admin
+    mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
     cd ${BASEDIR}
 else echo "=> Skip pushing jars in maven repo"; fi
 
