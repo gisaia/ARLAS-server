@@ -92,10 +92,10 @@ public class GeoTileUtil {
             /** For the case of Polygon and MultiPolygon that cross the dateline, we split it in order to obtain polygons with longitudes between -180 and 180 and therefore apply the intersection with the bboxGeometry **/
             if (queryGeometry.getGeometryType().equals("Polygon") || queryGeometry.getGeometryType().equals("MultiPolygon")) {
                 for (int i = 0; i< queryGeometry.getNumGeometries(); i++) {
-                    Geometry sousGeometry = queryGeometry.getGeometryN(i);
+                    Geometry subGeometry = queryGeometry.getGeometryN(i);
                     // Validity of the WKT is already checked in getValidGeoFilters
-                    List<Geometry> sousGeometries = GeoUtil.splitGeometryOnDateline(sousGeometry)._1();
-                    sousGeometries.forEach(geometry -> {
+                    List<Geometry> subGeometries = GeoUtil.splitGeometryOnDateline(subGeometry)._1();
+                    subGeometries.forEach(geometry -> {
                         Geometry intersectionGeometry = geometry.intersection(bboxGeometry);
                         if (!intersectionGeometry.toString().equals("POLYGON EMPTY")) {
                             /** we only consider geometries that intersects the bbox as a Polygon**/

@@ -155,10 +155,12 @@ public class GeoUtil {
             if(filteredCoord.size() != geom.getCoordinates().length){
                 throw new InvalidParameterException(INVALID_WKT_RANGE);
             }
-            IsValidOp validOp = new IsValidOp(geom);
-            TopologyValidationError err = validOp.getValidationError();
-            if (err != null) {
-                throw new InvalidParameterException(INVALID_WKT + ": " + err.getMessage());
+            for(int i = 0; i< geom.getNumGeometries(); i++) {
+                IsValidOp validOp = new IsValidOp(geom.getGeometryN(i));
+                TopologyValidationError err = validOp.getValidationError();
+                if (err != null) {
+                    throw new InvalidParameterException(INVALID_WKT + ": " + err.getMessage());
+                }
             }
         } catch (ParseException ex) {
             throw new InvalidParameterException(INVALID_WKT + ": " + ex.getMessage());

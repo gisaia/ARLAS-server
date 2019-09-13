@@ -151,12 +151,6 @@ public class CheckParams {
 
 
     public static void checkFilter(Filter filter) throws ArlasException {
-        checkGeoFilter(filter.pwithin);
-        checkGeoFilter(filter.gwithin);
-        checkGeoFilter(filter.gintersect);
-        checkGeoFilter(filter.notgwithin);
-        checkGeoFilter(filter.notpwithin);
-        checkGeoFilter(filter.notgintersect);
         if ((filter.f == null || filter.f.isEmpty()) && !StringUtil.isNullOrEmpty(filter.dateformat)) {
             throw new BadRequestException("Date format is specified but no date field is queried in f filter");
         }
