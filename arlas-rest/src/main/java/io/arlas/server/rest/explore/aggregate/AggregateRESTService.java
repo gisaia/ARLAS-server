@@ -175,6 +175,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = aggregationsRequest;
+        exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
 
         AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat));
@@ -239,6 +240,8 @@ public class AggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
+        exploreServices.setValidGeoFilters(aggregationsRequest);
+        exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
 

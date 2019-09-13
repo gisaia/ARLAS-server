@@ -21,6 +21,10 @@ package io.arlas.server.core;
 
 
 import io.arlas.server.app.ArlasServerConfiguration;
+
+import io.arlas.server.utils.*;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
+import org.locationtech.jts.geom.*;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
@@ -29,7 +33,6 @@ import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.Metric;
 import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.response.TimestampType;
-import io.arlas.server.utils.*;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -49,11 +52,9 @@ import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.max.MaxAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -333,9 +334,27 @@ public class FluidSearch {
     public FluidSearch filterPWithin(MultiValueFilter<String> pwithin) throws IOException, ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (String pwithinFilter : pwithin) {
-            double[] tlbr = CheckParams.toDoubles(pwithinFilter);
-            orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
+            if (CheckParams.isBboxMatch(pwithinFilter)) {
+                double[] tlbr = CheckParams.toDoubles(pwithinFilter);
+                orBoolQueryBuilder = orBoolQueryBuilder
+                        .should(filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
+            } else {
+                Geometry p = GeoUtil.readWKT(pwithinFilter);
+                String geometryType = p.getGeometryType();
+                if (geometryType.equals("Polygon") || geometryType.equals("MultiPolygon")) {
+                    // If the polygon is not a rectangle, ES provides `geoPolygonQuery` that allows to search geo-points that are within a polygon formed by list of points
+                    // ==> we can't pass polygons with holes nor multipolygons (for multipolygons we can split them)
+                    // !!! ISSUE ES 6.X: points on the edge of a polygon are not considered as within. Fixed in 7.X
+                    for(int i = 0; i< p.getNumGeometries(); i++) {
+                        List<Coordinate> coordinates = Arrays.asList(p.getGeometryN(i).getCoordinates());
+                        List<GeoPoint> geoPoints = new ArrayList<>();
+                        coordinates.forEach(coordinate -> geoPoints.add(new GeoPoint(coordinate.y, coordinate.x)));
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.geoPolygonQuery(collectionReference.params.centroidPath, geoPoints));
+                    }
+                } else {
+                    throw new NotImplementedException(geometryType + " WKT is not supported for `pwithin`");
+                }
+            }
         }
         orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
         boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
@@ -353,9 +372,30 @@ public class FluidSearch {
     public FluidSearch filterNotPWithin(MultiValueFilter<String> notpwithin) throws IOException, ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (String notpwithinFilter : notpwithin) {
-            double[] tlbr = CheckParams.toDoubles(notpwithinFilter);
-            orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(filterNotPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
+            if (CheckParams.isBboxMatch(notpwithinFilter)) {
+                double[] tlbr = CheckParams.toDoubles(notpwithinFilter);
+                orBoolQueryBuilder = orBoolQueryBuilder
+                        .should(filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
+            } else {
+                Geometry p = GeoUtil.readWKT(notpwithinFilter);
+                String geometryType = p.getGeometryType();
+                if (geometryType.equals("Polygon") || geometryType.equals("MultiPolygon")) {
+                    // If the polygon is not a rectangle, ES provides `geoPolygonQuery` that allows to search geo-points that are within a polygon formed by list of points
+                    // ==> we can't pass polygons with holes nor multipolygons (for multipolygons we can split them)
+                    // !!! ISSUE ES 6.X: points on the edge of a polygon are not considered as within. Fixed in 7.X
+                    BoolQueryBuilder andQueryBuilder = QueryBuilders.boolQuery();
+                    for(int i = 0; i< p.getNumGeometries(); i++) {
+                        List<Coordinate> coordinates = Arrays.asList(p.getGeometryN(i).getCoordinates());
+                        List<GeoPoint> geoPoints = new ArrayList<>();
+                        coordinates.forEach(coordinate -> geoPoints.add(new GeoPoint(coordinate.y, coordinate.x)));
+                        /** `andQueryBuilder` will allow us to consider a multipolygon as one entity when we apply notpwithin query*/
+                        andQueryBuilder = andQueryBuilder.should(QueryBuilders.geoPolygonQuery(collectionReference.params.centroidPath, geoPoints));
+                    }
+                    orBoolQueryBuilder = orBoolQueryBuilder.should(andQueryBuilder);
+                } else {
+                    throw new NotImplementedException(geometryType + " WKT is not supported for `notpwithin`");
+                }
+            }
         }
         orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(notpwithin.size());
         boolQueryBuilder = boolQueryBuilder.mustNot(orBoolQueryBuilder);
@@ -834,14 +874,31 @@ public class FluidSearch {
     }
 
     private PolygonBuilder createPolygonBuilder(double[] bbox) {
+        double west = bbox[0];
+        double east = bbox[2];
+        double south = bbox[1];
+        double north = bbox[3];
+
         CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
-        coordinatesBuilder.coordinate(bbox[2], bbox[1]);
-        coordinatesBuilder.coordinate(bbox[2], bbox[3]);
-        coordinatesBuilder.coordinate(bbox[0], bbox[3]);
-        coordinatesBuilder.coordinate(bbox[0], bbox[1]);
-        coordinatesBuilder.coordinate(bbox[2], bbox[1]);
+        /** In ARLAS-api west and east are necessarily between -180 and 180**/
+        /** In case of west > east, it means the bbox crosses the dateline (antiméridien) => a translation of west or east by 360 is necessary to be
+         * correctly interpreted by geoWithinQuery and geoIntersectsQuery*/
+        if (west > east) {
+            if (west >= 0) {
+                west -= 360;
+            } else {
+                /** east is necessarily < 0 */
+                east += 360;
+            }
+        }
+        coordinatesBuilder.coordinate(east, south);
+        coordinatesBuilder.coordinate(east, north);
+        coordinatesBuilder.coordinate(west, north);
+        coordinatesBuilder.coordinate(west, south);
+        coordinatesBuilder.coordinate(east, south);
         // NB : In ES api LEFT is clockwise and RIGHT anticlockwise
         return new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.RIGHT);
+
     }
 
     private MultiPolygonBuilder createMultiPolygonBuilder(MultiPolygon multiPolygon) {
@@ -865,13 +922,12 @@ public class FluidSearch {
     }
 
     private ShapeBuilder getShapeBuilder(String geometry) throws ArlasException {
-        // test if geometry is west, south, east, north commat separated
-        if (isBboxMatch(geometry)) {
-            CheckParams.checkBbox(geometry);
+        // test if geometry is 'west,south,east,north' or wkt string
+        if (CheckParams.isBboxMatch(geometry)) {
             return createPolygonBuilder((double[]) CheckParams.toDoubles(geometry));
         } else {
             // TODO: multilinestring
-            Geometry wktGeometry = GeoTypeMapper.readWKT(geometry);
+            Geometry wktGeometry = GeoUtil.readWKT(geometry);
             if (wktGeometry != null) {
                 String geometryType = wktGeometry.getGeometryType().toUpperCase();
                 switch (geometryType) {
@@ -889,12 +945,6 @@ public class FluidSearch {
             }
             throw new InvalidParameterException("The given geometry is invalid.");
         }
-    }
-
-    private boolean isBboxMatch(String geometry) {
-        String floatPattern = "[-+]?[0-9]*\\.?[0-9]+";
-        String bboxPattern = floatPattern + "," + floatPattern + "," + floatPattern + "," + floatPattern;
-        return Pattern.compile("^" + bboxPattern + "$").matcher(geometry).matches();
     }
 
     public boolean isDateField(String field) throws ArlasException {

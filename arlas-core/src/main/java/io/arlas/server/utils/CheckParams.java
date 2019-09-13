@@ -31,6 +31,13 @@ import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.RangeResponse;
 import org.joda.time.format.DateTimeFormat;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.operation.valid.IsValidOp;
+import org.locationtech.jts.operation.valid.TopologyValidationError;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -39,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class CheckParams {
 
@@ -73,6 +81,12 @@ public class CheckParams {
     public static final String NO_TERM_INTERVAL = "'Interval' should not be specified for term aggregation.";
     public static final String INVALID_FETCHGEOMETRY = "Invalid `fetch_geometry` strategy. It should be `fetch_geometry-bbox`, `fetch_geometry-centroid`, `fetch_geometry-byDefault`" +
             "`fetch_geometry-first`, `fetch_geometry-last`, `fetch_geometry-{field}-first`, `fetch_geometry-{field}-last` or `fetch_geometry";
+    public static final String WITHIN_RELATION = "within";
+    public static final String INTERSECTS_RELATION = "intersects";
+    public static final String GEO_POINT = "GEO_POINT";
+    public static final String GEO_SHAPE = "GEO_SHAPE";
+
+
 
 
     public CheckParams() {
@@ -121,21 +135,28 @@ public class CheckParams {
         }
     }
 
+    public static void checkGeoFilter(List<MultiValueFilter<String>> geoStrings) throws ArlasException{
+        if (geoStrings != null && !geoStrings.isEmpty()) {
+            for (MultiValueFilter<String> geos : geoStrings) {
+                for (String geo : geos) {
+                    if (isBboxMatch(geo)) {
+                        checkBbox(geo);
+                    } else {
+                        checkWKT(geo);
+                    }
+                }
+            }
+        }
+    }
+
+
     public static void checkFilter(Filter filter) throws ArlasException {
-        if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
-            for (MultiValueFilter<String> multiPwithin : filter.pwithin) {
-                for (String pw : multiPwithin) {
-                    checkBbox(pw);
-                }
-            }
-        }
-        if (filter.notpwithin != null && !filter.notpwithin.isEmpty()) {
-            for (MultiValueFilter<String> multiNotPwithin : filter.notpwithin) {
-                for (String npw : multiNotPwithin) {
-                    checkBbox(npw);
-                }
-            }
-        }
+        checkGeoFilter(filter.pwithin);
+        checkGeoFilter(filter.gwithin);
+        checkGeoFilter(filter.gintersect);
+        checkGeoFilter(filter.notgwithin);
+        checkGeoFilter(filter.notpwithin);
+        checkGeoFilter(filter.notgintersect);
         if ((filter.f == null || filter.f.isEmpty()) && !StringUtil.isNullOrEmpty(filter.dateformat)) {
             throw new BadRequestException("Date format is specified but no date field is queried in f filter");
         }
@@ -161,12 +182,22 @@ public class CheckParams {
         }
     }
 
+    public static boolean isBboxMatch(String geometry) {
+        String floatPattern = "[-+]?[0-9]*\\.?[0-9]+";
+        String bboxPattern = floatPattern + "," + floatPattern + "," + floatPattern + "," + floatPattern;
+        return Pattern.compile("^" + bboxPattern + "$").matcher(geometry).matches();
+    }
+
     public static void checkBbox(String bbox) throws InvalidParameterException {
         double[] tlbr = CheckParams.toDoubles(bbox);
         // west, south, east, north
         if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
             throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
         }
+    }
+
+    public static void checkWKT(String wktString) throws InvalidParameterException {
+        GeoUtil.checkWKT(wktString);
     }
 
     public static void checkAggregationIncludeParameter(Aggregation aggregationModel) throws ArlasException {

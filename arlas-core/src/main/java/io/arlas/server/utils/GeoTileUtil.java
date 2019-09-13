@@ -22,25 +22,28 @@ package io.arlas.server.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.exceptions.NotImplementedException;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.GeoTypeEnum;
 import org.apache.lucene.geo.Rectangle;
 import org.elasticsearch.common.geo.GeoHashUtils;
-import org.geojson.GeoJsonObject;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
-import org.locationtech.jts.io.geojson.GeoJsonWriter;
+import org.locationtech.jts.geom.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GeoTileUtil {
+
+    public static final String INVALID_WKT_RANGE = "Invalid WKT geometry. Coordinates out of range";
+    public static final String INVALID_WKT = "Invalid WKT geometry.";
 
     public static final String INVALID_GEOHASH = "Invalid geohash";
     private static final GeometryFactory geoFactory = new GeometryFactory();
@@ -62,46 +65,68 @@ public class GeoTileUtil {
         return new BoundingBox(r.maxLat, r.minLat, r.minLon, r.maxLon);
     }
 
-    public static BoundingBox bboxIntersects(BoundingBox bbox, String bboxCorners) throws ArlasException {
-        BoundingBox ret = null;
-        if (bbox != null && bboxCorners != null) {
-            // west, south, east, north
-            double topBboxCorner = Double.parseDouble(bboxCorners.split(",")[3].trim());
-            double leftBboxCorner = Double.parseDouble(bboxCorners.split(",")[0].trim());
-            double bottomBboxCorner = Double.parseDouble(bboxCorners.split(",")[1].trim());
-            double rightBboxCorner = Double.parseDouble(bboxCorners.split(",")[2].trim());
-            if (leftBboxCorner < rightBboxCorner) {
-                // If the bbox is in Paris region
-                ret = new BoundingBox(Math.min(bbox.getNorth(), topBboxCorner),
-                        Math.max(bbox.getSouth(), bottomBboxCorner),
-                        Math.max(bbox.getWest(), leftBboxCorner),
-                        Math.min(bbox.getEast(), rightBboxCorner));
-                if (ret.getWest() > ret.getEast()) {
-                    ret = null;
+    /**
+     *
+     * @param bbox a BoundingBox object. The latitudes must be between -90 and 90 and the longitudes between -180 and 180 and the west<east
+     * @param geoAsString a bbox string : 'west,south,east,north' or a WKT string
+     * @return returns the intersection between the given `bbox` and the `geoAsString`
+     * @throws ArlasException
+     */
+    public static Geometry bboxIntersects(BoundingBox bbox, String geoAsString) throws ArlasException {
+        Geometry ret = null;
+        if (bbox != null && geoAsString != null) {
+            boolean isBBOX = CheckParams.isBboxMatch(geoAsString);
+            if (isBBOX) {
+                geoAsString = GeoUtil.bboxToWKT(geoAsString);
+            }
+            GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+            List<Coordinate> l = new ArrayList();
+            l.add(new Coordinate(bbox.getWest(),bbox.getNorth()));
+            l.add(new Coordinate(bbox.getEast(),bbox.getNorth()));
+            l.add(new Coordinate(bbox.getEast(),bbox.getSouth()));
+            l.add(new Coordinate(bbox.getWest(),bbox.getSouth()));
+            l.add(new Coordinate(bbox.getWest(),bbox.getNorth()));
+            Polygon bboxGeometry = new Polygon(new LinearRing(l.toArray(new Coordinate[l.size()]), new PrecisionModel(), 4326), null, geometryFactory);
+            Geometry queryGeometry = GeoUtil.readWKT(geoAsString);
+            List<Geometry> intersections = new ArrayList<>();
+            /** For the case of Polygon and MultiPolygon that cross the dateline, we split it in order to obtain polygons with longitudes between -180 and 180 and therefore apply the intersection with the bboxGeometry **/
+            if (queryGeometry.getGeometryType().equals("Polygon") || queryGeometry.getGeometryType().equals("MultiPolygon")) {
+                for (int i = 0; i< queryGeometry.getNumGeometries(); i++) {
+                    Geometry sousGeometry = queryGeometry.getGeometryN(i);
+                    // Validity of the WKT is already checked in getValidGeoFilters
+                    List<Geometry> sousGeometries = GeoUtil.splitGeometryOnDateline(sousGeometry)._1();
+                    sousGeometries.forEach(geometry -> {
+                        Geometry intersectionGeometry = geometry.intersection(bboxGeometry);
+                        if (!intersectionGeometry.toString().equals("POLYGON EMPTY")) {
+                            /** we only consider geometries that intersects the bbox as a Polygon**/
+                            if (intersectionGeometry.getGeometryType().equals("Polygon")) {
+                                intersections.add(intersectionGeometry);
+                            }
+                        }
+                    });
                 }
-            } else if (leftBboxCorner > rightBboxCorner) { // If the bbox is in Béring Strait
-                // If the bbox intersects the tile twice
-                if (bbox.getWest() < rightBboxCorner && bbox.getEast() > leftBboxCorner) {
-                    throw new NotImplementedException(FluidSearch.NOT_SUPPORTED_BBOX_INTERSECTION);
-                } else {
-                    // If there is one intersection
-                    ret = new BoundingBox(Math.min(bbox.getNorth(), topBboxCorner), Math.max(bbox.getSouth(), bottomBboxCorner), bbox.getWest(), bbox.getEast());
-                    // if only leftBboxCorner is "lefter" than the east of the tile ==> (rightBboxCorner < west of bbox)
-                    if (bbox.getEast() > leftBboxCorner) {
-                        ret.setWest(Math.max(bbox.getWest(), leftBboxCorner));
-                        // and we dont set the east which stays bbox.getEast()
-                    } else if (bbox.getWest() < rightBboxCorner) {
-                        // if only rightBboxCorner is "righter" than the west of tile ==> (leftBboxCorner > east of bbox)
-                        ret.setEast(Math.min(bbox.getEast(), rightBboxCorner));
-                        // and we dont set the west which stays bbox.getWest()
+                if (!intersections.isEmpty()) {
+                    if (intersections.size() == 1) {
+                        return intersections.get(0);
                     } else {
-                        ret = null;
+                        /** in case the geometry intersects the bbox more than one time, we return a MultiPolygon*/
+                        return new MultiPolygon(intersections.toArray(new Polygon[intersections.size()]), geometryFactory);
                     }
                 }
+            } else {
+                Envelope queryEnveloppe = queryGeometry.getEnvelopeInternal();
+                double queryWest = queryEnveloppe.getMinX();
+                double queryEast = queryEnveloppe.getMaxX();
+                if (queryWest>=180 || queryEast <= -180) {
+                    queryGeometry = GeoUtil.toCanonicalLongitudes(queryGeometry);
+                }
+                Geometry intersectionGeometry = queryGeometry.intersection(bboxGeometry);
+                return intersectionGeometry;
             }
         }
         return ret;
     }
+
 
     public static BoundingBox getBoundingBox(final int x, final int y, final int z) {
         double north = getLat(y, z);
@@ -148,7 +173,7 @@ public class GeoTileUtil {
         Object geoJsonObject = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
         if (geoJsonObject != null) {
             if (collectionReference.params.getGeometryType().equals(GeoTypeEnum.WKT)) {
-                geometry = GeoTypeMapper.readWKT(geoJsonObject.toString());
+                geometry = GeoUtil.readWKT(geoJsonObject.toString());
             } else {
                 GeoJsonReader reader = new GeoJsonReader();
                 ObjectWriter writer = new ObjectMapper().writer();

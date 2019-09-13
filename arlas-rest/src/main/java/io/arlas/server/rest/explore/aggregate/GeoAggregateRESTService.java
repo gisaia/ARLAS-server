@@ -181,6 +181,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = aggregationsRequest;
+        exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
         FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), Optional.empty());
         return cache(Response.ok(fc), maxagecache);
@@ -303,7 +304,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         String pwithinBbox = bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth();
 
         //check if every pwithin param has a value that intersects bbox
-        List<String> simplifiedPwithin = ParamsParser.simplifyPwithinAgainstBbox(pwithin, bbox);
+        List<String> simplifiedPwithin = ParamsParser.simplifyPwithinAgainstBbox(ParamsParser.toSemiColonsSeparatedStringList(ParamsParser.getValidGeoFilters(pwithin, true)), bbox);
 
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
@@ -326,6 +327,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
             aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
             MixedRequest request = new MixedRequest();
+            exploreServices.setValidGeoFilters(aggregationsRequestHeader);
             request.basicRequest = aggregationsRequest;
             request.headerRequest = aggregationsRequestHeader;
             FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), Optional.of(geohash));
@@ -391,9 +393,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
+        exploreServices.setValidGeoFilters(aggregationRequest);
+        exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.basicRequest = aggregationRequest;
         request.headerRequest = aggregationsRequestHeader;
-
         FeatureCollection fc = getFeatureCollection(request, collectionReference, (aggregationRequest.form != null && aggregationRequest.form.flat), Optional.empty());
 
         return cache(Response.ok(fc), maxagecache);

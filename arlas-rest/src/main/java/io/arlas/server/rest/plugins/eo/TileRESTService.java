@@ -227,7 +227,7 @@ public class TileRESTService extends ExploreRESTServices {
         String gIntersectBbox = bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth();
 
         //check if every gwithin param has a value that intersects bbox
-        List<String> simplifiedGintersect = ParamsParser.simplifyPwithinAgainstBbox(gwithin, bbox);
+        List<String> simplifiedGintersect = ParamsParser.simplifyPwithinAgainstBbox(ParamsParser.toSemiColonsSeparatedStringList(ParamsParser.getValidGeoFilters(gwithin)), bbox);
 
         if (bbox != null && bbox.getNorth() > bbox.getSouth()
                 // if sizes are not equals, it means one multi-value gwithin does not intersects bbox => no results
