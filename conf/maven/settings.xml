@@ -13,5 +13,10 @@
             <username>${env.CLOUDSMITH_LOGIN}</username>
             <password>${env.CLOUDSMITH_API_KEY}</password>
         </server>
+        <server>
+            <id>io.arlas.server.admin</id>
+            <username>${env.CLOUDSMITH_LOGIN}</username>
+            <password>${env.CLOUDSMITH_API_KEY}</password>
+        </server>
     </servers>
 </settings>
