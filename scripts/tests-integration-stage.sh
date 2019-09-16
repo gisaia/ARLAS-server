@@ -14,6 +14,14 @@ function clean_docker {
 
 function clean_exit {
     ARG=$?
+  # Allow errors on cleanup
+    set +e
+
+    if [[ "$ARG" != 0 ]]; then
+        # In case of error, print containers logs (if any)
+        docker logs elasticsearch
+        docker logs arlas-server
+    fi
 	echo "===> Exit stage ${STAGE} = ${ARG}"
     clean_docker
     exit $ARG
@@ -90,6 +98,7 @@ function test_rest() {
 }
 
 function test_wfs() {
+    sleep 30s
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
     export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"

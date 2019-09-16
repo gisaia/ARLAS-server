@@ -86,7 +86,7 @@ case $i in
 esac
 done
 
-ELASTIC_VERSIONS_7=("7.0.1")
+ELASTIC_VERSIONS_7=("7.0.1","7.1.0")
 case $ELASTIC_RANGE in
     "7")
         ELASTIC_VERSIONS=( "${ELASTIC_VERSIONS_7[@]}" )

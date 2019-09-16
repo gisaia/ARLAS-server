@@ -165,8 +165,6 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
 
-        // PUT new collection with Index name Only
-        handleInvalidCollectionParameters(put(jsonAsMap));
 
         // PUT new collection with Index type Only
         jsonAsMap.remove(CollectionReference.INDEX_NAME);
@@ -230,10 +228,15 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     public void testNotFoundCollectionParameters() throws Exception {
         Map<String, Object> jsonAsMap = new HashMap<>();
         jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
-        jsonAsMap.put(CollectionReference.TYPE_NAME, DataSetTool.DATASET_TYPE_NAME);
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
-        jsonAsMap.put(CollectionReference.ID_PATH, "unknownId");
+        jsonAsMap.put(CollectionReference.ID_PATH, "id");
+
+        // PUT new collection without specifying type_name
+        handleNotFoundCollectionParameters(put(jsonAsMap));
+
+        jsonAsMap.put(CollectionReference.TYPE_NAME, DataSetTool.DATASET_TYPE_NAME);
+        jsonAsMap.put(CollectionReference.ID_PATH, "unkownId");
 
         // PUT new collection with non-existing 'id' field from DATASET_TYPE_NAME in DATASET_INDEX_NAME
         handleNotFoundCollectionParameters(put(jsonAsMap));
