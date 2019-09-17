@@ -98,7 +98,6 @@ function test_rest() {
 }
 
 function test_wfs() {
-    sleep 30s
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
     export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"

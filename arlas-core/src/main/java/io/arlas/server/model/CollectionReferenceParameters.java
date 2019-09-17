@@ -34,7 +34,7 @@ public class CollectionReferenceParameters {
     @JsonProperty(value = "index_name", required = true)
     public String indexName;
 
-    @JsonProperty(value = "type_name", required = true, defaultValue = "_doc")
+    @JsonProperty(value = "type_name", defaultValue = "_doc")
     public String typeName = "_doc";
 
     @JsonProperty(value = "id_path", required = true)

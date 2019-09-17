@@ -22,16 +22,7 @@ esac
 done
 
 function clean_exit {
-     ARG=$?
-
-    # Allow errors on cleanup
-    set +e
-
-    if [[ "$ARG" != 0 ]]; then
-        # In case of error, print containers logs (if any)
-        docker-compose logs
-    fi
-
+    ARG=$?
     exit $ARG
 }
 trap clean_exit EXIT

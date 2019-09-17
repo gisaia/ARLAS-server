@@ -26,6 +26,7 @@ You need a Java Runtime (JRE) 8 and an ElasticSearch server running. ARLAS is co
 | 7.0.1 |
 | 7.1.0 |
 | 7.2.1 |
+| 7.3.2 |
 
 ## Build
 
@@ -119,7 +120,7 @@ We use our own versioning schema which looks like ```1.5.6``` where :
 
 For Elasticsearch compliance, values currently supported are :
 
-- `6` : indicates that this version is compliant with Elasticsearch 7.x
+- `7` : indicates that this version is compliant with Elasticsearch 7.x
 
 For the versions available, see the [releases](https://github.com/gisaia/ARLAS-server/releases) on this repository.
 
