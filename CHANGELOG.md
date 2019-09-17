@@ -1,5 +1,21 @@
 # Change Log
 
+## [v11.6.2](https://github.com/gisaia/ARLAS-server/tree/v11.6.2) (2019-09-16)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.6.1...v11.6.2)
+
+**New stuff:**
+
+- Add HTTPS in the swagger definition [\#513](https://github.com/gisaia/ARLAS-server/issues/513)
+- Publish arlas-admin module in cloudsmith [\#511](https://github.com/gisaia/ARLAS-server/issues/511)
+- Pwithin request should support WKT geometry [\#500](https://github.com/gisaia/ARLAS-server/issues/500)
+- Add HTTPS in the swagger definition [\#515](https://github.com/gisaia/ARLAS-server/pull/515) ([alainbodiguel](https://github.com/alainbodiguel))
+
+**Fixed bugs:**
+
+- gwithin : WKT or BBOX orientation is only considered when the smallest polygon crosses the antimeridian [\#514](https://github.com/gisaia/ARLAS-server/issues/514)
+- WKT : validate each element of a MULTIGEOMETRY separately  [\#512](https://github.com/gisaia/ARLAS-server/issues/512)
+
 ## [v11.6.1](https://github.com/gisaia/ARLAS-server/tree/v11.6.1) (2019-09-06)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.6.0...v11.6.1)
