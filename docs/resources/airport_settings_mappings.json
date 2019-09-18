@@ -1,0 +1,49 @@
+{
+  "settings" : {
+    "index" : {
+      "number_of_shards" : 1
+    }
+  },
+  "mappings" : {
+    "_source": {
+      "enabled": true
+    },
+    "dynamic": false,
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "keyword"
+      },
+      "airport_type": {
+        "type": "keyword"
+      },
+      "country": {
+        "type": "keyword"
+      },
+      "continent": {
+        "type": "keyword"
+      },
+      "area": {
+        "type": "double"
+      },
+      "arrival_passengers": {
+        "type": "long"
+      },
+      "departure_passengers": {
+        "type": "long"
+      },
+      "startdate": {
+        "type": "date",
+        "format": "yyyy-MM-dd"
+      },
+      "geometry": {
+        "type": "geo_point"
+      },
+      "centroid": {
+        "type": "geo_point"
+      }
+    }
+  }
+}

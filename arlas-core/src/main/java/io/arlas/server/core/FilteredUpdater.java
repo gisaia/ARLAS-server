@@ -55,7 +55,7 @@ public class FilteredUpdater extends FluidSearch{
             throw new io.arlas.server.exceptions.NotAllowedException("The path "+tag.path+" is not part of the fields that can be tagged.");
         }
 
-        UpdateByQueryRequestBuilder updateByQuery = UpdateByQueryAction.INSTANCE.newRequestBuilder(this.getClient());
+        UpdateByQueryRequestBuilder updateByQuery = new UpdateByQueryRequestBuilder(this.getClient(),UpdateByQueryAction.INSTANCE);
         updateByQuery
                 .source(collectionReference.params.indexName)
                 .filter(this.getBoolQueryBuilder())

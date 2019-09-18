@@ -353,8 +353,9 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
-    protected void handleInvalidGeohashTile(ValidatableResponse then) {
-        then.statusCode(400);
+    protected void handleNotMatchingGeohashTile(ValidatableResponse then) {
+        then.statusCode(200)
+                .body("features", equalTo(null));
     }
 
     //----------------------------------------------------------------

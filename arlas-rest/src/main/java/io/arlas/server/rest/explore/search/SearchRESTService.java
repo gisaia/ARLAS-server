@@ -310,7 +310,7 @@ public class SearchRESTService extends ExploreRESTServices {
         SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
         Search searchRequest  = (Search)request.basicRequest;
         Hits hits = new Hits(collectionReference.collectionName);
-        hits.totalnb = searchHits.getTotalHits();
+        hits.totalnb = searchHits.getTotalHits().value;
         hits.nbhits = searchHits.getHits().length;
         HashMap<String,Link> links = new HashMap<>();
         hits.hits = new ArrayList<>((int) hits.nbhits);

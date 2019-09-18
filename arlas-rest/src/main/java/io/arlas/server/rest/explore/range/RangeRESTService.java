@@ -38,8 +38,8 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.metrics.max.Max;
-import org.elasticsearch.search.aggregations.metrics.min.Min;
+import org.elasticsearch.search.aggregations.metrics.Max;
+import org.elasticsearch.search.aggregations.metrics.Min;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -242,7 +242,7 @@ public class RangeRESTService extends ExploreRESTServices {
         Aggregation firstAggregation = response.getAggregations().asList().get(0);
         Aggregation secondAggregation = response.getAggregations().asList().get(1);
 
-        rangeResponse.totalnb = response.getHits().getTotalHits();
+        rangeResponse.totalnb = response.getHits().getTotalHits().value;
         if (rangeResponse.totalnb > 0) {
             if (firstAggregation.getName().equals(FluidSearch.FIELD_MIN_VALUE)) {
                 rangeResponse.min = ((Min)firstAggregation).getValue();

@@ -39,22 +39,24 @@ import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ResponseCacheManager;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.*;
-import org.apache.lucene.geo.Rectangle;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.geo.GeoHashUtils;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.InternalAggregation;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.geobounds.GeoBounds;
-import org.elasticsearch.search.aggregations.metrics.geocentroid.GeoCentroid;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
+import org.elasticsearch.search.aggregations.metrics.GeoBounds;
+import org.elasticsearch.search.aggregations.metrics.GeoCentroid;
+import org.elasticsearch.search.aggregations.metrics.TopHits;
+
 import org.geojson.*;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.io.GeohashUtils;
+import org.locationtech.spatial4j.shape.Rectangle;
 
 import java.io.IOException;
 import java.util.*;
@@ -319,7 +321,7 @@ public class ExploreServices {
                     element.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
                 } else {
                     // return the Extent of the geohash
-                    element.geometry = createPolygonFromRectangle(GeoHashUtils.bbox(element.keyAsString.toString()));
+                    element.geometry = createPolygonFromRectangle(GeohashUtils.decodeBoundary(element.keyAsString.toString(), SpatialContext.GEO));
                 }
             } else {
                 element.key = bucket.getKey();
@@ -347,7 +349,7 @@ public class ExploreServices {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection);
                     } else if (subAggregationResponse.name.equals(FluidSearch.FIRST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.LAST_GEOMETRY) || subAggregationResponse.name.equals(FluidSearch.RANDOM_GEOMETRY)) {
                         subAggregationResponse = null;
-                        long nbHits = ((TopHits) subAggregation).getHits().totalHits;
+                        long nbHits = ((TopHits) subAggregation).getHits().getTotalHits().value;
                         Map source = nbHits > 0 ? ((TopHits) subAggregation).getHits().getHits()[0].getSourceAsMap() : null;
                         GeoJsonObject geometryGeoJson = null;
                         try {
@@ -466,14 +468,14 @@ public class ExploreServices {
     }
 
     private GeoPoint getGeohashCentre(String geohash) {
-        Rectangle bbox = GeoHashUtils.bbox(geohash);
+        Rectangle bbox = GeohashUtils.decodeBoundary(geohash, SpatialContext.GEO);
 
-        Double maxLon = bbox.maxLon;
-        Double minLon = bbox.minLon;
+        Double maxLon = bbox.getMaxX();
+        Double minLon = bbox.getMinX();
         Double lon = (maxLon + minLon) / 2;
 
-        Double maxLat = bbox.maxLat;
-        Double minLat = bbox.minLat;
+        Double maxLat = bbox.getMaxY();
+        Double minLat = bbox.getMinY();
         Double lat = (maxLat + minLat) / 2;
 
         return new GeoPoint(lat, lon);
@@ -496,10 +498,10 @@ public class ExploreServices {
     private Polygon createPolygonFromRectangle(Rectangle rectangle) {
         Polygon polygon = new Polygon();
         List<LngLatAlt> bounds = new ArrayList<>();
-        bounds.add(new LngLatAlt(rectangle.minLon, rectangle.maxLat));
-        bounds.add(new LngLatAlt(rectangle.maxLon, rectangle.maxLat));
-        bounds.add(new LngLatAlt(rectangle.maxLon, rectangle.minLat));
-        bounds.add(new LngLatAlt(rectangle.minLon, rectangle.minLat));
+        bounds.add(new LngLatAlt(rectangle.getMinX(), rectangle.getMaxY()));
+        bounds.add(new LngLatAlt(rectangle.getMaxX(), rectangle.getMaxY()));
+        bounds.add(new LngLatAlt(rectangle.getMaxX(), rectangle.getMinY()));
+        bounds.add(new LngLatAlt(rectangle.getMinX(), rectangle.getMinY()));
         polygon.add(bounds);
         return polygon;
     }

@@ -27,8 +27,6 @@ import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.GeoTypeEnum;
-import org.apache.lucene.geo.Rectangle;
-import org.elasticsearch.common.geo.GeoHashUtils;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -36,14 +34,15 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.locationtech.jts.geom.*;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.io.GeohashUtils;
+import org.locationtech.spatial4j.shape.Rectangle;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GeoTileUtil {
 
-    public static final String INVALID_WKT_RANGE = "Invalid WKT geometry. Coordinates out of range";
-    public static final String INVALID_WKT = "Invalid WKT geometry.";
 
     public static final String INVALID_GEOHASH = "Invalid geohash";
     private static final GeometryFactory geoFactory = new GeometryFactory();
@@ -58,11 +57,11 @@ public class GeoTileUtil {
     public static BoundingBox getBoundingBox(final String geohash) throws ArlasException {
         Rectangle r;
         try {
-            r = GeoHashUtils.bbox(geohash);
+            r = GeohashUtils.decodeBoundary(geohash, SpatialContext.GEO);
         } catch (Exception e) {
             throw new InvalidParameterException(INVALID_GEOHASH);
         }
-        return new BoundingBox(r.maxLat, r.minLat, r.minLon, r.maxLon);
+        return new BoundingBox(r.getMaxY(), r.getMinY(), r.getMinX(), r.getMaxX());
     }
 
     /**

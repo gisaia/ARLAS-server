@@ -115,7 +115,7 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
                     .setSize(size)
                     .setQuery(boolQueryBuilder).get();
 
-            collectionReferences.totalCollectionReferences = response.getHits().getTotalHits();
+            collectionReferences.totalCollectionReferences = response.getHits().getTotalHits().value;
             for (SearchHit hit : response.getHits().getHits()) {
                 String source = hit.getSourceAsString();
                 try {

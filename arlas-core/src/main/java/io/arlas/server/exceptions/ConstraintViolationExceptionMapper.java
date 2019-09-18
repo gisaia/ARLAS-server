@@ -33,6 +33,6 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
     public Response toResponse(ConstraintViolationException e) {
         logger.error("Error occurred", e);
         return ArlasException.getResponse(e, Response.Status.BAD_REQUEST,
-                "Invalid JSON parameter. Fields indexName and typeName are mandatory.");
+                "Invalid JSON parameter. Field `indexName` is mandatory.");
     }
 }

@@ -86,15 +86,15 @@ case $i in
 esac
 done
 
-ELASTIC_VERSIONS_6=("6.0.1","6.1.3","6.2.4","6.3.2","6.4.3","6.5.4","6.6.2","6.7.2","6.8.1")
+ELASTIC_VERSIONS_7=("7.0.1","7.1.0","7.2.1","7.3.2")
 case $ELASTIC_RANGE in
-    "6")
-        ELASTIC_VERSIONS=( "${ELASTIC_VERSIONS_6[@]}" )
+    "7")
+        ELASTIC_VERSIONS=( "${ELASTIC_VERSIONS_7[@]}" )
         ;;
     *)
         echo "Unknown --elasticsearch-range value"
         echo "Possible values : "
-        echo "   -es=6 for versions ${ELASTIC_VERSIONS_6[*]}"
+        echo "   -es=7 for versions ${ELASTIC_VERSIONS_7[*]}"
         usage
 esac
 
