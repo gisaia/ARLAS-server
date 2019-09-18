@@ -57,13 +57,7 @@ Then, go to `http://localhost:9999/arlas/swagger` for exploring and testing the 
 ### Docker
 
 ```sh
-docker run arlas-server:latest
-```
-
-or
-
-```sh
-docker-compose up
+docker run -d -p 9999:9999  -e ARLAS_ELASTIC_NODES=my-host:9300 -e ARLAS_ELASTIC_CLUSTER=elasticsearch  gisaia/arlas-server:latest
 ```
 
 ## Running the tests
