@@ -28,6 +28,8 @@ docker run --rm \
 	busybox \
         sh -c '(mkdir /opt/maven/target || echo "target exists") \
         && (mkdir /opt/maven/target/tmp || echo "target/tmp exists") \
+        && (mkdir /opt/maven/target/tmp/typescript-fetch || echo "target/tmp/typescript-fetch exists") \
+        && (mkdir /opt/maven/target/tmp/python-api || echo "target/tmp/python-api exists") \
         && (mkdir /opt/maven/target/generated-docs || echo "target/generated-docs exists") \
         && (cp -r /opt/maven/docs/* /opt/maven/target/generated-docs)'
 docker run --rm \
@@ -47,9 +49,10 @@ docker run --rm \
     
 echo "=> Generate API"
 docker run --rm \
-	-v $PWD:/opt/gen \
-	-v $HOME/.m2:/root/.m2 \
-	gisaia/swagger-codegen:2.3.1
+    --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
+    --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
+	gisaia/swagger-codegen-2.3.1 \
+        -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
 
 echo "=> Generate Typescript client documentation"
 docker run --rm \
@@ -61,9 +64,11 @@ docker run --rm \
 
 echo "=> Generate Python API and its documentation"
 docker run --rm \
-	-v $PWD:/opt/gen \
-	-v $HOME/.m2:/root/.m2 \
-	gisaia/swagger-codegen-python:2.2.3
+    --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
+    --mount dst=/input/config.json,src="$PWD/conf/swagger/python-config.json",type=bind,ro \
+    --mount dst=/output,src="$PWD/target/tmp/python-api",type=bind \
+	gisaia/swagger-codegen-2.2.3 \
+        -l python --type-mappings GeoJsonObject=object
 
 BASEDIR=$PWD
 
