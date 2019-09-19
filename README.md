@@ -106,10 +106,10 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## Versioning :
 
-We use our own versioning schema which looks like ```1.5.6``` where :
+We use our own versioning schema which looks like ```11.7.0``` where :
 
 - `11` : represents ARLAS-server API version
-- `7` : represents Elasticsearch compliance (see below for value correspondence)
+- `7` : represents Elasticsearch compliance (see above for value correspondence)
 - `0` : represents ARLAS-server incremental version
 
 For Elasticsearch compliance, values currently supported are :
