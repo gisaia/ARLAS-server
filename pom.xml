@@ -4,7 +4,7 @@
 
   <groupId>io.arlas</groupId>
   <artifactId>arlas-server-parent</artifactId>
-  <version>11.6.3-SNAPSHOT</version>
+  <version>11.7.0</version>
   <packaging>pom</packaging>
   <name>ARLAS server parent</name>
 
