@@ -86,18 +86,18 @@ public class Documentation {
             "\n \n" +
             "       :lt:     | {fieldName}  is less than {value}                | numeric " +
             "\n \n" +
-            "       :range:  | {fieldName} is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, then min & max should be timestamps in millisecond or a Date expression";
+            "       :range:  | {fieldName} is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, then min & max should be timestamps in millisecond or a Date expression" +
+            "\n \n" +
+            "       :within: | {GeofieldName}` is within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` " +
+            "\n \n" +
+            "       :notwithin:| {GeofieldName} is not within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` " +
+            "\n \n" +
+            "       :intersects:| {GeofieldName} intersects the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` " +
+            "\n \n" +
+            "       :notintersects:| {GeofieldName} does not intersect the `{given WKT string or the given }` | a WKT string or the BBOX string : `\"west, south, east, north\"` ";
 
     public static final String FILTER_PARAM_Q = "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}";
-    public static final String FILTER_PARAM_PWITHIN = "Any element having its centroid contained within the given WKT Polygon or MultiPolygon (clock-wise) or the given BBOX : `west, south, east, north`. ";
-    public static final String FILTER_PARAM_GWITHIN = "Any element having its geometry contained within the given WKT string (clock-wise) or the given BBOX : `west, south, east, north`";
-    public static final String FILTER_PARAM_GINTERSECT = "Any element having its geometry intersecting the given WKT string (clock-wise) or the given BBOX : `west, south, east, north`";
-    public static final String FILTER_PARAM_NOTPWITHIN = "Any element having its centroid outside the given WKT Polygon or MultiPolygon (clock-wise) or the given BBOX : `west, south, east, north`.";
-    public static final String FILTER_PARAM_NOTGWITHIN = "Any element having its geometry outside the given geometry WKT string (clock-wise) or the given BBOX : `west, south, east, north`";
-    public static final String FILTER_PARAM_NOTGINTERSECT = "Any element having its geometry not intersecting the given WKT string (clock-wise) nor the given BBOX : `west, south, east, north`";
     public static final String FILTER_DATE_FORMAT = "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations";
-
-
     public static final String AGGREGATION_OPERATION = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters";
     public static final String AGGREGATION_PARAM_AGG = "- The agg parameter should be given in the following formats:  " +
             "\n \n" +
