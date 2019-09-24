@@ -33,7 +33,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.lang.BooleanUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -107,7 +106,7 @@ public class RawRESTService extends ExploreRESTServices {
             throw new NotFoundException("Document " + identifier + " not found.");
         }
 
-        Hit hit = new Hit(collectionReference, source, BooleanUtils.isTrue(flat), false);
+        Hit hit = new Hit(collectionReference, source, Boolean.TRUE.equals(flat), false);
         return cache(Response.ok(hit), maxagecache);
     }
 }

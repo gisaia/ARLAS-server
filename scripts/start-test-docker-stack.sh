@@ -36,7 +36,7 @@ docker run --rm \
     -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
     -e ALIASED_COLLECTION=${ALIASED_COLLECTION:-false} \
     --net arlas_default \
-    maven:3.5.0-jdk-8 \
+    maven:3.6.2-jdk-11 \
     mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="load" -pl arlas-tests
 
 echo "===> Enjoy arlas-server API on http://${DOCKER_IP}:19999/arlas/swagger"

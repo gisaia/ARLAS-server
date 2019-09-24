@@ -38,7 +38,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 
@@ -178,7 +177,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
 
-        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat));
+        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, Boolean.TRUE.equals(flat));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(aggregationResponse), maxagecache);
     }
@@ -245,7 +244,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
 
-        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, (aggregationsRequest.form != null && BooleanUtils.isTrue(aggregationsRequest.form.flat)));
+        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, (aggregationsRequest.form != null && Boolean.TRUE.equals(aggregationsRequest.form.flat)));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
 
         return cache(Response.ok(aggregationResponse), maxagecache);

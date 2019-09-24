@@ -31,7 +31,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.geotools.filter.v2_0.FESConfiguration;
-import org.geotools.xml.Parser;
+import org.geotools.xsd.Parser;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;

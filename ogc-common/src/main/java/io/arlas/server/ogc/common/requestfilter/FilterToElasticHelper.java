@@ -20,7 +20,6 @@
 package io.arlas.server.ogc.common.requestfilter;
 
 import com.google.common.collect.ImmutableMap;
-import com.vividsolutions.jts.geom.*;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.exceptions.OGC.OGCExceptionMessage;
@@ -28,6 +27,7 @@ import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.XmlUtils;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.JTS;
+import org.locationtech.jts.geom.*;
 import org.locationtech.spatial4j.shape.SpatialRelation;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;

@@ -8,7 +8,7 @@ function clean_docker {
 		-w /opt/maven \
 		-v $PWD:/opt/maven \
 		-v $HOME/.m2:/root/.m2 \
-		maven:3.5.0-jdk-8 \
+		maven:3.6.2-jdk-11 \
 		mvn clean
 }
 
@@ -93,7 +93,7 @@ function test_rest() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         -e WKT_GEOMETRIES=${WKT_GEOMETRIES} \
         --net arlas_default \
-        maven:3.5.0-jdk-8 \
+        maven:3.6.2-jdk-11 \
         mvn verify -DskipTests=false
 }
 
@@ -116,7 +116,7 @@ function test_wfs() {
         -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
-        maven:3.5.0-jdk-8 \
+        maven:3.6.2-jdk-11 \
         mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="load" -pl arlas-tests
 
     docker run --rm \
@@ -136,7 +136,7 @@ function test_wfs() {
         -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
-        maven:3.5.0-jdk-8 \
+        maven:3.6.2-jdk-11 \
         mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="delete" -pl arlas-tests
 }
 
@@ -158,7 +158,7 @@ function test_csw() {
         -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
-        maven:3.5.0-jdk-8 \
+        maven:3.6.2-jdk-11 \
         mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="loadcsw" -pl arlas-tests
 
     docker run --rm \
@@ -177,7 +177,7 @@ function test_csw() {
         -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
-        maven:3.5.0-jdk-8 \
+        maven:3.6.2-jdk-11 \
         mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="deletecsw" -pl arlas-tests
 }
 

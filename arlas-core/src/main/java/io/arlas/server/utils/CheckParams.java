@@ -20,8 +20,6 @@
 package io.arlas.server.utils;
 
 import com.neovisionaries.i18n.LanguageAlpha3Code;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
@@ -38,6 +36,8 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.operation.valid.IsValidOp;
 import org.locationtech.jts.operation.valid.TopologyValidationError;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 
 import java.text.DateFormat;
 import java.text.ParseException;

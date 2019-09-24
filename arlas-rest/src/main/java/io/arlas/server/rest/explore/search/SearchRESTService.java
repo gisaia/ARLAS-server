@@ -41,7 +41,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
@@ -237,7 +236,7 @@ public class SearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(searchHeader);
         request.headerRequest = searchHeader;
-        Hits hits = getArlasHits(request, collectionReference,BooleanUtils.isTrue(flat),uriInfo,"GET");
+        Hits hits = getArlasHits(request, collectionReference,Boolean.TRUE.equals(flat),uriInfo,"GET");
         return cache(Response.ok(hits), maxagecache);
     }
 
@@ -301,7 +300,7 @@ public class SearchRESTService extends ExploreRESTServices {
         request.headerRequest = searchHeader;
         exploreServices.setValidGeoFilters(search);
         exploreServices.setValidGeoFilters(searchHeader);
-        Hits hits = getArlasHits(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)),uriInfo,"POST");
+        Hits hits = getArlasHits(request, collectionReference, (search.form != null && Boolean.TRUE.equals(search.form.flat)),uriInfo,"POST");
         return cache(Response.ok(hits), maxagecache);
     }
 

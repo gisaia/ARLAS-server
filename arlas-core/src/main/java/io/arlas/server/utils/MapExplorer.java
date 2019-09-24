@@ -21,11 +21,14 @@ package io.arlas.server.utils;
 
 import com.google.common.collect.Streams;
 import cyclops.data.tuple.Tuple2;
+import cyclops.reactive.ReactiveSeq;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class MapExplorer {
 
@@ -71,13 +74,12 @@ public class MapExplorer {
                 flat(extendedParts,value, flatted, exclude);
             });
         }else if(source instanceof Collection || source.getClass().isArray()) {
-            Collection collection = source instanceof Collection?(Collection)source:Arrays.asList(source);
-            Streams.mapWithIndex(collection.stream(),(value,i) -> {
+            Collection<Object> collection = source instanceof Collection?(Collection)source:Arrays.asList(source);
+            ReactiveSeq.fromStream(collection.stream()).zipWithIndex().forEach((tuple) -> {
                 List<String> extendedParts=new ArrayList<>(keyParts);
-                extendedParts.add(""+i);
-                flat(extendedParts,value, flatted, exclude);
-                return value;
-            }).count();
+                extendedParts.add("" + tuple._2());
+                flat(extendedParts,tuple._1(), flatted, exclude);
+            });
         }else{
             flatted.put(keyParts,source);
         }

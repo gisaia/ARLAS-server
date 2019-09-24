@@ -1,7 +1,8 @@
 ###################
 # PACKAGING STAGE #
 ###################
-FROM openjdk:8-jre-alpine
+# TODO build our own alpine openjdk image?
+FROM hirokimatsumoto/alpine-openjdk-11
 
 # install script dependencies
 RUN apk add --update netcat-openbsd curl && rm -rf /var/cache/apk/*

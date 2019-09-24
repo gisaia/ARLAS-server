@@ -1,7 +1,7 @@
 #####################
 # COMPILATION STAGE #
 #####################
-FROM maven:3.5-jdk-8-alpine as build
+FROM maven:3.6.2-jdk-11 as build
 WORKDIR /opt/build
 
 # selectively add the POM file
@@ -17,7 +17,8 @@ RUN mvn install \
 ###################
 # PACKAGING STAGE #
 ###################
-FROM openjdk:8-jre-alpine
+# TODO build our own alpine openjdk image?
+FROM hirokimatsumoto/alpine-openjdk-11
 WORKDIR /opt/app
 
 # install script dependencies
