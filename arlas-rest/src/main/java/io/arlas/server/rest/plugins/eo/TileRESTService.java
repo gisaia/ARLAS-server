@@ -109,36 +109,6 @@ public class TileRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "pwithin") List<String> pwithin,
-
-            @ApiParam(name = "gwithin", value = Documentation.FILTER_PARAM_GWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gwithin") List<String> gwithin,
-
-            @ApiParam(name = "gintersect", value = Documentation.FILTER_PARAM_GINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gintersect") List<String> gintersect,
-
-            @ApiParam(name = "notpwithin", value = Documentation.FILTER_PARAM_NOTPWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notpwithin") List<String> notpwithin,
-
-            @ApiParam(name = "notgwithin", value = Documentation.FILTER_PARAM_NOTGWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgwithin") List<String> notgwithin,
-
-            @ApiParam(name = "notgintersect", value = Documentation.FILTER_PARAM_NOTGINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgintersect") List<String> notgintersect,
-
             @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
                     allowMultiple = false,
                     required = false)
@@ -212,77 +182,71 @@ public class TileRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        if(collectionReference.params.rasterTileURL == null ){
+        if (collectionReference.params.rasterTileURL == null) {
             throw new NotFoundException(collectionReference.collectionName+" has no URL defined for fetching the tiles.");
         }
-        if(StringUtil.isNullOrEmpty(collectionReference.params.rasterTileURL.url)){
+        if (StringUtil.isNullOrEmpty(collectionReference.params.rasterTileURL.url)) {
             throw new NotFoundException(collectionReference.collectionName+" has no URL defined for fetching the tiles.");
         }
-        if(z<collectionReference.params.rasterTileURL.minZ || z>collectionReference.params.rasterTileURL.maxZ){
+        if (z < collectionReference.params.rasterTileURL.minZ || z > collectionReference.params.rasterTileURL.maxZ) {
             LOGGER.info("Request level out of ["+collectionReference.params.rasterTileURL.minZ+"-"+collectionReference.params.rasterTileURL.maxZ+"]");
             return Response.noContent().build();
         }
 
         BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x, y, z));
-        String gIntersectBbox = bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth();
+//        String gIntersectBbox = bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth();
 
         //check if every gwithin param has a value that intersects bbox
-        List<String> simplifiedGintersect = ParamsParser.simplifyPwithinAgainstBbox(ParamsParser.toSemiColonsSeparatedStringList(ParamsParser.getValidGeoFilters(gwithin)), bbox);
+//        List<String> simplifiedGintersect = ParamsParser.simplifyPwithinAgainstBbox(ParamsParser.toSemiColonsSeparatedStringList(ParamsParser.getValidGeoFilter(gwithin)), bbox);
+//
+//        simplifiedGintersect.add(gIntersectBbox);
 
-        if (bbox != null && bbox.getNorth() > bbox.getSouth()
-                // if sizes are not equals, it means one multi-value gwithin does not intersects bbox => no results
-                && gwithin.size() == simplifiedGintersect.size()) {
-            simplifiedGintersect.add(gIntersectBbox);
+        Search search = new Search();
+        search.filter = ParamsParser.getFilter(elasticAdmin, collectionReference, f, q, dateformat);
+        search.page = ParamsParser.getPage(size, from, sort, after,before);
+        search.projection = ParamsParser.getProjection(collectionReference.params.rasterTileURL.idPath+","+collectionReference.params.geometryPath, null);
 
-            Search search = new Search();
-            search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, simplifiedGintersect, notpwithin, notgwithin, notgintersect, dateformat);
-            search.page = ParamsParser.getPage(size, from, sort, after,before);
-            search.projection = ParamsParser.getProjection(collectionReference.params.rasterTileURL.idPath+","+collectionReference.params.geometryPath, null);
+        Search searchHeader = new Search();
+        searchHeader.filter = ParamsParser.getFilter(partitionFilter);
+        MixedRequest request = new MixedRequest();
+        request.basicRequest = search;
+        request.headerRequest = searchHeader;
 
-            Search searchHeader = new Search();
-            searchHeader.filter = ParamsParser.getFilter(partitionFilter);
-            MixedRequest request = new MixedRequest();
-            request.basicRequest = search;
-            request.headerRequest = searchHeader;
-
-            Queue<TileProvider<RasterTile>> providers = new LinkedList<>(findCandidateTiles(collectionReference, request).stream()
-                    .filter(match -> match._2().map(
-                            polygon->(!collectionReference.params.rasterTileURL.checkGeometry)||polygon.intersects(GeoTileUtil.toPolygon(bbox))) // if geo is available, does it intersect the bbox?
-                            .orElse(Boolean.TRUE)) // otherwise, let's keep that match, we'll see later if it paints something
-                    .map(match -> new URLBasedRasterTileProvider(new RasterTileURL(
-                            collectionReference.params.rasterTileURL.url.replace("{id}", Optional.ofNullable(match._1()).orElse("")),
-                            collectionReference.params.rasterTileURL.minZ,
-                            collectionReference.params.rasterTileURL.maxZ,
-                            collectionReference.params.rasterTileURL.checkGeometry),
-                            collectionReference.params.rasterTileWidth,
-                            collectionReference.params.rasterTileHeight)).collect(Collectors.toList()));
-            if(providers.size()==0){
-                return Response.noContent().build();
-            }
-            Try<Optional<RasterTile>,ArlasException> stacked = new RasterTileStacker()
-                    .stack(providers)
-                    .sampling(Optional.ofNullable(sampling).orElse(10))
-                    .upTo(new RasterTileStacker.Percentage(Optional.ofNullable(coverage).orElse(10)))
-                    .on(new Tile(x, y, z));
-
-            stacked.onFail(failure->{
-                LOGGER.error("Failed to fetch a tile",failure);
-            });
-
-            return stacked.map(otile->
-                    otile.map(tile->
-                            Try.withCatch(()->{ // lets write the image to the response's output
-                                final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                                ImageIO.write(tile.getImg(), "png", out);
-                                return cache(Response.ok(out.toByteArray()), maxagecache);
-                            },IOException.class)
-                                    .onFail(e -> Response.serverError().entity(e.getMessage()).build())
-                                    .orElse(Response.noContent().build())) // Can't write the tile => No content
-                            .orElse(Response.noContent().build()))// No tile => No content
-                    .orElse(Response.noContent().build());// No tile => No content
-        }else{
+        Queue<TileProvider<RasterTile>> providers = new LinkedList<>(findCandidateTiles(collectionReference, request).stream()
+                .filter(match -> match._2().map(
+                        polygon->(!collectionReference.params.rasterTileURL.checkGeometry)||polygon.intersects(GeoTileUtil.toPolygon(bbox))) // if geo is available, does it intersect the bbox?
+                        .orElse(Boolean.TRUE)) // otherwise, let's keep that match, we'll see later if it paints something
+                .map(match -> new URLBasedRasterTileProvider(new RasterTileURL(
+                        collectionReference.params.rasterTileURL.url.replace("{id}", Optional.ofNullable(match._1()).orElse("")),
+                        collectionReference.params.rasterTileURL.minZ,
+                        collectionReference.params.rasterTileURL.maxZ,
+                        collectionReference.params.rasterTileURL.checkGeometry),
+                        collectionReference.params.rasterTileWidth,
+                        collectionReference.params.rasterTileHeight)).collect(Collectors.toList()));
+        if(providers.size()==0){
             return Response.noContent().build();
         }
+        Try<Optional<RasterTile>,ArlasException> stacked = new RasterTileStacker()
+                .stack(providers)
+                .sampling(Optional.ofNullable(sampling).orElse(10))
+                .upTo(new RasterTileStacker.Percentage(Optional.ofNullable(coverage).orElse(10)))
+                .on(new Tile(x, y, z));
+
+        stacked.onFail(failure->{
+            LOGGER.error("Failed to fetch a tile",failure);
+        });
+
+        return stacked.map(otile->
+                otile.map(tile->
+                        Try.withCatch(()->{ // lets write the image to the response's output
+                            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+                            ImageIO.write(tile.getImg(), "png", out);
+                            return cache(Response.ok(out.toByteArray()), maxagecache);
+                        },IOException.class)
+                                .onFail(e -> Response.serverError().entity(e.getMessage()).build())
+                                .orElse(Response.noContent().build())) // Can't write the tile => No content
+                        .orElse(Response.noContent().build()))// No tile => No content
+                .orElse(Response.noContent().build());// No tile => No content
     }
 
     protected List<Tuple2<String,Optional<Geometry>>> findCandidateTiles(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {

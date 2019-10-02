@@ -41,6 +41,8 @@ public class Data {
         public Polygon geometry;
         public String wktgeometry;
         public String centroid;
+        public Polygon second_geometry;
+        public String other_geopoint;
     }
 }
 

@@ -41,7 +41,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class CountRESTService extends ExploreRESTServices {
 
@@ -82,36 +81,6 @@ public class CountRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "pwithin") List<String> pwithin,
-
-            @ApiParam(name = "gwithin", value = Documentation.FILTER_PARAM_GWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gwithin") List<String> gwithin,
-
-            @ApiParam(name = "gintersect", value = Documentation.FILTER_PARAM_GINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gintersect") List<String> gintersect,
-
-            @ApiParam(name = "notpwithin", value = Documentation.FILTER_PARAM_NOTPWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notpwithin") List<String> notpwithin,
-
-            @ApiParam(name = "notgwithin", value = Documentation.FILTER_PARAM_NOTGWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgwithin") List<String> notgwithin,
-
-            @ApiParam(name = "notgintersect", value = Documentation.FILTER_PARAM_NOTGINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgintersect") List<String> notgintersect,
-
             @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
                     allowMultiple = false,
                     required = false)
@@ -134,7 +103,7 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
+    ) throws IOException, NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -144,12 +113,12 @@ public class CountRESTService extends ExploreRESTServices {
         fluidSearch.setCollectionReference(collectionReference);
 
         Count count = new Count();
-        count.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
+        count.filter = ParamsParser.getFilter(elasticAdmin, collectionReference, f, q, dateformat);
         MixedRequest request = new MixedRequest();
         request.basicRequest = count;
         Count countHeader = new Count();
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
-        exploreServices.setValidGeoFilters(countHeader);
+        exploreServices.setValidGeoFilters(collectionReference, countHeader);
         request.headerRequest = countHeader;
 
         Hits hits = getArlasHits(collectionReference, request);
@@ -196,18 +165,18 @@ public class CountRESTService extends ExploreRESTServices {
             // -----------------------  SEARCH  -----------------------
             // --------------------------------------------------------
             Count count
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
+    ) throws IOException, NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
 
         MixedRequest request = new MixedRequest();
-        exploreServices.setValidGeoFilters(count);
+        exploreServices.setValidGeoFilters(collectionReference, count);
         request.basicRequest = count;
         Count countHeader = new Count();
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
-        exploreServices.setValidGeoFilters(countHeader);
+        exploreServices.setValidGeoFilters(collectionReference, countHeader);
         request.headerRequest = countHeader;
 
         Hits hits = getArlasHits(collectionReference, request);

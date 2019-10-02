@@ -20,6 +20,7 @@
 package io.arlas.server.rest.explore.search;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.app.Documentation;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.Link;
@@ -30,7 +31,6 @@ import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Hit;
 import io.arlas.server.model.response.Hits;
 import io.arlas.server.ns.ATOM;
-import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.CheckParams;
@@ -51,7 +51,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class SearchRESTService extends ExploreRESTServices {
@@ -92,36 +91,6 @@ public class SearchRESTService extends ExploreRESTServices {
                     allowMultiple = true,
                     required = false)
             @QueryParam(value = "q") List<String> q,
-
-            @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "pwithin") List<String> pwithin,
-
-            @ApiParam(name = "gwithin", value = Documentation.FILTER_PARAM_GWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gwithin") List<String> gwithin,
-
-            @ApiParam(name = "gintersect", value = Documentation.FILTER_PARAM_GINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gintersect") List<String> gintersect,
-
-            @ApiParam(name = "notpwithin", value = Documentation.FILTER_PARAM_NOTPWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notpwithin") List<String> notpwithin,
-
-            @ApiParam(name = "notgwithin", value = Documentation.FILTER_PARAM_NOTGWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgwithin") List<String> notgwithin,
-
-            @ApiParam(name = "notgintersect", value = Documentation.FILTER_PARAM_NOTGINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgintersect") List<String> notgintersect,
 
             @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
                     allowMultiple = false,
@@ -208,7 +177,7 @@ public class SearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
+    ) throws IOException, NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
@@ -228,14 +197,14 @@ public class SearchRESTService extends ExploreRESTServices {
             CheckParams.checkExcludeField(excludeField, fields);
         }
         Search search = new Search();
-        search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
+        search.filter = ParamsParser.getFilter(elasticAdmin, collectionReference, f, q, dateformat);
         search.page = ParamsParser.getPage(size, from, sort,after,before);
         search.projection = ParamsParser.getProjection(include, exclude);
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
-        exploreServices.setValidGeoFilters(searchHeader);
+        exploreServices.setValidGeoFilters(collectionReference, searchHeader);
         request.headerRequest = searchHeader;
         Hits hits = getArlasHits(request, collectionReference,BooleanUtils.isTrue(flat),uriInfo,"GET");
         return cache(Response.ok(hits), maxagecache);
@@ -287,7 +256,7 @@ public class SearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
+    ) throws IOException, NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
@@ -299,8 +268,8 @@ public class SearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        exploreServices.setValidGeoFilters(search);
-        exploreServices.setValidGeoFilters(searchHeader);
+        exploreServices.setValidGeoFilters(collectionReference, search);
+        exploreServices.setValidGeoFilters(collectionReference, searchHeader);
         Hits hits = getArlasHits(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)),uriInfo,"POST");
         return cache(Response.ok(hits), maxagecache);
     }

@@ -20,7 +20,6 @@
 package io.arlas.server.rest.explore.describe;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
@@ -37,7 +36,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class DescribeRESTService extends ExploreRESTServices {
     public DescribeRESTService(ExploreServices exploreServices) {
@@ -68,9 +66,8 @@ public class DescribeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+    ) throws IOException, ArlasException {
         List<CollectionReference> collectionReferences = exploreServices.getDaoCollectionReference().getAllCollectionReferences();
-        ElasticAdmin elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
         List<CollectionReferenceDescription> collectionReferenceDescriptionList = elasticAdmin.describeAllCollections(collectionReferences);
         return cache(Response.ok(collectionReferenceDescriptionList), maxagecache);
     }

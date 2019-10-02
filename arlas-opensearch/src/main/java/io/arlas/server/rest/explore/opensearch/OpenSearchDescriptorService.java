@@ -53,7 +53,6 @@ import java.util.Stack;
 import java.util.concurrent.ExecutionException;
 
 public class OpenSearchDescriptorService extends ExploreRESTServices {
-    ElasticAdmin admin;
     OpensearchConfiguration opensearchConfiguration;
 
     @Context
@@ -61,7 +60,6 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
 
     public OpenSearchDescriptorService(ExploreServices exploreServices, OpensearchConfiguration opensearchConfiguration) {
         super(exploreServices);
-        this.admin = new ElasticAdmin(exploreServices.getClient());
         this.opensearchConfiguration = opensearchConfiguration;
     }
 
@@ -130,7 +128,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             description.syndicationRight = os.syndicationRight;
             description.tags = os.tags;
         }
-        addURLs(prefix, description.url, admin.describeCollection(cr).properties, new Stack<>());
+        addURLs(prefix, description.url, elasticAdmin.describeCollection(cr).properties, new Stack<>());
         List<Url> urls = new ArrayList<>();
         description.url.forEach(url -> {
             urls.add(url(url.template + "&gintersect={geo:box?}"));
