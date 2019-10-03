@@ -20,15 +20,15 @@
 package io.arlas.server.ogc.wfs;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.OGCRESTService;
-import io.arlas.server.app.OGCConfiguration;
-import io.arlas.server.app.WFSConfiguration;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.exceptions.OGC.OGCExceptionCode;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.response.CollectionReferenceDescription;
-import io.arlas.server.model.response.Error;
+import io.arlas.server.ogc.common.OGCRESTService;
+import io.arlas.server.core.app.OGCConfiguration;
+import io.arlas.server.core.app.WFSConfiguration;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.response.CollectionReferenceDescription;
+import io.arlas.server.core.model.response.Error;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.OGCCheckParam;
 import io.arlas.server.ogc.common.utils.RequestUtils;

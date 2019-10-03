@@ -19,11 +19,11 @@
 
 package io.arlas.server.ogc.wfs;
 
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
-import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.dao.ElasticCollectionReferenceDaoImpl;
+import io.arlas.server.core.exceptions.ArlasException;
 import io.arlas.server.ogc.wfs.services.ElasticWFSToolServiceImpl;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.core.services.ExploreServices;
 
 public class WFSService extends WFSRESTService {
 

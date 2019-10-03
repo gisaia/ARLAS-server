@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.wfs.requestfilter;
+package io.arlas.server.ogc.common.requestfilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

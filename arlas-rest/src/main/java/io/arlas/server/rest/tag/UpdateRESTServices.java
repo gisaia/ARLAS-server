@@ -20,7 +20,7 @@
 package io.arlas.server.rest.tag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.services.UpdateServices;
+import io.arlas.server.core.services.UpdateServices;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

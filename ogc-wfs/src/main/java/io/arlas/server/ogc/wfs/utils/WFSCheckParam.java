@@ -20,19 +20,13 @@
 package io.arlas.server.ogc.wfs.utils;
 
 
-import eu.europa.ec.inspire.schemas.common._1.KeywordValueEnum;
-import io.arlas.server.exceptions.INSPIRE.INSPIREException;
-import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
-import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.exceptions.OGC.OGCExceptionCode;
-import io.arlas.server.model.Keyword;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.Version;
 import io.arlas.server.ogc.common.utils.VersionUtils;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class WFSCheckParam {
 

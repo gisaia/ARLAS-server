@@ -20,10 +20,10 @@
 package io.arlas.server.ogc.common.requestfilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
-import io.arlas.server.utils.BoundingBox;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.model.response.CollectionReferenceDescription;
+import io.arlas.server.core.utils.BoundingBox;
 import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
 import org.elasticsearch.common.geo.builders.PolygonBuilder;
 import org.elasticsearch.common.geo.builders.ShapeBuilder;

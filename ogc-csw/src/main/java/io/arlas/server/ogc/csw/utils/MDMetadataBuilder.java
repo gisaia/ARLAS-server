@@ -19,11 +19,11 @@
 
 package io.arlas.server.ogc.csw.utils;
 
-import io.arlas.server.app.InspireConfiguration;
-import io.arlas.server.app.OGCConfiguration;
-import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.inspire.common.constants.InspireConstants;
-import io.arlas.server.model.*;
+import io.arlas.server.core.app.InspireConfiguration;
+import io.arlas.server.core.app.OGCConfiguration;
+import io.arlas.server.core.model.*;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
+import io.arlas.server.ogc.common.inspire.common.constants.InspireConstants;
 import io.arlas.server.ogc.common.utils.OGCConstant;
 import net.opengis.gml._3.LengthType;
 import org.isotc211._2005.gco.*;

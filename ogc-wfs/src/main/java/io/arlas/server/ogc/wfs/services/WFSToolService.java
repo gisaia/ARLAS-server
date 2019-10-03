@@ -19,9 +19,9 @@
 
 package io.arlas.server.ogc.wfs.services;
 
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import net.opengis.wfs._2.ValueCollectionType;
 
 import java.io.IOException;

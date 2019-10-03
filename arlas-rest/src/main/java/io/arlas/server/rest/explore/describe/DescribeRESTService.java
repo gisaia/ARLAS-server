@@ -20,14 +20,14 @@
 package io.arlas.server.rest.explore.describe;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.core.ElasticAdmin;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.response.CollectionReferenceDescription;
-import io.arlas.server.model.response.Error;
-import io.arlas.server.app.Documentation;
+import io.arlas.server.core.core.ElasticAdmin;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.response.CollectionReferenceDescription;
+import io.arlas.server.core.model.response.Error;
+import io.arlas.server.core.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.core.services.ExploreServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;

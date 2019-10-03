@@ -20,16 +20,16 @@
 package io.arlas.server.rest.tag;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.request.MixedRequest;
-import io.arlas.server.model.request.Search;
-import io.arlas.server.model.request.TagRequest;
-import io.arlas.server.model.response.Error;
-import io.arlas.server.model.response.UpdateResponse;
-import io.arlas.server.app.Documentation;
-import io.arlas.server.services.UpdateServices;
-import io.arlas.server.utils.ParamsParser;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.request.MixedRequest;
+import io.arlas.server.core.model.request.Search;
+import io.arlas.server.core.model.request.TagRequest;
+import io.arlas.server.core.model.response.Error;
+import io.arlas.server.core.model.response.UpdateResponse;
+import io.arlas.server.core.app.Documentation;
+import io.arlas.server.core.services.UpdateServices;
+import io.arlas.server.core.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;

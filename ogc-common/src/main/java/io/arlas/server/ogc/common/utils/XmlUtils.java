@@ -19,13 +19,13 @@
 
 package io.arlas.server.ogc.common.utils;
 
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
-import io.arlas.server.model.response.ElasticType;
-import io.arlas.server.model.response.TimestampType;
-import io.arlas.server.utils.MapExplorer;
-import io.arlas.server.utils.TimestampTypeMapper;
+import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
+import io.arlas.server.core.model.response.ElasticType;
+import io.arlas.server.core.model.response.TimestampType;
+import io.arlas.server.core.utils.MapExplorer;
+import io.arlas.server.core.utils.TimestampTypeMapper;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;

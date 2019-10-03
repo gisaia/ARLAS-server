@@ -19,22 +19,22 @@
 package io.arlas.server.ogc.wfs.services;
 
 import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
-import io.arlas.server.core.ElasticAdmin;
-import io.arlas.server.core.FluidSearch;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InternalServerErrorException;
-import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.exceptions.OGC.OGCExceptionCode;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.core.core.ElasticAdmin;
+import io.arlas.server.core.core.FluidSearch;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.exceptions.InternalServerErrorException;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.request.Filter;
+import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
-import io.arlas.server.services.ExploreServices;
-import io.arlas.server.utils.MapExplorer;
-import io.arlas.server.utils.ParamsParser;
+import io.arlas.server.core.services.ExploreServices;
+import io.arlas.server.core.utils.MapExplorer;
+import io.arlas.server.core.utils.ParamsParser;
 import net.opengis.wfs._2.MemberPropertyType;
 import net.opengis.wfs._2.ValueCollectionType;
 import org.elasticsearch.common.geo.GeoPoint;
@@ -49,7 +49,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static io.arlas.server.utils.CheckParams.isBboxLatLonInCorrectRanges;
+import static io.arlas.server.core.utils.CheckParams.isBboxLatLonInCorrectRanges;
 
 public class ElasticWFSToolServiceImpl implements WFSToolService {
     ExploreServices exploreServices;

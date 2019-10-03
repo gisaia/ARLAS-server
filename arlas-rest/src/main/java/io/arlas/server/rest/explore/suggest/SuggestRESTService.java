@@ -21,7 +21,7 @@ package io.arlas.server.rest.explore.suggest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.core.services.ExploreServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;

@@ -19,12 +19,11 @@
 
 package io.arlas.server.ogc.csw.operation.getrecordbyid;
 
-import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.exceptions.OGC.OGCExceptionCode;
-import io.arlas.server.model.CollectionReference;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
+import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.csw.CSWHandler;
-import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
 import io.arlas.server.ogc.csw.utils.MDMetadataBuilder;
 import io.arlas.server.ogc.csw.utils.RecordBuilder;

@@ -23,15 +23,15 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import io.arlas.server.app.Documentation;
-import io.arlas.server.dao.CollectionReferenceDao;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.model.*;
-import io.arlas.server.model.response.Error;
-import io.arlas.server.model.response.Success;
-import io.arlas.server.utils.CheckParams;
-import io.arlas.server.utils.ResponseFormatter;
+import io.arlas.server.core.app.Documentation;
+import io.arlas.server.core.dao.CollectionReferenceDao;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.exceptions.InvalidParameterException;
+import io.arlas.server.core.model.*;
+import io.arlas.server.core.model.response.Error;
+import io.arlas.server.core.model.response.Success;
+import io.arlas.server.core.utils.CheckParams;
+import io.arlas.server.core.utils.ResponseFormatter;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -134,7 +134,7 @@ public abstract class CollectionService extends CollectionRESTServices {
                 savedCollections.add(save(collection.collectionName, collection.params));
             } catch (Exception e) {
                 if (inspireConfigurationEnabled) {
-                    throw new io.arlas.server.exceptions.InternalServerErrorException("Invalid inspire parameters : " + e.getMessage());
+                    throw new io.arlas.server.core.exceptions.InternalServerErrorException("Invalid inspire parameters : " + e.getMessage());
                 }
                 //NOT saved
             }
