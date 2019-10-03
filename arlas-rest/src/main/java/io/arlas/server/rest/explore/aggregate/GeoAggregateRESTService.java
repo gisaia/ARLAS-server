@@ -141,7 +141,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
 
         return geoaggregate(collectionReference,
-                ParamsParser.getFilter(elasticAdmin, collectionReference, f, q, dateformat),
+                ParamsParser.getFilter(collectionReference, f, q, dateformat),
                 partitionFilter, flat, agg, maxagecache, Optional.empty());
     }
 
@@ -242,7 +242,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
 
         return geoaggregate(collectionReference,
-                ParamsParser.getFilter(elasticAdmin, collectionReference, f, q, dateformat, bbox, pwithinBbox),
+                ParamsParser.getFilter(collectionReference, f, q, dateformat, bbox, pwithinBbox),
                 partitionFilter, flat, agg, maxagecache, Optional.of(geohash));
     }
 

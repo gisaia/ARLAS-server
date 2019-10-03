@@ -20,6 +20,7 @@
 package io.arlas.server.rest.explore.describe;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
@@ -68,7 +69,7 @@ public class DescribeRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws IOException, ArlasException {
         List<CollectionReference> collectionReferences = exploreServices.getDaoCollectionReference().getAllCollectionReferences();
-        List<CollectionReferenceDescription> collectionReferenceDescriptionList = elasticAdmin.describeAllCollections(collectionReferences);
+        List<CollectionReferenceDescription> collectionReferenceDescriptionList = new ElasticAdmin(exploreServices.getClient()).describeAllCollections(collectionReferences);
         return cache(Response.ok(collectionReferenceDescriptionList), maxagecache);
     }
 }

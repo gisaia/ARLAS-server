@@ -136,7 +136,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
-        aggregationsRequest.filter = ParamsParser.getFilter(elasticAdmin, collectionReference, f, q, dateformat);
+        aggregationsRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);

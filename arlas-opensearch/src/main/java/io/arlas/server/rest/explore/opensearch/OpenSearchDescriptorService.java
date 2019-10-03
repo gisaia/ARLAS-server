@@ -128,7 +128,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             description.syndicationRight = os.syndicationRight;
             description.tags = os.tags;
         }
-        addURLs(prefix, description.url, elasticAdmin.describeCollection(cr).properties, new Stack<>());
+        addURLs(prefix, description.url, new ElasticAdmin(exploreServices.getClient()).describeCollection(cr).properties, new Stack<>());
         List<Url> urls = new ArrayList<>();
         description.url.forEach(url -> {
             urls.add(url(url.template + "&gintersect={geo:box?}"));

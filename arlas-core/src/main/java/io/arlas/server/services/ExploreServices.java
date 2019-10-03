@@ -194,7 +194,7 @@ public class ExploreServices {
 
     public void setValidGeoFilters(CollectionReference collectionReference, Request request) throws ArlasException {
         if (request != null && request.filter != null) {
-            request.filter = ParamsParser.getFilterWithValidGeos(elasticAdmin, collectionReference, request.filter);
+            request.filter = ParamsParser.getFilterWithValidGeos(collectionReference, request.filter);
         }
     }
 

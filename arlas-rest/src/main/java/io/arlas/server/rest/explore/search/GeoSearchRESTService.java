@@ -182,8 +182,8 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
-        return search(collectionReference,
-                ParamsParser.getFilter(elasticAdmin, collectionReference, f, q, dateformat), partitionFilter,
+        return geosearch(collectionReference,
+                ParamsParser.getFilter(collectionReference, f, q, dateformat), partitionFilter,
                 flat, include, exclude, size, from, sort, after, before, maxagecache);
     }
 
@@ -332,8 +332,8 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         Expression pwithinBbox = new Expression(collectionReference.params.centroidPath, OperatorEnum.within,
                 bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth());
 
-        return search(collectionReference,
-                ParamsParser.getFilter(elasticAdmin, collectionReference, f, q, dateformat, bbox, pwithinBbox),
+        return geosearch(collectionReference,
+                ParamsParser.getFilter(collectionReference, f, q, dateformat, bbox, pwithinBbox),
                 partitionFilter, flat, include, exclude, size, from, sort, after, before, maxagecache);
     }
 
@@ -440,9 +440,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         return fc;
     }
 
-    private Response search(CollectionReference collectionReference, Filter filter, String partitionFilter,
-                            Boolean flat, String include, String exclude, IntParam size, IntParam from,
-                            String sort, String after, String before, Integer maxagecache) throws ArlasException, IOException {
+    private Response geosearch(CollectionReference collectionReference, Filter filter, String partitionFilter,
+                               Boolean flat, String include, String exclude, IntParam size, IntParam from,
+                               String sort, String after, String before, Integer maxagecache) throws ArlasException, IOException {
 
         Search search = new Search();
         search.filter = filter;

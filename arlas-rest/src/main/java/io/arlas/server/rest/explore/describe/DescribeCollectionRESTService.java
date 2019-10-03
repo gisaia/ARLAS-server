@@ -20,6 +20,7 @@
 package io.arlas.server.rest.explore.describe;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
@@ -80,7 +81,7 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
-        CollectionReferenceDescription collectionReferenceDescription = elasticAdmin.describeCollection(collectionReference);
+        CollectionReferenceDescription collectionReferenceDescription = new ElasticAdmin(exploreServices.getClient()).describeCollection(collectionReference);
         return cache(Response.ok(collectionReferenceDescription), maxagecache);
     }
 }

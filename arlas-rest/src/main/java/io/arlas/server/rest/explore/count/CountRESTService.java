@@ -113,7 +113,7 @@ public class CountRESTService extends ExploreRESTServices {
         fluidSearch.setCollectionReference(collectionReference);
 
         Count count = new Count();
-        count.filter = ParamsParser.getFilter(elasticAdmin, collectionReference, f, q, dateformat);
+        count.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         MixedRequest request = new MixedRequest();
         request.basicRequest = count;
         Count countHeader = new Count();

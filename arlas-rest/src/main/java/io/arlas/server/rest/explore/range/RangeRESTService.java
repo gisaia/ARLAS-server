@@ -125,7 +125,7 @@ public class RangeRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         RangeRequest rangeRequest = new RangeRequest();
-        rangeRequest.filter = ParamsParser.getFilter(elasticAdmin, collectionReference, f, q, dateformat);
+        rangeRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         rangeRequest.field = field;
         RangeRequest rangeRequestHeader = new RangeRequest();
         rangeRequestHeader.filter = ParamsParser.getFilter(partitionFilter);

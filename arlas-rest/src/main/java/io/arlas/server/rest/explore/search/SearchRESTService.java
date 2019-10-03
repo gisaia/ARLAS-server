@@ -197,7 +197,7 @@ public class SearchRESTService extends ExploreRESTServices {
             CheckParams.checkExcludeField(excludeField, fields);
         }
         Search search = new Search();
-        search.filter = ParamsParser.getFilter(elasticAdmin, collectionReference, f, q, dateformat);
+        search.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         search.page = ParamsParser.getPage(size, from, sort,after,before);
         search.projection = ParamsParser.getProjection(include, exclude);
         Search searchHeader = new Search();

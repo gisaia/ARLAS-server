@@ -25,6 +25,7 @@ import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
@@ -262,12 +263,12 @@ public class ParamsParser {
         }
     }
 
-    public static Filter getFilter(ElasticAdmin elasticAdmin, CollectionReference collectionReference,
+    public static Filter getFilter(CollectionReference collectionReference,
                                    List<String> filters, List<String> q, String dateFormat) throws ArlasException {
-        return getFilter(elasticAdmin, collectionReference, filters, q, dateFormat, null, null);
+        return getFilter(collectionReference, filters, q, dateFormat, null, null);
     }
 
-    public static Filter getFilter(ElasticAdmin elasticAdmin, CollectionReference collectionReference,
+    public static Filter getFilter(CollectionReference collectionReference,
                                    List<String> filters, List<String> q, String dateFormat,
                                    BoundingBox simplifyPwithinBbox, Expression pwithinBbox) throws ArlasException {
         Filter filter = new Filter();
@@ -285,8 +286,8 @@ public class ParamsParser {
                     String value = String.join(":", Arrays.copyOfRange(operands, 2, operands.length));
 
                     if (GEO_OP.contains(OperatorEnum.valueOf(operands[1]))) {
-                        boolean isPwithin = isPwithin(elasticAdmin, collectionReference, operands[0], operands[1]);
-                        value = getValidGeoFilters(value, isPwithin);
+                        boolean isPwithin = isPwithin(collectionReference, operands[0], operands[1]);
+                        value = getValidGeometry(value, isPwithin);
                         if (isPwithin && simplifyPwithinBbox != null){
                             Geometry simplifiedGeometry = GeoTileUtil.bboxIntersects(simplifyPwithinBbox, value);
                             if (simplifiedGeometry != null)
@@ -309,14 +310,14 @@ public class ParamsParser {
         return filter;
     }
 
-    private static boolean isPwithin(ElasticAdmin elasticAdmin, CollectionReference collectionReference, String field, String op) throws ArlasException {
+    private static boolean isPwithin(CollectionReference collectionReference, String field, String op) throws ArlasException {
         if (GEO_OP_WITHIN.contains(OperatorEnum.valueOf(op))) {
-            return CollectionCache.getInstance().getType(elasticAdmin, collectionReference, field) ==  ElasticType.GEO_POINT;
+            return CollectionReferenceManager.getInstance().getType(collectionReference, field) ==  ElasticType.GEO_POINT;
         }
         return false;
     }
 
-    public static Filter getFilterWithValidGeos(ElasticAdmin elasticAdmin, CollectionReference collectionReference, Filter filter) throws ArlasException {
+    public static Filter getFilterWithValidGeos(CollectionReference collectionReference, Filter filter) throws ArlasException {
         Filter newFilter = new Filter();
         newFilter.q = filter.q;
         newFilter.dateformat = filter.dateformat;
@@ -325,7 +326,7 @@ public class ParamsParser {
             for (MultiValueFilter<Expression> orFiltersList : filter.f) {
                 MultiValueFilter<Expression> newOrFiltersList = new MultiValueFilter<>();
                 for (Expression orCond : orFiltersList) {
-                    newOrFiltersList.add(getValidGeoFilter(elasticAdmin, collectionReference, orCond));
+                    newOrFiltersList.add(getValidGeoFilter(collectionReference, orCond));
                 }
                 newFilter.f.add(newOrFiltersList);
             }
@@ -333,15 +334,15 @@ public class ParamsParser {
         return newFilter;
     }
 
-    public static Expression getValidGeoFilter(ElasticAdmin elasticAdmin, CollectionReference collectionReference, Expression expression) throws ArlasException {
+    public static Expression getValidGeoFilter(CollectionReference collectionReference, Expression expression) throws ArlasException {
         if (GEO_OP.contains(expression.op)) {
-            expression.value = getValidGeoFilters(expression.value,
-                    isPwithin(elasticAdmin, collectionReference, expression.field, expression.op.name()));
+            expression.value = getValidGeometry(expression.value,
+                    isPwithin(collectionReference, expression.field, expression.op.name()));
         }
         return expression;
     }
 
-    public static String getValidGeoFilters(String geo, boolean isPwithin) throws ArlasException{
+    public static String getValidGeometry(String geo, boolean isPwithin) throws ArlasException{
 
         if (CheckParams.isBboxMatch(geo)) {
             CheckParams.checkBbox(geo);

@@ -20,7 +20,6 @@
 package io.arlas.server.rest.explore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.services.ExploreServices;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -51,13 +50,11 @@ public abstract class ExploreRESTServices {
     }
 
     protected ExploreServices exploreServices;
-    protected ElasticAdmin elasticAdmin;
 
     public static final String UTF8JSON = MediaType.APPLICATION_JSON + ";charset=utf-8";
 
     public ExploreRESTServices(ExploreServices exploreServices) {
         this.exploreServices = exploreServices;
-        this.elasticAdmin = new ElasticAdmin(exploreServices.getClient());
     }
 
     public Response cache(Response.ResponseBuilder response, Integer maxagecache) {

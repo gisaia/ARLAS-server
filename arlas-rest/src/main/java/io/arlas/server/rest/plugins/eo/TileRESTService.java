@@ -194,15 +194,9 @@ public class TileRESTService extends ExploreRESTServices {
         }
 
         BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x, y, z));
-//        String gIntersectBbox = bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth();
-
-        //check if every gwithin param has a value that intersects bbox
-//        List<String> simplifiedGintersect = ParamsParser.simplifyPwithinAgainstBbox(ParamsParser.toSemiColonsSeparatedStringList(ParamsParser.getValidGeoFilter(gwithin)), bbox);
-//
-//        simplifiedGintersect.add(gIntersectBbox);
 
         Search search = new Search();
-        search.filter = ParamsParser.getFilter(elasticAdmin, collectionReference, f, q, dateformat);
+        search.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         search.page = ParamsParser.getPage(size, from, sort, after,before);
         search.projection = ParamsParser.getProjection(collectionReference.params.rasterTileURL.idPath+","+collectionReference.params.geometryPath, null);
 

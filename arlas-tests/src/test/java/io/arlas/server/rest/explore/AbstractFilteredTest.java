@@ -371,7 +371,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingGeometryFilter(header(request.filter), 595, everyItem(notNullValue()));
 
         //TODO support correct 10,-10,-10,10 bounding box
-        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "-11,-11,11,11")), 
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "-11,-11,11,11")),
                 new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "-5,-5,5,5")));
         handleMatchingGeometryFilter(post(request), 8, hasItems("10,0", "10,-10", "10,10", "10,10", "10,0", "10,-10", "0,10", "0,-10"));
         handleMatchingGeometryFilter(
@@ -1029,6 +1029,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleInvalidParameters(header(request.filter));
 
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.intersects, "POLYGON((1000 10000,10 -10,0 -10,1000 10000))")));
+        handleInvalidParameters(post(request));
+        handleInvalidParameters(get("f", request.filter.f.get(0).get(0).toString()));
+        handleInvalidParameters(header(request.filter));
+
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.intersects, "POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))")));
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("f", request.filter.f.get(0).get(0).toString()));
         handleInvalidParameters(header(request.filter));

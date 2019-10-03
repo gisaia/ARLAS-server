@@ -22,6 +22,7 @@ package io.arlas.server.core;
 
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.*;
+import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.Aggregation;
@@ -111,7 +112,7 @@ public class FluidSearch {
     private SearchRequestBuilder searchRequestBuilder;
     private BoolQueryBuilder boolQueryBuilder;
     private CollectionReference collectionReference;
-    private CollectionCache collectionCache;
+    private CollectionReferenceManager collectionReferenceManager;
 
     private List<String> include = new ArrayList<>();
     private List<String> exclude = new ArrayList<>();
@@ -119,7 +120,7 @@ public class FluidSearch {
     public FluidSearch(Client client) {
         this.client = client;
         this.elasticAdmin = new ElasticAdmin(client);
-        this.collectionCache = CollectionCache.getInstance();
+        this.collectionReferenceManager = CollectionReferenceManager.getInstance();
         boolQueryBuilder = QueryBuilders.boolQuery();
     }
 
@@ -267,35 +268,39 @@ public class FluidSearch {
                 }
                 break;
             case within:
-                ElasticType wType = collectionCache.getType(elasticAdmin, collectionReference, field);
+                ElasticType wType = collectionReferenceManager.getType(collectionReference, field);
+                BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
                 switch (wType) {
                     case GEO_POINT:
-                        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
                         for (AbstractQueryBuilder q : filterPWithin(field, value)) {
                             orBoolQueryBuilder = orBoolQueryBuilder.should(q);
                         }
-                        orBoolQueryBuilder.minimumShouldMatch(1);
-                        ret = ret.filter(orBoolQueryBuilder);
                         break;
                     case GEO_SHAPE:
-                        ret = ret.filter(filterGWithin(field, value));
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(filterGWithin(field, value));
                         break;
                     default:
                         throw new ArlasException("'within' op on field '" + field + "' of type '" + wType + "' is not supported");
                 }
+                orBoolQueryBuilder.minimumShouldMatch(1);
+                ret = ret.filter(orBoolQueryBuilder);
                 break;
             case notwithin:
-                ElasticType type = collectionCache.getType(elasticAdmin, collectionReference, field);
+                ElasticType type = collectionReferenceManager.getType(collectionReference, field);
+                BoolQueryBuilder orBoolQueryBuilder2 = QueryBuilders.boolQuery();
                 switch (type) {
                     case GEO_POINT:
-                        ret = ret.mustNot(filterNotPWithin(field, value));
+                        for (AbstractQueryBuilder q : filterNotPWithin(field, value)) {
+                            orBoolQueryBuilder2 = orBoolQueryBuilder2.should(q);
+                        }
                         break;
                     case GEO_SHAPE:
-                        ret = ret.mustNot(filterGWithin(field, value));
+                        orBoolQueryBuilder2 = orBoolQueryBuilder2.should(filterGWithin(field, value));
                         break;
                     default:
                         throw new ArlasException("'notwithin' op on field '" + field + "' of type '" + type + "' is not supported");
                 }
+                ret = ret.mustNot(orBoolQueryBuilder2);
                 break;
             case intersects:
                 ret = ret.filter(filterGIntersect(field, value));
@@ -388,7 +393,7 @@ public class FluidSearch {
                     builderList.add(QueryBuilders.geoPolygonQuery(field, geoPoints));
                 }
             } else {
-                throw new NotImplementedException(geometryType + " WKT is not supported for `pwithin`");
+                throw new NotImplementedException("WKT is not supported for 'within' op on field '" + field + "' of type '" + geometryType + "'");
             }
         }
         return builderList;
@@ -400,11 +405,11 @@ public class FluidSearch {
         return QueryBuilders.geoBoundingBoxQuery(field).setCorners(topLeft, bottomRight);
     }
 
-    public BoolQueryBuilder filterNotPWithin(String field, String notpwithinFilter) throws ArlasException {
-        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+    public List<AbstractQueryBuilder> filterNotPWithin(String field, String notpwithinFilter) throws ArlasException {
+        List<AbstractQueryBuilder> builderList = new ArrayList<>();
         if (CheckParams.isBboxMatch(notpwithinFilter)) {
             double[] tlbr = CheckParams.toDoubles(notpwithinFilter);
-            orBoolQueryBuilder = orBoolQueryBuilder.should(filterPWithin(field, tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
+            builderList.add(filterPWithin(field, tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
         } else {
             Geometry p = GeoUtil.readWKT(notpwithinFilter);
             String geometryType = p.getGeometryType();
@@ -412,20 +417,18 @@ public class FluidSearch {
                 // If the polygon is not a rectangle, ES provides `geoPolygonQuery` that allows to search geo-points that are within a polygon formed by list of points
                 // ==> we can't pass polygons with holes nor multipolygons (for multipolygons we can split them)
                 // !!! ISSUE ES 6.X: points on the edge of a polygon are not considered as within. Fixed in 7.X
-                BoolQueryBuilder andQueryBuilder = QueryBuilders.boolQuery();
                 for(int i = 0; i< p.getNumGeometries(); i++) {
                     List<Coordinate> coordinates = Arrays.asList(p.getGeometryN(i).getCoordinates());
                     List<GeoPoint> geoPoints = new ArrayList<>();
                     coordinates.forEach(coordinate -> geoPoints.add(new GeoPoint(coordinate.y, coordinate.x)));
                     /** `andQueryBuilder` will allow us to consider a multipolygon as one entity when we apply notpwithin query*/
-                    andQueryBuilder = andQueryBuilder.should(QueryBuilders.geoPolygonQuery(field, geoPoints));
+                    builderList.add(QueryBuilders.geoPolygonQuery(field, geoPoints));
                 }
-                orBoolQueryBuilder = orBoolQueryBuilder.should(andQueryBuilder);
             } else {
                 throw new NotImplementedException(geometryType + " WKT is not supported for `notpwithin`");
             }
         }
-        return orBoolQueryBuilder;
+        return builderList;
     }
 
     public GeoShapeQueryBuilder filterGWithin(String field, String geometry) throws ArlasException {
