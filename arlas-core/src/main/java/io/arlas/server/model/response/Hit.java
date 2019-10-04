@@ -29,13 +29,11 @@ import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.StringUtil;
 import io.arlas.server.utils.TimestampTypeMapper;
 import io.dropwizard.jackson.JsonSnakeCase;
+import org.geojson.GeoJsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @JsonSnakeCase
 public class Hit {
@@ -49,23 +47,34 @@ public class Hit {
     private Map<String, Object> dataAsMap;
 
     @JsonIgnore
+    private Map<String, GeoJsonObject> geometriesAsMap;
+
+    @JsonIgnore
     private boolean flat;
 
     public Hit() {
     }
 
     public Hit(CollectionReference collectionReference, Map<String, Object> source, Boolean flat, Boolean ignoreGeo) throws ArlasException {
+        this(collectionReference, source, null, flat, ignoreGeo);
+    }
+
+    public Hit(CollectionReference collectionReference, Map<String, Object> source, String returned_geometries, Boolean flat, Boolean ignoreGeo) throws ArlasException {
         this.flat = flat;
+        this.geometriesAsMap = new HashMap<>();
 
         md = new MD();
         if (collectionReference.params.idPath != null) {
             md.id = "" + MapExplorer.getObjectFromPath(collectionReference.params.idPath, source);
         }
-        CollectionReferenceManager.setCollectionGeometriesType(source, collectionReference);
+        CollectionReferenceManager.setCollectionGeometriesType(source, collectionReference, returned_geometries);
         if (collectionReference.params.centroidPath != null) {
             try {
                 Object m = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
-                md.centroid = m != null ? GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getCentroidType()) : null;
+                if (m != null) {
+                    md.centroid = GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getCentroidType());
+                    this.geometriesAsMap.put(collectionReference.params.centroidPath, md.centroid);
+                }
             } catch (ArlasException e) {
                 // no exception is thrown as this Hit is returned as response of a `_search` query where the geometry is not necessarily needed
                 LOGGER.error(e.getMessage());            }
@@ -73,7 +82,10 @@ public class Hit {
         if (collectionReference.params.geometryPath != null) {
             try {
                 Object m = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
-                md.geometry = m != null ? GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeometryType()) : null;
+                if (m != null) {
+                    md.geometry = GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeometryType());
+                    this.geometriesAsMap.put(collectionReference.params.geometryPath, md.geometry);
+                }
             } catch (ArlasException e) {
                 // no exception is thrown as this Hit is returned as response of a `_search` query where the geometry is not necessarily needed
                 LOGGER.error(e.getMessage());
@@ -86,6 +98,23 @@ public class Hit {
                 md.timestamp = TimestampTypeMapper.getTimestamp(t, f);
             }
         }
+
+        if (returned_geometries != null) {
+            md.returnedGeometries = new ArrayList<>();
+            for (String path : returned_geometries.split(",")) {
+                // skip centroidPath and geometryPath if requested, as they are already set before
+                if (!path.equals(collectionReference.params.centroidPath)
+                        && !path.equals(collectionReference.params.geometryPath)) {
+                    Object m = MapExplorer.getObjectFromPath(path, source);
+                    if (m != null) {
+                        GeoJsonObject geoJsonObject = GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeoType(path));
+                        md.returnedGeometries.add(new Geo(path, geoJsonObject));
+                        this.geometriesAsMap.put(path, geoJsonObject);
+                    }
+                }
+            }
+        }
+
         if (ignoreGeo) {
             getGeoPathsToExcludeFromResponse(collectionReference).stream().forEach(e->{
                 if (e.contains(".")) {
@@ -116,5 +145,9 @@ public class Hit {
             excludeFromData.add(collectionReference.params.geometryPath);
         }
         return excludeFromData;
+    }
+
+    public GeoJsonObject getGeometry(String path) {
+        return this.geometriesAsMap.get(path);
     }
 }

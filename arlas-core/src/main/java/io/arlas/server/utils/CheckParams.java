@@ -22,8 +22,10 @@ package io.arlas.server.utils;
 import com.neovisionaries.i18n.LanguageAlpha3Code;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
+import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.*;
+import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.Inspire;
 import io.arlas.server.model.Keyword;
@@ -44,6 +46,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -51,16 +54,12 @@ import java.util.stream.Collectors;
 public class CheckParams {
 
     private static final String POLYGON_TYPE = "POLYGON";
-    private static final String INVALID_SORT_PARAMETER = "Invalid sort syntax. Please use the following syntax : 'fieldName:ASC' or 'fieldName:DESC'. ";
     private static final String INVALID_XYZ_PARAMETER = "Z must be between 0 and 28. X and Y must be between 0 and (2^Z-1)";
     private static final String INVALID_DATE_MATH_UNIT = "Invalid date math unit. Please use the following list : y, M, w, d, h, H, m, s. ";
     private static final String INVALID_DATE_MATH_VALUE = "Invalid date math value. Please specify an integer. ";
     private static final String INVALID_DATE_MATH_OPERATOR = "Invalid date math operator. Please use the following list : /, +, -";
     private static final String MISSING_DATE_MATH_UNIT = "Missing date math unit";
     private static final String INVALID_DATE_MATH_EXPRESSION = "Invalid date math expression";
-    private static final String OUTRANGE_GEOHASH_PRECISION = "Precision must be between 1 and 12. ";
-    private static final String INVALID_PRECISION_TYPE = "Precision must be an integer between 1 and 12. ";
-    private static final String INVALID_INTERVAL_TYPE = "Interval must be numeric. ";
     private static final String INVALID_AGGREGATION_PARAMETER = "Invalid aggregation syntax. Must start with {type}:{field}:...";
     private static final String INVALID_AGGREGATION = "Invalid aggregation parameters. Type and field must be specified";
     private static final String INVALID_AGGREGATION_TYPE = "Invalid aggregation TYPE. Must be datehistogram, geohash, histogram or terms ";
@@ -81,13 +80,6 @@ public class CheckParams {
     public static final String NO_TERM_INTERVAL = "'Interval' should not be specified for term aggregation.";
     public static final String INVALID_FETCHGEOMETRY = "Invalid `fetch_geometry` strategy. It should be `fetch_geometry-bbox`, `fetch_geometry-centroid`, `fetch_geometry-byDefault`" +
             "`fetch_geometry-first`, `fetch_geometry-last`, `fetch_geometry-{field}-first`, `fetch_geometry-{field}-last` or `fetch_geometry";
-    public static final String WITHIN_RELATION = "within";
-    public static final String INTERSECTS_RELATION = "intersects";
-    public static final String GEO_POINT = "GEO_POINT";
-    public static final String GEO_SHAPE = "GEO_SHAPE";
-
-
-
 
     public CheckParams() {
     }
@@ -645,5 +637,39 @@ public class CheckParams {
         long minRange = 0;
         long maxRange = (long) (Math.pow(2, z) - 1);
         return (n >= minRange && n <= maxRange);
+    }
+
+    public static void checkReturnedGeometries(CollectionReference collectionReference, String include, String exclude, String returned_geometries) throws ArlasException {
+        if (exclude != null && exclude != ""){
+            List<String> fields = new ArrayList<>();
+            if (collectionReference.params.idPath != null)
+                fields.add(collectionReference.params.idPath);
+            if (collectionReference.params.geometryPath != null)
+                fields.add(collectionReference.params.geometryPath);
+            if (collectionReference.params.centroidPath != null)
+                fields.add(collectionReference.params.centroidPath);
+            if (collectionReference.params.timestampPath != null)
+                fields.add(collectionReference.params.timestampPath);
+            List<String> excludeField = Arrays.asList(exclude.split(","));
+            CheckParams.checkExcludeField(excludeField, fields);
+        }
+
+        if (returned_geometries != null) {
+            List<String> includes = new ArrayList<>();
+            if (include != null) Collections.addAll(includes, include.split(","));
+
+            List<String> excludes = new ArrayList<>();
+            if (exclude != null) Collections.addAll(excludes, exclude.split(","));
+
+            for (String geo : returned_geometries.split(",")) {
+                CollectionReferenceManager.getInstance().getType(collectionReference, geo); // will throw ArlasException if not existing
+                if (!includes.contains(geo)) {
+                    throw new ArlasException("Returned geometry '" + geo + "' is not included in the include list: '" + include + "'");
+                }
+                if (excludes.contains(geo)) {
+                    throw new ArlasException("Returned geometry '" + geo + "' should not be in the exclude list: '" + exclude + "'");
+                }
+            }
+        }
     }
 }
