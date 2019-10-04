@@ -32,6 +32,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 public class CollectionReferenceManager {
     private Map<String, ElasticType> map;
     private ElasticAdmin elasticAdmin;
@@ -73,6 +77,10 @@ public class CollectionReferenceManager {
     }
 
     public static void setCollectionGeometriesType(Object source, CollectionReference collectionReference) throws ArlasException {
+        setCollectionGeometriesType(source, collectionReference, null);
+    }
+
+    public static void setCollectionGeometriesType(Object source, CollectionReference collectionReference, String returned_geometries) throws ArlasException {
         if (collectionReference.params.getGeometryType() == null) {
             Object geometry = collectionReference.params.geometryPath != null ?
                     MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source) : null;
@@ -85,6 +93,15 @@ public class CollectionReferenceManager {
                     MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source) : null;
             if (centroid != null) {
                 collectionReference.params.setCentroidType(GeoTypeMapper.getGeometryType(centroid));
+            }
+        }
+        if (returned_geometries != null) {
+            for (String path : returned_geometries.split(",")) {
+                if (collectionReference.params.getGeoType(path) == null) {
+                    Object geometry = MapExplorer.getObjectFromPath(path, source);
+                    if (geometry != null)
+                        collectionReference.params.setGeoType(path, GeoTypeMapper.getGeometryType(geometry));
+                }
             }
         }
     }

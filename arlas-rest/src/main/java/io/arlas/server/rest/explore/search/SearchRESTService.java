@@ -132,6 +132,13 @@ public class SearchRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "exclude") String exclude,
 
+            @ApiParam(name = "returned_geometries",
+                    value = Documentation.PROJECTION_PARAM_RETURNED_GEOMETRIES,
+                    allowMultiple = true,
+                    defaultValue = "",
+                    required = false)
+            @QueryParam(value = "returned_geometries") String returned_geometries,
+
             // --------------------------------------------------------
             // -----------------------  PAGE   -----------------------
             // --------------------------------------------------------
@@ -183,30 +190,21 @@ public class SearchRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        List<String> fields = new ArrayList<>();
-        if (collectionReference.params.idPath != null)
-            fields.add(collectionReference.params.idPath);
-        if (collectionReference.params.geometryPath != null)
-            fields.add(collectionReference.params.geometryPath);
-        if (collectionReference.params.centroidPath != null)
-            fields.add(collectionReference.params.centroidPath);
-        if (collectionReference.params.timestampPath != null)
-            fields.add(collectionReference.params.timestampPath);
-        if(exclude!=null && exclude!=""){
-            List<String> excludeField = Arrays.asList(exclude.split(","));
-            CheckParams.checkExcludeField(excludeField, fields);
-        }
+
+        CheckParams.checkReturnedGeometries(collectionReference, include, exclude, returned_geometries);
+
         Search search = new Search();
         search.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         search.page = ParamsParser.getPage(size, from, sort,after,before);
         search.projection = ParamsParser.getProjection(include, exclude);
+        search.returned_geometries = returned_geometries;
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(collectionReference, searchHeader);
         request.headerRequest = searchHeader;
-        Hits hits = getArlasHits(request, collectionReference,BooleanUtils.isTrue(flat),uriInfo,"GET");
+        Hits hits = getArlasHits(request, collectionReference, BooleanUtils.isTrue(flat), uriInfo,"GET");
         return cache(Response.ok(hits), maxagecache);
     }
 
@@ -263,6 +261,10 @@ public class SearchRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
+        String includes = search.projection != null ? search.projection.includes : null;
+        String excludes = search.projection != null ? search.projection.excludes : null;
+        CheckParams.checkReturnedGeometries(collectionReference, includes, excludes, search.returned_geometries);
+
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
@@ -288,7 +290,7 @@ public class SearchRESTService extends ExploreRESTServices {
             Collections.reverse(searchHitList);
         }
         for (SearchHit hit : searchHitList) {
-            hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), flat, false));
+            hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), searchRequest.returned_geometries, flat, false));
         }
         Link self = new Link();
         self.href = getRequestUri(uriInfo);
@@ -335,6 +337,7 @@ public class SearchRESTService extends ExploreRESTServices {
                     search.filter = searchRequest.filter;
                     search.form = searchRequest.form;
                     search.projection =searchRequest.projection;
+                    search.returned_geometries = searchRequest.returned_geometries;
                     nextPage.sort=searchRequest.page.sort;
                     nextPage.size=searchRequest.page.size;
                     nextPage.from =searchRequest.page.from;
@@ -350,6 +353,7 @@ public class SearchRESTService extends ExploreRESTServices {
                     search.filter = searchRequest.filter;
                     search.form = searchRequest.form;
                     search.projection =searchRequest.projection;
+                    search.returned_geometries = searchRequest.returned_geometries;
                     previousPage.sort=searchRequest.page.sort;
                     previousPage.size=searchRequest.page.size;
                     previousPage.from =searchRequest.page.from;
