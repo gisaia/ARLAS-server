@@ -32,10 +32,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 public class CollectionReferenceManager {
     private Map<String, ElasticType> map;
     private ElasticAdmin elasticAdmin;
@@ -81,26 +77,28 @@ public class CollectionReferenceManager {
     }
 
     public static void setCollectionGeometriesType(Object source, CollectionReference collectionReference, String returned_geometries) throws ArlasException {
-        if (collectionReference.params.getGeometryType() == null) {
+        if (collectionReference.params.getGeometryType(collectionReference.params.geometryPath) == null) {
             Object geometry = collectionReference.params.geometryPath != null ?
                     MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source) : null;
             if (geometry != null) {
-                collectionReference.params.setGeometryType(GeoTypeMapper.getGeometryType(geometry));
+                collectionReference.params.setGeometryType(collectionReference.params.geometryPath,
+                        GeoTypeMapper.getGeometryType(geometry));
             }
         }
-        if (collectionReference.params.getCentroidType() == null) {
+        if (collectionReference.params.getGeometryType(collectionReference.params.centroidPath) == null) {
             Object centroid = collectionReference.params.centroidPath != null ?
                     MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source) : null;
             if (centroid != null) {
-                collectionReference.params.setCentroidType(GeoTypeMapper.getGeometryType(centroid));
+                collectionReference.params.setGeometryType(collectionReference.params.centroidPath,
+                        GeoTypeMapper.getGeometryType(centroid));
             }
         }
         if (returned_geometries != null) {
             for (String path : returned_geometries.split(",")) {
-                if (collectionReference.params.getGeoType(path) == null) {
+                if (collectionReference.params.getGeometryType(path) == null) {
                     Object geometry = MapExplorer.getObjectFromPath(path, source);
                     if (geometry != null)
-                        collectionReference.params.setGeoType(path, GeoTypeMapper.getGeometryType(geometry));
+                        collectionReference.params.setGeometryType(path, GeoTypeMapper.getGeometryType(geometry));
                 }
             }
         }
