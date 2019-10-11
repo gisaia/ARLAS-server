@@ -171,7 +171,7 @@ public class GeoTileUtil {
         Geometry geometry = null;
         Object geoJsonObject = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
         if (geoJsonObject != null) {
-            if (collectionReference.params.getGeometryType().equals(GeoTypeEnum.WKT)) {
+            if (collectionReference.params.getGeometryType(collectionReference.params.geometryPath).equals(GeoTypeEnum.WKT)) {
                 geometry = GeoUtil.readWKT(geoJsonObject.toString());
             } else {
                 GeoJsonReader reader = new GeoJsonReader();

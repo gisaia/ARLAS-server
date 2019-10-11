@@ -72,7 +72,7 @@ public class Hit {
             try {
                 Object m = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
                 if (m != null) {
-                    md.centroid = GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getCentroidType());
+                    md.centroid = GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeometryType(collectionReference.params.centroidPath));
                     this.geometriesAsMap.put(collectionReference.params.centroidPath, md.centroid);
                 }
             } catch (ArlasException e) {
@@ -83,7 +83,7 @@ public class Hit {
             try {
                 Object m = MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source);
                 if (m != null) {
-                    md.geometry = GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeometryType());
+                    md.geometry = GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeometryType(collectionReference.params.geometryPath));
                     this.geometriesAsMap.put(collectionReference.params.geometryPath, md.geometry);
                 }
             } catch (ArlasException e) {
@@ -107,7 +107,7 @@ public class Hit {
                         && !path.equals(collectionReference.params.geometryPath)) {
                     Object m = MapExplorer.getObjectFromPath(path, source);
                     if (m != null) {
-                        GeoJsonObject geoJsonObject = GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeoType(path));
+                        GeoJsonObject geoJsonObject = GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeometryType(path));
                         md.returnedGeometries.add(new Geo(path, geoJsonObject));
                         this.geometriesAsMap.put(path, geoJsonObject);
                     }

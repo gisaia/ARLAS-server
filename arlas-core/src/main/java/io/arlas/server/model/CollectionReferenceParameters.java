@@ -96,29 +96,12 @@ public class CollectionReferenceParameters {
     public CollectionReferenceParameters() {
     }
 
-    public void setGeoType(String path, GeoTypeEnum type) {
+    public void setGeometryType(String path, GeoTypeEnum type) {
         this.geoTypes.put(path, type);
     }
 
-    public GeoTypeEnum getGeoType(String path) {
+    public GeoTypeEnum getGeometryType(String path) {
         return this.geoTypes.get(path);
     }
 
-    public void setGeometryType(GeoTypeEnum geometryType) {
-        if (geometryType != null)
-            this.geoTypes.put(geometryPath, geometryType);
-    }
-
-    public GeoTypeEnum getGeometryType() {
-        return getGeoType(geometryPath);
-    }
-
-    public GeoTypeEnum getCentroidType() {
-        return getGeoType(centroidPath);
-    }
-
-    public void setCentroidType(GeoTypeEnum centroidType) {
-        if (centroidType != null)
-            this.geoTypes.put(centroidPath, centroidType);
-    }
 }
