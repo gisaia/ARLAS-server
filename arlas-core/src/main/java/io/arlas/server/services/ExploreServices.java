@@ -156,7 +156,7 @@ public class ExploreServices {
         } catch (SearchPhaseExecutionException e) {
             throw new InvalidParameterException("The field's type must be numeric");
         }
-        return fluidSearch.exec();
+        return response;
     }
 
     protected void applyAggregation(List<Aggregation> aggregations, FluidSearch fluidSearch, Boolean isGeoAggregation) throws ArlasException {
