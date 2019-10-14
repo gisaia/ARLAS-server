@@ -89,7 +89,6 @@ public class CollectionTool extends AbstractTestContext {
         params.timestampPath = DataSetTool.DATASET_TIMESTAMP_PATH;
         params.excludeFields = DataSetTool.DATASET_EXCLUDE_FIELDS;
         params.excludeWfsFields = DataSetTool.DATASET_EXCLUDE_WFS_FIELDS;
-        params.taggableFields = DataSetTool.DATASET_TAGGABLE_FIELDS;
         params.rasterTileURL = DataSetTool.DATASET_TILE_URL;
         params.rasterTileWidth=256;
         params.rasterTileHeight=256;
@@ -144,7 +143,6 @@ public class CollectionTool extends AbstractTestContext {
                     params.timestampPath = DataSetTool.DATASET_TIMESTAMP_PATH;
                     params.excludeFields = DataSetTool.DATASET_EXCLUDE_FIELDS;
                     params.excludeWfsFields = DataSetTool.DATASET_EXCLUDE_WFS_FIELDS;
-                    params.taggableFields = DataSetTool.DATASET_TAGGABLE_FIELDS;
                     params.rasterTileURL = DataSetTool.DATASET_TILE_URL;
                     params.dublinCoreElementName=dublinCoreElementName;
                     String url = arlasPath + "collections/" + dublinCoreElementName.title.split(" ")[0].toLowerCase();
