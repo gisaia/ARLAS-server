@@ -40,6 +40,7 @@ import io.arlas.server.ogc.wfs.WFSService;
 import io.arlas.server.rest.collections.ElasticCollectionService;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
 import io.arlas.server.rest.explore.aggregate.GeoAggregateRESTService;
+import io.arlas.server.rest.explore.compute.ComputeRESTService;
 import io.arlas.server.rest.explore.count.CountRESTService;
 import io.arlas.server.rest.explore.describe.DescribeCollectionRESTService;
 import io.arlas.server.rest.explore.describe.DescribeRESTService;
@@ -169,6 +170,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             environment.jersey().register(new RawRESTService(exploration));
             environment.jersey().register(new DescribeCollectionRESTService(exploration));
             environment.jersey().register(new RangeRESTService(exploration));
+            environment.jersey().register(new ComputeRESTService(exploration));
             LOGGER.info("Explore API enabled");
         } else {
             LOGGER.info("Explore API disabled");
