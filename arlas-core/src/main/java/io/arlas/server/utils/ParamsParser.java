@@ -20,7 +20,6 @@
 package io.arlas.server.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;

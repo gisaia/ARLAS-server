@@ -417,13 +417,15 @@ public class FluidSearch {
                 // If the polygon is not a rectangle, ES provides `geoPolygonQuery` that allows to search geo-points that are within a polygon formed by list of points
                 // ==> we can't pass polygons with holes nor multipolygons (for multipolygons we can split them)
                 // !!! ISSUE ES 6.X: points on the edge of a polygon are not considered as within. Fixed in 7.X
+                BoolQueryBuilder andQueryBuilder = QueryBuilders.boolQuery();
                 for(int i = 0; i< p.getNumGeometries(); i++) {
                     List<Coordinate> coordinates = Arrays.asList(p.getGeometryN(i).getCoordinates());
                     List<GeoPoint> geoPoints = new ArrayList<>();
                     coordinates.forEach(coordinate -> geoPoints.add(new GeoPoint(coordinate.y, coordinate.x)));
                     /** `andQueryBuilder` will allow us to consider a multipolygon as one entity when we apply notpwithin query*/
-                    builderList.add(QueryBuilders.geoPolygonQuery(field, geoPoints));
+                    andQueryBuilder = andQueryBuilder.should(QueryBuilders.geoPolygonQuery(field, geoPoints));
                 }
+                builderList.add(andQueryBuilder);
             } else {
                 throw new NotImplementedException(geometryType + " WKT is not supported for `notpwithin`");
             }

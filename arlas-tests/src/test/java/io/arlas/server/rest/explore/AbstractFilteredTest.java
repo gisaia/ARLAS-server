@@ -340,6 +340,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 592, notNullValue());
         handleMatchingGeometryFilter(header(request.filter), 592, everyItem(notNullValue()));
 
+        /** multi polygon **/
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "MULTIPOLYGON (((-180 -90, -180 90, -5 90, -5 -90, -180 -90)), ((5 -90, 5 90, 180 90, 180 -90, 5 -90)))")));
+        handleMatchingGeometryFilter(post(request), 17, everyItem(endsWith("0")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 17, everyItem(endsWith("0")));
+        handleMatchingGeometryFilter(header(request.filter), 17, everyItem(endsWith("0")));
+
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "-180,-90,-5,90")),
                 new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "5,-90,180,90")));
         handleMatchingGeometryFilter(post(request), 17, everyItem(endsWith("0")));
