@@ -20,6 +20,7 @@
 package io.arlas.server.services;
 
 import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
@@ -73,11 +74,13 @@ public class ExploreServices {
     protected CollectionReferenceDao daoCollectionReference;
     private ResponseCacheManager responseCacheManager = null;
     private ArlasServerConfiguration configuration;
+    private ElasticAdmin elasticAdmin;
 
     public ExploreServices() {}
 
     public ExploreServices(Client client, ArlasServerConfiguration configuration) {
         this.client = client;
+        this.elasticAdmin = new ElasticAdmin(client);
         this.configuration = configuration;
         this.daoCollectionReference = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
         this.responseCacheManager = new ResponseCacheManager(configuration.arlasrestcachetimeout);
@@ -169,7 +172,7 @@ public class ExploreServices {
         fluidSearch = fluidSearch.getFieldRange(field);
     }
 
-    public void applyFilter(Filter filter, FluidSearch fluidSearch) throws ArlasException, IOException {
+    public void applyFilter(Filter filter, FluidSearch fluidSearch) throws ArlasException {
         if (filter != null) {
             CheckParams.checkFilter(filter);
             if (filter.f != null && !filter.f.isEmpty()) {
@@ -186,47 +189,12 @@ public class ExploreServices {
                     fluidSearch = fluidSearch.filterQ(q);
                 }
             }
-            if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
-                for (MultiValueFilter<String> pw : filter.pwithin) {
-                    fluidSearch = fluidSearch.filterPWithin(pw);
-                }
-            }
-            if (filter.gwithin != null && !filter.gwithin.isEmpty()) {
-                for (MultiValueFilter<String> gw : filter.gwithin) {
-                    fluidSearch = fluidSearch.filterGWithin(gw);
-                }
-            }
-            if (filter.gintersect != null && !filter.gintersect.isEmpty()) {
-                for (MultiValueFilter<String> gi : filter.gintersect) {
-                    fluidSearch = fluidSearch.filterGIntersect(gi);
-                }
-            }
-            if (filter.notpwithin != null && !filter.notpwithin.isEmpty()) {
-                for (MultiValueFilter<String> npw : filter.notpwithin) {
-                    fluidSearch = fluidSearch.filterNotPWithin(npw);
-                }
-            }
-            if (filter.notgwithin != null && !filter.notgwithin.isEmpty()) {
-                for (MultiValueFilter<String> ngw : filter.notgwithin) {
-                    fluidSearch = fluidSearch.filterNotGWithin(ngw);
-                }
-            }
-            if (filter.notgintersect != null && !filter.notgintersect.isEmpty()) {
-                for (MultiValueFilter<String> ngi : filter.notgintersect) {
-                    fluidSearch = fluidSearch.filterNotGIntersect(ngi);
-                }
-            }
         }
     }
 
-    public void setValidGeoFilters(Request request) throws ArlasException {
+    public void setValidGeoFilters(CollectionReference collectionReference, Request request) throws ArlasException {
         if (request != null && request.filter != null) {
-            request.filter.pwithin = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.pwithin), true);
-            request.filter.gwithin = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.gwithin));
-            request.filter.gintersect = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.gintersect));
-            request.filter.notpwithin = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.notpwithin), true);
-            request.filter.notgwithin = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.notgwithin));
-            request.filter.notgintersect = ParamsParser.getValidGeoFilters(ParamsParser.toSemiColonsSeparatedStringList(request.filter.notgintersect));
+            request.filter = ParamsParser.getFilterWithValidGeos(collectionReference, request.filter);
         }
     }
 

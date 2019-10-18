@@ -4,7 +4,7 @@ The ARLAS API makes the ARLAS catalog available for exploration and browsing. Th
 
 ## URL Schema
 
-The table below lists the URL endpoints and their optional "parts". A part is composed of optional parameters. The parameters are seperated with the character `&`.
+The table below lists the URL endpoints and their optional "parts". A part is composed of optional parameters. The parameters are separated with the character `&`.
 
 | PATH Template                            | Description                              |
 | ---------------------------------------- | ---------------------------------------- |
@@ -157,12 +157,6 @@ The `filter` url part allows the following parameters to be specified:
 | ----------------- | ------------- | ------------------------------ | ---------------------------------------- | -------- |
 | **f**             | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **`:eq:`** and **`:range:`** filters, values can be comma separated (field`:eq:`v1,v2) which stands for an **OR**. For the **`:ne:`**  filter, values can be comma separated (field`:ne:`v1,v2) which stands for an **AND** | true     |
 | **q**             | None          | `{text}` or `{fieldname}:{text}` | A full text search. Optionally, it's possible to search the text on a specific field                       | false    |
-| **pwithin**       | None          | geometry                       | Any element having its centroid contained within the given WKT Polygon or MultiPolygon (clock-wise) or the given BBOX : `west, south, east, north`| false    |
-| **gwithin**       | None          | geometry                       | Any element having its geometry contained within the given WKT string (clock-wise) or the given BBOX : `west, south, east, north` | false    |
-| **gintersect**    | None          | geometry                       | Any element having its geometry intersecting the given WKT string (clock-wise) or the given BBOX : `west, south, east, north` | false    |
-| **notpwithin**    | None          | geometry                       | Any element having its centroid outside the given WKT Polygon or MultiPolygon (clock-wise) or the given BBOX : `west, south, east, north` | false    |
-| **notgwithin**    | None          | geometry                       | Any element having its geometry not contained within the given WKT string (clock-wise) or the given BBOX : `west, south, east, north` | false    |
-| **notgintersect** | None          | geometry                       | Any element having its geometry not intersecting the given WKT string (clock-wise) or the given BBOX : `west, south, east, north` | false    |
 | **dateformat**    | None          | [Joda time pattern](https://www.joda.org/joda-time/apidocs/org/joda/time/format/DateTimeFormat.html)                       | A date format pattern that respects the Joda-time syntax | false    |
 
 !!! info "Important"
@@ -187,23 +181,27 @@ For each parameter, you can provide multiple filters. There are 2 different ways
 
 | Multiple type              | Example                                                                           | Operator | Result                              |
 | -------------------------- | --------------------------------------------------------------------------------- | -------- | ----------------------------------- |
-| Distinct filter parameters | `gwithin=POLYGON((0 0,1 0,1 1,0 1,0 0))&gwithin=POLYGON((0 0,1 0,1 -1,0 -1,0 0))` | **AND**  | elements within the 2 geometry      |
-| Same filter parameter      | `gwithin=POLYGON((0 0,1 0,1 1,0 1,0 0));POLYGON((0 0,1 0,1 -1,0 -1,0 0))`         | **OR**   | elements within at least 1 geometry |
+| Distinct filter parameters | `f=age:gte:18&f=age:lte:60` | **AND**  | elements whose/which age between 18 and 60      |
+| Same filter parameter      | `f=age:gte:18;age:lte:60`   | **OR**   | elements with any age |
 
 Of course, you can combine both way to handle complex multiple filters for each filter parameter type.
 
 #### `f` parameter syntax
 
-| Operator      | Description                                                                                                         | Value type         |
-| ------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| **`:eq:`**    | `{fieldName}` equals `{comma separated values}`. **OR** operation is applied for the specified values               | numeric or strings |
-| **`:ne:`**    | `{fieldName}` must not equal `{comma separated values }`. **AND** operation is applied for the specified values     | numeric or strings |
-| **`:like:`**  | `{fieldName}` is like `{value}`.                                                                                    | numeric or strings |
-| **`:gte:`**   | `{fieldName}` is greater than or equal to `{value}`                                                                 | numeric            |
-| **`:gt:`**    | `{fieldName}` is greater than `{value}`                                                                             | numeric            |
-| **`:lte:`**   | `{fieldName}` is less than or equal to `{value}`                                                                    | numeric            |
-| **`:lt:`**    | `{fieldName}` is less than `{value}`                                                                                | numeric            |
-| **`:range:`** | `{fieldName}` is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, min & max should be timestamps in millisecond or [Date expression](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math)  Note that dates in date expressions can either be `now` or timestamp in millisecond. Other date formats are not supported.|
+| Operator            | Description                                                                                                         | Value type         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| **`:eq:`**          | `{fieldName}` equals `{comma separated values}`. **OR** operation is applied for the specified values               | numeric or strings |
+| **`:ne:`**          | `{fieldName}` must not equal `{comma separated values }`. **AND** operation is applied for the specified values     | numeric or strings |
+| **`:like:`**        | `{fieldName}` is like `{value}`.                                                                                    | numeric or strings |
+| **`:gte:`**         | `{fieldName}` is greater than or equal to `{value}`                                                                 | numeric            |
+| **`:gt:`**          | `{fieldName}` is greater than `{value}`                                                                             | numeric            |
+| **`:lte:`**         | `{fieldName}` is less than or equal to `{value}`                                                                    | numeric            |
+| **`:lt:`**          | `{fieldName}` is less than `{value}`                                                                                | numeric            |
+| **`:range:`**       | `{fieldName}` is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, min & max should be timestamps in millisecond or [Date expression](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math)  Note that dates in date expressions can either be `now` or timestamp in millisecond. Other date formats are not supported.|
+| **`:within:`**      | `{GeofieldName}` is within the `{given WKT string or the given BBOX : west, south, east, north}`. | a WKT string or the BBOX string : `"west, south, east, north"`|
+| **`:notwithin:`**   | `{GeofieldName}` is not within the `{given WKT string or the given BBOX : west, south, east, north}`. | a WKT string or the BBOX string : `"west, south, east, north"`|
+| **`:intersects:`**  | `{GeofieldName}` intersects the `{given WKT string or the given BBOX : west, south, east, north}`. | a WKT string or the BBOX string : `"west, south, east, north"`|
+| **`:notintersects:`**| `{GeofieldName}` does not intersect the `{given WKT string or the given BBOX : west, south, east, north}`. | a WKT string or the BBOX string : `"west, south, east, north"`|
 
 The `:range:` operator has a specific syntax to indicates if range bounds are taken into account or not.
 

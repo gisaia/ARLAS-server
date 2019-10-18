@@ -21,20 +21,17 @@ package io.arlas.server.core;
 
 
 import io.arlas.server.app.ArlasServerConfiguration;
-
-import io.arlas.server.utils.*;
-import org.elasticsearch.search.aggregations.metrics.MaxAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.MinAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.TopHitsAggregationBuilder;
-import org.locationtech.jts.geom.*;
 import io.arlas.server.exceptions.*;
+import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.Aggregation;
 import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.Metric;
 import io.arlas.server.model.request.MultiValueFilter;
+import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.model.response.TimestampType;
+import io.arlas.server.utils.*;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -52,15 +49,18 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInter
 import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.MaxAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.MinAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.TopHitsAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Pattern;
 
 
 public class FluidSearch {
@@ -84,7 +84,6 @@ public class FluidSearch {
     public static final String FETCH_HITS_AGG = "fetched_hits";
     public static final String GEOHASH_AGG_WITH_GEOASH_STRATEGY = "Geohash aggregation with geoash strategy";
     public static final String GEO_DISTANCE = "geodistance";
-    public static final String NOT_ALLOWED_AS_MAIN_AGGREGATION_TYPE = " aggregation type is not allowed as main aggregation. Please make sure that geohash or term is the main aggregation or use '_aggregate' service instead.";
     public static final String NO_INCLUDE_TO_SPECIFY = "'include-' should not be specified for this aggregation";
     public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
     public static final String NO_SIZE_TO_SPECIFY = "'size-' should not be specified for this aggregation.";
@@ -92,15 +91,12 @@ public class FluidSearch {
     public static final String COLLECT_FCT_NOT_SPECIFIED = "The aggregation function 'collect_fct' is not specified.";
     public static final String COLLECT_FIELD_NOT_SPECIFIED = "The aggregation field 'collect_field' is not specified.";
     public static final String BAD_COLLECT_FIELD_FOR_GEO_METRICS = "For GeoBBOX and GeoCentroid, 'collect_field' should be the centroid path";
-    public static final String NOT_SUPPORTED_BBOX_INTERSECTION = "Unsupported case : pwithin bbox intersects the tile/geohash twice.";
     public static final String ORDER_NOT_SPECIFIED = "'order-' is not specified.";
     public static final String ON_NOT_SPECIFIED = "'on-' is not specified.";
     public static final String ORDER_PARAM_NOT_ALLOWED = "Order is not allowed for geohash aggregation.";
     public static final String ORDER_ON_RESULT_NOT_ALLOWED = "'on-result' sorts 'collect_field' and 'collect_fct' results. Please specify 'collect_field' and 'collect_fct'.";
     public static final String ORDER_ON_GEO_RESULT_NOT_ALLOWED = "Ordering on 'result' is not allowed for geo-box neither geo-centroid metric aggregation. ";
     public static final String SIZE_NOT_IMPLEMENTED = "Size is not implemented for geohash.";
-    public static final String RANGE_ALIASES_CHARACTER = "$";
-    public static final String TIMESTAMP_ALIAS = "timestamp";
 
     public static final String FIELD_MIN_VALUE = "field_min_value";
     public static final String FIELD_MAX_VALUE = "field_max_value";
@@ -112,15 +108,19 @@ public class FluidSearch {
     private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
 
     private Client client;
+    private ElasticAdmin elasticAdmin;
     private SearchRequestBuilder searchRequestBuilder;
     private BoolQueryBuilder boolQueryBuilder;
     private CollectionReference collectionReference;
+    private CollectionReferenceManager collectionReferenceManager;
 
     private List<String> include = new ArrayList<>();
     private List<String> exclude = new ArrayList<>();
 
     public FluidSearch(Client client) {
         this.client = client;
+        this.elasticAdmin = new ElasticAdmin(client);
+        this.collectionReferenceManager = CollectionReferenceManager.getInstance();
         boolQueryBuilder = QueryBuilders.boolQuery();
     }
 
@@ -267,11 +267,53 @@ public class FluidSearch {
                     ret = ret.filter(getRangeQueryBuilder(field, value, dateFormat));
                 }
                 break;
+            case within:
+                ElasticType wType = collectionReferenceManager.getType(collectionReference, field);
+                BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+                switch (wType) {
+                    case GEO_POINT:
+                        for (AbstractQueryBuilder q : filterPWithin(field, value)) {
+                            orBoolQueryBuilder = orBoolQueryBuilder.should(q);
+                        }
+                        break;
+                    case GEO_SHAPE:
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(filterGWithin(field, value));
+                        break;
+                    default:
+                        throw new ArlasException("'within' op on field '" + field + "' of type '" + wType + "' is not supported");
+                }
+                orBoolQueryBuilder.minimumShouldMatch(1);
+                ret = ret.filter(orBoolQueryBuilder);
+                break;
+            case notwithin:
+                ElasticType type = collectionReferenceManager.getType(collectionReference, field);
+                BoolQueryBuilder orBoolQueryBuilder2 = QueryBuilders.boolQuery();
+                switch (type) {
+                    case GEO_POINT:
+                        for (AbstractQueryBuilder q : filterNotPWithin(field, value)) {
+                            orBoolQueryBuilder2 = orBoolQueryBuilder2.should(q);
+                        }
+                        break;
+                    case GEO_SHAPE:
+                        orBoolQueryBuilder2 = orBoolQueryBuilder2.should(filterGWithin(field, value));
+                        break;
+                    default:
+                        throw new ArlasException("'notwithin' op on field '" + field + "' of type '" + type + "' is not supported");
+                }
+                ret = ret.mustNot(orBoolQueryBuilder2);
+                break;
+            case intersects:
+                ret = ret.filter(filterGIntersect(field, value));
+                break;
+            case notintersects:
+                ret = ret.mustNot(filterGIntersect(field, value));
+                break;
             default:
                 throw new InvalidParameterException(INVALID_OPERATOR);
         }
         return ret;
     }
+
 
     public void applyFormatOnRangeQuery(String field, String value, RangeQueryBuilder rangeQuery) throws ArlasException {
         if (field.equals(collectionReference.params.timestampPath)) {
@@ -332,133 +374,83 @@ public class FluidSearch {
         return this;
     }
 
-    public FluidSearch filterPWithin(MultiValueFilter<String> pwithin) throws IOException, ArlasException {
-        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-        for (String pwithinFilter : pwithin) {
-            if (CheckParams.isBboxMatch(pwithinFilter)) {
-                double[] tlbr = CheckParams.toDoubles(pwithinFilter);
-                orBoolQueryBuilder = orBoolQueryBuilder
-                        .should(filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
-            } else {
-                Geometry p = GeoUtil.readWKT(pwithinFilter);
-                String geometryType = p.getGeometryType();
-                if (geometryType.equals("Polygon") || geometryType.equals("MultiPolygon")) {
-                    // If the polygon is not a rectangle, ES provides `geoPolygonQuery` that allows to search geo-points that are within a polygon formed by list of points
-                    // ==> we can't pass polygons with holes nor multipolygons (for multipolygons we can split them)
-                    // !!! ISSUE ES 6.X: points on the edge of a polygon are not considered as within. Fixed in 7.X
-                    for(int i = 0; i< p.getNumGeometries(); i++) {
-                        List<Coordinate> coordinates = Arrays.asList(p.getGeometryN(i).getCoordinates());
-                        List<GeoPoint> geoPoints = new ArrayList<>();
-                        coordinates.forEach(coordinate -> geoPoints.add(new GeoPoint(coordinate.y, coordinate.x)));
-                        orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.geoPolygonQuery(collectionReference.params.centroidPath, geoPoints));
-                    }
-                } else {
-                    throw new NotImplementedException(geometryType + " WKT is not supported for `pwithin`");
+    public List<AbstractQueryBuilder> filterPWithin(String field, String pwithinFilter) throws ArlasException {
+        List<AbstractQueryBuilder> builderList = new ArrayList<>();
+        if (CheckParams.isBboxMatch(pwithinFilter)) {
+            double[] tlbr = CheckParams.toDoubles(pwithinFilter);
+            builderList.add(filterPWithin(field, tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
+        } else {
+            Geometry p = GeoUtil.readWKT(pwithinFilter);
+            String geometryType = p.getGeometryType();
+            if (geometryType.equals("Polygon") || geometryType.equals("MultiPolygon")) {
+                // If the polygon is not a rectangle, ES provides `geoPolygonQuery` that allows to search geo-points that are within a polygon formed by list of points
+                // ==> we can't pass polygons with holes nor multipolygons (for multipolygons we can split them)
+                // !!! ISSUE ES 6.X: points on the edge of a polygon are not considered as within. Fixed in 7.X
+                for(int i = 0; i< p.getNumGeometries(); i++) {
+                    List<Coordinate> coordinates = Arrays.asList(p.getGeometryN(i).getCoordinates());
+                    List<GeoPoint> geoPoints = new ArrayList<>();
+                    coordinates.forEach(coordinate -> geoPoints.add(new GeoPoint(coordinate.y, coordinate.x)));
+                    builderList.add(QueryBuilders.geoPolygonQuery(field, geoPoints));
                 }
+            } else {
+                throw new NotImplementedException("WKT is not supported for 'within' op on field '" + field + "' of type '" + geometryType + "'");
             }
         }
-        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
-        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
-        return this;
+        return builderList;
     }
 
-    private GeoBoundingBoxQueryBuilder filterPWithin(double west, double south, double east, double north)
-            throws ArlasException, IOException {
+    private GeoBoundingBoxQueryBuilder filterPWithin(String field, double west, double south, double east, double north) {
         GeoPoint topLeft = new GeoPoint(north, west);
         GeoPoint bottomRight = new GeoPoint(south, east);
-        return QueryBuilders
-                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft, bottomRight);
+        return QueryBuilders.geoBoundingBoxQuery(field).setCorners(topLeft, bottomRight);
     }
 
-    public FluidSearch filterNotPWithin(MultiValueFilter<String> notpwithin) throws IOException, ArlasException {
-        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-        for (String notpwithinFilter : notpwithin) {
-            if (CheckParams.isBboxMatch(notpwithinFilter)) {
-                double[] tlbr = CheckParams.toDoubles(notpwithinFilter);
-                orBoolQueryBuilder = orBoolQueryBuilder
-                        .should(filterPWithin(tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
-            } else {
-                Geometry p = GeoUtil.readWKT(notpwithinFilter);
-                String geometryType = p.getGeometryType();
-                if (geometryType.equals("Polygon") || geometryType.equals("MultiPolygon")) {
-                    // If the polygon is not a rectangle, ES provides `geoPolygonQuery` that allows to search geo-points that are within a polygon formed by list of points
-                    // ==> we can't pass polygons with holes nor multipolygons (for multipolygons we can split them)
-                    // !!! ISSUE ES 6.X: points on the edge of a polygon are not considered as within. Fixed in 7.X
-                    BoolQueryBuilder andQueryBuilder = QueryBuilders.boolQuery();
-                    for(int i = 0; i< p.getNumGeometries(); i++) {
-                        List<Coordinate> coordinates = Arrays.asList(p.getGeometryN(i).getCoordinates());
-                        List<GeoPoint> geoPoints = new ArrayList<>();
-                        coordinates.forEach(coordinate -> geoPoints.add(new GeoPoint(coordinate.y, coordinate.x)));
-                        /** `andQueryBuilder` will allow us to consider a multipolygon as one entity when we apply notpwithin query*/
-                        andQueryBuilder = andQueryBuilder.should(QueryBuilders.geoPolygonQuery(collectionReference.params.centroidPath, geoPoints));
-                    }
-                    orBoolQueryBuilder = orBoolQueryBuilder.should(andQueryBuilder);
-                } else {
-                    throw new NotImplementedException(geometryType + " WKT is not supported for `notpwithin`");
+    public List<AbstractQueryBuilder> filterNotPWithin(String field, String notpwithinFilter) throws ArlasException {
+        List<AbstractQueryBuilder> builderList = new ArrayList<>();
+        if (CheckParams.isBboxMatch(notpwithinFilter)) {
+            double[] tlbr = CheckParams.toDoubles(notpwithinFilter);
+            builderList.add(filterPWithin(field, tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
+        } else {
+            Geometry p = GeoUtil.readWKT(notpwithinFilter);
+            String geometryType = p.getGeometryType();
+            if (geometryType.equals("Polygon") || geometryType.equals("MultiPolygon")) {
+                // If the polygon is not a rectangle, ES provides `geoPolygonQuery` that allows to search geo-points that are within a polygon formed by list of points
+                // ==> we can't pass polygons with holes nor multipolygons (for multipolygons we can split them)
+                // !!! ISSUE ES 6.X: points on the edge of a polygon are not considered as within. Fixed in 7.X
+                BoolQueryBuilder andQueryBuilder = QueryBuilders.boolQuery();
+                for(int i = 0; i< p.getNumGeometries(); i++) {
+                    List<Coordinate> coordinates = Arrays.asList(p.getGeometryN(i).getCoordinates());
+                    List<GeoPoint> geoPoints = new ArrayList<>();
+                    coordinates.forEach(coordinate -> geoPoints.add(new GeoPoint(coordinate.y, coordinate.x)));
+                    /** `andQueryBuilder` will allow us to consider a multipolygon as one entity when we apply notpwithin query*/
+                    andQueryBuilder = andQueryBuilder.should(QueryBuilders.geoPolygonQuery(field, geoPoints));
                 }
+                builderList.add(andQueryBuilder);
+            } else {
+                throw new NotImplementedException(geometryType + " WKT is not supported for `notpwithin`");
             }
         }
-        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(notpwithin.size());
-        boolQueryBuilder = boolQueryBuilder.mustNot(orBoolQueryBuilder);
-        return this;
+        return builderList;
     }
 
-    private GeoBoundingBoxQueryBuilder filterNotPWithin(double west, double south, double east, double north)
-            throws ArlasException, IOException {
-        GeoPoint topLeft = new GeoPoint(north, west);
-        GeoPoint bottomRight = new GeoPoint(south, east);
-        return QueryBuilders
-                .geoBoundingBoxQuery(collectionReference.params.centroidPath).setCorners(topLeft, bottomRight);
-    }
-
-    public FluidSearch filterGWithin(MultiValueFilter<String> gwithin) throws ArlasException, IOException {
-        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-        for (String geometry : gwithin) {
+    public GeoShapeQueryBuilder filterGWithin(String field, String geometry) throws ArlasException {
+        try {
             ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
-            orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, shapeBuilder));
+            return QueryBuilders.geoWithinQuery(field, shapeBuilder);
+        } catch (IOException e) {
+            throw new ArlasException("Exception while building geoWithinQuery: " + e.getMessage());
         }
-        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
-        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
-        return this;
     }
 
-    public FluidSearch filterNotGWithin(MultiValueFilter<String> notgwithin) throws ArlasException, IOException {
-        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-        for (String geometry : notgwithin) {
+    public GeoShapeQueryBuilder filterGIntersect(String field, String geometry) throws ArlasException {
+        try {
             ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
-            orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(QueryBuilders.geoWithinQuery(collectionReference.params.geometryPath, shapeBuilder));
+            return QueryBuilders.geoIntersectionQuery(field, shapeBuilder);
+        } catch (IOException e) {
+            throw new ArlasException("Exception while building geoIntersectionQuery: " + e.getMessage());
         }
-        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(notgwithin.size());
-        boolQueryBuilder = boolQueryBuilder.mustNot(orBoolQueryBuilder);
-        return this;
     }
-
-    public FluidSearch filterGIntersect(MultiValueFilter<String> gintersect) throws ArlasException, IOException {
-        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-        for (String geometry : gintersect) {
-            ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
-            orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(QueryBuilders.geoIntersectionQuery(collectionReference.params.geometryPath, shapeBuilder));
-        }
-        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
-        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
-        return this;
-    }
-
-    public FluidSearch filterNotGIntersect(MultiValueFilter<String> notgintersect) throws ArlasException, IOException {
-        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-        for (String geometry : notgintersect) {
-            ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
-            orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(QueryBuilders.geoIntersectionQuery(collectionReference.params.geometryPath, shapeBuilder));
-        }
-        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(notgintersect.size());
-        boolQueryBuilder = boolQueryBuilder.mustNot(orBoolQueryBuilder);
-        return this;
-    }
-
+    
     public FluidSearch include(String include) {
         if (include != null) {
             String includeFieldArray[] = include.split(",");
