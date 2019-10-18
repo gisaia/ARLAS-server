@@ -27,8 +27,8 @@ import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;

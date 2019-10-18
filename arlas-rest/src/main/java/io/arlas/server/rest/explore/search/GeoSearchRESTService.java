@@ -49,7 +49,10 @@ import org.geojson.GeoJsonObject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class GeoSearchRESTService extends ExploreRESTServices {
 
