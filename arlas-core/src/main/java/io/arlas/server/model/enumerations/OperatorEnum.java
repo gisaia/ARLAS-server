@@ -20,5 +20,5 @@
 package io.arlas.server.model.enumerations;
 
 public enum OperatorEnum {
-    eq, gte, gt, lte, lt, like, ne, range
+    eq, gte, gt, lte, lt, like, ne, range, within, notwithin, intersects, notintersects
 }

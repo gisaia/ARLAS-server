@@ -20,18 +20,16 @@
 package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.app.Documentation;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.AggregationTypeEnum;
-import io.arlas.server.model.request.AggregationsRequest;
-import io.arlas.server.model.request.Interval;
-import io.arlas.server.model.request.MixedRequest;
+import io.arlas.server.model.enumerations.OperatorEnum;
+import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.Error;
-import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.BoundingBox;
@@ -51,9 +49,7 @@ import org.geojson.GeoJsonObject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
@@ -108,36 +104,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "pwithin") List<String> pwithin,
-
-            @ApiParam(name = "gwithin", value = Documentation.FILTER_PARAM_GWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gwithin") List<String> gwithin,
-
-            @ApiParam(name = "gintersect", value = Documentation.FILTER_PARAM_GINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gintersect") List<String> gintersect,
-
-            @ApiParam(name = "notpwithin", value = Documentation.FILTER_PARAM_NOTPWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notpwithin") List<String> notpwithin,
-
-            @ApiParam(name = "notgwithin", value = Documentation.FILTER_PARAM_NOTGWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgwithin") List<String> notgwithin,
-
-            @ApiParam(name = "notgintersect", value = Documentation.FILTER_PARAM_NOTGINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgintersect") List<String> notgintersect,
-
             @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
                     allowMultiple = false,
                     required = false)
@@ -167,26 +133,17 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException, JsonProcessingException {
-        Long startArlasTime = System.nanoTime();
+    ) throws IOException, NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        AggregationsRequest aggregationsRequest = new AggregationsRequest();
-        aggregationsRequest.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
-        aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
-        AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
-        aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
-        MixedRequest request = new MixedRequest();
-        request.basicRequest = aggregationsRequest;
-        exploreServices.setValidGeoFilters(aggregationsRequestHeader);
-        request.headerRequest = aggregationsRequestHeader;
-        FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), Optional.empty());
-        return cache(Response.ok(fc), maxagecache);
-    }
 
+        return geoaggregate(collectionReference,
+                ParamsParser.getFilter(collectionReference, f, q, dateformat),
+                partitionFilter, flat, agg, maxagecache, Optional.empty());
+    }
 
     @Timed
     @Path("{collection}/_geoaggregate/{geohash}")
@@ -238,36 +195,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "pwithin") List<String> pwithin,
-
-            @ApiParam(name = "gwithin", value = Documentation.FILTER_PARAM_GWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gwithin") List<String> gwithin,
-
-            @ApiParam(name = "gintersect", value = Documentation.FILTER_PARAM_GINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gintersect") List<String> gintersect,
-
-            @ApiParam(name = "notpwithin", value = Documentation.FILTER_PARAM_NOTPWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notpwithin") List<String> notpwithin,
-
-            @ApiParam(name = "notgwithin", value = Documentation.FILTER_PARAM_NOTGWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgwithin") List<String> notgwithin,
-
-            @ApiParam(name = "notgintersect", value = Documentation.FILTER_PARAM_NOTGINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgintersect") List<String> notgintersect,
-
             @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
                     allowMultiple = false,
                     required = false)
@@ -296,46 +223,27 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException, JsonProcessingException {
-        if (geohash.startsWith("#")) {
-            geohash = geohash.substring(1, geohash.length());
-        }
-        BoundingBox bbox = GeoTileUtil.getBoundingBox(geohash);
-        String pwithinBbox = bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth();
-
-        //check if every pwithin param has a value that intersects bbox
-        List<String> simplifiedPwithin = ParamsParser.simplifyPwithinAgainstBbox(ParamsParser.toSemiColonsSeparatedStringList(ParamsParser.getValidGeoFilters(pwithin, true)), bbox);
-
+    ) throws IOException, NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
 
+        if (geohash.startsWith("#")) {
+            geohash = geohash.substring(1, geohash.length());
+        }
+        BoundingBox bbox = GeoTileUtil.getBoundingBox(geohash);
+        Expression pwithinBbox = new Expression(collectionReference.params.centroidPath, OperatorEnum.within,
+                bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth());
+
         if (agg == null || agg.size() == 0) {
             agg = Collections.singletonList("geohash:" + collectionReference.params.centroidPath + ":interval-" + geohash.length());
         }
 
-        if (bbox != null && bbox.getNorth() > bbox.getSouth()
-                // if sizes are not equals, it means one multi-value pwithin does not intersects bbox => no results
-                && pwithin.size() == simplifiedPwithin.size()) {
-            simplifiedPwithin.add(pwithinBbox);
-
-            AggregationsRequest aggregationsRequest = new AggregationsRequest();
-            aggregationsRequest.filter = ParamsParser.getFilter(f, q, simplifiedPwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
-            aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
-            AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
-            aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
-            MixedRequest request = new MixedRequest();
-            exploreServices.setValidGeoFilters(aggregationsRequestHeader);
-            request.basicRequest = aggregationsRequest;
-            request.headerRequest = aggregationsRequestHeader;
-            FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), Optional.of(geohash));
-            return cache(Response.ok(fc), maxagecache);
-        } else {
-            return Response.ok(new FeatureCollection()).build();
-        }
-
+        return geoaggregate(collectionReference,
+                ParamsParser.getFilter(collectionReference, f, q, dateformat, bbox, pwithinBbox),
+                partitionFilter, flat, agg, maxagecache, Optional.of(geohash));
     }
 
     @Timed
@@ -383,7 +291,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
+    ) throws IOException, NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
@@ -393,12 +301,27 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
-        exploreServices.setValidGeoFilters(aggregationRequest);
-        exploreServices.setValidGeoFilters(aggregationsRequestHeader);
+        exploreServices.setValidGeoFilters(collectionReference, aggregationRequest);
+        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
         request.basicRequest = aggregationRequest;
         request.headerRequest = aggregationsRequestHeader;
         FeatureCollection fc = getFeatureCollection(request, collectionReference, (aggregationRequest.form != null && aggregationRequest.form.flat), Optional.empty());
 
+        return cache(Response.ok(fc), maxagecache);
+    }
+
+    private Response geoaggregate(CollectionReference collectionReference, Filter filter, String partitionFilter,
+                                  Boolean flat, List<String> agg, Integer maxagecache, Optional<String> geohash) throws ArlasException, IOException {
+        AggregationsRequest aggregationsRequest = new AggregationsRequest();
+        aggregationsRequest.filter = filter;
+        aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
+        AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
+        aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        MixedRequest request = new MixedRequest();
+        request.basicRequest = aggregationsRequest;
+        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
+        request.headerRequest = aggregationsRequestHeader;
+        FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), geohash);
         return cache(Response.ok(fc), maxagecache);
     }
 

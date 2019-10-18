@@ -118,13 +118,13 @@ public class DataSetTool {
             fillIndex(DATASET_INDEX_NAME,-170,170,-80,80);
             LOGGER.info("Index created : " + DATASET_INDEX_NAME);
         } else {
-            //Create 2 indeces, split data between them and create an alias above these 2 indeces
+            //Create 2 indices, split data between them and create an alias above these 2 indices
             createIndex(DATASET_INDEX_NAME+"_original","dataset.mapping.json");
             fillIndex(DATASET_INDEX_NAME+"_original",-170,0,-80,80);
             createIndex(DATASET_INDEX_NAME+"_alt","dataset.alternate.mapping.json");
             fillIndex(DATASET_INDEX_NAME+"_alt",10,170,-80,80);
             adminClient.indices().prepareAliases().addAlias(DATASET_INDEX_NAME+"*",DATASET_INDEX_NAME).get();
-            LOGGER.info("Indeces created : " + DATASET_INDEX_NAME + "_original," + DATASET_INDEX_NAME + "_alt");
+            LOGGER.info("Indices created : " + DATASET_INDEX_NAME + "_original," + DATASET_INDEX_NAME + "_alt");
             LOGGER.info("Alias created : " + DATASET_INDEX_NAME);
         }
     }
@@ -144,6 +144,8 @@ public class DataSetTool {
 
         for (int i = lonMin; i <= lonMax; i += 10) {
             for (int j = latMin; j <= latMax; j += 10) {
+                int i2 = i + 6;
+                int j2 = j + 6;
                 data = new Data();
                 data.id = String.valueOf("ID_" + i + "_" + j + "DI").replace("-", "_");
                 data.fullname = "My name is " + data.id;
@@ -154,23 +156,31 @@ public class DataSetTool {
                 }
                 data.params.stopdate = 1l * (i + 1000) * (j + 1000) + 100;
                 data.geo_params.centroid = j + "," + i;
+                data.geo_params.other_geopoint = j2 + "," + i2;
                 data.params.job = jobs[((Math.abs(i) + Math.abs(j)) / 10) % (jobs.length - 1)];
                 data.params.country = countries[((Math.abs(i) + Math.abs(j)) / 10) % (countries.length - 1)];
                 data.params.city = cities[((Math.abs(i) + Math.abs(j)) / 10) % (cities.length - 1)];
                 List<LngLatAlt> coords = new ArrayList<>();
+                List<LngLatAlt> second_coords = new ArrayList<>();
                 String wktGeometry = "POLYGON ((";
                 coords.add(new LngLatAlt(i - 1, j + 1));
+                second_coords.add(new LngLatAlt(i2 - 1, j2 + 1));
                 wktGeometry += (i - 1) + " " + (j + 1) + ",";
                 coords.add(new LngLatAlt(i + 1, j + 1));
+                second_coords.add(new LngLatAlt(i2 + 1, j2 + 1));
                 wktGeometry += " " + (i + 1) + " " + (j + 1) + ",";
                 coords.add(new LngLatAlt(i + 1, j - 1));
+                second_coords.add(new LngLatAlt(i2 + 1, j2 - 1));
                 wktGeometry += " " + (i + 1) + " " + (j - 1) + ",";
                 coords.add(new LngLatAlt(i - 1, j - 1));
+                second_coords.add(new LngLatAlt(i2 - 1, j2 - 1));
                 wktGeometry += " " + (i - 1) + " " + (j - 1) + ",";
                 coords.add(new LngLatAlt(i - 1, j + 1));
+                second_coords.add(new LngLatAlt(i2 - 1, j2 + 1));
                 wktGeometry += " " + (i - 1) + " " + (j + 1) + "))";
 
                 data.geo_params.geometry = new Polygon(coords);
+                data.geo_params.second_geometry = new Polygon(second_coords);
                 data.geo_params.wktgeometry = wktGeometry;
                 IndexResponse response = client.prepareIndex(indexName, DATASET_TYPE_NAME, "ES_ID_TEST" + data.id)
                         .setSource(mapper.writer().writeValueAsString(data), XContentType.JSON)

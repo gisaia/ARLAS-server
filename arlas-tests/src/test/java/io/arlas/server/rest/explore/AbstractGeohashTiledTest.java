@@ -19,6 +19,8 @@
 
 package io.arlas.server.rest.explore;
 
+import io.arlas.server.model.enumerations.OperatorEnum;
+import io.arlas.server.model.request.Expression;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.junit.Test;
@@ -40,20 +42,20 @@ public abstract class AbstractGeohashTiledTest extends AbstractAggregatedTest {
         // precision > geohashLength  ==> we could have more than one feature
         handleGeohashTileLessThanPrecision(geohashTileGet("geohash:geo_params.centroid:interval-3", "yn"), 2, "yn");
 
-        String pwithin = "98,79,101,81";
+        String pwithin = "geo_params.centroid:within:98,79,101,81";
         handleGeohashTileLessThanPrecision(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", Arrays.asList(pwithin), "yn"), 1, "yn");
 
-        pwithin = "98,79,101,81;108,79,111,81";
+        pwithin = "geo_params.centroid:within:98,79,101,81;geo_params.centroid:within:108,79,111,81";
         handleGeohashTileLessThanPrecision(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", Arrays.asList(pwithin), "y"), 2, "yn");
 
-        pwithin = "98,79,101,81";
-        String pwithin2 = "98,79,111,81";
+        pwithin = "geo_params.centroid:within:98,79,101,81";
+        String pwithin2 = "geo_params.centroid:within:98,79,111,81";
         handleGeohashTileLessThanPrecision(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", Arrays.asList(pwithin, pwithin2), "y"), 1, "yn");
 
-        pwithin = "180,0,-165,5";
+        pwithin = "geo_params.centroid:within:180,0,-165,5";
         handleGeohashTileLessThanPrecision(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", Arrays.asList(pwithin), "80"), 1, "80");
 
-        pwithin = "-5,0,0,5";
+        pwithin = "geo_params.centroid:within:-5,0,0,5";
         handleGeohashTileDisjointFromPwithin(geohashTilePwithinGet("geohash:geo_params.centroid:interval-3", Arrays.asList(pwithin), "yn"));
 
     }
@@ -84,7 +86,7 @@ public abstract class AbstractGeohashTiledTest extends AbstractAggregatedTest {
     private ValidatableResponse geohashTilePwithinGet(Object paramValue, List<String> pwithinValues, String geohash) {
         RequestSpecification req = given().param("agg", paramValue);
         for (String pwithin : pwithinValues) {
-            req = req.param("pwithin", pwithin);
+            req = req.param("f", pwithin);
         }
         return req.when().get(getGeohashUrlPath("geodata", geohash))
                 .then();

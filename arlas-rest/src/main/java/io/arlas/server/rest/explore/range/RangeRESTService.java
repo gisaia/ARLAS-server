@@ -20,6 +20,7 @@
 package io.arlas.server.rest.explore.range;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.app.Documentation;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
@@ -27,7 +28,6 @@ import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.RangeRequest;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.RangeResponse;
-import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.CheckParams;
@@ -95,36 +95,6 @@ public class RangeRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "pwithin") List<String> pwithin,
-
-            @ApiParam(name = "gwithin", value = Documentation.FILTER_PARAM_GWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gwithin") List<String> gwithin,
-
-            @ApiParam(name = "gintersect", value = Documentation.FILTER_PARAM_GINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gintersect") List<String> gintersect,
-
-            @ApiParam(name = "notpwithin", value = Documentation.FILTER_PARAM_NOTPWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notpwithin") List<String> notpwithin,
-
-            @ApiParam(name = "notgwithin", value = Documentation.FILTER_PARAM_NOTGWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgwithin") List<String> notgwithin,
-
-            @ApiParam(name = "notgintersect", value = Documentation.FILTER_PARAM_NOTGINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgintersect") List<String> notgintersect,
-
             @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
                     allowMultiple = false,
                     required = false)
@@ -155,13 +125,13 @@ public class RangeRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         RangeRequest rangeRequest = new RangeRequest();
-        rangeRequest.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
+        rangeRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         rangeRequest.field = field;
         RangeRequest rangeRequestHeader = new RangeRequest();
         rangeRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = rangeRequest;
-        exploreServices.setValidGeoFilters(rangeRequestHeader);
+        exploreServices.setValidGeoFilters(collectionReference, rangeRequestHeader);
         request.headerRequest = rangeRequestHeader;
 
         RangeResponse rangeResponse = getFieldRange(request, collectionReference);
@@ -214,7 +184,7 @@ public class RangeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
+    ) throws IOException, NotFoundException, ArlasException {
         Long startArlasTime = System.nanoTime();
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
@@ -224,8 +194,8 @@ public class RangeRESTService extends ExploreRESTServices {
         RangeRequest rangeRequestHeader = new RangeRequest();
         rangeRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
-        exploreServices.setValidGeoFilters(rangeRequest);
-        exploreServices.setValidGeoFilters(rangeRequestHeader);
+        exploreServices.setValidGeoFilters(collectionReference, rangeRequest);
+        exploreServices.setValidGeoFilters(collectionReference, rangeRequestHeader);
 
         request.basicRequest = rangeRequest;
         request.headerRequest = rangeRequestHeader;

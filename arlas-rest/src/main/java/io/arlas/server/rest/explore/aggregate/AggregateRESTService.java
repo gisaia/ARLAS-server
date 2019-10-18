@@ -20,11 +20,9 @@
 package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.model.request.AggregationsRequest;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.AggregationResponse;
@@ -48,7 +46,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -104,36 +101,6 @@ public class AggregateRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "pwithin", value = Documentation.FILTER_PARAM_PWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "pwithin") List<String> pwithin,
-
-            @ApiParam(name = "gwithin", value = Documentation.FILTER_PARAM_GWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gwithin") List<String> gwithin,
-
-            @ApiParam(name = "gintersect", value = Documentation.FILTER_PARAM_GINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gintersect") List<String> gintersect,
-
-            @ApiParam(name = "notpwithin", value = Documentation.FILTER_PARAM_NOTPWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notpwithin") List<String> notpwithin,
-
-            @ApiParam(name = "notgwithin", value = Documentation.FILTER_PARAM_NOTGWITHIN,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgwithin") List<String> notgwithin,
-
-            @ApiParam(name = "notgintersect", value = Documentation.FILTER_PARAM_NOTGINTERSECT,
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgintersect") List<String> notgintersect,
-
             @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
                     allowMultiple = false,
                     required = false)
@@ -169,13 +136,13 @@ public class AggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
-        aggregationsRequest.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
+        aggregationsRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = aggregationsRequest;
-        exploreServices.setValidGeoFilters(aggregationsRequestHeader);
+        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
 
         AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat));
@@ -240,8 +207,8 @@ public class AggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
-        exploreServices.setValidGeoFilters(aggregationsRequest);
-        exploreServices.setValidGeoFilters(aggregationsRequestHeader);
+        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequest);
+        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
 
