@@ -38,7 +38,26 @@
       <artifactId>arlas-admin</artifactId>
       <version>11.7.1-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>org.elasticsearch.client</groupId>
+      <artifactId>x-pack-transport</artifactId>
+      <version>${elastic.version}</version>
+    </dependency>
   </dependencies>
+
+  <repositories>
+    <!-- add the elastic repo -->
+    <repository>
+      <id>elastic</id>
+      <url>https://artifacts.elastic.co/maven</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <build>
     <plugins>

@@ -421,7 +421,7 @@ public class SearchRESTService extends ExploreRESTServices {
                 .replaceQueryParam("after", afterValue)
                 .replaceQueryParam("before", "")
                 .toTemplate()
-                .replace(uriInfo.getAbsolutePath().toString(), "").replace("&before=","");
+                .replace(uriInfo.getAbsolutePath().toString(), "").replace("&before=","").replace("before=&","");
     }
 
     private String getPreviousQueryParameters(UriInfo uriInfo, String afterValue) {
@@ -429,7 +429,7 @@ public class SearchRESTService extends ExploreRESTServices {
                 .replaceQueryParam("after", "")
                 .replaceQueryParam("before", afterValue)
                 .toTemplate()
-                .replace(uriInfo.getAbsolutePath().toString(), "").replace("&after=","");
+                .replace(uriInfo.getAbsolutePath().toString(), "").replace("&after=","").replace("after=&","");
     }
 
     private String getRequestUri(UriInfo uriInfo) {
