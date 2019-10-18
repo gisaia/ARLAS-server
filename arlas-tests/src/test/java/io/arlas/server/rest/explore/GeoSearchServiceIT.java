@@ -220,13 +220,6 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     }
 
     @Override
-    protected void handleReturnedGeometries(ValidatableResponse then, String returned) throws Exception {
-        then.statusCode(200)
-                .body("features.size()", equalTo(10))
-                .body("features[0].properties.geometry_path", equalTo(returned));
-    }
-
-    @Override
     protected void handleReturnedMultiGeometries(ValidatableResponse then, String returned) throws Exception {
         then.statusCode(200)
                 .body("features.size()", equalTo(20))

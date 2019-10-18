@@ -310,10 +310,6 @@ public class ATOMSearchServiceIT extends AbstractProjectedTest {
     }
 
     @Override
-    protected void handleReturnedGeometries(ValidatableResponse then, String returned) throws Exception {
-    }
-
-    @Override
     protected void handleReturnedMultiGeometries(ValidatableResponse then, String returned) throws Exception {
     }
 

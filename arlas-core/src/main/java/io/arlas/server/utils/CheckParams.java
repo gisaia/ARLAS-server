@@ -657,16 +657,15 @@ public class CheckParams {
         if (returned_geometries != null) {
             List<String> includes = new ArrayList<>();
             if (include != null) Collections.addAll(includes, include.split(","));
+            if (!includes.isEmpty()) {
+                Collections.addAll(includes, returned_geometries.split(","));
+            }
 
             List<String> excludes = new ArrayList<>();
             if (exclude != null) Collections.addAll(excludes, exclude.split(","));
 
             for (String geo : returned_geometries.split(",")) {
                 CollectionReferenceManager.getInstance().getType(collectionReference, geo); // will throw ArlasException if not existing
-                if (!collectionReference.params.geometryPath.equals(geo) &&
-                        !collectionReference.params.centroidPath.equals(geo) && !includes.contains(geo)) {
-                    throw new ArlasException("Returned geometry '" + geo + "' is not included in the include list: '" + include + "'");
-                }
                 if (excludes.contains(geo)) {
                     throw new ArlasException("Returned geometry '" + geo + "' should not be in the exclude list: '" + exclude + "'");
                 }
