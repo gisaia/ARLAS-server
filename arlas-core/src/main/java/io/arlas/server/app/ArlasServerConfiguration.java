@@ -28,8 +28,6 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -69,6 +67,15 @@ public class ArlasServerConfiguration extends Configuration {
 
     @JsonProperty("elastic-cluster")
     public String elasticcluster;
+
+    @JsonProperty("elastic-enable-ssl")
+    public Boolean elasticEnableSsl;
+
+    @JsonProperty("elastic-credentials")
+    public String elasticCredentials;
+
+    @JsonProperty("elastic-compress")
+    public Boolean elasticCompress;
 
     @JsonProperty("arlas-index")
     public String arlasindex;
@@ -207,15 +214,21 @@ public class ArlasServerConfiguration extends Configuration {
         if (arlasServiceCSWEnabled == null) {
             arlasServiceCSWEnabled = false;
         }
-        if(arlasServiceTagEnabled==null){
-            arlasServiceTagEnabled=false;
+        if (arlasServiceTagEnabled==null) {
+            arlasServiceTagEnabled = false;
         }
-        if(arlasServiceRasterTileEnabled==null){
-            arlasServiceRasterTileEnabled=false;
+        if (arlasServiceRasterTileEnabled==null) {
+            arlasServiceRasterTileEnabled = false;
         }
-        if(collectionAutoDiscoverConfiguration == null) {
+        if (collectionAutoDiscoverConfiguration == null) {
             collectionAutoDiscoverConfiguration = new CollectionAutoDiscoverConfiguration();
             collectionAutoDiscoverConfiguration.schedule = 0;
+        }
+        if (elasticEnableSsl == null) {
+            elasticEnableSsl = false;
+        }
+        if (elasticCompress == null) {
+            elasticCompress = true;
         }
     }
 }

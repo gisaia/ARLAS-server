@@ -70,6 +70,9 @@ elastic-nodes: ${ARLAS_ELASTIC_NODES:-localhost:9300}
 elastic-sniffing: ${ARLAS_ELASTIC_SNIFFING:-false}
 elastic-cluster: ${ARLAS_ELASTIC_CLUSTER:-elasticsearch}
 arlas-index:  ${ARLAS_ELASTIC_INDEX:-.arlas}
+elastic-enable-ssl: ${ARLAS_ELASTIC_ENABLE_SSL:-false}
+elastic-credentials: ${ARLAS_ELASTIC_CREDENTIALS:-user:password}
+elastic-compress: ${ARLAS_ELASTIC_COMPRESS:-true}
 
 ########################################################
 ############ CACHE                       ###############

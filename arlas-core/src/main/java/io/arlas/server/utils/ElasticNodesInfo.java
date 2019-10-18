@@ -23,15 +23,15 @@ import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.node.DiscoveryNode;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ElasticNodesInfo {
     static Logger LOGGER = LoggerFactory.getLogger(ElasticNodesInfo.class);
 
-    public static void printNodesInfo(Client client, PreBuiltTransportClient transportClient) {
+    public static void printNodesInfo(Client client, TransportClient transportClient) {
         NodesInfoRequest nodesInfoRequest = new NodesInfoRequest();
         nodesInfoRequest.clear().jvm(false).os(false).process(true);
         ActionFuture<NodesInfoResponse> nodesInfoResponseActionFuture = client.admin().cluster().nodesInfo(nodesInfoRequest);
