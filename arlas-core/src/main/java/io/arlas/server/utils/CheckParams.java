@@ -663,7 +663,8 @@ public class CheckParams {
 
             for (String geo : returned_geometries.split(",")) {
                 CollectionReferenceManager.getInstance().getType(collectionReference, geo); // will throw ArlasException if not existing
-                if (!includes.contains(geo)) {
+                if (!collectionReference.params.geometryPath.equals(geo) &&
+                        !collectionReference.params.centroidPath.equals(geo) && !includes.contains(geo)) {
                     throw new ArlasException("Returned geometry '" + geo + "' is not included in the include list: '" + include + "'");
                 }
                 if (excludes.contains(geo)) {
