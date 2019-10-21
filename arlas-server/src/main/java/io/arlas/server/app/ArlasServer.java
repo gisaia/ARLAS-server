@@ -69,10 +69,12 @@ import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +82,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
@@ -118,20 +121,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         configuration.check();
         LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
 
-        Settings.Builder settingsBuilder = Settings.builder();
-        if(configuration.elasticsniffing) {
-            settingsBuilder.put("client.transport.sniff", true);
-        }
-        if(!Strings.isNullOrEmpty(configuration.elasticcluster)) {
-            settingsBuilder.put("cluster.name", configuration.elasticcluster);
-        }
-        Settings settings = settingsBuilder.build();
-
-        PreBuiltTransportClient transportClient = new PreBuiltTransportClient(settings);
-        for(Pair<String,Integer> node : configuration.getElasticNodes()) {
-            transportClient.addTransportAddress(new TransportAddress(InetAddress.getByName(node.getLeft()),
-                    node.getRight()));
-        }
+        TransportClient transportClient = getTransportClient(configuration);
         Client client = transportClient;
 
         if (configuration.zipkinConfiguration != null) {
@@ -255,5 +245,46 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         // Add URL mapping
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+    }
+
+    protected TransportClient getTransportClient(ArlasServerConfiguration configuration) throws UnknownHostException {
+        TransportClient transportClient;
+        // x-pack transport client
+        if (configuration.elasticEnableSsl) {
+            // disable JVM default policies of caching positive hostname resolutions indefinitely
+            // because the Elastic load balancer can change IP addresses
+            java.security.Security.setProperty("networkaddress.cache.ttl" , "60");
+            // Build the settings for our client.
+            Settings settings = Settings.builder()
+                    .put("cluster.name", configuration.elasticcluster)
+                    .put("request.headers.X-Found-Cluster", "${cluster.name}")
+                    .put("client.transport.sniff", false) // must be false in this context
+                    .put("transport.compress", configuration.elasticCompress)
+                    .put("xpack.security.transport.ssl.enabled", configuration.elasticEnableSsl)
+                    .put("xpack.security.user", configuration.elasticCredentials)
+                    .build();
+
+            // Instantiate a TransportClient and add the cluster to the list of addresses to connect to.
+            // Only port 9343 (SSL-encrypted) is currently supported. The use of x-pack security features is required.
+            transportClient = new PreBuiltXPackTransportClient(settings);
+        } else {
+            Settings.Builder settingsBuilder = Settings.builder();
+            if(configuration.elasticsniffing) {
+                settingsBuilder.put("client.transport.sniff", true);
+            }
+            if(!Strings.isNullOrEmpty(configuration.elasticcluster)) {
+                settingsBuilder.put("cluster.name", configuration.elasticcluster);
+            }
+            Settings settings = settingsBuilder.build();
+
+
+            transportClient = new PreBuiltTransportClient(settings);
+        }
+
+        for(Pair<String,Integer> node : configuration.getElasticNodes()) {
+            transportClient.addTransportAddress(new TransportAddress(InetAddress.getByName(node.getLeft()),
+                    node.getRight()));
+        }
+        return transportClient;
     }
 }
