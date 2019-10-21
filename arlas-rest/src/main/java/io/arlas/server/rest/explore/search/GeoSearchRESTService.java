@@ -49,10 +49,7 @@ import org.geojson.GeoJsonObject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GeoSearchRESTService extends ExploreRESTServices {
 
@@ -458,7 +455,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         feature.setGeometry(geometry);
 
         /** setting the properties of the geojson */
-        feature.setProperties(arlasHit.getDataAsMap());
+        feature.setProperties(new HashMap<>(arlasHit.getDataAsMap()));
 
         /** Setting the Metadata (md) in properties of geojson.
          * Only id, timestamp and centroid are set in the MD. The geometry is already returned in the geojson.*/
@@ -471,7 +468,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         /** Setting the feature type of the geojson */
         feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
         feature.setProperty(FEATURE_GEOMETRY_PATH, path);
-
         return feature;
     }
 
