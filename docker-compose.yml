@@ -8,8 +8,11 @@ services:
     image: gisaia/arlas-server:${ARLAS_VERSION:-latest}
     container_name: arlas-server
     environment:
-      - ARLAS_ELASTIC_CLUSTER="docker-cluster"
-      - ARLAS_ELASTIC_NODES=elasticsearch:9300
+      - ARLAS_ELASTIC_CLUSTER="${ARLAS_ELASTIC_CLUSTER:-docker-cluster}"
+      - ARLAS_ELASTIC_NODES="${ARLAS_ELASTIC_NODES:-elasticsearch:9300}"
+      - ARLAS_ELASTIC_ENABLE_SSL="${ARLAS_ELASTIC_ENABLE_SSL:-false}"
+      - ARLAS_ELASTIC_COMPRESS="${ARLAS_ELASTIC_COMPRESS:-true}"
+      - ARLAS_ELASTIC_CREDENTIALS="${ARLAS_ELASTIC_CREDENTIALS}"
       - ARLAS_PREFIX="${ARLAS_PREFIX:-/arlas}"
       - ARLAS_APP_PATH="${ARLAS_APP_PATH:-/}"
       - ARLAS_BASE_URI="${ARLAS_BASE_URI:-http://arlas-server:9999/arlas/}"
