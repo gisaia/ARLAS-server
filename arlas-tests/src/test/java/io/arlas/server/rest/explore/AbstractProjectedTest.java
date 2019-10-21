@@ -73,9 +73,33 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
         search.projection.excludes = null;
     }
 
+    @Test
+    public void testReturnedGeometriesFilter() throws Exception {
+
+        // requested geometry does not exist in collection
+        search.returned_geometries = "geo_params.foo_geometry";
+        handleFailedReturnedGeometries(post(search));
+        handleFailedReturnedGeometries(get("returned_geometries",  search.returned_geometries));
+
+        // multiple requested geometries
+        search.returned_geometries = "geo_params.geometry,geo_params.second_geometry";
+        handleReturnedMultiGeometries(post(search), search.returned_geometries);
+        handleReturnedMultiGeometries(givenFilterableRequestParams().param("include", search.projection.includes)
+                .param("returned_geometries",  search.returned_geometries)
+                .when().get(getUrlPath("geodata"))
+                .then(), search.returned_geometries);
+
+        search.projection.includes = null;
+        search.returned_geometries = null;
+    }
+
     protected abstract void handleHiddenParameter(ValidatableResponse then, List<String> hidden) throws Exception;
 
     protected abstract void handleDisplayedParameter(ValidatableResponse then, List<String> displayed) throws Exception;
+
+    protected abstract void handleReturnedMultiGeometries(ValidatableResponse then, String returned) throws Exception;
+
+    protected abstract void handleFailedReturnedGeometries(ValidatableResponse then) throws Exception;
 
     private ValidatableResponse post(Request request) {
         RequestSpecification req = givenFilterableRequestBody();

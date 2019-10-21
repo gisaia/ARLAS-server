@@ -27,6 +27,8 @@ import io.arlas.server.model.request.Filter;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CollectionReferenceParameters {
 
@@ -89,27 +91,17 @@ public class CollectionReferenceParameters {
     public Filter filter = null;
 
     @JsonIgnore
-    private transient GeoTypeEnum geometryType;
-
-    @JsonIgnore
-    private transient GeoTypeEnum centroidType;
+    private Map<String, GeoTypeEnum> geoTypes = new ConcurrentHashMap<>();
 
     public CollectionReferenceParameters() {
     }
 
-    public void setGeometryType(GeoTypeEnum geometryType) {
-        this.geometryType = geometryType;
+    public void setGeometryType(String path, GeoTypeEnum type) {
+        this.geoTypes.put(path, type);
     }
 
-    public GeoTypeEnum getGeometryType() {
-        return geometryType;
+    public GeoTypeEnum getGeometryType(String path) {
+        return this.geoTypes.get(path);
     }
 
-    public GeoTypeEnum getCentroidType() {
-        return centroidType;
-    }
-
-    public void setCentroidType(GeoTypeEnum centroidType) {
-        this.centroidType = centroidType;
-    }
 }

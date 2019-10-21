@@ -22,4 +22,5 @@ package io.arlas.server.model.request;
 public class Search extends Request {
     public Page page;
     public Projection projection;
+    public String returned_geometries;
 }

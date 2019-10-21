@@ -27,8 +27,8 @@ import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -157,7 +157,7 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
 
     @Override
     protected  void handleMatchingGeohashAggregateWithMultiCollect(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String collectField1, String collectField2, String collectFct1, String collectFct2,
-                                                            float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
+                                                                   float featureCollectMin1, float featureCollectMax1, float featureCollectMin2, float featureCollectMax2) throws Exception {
         handleMatchingGeohashAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then
                 .body("features.properties.metrics[0].value", everyItem(greaterThanOrEqualTo(Math.min(featureCollectMin1, featureCollectMin2))))

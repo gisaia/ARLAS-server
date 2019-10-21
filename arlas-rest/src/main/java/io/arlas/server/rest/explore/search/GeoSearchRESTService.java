@@ -21,6 +21,7 @@ package io.arlas.server.rest.explore.search;
 
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.app.Documentation;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.OperatorEnum;
@@ -29,7 +30,6 @@ import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.model.response.Error;
-import io.arlas.server.app.Documentation;
 import io.arlas.server.model.response.Hit;
 import io.arlas.server.model.response.MD;
 import io.arlas.server.rest.explore.ExploreRESTServices;
@@ -44,11 +44,15 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
+import org.geojson.GeoJsonObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class GeoSearchRESTService extends ExploreRESTServices {
 
@@ -58,6 +62,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
     private static final String FEATURE_TYPE_KEY = "feature_type";
     private static final String FEATURE_TYPE_VALUE = "hit";
+    private static final String FEATURE_GEOMETRY_PATH = "geometry_path";
 
 
     @Timed
@@ -131,6 +136,13 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "exclude") String exclude,
 
+            @ApiParam(name = "returned_geometries",
+                    value = Documentation.PROJECTION_PARAM_RETURNED_GEOMETRIES,
+                    allowMultiple = true,
+                    defaultValue = "",
+                    required = false)
+            @QueryParam(value = "returned_geometries") String returned_geometries,
+
             // --------------------------------------------------------
             // -----------------------  PAGE   -----------------------
             // --------------------------------------------------------
@@ -184,7 +196,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
         return geosearch(collectionReference,
                 ParamsParser.getFilter(collectionReference, f, q, dateformat), partitionFilter,
-                flat, include, exclude, size, from, sort, after, before, maxagecache);
+                flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries);
     }
 
     @Timed
@@ -276,6 +288,13 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "exclude") String exclude,
 
+            @ApiParam(name = "returned_geometries",
+                    value = Documentation.PROJECTION_PARAM_RETURNED_GEOMETRIES,
+                    allowMultiple = true,
+                    defaultValue = "",
+                    required = false)
+            @QueryParam(value = "returned_geometries") String returned_geometries,
+
             // --------------------------------------------------------
             // -----------------------  PAGE   -----------------------
             // --------------------------------------------------------
@@ -334,7 +353,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
         return geosearch(collectionReference,
                 ParamsParser.getFilter(collectionReference, f, q, dateformat, bbox, pwithinBbox),
-                partitionFilter, flat, include, exclude, size, from, sort, after, before, maxagecache);
+                partitionFilter, flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries);
     }
 
 
@@ -389,6 +408,10 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
+        String includes = search.projection != null ? search.projection.includes : null;
+        String excludes = search.projection != null ? search.projection.excludes : null;
+        CheckParams.checkReturnedGeometries(collectionReference, includes, excludes, search.returned_geometries);
+
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
@@ -409,45 +432,60 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             Collections.reverse(results);
         }
         for (SearchHit hit : results) {
-            Feature feature = new Feature();
             Map<String, Object> source = hit.getSourceAsMap();
-
-            Hit arlasHit = new Hit(collectionReference, source, flat, true);
-
-            /** Setting geometry of geojson */
-            //Apply geometry or centroid to geo json feature
-            if (arlasHit.md.geometry != null) {
-                feature.setGeometry(arlasHit.md.geometry);
-            } else if (arlasHit.md.centroid != null) {
-                feature.setGeometry(arlasHit.md.centroid);
+            Hit arlasHit = new Hit(collectionReference, source, searchRequest.returned_geometries, flat,true);
+            if (searchRequest.returned_geometries != null) {
+                for (String path : searchRequest.returned_geometries.split(",")) {
+                    GeoJsonObject g = arlasHit.getGeometry(path);
+                    if (g != null) fc.add(getFeatureFromHit(arlasHit, path, g));
+                }
+            } else {
+                //Apply geometry or centroid to geo json feature
+                if (arlasHit.md.geometry != null) {
+                    fc.add(getFeatureFromHit(arlasHit, collectionReference.params.geometryPath, arlasHit.md.geometry));
+                } else if (arlasHit.md.centroid != null) {
+                    fc.add(getFeatureFromHit(arlasHit, collectionReference.params.centroidPath, arlasHit.md.centroid));
+                }
             }
-
-            /** setting the properties of the geojson */
-            feature.setProperties(arlasHit.getDataAsMap());
-
-            /** Setting the Metadata (md) in properties of geojson.
-             * Only id, timestamp and centroid are set in the MD. The geometry is already returned in the geojson.*/
-            MD md = new MD();
-            md.id = arlasHit.md.id;
-            md.timestamp = arlasHit.md.timestamp;
-            md.centroid = arlasHit.md.centroid;
-            feature.setProperty(MD.class.getSimpleName().toLowerCase(), md);
-
-            /** Setting the feature type of the geojson */
-            feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
-            fc.add(feature);
         }
         return fc;
     }
 
+    private Feature getFeatureFromHit(Hit arlasHit, String path, GeoJsonObject geometry) {
+        Feature feature = new Feature();
+
+        /** Setting geometry of geojson */
+        feature.setGeometry(geometry);
+
+        /** setting the properties of the geojson */
+        feature.setProperties(arlasHit.getDataAsMap());
+
+        /** Setting the Metadata (md) in properties of geojson.
+         * Only id, timestamp and centroid are set in the MD. The geometry is already returned in the geojson.*/
+        MD md = new MD();
+        md.id = arlasHit.md.id;
+        md.timestamp = arlasHit.md.timestamp;
+        md.centroid = arlasHit.md.centroid;
+        feature.setProperty(MD.class.getSimpleName().toLowerCase(), md);
+
+        /** Setting the feature type of the geojson */
+        feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
+        feature.setProperty(FEATURE_GEOMETRY_PATH, path);
+
+        return feature;
+    }
+
     private Response geosearch(CollectionReference collectionReference, Filter filter, String partitionFilter,
                                Boolean flat, String include, String exclude, IntParam size, IntParam from,
-                               String sort, String after, String before, Integer maxagecache) throws ArlasException, IOException {
+                               String sort, String after, String before, Integer maxagecache, String returned_geometries) throws ArlasException, IOException {
+
+        CheckParams.checkReturnedGeometries(collectionReference, include, exclude, returned_geometries);
 
         Search search = new Search();
         search.filter = filter;
         search.page = ParamsParser.getPage(size, from, sort, after, before);
         search.projection = ParamsParser.getProjection(include, exclude);
+        search.returned_geometries = returned_geometries;
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();

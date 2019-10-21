@@ -331,10 +331,10 @@ public class ExploreServices {
                             Object geometry = collectionReference.params.geometryPath != null ?
                                     MapExplorer.getObjectFromPath(collectionReference.params.geometryPath, source) : null;
                             if (geometry != null) {
-                                geometryType = collectionReference.params.getGeometryType();
+                                geometryType = collectionReference.params.getGeometryType(collectionReference.params.geometryPath);
                             } else {
                                 geometry = MapExplorer.getObjectFromPath(collectionReference.params.centroidPath, source);
-                                geometryType = collectionReference.params.getCentroidType();
+                                geometryType = collectionReference.params.getGeometryType(collectionReference.params.centroidPath);
                             }
                             geometryGeoJson = geometry != null ?
                                     GeoTypeMapper.getGeoJsonObject(geometry, geometryType) : null;
