@@ -20,7 +20,6 @@
 package io.arlas.server.rest.explore;
 
 import cyclops.data.tuple.Tuple3;
-import io.arlas.server.exceptions.NotImplementedException;
 import io.arlas.server.model.request.Form;
 import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.request.Request;
@@ -28,9 +27,7 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
-import org.junit.Test;
 
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -220,6 +217,18 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
             }
             then.body(path, everyItem(hasKey(lastKey)));
         }
+    }
+
+    @Override
+    protected void handleReturnedMultiGeometries(ValidatableResponse then, String returned) throws Exception {
+        then.statusCode(200)
+                .body("features.size()", equalTo(20))
+                .body("features.properties.geometry_path", everyItem(isOneOf(returned.split(","))));
+    }
+
+    @Override
+    protected void handleFailedReturnedGeometries(ValidatableResponse then) {
+        then.statusCode(500);
     }
 
     //----------------------------------------------------------------

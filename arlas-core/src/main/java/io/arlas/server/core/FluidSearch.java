@@ -449,7 +449,7 @@ public class FluidSearch {
             throw new ArlasException("Exception while building geoIntersectionQuery: " + e.getMessage());
         }
     }
-    
+
     public FluidSearch include(String include) {
         if (include != null) {
             String includeFieldArray[] = include.split(",");

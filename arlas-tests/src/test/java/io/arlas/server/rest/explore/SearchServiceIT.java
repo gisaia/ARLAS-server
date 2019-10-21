@@ -230,6 +230,18 @@ public class SearchServiceIT extends AbstractProjectedTest {
         }
     }
 
+    @Override
+    protected void handleReturnedMultiGeometries(ValidatableResponse then, String returned) throws Exception {
+        then.statusCode(200)
+                .body("hits[0].md.geometry", hasKey("coordinates"))
+                .body("hits[0].md.returned_geometries[0].path", equalTo(returned.split(",")[1]));
+    }
+
+    @Override
+    protected void handleFailedReturnedGeometries(ValidatableResponse then) {
+        then.statusCode(500);
+    }
+
     //----------------------------------------------------------------
     //----------------------- SORT PART ------------------------------
     //----------------------------------------------------------------

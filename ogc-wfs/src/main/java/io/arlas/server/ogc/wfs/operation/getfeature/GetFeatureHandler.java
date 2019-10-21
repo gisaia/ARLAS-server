@@ -188,7 +188,7 @@ public class GetFeatureHandler {
         if (geometryPath != null) {
             Object m = MapExplorer.getObjectFromPath(geometryPath, source);
             if (m != null) {
-                geometry = GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeometryType());
+                geometry = GeoTypeMapper.getGeoJsonObject(m, collectionReference.params.getGeometryType(collectionReference.params.geometryPath));
 
             }
         }

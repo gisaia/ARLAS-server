@@ -832,8 +832,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         RequestSpecification req = givenFilterableRequestBody();
         handleNotMatchingRequest(
                 req.body(handlePostRequest(request))
-                .when().post(getUrlPath("geodata_actor"))
-                .then()
+                        .when().post(getUrlPath("geodata_actor"))
+                        .then()
         );
         req = givenFilterableRequestParams();
         for (Pair<String, String> extraParam : this.extraParams) {
@@ -841,8 +841,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         }
         handleNotMatchingRequest(
                 req.param("f", request.filter.f.get(0).get(0).toString())
-                .when().get(getUrlPath("geodata_actor"))
-                .then()
+                        .when().get(getUrlPath("geodata_actor"))
+                        .then()
         );
         request.filter = new Filter();
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0])));//("job:eq:" + DataSetTool.jobs[0]);
