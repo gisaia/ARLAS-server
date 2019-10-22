@@ -1,6 +1,37 @@
 # Change Log
 
-## [v11.6.2](https://github.com/gisaia/ARLAS-server/tree/v11.6.2) (2019-09-16)
+## [v11.6.3](https://github.com/gisaia/ARLAS-server/tree/v11.6.3) (2019-10-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.0...v11.6.3)
+
+**New stuff:**
+
+- Add support for Elastic Cloud [\#530](https://github.com/gisaia/ARLAS-server/issues/530)
+- Add support for Elastic Cloud [\#537](https://github.com/gisaia/ARLAS-server/issues/537)
+- Arlas Server xpack - connection to Elastic Cloud [\#531](https://github.com/gisaia/ARLAS-server/pull/531) ([alainbodiguel](https://github.com/alainbodiguel))
+
+**Fixed bugs:**
+
+- Make sure to remove before in next and after in previous  [\#529](https://github.com/gisaia/ARLAS-server/issues/529)
+- Remove redundant execution of range query [\#539](https://github.com/gisaia/ARLAS-server/issues/539)
+- Make sure to remove before in next and after in previous [\#538](https://github.com/gisaia/ARLAS-server/issues/538)
+- Remove redundant execution of range query [\#533](https://github.com/gisaia/ARLAS-server/pull/533) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
+## [v11.7.0](https://github.com/gisaia/ARLAS-server/tree/v11.7.0) (2019-09-19)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.6.2...v11.7.0)
+
+**New stuff:**
+
+- Make `type\_name` optional in CollectionReference  [\#521](https://github.com/gisaia/ARLAS-server/issues/521)
+
+**Miscellaneous:**
+
+- Add a warning in logs saying that `type\_name` is deprecated [\#522](https://github.com/gisaia/ARLAS-server/issues/522)
+- Fix docker-compose to fit README.md [\#493](https://github.com/gisaia/ARLAS-server/issues/493) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- Bump Elasticsearch to 7.x.x [\#468](https://github.com/gisaia/ARLAS-server/issues/468)
+
+## [v11.6.2](https://github.com/gisaia/ARLAS-server/tree/v11.6.2) (2019-09-17)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.6.1...v11.6.2)
 
@@ -15,6 +46,10 @@
 
 - gwithin : WKT or BBOX orientation is only considered when the smallest polygon crosses the antimeridian [\#514](https://github.com/gisaia/ARLAS-server/issues/514)
 - WKT : validate each element of a MULTIGEOMETRY separately  [\#512](https://github.com/gisaia/ARLAS-server/issues/512)
+
+**Miscellaneous:**
+
+- Partition-filter docs contains typo [\#473](https://github.com/gisaia/ARLAS-server/issues/473) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
 
 ## [v11.6.1](https://github.com/gisaia/ARLAS-server/tree/v11.6.1) (2019-09-06)
 
