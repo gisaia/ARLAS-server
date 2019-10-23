@@ -119,6 +119,9 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 
+    @JsonProperty("arlas_auth")
+    public ArlasAuthConfiguration arlasAuthConfiguration;
+
     public static final String FLATTEN_CHAR = "_";
 
     public static List<Pair<String,Integer>> getElasticNodes(String esNodes) {
@@ -214,15 +217,19 @@ public class ArlasServerConfiguration extends Configuration {
         if (arlasServiceCSWEnabled == null) {
             arlasServiceCSWEnabled = false;
         }
-        if (arlasServiceTagEnabled==null) {
+        if (arlasServiceTagEnabled == null) {
             arlasServiceTagEnabled = false;
         }
-        if (arlasServiceRasterTileEnabled==null) {
+        if (arlasServiceRasterTileEnabled == null) {
             arlasServiceRasterTileEnabled = false;
         }
         if (collectionAutoDiscoverConfiguration == null) {
             collectionAutoDiscoverConfiguration = new CollectionAutoDiscoverConfiguration();
             collectionAutoDiscoverConfiguration.schedule = 0;
+        }
+        if (arlasAuthConfiguration == null) {
+            arlasAuthConfiguration = new ArlasAuthConfiguration();
+            arlasAuthConfiguration.enabled = false;
         }
         if (elasticEnableSsl == null) {
             elasticEnableSsl = false;
