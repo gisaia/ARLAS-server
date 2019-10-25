@@ -28,7 +28,7 @@ public class Documentation {
     public static final String OPENSEARCH_CSW_OPERATION = "Access to the OpenSearch CSW Description document";
     public static final String PROJECTION_PARAM_INCLUDE = "List the name patterns of the field to be included in the result. Separate patterns with a comma.";
     public static final String PROJECTION_PARAM_EXCLUDE = "List the name patterns of the field to be excluded in the result. Separate patterns with a comma.";
-    public static final String PROJECTION_PARAM_RETURNED_GEOMETRIES = "List the geometry field_paths to be included in the result. Separate patterns with a comma. If not specified, only geometry_path is returned. If geometry_path is null, then centroid_path is returned";
+    public static final String PROJECTION_PARAM_RETURNED_GEOMETRIES = "Comma separated geometry field_paths to be included in the result. If not specified, only geometry_path is returned. If geometry_path is null, then centroid_path is returned";
     public static final String PAGE_PARAM_SIZE = "The maximum number of entries or sub-entries to be returned. The default value is 10";
     public static final String PAGE_PARAM_FROM = "From index to start the search from. Defaults to 0.";
     public static final String PAGE_PARAM_SORT = "Sorts the resulted hits on the given fields and/or by distance to a given point:" +

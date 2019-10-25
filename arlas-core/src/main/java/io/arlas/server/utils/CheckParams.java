@@ -655,12 +655,6 @@ public class CheckParams {
         }
 
         if (returned_geometries != null) {
-            List<String> includes = new ArrayList<>();
-            if (include != null) Collections.addAll(includes, include.split(","));
-            if (!includes.isEmpty()) {
-                Collections.addAll(includes, returned_geometries.split(","));
-            }
-
             List<String> excludes = new ArrayList<>();
             if (exclude != null) Collections.addAll(excludes, exclude.split(","));
 
