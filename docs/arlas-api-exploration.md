@@ -12,9 +12,9 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/explore/`{collection}`/**_describe**?`form` | Describes the structure and the content of the given collection |
 | /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Counts the number of elements found in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_range**?`field` & `filter` & `form` | Calculates the min and max values of a field in the collection, given the filters |
-| /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `page` | Search and return the elements found in the collection, given the filters |
-| /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `page` | Search and return the elements found in the collection as features, given the filters |
-| /arlas/explore/`{collection}`/**_geosearch**/`{z}`/`{x}`/`{y}`?`filter` & `form` & `projection` & `page` | Search and return the elements found in the collection and localized in the given tile(x,y,z) as features, given the filters |
+| /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `page` & `returned_geometries` | Search and return the elements found in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `page` & `returned_geometries` | Search and return the elements found in the collection as features, given the filters |
+| /arlas/explore/`{collection}`/**_geosearch**/`{z}`/`{x}`/`{y}`?`filter` & `form` & `projection` & `page`& `returned_geometries` | Search and return the elements found in the collection and localized in the given tile(x,y,z) as features, given the filters |
 | /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s), given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_geoaggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_geoaggregate**/`{geohash}`?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) and localized in the given `{geohash}` as features, given the filters and the aggregation parameters |
@@ -289,6 +289,17 @@ The `projection` url part allows the following parameters to be specified:
 | ----------- | ------------- | -------------------- | ---------------------------------------- | -------- |
 | **include** | `*`           | `{fieldNamePattern}` | List the name patterns of the field to be included in the result. Seperate patterns with a comma. | true     |
 | **exclude** | `*`           | `{fieldNamePattern}` | List the name patterns of the field to be excluded in the result. Seperate patterns with a comma. | true     |
+
+> Example: `include=*&exclude=city,state`
+
+---
+### Part: `returned_geometries`
+
+The `returned_geometries` url part can be specified in `_search` & `_geosearch` services:
+
+| Parameter   | Default value | Values               | Description                              | Multiple |
+| ----------- | ------------- | -------------------- | ---------------------------------------- | -------- |
+| **returned_geometries** |       | `{Comma separated geofieldNamePattern}` | Comma separated geometry field_paths to be included in the result. If not specified, only geometry_path is returned. If geometry_path is null, then centroid_path is returned | false     |
 
 > Example: `include=*&exclude=city,state`
 

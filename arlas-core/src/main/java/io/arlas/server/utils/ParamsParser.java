@@ -40,10 +40,7 @@ import org.locationtech.jts.operation.valid.TopologyValidationError;
 
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -537,6 +534,25 @@ public class ParamsParser {
         projObject.includes = includes;
         projObject.excludes = excludes;
         return projObject;
+    }
+
+    /**
+     * This method enriches the `includes` attribute of the given `projection` parameter with fields given in `returned_geometries`
+     * @param projection
+     * @param returned_geometries
+     * @return
+     */
+    public static Projection enrichIncludes(Projection projection, String returned_geometries) {
+        if (returned_geometries != null) {
+            List<String> includes = new ArrayList<>();
+            if (projection.includes != null) Collections.addAll(includes, projection.includes.split(","));
+            if (!includes.isEmpty()) {
+                Collections.addAll(includes, returned_geometries.split(","));
+            }
+            projection.includes = String.join(",", includes);
+
+        }
+        return projection;
     }
 
     public static Integer getValidAggregationSize(String size) throws ArlasException {

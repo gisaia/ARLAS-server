@@ -408,6 +408,8 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         String includes = search.projection != null ? search.projection.includes : null;
         String excludes = search.projection != null ? search.projection.excludes : null;
         CheckParams.checkReturnedGeometries(collectionReference, includes, excludes, search.returned_geometries);
+        search.projection = ParamsParser.enrichIncludes(search.projection, search.returned_geometries);
+
 
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
@@ -481,6 +483,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         search.filter = filter;
         search.page = ParamsParser.getPage(size, from, sort, after, before);
         search.projection = ParamsParser.getProjection(include, exclude);
+        search.projection = ParamsParser.enrichIncludes(search.projection, returned_geometries);
         search.returned_geometries = returned_geometries;
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
