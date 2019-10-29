@@ -1,5 +1,31 @@
 # Change Log
 
+## [v11.6.3](https://github.com/gisaia/ARLAS-server/tree/v11.6.3) (2019-10-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.1...v11.6.3)
+
+**New stuff:**
+
+- Add support for Elastic Cloud [\#537](https://github.com/gisaia/ARLAS-server/issues/537)
+
+**Fixed bugs:**
+
+- Remove redundant execution of range query [\#539](https://github.com/gisaia/ARLAS-server/issues/539)
+- Make sure to remove before in next and after in previous [\#538](https://github.com/gisaia/ARLAS-server/issues/538)
+
+## [v11.7.1](https://github.com/gisaia/ARLAS-server/tree/v11.7.1) (2019-10-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.0...v11.7.1)
+
+**New stuff:**
+
+- Add support for Elastic Cloud [\#530](https://github.com/gisaia/ARLAS-server/issues/530)
+
+**Fixed bugs:**
+
+- Make sure to remove before in next and after in previous  [\#529](https://github.com/gisaia/ARLAS-server/issues/529)
+- Remove redundant execution of range query [\#533](https://github.com/gisaia/ARLAS-server/pull/533) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
 ## [v11.7.0](https://github.com/gisaia/ARLAS-server/tree/v11.7.0) (2019-09-19)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.6.2...v11.7.0)
