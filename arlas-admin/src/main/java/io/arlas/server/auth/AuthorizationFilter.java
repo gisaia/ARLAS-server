@@ -56,7 +56,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext ctx) {
-        if (!authConf.getPublicUrisSet().contains(ctx.getUriInfo().getPath())) {
+        if (!authConf.getPublicUrisSet().contains(ctx.getUriInfo().getPath()) && ctx.getMethod() != "OPTIONS") {
             try {
                 // header presence and format already checked before in AuthenticationFilter
                 DecodedJWT jwt = jwtVerifier.verify(ctx.getHeaderString(HttpHeaders.AUTHORIZATION).substring(7));

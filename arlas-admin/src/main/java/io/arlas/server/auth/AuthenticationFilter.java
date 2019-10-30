@@ -44,7 +44,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        if (!authConf.getPublicUrisSet().contains(requestContext.getUriInfo().getPath())) {
+        if (!authConf.getPublicUrisSet().contains(requestContext.getUriInfo().getPath()) && requestContext.getMethod() != "OPTIONS") {
             String header = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
             if (header == null || !header.toLowerCase().startsWith("bearer ")) {
                 requestContext.abortWith(
