@@ -62,7 +62,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 
-
 public class FluidSearch {
 
     public static final String INVALID_FILTER = "Invalid filter parameter.";
@@ -599,7 +598,7 @@ public class FluidSearch {
             default:
                 throw new InvalidParameterException(INVALID_DATE_UNIT);
         }
-        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(intervalUnit);
+        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.calendarInterval(intervalUnit);
         //get the field, format, collect_field, collect_fct, order, on
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setHitsToFetch(aggregationModel, dateHistogramAggregationBuilder);
