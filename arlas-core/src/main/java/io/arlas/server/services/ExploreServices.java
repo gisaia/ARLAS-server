@@ -59,6 +59,8 @@ import org.locationtech.spatial4j.io.GeohashUtils;
 import org.locationtech.spatial4j.shape.Rectangle;
 
 import java.io.IOException;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -323,6 +325,8 @@ public class ExploreServices {
                     // return the Extent of the geohash
                     element.geometry = createPolygonFromRectangle(GeohashUtils.decodeBoundary(element.keyAsString.toString(), SpatialContext.GEO));
                 }
+            } else if(aggregationResponse.name.startsWith(FluidSearch.DATEHISTOGRAM_AGG)){
+                element.key = ((ZonedDateTime)bucket.getKey()).withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
             } else {
                 element.key = bucket.getKey();
             }

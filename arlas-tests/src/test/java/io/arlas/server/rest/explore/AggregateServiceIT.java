@@ -244,6 +244,12 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
+    protected void handleMatchingDateHistogramAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int firstKey) throws Exception {
+        handleMatchingAggregate(then, featuresSize, featureCountMin, featureCountMax);
+        then.body("elements.key", everyItem(greaterThanOrEqualTo(firstKey)));
+    }
+
+    @Override
     protected void handleMatchingAggregateWithOrder(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String firstKey) throws Exception {
         handleMatchingAggregate(then, featuresSize, featureCountMin, featureCountMax);
         then.body("elements[0].key_as_string", equalTo(firstKey));
