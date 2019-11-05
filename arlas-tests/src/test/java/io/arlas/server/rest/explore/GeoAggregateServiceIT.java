@@ -210,6 +210,11 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
+    protected void handleMatchingDateHistogramAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int firstKey) throws Exception {
+        then.statusCode(400);
+    }
+
+    @Override
     protected void handleMatchingAggregateWithOrder(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String firstKey) throws Exception {
         then.statusCode(400);
     }

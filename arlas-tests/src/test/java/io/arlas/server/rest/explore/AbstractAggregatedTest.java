@@ -202,6 +202,11 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         //DATEHISTOGRAM
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.datehistogram;
 
+        aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.second); // "1sec";
+
+        handleMatchingDateHistogramAggregate(post(aggregationRequest), 501, 0, 8, 763000);
+        handleMatchingDateHistogramAggregate(get("datehistogram:interval-1second"), 501, 0, 8, 763000);
+
         aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.day); // "1day";
         handleSumOtherCountsExistence(post(aggregationRequest), 1, 595, 595);
         handleSumOtherCountsExistence(get("datehistogram:interval-1day"), 1, 595, 595);
@@ -954,6 +959,8 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
     protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax) throws Exception;
 
     protected abstract void handleMatchingAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String keyAsString) throws Exception;
+
+    protected abstract void handleMatchingDateHistogramAggregate(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, int firstKey) throws Exception;
 
     protected abstract void handleMatchingAggregateWithOrder(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, String firstKey) throws Exception;
 

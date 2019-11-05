@@ -60,8 +60,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Pattern;
-
 
 public class FluidSearch {
 
@@ -607,7 +605,7 @@ public class FluidSearch {
             default:
                 throw new InvalidParameterException(INVALID_DATE_UNIT);
         }
-        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(intervalUnit);
+        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.calendarInterval(intervalUnit);
         //get the field, format, collect_field, collect_fct, order, on
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setHitsToFetch(aggregationModel, dateHistogramAggregationBuilder);
