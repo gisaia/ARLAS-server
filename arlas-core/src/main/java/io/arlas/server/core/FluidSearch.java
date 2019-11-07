@@ -605,7 +605,7 @@ public class FluidSearch {
             default:
                 throw new InvalidParameterException(INVALID_DATE_UNIT);
         }
-        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.calendarInterval(intervalUnit);
+        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(intervalUnit);
         //get the field, format, collect_field, collect_fct, order, on
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setHitsToFetch(aggregationModel, dateHistogramAggregationBuilder);
