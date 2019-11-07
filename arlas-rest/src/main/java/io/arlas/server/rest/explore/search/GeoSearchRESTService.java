@@ -135,7 +135,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
             @ApiParam(name = "returned_geometries",
                     value = Documentation.PROJECTION_PARAM_RETURNED_GEOMETRIES,
-                    allowMultiple = true,
+                    allowMultiple = false,
                     defaultValue = "",
                     required = false)
             @QueryParam(value = "returned_geometries") String returned_geometries,
@@ -287,7 +287,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
             @ApiParam(name = "returned_geometries",
                     value = Documentation.PROJECTION_PARAM_RETURNED_GEOMETRIES,
-                    allowMultiple = true,
+                    allowMultiple = false,
                     defaultValue = "",
                     required = false)
             @QueryParam(value = "returned_geometries") String returned_geometries,

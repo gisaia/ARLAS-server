@@ -65,6 +65,7 @@ public class ParamsParser {
     private static final List<OperatorEnum> GEO_OP = Arrays.asList(OperatorEnum.within, OperatorEnum.notwithin, OperatorEnum.intersects, OperatorEnum.notintersects);
     private static final List<OperatorEnum> GEO_OP_WITHIN = Arrays.asList(OperatorEnum.within, OperatorEnum.notwithin);
     private static final  GeometryFactory GEOMETRY_FACTORY = new GeometryFactory(new PrecisionModel(), 4326);
+    private static final List<OperatorEnum> GEO_OP_INTERSECTS = Arrays.asList(OperatorEnum.intersects, OperatorEnum.notintersects);
 
     public static final String RANGE_ALIASES_CHARACTER = "$";
     public static final String TIMESTAMP_ALIAS = "timestamp";
@@ -266,10 +267,9 @@ public class ParamsParser {
 
     public static Filter getFilter(CollectionReference collectionReference,
                                    List<String> filters, List<String> q, String dateFormat,
-                                   BoundingBox simplifyPwithinBbox, Expression pwithinBbox) throws ArlasException {
+                                   BoundingBox tileBbox, Expression pwithinBbox) throws ArlasException {
         Filter filter = new Filter();
         filter.f = new ArrayList<>();
-
         for (String multiF : filters) {
             MultiValueFilter<Expression> multiFilter = new MultiValueFilter<>();
             for (String f : getMultiFiltersFromSemiColonsSeparatedString(multiF)) {
@@ -284,23 +284,27 @@ public class ParamsParser {
                     if (GEO_OP.contains(OperatorEnum.valueOf(operands[1]))) {
                         boolean isPwithin = isPwithin(collectionReference, operands[0], operands[1]);
                         value = getValidGeometry(value, isPwithin);
-                        if (isPwithin && simplifyPwithinBbox != null){
-                            Geometry simplifiedGeometry = GeoTileUtil.bboxIntersects(simplifyPwithinBbox, value);
-                            if (simplifiedGeometry != null)
+                        if (isPwithin && tileBbox != null){
+                            Geometry simplifiedGeometry = GeoTileUtil.bboxIntersects(tileBbox, value);
+                            if (simplifiedGeometry != null) {
                                 value = simplifiedGeometry.toString();
+                            }
                         }
                     }
 
-                    if (value != null)
-                        multiFilter.add(new Expression(operands[0], OperatorEnum.valueOf(operands[1]), value));
+                    if (value != null) {
+                        Expression expression = new Expression(operands[0], OperatorEnum.valueOf(operands[1]), value);
+                        intersectsToWithin(collectionReference, expression);
+                        multiFilter.add(expression);
+                    }
                 }
             }
             filter.f.add(multiFilter);
         }
+        /** add a pwithin query if there is no geo-filter inside the tile**/
         if (pwithinBbox != null) {
             filter.f.add(new MultiValueFilter<>(pwithinBbox));
         }
-
         filter.q = getStringMultiFilter(q);
         filter.dateformat = dateFormat;
         return filter;
@@ -311,6 +315,23 @@ public class ParamsParser {
             return CollectionReferenceManager.getInstance().getType(collectionReference, field) ==  ElasticType.GEO_POINT;
         }
         return false;
+    }
+
+    private static void intersectsToWithin(CollectionReference collectionReference, Expression expression) throws ArlasException {
+        if (OperatorEnum.notintersects.equals(expression.op) || OperatorEnum.intersects.equals(expression.op) ) {
+            String field = getFieldFromFieldAliases(expression.field, collectionReference);
+            if (isGeoPoint(collectionReference, field)) {
+                if (OperatorEnum.notintersects.equals(expression.op)) {
+                    expression.op = OperatorEnum.notwithin;
+                } else if (OperatorEnum.intersects.equals(expression.op)) {
+                    expression.op = OperatorEnum.within;
+                }
+            }
+        }
+    }
+
+    private static boolean isGeoPoint(CollectionReference collectionReference, String field) throws ArlasException {
+        return CollectionReferenceManager.getInstance().getType(collectionReference, field) ==  ElasticType.GEO_POINT;
     }
 
     public static Filter getFilterWithValidGeos(CollectionReference collectionReference, Filter filter) throws ArlasException {
@@ -331,9 +352,10 @@ public class ParamsParser {
     }
 
     public static Expression getValidGeoFilter(CollectionReference collectionReference, Expression expression) throws ArlasException {
+        intersectsToWithin(collectionReference, expression);
         if (GEO_OP.contains(expression.op)) {
-            expression.value = getValidGeometry(expression.value,
-                    isPwithin(collectionReference, expression.field, expression.op.name()));
+            boolean isPwithin = isPwithin(collectionReference, expression.field, expression.op.name());
+            expression.value = getValidGeometry(expression.value, isPwithin);
         }
         return expression;
     }
