@@ -171,6 +171,9 @@ mkdir -p openapi
 cp target/tmp/swagger.yaml openapi
 cp target/tmp/swagger.json openapi
 
+echo "=> Generate API documentation"
+mvn "-Dswagger.output=docs/api" swagger2markup:convertSwagger2markup
+
 echo "=> Stop arlas-server stack"
 docker-compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v
 
@@ -290,6 +293,7 @@ if [ "$SIMULATE" == "NO" ]; then
     echo "=> Commit release version"
     git add openapi/swagger.json
     git add openapi/swagger.yaml
+    git add docs/api
     git commit -a -m "release version ${ARLAS_VERSION}"
     git tag v${ARLAS_VERSION}
     git push origin v${ARLAS_VERSION}
