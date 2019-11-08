@@ -1,21 +1,20 @@
 # Change Log
 
-## [v11.6.3](https://github.com/gisaia/ARLAS-server/tree/v11.6.3) (2019-10-22)
+## [v11.7.2](https://github.com/gisaia/ARLAS-server/tree/v11.7.2) (2019-11-08)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.1...v11.6.3)
-
-**New stuff:**
-
-- Add support for Elastic Cloud [\#537](https://github.com/gisaia/ARLAS-server/issues/537)
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.1...v11.7.2)
 
 **Fixed bugs:**
 
-- Remove redundant execution of range query [\#539](https://github.com/gisaia/ARLAS-server/issues/539)
-- Make sure to remove before in next and after in previous [\#538](https://github.com/gisaia/ARLAS-server/issues/538)
+- Fix Datehistogram key bug due to bump to ES7 [\#541](https://github.com/gisaia/ARLAS-server/pull/541) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
-## [v11.7.1](https://github.com/gisaia/ARLAS-server/tree/v11.7.1) (2019-10-21)
+**Miscellaneous:**
 
-[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.0...v11.7.1)
+- \[Server\] Generate API documentation [\#542](https://github.com/gisaia/ARLAS-server/issues/542) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
+## [v11.7.1](https://github.com/gisaia/ARLAS-server/tree/v11.7.1) (2019-10-29)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.6.3...v11.7.1)
 
 **New stuff:**
 
@@ -23,8 +22,21 @@
 
 **Fixed bugs:**
 
-- Make sure to remove before in next and after in previous  [\#529](https://github.com/gisaia/ARLAS-server/issues/529)
 - Remove redundant execution of range query [\#533](https://github.com/gisaia/ARLAS-server/pull/533) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
+## [v11.6.3](https://github.com/gisaia/ARLAS-server/tree/v11.6.3) (2019-10-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.0...v11.6.3)
+
+**New stuff:**
+
+- Add support for Elastic Cloud [\#537](https://github.com/gisaia/ARLAS-server/issues/537)
+
+**Fixed bugs:**
+
+- Make sure to remove before in next and after in previous  [\#529](https://github.com/gisaia/ARLAS-server/issues/529)
+- Remove redundant execution of range query [\#539](https://github.com/gisaia/ARLAS-server/issues/539)
+- Make sure to remove before in next and after in previous [\#538](https://github.com/gisaia/ARLAS-server/issues/538)
 
 ## [v11.7.0](https://github.com/gisaia/ARLAS-server/tree/v11.7.0) (2019-09-19)
 
