@@ -34,11 +34,14 @@ import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationMetric;
 import io.arlas.server.model.response.AggregationResponse;
+import io.arlas.server.model.ColumnFilter;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ResponseCacheManager;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.*;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.geo.Rectangle;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -109,44 +112,53 @@ public class ExploreServices {
         return client.prepareSearch(collection.params.indexName);
     }
 
-    public SearchHits count(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
+    public SearchHits count(MixedRequest request, CollectionReference collectionReference, Optional<String> filteredColumns) throws ArlasException, IOException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
+        ColumnFilter columnFilter = new ColumnFilter(filteredColumns, fluidSearch.getCollectionPaths());
         applyFilter(collectionReference.params.filter, fluidSearch);
-        applyFilter(request.basicRequest.filter, fluidSearch);
-        applyFilter(request.headerRequest.filter, fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch, columnFilter);
+        applyFilter(request.headerRequest.filter, fluidSearch, columnFilter);
         return fluidSearch.exec().getHits();
     }
 
-    public SearchHits search(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
+    public SearchHits search(MixedRequest request, CollectionReference collectionReference, Optional<String> filteredColumns) throws ArlasException, IOException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
+        ColumnFilter columnFilter = new ColumnFilter(filteredColumns, fluidSearch.getCollectionPaths());
         applyFilter(collectionReference.params.filter, fluidSearch);
-        applyFilter(request.basicRequest.filter, fluidSearch);
-        applyFilter(request.headerRequest.filter, fluidSearch);
-        paginate(((Search) request.basicRequest).page, collectionReference, fluidSearch);
-        applyProjection(((Search) request.basicRequest).projection, fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch, columnFilter);
+        applyFilter(request.headerRequest.filter, fluidSearch, columnFilter);
+        paginate(((Search) request.basicRequest).page, collectionReference, fluidSearch, columnFilter);
+        applyProjection(((Search) request.basicRequest).projection, fluidSearch, columnFilter);
+
         return fluidSearch.exec().getHits();
     }
 
-    public SearchResponse aggregate(MixedRequest request, CollectionReference collectionReference, Boolean isGeoAggregation) throws ArlasException, IOException {
+    public SearchResponse aggregate(MixedRequest request, CollectionReference collectionReference, Boolean isGeoAggregation, Optional<String> filteredColumns)
+            throws ArlasException, IOException {
         CheckParams.checkAggregationRequest(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
+        ColumnFilter columnFilter = new ColumnFilter(filteredColumns, fluidSearch.getCollectionPaths());
         applyFilter(collectionReference.params.filter, fluidSearch);
-        applyFilter(request.basicRequest.filter, fluidSearch);
-        applyFilter(request.headerRequest.filter, fluidSearch);
-        applyAggregation(((AggregationsRequest) request.basicRequest).aggregations, fluidSearch, isGeoAggregation);
+        applyFilter(request.basicRequest.filter, fluidSearch, columnFilter);
+        applyFilter(request.headerRequest.filter, fluidSearch, columnFilter);
+        applyAggregation(((AggregationsRequest) request.basicRequest).aggregations, fluidSearch, isGeoAggregation, columnFilter);
         return fluidSearch.exec();
     }
 
-    public SearchResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
+    public SearchResponse getFieldRange(MixedRequest request, CollectionReference collectionReference, Optional<String> filteredColumns) throws ArlasException, IOException {
         CheckParams.checkRangeRequestField(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
+        ColumnFilter columnFilter = new ColumnFilter(filteredColumns, fluidSearch.getCollectionPaths());
+        if (columnFilter.isForbidden(((RangeRequest) request.basicRequest).field)) {
+            throw new BadRequestException("Requested field is not allowed");
+        }
         applyFilter(collectionReference.params.filter, fluidSearch);
-        applyFilter(request.basicRequest.filter, fluidSearch);
-        applyFilter(request.headerRequest.filter, fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch, columnFilter);
+        applyFilter(request.headerRequest.filter, fluidSearch, columnFilter);
         applyRangeRequest(((RangeRequest) request.basicRequest).field, fluidSearch);
         SearchResponse response;
         try {
@@ -157,17 +169,28 @@ public class ExploreServices {
         return fluidSearch.exec();
     }
 
-    protected void applyAggregation(List<Aggregation> aggregations, FluidSearch fluidSearch, Boolean isGeoAggregation) throws ArlasException {
+    protected void applyAggregation(List<Aggregation> aggregations, FluidSearch fluidSearch, Boolean isGeoAggregation, ColumnFilter columnFilter) throws ArlasException {
+        //TODO remove double check in develop
         if (aggregations != null && aggregations != null && !aggregations.isEmpty()) {
-            fluidSearch = fluidSearch.aggregate(aggregations, isGeoAggregation);
+
+            List<Aggregation> filteredAggregations = columnFilter.filterAggregations(aggregations);
+            if (CollectionUtils.isNotEmpty(filteredAggregations)) {
+                fluidSearch = fluidSearch.aggregate(filteredAggregations, isGeoAggregation);
+            }
         }
     }
 
     protected void applyRangeRequest(String field, FluidSearch fluidSearch) throws ArlasException {
+        //TODO understand why fluidSearch is reassigned whereas it is mutable???
         fluidSearch = fluidSearch.getFieldRange(field);
     }
 
     public void applyFilter(Filter filter, FluidSearch fluidSearch) throws ArlasException, IOException {
+        applyFilter(filter, fluidSearch, new ColumnFilter());
+    }
+
+    public void applyFilter(Filter filter, FluidSearch fluidSearch, ColumnFilter columnsFilter) throws ArlasException, IOException {
+
         if (filter != null) {
             CheckParams.checkFilter(filter);
             if (filter.f != null && !filter.f.isEmpty()) {
@@ -176,14 +199,22 @@ public class ExploreServices {
                     throw new BadRequestException("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
                 }
                 for (MultiValueFilter<Expression> f : filter.f) {
-                    fluidSearch = fluidSearch.filter(f, filter.dateformat);
+                    MultiValueFilter<Expression> filteredF = columnsFilter.filterF(f);
+                    if (!filteredF.isEmpty()) {
+                        fluidSearch = fluidSearch.filter(filteredF, filter.dateformat);
+                    }
                 }
             }
             if (filter.q != null && !filter.q.isEmpty()) {
                 for (MultiValueFilter<String> q : filter.q) {
-                    fluidSearch = fluidSearch.filterQ(q);
+                    MultiValueFilter filteredQ = columnsFilter.getFilteredQ(q);
+
+                    if (!filteredQ.isEmpty()) {
+                        fluidSearch = fluidSearch.filterQ(filteredQ, columnsFilter.getFilteredColumns());
+                    }
                 }
             }
+            //TODO with multi geometries, also apply columns filters to geometry fields ...
             if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
                 for (MultiValueFilter<String> pw : filter.pwithin) {
                     fluidSearch = fluidSearch.filterPWithin(pw);
@@ -246,17 +277,17 @@ public class ExploreServices {
                 );
     }
 
-    protected void paginate(Page page, CollectionReference collectionReference, FluidSearch fluidSearch) throws ArlasException {
+    protected void paginate(Page page, CollectionReference collectionReference, FluidSearch fluidSearch, ColumnFilter columnFilter) throws ArlasException {
         setPageSizeAndFrom(page, fluidSearch);
-        searchAfterPage(page, collectionReference.params.idPath, fluidSearch);
+        searchAfterPage(page, collectionReference.params.idPath, fluidSearch, columnFilter);
         if(page!=null){
             if(page.before != null){
                 Page newPage = page;
                 newPage.sort = Arrays.stream(page.sort.split(","))
                         .map(field -> field.startsWith("-") ? field.substring(1) : "-".concat(field)).collect(Collectors.joining(","));
-                sortPage(newPage, fluidSearch);
+                sortPage(newPage, fluidSearch, columnFilter);
             }else{
-                sortPage(page, fluidSearch);
+                sortPage(page, fluidSearch, columnFilter);
             }
         }
     }
@@ -275,33 +306,63 @@ public class ExploreServices {
         }
     }
 
-    protected void searchAfterPage(Page page, String idCollectionField, FluidSearch fluidSearch) throws ArlasException {
+    protected void searchAfterPage(Page page, String idCollectionField, FluidSearch fluidSearch, ColumnFilter columnFilter) throws ArlasException {
+
+        if (page == null) {
+            return;
+        }
+
         if (page != null && page.after != null) {
             CheckParams.checkPageAfter(page, idCollectionField);
-            fluidSearch = fluidSearch.searchAfter(page.after);
+            //TODO before the CheckParams?
+
+            String filteredAfter = columnFilter.filterAfter(page.sort, page.after);
+            if (StringUtils.isNotBlank(filteredAfter)) {
+                fluidSearch = fluidSearch.searchAfter(filteredAfter);
+            }
         }
         if (page != null && page.before != null) {
             CheckParams.checkPageAfter(page, idCollectionField);
-            fluidSearch = fluidSearch.searchAfter(page.before);
+
+            String filteredBefore = columnFilter.filterAfter(page.sort, page.before);
+            if (StringUtils.isNotBlank(filteredBefore)) {
+                fluidSearch = fluidSearch.searchAfter(filteredBefore);
+            }
         }
     }
-
     protected void sortPage(Page page, FluidSearch fluidSearch) throws ArlasException {
+        sortPage(page, fluidSearch, new ColumnFilter());
+    }
+
+    protected void sortPage(Page page, FluidSearch fluidSearch, ColumnFilter columnFilter) throws ArlasException {
         if (page != null && page.sort != null) {
-            fluidSearch = fluidSearch.sort(page.sort);
+            String filteredSort = columnFilter.filterSort(page.sort);
+            if (StringUtils.isNotBlank(filteredSort)) {
+                fluidSearch = fluidSearch.sort(filteredSort);
+            }
         }
     }
 
-    protected void applyProjection(Projection projection, FluidSearch fluidSearch) {
+    protected void applyProjection(Projection projection, FluidSearch fluidSearch, ColumnFilter columnFilter) {
+
         if (projection != null && !Strings.isNullOrEmpty(projection.includes)) {
-            fluidSearch = fluidSearch.include(projection.includes);
+            String filteredIncludes = columnFilter.filterInclude(projection.includes);
+            if (StringUtils.isNotBlank(filteredIncludes)) {
+                fluidSearch = fluidSearch.include(filteredIncludes);
+            }
+        } else if (columnFilter.isFilterDefined()) {
+            fluidSearch = columnFilter.isFilterDefined() ?
+                    fluidSearch.include(columnFilter.getFilteredColumns().get().stream().collect(Collectors.joining(","))) :
+                    fluidSearch;
         }
         if (projection != null && !Strings.isNullOrEmpty(projection.excludes)) {
             fluidSearch = fluidSearch.exclude(projection.excludes);
         }
     }
 
-    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse, String collection) {
+    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation,
+                                                       AggregationResponse aggregationResponse,
+                                                       String collection) {
         aggregationResponse.name = aggregation.getName();
         if (aggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
             aggregationResponse.sumotherdoccounts = ((Terms) aggregation).getSumOfOtherDocCounts();

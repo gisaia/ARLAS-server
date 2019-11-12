@@ -45,6 +45,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -133,6 +134,9 @@ public class RangeRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -164,7 +168,7 @@ public class RangeRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(rangeRequestHeader);
         request.headerRequest = rangeRequestHeader;
 
-        RangeResponse rangeResponse = getFieldRange(request, collectionReference);
+        RangeResponse rangeResponse = getFieldRange(request, collectionReference, filteredColumns);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(rangeResponse), maxagecache);
     }
@@ -200,6 +204,9 @@ public class RangeRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -230,15 +237,15 @@ public class RangeRESTService extends ExploreRESTServices {
         request.basicRequest = rangeRequest;
         request.headerRequest = rangeRequestHeader;
 
-        RangeResponse rangeResponse = getFieldRange(request, collectionReference);
+        RangeResponse rangeResponse = getFieldRange(request, collectionReference, filteredColumns);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(rangeResponse), maxagecache);
     }
 
-    public RangeResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException{
+    public RangeResponse getFieldRange(MixedRequest request, CollectionReference collectionReference, Optional<String> filteredColumns) throws ArlasException, IOException{
         RangeResponse rangeResponse = new RangeResponse();
         Long startQuery = System.nanoTime();
-        SearchResponse response = this.getExploreServices().getFieldRange(request, collectionReference);
+        SearchResponse response = this.getExploreServices().getFieldRange(request, collectionReference, filteredColumns);
         Aggregation firstAggregation = response.getAggregations().asList().get(0);
         Aggregation secondAggregation = response.getAggregations().asList().get(1);
 

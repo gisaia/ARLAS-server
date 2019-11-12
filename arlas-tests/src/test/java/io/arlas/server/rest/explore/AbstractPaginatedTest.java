@@ -34,6 +34,7 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
@@ -91,6 +92,7 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
 
     @Test
     public void testPageSort() throws Exception {
+
         search.page.sort = "-params.job";
         handleSortParameter(post(search), "Dancer");
         handleSortParameter(get("sort", search.page.sort), "Dancer");
@@ -98,6 +100,11 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
         search.page.sort = "geodistance:-50 -110";
         handleGeoSortParameter(post(search), "-50,-110");
         handleGeoSortParameter(get("sort", search.page.sort), "-50,-110");
+
+        String columnsFilter = "fullname,params.job,params.country,params.startdate,params.stopdate,geodistance";
+        search.page.sort = "id,-params.age,-params.job";
+        handleSortParameter(post(search, columnsFilter), "Dancer");
+        handleSortParameter(get("sort", search.page.sort, columnsFilter), "Dancer");
 
     }
 
@@ -119,6 +126,30 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
         handleSortAndAfterParameters(req.body(handlePostRequest(search))
                 .when().post(getUrlPath("geodata"))
                 .then(), id_1, id_2);
+
+        //with columns filter
+        search.page.after = null;
+        search.page.sort = "id";
+        search.page.size = 3;
+        response = givenFilterableRequestBody()
+                .body(handlePostRequest(search))
+                .when().post(getUrlPath("geodata"))
+                .then().extract();
+        ids = getIdsAfterFirstSearch(response);
+
+        search.page.sort = "params.weight,id";
+        search.page.size = 2;
+        search.page.after = "tobefiltered".concat(",").concat(ids._1().toString());
+
+        String columnsFilter = "id,fullname,params.job,params.country,params.stopdate,geodistance,geo_params.*";
+
+        handleSortAndAfterParameters(
+                givenFilterableRequestBody()
+                        .body(handlePostRequest(search))
+                        .header("column-filter", columnsFilter)
+                        .when().post(getUrlPath("geodata"))
+                        .then(), ids._2().toString(), ids._3().toString());
+
         search.page.after = null;
     }
 
@@ -279,6 +310,25 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
                 .param("after", search.page.after)
                 .when().get(getUrlPath("geodata"))
                 .then(), id_1, id_2);
+
+        //without params.weight and id
+        response = givenFilterableRequestParams()
+                .param("sort", "id")
+                .param("size", 3)
+                .when().get(getUrlPath("geodata"))
+                .then().extract();
+        ids = getIdsAfterFirstSearch(response);
+
+        String columnsFilter = "id,fullname,params.job,params.country,params.stopdate,geodistance,geo_params.*";
+
+        search.page.sort = "params.weight,id";
+        handleSortAndAfterParameters(givenFilterableRequestParams()
+                .param("sort", search.page.sort)
+                .param("size", search.page.size)
+                .param("after", "tobefiltered".concat(",").concat(ids._1().toString()))
+                .header("column-filter", columnsFilter)
+                .when().get(getUrlPath("geodata"))
+                .then(), ids._2().toString(), ids._3().toString());
 
         search.page.after = null;
     }
@@ -546,22 +596,35 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     //----------------------------------------------------------------
     //---------------------- ValidatableResponse ------------------
     //----------------------------------------------------------------
-
     protected ValidatableResponse get(String param, Object paramValue) {
+        return get(param, paramValue, "");
+    }
+    protected ValidatableResponse get(String param, Object paramValue, String filteredColumns) {
         return givenFilterableRequestParams().param(param, paramValue)
+                .header("column-filter", filteredColumns)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
 
     protected ValidatableResponse get(String param1, Object paramValue1, String param2, Object paramValue2) {
+        return get(param1, paramValue1, param2, paramValue2, "");
+    }
+
+    protected ValidatableResponse get(String param1, Object paramValue1, String param2, Object paramValue2, String filteredColumns) {
         return givenFilterableRequestBody().param(param1, paramValue1).param(param2, paramValue2)
+                .header("column-filter", filteredColumns)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
 
     private ValidatableResponse post(Request request) {
+        return post(request, "");
+    }
+
+    private ValidatableResponse post(Request request, String columnsFilter) {
         RequestSpecification req = givenBigSizedRequestParamsPost();
         return req.body(handlePostRequest(request))
+                .header("column-filter", columnsFilter)
                 .when().post(getUrlPath("geodata"))
                 .then();
     }

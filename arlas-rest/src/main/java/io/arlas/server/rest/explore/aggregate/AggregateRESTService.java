@@ -45,10 +45,7 @@ import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -142,6 +139,9 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -178,7 +178,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
 
-        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat));
+        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat), filteredColumns);
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(aggregationResponse), maxagecache);
     }
@@ -214,6 +214,9 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -245,16 +248,23 @@ public class AggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
 
-        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, (aggregationsRequest.form != null && BooleanUtils.isTrue(aggregationsRequest.form.flat)));
+        AggregationResponse aggregationResponse = getArlasAggregation(
+                request,
+                collectionReference,
+                (aggregationsRequest.form != null && BooleanUtils.isTrue(aggregationsRequest.form.flat)),
+                filteredColumns);
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
 
         return cache(Response.ok(aggregationResponse), maxagecache);
     }
 
-    public AggregationResponse getArlasAggregation(MixedRequest request, CollectionReference collectionReference, boolean flat) throws ArlasException, IOException {
+    public AggregationResponse getArlasAggregation(MixedRequest request,
+                                                   CollectionReference collectionReference,
+                                                   boolean flat,
+                                                   Optional<String> filteredColumns) throws ArlasException, IOException {
         AggregationResponse aggregationResponse = new AggregationResponse();
         Long startQuery = System.nanoTime();
-        SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, false);
+        SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, false, filteredColumns);
         MultiBucketsAggregation aggregation;
         aggregation = (MultiBucketsAggregation) response.getAggregations().asList().get(0);
         aggregationResponse.totalnb = response.getHits().getTotalHits();

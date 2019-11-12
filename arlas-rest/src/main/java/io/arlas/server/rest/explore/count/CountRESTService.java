@@ -41,6 +41,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class CountRESTService extends ExploreRESTServices {
@@ -120,6 +121,9 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionfilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -152,7 +156,7 @@ public class CountRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
 
-        Hits hits = getArlasHits(collectionReference, request);
+        Hits hits = getArlasHits(collectionReference, request, filteredColumns);
         return cache(Response.ok(hits), maxagecache);
     }
 
@@ -183,6 +187,9 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionfilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -210,12 +217,12 @@ public class CountRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
 
-        Hits hits = getArlasHits(collectionReference, request);
+        Hits hits = getArlasHits(collectionReference, request, filteredColumns);
         return Response.ok(hits).build();
     }
 
-    protected Hits getArlasHits(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
-        SearchHits searchHits = this.getExploreServices().count(request, collectionReference);
+    protected Hits getArlasHits(CollectionReference collectionReference, MixedRequest request, Optional<String> filteredColumns) throws ArlasException, IOException {
+        SearchHits searchHits = this.getExploreServices().count(request, collectionReference, filteredColumns);
         Hits hits = new Hits(collectionReference.collectionName);
         hits.totalnb = searchHits.getTotalHits();
         hits.nbhits = searchHits.getHits().length;

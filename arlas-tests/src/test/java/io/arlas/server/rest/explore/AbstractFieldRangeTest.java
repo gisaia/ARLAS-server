@@ -86,6 +86,13 @@ public abstract class AbstractFieldRangeTest  extends AbstractFilteredTest {
         handleInvalidFieldRangeRequest(get(rangeRequest.field));
     }
 
+    @Test
+    public void testForbiddenFieldRangeRequest() throws Exception {
+        rangeRequest.field = "params.weight";
+        handleInvalidFieldRangeRequest(post(rangeRequest, "id"));
+        handleInvalidFieldRangeRequest(get(rangeRequest, "id"));
+    }
+
     protected abstract void handleFieldRangeRequest(ValidatableResponse then, int count, float minValue, float maxValue) throws Exception;
     protected abstract void handleFieldRangeEmptyResponse(ValidatableResponse then) throws Exception;
 
@@ -97,8 +104,23 @@ public abstract class AbstractFieldRangeTest  extends AbstractFilteredTest {
                 .then();
     }
 
+    private ValidatableResponse post(Request request, String columnFilter) {
+        return given().contentType("application/json;charset=utf-8").body(request)
+                .header("column-filter", columnFilter)
+                .when().post(getUrlPath("geodata"))
+                .then();
+    }
+
     private ValidatableResponse get(Object paramValue) {
         return given().param("field", paramValue)
+                .when().get(getUrlPath("geodata"))
+                .then();
+    }
+
+    private ValidatableResponse get(Object paramValue, String filteredColumns) {
+        return given()
+                .header("column-filter", filteredColumns)
+                .param("field", paramValue)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }

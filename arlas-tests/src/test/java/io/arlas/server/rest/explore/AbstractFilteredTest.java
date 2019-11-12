@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.AbstractTestWithCollection;
 import io.arlas.server.DataSetTool;
-import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.*;
 import io.restassured.response.ValidatableResponse;
@@ -33,10 +32,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.List;
-
 import static org.hamcrest.Matchers.*;
 
 public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
@@ -127,11 +124,15 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingQueryFilter(post(request), 595);
         handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0)), 595);
         handleMatchingQueryFilter(header(request.filter), 595);
+        handleNotMatchingQueryFilter(post(request, "column-filter", String.join(",", Arrays.asList("id", "params.*"))));//can't find terms in filtered columns
+        handleNotMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", String.join(",", Arrays.asList("id", "params.*"))));//can't find terms in filtered columns
 
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name:is"));
         handleNotMatchingQueryFilter(post(request));
         handleNotMatchingQueryFilter(get("q", request.filter.q.get(0).get(0)));
         handleNotMatchingQueryFilter(header(request.filter));
+        handleMatchingQueryFilter(post(request, "column-filter", String.join(",", Arrays.asList("id", "params.*"))), 595);//no filter applied -> returning all results
+        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", String.join(",", Arrays.asList("id", "params.*"))), 595);//no filter applied -> returning all results
 
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name is"));
         handleMatchingQueryFilter(post(request), 595);
@@ -868,6 +869,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleComplexFilter(
                 givenFilterableRequestParams()
                         .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
+                        .header("column-filter", "")//empty filter should not be used
                         .param("f", new Expression("params.job", OperatorEnum.eq, "Architect").toString())
                         .param("f", new Expression("params.startdate", OperatorEnum.range, "[1009799<2000000]").toString())
                         .param("pwithin", request.filter.pwithin.get(0).get(0))
@@ -875,6 +877,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .param("gintersect", request.filter.gintersect.get(0).get(0))
                         .when().get(getUrlPath("geodata"))
                         .then());
+
         handleComplexFilter(
                 post(request,"partition-filter", objectMapper.writeValueAsString(filterHeader)));
 
@@ -889,7 +892,35 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
                         .when().post(getUrlPath("geodata"))
                         .then());
-        request.filter = new Filter();
+
+        handleComplexFilter(
+                givenFilterableRequestParams()
+                        .header("column-filter", "id , fullname,params.job,params.country, params.startdate,params.stopdate ,geo_params")//should be tolerant to spaces
+                        .param("f", new Expression("params.startdate", OperatorEnum.range, "[0<1009801]").toString())
+                        .param("f", new Expression("params.job", OperatorEnum.eq, "Architect").toString())
+                        .param("f", new Expression("params.startdate", OperatorEnum.range, "[1009799<2000000]").toString())
+                        .param("f", new Expression("params.city", OperatorEnum.eq, "Berlin").toString()) //column is filtered, filter not used
+                        .param("f", new Expression("params.weight", OperatorEnum.range, "[10<20]").toString()) //column is filtered, filter not used
+                        .param("pwithin", new MultiValueFilter<>("-50,-50,50,50"))
+                        .param("notpwithin", new MultiValueFilter<>("20,-50,60,50"))
+                        .param("gwithin", new MultiValueFilter<>("-30,-30,30,30"))
+                        .param("notgwithin", new MultiValueFilter<>("POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))"))
+                        .param("gintersect", new MultiValueFilter<>("POLYGON((-20 20, 20 20, 20 -20, -20 -20, -20 20))"))
+                        .param("notgintersect", new MultiValueFilter<>("POLYGON((-30 -10,30 10, 30 -30, -30 -30,-30 -10))"))
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+
+        handleNotMatchingRequest(
+                givenFilterableRequestParams()
+                        .header("column-filter", "id,fullname,params,geo_params")
+                        .param("f", new Expression("params.startdate", OperatorEnum.range, "[0<1009801]").toString())
+                        .param("f", new Expression("params.job", OperatorEnum.eq, "Architect").toString())
+                        .param("f", new Expression("params.city", OperatorEnum.eq, "Berlin").toString())
+                        .param("f", new Expression("params.weight", OperatorEnum.range, "[10<20]").toString())
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+
+        //TODO test sort with columns filter?
     }
 
     //----------------------------------------------------------------
@@ -1181,6 +1212,17 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
             req = req.param(extraParam.getKey(), extraParam.getValue());
         }
         return req.param(param, paramValue)
+                .when().get(getUrlPath("geodata"))
+                .then();
+    }
+
+    private ValidatableResponse get(String param, Object paramValue, String headerkey, String headerValue) {
+        RequestSpecification req = givenFilterableRequestParams();
+        for (Pair<String, String> extraParam : this.extraParams) {
+            req = req.param(extraParam.getKey(), extraParam.getValue());
+        }
+        return req.param(param, paramValue)
+                .header(headerkey, headerValue)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }

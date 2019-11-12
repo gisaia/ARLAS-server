@@ -265,7 +265,7 @@ public class ParamsParser {
             MultiValueFilter<Expression> multiFilter = new MultiValueFilter<>();
             for (String f : getMultiFiltersFromSemiColonsSeparatedString(multiF)) {
                 if (!StringUtil.isNullOrEmpty(f)) {
-                    String operands[] = f.split(":");
+                    String operands[] = f.split(":");//not add if operand[0] not autorized
                     StringBuffer value = new StringBuffer();
                     if (operands.length < 3) {
                         throw new InvalidParameterException(FluidSearch.INVALID_PARAMETER_F + ": '" + f + "'");

@@ -27,10 +27,12 @@ import io.arlas.server.model.enumerations.Action;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.model.request.Tag;
+import io.arlas.server.model.ColumnFilter;
 import io.arlas.server.model.response.UpdateResponse;
 import org.elasticsearch.client.Client;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Deprecated
 public class UpdateServices extends ExploreServices{
@@ -43,27 +45,28 @@ public class UpdateServices extends ExploreServices{
         super(client, configuration);
     }
 
-    public UpdateResponse tag(CollectionReference collectionReference, MixedRequest request, Tag tag, int max_updates) throws IOException, ArlasException {
-        return this.getFilteredTagger(collectionReference, request).doAction(Action.ADD,collectionReference, tag, max_updates);
+    public UpdateResponse tag(CollectionReference collectionReference, MixedRequest request, Tag tag, int max_updates, Optional<String> filteredColumns) throws IOException, ArlasException {
+        return this.getFilteredTagger(collectionReference, request, filteredColumns).doAction(Action.ADD,collectionReference, tag, max_updates);
     }
 
-    public UpdateResponse unTag(CollectionReference collectionReference, MixedRequest request, Tag tag, int max_updates) throws IOException, ArlasException {
-        return this.getFilteredTagger(collectionReference, request).doAction(Action.REMOVE,collectionReference, tag, max_updates);
+    public UpdateResponse unTag(CollectionReference collectionReference, MixedRequest request, Tag tag, int max_updates, Optional<String> filteredColumns) throws IOException, ArlasException {
+        return this.getFilteredTagger(collectionReference, request, filteredColumns).doAction(Action.REMOVE,collectionReference, tag, max_updates);
     }
 
-    public UpdateResponse removeAll(CollectionReference collectionReference, MixedRequest request, Tag tag, int max_updates) throws IOException, ArlasException {
-        return this.getFilteredTagger(collectionReference, request).doAction(Action.REMOVEALL,collectionReference, tag, max_updates);
+    public UpdateResponse removeAll(CollectionReference collectionReference, MixedRequest request, Tag tag, int max_updates, Optional<String> filteredColumns) throws IOException, ArlasException {
+        return this.getFilteredTagger(collectionReference, request, filteredColumns).doAction(Action.REMOVEALL,collectionReference, tag, max_updates);
     }
 
-    protected FilteredUpdater getFilteredTagger(CollectionReference collectionReference, MixedRequest request) throws IOException, ArlasException {
+    protected FilteredUpdater getFilteredTagger(CollectionReference collectionReference, MixedRequest request, Optional<String> filteredColumns) throws IOException, ArlasException {
         FilteredUpdater updater = new FilteredUpdater(this.getClient());
         updater.setCollectionReference(collectionReference);
+        ColumnFilter columnFilter = new ColumnFilter(filteredColumns, updater.getCollectionPaths());
         applyFilter(request.headerRequest.filter, updater);
         if(request.basicRequest!=null){
-            applyFilter(request.basicRequest.filter,updater);
-            setPageSizeAndFrom(((Search)request.basicRequest).page,updater);
-            sortPage(((Search) request.basicRequest).page, updater);
-            applyProjection(((Search) request.basicRequest).projection, updater);
+            applyFilter(request.basicRequest.filter, updater, columnFilter);
+            setPageSizeAndFrom(((Search)request.basicRequest).page, updater);
+            sortPage(((Search) request.basicRequest).page, updater, columnFilter);
+            applyProjection(((Search) request.basicRequest).projection, updater, columnFilter);
         }
         return updater;
     }

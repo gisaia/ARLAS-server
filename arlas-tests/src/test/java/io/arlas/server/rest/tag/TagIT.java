@@ -249,4 +249,6 @@ public class TagIT extends AbstractTestContext {
         LOGGER.error("Assertion failed " + tries + " times, we give up.");
         return false;
     }
+
+    //TODO test with columns filter optionnaly
 }

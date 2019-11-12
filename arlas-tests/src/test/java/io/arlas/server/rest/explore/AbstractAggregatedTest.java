@@ -910,6 +910,8 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
 
     }
 
+    //TODO test columns filter
+
     @Test
     public void testNotImplementedAggregateParameters() throws Exception {
         //NOT IMPLEMENTED PARAMETER
