@@ -38,6 +38,7 @@ import io.swagger.annotations.ApiResponses;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 @Deprecated
 public class TagRESTService extends UpdateRESTServices {
@@ -77,6 +78,9 @@ public class TagRESTService extends UpdateRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value="Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM     -----------------------
             // --------------------------------------------------------
@@ -96,6 +100,7 @@ public class TagRESTService extends UpdateRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = tagRequest.search;
         request.headerRequest = searchHeader;
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
         return Response.ok(updateServices.tag(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE)).build();
     }
 
@@ -131,6 +136,9 @@ public class TagRESTService extends UpdateRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value="Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM     -----------------------
             // --------------------------------------------------------
@@ -150,6 +158,7 @@ public class TagRESTService extends UpdateRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = tagRequest.search;
         request.headerRequest = searchHeader;
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
         if(tagRequest.tag.value!=null){
             return Response.ok(updateServices.unTag(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE)).build();
         }else{

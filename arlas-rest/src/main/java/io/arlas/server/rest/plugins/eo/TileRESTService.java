@@ -147,6 +147,9 @@ public class TileRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  PAGE    -----------------------
             // --------------------------------------------------------
@@ -244,6 +247,7 @@ public class TileRESTService extends ExploreRESTServices {
             MixedRequest request = new MixedRequest();
             request.basicRequest = search;
             request.headerRequest = searchHeader;
+            request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
             Queue<TileProvider<RasterTile>> providers = new LinkedList<>(findCandidateTiles(collectionReference, request).stream()
                     .filter(match -> match._2().map(
@@ -285,7 +289,10 @@ public class TileRESTService extends ExploreRESTServices {
         }
     }
 
-    protected List<Tuple2<String,Optional<Geometry>>> findCandidateTiles(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
+    protected List<Tuple2<String,Optional<Geometry>>> findCandidateTiles(CollectionReference collectionReference,
+                                                                         MixedRequest request)
+            throws ArlasException, IOException {
+
         return Arrays.stream(this.getExploreServices().search(request, collectionReference).getHits())
                 .map(hit->Tuple2.of(
                         "" + MapExplorer.getObjectFromPath(collectionReference.params.rasterTileURL.idPath, hit.getSourceAsMap()), // Let's get the ID of the match

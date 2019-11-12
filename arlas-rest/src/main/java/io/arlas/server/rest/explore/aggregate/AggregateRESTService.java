@@ -20,11 +20,9 @@
 package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.model.request.AggregationsRequest;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.AggregationResponse;
@@ -45,10 +43,7 @@ import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -142,6 +137,9 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -177,6 +175,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
         AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
@@ -214,6 +213,9 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -244,6 +246,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
         AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, (aggregationsRequest.form != null && BooleanUtils.isTrue(aggregationsRequest.form.flat)));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);

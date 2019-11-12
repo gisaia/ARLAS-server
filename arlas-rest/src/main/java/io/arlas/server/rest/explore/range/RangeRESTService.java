@@ -45,6 +45,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -133,6 +134,9 @@ public class RangeRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -163,6 +167,7 @@ public class RangeRESTService extends ExploreRESTServices {
         request.basicRequest = rangeRequest;
         exploreServices.setValidGeoFilters(rangeRequestHeader);
         request.headerRequest = rangeRequestHeader;
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
         RangeResponse rangeResponse = getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
@@ -200,6 +205,9 @@ public class RangeRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -229,6 +237,7 @@ public class RangeRESTService extends ExploreRESTServices {
 
         request.basicRequest = rangeRequest;
         request.headerRequest = rangeRequestHeader;
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
         RangeResponse rangeResponse = getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);

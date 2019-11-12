@@ -41,6 +41,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class CountRESTService extends ExploreRESTServices {
@@ -120,6 +121,9 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionfilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -151,6 +155,7 @@ public class CountRESTService extends ExploreRESTServices {
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
         exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
         Hits hits = getArlasHits(collectionReference, request);
         return cache(Response.ok(hits), maxagecache);
@@ -183,6 +188,9 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionfilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -209,6 +217,7 @@ public class CountRESTService extends ExploreRESTServices {
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
         exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
         Hits hits = getArlasHits(collectionReference, request);
         return Response.ok(hits).build();

@@ -61,6 +61,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 public class FluidSearch {
@@ -312,7 +313,7 @@ public class FluidSearch {
 
     }
 
-    public FluidSearch filterQ(MultiValueFilter<String> q) throws ArlasException {
+    public FluidSearch filterQ(MultiValueFilter<String> q, Set<String> defaultColumns) throws ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (String qFilter : q) {
             String operands[] = qFilter.split(":",2);
@@ -320,8 +321,16 @@ public class FluidSearch {
                 orBoolQueryBuilder = orBoolQueryBuilder
                         .should((QueryBuilders.simpleQueryStringQuery(operands[1]).defaultOperator(Operator.AND).field(operands[0])));
             } else if (operands.length == 1) {
+                SimpleQueryStringBuilder query = QueryBuilders.simpleQueryStringQuery(operands[0]).defaultOperator(Operator.AND);
+                if (!defaultColumns.isEmpty()) {
+                    Map<String, Float> fieldsMap = defaultColumns.stream().collect(Collectors.toMap(e -> e, e -> AbstractQueryBuilder.DEFAULT_BOOST));
+                    query
+                            .fields(fieldsMap)
+                            //hide format error, i.a. if numeric or date columns are authorized elastic will fail to search in it
+                            .lenient(true);
+                }
                 orBoolQueryBuilder = orBoolQueryBuilder
-                        .should((QueryBuilders.simpleQueryStringQuery(operands[0]).defaultOperator(Operator.AND)));
+                        .should(query);
             } else {
                 throw new InvalidParameterException(INVALID_Q_FILTER);
             }

@@ -21,7 +21,6 @@ package io.arlas.server.rest.explore.search;
 
 
 import com.codahale.metrics.annotation.Timed;
-import com.sun.research.ws.wadl.Param;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.MixedRequest;
@@ -129,6 +128,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -220,6 +222,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(searchHeader);
         request.headerRequest = searchHeader;
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
         FeatureCollection fc = getFeatures(collectionReference, request, (flat!=null && flat));
         return cache(Response.ok(fc), maxagecache);
@@ -313,6 +316,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -413,6 +419,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     notgintersect,
                     dateformat,
                     partitionFilter,
+                    columnFilter,
                     pretty,
                     flat,
                     include,
@@ -460,6 +467,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -485,6 +495,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
         exploreServices.setValidGeoFilters(search);
         exploreServices.setValidGeoFilters(searchHeader);
         FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat));

@@ -147,6 +147,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -183,6 +186,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
         FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), Optional.empty());
         return cache(Response.ok(fc), maxagecache);
     }
@@ -276,6 +280,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM ---------------------------
             // --------------------------------------------------------
@@ -330,6 +337,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             exploreServices.setValidGeoFilters(aggregationsRequestHeader);
             request.basicRequest = aggregationsRequest;
             request.headerRequest = aggregationsRequestHeader;
+            request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
             FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), Optional.of(geohash));
             return cache(Response.ok(fc), maxagecache);
         } else {
@@ -369,6 +377,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -397,12 +408,18 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.basicRequest = aggregationRequest;
         request.headerRequest = aggregationsRequestHeader;
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
         FeatureCollection fc = getFeatureCollection(request, collectionReference, (aggregationRequest.form != null && aggregationRequest.form.flat), Optional.empty());
 
         return cache(Response.ok(fc), maxagecache);
     }
 
-    private FeatureCollection getFeatureCollection(MixedRequest request, CollectionReference collectionReference, boolean flat, Optional<String> geohash) throws ArlasException, IOException {
+    private FeatureCollection getFeatureCollection(MixedRequest request,
+                                                   CollectionReference collectionReference,
+                                                   boolean flat,
+                                                   Optional<String> geohash)
+            throws ArlasException, IOException {
+
         Optional<Interval> interval = Optional.ofNullable(((AggregationsRequest) request.basicRequest).aggregations.get(0).interval);
         Optional<Number> precision = interval.map(i -> i.value);
         FeatureCollection fc;

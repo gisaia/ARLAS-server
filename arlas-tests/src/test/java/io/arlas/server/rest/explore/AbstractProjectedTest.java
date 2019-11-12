@@ -53,6 +53,41 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
         handleDisplayedParameter(post(search), Arrays.asList("params.startdate"));
         handleDisplayedParameter(get("include", search.projection.includes), Arrays.asList("params.startdate"));
 
+        //check columns filter doesn't return forbidden fields
+        search.projection.includes = "id,params";
+        handleHiddenParameter(post(search, "id"), Arrays.asList("params.age"));
+        handleHiddenParameter(get("include", search.projection.includes, "id"), Arrays.asList("params.age"));
+
+        //check columns filter returns authorized field
+        handleDisplayedParameter(post(search, "id"), Arrays.asList("id"));
+        handleDisplayedParameter(get("include", search.projection.includes, "id"), Arrays.asList("id"));
+
+        //check collection paths aren't filtered
+        handleDisplayedParameter(post(search, "id"), Arrays.asList("params.startdate"));
+        handleDisplayedParameter(get("include", search.projection.includes, "id"), Arrays.asList("params.startdate"));
+
+        //check fields authorized with base name or with explicit wild card are processed the same
+        search.projection.includes = "id,params";
+        handleDisplayedParameter(post(search, "params.*"), Arrays.asList("params.job"));
+        handleDisplayedParameter(get("include", search.projection.includes, "params.*"), Arrays.asList("params.job"));
+        search.projection.includes = "id,params.*";
+        handleDisplayedParameter(post(search, "params.*"), Arrays.asList("params.job"));
+        handleDisplayedParameter(get("include", search.projection.includes, "params.*"), Arrays.asList("params.job"));
+
+        //check with inclusion of wildcard, that only allowed fields are included
+        search.projection.includes = "id,params";
+        handleDisplayedParameter(post(search, "params.job"), Arrays.asList("params.job"));
+        handleDisplayedParameter(get("include", search.projection.includes, "params.job"), Arrays.asList("params.job"));
+        handleHiddenParameter(post(search, "params.job"), Arrays.asList("params.age"));
+        handleHiddenParameter(get("include", search.projection.includes, "params.job"), Arrays.asList("params.age"));
+
+        //check with no explicit include, that only allowed fields are returns
+        search.projection.includes = null;
+        handleDisplayedParameter(post(search, "params.job"), Arrays.asList("params.job"));
+        handleDisplayedParameter(get("include", search.projection.includes, "params.job"), Arrays.asList("params.job"));
+        handleHiddenParameter(post(search, "params.job"), Arrays.asList("params.age"));
+        handleHiddenParameter(get("include", search.projection.includes, "params.job"), Arrays.asList("params.age"));
+
         search.projection.includes = null;
 
         search.projection.excludes = "fullname";
@@ -80,6 +115,14 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
     private ValidatableResponse post(Request request) {
         RequestSpecification req = givenFilterableRequestBody();
         return req.body(handlePostRequest(request))
+                .when().post(getUrlPath("geodata"))
+                .then();
+    }
+
+    private ValidatableResponse post(Request request, String columnFilter) {
+        RequestSpecification req = givenFilterableRequestBody();
+        return req.body(handlePostRequest(request))
+                .header("column-filter", columnFilter)
                 .when().post(getUrlPath("geodata"))
                 .then();
     }
