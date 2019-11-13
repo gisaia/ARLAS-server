@@ -194,7 +194,6 @@ public class TileRESTService extends ExploreRESTServices {
         }
 
         BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x, y, z));
-
         Search search = new Search();
         search.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         search.page = ParamsParser.getPage(size, from, sort, after,before);

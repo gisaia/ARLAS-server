@@ -17,18 +17,27 @@
  * under the License.
  */
 
-package io.arlas.server.model.response;
+package io.arlas.server.model.enumerations;
 
-import io.dropwizard.jackson.JsonSnakeCase;
-import org.geojson.GeoJsonObject;
+public enum ComputationEnum {
+    AVG("avg"), MAX("max"), MIN("min"), SUM("sum"), CARDINALITY("cardinality"), SPANNING("spanning");
 
-@JsonSnakeCase
-public class Geo {
-    public String path;
-    public GeoJsonObject geometry;
+    private final String value;
 
-    public Geo(String path, GeoJsonObject geoJsonObject) {
-        this.path = path;
-        this.geometry = geoJsonObject;
+    ComputationEnum(String v) {
+        value = v;
+    }
+
+    public String value() {
+        return value;
+    }
+
+    public static ComputationEnum fromValue(String v) {
+        for (ComputationEnum c: ComputationEnum.values()) {
+            if (c.value.equals(v)) {
+                return c;
+            }
+        }
+        throw new IllegalArgumentException(v);
     }
 }

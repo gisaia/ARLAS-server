@@ -75,7 +75,6 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
 
     @Test
     public void testReturnedGeometriesFilter() throws Exception {
-
         // requested geometry does not exist in collection
         search.returned_geometries = "geo_params.foo_geometry";
         handleFailedReturnedGeometries(post(search));

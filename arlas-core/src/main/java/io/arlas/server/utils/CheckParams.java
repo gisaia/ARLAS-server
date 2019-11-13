@@ -64,6 +64,8 @@ public class CheckParams {
     private static final String INVALID_AGGREGATION = "Invalid aggregation parameters. Type and field must be specified";
     private static final String INVALID_AGGREGATION_TYPE = "Invalid aggregation TYPE. Must be datehistogram, geohash, histogram or terms ";
     private static final String INVALID_RANGE_FIELD = "The field name/path should not be null.";
+    private static final String INVALID_COMPUTE_FIELD = "The field name/path should not be null.";
+    private static final String INVALID_COMPUTE_METRIC = "The metric value should not be null.";
     private static final String INVALID_ORDER_VALUE = "Invalid 'order-' value : ";
     private static final String REDUNDANT_COLLECT_FIELD_COLLECT_FCT = "Bad request : the same 'collect-fct' is applied to the same 'collect-field' twice or more.";
     private static final String INVALID_ON_VALUE = "Invalid 'on-' value : ";
@@ -123,6 +125,19 @@ public class CheckParams {
         else if (request != null) {
             if (((RangeRequest) request).field == null || ((RangeRequest) request).field.length() == 0) {
                 throw new InvalidParameterException(INVALID_RANGE_FIELD);
+            }
+        }
+    }
+
+    public static void checkComputationRequest(Request request) throws ArlasException {
+        if (request == null || !(request instanceof ComputationRequest)) {
+            throw new BadRequestException("Compute request should not be null");
+        } else {
+            if (StringUtil.isNullOrEmpty(((ComputationRequest) request).field)) {
+                throw new InvalidParameterException(INVALID_COMPUTE_FIELD);
+            }
+            if (((ComputationRequest)request).metric == null) {
+                throw new InvalidParameterException(INVALID_COMPUTE_METRIC);
             }
         }
     }
@@ -667,3 +682,4 @@ public class CheckParams {
         }
     }
 }
+

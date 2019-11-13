@@ -19,16 +19,10 @@
 
 package io.arlas.server.model.response;
 
-import io.dropwizard.jackson.JsonSnakeCase;
-import org.geojson.GeoJsonObject;
+import io.arlas.server.model.enumerations.ComputationEnum;
 
-@JsonSnakeCase
-public class Geo {
-    public String path;
-    public GeoJsonObject geometry;
-
-    public Geo(String path, GeoJsonObject geoJsonObject) {
-        this.path = path;
-        this.geometry = geoJsonObject;
-    }
+public class ComputationResponse extends OperationInfo {
+    public String field;
+    public ComputationEnum metric;
+    public double value;
 }

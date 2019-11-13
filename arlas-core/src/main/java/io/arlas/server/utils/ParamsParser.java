@@ -66,7 +66,6 @@ public class ParamsParser {
     private static final List<OperatorEnum> GEO_OP_WITHIN = Arrays.asList(OperatorEnum.within, OperatorEnum.notwithin);
     private static final  GeometryFactory GEOMETRY_FACTORY = new GeometryFactory(new PrecisionModel(), 4326);
     private static final List<OperatorEnum> GEO_OP_INTERSECTS = Arrays.asList(OperatorEnum.intersects, OperatorEnum.notintersects);
-
     public static final String RANGE_ALIASES_CHARACTER = "$";
     public static final String TIMESTAMP_ALIAS = "timestamp";
     public static final String BAD_FIELD_ALIAS = "This alias does not represent a collection configured field. ";
@@ -361,7 +360,6 @@ public class ParamsParser {
     }
 
     public static String getValidGeometry(String geo, boolean isPwithin) throws ArlasException{
-
         if (CheckParams.isBboxMatch(geo)) {
             CheckParams.checkBbox(geo);
             return geo;

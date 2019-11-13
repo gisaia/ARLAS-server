@@ -30,11 +30,13 @@ import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.CollectionFunction;
+import io.arlas.server.model.enumerations.ComputationEnum;
 import io.arlas.server.model.enumerations.GeoTypeEnum;
 import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationMetric;
 import io.arlas.server.model.response.AggregationResponse;
+import io.arlas.server.model.response.ComputationResponse;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ResponseCacheManager;
@@ -50,9 +52,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.InternalAggregation;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.GeoBounds;
-import org.elasticsearch.search.aggregations.metrics.GeoCentroid;
-import org.elasticsearch.search.aggregations.metrics.TopHits;
+import org.elasticsearch.search.aggregations.metrics.*;
 
 import org.geojson.*;
 import org.locationtech.spatial4j.context.SpatialContext;
@@ -63,6 +63,7 @@ import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -146,6 +147,67 @@ public class ExploreServices {
         applyAggregation(((AggregationsRequest) request.basicRequest).aggregations, fluidSearch, isGeoAggregation);
         return fluidSearch.exec();
     }
+
+    public ComputationResponse compute(MixedRequest request, CollectionReference collectionReference) throws ArlasException{
+        CheckParams.checkComputationRequest(request.basicRequest);
+        FluidSearch fluidSearch = new FluidSearch(client);
+        fluidSearch.setCollectionReference(collectionReference);
+        applyFilter(collectionReference.params.filter, fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch);
+        applyFilter(request.headerRequest.filter, fluidSearch);
+        String field = ((ComputationRequest)request.basicRequest).field;
+        ComputationEnum metric = ((ComputationRequest)request.basicRequest).metric;
+        fluidSearch = fluidSearch.compute(field, metric);
+        SearchResponse response;
+        try {
+            response = fluidSearch.exec();
+        } catch (SearchPhaseExecutionException e) {
+            throw new InvalidParameterException("The field's type must be numeric");
+        }
+
+        ComputationResponse computationResponse = new ComputationResponse();
+        Long startQuery = System.nanoTime();
+        computationResponse.field = field;
+        computationResponse.metric = metric;
+        computationResponse.totalnb = response.getHits().getTotalHits().value;
+        List<org.elasticsearch.search.aggregations.Aggregation> aggregations = response.getAggregations().asList();
+
+        if (computationResponse.totalnb > 0) {
+            switch (metric) {
+                case AVG:
+                    computationResponse.value = ((Avg)aggregations.get(0)).getValue();
+                    break;
+                case CARDINALITY:
+                    computationResponse.value = ((Cardinality)aggregations.get(0)).getValue();
+                    break;
+                case MAX:
+                    computationResponse.value = ((Max)aggregations.get(0)).getValue();
+                    break;
+                case MIN:
+                    computationResponse.value = ((Min)aggregations.get(0)).getValue();
+                    break;
+                case SPANNING:
+                    double min;
+                    double max;
+                    if (aggregations.get(0).getName().equals(FluidSearch.FIELD_MIN_VALUE)) {
+                        min = ((Min)aggregations.get(0)).getValue();
+                        max = ((Max)aggregations.get(1)).getValue();
+                    } else {
+                        min = ((Min)aggregations.get(1)).getValue();
+                        max = ((Max)aggregations.get(0)).getValue();
+                    }
+                    computationResponse.value = max - min;
+                    break;
+                case SUM:
+                    computationResponse.value = ((Sum)aggregations.get(0)).getValue();
+                    break;
+            }
+        }
+
+        computationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
+        return computationResponse;
+    }
+
 
     public SearchResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         CheckParams.checkRangeRequestField(request.basicRequest);
@@ -477,5 +539,4 @@ public class ExploreServices {
         polygon.add(bounds);
         return polygon;
     }
-
 }

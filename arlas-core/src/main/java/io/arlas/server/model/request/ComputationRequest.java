@@ -17,18 +17,11 @@
  * under the License.
  */
 
-package io.arlas.server.model.response;
+package io.arlas.server.model.request;
 
-import io.dropwizard.jackson.JsonSnakeCase;
-import org.geojson.GeoJsonObject;
+import io.arlas.server.model.enumerations.ComputationEnum;
 
-@JsonSnakeCase
-public class Geo {
-    public String path;
-    public GeoJsonObject geometry;
-
-    public Geo(String path, GeoJsonObject geoJsonObject) {
-        this.path = path;
-        this.geometry = geoJsonObject;
-    }
+public class ComputationRequest extends Request {
+    public String field;
+    public ComputationEnum metric;
 }

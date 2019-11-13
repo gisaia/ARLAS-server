@@ -266,7 +266,6 @@ public class SearchRESTService extends ExploreRESTServices {
         String excludes = search.projection != null ? search.projection.excludes : null;
         CheckParams.checkReturnedGeometries(collectionReference, includes, excludes, search.returned_geometries);
         search.projection = ParamsParser.enrichIncludes(search.projection, search.returned_geometries);
-
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
