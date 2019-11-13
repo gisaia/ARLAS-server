@@ -10,8 +10,8 @@ The ARLAS Server offers 6 endpoints:
     - a CSW opensearch service (`http://.../arlas/ogc/csw/opensearch`)
     - a WFS service (`http://.../arlas/ogc/wfs/{collection}?REQUEST=GetCapabilities&VERSION=2.0.0&SERVICE=WFS`)
     - an opensearch service (`http://.../arlas/ogc/opensearch/{collection}`)
-- an API for monitoring the server health and performances
-- an endpoints for testing the collection API  and the exploration API with swagger
+- an API for monitoring the server health and performances.
+- an endpoints for testing the collection API  and the exploration API with swagger.
 
 !!! warning
     All endpoints are not necessarily enabled. See the [configuration](arlas-server-configuration.md) for more details.
