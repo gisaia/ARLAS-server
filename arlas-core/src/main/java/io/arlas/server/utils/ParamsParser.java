@@ -318,11 +318,14 @@ public class ParamsParser {
     }
 
     private static void intersectsToWithin(CollectionReference collectionReference, Expression expression) throws ArlasException {
-        if (isGeoPoint(collectionReference, expression.field)) {
-            if (OperatorEnum.notintersects.equals(expression.op)) {
-                expression.op = OperatorEnum.notwithin;
-            } else if (OperatorEnum.intersects.equals(expression.op)) {
-                expression.op = OperatorEnum.within;
+        if (OperatorEnum.notintersects.equals(expression.op) || OperatorEnum.intersects.equals(expression.op) ) {
+            String field = getFieldFromFieldAliases(expression.field, collectionReference);
+            if (isGeoPoint(collectionReference, field)) {
+                if (OperatorEnum.notintersects.equals(expression.op)) {
+                    expression.op = OperatorEnum.notwithin;
+                } else if (OperatorEnum.intersects.equals(expression.op)) {
+                    expression.op = OperatorEnum.within;
+                }
             }
         }
     }

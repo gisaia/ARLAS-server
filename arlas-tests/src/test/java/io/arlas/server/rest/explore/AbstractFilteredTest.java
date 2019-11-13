@@ -1039,11 +1039,6 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleInvalidParameters(get("f", request.filter.f.get(0).get(0).toString()));
         handleInvalidParameters(header(request.filter));
 
-        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.intersects, "POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))")));
-        handleInvalidParameters(post(request));
-        handleInvalidParameters(get("f", request.filter.f.get(0).get(0).toString()));
-        handleInvalidParameters(header(request.filter));
-
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.notintersects, "POLYGON((10 10,10 -10,0 -10))")));
         handleInvalidParameters(post(request));
         handleInvalidParameters(get("f", request.filter.f.get(0).get(0).toString()));
