@@ -57,7 +57,6 @@ public class DataSetTool {
     public final static String DATASET_CENTROID_PATH="geo_params.centroid";
     public final static String DATASET_TIMESTAMP_PATH="params.startdate";
     public final static String DATASET_EXCLUDE_FIELDS = "params.ci*";
-    public final static String DATASET_TAGGABLE_FIELDS="params.tags,params.job";
     public final static String DATASET_EXCLUDE_WFS_FIELDS="params.country";
     public final static String DATASET_TIMESTAMP_FORMAT = "epoch_millis";
     public static final String DATASET_INSPIRE_LINEAGE = "Dataset loaded for testing";

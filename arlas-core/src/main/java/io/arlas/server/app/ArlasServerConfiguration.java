@@ -110,9 +110,6 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("arlas-service-csw-enabled")
     public Boolean arlasServiceCSWEnabled;
 
-    @JsonProperty("arlas-service-tag-enabled")
-    public Boolean arlasServiceTagEnabled;
-
     @JsonProperty("arlas-service-raster-tiles-enabled")
     public Boolean arlasServiceRasterTileEnabled;
 
@@ -217,10 +214,7 @@ public class ArlasServerConfiguration extends Configuration {
         if (arlasServiceCSWEnabled == null) {
             arlasServiceCSWEnabled = false;
         }
-        if (arlasServiceTagEnabled == null) {
-            arlasServiceTagEnabled = false;
-        }
-        if (arlasServiceRasterTileEnabled == null) {
+        if (arlasServiceRasterTileEnabled == null){
             arlasServiceRasterTileEnabled = false;
         }
         if (collectionAutoDiscoverConfiguration == null) {
