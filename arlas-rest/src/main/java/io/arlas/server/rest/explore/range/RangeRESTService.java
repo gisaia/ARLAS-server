@@ -47,7 +47,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-
+@Deprecated
 public class RangeRESTService extends ExploreRESTServices {
     public RangeRESTService(ExploreServices exploreServices) { super(exploreServices);}
 
@@ -56,6 +56,7 @@ public class RangeRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
+    @Deprecated
     @ApiOperation(value = "RangeRequest", produces = UTF8JSON, notes = Documentation.RANGE_OPERATION, consumes = UTF8JSON, response = RangeResponse.class
 
     )
@@ -133,7 +134,6 @@ public class RangeRESTService extends ExploreRESTServices {
         request.basicRequest = rangeRequest;
         exploreServices.setValidGeoFilters(collectionReference, rangeRequestHeader);
         request.headerRequest = rangeRequestHeader;
-
         RangeResponse rangeResponse = getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(rangeResponse), maxagecache);
@@ -144,6 +144,7 @@ public class RangeRESTService extends ExploreRESTServices {
     @POST
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
+    @Deprecated
     @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = Documentation.RANGE_OPERATION, consumes = UTF8JSON, response = RangeResponse.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = RangeResponse.class, responseContainer = "ArlasRange"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class),
@@ -196,10 +197,8 @@ public class RangeRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         exploreServices.setValidGeoFilters(collectionReference, rangeRequest);
         exploreServices.setValidGeoFilters(collectionReference, rangeRequestHeader);
-
         request.basicRequest = rangeRequest;
         request.headerRequest = rangeRequestHeader;
-
         RangeResponse rangeResponse = getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(rangeResponse), maxagecache);
