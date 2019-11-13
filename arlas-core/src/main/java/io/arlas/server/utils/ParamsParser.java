@@ -24,10 +24,11 @@ import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.exceptions.NotImplementedException;
+import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
+import io.arlas.server.model.response.ElasticType;
 import io.dropwizard.jersey.params.IntParam;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.joda.time.format.DateTimeFormat;
@@ -39,10 +40,7 @@ import org.locationtech.jts.operation.valid.TopologyValidationError;
 
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -63,6 +61,11 @@ public class ParamsParser {
     private static final String AGG_FETCHHITS_PARAM = "fetch_hits-";
 
     private static final Pattern HITS_FETCHER_PATTERN = Pattern.compile("(\\d*)(\\()(.*)(\\))");
+
+    private static final List<OperatorEnum> GEO_OP = Arrays.asList(OperatorEnum.within, OperatorEnum.notwithin, OperatorEnum.intersects, OperatorEnum.notintersects);
+    private static final List<OperatorEnum> GEO_OP_WITHIN = Arrays.asList(OperatorEnum.within, OperatorEnum.notwithin);
+    private static final  GeometryFactory GEOMETRY_FACTORY = new GeometryFactory(new PrecisionModel(), 4326);
+    private static final List<OperatorEnum> GEO_OP_INTERSECTS = Arrays.asList(OperatorEnum.intersects, OperatorEnum.notintersects);
 
     public static final String RANGE_ALIASES_CHARACTER = "$";
     public static final String TIMESTAMP_ALIAS = "timestamp";
@@ -145,7 +148,7 @@ public class ParamsParser {
                         aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.bbox);
                     } else if (option.equals(AggregatedGeometryStrategyEnum.centroid.name())) {
                         aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.centroid);
-                    }  else if (option.equals(AggregatedGeometryStrategyEnum.byDefault.name())) {
+                    } else if (option.equals(AggregatedGeometryStrategyEnum.byDefault.name())) {
                         aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
                     } else if (option.equals(AggregatedGeometryStrategyEnum.first.name())) {
                         aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first);
@@ -172,7 +175,7 @@ public class ParamsParser {
                 }
             } else {
                 if (fetchGeometryString.equals("")) {
-                    aggregatedGeometry =  new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
+                    aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
                 } else {
                     throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
                 }
@@ -257,137 +260,180 @@ public class ParamsParser {
         }
     }
 
-    public static Filter getFilter(List<String> filters, List<String> q, List<String> pwithin, List<String> gwithin, List<String> gintersect, List<String> notpwithin, List<String> notgwithin, List<String> notgintersect, String dateFormat) throws ArlasException {
+    public static Filter getFilter(CollectionReference collectionReference,
+                                   List<String> filters, List<String> q, String dateFormat) throws ArlasException {
+        return getFilter(collectionReference, filters, q, dateFormat, null, null);
+    }
+
+    public static Filter getFilter(CollectionReference collectionReference,
+                                   List<String> filters, List<String> q, String dateFormat,
+                                   BoundingBox tileBbox, Expression pwithinBbox) throws ArlasException {
         Filter filter = new Filter();
         filter.f = new ArrayList<>();
-
         for (String multiF : filters) {
             MultiValueFilter<Expression> multiFilter = new MultiValueFilter<>();
             for (String f : getMultiFiltersFromSemiColonsSeparatedString(multiF)) {
                 if (!StringUtil.isNullOrEmpty(f)) {
                     String operands[] = f.split(":");
-                    StringBuffer value = new StringBuffer();
                     if (operands.length < 3) {
                         throw new InvalidParameterException(FluidSearch.INVALID_PARAMETER_F + ": '" + f + "'");
-                    } else {
-                        for (int i = 2; i < operands.length; i++) {
-                            if (value.length() > 0)
-                                value.append(":");
-                            value.append(operands[i]);
+                    }
+                    // merge again last elements in case value contained a ':'
+                    String value = String.join(":", Arrays.copyOfRange(operands, 2, operands.length));
+
+                    if (GEO_OP.contains(OperatorEnum.valueOf(operands[1]))) {
+                        boolean isPwithin = isPwithin(collectionReference, operands[0], operands[1]);
+                        value = getValidGeometry(value, isPwithin);
+                        if (isPwithin && tileBbox != null){
+                            Geometry simplifiedGeometry = GeoTileUtil.bboxIntersects(tileBbox, value);
+                            if (simplifiedGeometry != null) {
+                                value = simplifiedGeometry.toString();
+                            }
                         }
                     }
-                    multiFilter.add(new Expression(operands[0], OperatorEnum.valueOf(operands[1]), value.toString()));
+
+                    if (value != null) {
+                        Expression expression = new Expression(operands[0], OperatorEnum.valueOf(operands[1]), value);
+                        intersectsToWithin(collectionReference, expression);
+                        multiFilter.add(expression);
+                    }
                 }
             }
             filter.f.add(multiFilter);
         }
+        /** add a pwithin query if there is no geo-filter inside the tile**/
+        if (pwithinBbox != null) {
+            filter.f.add(new MultiValueFilter<>(pwithinBbox));
+        }
         filter.q = getStringMultiFilter(q);
-        filter.pwithin = getValidGeoFilters(pwithin, true);
-        filter.gwithin = getValidGeoFilters(gwithin);
-        filter.gintersect = getValidGeoFilters(gintersect);
-        filter.notpwithin = getValidGeoFilters(notpwithin, true);
-        filter.notgwithin = getValidGeoFilters(notgwithin);
-        filter.notgintersect = getValidGeoFilters(notgintersect);
         filter.dateformat = dateFormat;
         return filter;
     }
 
-    public static List<MultiValueFilter<String>> getValidGeoFilters(List<String> geoStrings) throws ArlasException {
-        return getValidGeoFilters(geoStrings, false);
+    private static boolean isPwithin(CollectionReference collectionReference, String field, String op) throws ArlasException {
+        if (GEO_OP_WITHIN.contains(OperatorEnum.valueOf(op))) {
+            return CollectionReferenceManager.getInstance().getType(collectionReference, field) ==  ElasticType.GEO_POINT;
+        }
+        return false;
     }
 
-    public static List<MultiValueFilter<String>> getValidGeoFilters(List<String> geoStrings, boolean isPwithin) throws ArlasException{
-        if (geoStrings != null) {
-            List<MultiValueFilter<String>> geoFilters =  getStringMultiFilter(geoStrings);
-            List<MultiValueFilter<String>> validGeoFilters = new ArrayList<>();
-            if(geoFilters != null) {
-                for (MultiValueFilter<String> geoFilter : geoFilters) {
-                    MultiValueFilter<String> validGeoFilter = new MultiValueFilter<>();
-                    for (String geo : geoFilter) {
-                        if (CheckParams.isBboxMatch(geo)) {
-                            CheckParams.checkBbox(geo);
-                            validGeoFilter.add(geo);
-                        } else {
-                            Geometry wkt = getValidWKT(geo);
-                            /** For the case of Polygon and MultiPolygon, a check of the coordinates orientation is necessary in order to correctly interpret the "desired" polygon **/
-                            if (wkt.getGeometryType().equals("Polygon") || wkt.getGeometryType().equals("MultiPolygon")) {
-                                for (int i = 0; i< wkt.getNumGeometries(); i++) {
-                                    Geometry subWkt = wkt.getGeometryN(i);
-                                    if (Orientation.isCCW(subWkt.getCoordinates())){
-                                        // By convention the passed queryGeometry must be interpreted as CW.
-                                        // If the orientation is CCW, we try to build the WKT that goes the other side of the planet.
-                                        // If the topology of the resulted geometry is not valid, an exception is thrown
-                                        Geometry tmpGeometry  = subWkt.copy();
-                                        Envelope tmpEnvelope = tmpGeometry.getEnvelopeInternal();
-                                        /** east is the minX and west is the maxX*/
-                                        double east = tmpEnvelope.getMinX();
-                                        double west = tmpEnvelope.getMaxX();
-                                        if (west > east && ((east < -180 && west >= -180) ||  (west > 180 && east <= 180))) {
-                                            /** It means west > 180 or east < -180 */
-                                            if (west >= 180) {
-                                                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, false, 180);
-                                            } else if (east <= -180) {
-                                                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, true , -180);
-                                            }
-                                        } else {
-                                            if (west >= 0) {
-                                                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, false, east);
-                                            } else {
-                                                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360,true, west);
-                                            }
-                                        }
-                                        IsValidOp vaildOp = new IsValidOp(tmpGeometry);
-                                        TopologyValidationError err = vaildOp.getValidationError();
-                                        if (err != null)
-                                        {
-                                            throw new InvalidParameterException("A Polygon of the given WKT is right oriented. Unable to reverse the orientation of the polygon : " + err);
-                                        }
-                                        if (isPwithin) {
-                                            /** split the polygon if it crosses the dateline */
-                                            validGeoFilter.add(GeoUtil.splitGeometryOnDateline(GeoUtil.readWKT(tmpGeometry.toString()))._2().toString());
-                                        } else {
-                                            validGeoFilter.add(tmpGeometry.toString());
-                                        }
-                                    }else {
-                                        Envelope e = subWkt.getEnvelopeInternal();
-                                        double west = e.getMinX();
-                                        double east = e.getMaxX();
-                                        if ((east - west) == 360) {
-                                            if (west < -180) {
-                                                GeoUtil.translateLongitudes(subWkt, -west - 180, true);
-                                            } else if (east > 180) {
-                                                GeoUtil.translateLongitudes(subWkt, east -180, false);
-                                            }
-                                        }
-                                        validGeoFilter.add(subWkt.toString());
-                                    }
-                                }
-                            } else {
-                                validGeoFilter.add(geo);
-                            }
-                        }
-                    }
-                    validGeoFilters.add(validGeoFilter);
+    private static void intersectsToWithin(CollectionReference collectionReference, Expression expression) throws ArlasException {
+        if (OperatorEnum.notintersects.equals(expression.op) || OperatorEnum.intersects.equals(expression.op) ) {
+            String field = getFieldFromFieldAliases(expression.field, collectionReference);
+            if (isGeoPoint(collectionReference, field)) {
+                if (OperatorEnum.notintersects.equals(expression.op)) {
+                    expression.op = OperatorEnum.notwithin;
+                } else if (OperatorEnum.intersects.equals(expression.op)) {
+                    expression.op = OperatorEnum.within;
                 }
             }
-            return validGeoFilters;
         }
-        return null;
+    }
+
+    private static boolean isGeoPoint(CollectionReference collectionReference, String field) throws ArlasException {
+        return CollectionReferenceManager.getInstance().getType(collectionReference, field) ==  ElasticType.GEO_POINT;
+    }
+
+    public static Filter getFilterWithValidGeos(CollectionReference collectionReference, Filter filter) throws ArlasException {
+        Filter newFilter = new Filter();
+        newFilter.q = filter.q;
+        newFilter.dateformat = filter.dateformat;
+        if (filter.f != null) {
+            newFilter.f = new ArrayList<>();
+            for (MultiValueFilter<Expression> orFiltersList : filter.f) {
+                MultiValueFilter<Expression> newOrFiltersList = new MultiValueFilter<>();
+                for (Expression orCond : orFiltersList) {
+                    newOrFiltersList.add(getValidGeoFilter(collectionReference, orCond));
+                }
+                newFilter.f.add(newOrFiltersList);
+            }
+        }
+        return newFilter;
+    }
+
+    public static Expression getValidGeoFilter(CollectionReference collectionReference, Expression expression) throws ArlasException {
+        intersectsToWithin(collectionReference, expression);
+        if (GEO_OP.contains(expression.op)) {
+            boolean isPwithin = isPwithin(collectionReference, expression.field, expression.op.name());
+            expression.value = getValidGeometry(expression.value, isPwithin);
+        }
+        return expression;
+    }
+
+    public static String getValidGeometry(String geo, boolean isPwithin) throws ArlasException{
+
+        if (CheckParams.isBboxMatch(geo)) {
+            CheckParams.checkBbox(geo);
+            return geo;
+        } else {
+            Geometry wkt = getValidWKT(geo);
+            /** For the case of Polygon and MultiPolygon, a check of the coordinates orientation is necessary in order to correctly interpret the "desired" polygon **/
+            if (wkt.getGeometryType().equals("Polygon") || wkt.getGeometryType().equals("MultiPolygon")) {
+                List<Polygon> polygonList = new ArrayList<>();
+                for (int i = 0; i < wkt.getNumGeometries(); i++) {
+                    Polygon subWkt = (Polygon) wkt.getGeometryN(i);
+                    if (Orientation.isCCW(subWkt.getCoordinates())) {
+                        // By convention the passed queryGeometry must be interpreted as CW.
+                        // If the orientation is CCW, we try to build the WKT that goes the other side of the planet.
+                        // If the topology of the resulted geometry is not valid, an exception is thrown
+                        Polygon tmpGeometry = subWkt.copy();
+                        Envelope tmpEnvelope = tmpGeometry.getEnvelopeInternal();
+                        /** east is the minX and west is the maxX*/
+                        double east = tmpEnvelope.getMinX();
+                        double west = tmpEnvelope.getMaxX();
+                        if (west > east && ((east < -180 && west >= -180) || (west > 180 && east <= 180))) {
+                            /** It means west > 180 or east < -180 */
+                            if (west >= 180) {
+                                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, false, 180);
+                            } else if (east <= -180) {
+                                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, true, -180);
+                            }
+                        } else {
+                            if (west >= 0) {
+                                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, false, east);
+                            } else {
+                                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, true, west);
+                            }
+                        }
+                        IsValidOp validOp = new IsValidOp(tmpGeometry);
+                        TopologyValidationError err = validOp.getValidationError();
+                        if (err != null) {
+                            throw new InvalidParameterException("A Polygon of the given WKT is right oriented. Unable to reverse the orientation of the polygon : " + err);
+                        }
+                        if (isPwithin) {
+                            /** split the polygon if it crosses the dateline */
+                            polygonList.addAll(GeoUtil.splitGeometryOnDateline((Polygon) GeoUtil.readWKT(tmpGeometry.toString()))._1());
+                        } else {
+                            polygonList.add(tmpGeometry);
+                        }
+                    } else {
+                        Envelope e = subWkt.getEnvelopeInternal();
+                        double west = e.getMinX();
+                        double east = e.getMaxX();
+                        if ((east - west) == 360) {
+                            if (west < -180) {
+                                GeoUtil.translateLongitudes(subWkt, -west - 180, true);
+                            } else if (east > 180) {
+                                GeoUtil.translateLongitudes(subWkt, east - 180, false);
+                            }
+                        }
+                        polygonList.add(subWkt);
+                    }
+                }
+                if (polygonList.size() == 1) {
+                    return polygonList.get(0).toString();
+                } else {
+                    return new MultiPolygon(polygonList.toArray(new Polygon[] {}), GEOMETRY_FACTORY).toString();
+                }
+            } else {
+                return geo;
+            }
+        }
     }
 
     public static List<String> toSemiColonsSeparatedStringList(List<MultiValueFilter<String>> multiValueFilters) {
-        List<String> strings = null;
-        if (multiValueFilters != null) {
-            strings = new ArrayList<>();
-             for (MultiValueFilter<String> multiValueFilter: multiValueFilters){
-                String semiColonsSeparatedString = "";
-                for (String value : multiValueFilter) {
-                    semiColonsSeparatedString += value + ";";
-                }
-                strings.add(semiColonsSeparatedString);
-            }
-        }
-        return strings;
+        return multiValueFilters == null ?  null :
+                multiValueFilters.stream().map(multiValueFilter -> String.join(";", multiValueFilter)).collect(Collectors.toList());
     }
 
     public static Geometry getValidWKT(String wktString) throws InvalidParameterException {
@@ -512,6 +558,25 @@ public class ParamsParser {
         return projObject;
     }
 
+    /**
+     * This method enriches the `includes` attribute of the given `projection` parameter with fields given in `returned_geometries`
+     * @param projection
+     * @param returned_geometries
+     * @return
+     */
+    public static Projection enrichIncludes(Projection projection, String returned_geometries) {
+        if (returned_geometries != null) {
+            List<String> includes = new ArrayList<>();
+            if (projection.includes != null) Collections.addAll(includes, projection.includes.split(","));
+            if (!includes.isEmpty()) {
+                Collections.addAll(includes, returned_geometries.split(","));
+            }
+            projection.includes = String.join(",", includes);
+
+        }
+        return projection;
+    }
+
     public static Integer getValidAggregationSize(String size) throws ArlasException {
         Integer s = tryParseInteger(size);
         if (s != null) {
@@ -537,17 +602,15 @@ public class ParamsParser {
         List<MultiValueFilter<String>> geoFilters = ParamsParser.getStringMultiFilter(geometries);
         if (geoFilters != null && !geoFilters.isEmpty()) {
             for (MultiValueFilter<String> geos : geoFilters) {
-                StringBuffer buff = new StringBuffer();
+                List<String> buff = new ArrayList<>();
                 for (String geo : geos) {
                     Geometry simplifiedGeometry = GeoTileUtil.bboxIntersects(bbox, geo);
                     if (simplifiedGeometry != null) {
-                        if (buff.length() > 0)
-                            buff.append(";");
-                        buff.append(simplifiedGeometry.toString());
+                        buff.add(simplifiedGeometry.toString());
                     }
                 }
-                if (buff.length() > 0) {
-                    simplifiedGeometries.add(buff.toString());
+                if (buff.size() > 0) {
+                    simplifiedGeometries.add(String.join(";", buff));
                 }
             }
         }

@@ -27,6 +27,7 @@ import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.health.ElasticsearchHealthCheck;
+import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.CSWService;
 import io.arlas.server.ogc.csw.writer.getrecords.AtomGetRecordsMessageBodyWriter;
@@ -123,6 +124,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         TransportClient transportClient = getTransportClient(configuration);
         Client client = transportClient;
+
+        CollectionReferenceManager.getInstance().init(client);
 
         if (configuration.zipkinConfiguration != null) {
             Optional<HttpTracing> tracing = configuration.zipkinConfiguration.build(environment);

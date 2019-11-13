@@ -29,7 +29,6 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
-import io.swagger.models.auth.In;
 import org.hamcrest.Matcher;
 
 import java.util.ArrayList;
@@ -144,7 +143,7 @@ public class ATOMSearchServiceIT extends AbstractProjectedTest {
         if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
             then.statusCode(200)
                     .body(ATOM.XML_PREFIX + ":feed.totalResults", equalTo("" + nbResults))
-                    .extract().xmlPath().getList("atom:feed.entry.content.params.startdate").stream()
+                    .extract().xmlPath().getList(ATOM.XML_PREFIX + ":feed.entry.content.params.startdate").stream()
                     .mapToInt(n -> Integer.parseInt((String) n)).forEach(stamp -> {
                 assertThat(stamp, allOf(greaterThan(start), lessThan(end)));
             });
@@ -308,6 +307,14 @@ public class ATOMSearchServiceIT extends AbstractProjectedTest {
                 then.body(path, everyItem(hasKey(lastKey)));
             }
         }
+    }
+
+    @Override
+    protected void handleReturnedMultiGeometries(ValidatableResponse then, String returned) throws Exception {
+    }
+
+    @Override
+    protected void handleFailedReturnedGeometries(ValidatableResponse then) {
     }
 
     //----------------------------------------------------------------

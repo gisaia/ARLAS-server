@@ -22,6 +22,8 @@ package io.arlas.server.model.response;
 import io.dropwizard.jackson.JsonSnakeCase;
 import org.geojson.GeoJsonObject;
 
+import java.util.List;
+
 @JsonSnakeCase
 public class MD {
     public String id;
@@ -31,4 +33,6 @@ public class MD {
     public GeoJsonObject geometry;
 
     public GeoJsonObject centroid;
+
+    public List<Geo> returnedGeometries;
 }

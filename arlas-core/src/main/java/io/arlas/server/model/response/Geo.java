@@ -17,12 +17,18 @@
  * under the License.
  */
 
-package io.arlas.server.model.request;
+package io.arlas.server.model.response;
 
-import java.util.List;
+import io.dropwizard.jackson.JsonSnakeCase;
+import org.geojson.GeoJsonObject;
 
-public class Filter {
-    public List<MultiValueFilter<Expression>> f;
-    public List<MultiValueFilter<String>> q;
-    public String dateformat;
+@JsonSnakeCase
+public class Geo {
+    public String path;
+    public GeoJsonObject geometry;
+
+    public Geo(String path, GeoJsonObject geoJsonObject) {
+        this.path = path;
+        this.geometry = geoJsonObject;
+    }
 }

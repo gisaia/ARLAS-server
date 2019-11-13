@@ -37,7 +37,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class DescribeRESTService extends ExploreRESTServices {
     public DescribeRESTService(ExploreServices exploreServices) {
@@ -68,10 +67,9 @@ public class DescribeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+    ) throws IOException, ArlasException {
         List<CollectionReference> collectionReferences = exploreServices.getDaoCollectionReference().getAllCollectionReferences();
-        ElasticAdmin elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
-        List<CollectionReferenceDescription> collectionReferenceDescriptionList = elasticAdmin.describeAllCollections(collectionReferences);
+        List<CollectionReferenceDescription> collectionReferenceDescriptionList = new ElasticAdmin(exploreServices.getClient()).describeAllCollections(collectionReferences);
         return cache(Response.ok(collectionReferenceDescriptionList), maxagecache);
     }
 }

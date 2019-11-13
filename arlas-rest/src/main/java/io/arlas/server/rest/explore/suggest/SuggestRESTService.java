@@ -100,36 +100,6 @@ public class SuggestRESTService extends ExploreRESTServices {
                     required = false)
             @QueryParam(value = "q") String q,
 
-            @ApiParam(name = "pwithin", value = "Any element having its centroid contained within the given geometry (WKT)",
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "pwithin") String pwithin,
-
-            @ApiParam(name = "gwithin", value = "Any element having its geometry contained within the given geometry (WKT)",
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gwithin") String gwithin,
-
-            @ApiParam(name = "gintersect", value = "Any element having its geometry intersecting the given geometry (WKT)",
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "gintersect") String gintersect,
-
-            @ApiParam(name = "notpwithin", value = "Any element having its centroid outside the given geometry (WKT)",
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notpwithin") String notpwithin,
-
-            @ApiParam(name = "notgwithin", value = "Any element having its geometry outside the given geometry (WKT)",
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgwithin") String notgwithin,
-
-            @ApiParam(name = "notgintersect", value = "Any element having its geometry not intersecting the given geometry (WKT)",
-                    allowMultiple = true,
-                    required = false)
-            @QueryParam(value = "notgintersect") String notgintersect,
-
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------

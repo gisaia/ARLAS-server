@@ -42,11 +42,18 @@
           "type": "geo_shape",
           "tree": "geohash"
         },
+        "second_geometry": {
+          "type": "geo_shape",
+          "tree": "geohash"
+        },
         "wktgeometry": {
           "type": "geo_shape",
           "tree": "geohash"
         },
         "centroid": {
+          "type": "geo_point"
+        },
+        "other_geopoint": {
           "type": "geo_point"
         }
       }
