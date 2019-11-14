@@ -144,7 +144,7 @@ public class CheckParams {
             }
             /** Except for CARDINALITY, the field on which the metric is computed should be numeric or date**/
             if (!computationRequest.metric.equals(ComputationEnum.CARDINALITY)) {
-                ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, computationRequest.field);
+                ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, computationRequest.field, false);
                 if (!ElasticType.getComputableTypes().contains(fieldType)) {
                     throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + "`" + computationRequest.metric + "` must be applied on a numeric or date field");
                 }
@@ -685,7 +685,7 @@ public class CheckParams {
             if (exclude != null) Collections.addAll(excludes, exclude.split(","));
 
             for (String geo : returned_geometries.split(",")) {
-                CollectionReferenceManager.getInstance().getType(collectionReference, geo); // will throw ArlasException if not existing
+                CollectionReferenceManager.getInstance().getType(collectionReference, geo, true); // will throw ArlasException if not existing
                 if (excludes.contains(geo)) {
                     throw new ArlasException("Returned geometry '" + geo + "' should not be in the exclude list: '" + exclude + "'");
                 }

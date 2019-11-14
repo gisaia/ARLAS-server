@@ -311,7 +311,7 @@ public class ParamsParser {
 
     private static boolean isPwithin(CollectionReference collectionReference, String field, String op) throws ArlasException {
         if (GEO_OP_WITHIN.contains(OperatorEnum.valueOf(op))) {
-            return CollectionReferenceManager.getInstance().getType(collectionReference, field) ==  ElasticType.GEO_POINT;
+            return CollectionReferenceManager.getInstance().getType(collectionReference, field, true) ==  ElasticType.GEO_POINT;
         }
         return false;
     }
@@ -330,7 +330,7 @@ public class ParamsParser {
     }
 
     private static boolean isGeoPoint(CollectionReference collectionReference, String field) throws ArlasException {
-        return CollectionReferenceManager.getInstance().getType(collectionReference, field) ==  ElasticType.GEO_POINT;
+        return CollectionReferenceManager.getInstance().getType(collectionReference, field, true) ==  ElasticType.GEO_POINT;
     }
 
     public static Filter getFilterWithValidGeos(CollectionReference collectionReference, Filter filter) throws ArlasException {

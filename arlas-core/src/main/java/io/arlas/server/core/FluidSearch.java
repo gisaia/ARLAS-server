@@ -269,7 +269,7 @@ public class FluidSearch {
                 }
                 break;
             case within:
-                ElasticType wType = collectionReferenceManager.getType(collectionReference, field);
+                ElasticType wType = collectionReferenceManager.getType(collectionReference, field, true);
                 BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
                 switch (wType) {
                     case GEO_POINT:
@@ -287,7 +287,7 @@ public class FluidSearch {
                 ret = ret.filter(orBoolQueryBuilder);
                 break;
             case notwithin:
-                ElasticType type = collectionReferenceManager.getType(collectionReference, field);
+                ElasticType type = collectionReferenceManager.getType(collectionReference, field, true);
                 BoolQueryBuilder orBoolQueryBuilder2 = QueryBuilders.boolQuery();
                 switch (type) {
                     case GEO_POINT:

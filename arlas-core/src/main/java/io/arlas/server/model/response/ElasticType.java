@@ -53,7 +53,7 @@ public enum ElasticType {
     }
 
     public static List<ElasticType> getComputableTypes() {
-        return Arrays.asList(SHORT, INTEGER, LONG, DOUBLE, FLOAT, DATE);
+        return Arrays.asList(SHORT, INTEGER, LONG, DOUBLE, FLOAT, DATE, UNKNOWN);
     }
 
     @Override
