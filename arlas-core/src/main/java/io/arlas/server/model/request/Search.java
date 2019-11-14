@@ -19,8 +19,6 @@
 
 package io.arlas.server.model.request;
 
-import java.util.List;
-
 public class Search extends Request {
     public Page page;
     public Projection projection;

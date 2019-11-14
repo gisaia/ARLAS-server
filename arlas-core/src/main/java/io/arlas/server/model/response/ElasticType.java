@@ -19,6 +19,9 @@
 
 package io.arlas.server.model.response;
 
+import java.util.Arrays;
+import java.util.List;
+
 public enum ElasticType {
     TEXT("text"), KEYWORD("keyword"),
     LONG("long"), INTEGER("integer"), SHORT("short"), BYTE("byte"), DOUBLE("double"), FLOAT("float"),
@@ -47,6 +50,10 @@ public enum ElasticType {
             }
         }
         return ret;
+    }
+
+    public static List<ElasticType> getComputableTypes() {
+        return Arrays.asList(SHORT, INTEGER, LONG, DOUBLE, FLOAT, DATE);
     }
 
     @Override

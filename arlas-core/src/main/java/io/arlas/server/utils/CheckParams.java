@@ -31,6 +31,7 @@ import io.arlas.server.model.Inspire;
 import io.arlas.server.model.Keyword;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
+import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.model.response.RangeResponse;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.geom.Coordinate;
@@ -66,6 +67,7 @@ public class CheckParams {
     private static final String INVALID_RANGE_FIELD = "The field name/path should not be null.";
     private static final String INVALID_COMPUTE_FIELD = "The field name/path should not be null.";
     private static final String INVALID_COMPUTE_METRIC = "The metric value should not be null.";
+    private static final String INVALID_COMPUTE_REQUEST = "Invalid compute request : ";
     private static final String INVALID_ORDER_VALUE = "Invalid 'order-' value : ";
     private static final String REDUNDANT_COLLECT_FIELD_COLLECT_FCT = "Bad request : the same 'collect-fct' is applied to the same 'collect-field' twice or more.";
     private static final String INVALID_ON_VALUE = "Invalid 'on-' value : ";
@@ -129,16 +131,25 @@ public class CheckParams {
         }
     }
 
-    public static void checkComputationRequest(Request request) throws ArlasException {
+    public static void checkComputationRequest(Request request, CollectionReference collectionReference) throws ArlasException {
         if (request == null || !(request instanceof ComputationRequest)) {
             throw new BadRequestException("Compute request should not be null");
         } else {
-            if (StringUtil.isNullOrEmpty(((ComputationRequest) request).field)) {
-                throw new InvalidParameterException(INVALID_COMPUTE_FIELD);
+            ComputationRequest computationRequest = (ComputationRequest) request;
+            if (StringUtil.isNullOrEmpty(computationRequest.field)) {
+                throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + INVALID_COMPUTE_FIELD);
             }
-            if (((ComputationRequest)request).metric == null) {
-                throw new InvalidParameterException(INVALID_COMPUTE_METRIC);
+            if (computationRequest.metric == null) {
+                throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + INVALID_COMPUTE_METRIC);
             }
+            /** Except for CARDINALITY, the field on which the metric is computed should be numeric or date**/
+            if (!computationRequest.metric.equals(ComputationEnum.CARDINALITY)) {
+                ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, computationRequest.field);
+                if (!ElasticType.getComputableTypes().contains(fieldType)) {
+                    throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + "`" + computationRequest.metric + "` must be applied on a numeric or date field");
+                }
+            }
+
         }
     }
 

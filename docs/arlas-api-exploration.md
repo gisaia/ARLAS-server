@@ -13,9 +13,9 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Counts the number of elements found in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_range**?`compute` & `filter` & `form` | **DEPRECATED**. Calculates the min and max values of a field in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_compute**?`compute` & `filter` & `form` | Computes the metric of a field in the collection, given the filters |
-| /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `page` | Search and return the elements found in the collection, given the filters |
-| /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `page` | Search and return the elements found in the collection as features, given the filters |
-| /arlas/explore/`{collection}`/**_geosearch**/`{z}`/`{x}`/`{y}`?`filter` & `form` & `projection` & `page` | Search and return the elements found in the collection and localized in the given tile(x,y,z) as features, given the filters |
+| /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `page` & `returned_geometries`| Search and return the elements found in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `page` & `returned_geometries` | Search and return the elements found in the collection as features, given the filters |
+| /arlas/explore/`{collection}`/**_geosearch**/`{z}`/`{x}`/`{y}`?`filter` & `form` & `projection` & `page` & `returned_geometries`| Search and return the elements found in the collection and localized in the given tile(x,y,z) as features, given the filters |
 | /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s), given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_geoaggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_geoaggregate**/`{geohash}`?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) and localized in the given `{geohash}` as features, given the filters and the aggregation parameters |

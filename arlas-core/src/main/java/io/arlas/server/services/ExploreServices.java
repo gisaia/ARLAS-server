@@ -149,7 +149,7 @@ public class ExploreServices {
     }
 
     public ComputationResponse compute(MixedRequest request, CollectionReference collectionReference) throws ArlasException{
-        CheckParams.checkComputationRequest(request.basicRequest);
+        CheckParams.checkComputationRequest(request.basicRequest, collectionReference);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
@@ -158,15 +158,9 @@ public class ExploreServices {
         String field = ((ComputationRequest)request.basicRequest).field;
         ComputationEnum metric = ((ComputationRequest)request.basicRequest).metric;
         fluidSearch = fluidSearch.compute(field, metric);
-        SearchResponse response;
-        try {
-            response = fluidSearch.exec();
-        } catch (SearchPhaseExecutionException e) {
-            throw new InvalidParameterException("The field's type must be numeric");
-        }
-
+        SearchResponse response = fluidSearch.exec();
         ComputationResponse computationResponse = new ComputationResponse();
-        Long startQuery = System.nanoTime();
+        Long startQueryTimestamp = System.nanoTime();
         computationResponse.field = field;
         computationResponse.metric = metric;
         computationResponse.totalnb = response.getHits().getTotalHits().value;
@@ -204,7 +198,7 @@ public class ExploreServices {
             }
         }
 
-        computationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
+        computationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQueryTimestamp);
         return computationResponse;
     }
 

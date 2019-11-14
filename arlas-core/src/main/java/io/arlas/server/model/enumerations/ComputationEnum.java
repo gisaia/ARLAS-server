@@ -19,10 +19,16 @@
 
 package io.arlas.server.model.enumerations;
 
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
+
+import java.util.Arrays;
+
 public enum ComputationEnum {
     AVG("avg"), MAX("max"), MIN("min"), SUM("sum"), CARDINALITY("cardinality"), SPANNING("spanning");
 
     private final String value;
+    private static final String INVALID_COMPUTATION_METRIC = "Invalid metric : must be one of ";
 
     ComputationEnum(String v) {
         value = v;
@@ -32,12 +38,12 @@ public enum ComputationEnum {
         return value;
     }
 
-    public static ComputationEnum fromValue(String v) {
+    public static ComputationEnum fromValue(String v) throws ArlasException {
         for (ComputationEnum c: ComputationEnum.values()) {
-            if (c.value.equals(v)) {
+            if (c.value.equals(v.toLowerCase())) {
                 return c;
             }
         }
-        throw new IllegalArgumentException(v);
+        throw new InvalidParameterException(INVALID_COMPUTATION_METRIC +  Arrays.stream(ComputationEnum.values()).map(c -> c.toString()).reduce((c, d) -> c + ", " + d).get());
     }
 }
