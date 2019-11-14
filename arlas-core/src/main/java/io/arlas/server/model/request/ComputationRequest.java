@@ -17,29 +17,11 @@
  * under the License.
  */
 
-package io.arlas.server.model.response;
+package io.arlas.server.model.request;
 
-import io.arlas.server.model.enumerations.Action;
+import io.arlas.server.model.enumerations.ComputationEnum;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Deprecated
-public class UpdateResponse {
-    public List<Failure> failures = new ArrayList<>();
-    public long failed = 0;
-    public long updated = 0;
-    public Action action;
-
-    public static class Failure{
-        public String id;
-        public String message;
-        public String type;
-        public  Failure(){}
-        public  Failure(String id, String message, String type){
-            this.id = id;
-            this.message = message;
-            this.type = type;
-        }
-    }
+public class ComputationRequest extends Request {
+    public String field;
+    public ComputationEnum metric;
 }

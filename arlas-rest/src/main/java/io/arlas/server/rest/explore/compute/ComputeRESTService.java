@@ -17,52 +17,45 @@
  * under the License.
  */
 
-package io.arlas.server.rest.explore.range;
+package io.arlas.server.rest.explore.compute;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.app.Documentation;
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.enumerations.ComputationEnum;
+import io.arlas.server.model.request.ComputationRequest;
 import io.arlas.server.model.request.MixedRequest;
-import io.arlas.server.model.request.RangeRequest;
+import io.arlas.server.model.response.ComputationResponse;
 import io.arlas.server.model.response.Error;
-import io.arlas.server.model.response.RangeResponse;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
-import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.metrics.Max;
-import org.elasticsearch.search.aggregations.metrics.Min;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-@Deprecated
-public class RangeRESTService extends ExploreRESTServices {
-    public RangeRESTService(ExploreServices exploreServices) { super(exploreServices);}
+
+public class ComputeRESTService extends ExploreRESTServices {
+
+    public ComputeRESTService(ExploreServices exploreServices) {
+        super(exploreServices);
+    }
 
     @Timed
-    @Path("{collection}/_range")
+    @Path("{collection}/_compute")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @Deprecated
-    @ApiOperation(value = "RangeRequest", produces = UTF8JSON, notes = Documentation.RANGE_OPERATION, consumes = UTF8JSON, response = RangeResponse.class
-
-    )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = RangeResponse.class, responseContainer = "ArlasRange"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
-    public Response range(
+    @ApiOperation(value = "Compute", produces = UTF8JSON, notes = Documentation.COMPUTE_OPERATION, consumes = UTF8JSON, response = ComputationResponse.class)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = ComputationResponse.class, responseContainer = "ArlasComputation"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class),
+            @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
+    public Response compute(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
@@ -72,16 +65,20 @@ public class RangeRESTService extends ExploreRESTServices {
                     allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
-
             // --------------------------------------------------------
-            // ----------------------- AGGREGATION -----------------------
+            // ----------------------- COMPUTE -----------------------
             // --------------------------------------------------------
             @ApiParam(name = "field",
-                    value = Documentation.RANGE_FIELD,
+                    value = Documentation.COMPUTE_FIELD,
                     allowMultiple = false,
                     required = true)
             @QueryParam(value = "field") String field,
 
+            @ApiParam(name = "metric",
+                    value = Documentation.COMPUTE_METRIC,
+                    allowMultiple = false,
+                    required = true)
+            @QueryParam(value = "metric") String metric,
             // --------------------------------------------------------
             // ----------------------- FILTER -----------------------
             // --------------------------------------------------------
@@ -118,38 +115,38 @@ public class RangeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
-        Long startArlasTime = System.nanoTime();
+    ) throws ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        RangeRequest rangeRequest = new RangeRequest();
-        rangeRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
-        rangeRequest.field = field;
-        RangeRequest rangeRequestHeader = new RangeRequest();
-        rangeRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        ComputationRequest computationRequest = new ComputationRequest();
+        computationRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
+        computationRequest.field = field;
+        computationRequest.metric = ComputationEnum.fromValue(metric);
+        ComputationRequest computationRequestHeader = new ComputationRequest();
+        computationRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        exploreServices.setValidGeoFilters(collectionReference, computationRequestHeader);
         MixedRequest request = new MixedRequest();
-        request.basicRequest = rangeRequest;
-        exploreServices.setValidGeoFilters(collectionReference, rangeRequestHeader);
-        request.headerRequest = rangeRequestHeader;
-        RangeResponse rangeResponse = getFieldRange(request, collectionReference);
-        rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
-        return cache(Response.ok(rangeResponse), maxagecache);
+        request.basicRequest = computationRequest;
+        request.headerRequest = computationRequestHeader;
+        ComputationResponse computationResponse = exploreServices.compute(request, collectionReference);
+        return cache(Response.ok(computationResponse), maxagecache) ;
     }
 
+
     @Timed
-    @Path("{collection}/_range")
+    @Path("{collection}/_compute")
     @POST
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @Deprecated
-    @ApiOperation(value = "Aggregate", produces = UTF8JSON, notes = Documentation.RANGE_OPERATION, consumes = UTF8JSON, response = RangeResponse.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = RangeResponse.class, responseContainer = "ArlasRange"),
+    @ApiOperation(value = "Compute", produces = UTF8JSON, notes = Documentation.COMPUTE_OPERATION, consumes = UTF8JSON, response = ComputationResponse.class)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = ComputationResponse.class, responseContainer = "ArlasComputation"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class),
             @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
-    public Response rangePost(
+
+    public Response computePost(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
@@ -160,9 +157,9 @@ public class RangeRESTService extends ExploreRESTServices {
                     required = true)
             @PathParam(value = "collection") String collection,
             // --------------------------------------------------------
-            // ----------------------- AGGREGATION -----------------------
+            // ----------------------- COMPUTE -----------------------
             // --------------------------------------------------------
-            RangeRequest rangeRequest,
+            ComputationRequest computationRequest,
 
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------
@@ -185,47 +182,22 @@ public class RangeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws IOException, NotFoundException, ArlasException {
-        Long startArlasTime = System.nanoTime();
+    ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        RangeRequest rangeRequestHeader = new RangeRequest();
-        rangeRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        ComputationRequest computationRequestHeader = new ComputationRequest();
+        computationRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
-        exploreServices.setValidGeoFilters(collectionReference, rangeRequest);
-        exploreServices.setValidGeoFilters(collectionReference, rangeRequestHeader);
-        request.basicRequest = rangeRequest;
-        request.headerRequest = rangeRequestHeader;
-        RangeResponse rangeResponse = getFieldRange(request, collectionReference);
-        rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
-        return cache(Response.ok(rangeResponse), maxagecache);
+        exploreServices.setValidGeoFilters(collectionReference, computationRequest);
+        exploreServices.setValidGeoFilters(collectionReference, computationRequestHeader);
+
+        request.basicRequest = computationRequest;
+        request.headerRequest = computationRequestHeader;
+        ComputationResponse computationResponse = exploreServices.compute(request, collectionReference);
+        return cache(Response.ok(computationResponse), maxagecache) ;
     }
 
-    public RangeResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException{
-        RangeResponse rangeResponse = new RangeResponse();
-        Long startQuery = System.nanoTime();
-        SearchResponse response = this.getExploreServices().getFieldRange(request, collectionReference);
-        Aggregation firstAggregation = response.getAggregations().asList().get(0);
-        Aggregation secondAggregation = response.getAggregations().asList().get(1);
-
-        rangeResponse.totalnb = response.getHits().getTotalHits().value;
-        if (rangeResponse.totalnb > 0) {
-            if (firstAggregation.getName().equals(FluidSearch.FIELD_MIN_VALUE)) {
-                rangeResponse.min = ((Min)firstAggregation).getValue();
-                rangeResponse.max = ((Max)secondAggregation).getValue();
-            } else {
-                rangeResponse.min = ((Min)secondAggregation).getValue();
-                rangeResponse.max = ((Max)firstAggregation).getValue();
-            }
-            CheckParams.checkRangeFieldExists(rangeResponse);
-        } else {
-            rangeResponse.min = rangeResponse.max = null;
-        }
-        
-        rangeResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
-        return rangeResponse;
-    }
 }

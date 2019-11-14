@@ -49,9 +49,7 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInter
 import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.MaxAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.MinAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.TopHitsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.*;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -99,6 +97,10 @@ public class FluidSearch {
 
     public static final String FIELD_MIN_VALUE = "field_min_value";
     public static final String FIELD_MAX_VALUE = "field_max_value";
+    public static final String FIELD_AVG_VALUE = "field_avg_value";
+    public static final String FIELD_SUM_VALUE = "field_sum_value";
+    public static final String FIELD_CARDINALITY_VALUE = "field_cardinality_value";
+
 
     public static final String RANDOM_GEOMETRY = "random_geometry";
     public static final String FIRST_GEOMETRY = "first_geometry";
@@ -267,7 +269,7 @@ public class FluidSearch {
                 }
                 break;
             case within:
-                ElasticType wType = collectionReferenceManager.getType(collectionReference, field);
+                ElasticType wType = collectionReferenceManager.getType(collectionReference, field, true);
                 BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
                 switch (wType) {
                     case GEO_POINT:
@@ -285,7 +287,7 @@ public class FluidSearch {
                 ret = ret.filter(orBoolQueryBuilder);
                 break;
             case notwithin:
-                ElasticType type = collectionReferenceManager.getType(collectionReference, field);
+                ElasticType type = collectionReferenceManager.getType(collectionReference, field, true);
                 BoolQueryBuilder orBoolQueryBuilder2 = QueryBuilders.boolQuery();
                 switch (type) {
                     case GEO_POINT:
@@ -556,6 +558,38 @@ public class FluidSearch {
         searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(minAggregationBuilder).addAggregation(maxAggregationBuilder);
         return this;
     }
+
+    public FluidSearch compute(String field, ComputationEnum metric) {
+        boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.existsQuery(field));
+        switch (metric) {
+            case AVG:
+                AvgAggregationBuilder avgAggregationBuilder = AggregationBuilders.avg(FIELD_AVG_VALUE).field(field);
+                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(avgAggregationBuilder);
+                break;
+            case MAX:
+                MaxAggregationBuilder maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
+                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(maxAggregationBuilder);
+                break;
+            case MIN:
+                MinAggregationBuilder minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
+                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(minAggregationBuilder);
+                break;
+            case SUM:
+                SumAggregationBuilder sumAggregationBuilder = AggregationBuilders.sum(FIELD_SUM_VALUE).field(field);
+                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(sumAggregationBuilder);
+            case CARDINALITY:
+                CardinalityAggregationBuilder cardinalityAggregationBuilder = AggregationBuilders.cardinality(FIELD_CARDINALITY_VALUE).field(field);
+                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(cardinalityAggregationBuilder);
+                break;
+            case SPANNING:
+                minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
+                maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
+                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(minAggregationBuilder).addAggregation(maxAggregationBuilder);
+                break;
+        }
+        return this;
+    }
+
 
     private DateHistogramAggregationBuilder buildDateHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
         if (Strings.isNullOrEmpty(aggregationModel.field)) {

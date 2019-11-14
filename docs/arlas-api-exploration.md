@@ -11,10 +11,11 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/explore/**_list**                 | List  the collections configured in ARLAS |
 | /arlas/explore/`{collection}`/**_describe**?`form` | Describes the structure and the content of the given collection |
 | /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Counts the number of elements found in the collection, given the filters |
-| /arlas/explore/`{collection}`/**_range**?`field` & `filter` & `form` | Calculates the min and max values of a field in the collection, given the filters |
-| /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `page` & `returned_geometries` | Search and return the elements found in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_range**?`compute` & `filter` & `form` | **DEPRECATED**. Calculates the min and max values of a field in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_compute**?`compute` & `filter` & `form` | Computes the metric of a field in the collection, given the filters |
+| /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `page` & `returned_geometries`| Search and return the elements found in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `page` & `returned_geometries` | Search and return the elements found in the collection as features, given the filters |
-| /arlas/explore/`{collection}`/**_geosearch**/`{z}`/`{x}`/`{y}`?`filter` & `form` & `projection` & `page`& `returned_geometries` | Search and return the elements found in the collection and localized in the given tile(x,y,z) as features, given the filters |
+| /arlas/explore/`{collection}`/**_geosearch**/`{z}`/`{x}`/`{y}`?`filter` & `form` & `projection` & `page` & `returned_geometries`| Search and return the elements found in the collection and localized in the given tile(x,y,z) as features, given the filters |
 | /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s), given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_geoaggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_geoaggregate**/`{geohash}`?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) and localized in the given `{geohash}` as features, given the filters and the aggregation parameters |
@@ -274,9 +275,17 @@ The `form` url part allows the following parameters to be specified:
 ---
 ### Part: `field`
 
-The `field` url part is used in `_range` service.
+The `compute` url part is used in `_range` and `_compute` services.
  
-It's the name pattern of the field used to calculate its values range (`_range` service).
+| Parameter  | Default value | Values       | Description          | Multiple |
+| ---------- | ------------- | ------------ | -------------------- | -------- |
+| **field** | `false`       | `true,false` | The field on which the metric is calculated         | false    |
+| **flat**   | `false`       | `true,false` | The metric to compute  | false    |
+
+!!! info '_range is deprecated'
+    Starting from v12.7.0, `_range` endpoint is deprecated. You can use the new endpoint `_compute`.
+    - If you used `_range` to get the `(max-min)` value of the given field, then you can call :  `_compute?field=your_field&metric=spanning`
+    - If you used `_range` to get separately the `min` and `max` values of the given field, then you can call `_compute` twice using `_compute?field=your_field&metric=min` and `_compute?field=your_field&metric=max`
 
 > Example: `field=timestamp`
 

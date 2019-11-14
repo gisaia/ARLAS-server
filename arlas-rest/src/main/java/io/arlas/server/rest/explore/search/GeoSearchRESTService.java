@@ -409,8 +409,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         String excludes = search.projection != null ? search.projection.excludes : null;
         CheckParams.checkReturnedGeometries(collectionReference, includes, excludes, search.returned_geometries);
         search.projection = ParamsParser.enrichIncludes(search.projection, search.returned_geometries);
-
-
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
@@ -418,21 +416,21 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.headerRequest = searchHeader;
         exploreServices.setValidGeoFilters(collectionReference, search);
         exploreServices.setValidGeoFilters(collectionReference, searchHeader);
-        FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat));
+        FeatureCollection fc = getFeatures(collectionReference, request, (search.form != null && search.form.flat));
         return cache(Response.ok(fc), maxagecache);
     }
 
     protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request, boolean flat) throws ArlasException, IOException {
         SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
-        Search searchRequest  = (Search)request.basicRequest;
+        Search searchRequest = (Search) request.basicRequest;
         FeatureCollection fc = new FeatureCollection();
-        List<SearchHit>results= Arrays.asList(searchHits.getHits());
-        if(searchRequest.page != null && searchRequest.page.before != null ){
+        List<SearchHit> results = Arrays.asList(searchHits.getHits());
+        if (searchRequest.page != null && searchRequest.page.before != null) {
             Collections.reverse(results);
         }
         for (SearchHit hit : results) {
             Map<String, Object> source = hit.getSourceAsMap();
-            Hit arlasHit = new Hit(collectionReference, source, searchRequest.returned_geometries, flat,true);
+            Hit arlasHit = new Hit(collectionReference, source, searchRequest.returned_geometries, flat, true);
             if (searchRequest.returned_geometries != null) {
                 for (String path : searchRequest.returned_geometries.split(",")) {
                     GeoJsonObject g = arlasHit.getGeometry(path);
@@ -491,7 +489,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(collectionReference, searchHeader);
         request.headerRequest = searchHeader;
-        FeatureCollection fc = getFeatures(collectionReference, request, (flat!=null && flat));
+        FeatureCollection fc = getFeatures(collectionReference, request, (flat != null && flat));
         return cache(Response.ok(fc), maxagecache);
     }
 

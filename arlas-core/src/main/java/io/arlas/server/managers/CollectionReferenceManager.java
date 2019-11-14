@@ -50,7 +50,7 @@ public class CollectionReferenceManager {
         this.elasticAdmin = new ElasticAdmin(client);
     }
 
-    public ElasticType getType(CollectionReference collectionReference, String field) throws ArlasException {
+    public ElasticType getType(CollectionReference collectionReference, String field, boolean throwException) throws ArlasException {
         try {
             ElasticType elasticType = map.get(collectionReference.collectionName + "-" + field);
             if (elasticType == null) {
@@ -63,7 +63,12 @@ public class CollectionReferenceManager {
                     elasticType = esField.type;
                     map.put(collectionReference.collectionName + "-" + field, elasticType);
                 } else {
-                    throw new ArlasException("Field '" + field + "' not found in collection " + collectionReference.collectionName);
+                    if (throwException) {
+                        throw new ArlasException("Field '" + field + "' not found in collection " + collectionReference.collectionName);
+                    } else {
+                        elasticType = ElasticType.UNKNOWN;
+                    }
+
                 }
             }
             return elasticType;
