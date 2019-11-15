@@ -136,6 +136,30 @@
 |**update_max_hits**  <br>*optional*|integer (int32)|
 
 
+<a name="computationrequest"></a>
+### ComputationRequest
+
+|Name|Schema|
+|---|---|
+|**field**  <br>*optional*|string|
+|**filter**  <br>*optional*|[Filter](#filter)|
+|**form**  <br>*optional*|[Form](#form)|
+|**metric**  <br>*optional*|enum (AVG, MAX, MIN, SUM, CARDINALITY, SPANNING)|
+
+
+<a name="computationresponse"></a>
+### ComputationResponse
+
+|Name|Schema|
+|---|---|
+|**field**  <br>*optional*|string|
+|**metric**  <br>*optional*|enum (AVG, MAX, MIN, SUM, CARDINALITY, SPANNING)|
+|**query_time**  <br>*optional*|integer (int64)|
+|**total_time**  <br>*optional*|integer (int64)|
+|**totalnb**  <br>*optional*|integer (int64)|
+|**value**  <br>*optional*|number (double)|
+
+
 <a name="count"></a>
 ### Count
 
@@ -192,18 +216,8 @@
 |Name|Schema|
 |---|---|
 |**field**  <br>*optional*|string|
-|**op**  <br>*optional*|enum (eq, gte, gt, lte, lt, like, ne, range)|
+|**op**  <br>*optional*|enum (eq, gte, gt, lte, lt, like, ne, range, within, notwithin, intersects, notintersects)|
 |**value**  <br>*optional*|string|
-
-
-<a name="failure"></a>
-### Failure
-
-|Name|Schema|
-|---|---|
-|**id**  <br>*optional*|string|
-|**message**  <br>*optional*|string|
-|**type**  <br>*optional*|string|
 
 
 <a name="feature"></a>
@@ -249,12 +263,6 @@
 |---|---|
 |**dateformat**  <br>*optional*|string|
 |**f**  <br>*optional*|< < [Expression](#expression) > array > array|
-|**gintersect**  <br>*optional*|< < string > array > array|
-|**gwithin**  <br>*optional*|< < string > array > array|
-|**notgintersect**  <br>*optional*|< < string > array > array|
-|**notgwithin**  <br>*optional*|< < string > array > array|
-|**notpwithin**  <br>*optional*|< < string > array > array|
-|**pwithin**  <br>*optional*|< < string > array > array|
 |**q**  <br>*optional*|< < string > array > array|
 
 
@@ -275,6 +283,15 @@
 |**name**  <br>*optional*|string|
 |**uri**  <br>*optional*|string|
 |**version**  <br>*optional*|string|
+
+
+<a name="geo"></a>
+### Geo
+
+|Name|Schema|
+|---|---|
+|**geometry**  <br>*optional*|[GeoJsonObject](#geojsonobject)|
+|**path**  <br>*optional*|string|
 
 
 <a name="geojsonobject"></a>
@@ -427,6 +444,7 @@
 |**centroid**  <br>*optional*|[GeoJsonObject](#geojsonobject)|
 |**geometry**  <br>*optional*|[GeoJsonObject](#geojsonobject)|
 |**id**  <br>*optional*|string|
+|**returned_geometries**  <br>*optional*|< [Geo](#geo) > array|
 |**timestamp**  <br>*optional*|integer (int64)|
 
 
@@ -606,6 +624,7 @@
 |**form**  <br>*optional*|[Form](#form)|
 |**page**  <br>*optional*|[Page](#page)|
 |**projection**  <br>*optional*|[Projection](#projection)|
+|**returned_geometries**  <br>*optional*|string|
 
 
 <a name="success"></a>
@@ -615,35 +634,6 @@
 |---|---|
 |**message**  <br>*optional*|string|
 |**status**  <br>*optional*|integer (int32)|
-
-
-<a name="tag"></a>
-### Tag
-
-|Name|Schema|
-|---|---|
-|**path**  <br>*optional*|string|
-|**value**  <br>*optional*|object|
-
-
-<a name="tagrequest"></a>
-### TagRequest
-
-|Name|Schema|
-|---|---|
-|**search**  <br>*optional*|[Search](#search)|
-|**tag**  <br>*optional*|[Tag](#tag)|
-
-
-<a name="updateresponse"></a>
-### UpdateResponse
-
-|Name|Schema|
-|---|---|
-|**action**  <br>*optional*|enum (ADD, REMOVE, REMOVEALL)|
-|**failed**  <br>*optional*|integer (int64)|
-|**failures**  <br>*optional*|< [Failure](#failure) > array|
-|**updated**  <br>*optional*|integer (int64)|
 
 
 

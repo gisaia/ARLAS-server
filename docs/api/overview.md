@@ -7,7 +7,7 @@ Explore the content of ARLAS collections
 
 
 ### Version information
-*Version* : 11.0.5
+*Version* : 12.0.0
 
 
 ### Contact information
@@ -30,7 +30,6 @@ Explore the content of ARLAS collections
 
 * collections
 * explore
-* write
 
 
 

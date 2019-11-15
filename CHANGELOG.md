@@ -1,5 +1,33 @@
 # Change Log
 
+## [v12.7.0](https://github.com/gisaia/ARLAS-server/tree/v12.7.0) (2019-11-15)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.2...v12.7.0)
+
+**Breaking changes:**
+
+- Remove tag api [\#535](https://github.com/gisaia/ARLAS-server/issues/535) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[Multi-geometry\] Support multi\_geometries in geometric filters [\#465](https://github.com/gisaia/ARLAS-server/issues/465) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+**New stuff:**
+
+- Add HTTPS in the swagger definition [\#513](https://github.com/gisaia/ARLAS-server/issues/513)
+- \[auth-4\] Variable support in rules and headers [\#497](https://github.com/gisaia/ARLAS-server/issues/497) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[auth-3\] Authorization mode: headers processing [\#496](https://github.com/gisaia/ARLAS-server/issues/496) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[auth-2\] Authorization mode: rules processing [\#495](https://github.com/gisaia/ARLAS-server/issues/495) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[auth-1\] Authentication mode support [\#494](https://github.com/gisaia/ARLAS-server/issues/494) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[Multi-geometry\] return one or multiple geometries in \_geosearch responses [\#466](https://github.com/gisaia/ARLAS-server/issues/466) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Add \_compute endpoint [\#463](https://github.com/gisaia/ARLAS-server/issues/463) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+**Fixed bugs:**
+
+- TimestampTypeMapper unit test fails [\#548](https://github.com/gisaia/ARLAS-server/issues/548)
+- ARLAS Rest services: header keys must be case insensitive [\#472](https://github.com/gisaia/ARLAS-server/issues/472) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+**Miscellaneous:**
+
+- Deprecate \_range endpoint [\#550](https://github.com/gisaia/ARLAS-server/issues/550) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
 ## [v11.7.2](https://github.com/gisaia/ARLAS-server/tree/v11.7.2) (2019-11-08)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.1...v11.7.2)
@@ -58,7 +86,6 @@
 
 **New stuff:**
 
-- Add HTTPS in the swagger definition [\#513](https://github.com/gisaia/ARLAS-server/issues/513)
 - Publish arlas-admin module in cloudsmith [\#511](https://github.com/gisaia/ARLAS-server/issues/511)
 - Pwithin request should support WKT geometry [\#500](https://github.com/gisaia/ARLAS-server/issues/500)
 - Add HTTPS in the swagger definition [\#515](https://github.com/gisaia/ARLAS-server/pull/515) ([alainbodiguel](https://github.com/alainbodiguel))
@@ -84,10 +111,6 @@
 
 - \[Auth-6\] Add more tests to auth module [\#508](https://github.com/gisaia/ARLAS-server/issues/508)
 - \[auth-5\] Change configuration to snake case [\#498](https://github.com/gisaia/ARLAS-server/issues/498) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
-- \[auth-4\] Variable support in rules and headers [\#497](https://github.com/gisaia/ARLAS-server/issues/497) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
-- \[auth-3\] Authorization mode: headers processing [\#496](https://github.com/gisaia/ARLAS-server/issues/496) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
-- \[auth-2\] Authorization mode: rules processing [\#495](https://github.com/gisaia/ARLAS-server/issues/495) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
-- \[auth-1\] Authentication mode support [\#494](https://github.com/gisaia/ARLAS-server/issues/494) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
 - Support geometries that are indexed as WKT [\#510](https://github.com/gisaia/ARLAS-server/issues/510)
 - Push arlas jars in maven repos [\#485](https://github.com/gisaia/ARLAS-server/issues/485)
 - Add more tests to auth module  [\#509](https://github.com/gisaia/ARLAS-server/pull/509) ([alainbodiguel](https://github.com/alainbodiguel))
