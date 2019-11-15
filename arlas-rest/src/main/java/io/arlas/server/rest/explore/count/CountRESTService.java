@@ -87,7 +87,7 @@ public class CountRESTService extends ExploreRESTServices {
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Partition-Filter") String partitionfilter,
+            @HeaderParam(value = "partition-filter") String partitionfilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -150,7 +150,7 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Partition-Filter") String partitionfilter,
+            @HeaderParam(value = "partition-filter") String partitionfilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------

@@ -183,7 +183,7 @@ public class WFSRESTService extends OGCRESTService {
                     required = false)
             @QueryParam(value = "language") String language,
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Partition-Filter") String partitionFilter
+            @HeaderParam(value = "partition-filter") String partitionFilter
     ) throws IOException, ArlasException, ParserConfigurationException, SAXException, ExecutionException, InterruptedException {
 
         Version requestVersion = VersionUtils.getVersion(version, Service.WFS);
