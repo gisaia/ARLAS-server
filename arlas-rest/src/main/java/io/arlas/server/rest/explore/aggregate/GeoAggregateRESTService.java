@@ -111,7 +111,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "partition-filter") String partitionFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -201,7 +201,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "partition-filter") String partitionFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM ---------------------------
@@ -275,7 +275,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Partition-Filter") String partitionFilter,
+            @HeaderParam(value = "partition-filter") String partitionFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------

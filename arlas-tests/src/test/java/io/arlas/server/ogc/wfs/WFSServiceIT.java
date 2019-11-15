@@ -140,7 +140,7 @@ public class WFSServiceIT extends AbstractTestWithCollection {
     }
 
     private ValidatableResponse get(List<Pair<String, String>> params, Filter headerFilter) throws JsonProcessingException {
-        RequestSpecification req = givenFilterableRequestParams().header("Partition-Filter", objectMapper.writeValueAsString(headerFilter));
+        RequestSpecification req = givenFilterableRequestParams().header("partition-filter", objectMapper.writeValueAsString(headerFilter));
         for (Pair<String, String> param : params) {
             req = req.param(param.getKey(), param.getValue());
         }

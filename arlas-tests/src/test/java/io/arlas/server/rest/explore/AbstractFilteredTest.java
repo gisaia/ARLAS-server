@@ -1274,7 +1274,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     }
 
     private ValidatableResponse header(Filter filter) throws JsonProcessingException {
-        return givenFilterableRequestParams().header("Partition-Filter", objectMapper.writeValueAsString(filter))
+        return givenFilterableRequestParams().header("partition-filter", objectMapper.writeValueAsString(filter))
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
