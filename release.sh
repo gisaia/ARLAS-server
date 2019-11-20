@@ -31,7 +31,7 @@ function clean_exit {
 trap clean_exit EXIT
 
 usage(){
-	echo "Usage: ./release.sh -api=X -es=Y -rel=Z -dev=Z+1 [--no-tests]"
+	echo "Usage: ./release.sh -api=X -es=Y -rel=Z -dev=Z+1 [--no-tests] [--skip-api]"
 	echo " -es |--elastic-range           elasticsearch versions supported"
 	echo " -api-major|--api-version       release arlas-server API major version"
 	echo " -api-minor|--api-minor-version release arlas-server API minor version"
@@ -40,11 +40,13 @@ usage(){
 	echo " -dev|--arlas-dev               development arlas-server version (-SNAPSHOT qualifier will be automatically added)"
 	echo " --no-tests                     do not run integration tests"
 	echo " --simulate                     do not publish artifacts and git push local branches"
+	echo " --skip-api                     do not generate clients APIs"
 	exit 1
 }
 
 TESTS="YES"
 SIMULATE="NO"
+SKIP_API="NO"
 for i in "$@"
 do
 case $i in
@@ -80,6 +82,10 @@ case $i in
     SIMULATE="YES"
     shift # past argument with no value
     ;;
+    --skip-api)
+    SKIP_API="YES"
+    shift # past argument with no value
+    ;;
     *)
             # unknown option
     ;;
@@ -108,7 +114,7 @@ if [ -z ${ARLAS_DEV+x} ]; then usage;          else    echo "Next development ve
                                                        echo "Running tests               : ${TESTS}"
                                                        echo "Simulate mode               : ${SIMULATE}"
 
-if [ "$SIMULATE" == "NO" ]; then
+if [ "$SIMULATE" == "NO" -a "$SKIP_API" == "NO" ]; then
     if  [ -z "$PIP_LOGIN"  ] ; then echo "Please set PIP_LOGIN environment variable"; exit -1; fi
     if  [ -z "$PIP_PASSWORD"  ] ; then echo "Please set PIP_PASSWORD environment variable"; exit -1; fi
 
@@ -186,70 +192,74 @@ itests() {
 }
 if [ "$TESTS" == "YES" ]; then itests; else echo "=> Skip integration tests"; fi
 
-echo "=> Generate client APIs"
-BASEDIR=$PWD
-ls target/tmp/
+if [ "$SKIP_API" == "YES" ]; then
+  echo "=> Skipping generation of API clients"
+else
+    echo "=> Generate client APIs"
+    BASEDIR=$PWD
+    ls target/tmp/
 
-mkdir -p target/tmp/typescript-fetch
-docker run --rm \
-    -e GROUP_ID="$(id -g)" \
-    -e USER_ID="$(id -u)" \
-    --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
-    --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
-	gisaia/swagger-codegen-2.3.1 \
-        -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
-
-mkdir -p target/tmp/python-api
-docker run --rm \
-    -e GROUP_ID="$(id -g)" \
-    -e USER_ID="$(id -u)" \
-    --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
-    --mount dst=/input/config.json,src="$PROJECT_ROOT_DIRECTORY/conf/swagger/python-config.json",type=bind,ro \
-    --mount dst=/output,src="$PWD/target/tmp/python-api",type=bind \
-	gisaia/swagger-codegen-2.2.3 \
-        -l python --type-mappings GeoJsonObject=object
-
-echo "=> Build Typescript API "${FULL_API_VERSION}
-cd ${BASEDIR}/target/tmp/typescript-fetch/
-cp ${BASEDIR}/conf/npm/package-build.json package.json
-cp ${BASEDIR}/conf/npm/tsconfig-build.json .
-npm version --no-git-tag-version ${FULL_API_VERSION}
-npm install
-npm run build-release
-npm run postbuild
-cd ${BASEDIR}
-
-echo "=> Publish Typescript API "
-cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/target/tmp/typescript-fetch/dist/package.json
-cd ${BASEDIR}/target/tmp/typescript-fetch/dist
-npm version --no-git-tag-version ${FULL_API_VERSION}
-
-if [ "$SIMULATE" == "NO" ]; then
-    npm publish || echo "Publishing on npm failed ... continue ..."
-else echo "=> Skip npm api publish"; fi
-
-echo "=> Build Python API "${FULL_API_VERSION}
-cd ${BASEDIR}/target/tmp/python-api/
-cp ${BASEDIR}/conf/python/setup.py setup.py
-sed -i.bak 's/\"api_version\"/\"'${FULL_API_VERSION}'\"/' setup.py
-
-docker run \
-      -e GROUP_ID="$(id -g)" \
-      -e USER_ID="$(id -u)" \
-      --mount dst=/opt/python,src="$PWD",type=bind \
-      --rm \
-      gisaia/python-3-alpine \
-            setup.py sdist bdist_wheel
-
-echo "=> Publish Python API "
-if [ "$SIMULATE" == "NO" ]; then
+    mkdir -p target/tmp/typescript-fetch
     docker run --rm \
-        -w /opt/python \
-    	-v $PWD:/opt/python \
-    	python:3 \
-    	/bin/bash -c  "pip install twine ; twine upload dist/* -u ${PIP_LOGIN} -p ${PIP_PASSWORD}"
-     ### At this stage username and password of Pypi repository should be set
-else echo "=> Skip python api publish"; fi
+        -e GROUP_ID="$(id -g)" \
+        -e USER_ID="$(id -u)" \
+        --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
+        --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
+        gisaia/swagger-codegen-2.3.1 \
+            -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
+
+    mkdir -p target/tmp/python-api
+    docker run --rm \
+        -e GROUP_ID="$(id -g)" \
+        -e USER_ID="$(id -u)" \
+        --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
+        --mount dst=/input/config.json,src="$PROJECT_ROOT_DIRECTORY/conf/swagger/python-config.json",type=bind,ro \
+        --mount dst=/output,src="$PWD/target/tmp/python-api",type=bind \
+        gisaia/swagger-codegen-2.2.3 \
+            -l python --type-mappings GeoJsonObject=object
+
+    echo "=> Build Typescript API "${FULL_API_VERSION}
+    cd ${BASEDIR}/target/tmp/typescript-fetch/
+    cp ${BASEDIR}/conf/npm/package-build.json package.json
+    cp ${BASEDIR}/conf/npm/tsconfig-build.json .
+    npm version --no-git-tag-version ${FULL_API_VERSION}
+    npm install
+    npm run build-release
+    npm run postbuild
+    cd ${BASEDIR}
+
+    echo "=> Publish Typescript API "
+    cp ${BASEDIR}/conf/npm/package-publish.json ${BASEDIR}/target/tmp/typescript-fetch/dist/package.json
+    cd ${BASEDIR}/target/tmp/typescript-fetch/dist
+    npm version --no-git-tag-version ${FULL_API_VERSION}
+
+    if [ "$SIMULATE" == "NO" ]; then
+        npm publish || echo "Publishing on npm failed ... continue ..."
+    else echo "=> Skip npm api publish"; fi
+
+    echo "=> Build Python API "${FULL_API_VERSION}
+    cd ${BASEDIR}/target/tmp/python-api/
+    cp ${BASEDIR}/conf/python/setup.py setup.py
+    sed -i.bak 's/\"api_version\"/\"'${FULL_API_VERSION}'\"/' setup.py
+
+    docker run \
+          -e GROUP_ID="$(id -g)" \
+          -e USER_ID="$(id -u)" \
+          --mount dst=/opt/python,src="$PWD",type=bind \
+          --rm \
+          gisaia/python-3-alpine \
+                setup.py sdist bdist_wheel
+
+    echo "=> Publish Python API "
+    if [ "$SIMULATE" == "NO" ]; then
+        docker run --rm \
+            -w /opt/python \
+            -v $PWD:/opt/python \
+            python:3 \
+            /bin/bash -c  "pip install twine ; twine upload dist/* -u ${PIP_LOGIN} -p ${PIP_PASSWORD}"
+         ### At this stage username and password of Pypi repository should be set
+    else echo "=> Skip python api publish"; fi
+fi
 
 cd ${BASEDIR}
 
