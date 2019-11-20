@@ -768,16 +768,17 @@ public class FluidSearch {
 
     private ValuesSourceAggregationBuilder setAggeragatedGeometryStrategy(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
         if (aggregationModel.fetchGeometry != null) {
+            String strategyField = (aggregationModel.type.equals(AggregationTypeEnum.geohash) ? aggregationModel.field : collectionReference.params.centroidPath);
             if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.bbox) {
                 // Check if geobbox is not already asked as a sub-aggregation
                 if ((aggregationModel.metrics != null && aggregationModel.metrics.stream().map(m -> m.collectFct).filter(collectFct -> collectFct.name().equals(CollectionFunction.GEOBBOX.name())).count() == 0) || aggregationModel.metrics == null) {
-                    ValuesSourceAggregationBuilder metricAggregation = AggregationBuilders.geoBounds(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket").field(collectionReference.params.centroidPath);
+                    ValuesSourceAggregationBuilder metricAggregation = AggregationBuilders.geoBounds(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket").field(strategyField);
                     aggregationBuilder.subAggregation(metricAggregation);
                 }
             } else if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.centroid) {
                 // if geocentroid is not already asked as a sub-aggregation
                 if ((aggregationModel.metrics != null && aggregationModel.metrics.stream().map(m -> m.collectFct).filter(collectFct -> collectFct.name().equals(CollectionFunction.GEOCENTROID.name())).count() == 0) || aggregationModel.metrics == null) {
-                    ValuesSourceAggregationBuilder metricAggregation = AggregationBuilders.geoCentroid(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket").field(collectionReference.params.centroidPath);
+                    ValuesSourceAggregationBuilder metricAggregation = AggregationBuilders.geoCentroid(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket").field(strategyField);
                     aggregationBuilder.subAggregation(metricAggregation);
                 }
             } else if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.geohash) {
