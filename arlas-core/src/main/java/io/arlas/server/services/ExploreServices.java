@@ -75,9 +75,9 @@ public class ExploreServices {
 
     protected Client client;
     protected CollectionReferenceDao daoCollectionReference;
+    protected ElasticAdmin elasticAdmin;
     private ResponseCacheManager responseCacheManager = null;
     private ArlasServerConfiguration configuration;
-    private ElasticAdmin elasticAdmin;
 
     public ExploreServices() {}
 
