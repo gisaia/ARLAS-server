@@ -107,16 +107,17 @@ docker run -ti -d \
 
 ### Server
 
-| Environment variable | ARLAS Server configuration variable | Default |
-| --- | --- | --- |
-| ARLAS_ACCESS_LOG_FILE | server.requestLog.appenders.currentLogFilename | arlas-access.log |
-| ACCESS_LOG_FILE_ARCHIVE | server.requestLog.appenders.archivedLogFilenamePattern | arlas-access-%d.log.gz |
-| ARLAS_PREFIX | server.applicationContextPath | /arlas/ |
-| ARLAS_ADMIN_PATH | server.adminContextPath | /admin |
-| ARLAS_PORT | server.connector.port | 9999 |
-| ARLAS_MAX_THREADS | server.maxThreads | 1024 |
-| ARLAS_MIN_THREADS | server.minThreads | 8 |
-| ARLAS_MAX_QUEUED_REQUESTS | server.maxQueuedRequests | 1024 |
+| Environment variable | ARLAS Server configuration variable | Default | Description |
+| --- | --- | --- | --- |
+| ARLAS_ACCESS_LOG_FILE | server.requestLog.appenders.currentLogFilename | arlas-access.log | |
+| ACCESS_LOG_FILE_ARCHIVE | server.requestLog.appenders.archivedLogFilenamePattern | arlas-access-%d.log.gz | |
+| ARLAS_APP_PATH | server.applicationContextPath | / | Base URL path |
+| ARLAS_PREFIX | server.rootPath | /arlas | Base sub-path for **general API**, gets appended to `server.applicationContextPath` |
+| ARLAS_ADMIN_PATH | server.adminContextPath | /admin | Base sub-path for **admin API**, gets appended to `server.applicationContextPath` |
+| ARLAS_PORT | server.connector.port | 9999 | |
+| ARLAS_MAX_THREADS | server.maxThreads | 1024 | |
+| ARLAS_MIN_THREADS | server.minThreads | 8 | |
+| ARLAS_MAX_QUEUED_REQUESTS | server.maxQueuedRequests | 1024 | |
 
 ### URL Masking
 
