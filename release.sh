@@ -47,6 +47,7 @@ usage(){
 TESTS="YES"
 SIMULATE="NO"
 SKIP_API="NO"
+BASEDIR=$PWD
 for i in "$@"
 do
 case $i in
@@ -196,7 +197,6 @@ if [ "$SKIP_API" == "YES" ]; then
   echo "=> Skipping generation of API clients"
 else
     echo "=> Generate client APIs"
-    BASEDIR=$PWD
     ls target/tmp/
 
     mkdir -p target/tmp/typescript-fetch

@@ -1,5 +1,13 @@
 # Change Log
 
+## [v12.7.1](https://github.com/gisaia/ARLAS-server/tree/v12.7.1) (2019-11-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.0...v12.7.1)
+
+**Fixed bugs:**
+
+- \[GEOAGGREGATE\] apply fetch\_geometry strategy on the geo-point on which we aggregate [\#552](https://github.com/gisaia/ARLAS-server/issues/552)
+
 ## [v12.7.0](https://github.com/gisaia/ARLAS-server/tree/v12.7.0) (2019-11-15)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.2...v12.7.0)
