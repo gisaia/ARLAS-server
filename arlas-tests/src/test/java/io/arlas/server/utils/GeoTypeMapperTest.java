@@ -44,10 +44,13 @@ public class GeoTypeMapperTest {
         HashMap pointMap = new HashMap();
         pointMap.put("lat", 41.12);
         pointMap.put("lon", -71.34);
-
         HashMap pointGeojson = new HashMap();
         pointGeojson.put("type", "Point");
         pointGeojson.put("coordinates", pointArray);
+        ArrayList geohashArray = new ArrayList();
+        geohashArray.add("e");
+        geohashArray.add("s");
+        geohashArray.add("t");
 
         assertTrue(GeoTypeMapper.getGeometryType(pointStringLatLon).equals(GeoTypeEnum.GEOPOINT_AS_STRING));
         assertTrue(GeoTypeMapper.getGeometryType(pointStringGeohash).equals(GeoTypeEnum.GEOHASH));
@@ -55,6 +58,7 @@ public class GeoTypeMapperTest {
         assertTrue(GeoTypeMapper.getGeometryType(pointArray).equals(GeoTypeEnum.GEOPOINT_AS_ARRAY));
         assertTrue(GeoTypeMapper.getGeometryType(pointMap).equals(GeoTypeEnum.GEOPOINT));
         assertTrue(GeoTypeMapper.getGeometryType(pointGeojson).equals(GeoTypeEnum.GEOJSON));
+        assertTrue(GeoTypeMapper.getGeometryType(geohashArray).equals(GeoTypeEnum.GEOHASH_ARRAY));
 
         Point refPoint = new Point(-71.34, 41.12);
         assertTrue(GeoTypeMapper.getGeoJsonObject(pointStringLatLon).equals(refPoint));
@@ -64,6 +68,8 @@ public class GeoTypeMapperTest {
         assertTrue(GeoTypeMapper.getGeoJsonObject(pointArray).equals(refPoint));
         assertTrue(GeoTypeMapper.getGeoJsonObject(pointMap).equals(refPoint));
         assertTrue(GeoTypeMapper.getGeoJsonObject(pointGeojson).equals(refPoint));
+        assertTrue(GeoTypeMapper.getGeoJsonObject(geohashArray) instanceof Point);
+
     }
 
 }
