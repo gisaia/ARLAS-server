@@ -1,5 +1,13 @@
 # Change Log
 
+## [v12.7.2](https://github.com/gisaia/ARLAS-server/tree/v12.7.2) (2019-11-25)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.1...v12.7.2)
+
+**New stuff:**
+
+- Support array of geohashes for geo-point fields [\#556](https://github.com/gisaia/ARLAS-server/issues/556)
+
 ## [v12.7.1](https://github.com/gisaia/ARLAS-server/tree/v12.7.1) (2019-11-21)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.0...v12.7.1)
