@@ -23,6 +23,7 @@ public enum GeoTypeEnum {
     GEOPOINT("GeoPoint"),
     GEOPOINT_AS_STRING("GeoPointAsString"),
     GEOPOINT_AS_ARRAY("GeoPointAsArray"),
+    GEOHASH_ARRAY("GeohashAsArray"),
     GEOJSON("Geojson"),
     GEOHASH("Geohash"),
     WKT("WKT");

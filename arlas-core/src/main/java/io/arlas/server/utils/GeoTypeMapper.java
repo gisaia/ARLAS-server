@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,6 +73,17 @@ public class GeoTypeMapper {
             case GEOPOINT_AS_ARRAY:
                 try {
                     geoObject = new Point(((Number) ((ArrayList) elasticsearchGeoField).get(0)).doubleValue(), ((Number) ((ArrayList) elasticsearchGeoField).get(1)).doubleValue());
+                } catch (Exception e) {
+                    LOGGER.error(loggerMsg, e);
+                    throw new ParseException(parseExceptionMsg);
+                }
+                break;
+            case GEOHASH_ARRAY:
+                try {
+                    List geohashes = (ArrayList) elasticsearchGeoField;
+                    int middleIndex = (geohashes.size() / 2);
+                    GeoPoint geoPoint = new GeoPoint(geohashes.get(middleIndex).toString());
+                    geoObject = new Point(geoPoint.getLon(), geoPoint.getLat());
                 } catch (Exception e) {
                     LOGGER.error(loggerMsg, e);
                     throw new ParseException(parseExceptionMsg);
@@ -120,8 +132,18 @@ public class GeoTypeMapper {
                 LOGGER.error("Unknown geo_point or geo_shape format from " + geometry.getClass() + " :" + geometry);
                 throw new NotImplementedException(NOT_SUPPORTED_GEO_FORMAT);
             }
-        } else if (geometry instanceof ArrayList  && ((ArrayList) geometry).size() == 2) {
-            return GeoTypeEnum.GEOPOINT_AS_ARRAY;
+        } else if (geometry instanceof ArrayList) {
+            List geometries = (ArrayList) geometry;
+            if (geometries.size() == 2 && ParamsParser.tryParseDouble(geometries.get(0).toString()) != null && ParamsParser.tryParseDouble(geometries.get(1).toString()) != null) {
+                return GeoTypeEnum.GEOPOINT_AS_ARRAY;
+            } else {
+                if (geometries.stream().filter(g -> isGeohash(g.toString())).count() == geometries.size()) {
+                    return GeoTypeEnum.GEOHASH_ARRAY;
+                } else {
+                    LOGGER.error("Unknown geo_point or geo_shape format from " + geometry.getClass() + " :" + geometry);
+                    throw new NotImplementedException(NOT_SUPPORTED_GEO_FORMAT);
+                }
+            }
         } else if (geometry instanceof HashMap) {
             if (((HashMap) geometry).containsKey("type")) {
                 return GeoTypeEnum.GEOJSON;
