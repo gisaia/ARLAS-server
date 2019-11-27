@@ -129,7 +129,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -222,7 +222,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(searchHeader);
         request.headerRequest = searchHeader;
-        request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
         FeatureCollection fc = getFeatures(collectionReference, request, (flat!=null && flat));
         return cache(Response.ok(fc), maxagecache);
@@ -318,7 +318,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -419,7 +419,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     notgintersect,
                     dateformat,
                     partitionFilter,
-                    filteredColumns,
+                    columnFilter,
                     pretty,
                     flat,
                     include,
@@ -468,7 +468,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -495,7 +495,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
         exploreServices.setValidGeoFilters(search);
         exploreServices.setValidGeoFilters(searchHeader);
         FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat));

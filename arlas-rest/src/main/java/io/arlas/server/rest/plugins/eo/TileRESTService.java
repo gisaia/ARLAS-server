@@ -148,7 +148,7 @@ public class TileRESTService extends ExploreRESTServices {
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  PAGE    -----------------------
@@ -247,7 +247,7 @@ public class TileRESTService extends ExploreRESTServices {
             MixedRequest request = new MixedRequest();
             request.basicRequest = search;
             request.headerRequest = searchHeader;
-            request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
+            request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
             Queue<TileProvider<RasterTile>> providers = new LinkedList<>(findCandidateTiles(collectionReference, request).stream()
                     .filter(match -> match._2().map(

@@ -138,7 +138,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -175,7 +175,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
-        request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
         AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
@@ -214,7 +214,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -246,7 +246,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
-        request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
         AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, (aggregationsRequest.form != null && BooleanUtils.isTrue(aggregationsRequest.form.flat)));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);

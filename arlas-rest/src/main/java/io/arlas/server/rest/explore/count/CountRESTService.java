@@ -122,7 +122,7 @@ public class CountRESTService extends ExploreRESTServices {
             @HeaderParam(value = "Partition-Filter") String partitionfilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -155,7 +155,7 @@ public class CountRESTService extends ExploreRESTServices {
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
         exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
-        request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
         Hits hits = getArlasHits(collectionReference, request);
         return cache(Response.ok(hits), maxagecache);
@@ -189,7 +189,7 @@ public class CountRESTService extends ExploreRESTServices {
             @HeaderParam(value = "Partition-Filter") String partitionfilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -217,7 +217,7 @@ public class CountRESTService extends ExploreRESTServices {
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
         exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
-        request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
 
         Hits hits = getArlasHits(collectionReference, request);
         return Response.ok(hits).build();

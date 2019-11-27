@@ -132,7 +132,7 @@ public class SearchRESTService extends ExploreRESTServices {
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
 //            @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -241,7 +241,7 @@ public class SearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(searchHeader);
         request.headerRequest = searchHeader;
-        request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
         Hits hits = getArlasHits(request, collectionReference,BooleanUtils.isTrue(flat),uriInfo,"GET");
         return cache(Response.ok(hits), maxagecache);
     }
@@ -279,7 +279,7 @@ public class SearchRESTService extends ExploreRESTServices {
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -307,7 +307,7 @@ public class SearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
         exploreServices.setValidGeoFilters(search);
         exploreServices.setValidGeoFilters(searchHeader);
         Hits hits = getArlasHits(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)),uriInfo,"POST");

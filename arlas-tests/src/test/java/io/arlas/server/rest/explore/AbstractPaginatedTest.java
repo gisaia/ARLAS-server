@@ -597,9 +597,9 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     protected ValidatableResponse get(String param, Object paramValue) {
         return get(param, paramValue, "");
     }
-    protected ValidatableResponse get(String param, Object paramValue, String filteredColumns) {
+    protected ValidatableResponse get(String param, Object paramValue, String columnFilter) {
         return givenFilterableRequestParams().param(param, paramValue)
-                .header("column-filter", filteredColumns)
+                .header("column-filter", columnFilter)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
@@ -608,9 +608,9 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
         return get(param1, paramValue1, param2, paramValue2, "");
     }
 
-    protected ValidatableResponse get(String param1, Object paramValue1, String param2, Object paramValue2, String filteredColumns) {
+    protected ValidatableResponse get(String param1, Object paramValue1, String param2, Object paramValue2, String columnFilter) {
         return givenFilterableRequestBody().param(param1, paramValue1).param(param2, paramValue2)
-                .header("column-filter", filteredColumns)
+                .header("column-filter", columnFilter)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }

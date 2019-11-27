@@ -576,15 +576,15 @@ public class ParamsParser {
         }
     }
 
-    public static Set<String> getFilteredColumns(Optional<String> filteredColumnsString, CollectionReference collectionReference) {
-        Optional<Set<String>> filteredColumnsSet = filteredColumnsString.filter(StringUtils::isNotBlank).map(cf -> Arrays.stream(cf.replaceAll("\\.\\*", "").replaceAll(" ", "").split(",")).collect(Collectors.toSet()));
+    public static Set<String> getColumnFilter(Optional<String> columnFilterString, CollectionReference collectionReference) {
+        Optional<Set<String>> columnFilterSet = columnFilterString.filter(StringUtils::isNotBlank).map(cf -> Arrays.stream(cf.replaceAll("\\.\\*", "").replaceAll(" ", "").split(",")).collect(Collectors.toSet()));
         //add collection mandatory fields, but only if a colum filter is provided (otherwise mandatory fields will be considered as the filter)
-        filteredColumnsSet.map(cols -> cols.addAll(Arrays.asList(
+        columnFilterSet.map(cols -> cols.addAll(Arrays.asList(
                 collectionReference.params.idPath,
                 collectionReference.params.geometryPath,
                 collectionReference.params.centroidPath,
                 collectionReference.params.timestampPath)));
 
-        return filteredColumnsSet.orElse(new HashSet<>());
+        return columnFilterSet.orElse(new HashSet<>());
     }
 }

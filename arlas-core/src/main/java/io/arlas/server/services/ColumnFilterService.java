@@ -25,27 +25,34 @@ import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.MultiValueFilter;
 import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Provide functions related to column filtering.
+ * The principle is:
+ * - if the filter is empty, do not filter at all
+ * - if there is a filter, then only allow to filter & return allowed columns
+ */
 public class ColumnFilterService {
 
     public ColumnFilterService() {
     }
 
-    public boolean isFilterDefined(Set<String> filteredColumns) {
-        return !filteredColumns.isEmpty();
+    public boolean isFilterDefined(Set<String> columnFilter) {
+        return !columnFilter.isEmpty();
     }
 
-    public boolean isAllowed(Set<String> filteredColumns, String field) {
-        if (!isFilterDefined(filteredColumns)) {
+    public boolean isAllowed(Set<String> columnFilter, String field) {
+        if (!isFilterDefined(columnFilter)) {
             //no filter - always allowed
             return true;
         }
 
-        if (filteredColumns.contains(field)) {
+        if (columnFilter.contains(field)) {
             //field itself is allowed
             return true;
         }
@@ -58,48 +65,70 @@ public class ColumnFilterService {
 
         //check if parent field is allowed
         String withoutLastPart = String.join(".", Arrays.copyOfRange(splitted, 0, splitted.length - 1));
-        return isAllowed(filteredColumns, withoutLastPart);
+        return isAllowed(columnFilter, withoutLastPart);
     }
 
-    public boolean isForbidden(Set<String> filteredColumns, String field) {
-        return !this.isAllowed(filteredColumns, field);
+    public boolean isForbidden(Set<String> columnFilter, String field) {
+        return !this.isAllowed(columnFilter, field);
     }
 
-    public String filterInclude(Set<String> filteredColumns, String includes) {
-        if (!isFilterDefined(filteredColumns)) {
+    /**
+     * Filter the "includes" .
+     * In the case where a parent field is included (eg. params.*) where only view sub-fields are allowed,
+     * then only allowed sub-fields are included
+     * @param columnFilter
+     * @param includes
+     * @return
+     */
+    public String filterInclude(Set<String> columnFilter, String includes) {
+        if (!isFilterDefined(columnFilter)) {
             return includes;
         }
         return Arrays.stream(includes.split(",")).flatMap(c -> {
-            if (this.isAllowed(filteredColumns, c)) {
+            if (this.isAllowed(columnFilter, c)) {
                 return Arrays.asList(c).stream();
             }
 
             //return only allowed sub-fields
-            return filteredColumns.stream().filter(col -> col.startsWith(c + ".")).collect(Collectors.toList()).stream();
+            return columnFilter.stream().filter(col -> col.startsWith(c + ".")).collect(Collectors.toList()).stream();
         }).collect(Collectors.joining(","));
     }
 
-    public String filterSort(Set<String> filteredColumns, String sort) {
+    /**
+     * Filter a "sort".
+     * @param columnFilter
+     * @param sort
+     * @return
+     */
+    public String filterSort(Set<String> columnFilter, String sort) {
 
-        if (!isFilterDefined(filteredColumns)) {
+        if (!isFilterDefined(columnFilter)) {
             return sort;
         }
 
         return Arrays.stream(sort.split(","))
                 .filter(a -> {
                     if (a.startsWith("-")) {
-                        return this.isAllowed(filteredColumns, a.substring(1));
+                        return this.isAllowed(columnFilter, a.substring(1));
                     } else if (a.contains(":")) {
-                        return this.isAllowed(filteredColumns, a.substring(0, a.indexOf(":")));
+                        return this.isAllowed(columnFilter, a.substring(0, a.indexOf(":")));
                     } else {
-                        return this.isAllowed(filteredColumns, a);
+                        return this.isAllowed(columnFilter, a);
                     }
                 }).collect(Collectors.joining(","));
     }
 
-    public String filterAfter(Set<String> filteredColumns, String sort, String before) {
+    /**
+     * Filter an "after" by considering a "sort".
+     * If some fields in the "sort" aren't allowed, then their value is removed from the "after".
+     * @param columnFilter
+     * @param sort
+     * @param before
+     * @return
+     */
+    public String filterAfter(Set<String> columnFilter, String sort, String before) {
 
-        if (!isFilterDefined(filteredColumns) || StringUtils.isBlank(sort)) {
+        if (!isFilterDefined(columnFilter) || StringUtils.isBlank(sort)) {
             return before;
         }
 
@@ -108,11 +137,11 @@ public class ColumnFilterService {
                 .filter(i -> {
                     String column = sortColumns[i];
                     if (column.startsWith("-")) {
-                        return this.isAllowed(filteredColumns, column.substring(1));
+                        return this.isAllowed(columnFilter, column.substring(1));
                     } else if (column.contains(":")) {
-                        return this.isAllowed(filteredColumns, column.substring(0, column.indexOf(":")));
+                        return this.isAllowed(columnFilter, column.substring(0, column.indexOf(":")));
                     } else {
-                        return this.isAllowed(filteredColumns, column);
+                        return this.isAllowed(columnFilter, column);
                     }
                 })
                 .boxed()
@@ -126,47 +155,74 @@ public class ColumnFilterService {
                 .collect(Collectors.joining(","));
     }
 
-    public MultiValueFilter<String> getFilteredQ(Set<String> filteredColumns, MultiValueFilter<String> q) {
+    /**
+     * Filter a "q", if a field is provided.
+     * @param columnFilter
+     * @param q
+     * @return
+     */
+    public MultiValueFilter<String> getFilteredQ(Set<String> columnFilter, MultiValueFilter<String> q) {
 
-        if (!isFilterDefined(filteredColumns)) {
+        if (!isFilterDefined(columnFilter)) {
             return q;
         }
 
         return q.stream()
-                .filter(c -> !c.contains(":") || this.isAllowed(filteredColumns, StringUtils.substringBefore(c, ":")))
+                .filter(c -> !c.contains(":") || this.isAllowed(columnFilter, StringUtils.substringBefore(c, ":")))
                 .collect(Collectors.toCollection(MultiValueFilter::new));
     }
 
     //TODO define exception
-    public List<Aggregation> filterAggregations(Set<String> filteredColumns, List<Aggregation> aggregations) throws ArlasException {
+
+    /**
+     * Filter "aggregations".
+     * If the main field or the geometry fields of an aggregation aren't allowed, their can't be any result - so an exception is thrown.
+     * If metrics or hits fields aren't allowed, they are simply removed from the request.
+     * @param columnFilter
+     * @param aggregations
+     * @return
+     * @throws ArlasException
+     */
+    public List<Aggregation> filterAggregations(Set<String> columnFilter, List<Aggregation> aggregations) throws ArlasException {
 
         for(Aggregation aggregation : aggregations) {
-            if (this.isForbidden(filteredColumns, aggregation.field)) {
+            if (this.isForbidden(columnFilter, aggregation.field)) {
                 throw new ArlasException("Aggregation field is not allowed");
             }
-            if (aggregation.fetchGeometry != null && this.isForbidden(filteredColumns, aggregation.fetchGeometry.field)) {
+            if (aggregation.fetchGeometry != null && this.isForbidden(columnFilter, aggregation.fetchGeometry.field)) {
                 throw new ArlasException("Aggregation fetch geometry field is not allowed");
             }
         }
 
         return aggregations.stream().map(aggregation -> {
             if (aggregation.metrics != null) {
-                aggregation.metrics = aggregation.metrics.stream().filter(m -> this.isAllowed(filteredColumns, m.collectField)).collect(Collectors.toList());
+                aggregation.metrics = aggregation.metrics.stream().filter(m -> this.isAllowed(columnFilter, m.collectField)).collect(Collectors.toList());
             }
 
             if (aggregation.fetchHits != null && aggregation.fetchHits.include != null) {
-                aggregation.fetchHits.include = aggregation.fetchHits.include.stream().filter(h -> this.isAllowed(filteredColumns, h)).collect(Collectors.toList());
+                aggregation.fetchHits.include = aggregation.fetchHits.include.stream().filter(h -> this.isAllowed(columnFilter, h)).collect(Collectors.toList());
             }
             return aggregation;
         }).collect(Collectors.toList());
     }
 
-    public MultiValueFilter<Expression> filterF(Set<String> filteredColumns, MultiValueFilter<Expression> f) {
-        return f.stream().filter((m -> this.isAllowed(filteredColumns, m.field))).collect(Collectors.toCollection(MultiValueFilter::new));
+    /**
+     * Filter a "f".
+     * @param columnFilter
+     * @param f
+     * @return
+     */
+    public MultiValueFilter<Expression> filterF(Set<String> columnFilter, MultiValueFilter<Expression> f) {
+        return f.stream().filter((m -> this.isAllowed(columnFilter, m.field))).collect(Collectors.toCollection(MultiValueFilter::new));
     }
 
-    public String getFilteredColumnsAsString(Set<String> filteredColumns) {
-        return filteredColumns.stream().collect(Collectors.joining(","));
+    public String getColumnFilterAsString(Set<String> columnFilter) {
+        return columnFilter.stream().collect(Collectors.joining(","));
+    }
+
+
+    public Set<String> getEmptyFilter() {
+        return new HashSet<>();
     }
 
 }

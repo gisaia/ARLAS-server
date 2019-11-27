@@ -119,10 +119,10 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
                 .then();
     }
 
-    private ValidatableResponse post(Request request, String filteredColumns) {
+    private ValidatableResponse post(Request request, String columnFilter) {
         RequestSpecification req = givenFilterableRequestBody();
         return req.body(handlePostRequest(request))
-                .header("column-filter", filteredColumns)
+                .header("column-filter", columnFilter)
                 .when().post(getUrlPath("geodata"))
                 .then();
     }

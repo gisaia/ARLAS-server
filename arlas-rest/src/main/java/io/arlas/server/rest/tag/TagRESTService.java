@@ -79,7 +79,7 @@ public class TagRESTService extends UpdateRESTServices {
             @HeaderParam(value="Partition-Filter") String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM     -----------------------
@@ -100,7 +100,7 @@ public class TagRESTService extends UpdateRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = tagRequest.search;
         request.headerRequest = searchHeader;
-        request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
         return Response.ok(updateServices.tag(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE)).build();
     }
 
@@ -137,7 +137,7 @@ public class TagRESTService extends UpdateRESTServices {
             @HeaderParam(value="Partition-Filter") String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM     -----------------------
@@ -158,7 +158,7 @@ public class TagRESTService extends UpdateRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = tagRequest.search;
         request.headerRequest = searchHeader;
-        request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
+        request.columnFilter = ParamsParser.getColumnFilter(columnFilter, collectionReference);
         if(tagRequest.tag.value!=null){
             return Response.ok(updateServices.unTag(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE)).build();
         }else{

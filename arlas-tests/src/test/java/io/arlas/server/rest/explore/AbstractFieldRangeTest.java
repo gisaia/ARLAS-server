@@ -117,9 +117,9 @@ public abstract class AbstractFieldRangeTest  extends AbstractFilteredTest {
                 .then();
     }
 
-    private ValidatableResponse get(Object paramValue, String filteredColumns) {
+    private ValidatableResponse get(Object paramValue, String columnFilter) {
         return given()
-                .header("column-filter", filteredColumns)
+                .header("column-filter", columnFilter)
                 .param("field", paramValue)
                 .when().get(getUrlPath("geodata"))
                 .then();

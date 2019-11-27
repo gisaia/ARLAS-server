@@ -25,5 +25,5 @@ import java.util.Set;
 public class MixedRequest {
     public Request basicRequest;
     public Request headerRequest;
-    public Set<String> filteredColumns;
+    public Set<String> columnFilter;
 }
