@@ -20,6 +20,7 @@
 package io.arlas.server.services;
 
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.NotAllowedException;
 import io.arlas.server.model.request.Aggregation;
 import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.MultiValueFilter;
@@ -183,14 +184,14 @@ public class ColumnFilterService {
      * @return
      * @throws ArlasException
      */
-    public List<Aggregation> filterAggregations(Set<String> columnFilter, List<Aggregation> aggregations) throws ArlasException {
+    public List<Aggregation> filterAggregations(Set<String> columnFilter, List<Aggregation> aggregations) throws NotAllowedException {
 
         for(Aggregation aggregation : aggregations) {
             if (this.isForbidden(columnFilter, aggregation.field)) {
-                throw new ArlasException("Aggregation field is not allowed");
+                throw new NotAllowedException("Aggregation field is not allowed");
             }
             if (aggregation.fetchGeometry != null && this.isForbidden(columnFilter, aggregation.fetchGeometry.field)) {
-                throw new ArlasException("Aggregation fetch geometry field is not allowed");
+                throw new NotAllowedException("Aggregation fetch geometry field is not allowed");
             }
         }
 
@@ -214,6 +215,13 @@ public class ColumnFilterService {
      */
     public MultiValueFilter<Expression> filterF(Set<String> columnFilter, MultiValueFilter<Expression> f) {
         return f.stream().filter((m -> this.isAllowed(columnFilter, m.field))).collect(Collectors.toCollection(MultiValueFilter::new));
+    }
+
+    public String filterRange(Set<String> columnFilter, String field) throws NotAllowedException {
+        if (this.isForbidden(columnFilter, field)) {
+            throw new NotAllowedException("Range field is not allowed");
+        }
+        return field;
     }
 
     public String getColumnFilterAsString(Set<String> columnFilter) {

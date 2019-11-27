@@ -149,13 +149,10 @@ public class ExploreServices {
         CheckParams.checkRangeRequestField(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        if (columnFilterService.isForbidden(request.columnFilter, ((RangeRequest) request.basicRequest).field)) {
-            throw new BadRequestException("Requested field is not allowed");
-        }
         applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilters(request.basicRequest.filter, request.columnFilter, fluidSearch);
         applyFilters(request.headerRequest.filter, request.columnFilter, fluidSearch);
-        applyRangeRequest(((RangeRequest) request.basicRequest).field, fluidSearch);
+        applyRangeRequest(((RangeRequest) request.basicRequest).field, request.columnFilter, fluidSearch);
         SearchResponse response;
         try {
             response = fluidSearch.exec();
@@ -176,9 +173,9 @@ public class ExploreServices {
         }
     }
 
-    protected void applyRangeRequest(String field, FluidSearch fluidSearch) throws ArlasException {
-        //TODO understand why fluidSearch is reassigned whereas it is mutable???
-        fluidSearch = fluidSearch.getFieldRange(field);
+    protected void applyRangeRequest(String field, Set<String> columnFilter, FluidSearch fluidSearch) throws ArlasException {
+        String filteredField = columnFilterService.filterRange(columnFilter, field);
+        fluidSearch = fluidSearch.getFieldRange(filteredField);
     }
 
     public void applyFilter(Filter filter, FluidSearch fluidSearch) throws ArlasException, IOException {
