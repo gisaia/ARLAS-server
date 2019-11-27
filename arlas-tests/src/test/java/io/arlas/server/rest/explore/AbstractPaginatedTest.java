@@ -100,7 +100,7 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
         handleGeoSortParameter(get("sort", search.page.sort), "-50,-110");
 
         String columnsFilter = "fullname,params.job,params.country,params.startdate,params.stopdate,geodistance";
-        search.page.sort = "id,-params.age,-params.job";
+        search.page.sort = "params.weight,-params.age,-params.job";
         handleSortParameter(post(search, columnsFilter), "Dancer");
         handleSortParameter(get("sort", search.page.sort, columnsFilter), "Dancer");
 

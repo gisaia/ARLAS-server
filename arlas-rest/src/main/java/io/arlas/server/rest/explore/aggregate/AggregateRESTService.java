@@ -177,7 +177,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
-        request.filteredColumns = filteredColumns;
+        request.filteredColumns = ParamsParser.getFilteredColumnsSet(filteredColumns, collectionReference);
 
         AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
@@ -248,7 +248,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
-        request.filteredColumns = filteredColumns;
+        request.filteredColumns = ParamsParser.getFilteredColumnsSet(filteredColumns, collectionReference);
 
         AggregationResponse aggregationResponse = getArlasAggregation(
                 request,

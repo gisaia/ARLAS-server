@@ -242,7 +242,7 @@ public class SearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(searchHeader);
         request.headerRequest = searchHeader;
-        request.filteredColumns = filteredColumns;
+        request.filteredColumns = ParamsParser.getFilteredColumnsSet(filteredColumns, collectionReference);
         Hits hits = getArlasHits(request, collectionReference,BooleanUtils.isTrue(flat),uriInfo,"GET");
         return cache(Response.ok(hits), maxagecache);
     }
@@ -308,7 +308,7 @@ public class SearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        request.filteredColumns = filteredColumns;
+        request.filteredColumns = ParamsParser.getFilteredColumnsSet(filteredColumns, collectionReference);
         exploreServices.setValidGeoFilters(search);
         exploreServices.setValidGeoFilters(searchHeader);
         Hits hits = getArlasHits(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)),uriInfo,"POST");

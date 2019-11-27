@@ -313,7 +313,7 @@ public class FluidSearch {
 
     }
 
-    public FluidSearch filterQ(MultiValueFilter<String> q, Optional<Set<String>> defaultColumns) throws ArlasException {
+    public FluidSearch filterQ(MultiValueFilter<String> q, Set<String> defaultColumns) throws ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (String qFilter : q) {
             String operands[] = qFilter.split(":",2);
@@ -322,14 +322,14 @@ public class FluidSearch {
                         .should((QueryBuilders.simpleQueryStringQuery(operands[1]).defaultOperator(Operator.AND).field(operands[0])));
             } else if (operands.length == 1) {
                 SimpleQueryStringBuilder query = QueryBuilders.simpleQueryStringQuery(operands[0]).defaultOperator(Operator.AND);
-                defaultColumns.ifPresent(df -> {
-                    Map<String, Float> fieldsMap = df.stream().collect(Collectors.toMap(e -> e, e -> AbstractQueryBuilder.DEFAULT_BOOST));
+                if (!defaultColumns.isEmpty()) {
+                    Map<String, Float> fieldsMap = defaultColumns.stream().collect(Collectors.toMap(e -> e, e -> AbstractQueryBuilder.DEFAULT_BOOST));
                     query
                             .fields(fieldsMap)
                             //hide format error, i.a. if numeric or date columns are authorized elastic will fail to search in it
                             //TODO CHECK IF OK
                             .lenient(true);
-                });
+                }
                 orBoolQueryBuilder = orBoolQueryBuilder
                         .should(query);
             } else {

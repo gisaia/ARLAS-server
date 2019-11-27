@@ -186,7 +186,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
-        request.filteredColumns = filteredColumns;
+        request.filteredColumns = ParamsParser.getFilteredColumnsSet(filteredColumns, collectionReference);
         FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), Optional.empty());
         return cache(Response.ok(fc), maxagecache);
     }
@@ -337,7 +337,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             exploreServices.setValidGeoFilters(aggregationsRequestHeader);
             request.basicRequest = aggregationsRequest;
             request.headerRequest = aggregationsRequestHeader;
-            request.filteredColumns = filteredColumns;
+            request.filteredColumns = ParamsParser.getFilteredColumnsSet(filteredColumns, collectionReference);
             FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), Optional.of(geohash));
             return cache(Response.ok(fc), maxagecache);
         } else {
@@ -408,7 +408,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.basicRequest = aggregationRequest;
         request.headerRequest = aggregationsRequestHeader;
-        request.filteredColumns = filteredColumns;
+        request.filteredColumns = ParamsParser.getFilteredColumnsSet(filteredColumns, collectionReference);
         FeatureCollection fc = getFeatureCollection(request, collectionReference, (aggregationRequest.form != null && aggregationRequest.form.flat), Optional.empty());
 
         return cache(Response.ok(fc), maxagecache);

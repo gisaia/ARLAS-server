@@ -32,7 +32,6 @@ import io.arlas.server.model.response.UpdateResponse;
 import org.elasticsearch.client.Client;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Deprecated
 public class UpdateServices extends ExploreServices{
@@ -60,13 +59,12 @@ public class UpdateServices extends ExploreServices{
     protected FilteredUpdater getFilteredTagger(CollectionReference collectionReference, MixedRequest request) throws IOException, ArlasException {
         FilteredUpdater updater = new FilteredUpdater(this.getClient());
         updater.setCollectionReference(collectionReference);
-        ColumnFilter columnFilter = new ColumnFilter(request.filteredColumns, updater.getCollectionPaths());
         applyFilter(request.headerRequest.filter, updater);
         if(request.basicRequest!=null){
-            applyFilters(request.basicRequest.filter, updater, columnFilter);
+            applyFilter(request.basicRequest.filter, request.filteredColumns, updater);
             setPageSizeAndFrom(((Search)request.basicRequest).page, updater);
-            sortPage(((Search) request.basicRequest).page, updater, columnFilter);
-            applyProjection(((Search) request.basicRequest).projection, updater, columnFilter);
+            sortPage(((Search) request.basicRequest).page, request.filteredColumns, updater);
+            applyProjection(((Search) request.basicRequest).projection, request.filteredColumns, updater);
         }
         return updater;
     }

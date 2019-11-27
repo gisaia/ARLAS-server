@@ -155,7 +155,7 @@ public class CountRESTService extends ExploreRESTServices {
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
         exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
-        request.filteredColumns = filteredColumns;
+        request.filteredColumns = ParamsParser.getFilteredColumnsSet(filteredColumns, collectionReference);
 
         Hits hits = getArlasHits(collectionReference, request);
         return cache(Response.ok(hits), maxagecache);
@@ -217,7 +217,7 @@ public class CountRESTService extends ExploreRESTServices {
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
         exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
-        request.filteredColumns = filteredColumns;
+        request.filteredColumns = ParamsParser.getFilteredColumnsSet(filteredColumns, collectionReference);
 
         Hits hits = getArlasHits(collectionReference, request);
         return Response.ok(hits).build();

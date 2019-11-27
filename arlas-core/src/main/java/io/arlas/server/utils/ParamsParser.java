@@ -29,6 +29,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.dropwizard.jersey.params.IntParam;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.algorithm.Orientation;
@@ -39,10 +40,7 @@ import org.locationtech.jts.operation.valid.TopologyValidationError;
 
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -578,4 +576,15 @@ public class ParamsParser {
         }
     }
 
+    public static Set<String> getFilteredColumnsSet(Optional<String> filteredColumnsString, CollectionReference collectionReference) {
+        Optional<Set<String>> filteredColumnsSet = filteredColumnsString.filter(StringUtils::isNotBlank).map(cf -> Arrays.stream(cf.replaceAll("\\.\\*", "").replaceAll(" ", "").split(",")).collect(Collectors.toSet()));
+        //add collection mandatory fields, but only if a colum filter is provided (otherwise mandatory fields will be considered as the filter)
+        filteredColumnsSet.map(cols -> cols.addAll(Arrays.asList(
+                collectionReference.params.idPath,
+                collectionReference.params.geometryPath,
+                collectionReference.params.centroidPath,
+                collectionReference.params.timestampPath)));
+
+        return filteredColumnsSet.orElse(new HashSet<>());
+    }
 }
