@@ -247,8 +247,9 @@ public class TileRESTService extends ExploreRESTServices {
             MixedRequest request = new MixedRequest();
             request.basicRequest = search;
             request.headerRequest = searchHeader;
+            request.filteredColumns = filteredColumns;
 
-            Queue<TileProvider<RasterTile>> providers = new LinkedList<>(findCandidateTiles(collectionReference, request, filteredColumns).stream()
+            Queue<TileProvider<RasterTile>> providers = new LinkedList<>(findCandidateTiles(collectionReference, request).stream()
                     .filter(match -> match._2().map(
                             polygon->(!collectionReference.params.rasterTileURL.checkGeometry)||polygon.intersects(GeoTileUtil.toPolygon(bbox))) // if geo is available, does it intersect the bbox?
                             .orElse(Boolean.TRUE)) // otherwise, let's keep that match, we'll see later if it paints something
@@ -289,11 +290,10 @@ public class TileRESTService extends ExploreRESTServices {
     }
 
     protected List<Tuple2<String,Optional<Geometry>>> findCandidateTiles(CollectionReference collectionReference,
-                                                                         MixedRequest request,
-                                                                         Optional<String> filteredColumns)
+                                                                         MixedRequest request)
             throws ArlasException, IOException {
 
-        return Arrays.stream(this.getExploreServices().search(request, collectionReference, Optional.empty()).getHits())
+        return Arrays.stream(this.getExploreServices().search(request, collectionReference).getHits())
                 .map(hit->Tuple2.of(
                         "" + MapExplorer.getObjectFromPath(collectionReference.params.rasterTileURL.idPath, hit.getSourceAsMap()), // Let's get the ID of the match
                         Try.withCatch(() ->GeoTileUtil.getGeometryFromSource(hit.getSourceAsMap(), collectionReference), // and its geometry: must be a polygon

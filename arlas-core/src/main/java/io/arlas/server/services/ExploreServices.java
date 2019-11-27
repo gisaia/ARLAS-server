@@ -112,53 +112,53 @@ public class ExploreServices {
         return client.prepareSearch(collection.params.indexName);
     }
 
-    public SearchHits count(MixedRequest request, CollectionReference collectionReference, Optional<String> filteredColumns) throws ArlasException, IOException {
+    public SearchHits count(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        ColumnFilter columnFilter = new ColumnFilter(filteredColumns, fluidSearch.getCollectionPaths());
+        ColumnFilter columnFilter = new ColumnFilter(request.filteredColumns, fluidSearch.getCollectionPaths());
         applyFilter(collectionReference.params.filter, fluidSearch);
-        applyFilter(request.basicRequest.filter, fluidSearch, columnFilter);
-        applyFilter(request.headerRequest.filter, fluidSearch, columnFilter);
+        applyFilters(request.basicRequest.filter, fluidSearch, columnFilter);
+        applyFilters(request.headerRequest.filter, fluidSearch, columnFilter);
         return fluidSearch.exec().getHits();
     }
 
-    public SearchHits search(MixedRequest request, CollectionReference collectionReference, Optional<String> filteredColumns) throws ArlasException, IOException {
+    public SearchHits search(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        ColumnFilter columnFilter = new ColumnFilter(filteredColumns, fluidSearch.getCollectionPaths());
+        ColumnFilter columnFilter = new ColumnFilter(request.filteredColumns, fluidSearch.getCollectionPaths());
         applyFilter(collectionReference.params.filter, fluidSearch);
-        applyFilter(request.basicRequest.filter, fluidSearch, columnFilter);
-        applyFilter(request.headerRequest.filter, fluidSearch, columnFilter);
+        applyFilters(request.basicRequest.filter, fluidSearch, columnFilter);
+        applyFilters(request.headerRequest.filter, fluidSearch, columnFilter);
         paginate(((Search) request.basicRequest).page, collectionReference, fluidSearch, columnFilter);
         applyProjection(((Search) request.basicRequest).projection, fluidSearch, columnFilter);
 
         return fluidSearch.exec().getHits();
     }
 
-    public SearchResponse aggregate(MixedRequest request, CollectionReference collectionReference, Boolean isGeoAggregation, Optional<String> filteredColumns)
+    public SearchResponse aggregate(MixedRequest request, CollectionReference collectionReference, Boolean isGeoAggregation)
             throws ArlasException, IOException {
         CheckParams.checkAggregationRequest(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        ColumnFilter columnFilter = new ColumnFilter(filteredColumns, fluidSearch.getCollectionPaths());
+        ColumnFilter columnFilter = new ColumnFilter(request.filteredColumns, fluidSearch.getCollectionPaths());
         applyFilter(collectionReference.params.filter, fluidSearch);
-        applyFilter(request.basicRequest.filter, fluidSearch, columnFilter);
-        applyFilter(request.headerRequest.filter, fluidSearch, columnFilter);
+        applyFilters(request.basicRequest.filter, fluidSearch, columnFilter);
+        applyFilters(request.headerRequest.filter, fluidSearch, columnFilter);
         applyAggregation(((AggregationsRequest) request.basicRequest).aggregations, fluidSearch, isGeoAggregation, columnFilter);
         return fluidSearch.exec();
     }
 
-    public SearchResponse getFieldRange(MixedRequest request, CollectionReference collectionReference, Optional<String> filteredColumns) throws ArlasException, IOException {
+    public SearchResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
         CheckParams.checkRangeRequestField(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
-        ColumnFilter columnFilter = new ColumnFilter(filteredColumns, fluidSearch.getCollectionPaths());
+        ColumnFilter columnFilter = new ColumnFilter(request.filteredColumns, fluidSearch.getCollectionPaths());
         if (columnFilter.isForbidden(((RangeRequest) request.basicRequest).field)) {
             throw new BadRequestException("Requested field is not allowed");
         }
         applyFilter(collectionReference.params.filter, fluidSearch);
-        applyFilter(request.basicRequest.filter, fluidSearch, columnFilter);
-        applyFilter(request.headerRequest.filter, fluidSearch, columnFilter);
+        applyFilters(request.basicRequest.filter, fluidSearch, columnFilter);
+        applyFilters(request.headerRequest.filter, fluidSearch, columnFilter);
         applyRangeRequest(((RangeRequest) request.basicRequest).field, fluidSearch);
         SearchResponse response;
         try {
@@ -186,10 +186,10 @@ public class ExploreServices {
     }
 
     public void applyFilter(Filter filter, FluidSearch fluidSearch) throws ArlasException, IOException {
-        applyFilter(filter, fluidSearch, new ColumnFilter());
+        applyFilters(filter, fluidSearch, new ColumnFilter());
     }
 
-    public void applyFilter(Filter filter, FluidSearch fluidSearch, ColumnFilter columnsFilter) throws ArlasException, IOException {
+    public void applyFilters(Filter filter, FluidSearch fluidSearch, ColumnFilter columnsFilter) throws ArlasException, IOException {
 
         if (filter != null) {
             CheckParams.checkFilter(filter);

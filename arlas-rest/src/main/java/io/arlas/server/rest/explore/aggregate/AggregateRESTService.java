@@ -177,8 +177,9 @@ public class AggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
+        request.filteredColumns = filteredColumns;
 
-        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat), filteredColumns);
+        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(aggregationResponse), maxagecache);
     }
@@ -247,12 +248,12 @@ public class AggregateRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
+        request.filteredColumns = filteredColumns;
 
         AggregationResponse aggregationResponse = getArlasAggregation(
                 request,
                 collectionReference,
-                (aggregationsRequest.form != null && BooleanUtils.isTrue(aggregationsRequest.form.flat)),
-                filteredColumns);
+                (aggregationsRequest.form != null && BooleanUtils.isTrue(aggregationsRequest.form.flat)));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
 
         return cache(Response.ok(aggregationResponse), maxagecache);
@@ -260,11 +261,10 @@ public class AggregateRESTService extends ExploreRESTServices {
 
     public AggregationResponse getArlasAggregation(MixedRequest request,
                                                    CollectionReference collectionReference,
-                                                   boolean flat,
-                                                   Optional<String> filteredColumns) throws ArlasException, IOException {
+                                                   boolean flat) throws ArlasException, IOException {
         AggregationResponse aggregationResponse = new AggregationResponse();
         Long startQuery = System.nanoTime();
-        SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, false, filteredColumns);
+        SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, false);
         MultiBucketsAggregation aggregation;
         aggregation = (MultiBucketsAggregation) response.getAggregations().asList().get(0);
         aggregationResponse.totalnb = response.getHits().getTotalHits();

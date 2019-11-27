@@ -132,7 +132,7 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
-            @ApiParam(hidden = true)
+//            @ApiParam(hidden = true)
             @HeaderParam(value = "Column-Filter") Optional<String> filteredColumns,
 
             // --------------------------------------------------------
@@ -242,7 +242,8 @@ public class SearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(searchHeader);
         request.headerRequest = searchHeader;
-        Hits hits = getArlasHits(request, collectionReference,BooleanUtils.isTrue(flat),uriInfo,"GET", filteredColumns);
+        request.filteredColumns = filteredColumns;
+        Hits hits = getArlasHits(request, collectionReference,BooleanUtils.isTrue(flat),uriInfo,"GET");
         return cache(Response.ok(hits), maxagecache);
     }
 
@@ -307,15 +308,16 @@ public class SearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
+        request.filteredColumns = filteredColumns;
         exploreServices.setValidGeoFilters(search);
         exploreServices.setValidGeoFilters(searchHeader);
-        Hits hits = getArlasHits(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)),uriInfo,"POST", filteredColumns);
+        Hits hits = getArlasHits(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)),uriInfo,"POST");
         return cache(Response.ok(hits), maxagecache);
     }
 
 
-    protected Hits getArlasHits(MixedRequest request, CollectionReference collectionReference, Boolean flat, UriInfo uriInfo, String method, Optional<String> filteredColumns) throws ArlasException, IOException {
-        SearchHits searchHits = this.getExploreServices().search(request, collectionReference, filteredColumns);
+    protected Hits getArlasHits(MixedRequest request, CollectionReference collectionReference, Boolean flat, UriInfo uriInfo, String method) throws ArlasException, IOException {
+        SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
         Search searchRequest  = (Search)request.basicRequest;
         Hits hits = new Hits(collectionReference.collectionName);
         hits.totalnb = searchHits.getTotalHits();

@@ -23,6 +23,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.model.request.Aggregation;
 import io.arlas.server.model.request.Expression;
+import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.MultiValueFilter;
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,7 +39,7 @@ public class ColumnFilter {
         filteredColumns = Optional.empty();
     }
 
-    public ColumnFilter(Optional<String> columnFilter, List<String> defaultColumns) throws BadRequestException {
+    public ColumnFilter(Optional<String> columnFilter, List<String> defaultColumns) {
         filteredColumns = columnFilter.filter(StringUtils::isNotBlank).map(cf -> Arrays.stream(cf.replaceAll("\\.\\*", "").replaceAll(" ", "").split(",")).collect(Collectors.toSet()));
         filteredColumns.map(cols -> cols.addAll(defaultColumns));
     }
@@ -168,4 +169,5 @@ public class ColumnFilter {
     public MultiValueFilter<Expression> filterF(MultiValueFilter<Expression> f) {
         return f.stream().filter((m -> this.isAllowed(m.field))).collect(Collectors.toCollection(MultiValueFilter::new));
     }
+
 }

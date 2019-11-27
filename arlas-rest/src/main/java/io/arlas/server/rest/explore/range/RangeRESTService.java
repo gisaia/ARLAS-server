@@ -167,8 +167,9 @@ public class RangeRESTService extends ExploreRESTServices {
         request.basicRequest = rangeRequest;
         exploreServices.setValidGeoFilters(rangeRequestHeader);
         request.headerRequest = rangeRequestHeader;
+        request.filteredColumns = filteredColumns;
 
-        RangeResponse rangeResponse = getFieldRange(request, collectionReference, filteredColumns);
+        RangeResponse rangeResponse = getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(rangeResponse), maxagecache);
     }
@@ -236,16 +237,17 @@ public class RangeRESTService extends ExploreRESTServices {
 
         request.basicRequest = rangeRequest;
         request.headerRequest = rangeRequestHeader;
+        request.filteredColumns = filteredColumns;
 
-        RangeResponse rangeResponse = getFieldRange(request, collectionReference, filteredColumns);
+        RangeResponse rangeResponse = getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(rangeResponse), maxagecache);
     }
 
-    public RangeResponse getFieldRange(MixedRequest request, CollectionReference collectionReference, Optional<String> filteredColumns) throws ArlasException, IOException{
+    public RangeResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException{
         RangeResponse rangeResponse = new RangeResponse();
         Long startQuery = System.nanoTime();
-        SearchResponse response = this.getExploreServices().getFieldRange(request, collectionReference, filteredColumns);
+        SearchResponse response = this.getExploreServices().getFieldRange(request, collectionReference);
         Aggregation firstAggregation = response.getAggregations().asList().get(0);
         Aggregation secondAggregation = response.getAggregations().asList().get(1);
 

@@ -100,7 +100,8 @@ public class TagRESTService extends UpdateRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = tagRequest.search;
         request.headerRequest = searchHeader;
-        return Response.ok(updateServices.tag(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE, filteredColumns)).build();
+        request.filteredColumns = filteredColumns;
+        return Response.ok(updateServices.tag(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE)).build();
     }
 
 
@@ -157,10 +158,11 @@ public class TagRESTService extends UpdateRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = tagRequest.search;
         request.headerRequest = searchHeader;
+        request.filteredColumns = filteredColumns;
         if(tagRequest.tag.value!=null){
-            return Response.ok(updateServices.unTag(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE, filteredColumns)).build();
+            return Response.ok(updateServices.unTag(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE)).build();
         }else{
-            return Response.ok(updateServices.removeAll(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE, filteredColumns)).build();
+            return Response.ok(updateServices.removeAll(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE)).build();
         }
     }
 }

@@ -45,25 +45,25 @@ public class UpdateServices extends ExploreServices{
         super(client, configuration);
     }
 
-    public UpdateResponse tag(CollectionReference collectionReference, MixedRequest request, Tag tag, int max_updates, Optional<String> filteredColumns) throws IOException, ArlasException {
-        return this.getFilteredTagger(collectionReference, request, filteredColumns).doAction(Action.ADD,collectionReference, tag, max_updates);
+    public UpdateResponse tag(CollectionReference collectionReference, MixedRequest request, Tag tag, int max_updates) throws IOException, ArlasException {
+        return this.getFilteredTagger(collectionReference, request).doAction(Action.ADD,collectionReference, tag, max_updates);
     }
 
-    public UpdateResponse unTag(CollectionReference collectionReference, MixedRequest request, Tag tag, int max_updates, Optional<String> filteredColumns) throws IOException, ArlasException {
-        return this.getFilteredTagger(collectionReference, request, filteredColumns).doAction(Action.REMOVE,collectionReference, tag, max_updates);
+    public UpdateResponse unTag(CollectionReference collectionReference, MixedRequest request, Tag tag, int max_updates) throws IOException, ArlasException {
+        return this.getFilteredTagger(collectionReference, request).doAction(Action.REMOVE,collectionReference, tag, max_updates);
     }
 
-    public UpdateResponse removeAll(CollectionReference collectionReference, MixedRequest request, Tag tag, int max_updates, Optional<String> filteredColumns) throws IOException, ArlasException {
-        return this.getFilteredTagger(collectionReference, request, filteredColumns).doAction(Action.REMOVEALL,collectionReference, tag, max_updates);
+    public UpdateResponse removeAll(CollectionReference collectionReference, MixedRequest request, Tag tag, int max_updates) throws IOException, ArlasException {
+        return this.getFilteredTagger(collectionReference, request).doAction(Action.REMOVEALL,collectionReference, tag, max_updates);
     }
 
-    protected FilteredUpdater getFilteredTagger(CollectionReference collectionReference, MixedRequest request, Optional<String> filteredColumns) throws IOException, ArlasException {
+    protected FilteredUpdater getFilteredTagger(CollectionReference collectionReference, MixedRequest request) throws IOException, ArlasException {
         FilteredUpdater updater = new FilteredUpdater(this.getClient());
         updater.setCollectionReference(collectionReference);
-        ColumnFilter columnFilter = new ColumnFilter(filteredColumns, updater.getCollectionPaths());
+        ColumnFilter columnFilter = new ColumnFilter(request.filteredColumns, updater.getCollectionPaths());
         applyFilter(request.headerRequest.filter, updater);
         if(request.basicRequest!=null){
-            applyFilter(request.basicRequest.filter, updater, columnFilter);
+            applyFilters(request.basicRequest.filter, updater, columnFilter);
             setPageSizeAndFrom(((Search)request.basicRequest).page, updater);
             sortPage(((Search) request.basicRequest).page, updater, columnFilter);
             applyProjection(((Search) request.basicRequest).projection, updater, columnFilter);

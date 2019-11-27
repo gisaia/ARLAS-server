@@ -223,8 +223,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(searchHeader);
         request.headerRequest = searchHeader;
+        request.filteredColumns = filteredColumns;
 
-        FeatureCollection fc = getFeatures(collectionReference, request, (flat!=null && flat), filteredColumns);
+        FeatureCollection fc = getFeatures(collectionReference, request, (flat!=null && flat));
         return cache(Response.ok(fc), maxagecache);
     }
 
@@ -495,14 +496,15 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
+        request.filteredColumns = filteredColumns;
         exploreServices.setValidGeoFilters(search);
         exploreServices.setValidGeoFilters(searchHeader);
-        FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat), filteredColumns);
+        FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat));
         return cache(Response.ok(fc), maxagecache);
     }
 
-    protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request, boolean flat, Optional<String> filteredColumns) throws ArlasException, IOException {
-        SearchHits searchHits = this.getExploreServices().search(request, collectionReference, filteredColumns);
+    protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request, boolean flat) throws ArlasException, IOException {
+        SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
         Search searchRequest  = (Search)request.basicRequest;
         FeatureCollection fc = new FeatureCollection();
         List<SearchHit>results= Arrays.asList(searchHits.getHits());

@@ -155,8 +155,9 @@ public class CountRESTService extends ExploreRESTServices {
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
         exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
+        request.filteredColumns = filteredColumns;
 
-        Hits hits = getArlasHits(collectionReference, request, filteredColumns);
+        Hits hits = getArlasHits(collectionReference, request);
         return cache(Response.ok(hits), maxagecache);
     }
 
@@ -216,13 +217,14 @@ public class CountRESTService extends ExploreRESTServices {
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
         exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
+        request.filteredColumns = filteredColumns;
 
-        Hits hits = getArlasHits(collectionReference, request, filteredColumns);
+        Hits hits = getArlasHits(collectionReference, request);
         return Response.ok(hits).build();
     }
 
-    protected Hits getArlasHits(CollectionReference collectionReference, MixedRequest request, Optional<String> filteredColumns) throws ArlasException, IOException {
-        SearchHits searchHits = this.getExploreServices().count(request, collectionReference, filteredColumns);
+    protected Hits getArlasHits(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
+        SearchHits searchHits = this.getExploreServices().count(request, collectionReference);
         Hits hits = new Hits(collectionReference.collectionName);
         hits.totalnb = searchHits.getTotalHits();
         hits.nbhits = searchHits.getHits().length;

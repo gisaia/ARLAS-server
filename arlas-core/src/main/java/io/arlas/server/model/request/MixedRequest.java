@@ -19,7 +19,10 @@
 
 package io.arlas.server.model.request;
 
+import java.util.Optional;
+
 public class MixedRequest {
     public Request basicRequest;
     public Request headerRequest;
+    public Optional<String> filteredColumns;
 }
