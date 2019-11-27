@@ -124,15 +124,15 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingQueryFilter(post(request), 595);
         handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0)), 595);
         handleMatchingQueryFilter(header(request.filter), 595);
-        handleNotMatchingQueryFilter(post(request, "column-filter", String.join(",", Arrays.asList("id", "params.*"))));//can't find terms in filtered columns
-        handleNotMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", String.join(",", Arrays.asList("id", "params.*"))));//can't find terms in filtered columns
+        handleNotMatchingQueryFilter(post(request, "column-filter", "id,params.*"));//can't find terms in filtered columns
+        handleNotMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", "id,params.*"));//can't find terms in filtered columns
 
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name:is"));
         handleNotMatchingQueryFilter(post(request));
         handleNotMatchingQueryFilter(get("q", request.filter.q.get(0).get(0)));
         handleNotMatchingQueryFilter(header(request.filter));
-        handleMatchingQueryFilter(post(request, "column-filter", String.join(",", Arrays.asList("id", "params.*"))), 595);//no filter applied -> returning all results
-        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", String.join(",", Arrays.asList("id", "params.*"))), 595);//no filter applied -> returning all results
+        handleMatchingQueryFilter(post(request, "column-filter", "id,params.*"), 595);//no filter applied -> returning all results
+        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", "id,params.*"), 595);//no filter applied -> returning all results
 
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name is"));
         handleMatchingQueryFilter(post(request), 595);

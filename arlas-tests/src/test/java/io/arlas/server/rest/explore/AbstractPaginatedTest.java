@@ -32,9 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.notNullValue;
-
 import java.net.URLDecoder;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
