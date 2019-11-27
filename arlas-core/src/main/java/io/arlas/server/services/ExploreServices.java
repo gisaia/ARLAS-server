@@ -210,7 +210,7 @@ public class ExploreServices {
                     }
                 }
             }
-            //TODO with multi geometries, also apply columns filters to geometry fields ...
+
             if (filter.pwithin != null && !filter.pwithin.isEmpty()) {
                 for (MultiValueFilter<String> pw : filter.pwithin) {
                     fluidSearch = fluidSearch.filterPWithin(pw);
@@ -308,7 +308,7 @@ public class ExploreServices {
             return;
         }
 
-        if (page != null && page.after != null) {
+        if (page.after != null) {
             CheckParams.checkPageAfter(page, idCollectionField);
             //TODO before the CheckParams?
 
@@ -317,7 +317,7 @@ public class ExploreServices {
                 fluidSearch = fluidSearch.searchAfter(filteredAfter);
             }
         }
-        if (page != null && page.before != null) {
+        if (page.before != null) {
             CheckParams.checkPageAfter(page, idCollectionField);
 
             String filteredBefore = columnFilterService.filterAfter(filteredColumns, page.sort, page.before);

@@ -20,11 +20,9 @@
 package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.model.request.AggregationsRequest;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.AggregationResponse;
@@ -177,7 +175,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
-        request.filteredColumns = ParamsParser.getFilteredColumnsSet(filteredColumns, collectionReference);
+        request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
 
         AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
@@ -248,20 +246,15 @@ public class AggregateRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
-        request.filteredColumns = ParamsParser.getFilteredColumnsSet(filteredColumns, collectionReference);
+        request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
 
-        AggregationResponse aggregationResponse = getArlasAggregation(
-                request,
-                collectionReference,
-                (aggregationsRequest.form != null && BooleanUtils.isTrue(aggregationsRequest.form.flat)));
+        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, (aggregationsRequest.form != null && BooleanUtils.isTrue(aggregationsRequest.form.flat)));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
 
         return cache(Response.ok(aggregationResponse), maxagecache);
     }
 
-    public AggregationResponse getArlasAggregation(MixedRequest request,
-                                                   CollectionReference collectionReference,
-                                                   boolean flat) throws ArlasException, IOException {
+    public AggregationResponse getArlasAggregation(MixedRequest request, CollectionReference collectionReference, boolean flat) throws ArlasException, IOException {
         AggregationResponse aggregationResponse = new AggregationResponse();
         Long startQuery = System.nanoTime();
         SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, false);

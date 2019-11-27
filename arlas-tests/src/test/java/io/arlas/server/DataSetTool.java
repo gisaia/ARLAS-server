@@ -25,7 +25,6 @@ import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.model.RasterTileURL;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.core.util.IOUtils;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
@@ -93,19 +92,16 @@ public class DataSetTool {
             Settings settings = null;
             List<Pair<String,Integer>> nodes = ArlasServerConfiguration.getElasticNodes(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_NODES")).orElse("localhost:9300"));
             if ("localhost".equals(nodes.get(0).getLeft())) {
-                settings = Settings.builder().put("client.transport.sniff", false).build();
+                settings = Settings.EMPTY;
             } else {
                 settings = Settings.builder().put("cluster.name", "docker-cluster").build();
             }
-            long t0 = System.currentTimeMillis();
-            client = new PreBuiltTransportClient(settings, new ArrayList<>())
+            client = new PreBuiltTransportClient(settings)
                     .addTransportAddress(new TransportAddress(InetAddress.getByName(nodes.get(0).getLeft()), nodes.get(0).getRight()));
-            long t2 = (System.currentTimeMillis() - t0);
             adminClient = client.admin();
             ALIASED_COLLECTION = Optional.ofNullable(System.getenv("ALIASED_COLLECTION")).orElse("false").equals("true");
             WKT_GEOMETRIES = false;
             LOGGER.info("Load data in " + nodes.get(0).getLeft() + ":" + nodes.get(0).getRight() + " with ALIASED_COLLECTION=" + ALIASED_COLLECTION);
-            System.out.println(t2 + "ms in index");
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -122,7 +118,6 @@ public class DataSetTool {
             fillIndex(DATASET_INDEX_NAME,-170,170,-80,80);
             LOGGER.info("Index created : " + DATASET_INDEX_NAME);
         } else {
-            long t0 = System.currentTimeMillis();
             //Create 2 indeces, split data between them and create an alias above these 2 indeces
             createIndex(DATASET_INDEX_NAME+"_original","dataset.mapping.json");
             fillIndex(DATASET_INDEX_NAME+"_original",-170,0,-80,80);
@@ -131,8 +126,6 @@ public class DataSetTool {
             adminClient.indices().prepareAliases().addAlias(DATASET_INDEX_NAME+"*",DATASET_INDEX_NAME).get();
             LOGGER.info("Indeces created : " + DATASET_INDEX_NAME + "_original," + DATASET_INDEX_NAME + "_alt");
             LOGGER.info("Alias created : " + DATASET_INDEX_NAME);
-            long t1 = (System.currentTimeMillis() - t0);
-            System.out.println(t1 + "ms in load dataset");
         }
     }
 
@@ -148,8 +141,7 @@ public class DataSetTool {
     private static void fillIndex(String indexName, int lonMin, int lonMax, int latMin, int latMax) throws JsonProcessingException {
         Data data;
         ObjectMapper mapper = new ObjectMapper();
-        long t0 = System.currentTimeMillis();
-        BulkRequestBuilder bulk = client.prepareBulk(indexName, DATASET_TYPE_NAME);
+
         for (int i = lonMin; i <= lonMax; i += 10) {
             for (int j = latMin; j <= latMax; j += 10) {
                 data = new Data();
@@ -180,13 +172,11 @@ public class DataSetTool {
 
                 data.geo_params.geometry = new Polygon(coords);
                 data.geo_params.wktgeometry = wktGeometry;
-                bulk.add(client.prepareIndex(indexName, DATASET_TYPE_NAME, "ES_ID_TEST" + data.id)
-                        .setSource(mapper.writer().writeValueAsString(data), XContentType.JSON));
+                IndexResponse response = client.prepareIndex(indexName, DATASET_TYPE_NAME, "ES_ID_TEST" + data.id)
+                        .setSource(mapper.writer().writeValueAsString(data), XContentType.JSON)
+                        .get();
             }
         }
-        bulk.execute();
-        long t1 = (System.currentTimeMillis() - t0);
-        System.out.println(t1 + "ms in fill index");
     }
 
     public static void clearDataSet() {

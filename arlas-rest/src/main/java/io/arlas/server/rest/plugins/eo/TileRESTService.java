@@ -247,7 +247,7 @@ public class TileRESTService extends ExploreRESTServices {
             MixedRequest request = new MixedRequest();
             request.basicRequest = search;
             request.headerRequest = searchHeader;
-            request.filteredColumns = ParamsParser.getFilteredColumnsSet(filteredColumns, collectionReference);
+            request.filteredColumns = ParamsParser.getFilteredColumns(filteredColumns, collectionReference);
 
             Queue<TileProvider<RasterTile>> providers = new LinkedList<>(findCandidateTiles(collectionReference, request).stream()
                     .filter(match -> match._2().map(

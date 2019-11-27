@@ -77,7 +77,8 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.*;
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
 import java.net.InetAddress;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -126,15 +127,12 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         }
         Settings settings = settingsBuilder.build();
 
-        long t0 = System.currentTimeMillis();
         PreBuiltTransportClient transportClient = new PreBuiltTransportClient(settings);
         for(Pair<String,Integer> node : configuration.getElasticNodes()) {
             transportClient.addTransportAddress(new TransportAddress(InetAddress.getByName(node.getLeft()),
                     node.getRight()));
         }
         Client client = transportClient;
-        long t1 = System.currentTimeMillis();
-        System.out.println(((t1 - t0)/1000)+ "s in index");
 
         if (configuration.zipkinConfiguration != null) {
             Optional<HttpTracing> tracing = configuration.zipkinConfiguration.build(environment);
@@ -156,7 +154,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new XmlMDMetadataMessageBodyWriter());
         environment.jersey().register(new XmlRecordMessageBodyBuilder());
         environment.jersey().register(new AtomRecordMessageBodyWriter());
-//        environment.jersey().register(new ColumnsFilter());
 
         if (configuration.arlasServiceExploreEnabled) {
             environment.jersey().register(new CountRESTService(exploration));

@@ -919,8 +919,6 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .param("f", new Expression("params.weight", OperatorEnum.range, "[10<20]").toString())
                         .when().get(getUrlPath("geodata"))
                         .then());
-
-        //TODO test sort with columns filter?
     }
 
     //----------------------------------------------------------------

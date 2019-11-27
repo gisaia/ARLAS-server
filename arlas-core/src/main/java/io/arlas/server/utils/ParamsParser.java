@@ -263,7 +263,7 @@ public class ParamsParser {
             MultiValueFilter<Expression> multiFilter = new MultiValueFilter<>();
             for (String f : getMultiFiltersFromSemiColonsSeparatedString(multiF)) {
                 if (!StringUtil.isNullOrEmpty(f)) {
-                    String operands[] = f.split(":");//not add if operand[0] not autorized
+                    String operands[] = f.split(":");
                     StringBuffer value = new StringBuffer();
                     if (operands.length < 3) {
                         throw new InvalidParameterException(FluidSearch.INVALID_PARAMETER_F + ": '" + f + "'");
@@ -576,7 +576,7 @@ public class ParamsParser {
         }
     }
 
-    public static Set<String> getFilteredColumnsSet(Optional<String> filteredColumnsString, CollectionReference collectionReference) {
+    public static Set<String> getFilteredColumns(Optional<String> filteredColumnsString, CollectionReference collectionReference) {
         Optional<Set<String>> filteredColumnsSet = filteredColumnsString.filter(StringUtils::isNotBlank).map(cf -> Arrays.stream(cf.replaceAll("\\.\\*", "").replaceAll(" ", "").split(",")).collect(Collectors.toSet()));
         //add collection mandatory fields, but only if a colum filter is provided (otherwise mandatory fields will be considered as the filter)
         filteredColumnsSet.map(cols -> cols.addAll(Arrays.asList(

@@ -27,7 +27,6 @@ import io.arlas.server.model.enumerations.Action;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.model.request.Tag;
-import io.arlas.server.model.ColumnFilter;
 import io.arlas.server.model.response.UpdateResponse;
 import org.elasticsearch.client.Client;
 
