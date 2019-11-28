@@ -91,6 +91,7 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     @Test
     public void testPageSort() throws Exception {
 
+        search.filter = new Filter();
         search.page.sort = "-params.job";
         handleSortParameter(post(search), "Dancer");
         handleSortParameter(get("sort", search.page.sort), "Dancer");
@@ -99,10 +100,17 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
         handleGeoSortParameter(post(search), "-50,-110");
         handleGeoSortParameter(get("sort", search.page.sort), "-50,-110");
 
-        String columnsFilter = "fullname,params.job,params.country,params.startdate,params.stopdate,geodistance";
         search.page.sort = "params.weight,-params.age,-params.job";
-        handleSortParameter(post(search, columnsFilter), "Dancer");
-        handleSortParameter(get("sort", search.page.sort, columnsFilter), "Dancer");
+        handleSortParameter(post(search, "fullname,params.job"), "Dancer");
+        handleSortParameter(get("sort", search.page.sort, "fullname,params.job"), "Dancer");
+
+        search.page.sort = "geodistance:-50 -110,-params.job";
+        handleSortParameter(post(search, "fullname,params.job"), "Dancer");
+        handleSortParameter(get("sort", search.page.sort, "fullname,params.job"), "Dancer");
+
+        search.page.sort = "-params.job,geodistance:-50 -110";
+        handleGeoSortParameter(post(search, "fullname,geodistance"), "-50,-110");
+        handleGeoSortParameter(get("sort", search.page.sort, "fullname,geodistance"), "-50,-110");
 
     }
 

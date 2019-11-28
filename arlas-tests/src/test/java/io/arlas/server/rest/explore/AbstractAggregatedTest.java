@@ -907,10 +907,44 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(get("term:params.job:fetch_geometry-3[params.age]"));
         invalidAggregationRequest.invalidAggregations.get(0).fetchHits = null;
 
-
     }
 
-    //TODO test columns filter
+    @Test
+    public void testForbiddenAggregateParameters() throws Exception {
+
+        //aggregation field is filtered
+        aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
+        aggregationRequest.aggregations.get(0).field = "params.job";
+        handleInvalidParameters(post(aggregationRequest, "id"));
+        handleInvalidParameters(get("term:params.job", "id"));
+
+        //fetch geometry field is filtered
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first, "params.age");
+        handleInvalidParameters(post(aggregationRequest, "params.job"));
+        handleInvalidParameters(get("term:params.job:fetch_geometry-params.age-first", "params.job"));
+
+        //metric fields are filtered
+        aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
+        aggregationRequest.aggregations.get(0).field = "params.job";
+        aggregationRequest.aggregations.get(0).fetchGeometry = null;
+
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.age", CollectionFunction.MAX));
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.SUM));
+        handleMatchingAggregateWithCollect(post(aggregationRequest, "params.job,params.startdate"), DataSetTool.jobs.length - 1, 58, 64, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, "sum",
+                58000000F, 640000000F);
+        handleMatchingAggregateWithCollect(get("term:params.job:collect_field-params.age:collect_fct-max:collect_field-params.startdate:collect_fct-sum", "params.job,params.startdate"), DataSetTool.jobs.length - 1, 58, 64,
+                aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"sum", 58000000F, 640000000F);
+
+        //fetch hits are filtered
+        aggregationRequest.aggregations.get(0).metrics = null;
+        aggregationRequest.aggregations.get(0).fetchGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("-params.age", "-params.startdate"));
+        handleMatchingAggregateWithSortedFetchedDates(post(aggregationRequest, "params.job,params.startdate"), DataSetTool.jobs.length - 1, 3, 1144900, 1263600, "params.startdate");
+        handleMatchingAggregateWithSortedFetchedDates(get("term:params.job:fetch_hits-3(-params.age,-params.startdate):fetch_geometry", "params.job,params.startdate"), DataSetTool.jobs.length - 1, 3, 1144900, 1263600
+                , "params.startdate");
+        aggregationRequest.aggregations.get(0).fetchHits = null;
+    }
 
     @Test
     public void testNotImplementedAggregateParameters() throws Exception {
@@ -984,12 +1018,29 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
                 .then();
     }
 
+    protected ValidatableResponse post(Request request, String columnFilter) {
+        return given().contentType("application/json;charset=utf-8")
+                .body(request)
+                .header("column-filter", columnFilter)
+                .when().post(getUrlPath("geodata"))
+                .then();
+    }
+
     protected RequestSpecification handleGetRequest(RequestSpecification req){return req;}
     
     private ValidatableResponse get(Object paramValue) {
         RequestSpecification req = given();
         req = handleGetRequest(req);
         return req.param("agg", paramValue)
+                .when().get(getUrlPath("geodata"))
+                .then();
+    }
+
+    private ValidatableResponse get(Object paramValue, String columnFilter) {
+        RequestSpecification req = given();
+        req = handleGetRequest(req);
+        return req.param("agg", paramValue)
+                .header("column-filter", columnFilter)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
