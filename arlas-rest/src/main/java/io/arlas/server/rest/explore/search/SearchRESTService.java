@@ -131,7 +131,7 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
-//            @ApiParam(hidden = true)
+            @ApiParam(hidden = true)
             @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
