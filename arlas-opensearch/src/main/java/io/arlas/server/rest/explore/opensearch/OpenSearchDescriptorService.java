@@ -35,6 +35,8 @@ import io.arlas.server.services.ExploreServices;
 import io.arlas.server.rest.explore.opensearch.model.Image;
 import io.arlas.server.rest.explore.opensearch.model.OpenSearchDescription;
 import io.arlas.server.rest.explore.opensearch.model.Url;
+import io.arlas.server.utils.ColumnFilterUtil;
+import io.arlas.server.utils.FilterMatcherUtil;
 import io.arlas.server.utils.StringUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -46,10 +48,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class OpenSearchDescriptorService extends ExploreRESTServices {
@@ -86,6 +85,11 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
+            // ----------------------- FILTERS- -----------------------
+            // --------------------------------------------------------
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
@@ -97,7 +101,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         OpenSearchDescription description = new OpenSearchDescription();
-        String prefix = uri.getBaseUri().toURL().toString() + uri.getPath().toString() + "/../_search";
+        String prefix = uri.getBaseUri().toURL().toString() + uri.getPath() + "/../_search";
 
         //[scheme:][//authority][path][?query][#fragment]
         if (cr.params.openSearch != null) {
@@ -130,7 +134,8 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             description.syndicationRight = os.syndicationRight;
             description.tags = os.tags;
         }
-        addURLs(prefix, description.url, admin.describeCollection(cr).properties, new Stack<>());
+        Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, cr);
+        addURLs(prefix, description.url, admin.describeCollection(cr).properties, new Stack<>(), columnFilterPredicates);
         List<Url> urls = new ArrayList<>();
         description.url.forEach(url -> {
             urls.add(url(url.template + "&gintersect={geo:box?}"));
@@ -140,7 +145,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
         return cache(Response.ok(description), maxagecache);
     }
 
-    private void addURLs(String templatePrefix, List<Url> urls, Map<String, CollectionReferenceDescriptionProperty> properties, Stack<String> namespace) {
+    private void addURLs(String templatePrefix, List<Url> urls, Map<String, CollectionReferenceDescriptionProperty> properties, Stack<String> namespace, Optional<Set<String>> columnFilterPredicates) {
         if (properties == null) {
             return;
         }
@@ -148,33 +153,35 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             CollectionReferenceDescriptionProperty property = properties.get(key);
             namespace.push(key);
             if (property.type == ElasticType.OBJECT) {
-                addURLs(templatePrefix, urls, property.properties, namespace);
+                addURLs(templatePrefix, urls, property.properties, namespace, columnFilterPredicates);
             } else {
                 String fieldPath = String.join(".", new ArrayList<>(namespace));
-                switch (property.type) {
-                    case DATE:
-                        addNumberUrls(urls, templatePrefix, fieldPath, "long");
-                        break;
-                    case LONG:
-                        addNumberUrls(urls, templatePrefix, fieldPath, "long");
-                        break;
-                    case DOUBLE:
-                        addNumberUrls(urls, templatePrefix, fieldPath, "double");
-                    case FLOAT:
-                        addNumberUrls(urls, templatePrefix, fieldPath, "float");
-                    case SHORT:
-                        addNumberUrls(urls, templatePrefix, fieldPath, "short");
-                        break;
-                    case INTEGER:
-                        addNumberUrls(urls, templatePrefix, fieldPath, "integer");
-                        break;
-                    case TEXT:
-                        urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
-                        urls.add(url(templatePrefix + "?f=" + fieldPath + ":like:{text?}"));
-                        break;
-                    case KEYWORD:
-                        urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
-                        break;
+                if (FilterMatcherUtil.matches(columnFilterPredicates, fieldPath)) {
+                    switch (property.type) {
+                        case DATE:
+                            addNumberUrls(urls, templatePrefix, fieldPath, "long");
+                            break;
+                        case LONG:
+                            addNumberUrls(urls, templatePrefix, fieldPath, "long");
+                            break;
+                        case DOUBLE:
+                            addNumberUrls(urls, templatePrefix, fieldPath, "double");
+                        case FLOAT:
+                            addNumberUrls(urls, templatePrefix, fieldPath, "float");
+                        case SHORT:
+                            addNumberUrls(urls, templatePrefix, fieldPath, "short");
+                            break;
+                        case INTEGER:
+                            addNumberUrls(urls, templatePrefix, fieldPath, "integer");
+                            break;
+                        case TEXT:
+                            urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
+                            urls.add(url(templatePrefix + "?f=" + fieldPath + ":like:{text?}"));
+                            break;
+                        case KEYWORD:
+                            urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
+                            break;
+                    }
                 }
             }
             namespace.pop();
