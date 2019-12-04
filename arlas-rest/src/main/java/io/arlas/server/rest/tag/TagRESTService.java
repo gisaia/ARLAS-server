@@ -29,15 +29,16 @@ import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.UpdateResponse;
 import io.arlas.server.app.Documentation;
 import io.arlas.server.services.UpdateServices;
+import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 @Deprecated
 public class TagRESTService extends UpdateRESTServices {
@@ -77,6 +78,9 @@ public class TagRESTService extends UpdateRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value="Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM     -----------------------
             // --------------------------------------------------------
@@ -91,11 +95,16 @@ public class TagRESTService extends UpdateRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, tagRequest.search);
+
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = tagRequest.search;
         request.headerRequest = searchHeader;
+        request.columnFilter = columnFilter;
+
         return Response.ok(updateServices.tag(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE)).build();
     }
 
@@ -131,6 +140,9 @@ public class TagRESTService extends UpdateRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value="Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM     -----------------------
             // --------------------------------------------------------
@@ -145,11 +157,16 @@ public class TagRESTService extends UpdateRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, tagRequest.search);
+
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = tagRequest.search;
         request.headerRequest = searchHeader;
+        request.columnFilter = columnFilter;
+
         if(tagRequest.tag.value!=null){
             return Response.ok(updateServices.unTag(collectionReference, request, tagRequest.tag, Integer.MAX_VALUE)).build();
         }else{

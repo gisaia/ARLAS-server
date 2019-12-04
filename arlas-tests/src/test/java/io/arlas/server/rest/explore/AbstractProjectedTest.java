@@ -45,29 +45,109 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
     //----------------------------------------------------------------
     @Test
     public void testIncludeExcludeFilter() throws Exception {
+        //an empty column filter is not considered
         search.projection.includes = "id,params,geo_params";
-        handleHiddenParameter(post(search), Arrays.asList("fullname"));
-        handleHiddenParameter(get("include", search.projection.includes), Arrays.asList("fullname"));
+        handleDisplayedParameter(post(search, ""), Arrays.asList("params.country"));
+        handleDisplayedParameter(get("include", search.projection.includes, ""), Arrays.asList("params.country"));
+        handleHiddenParameter(post(search, ""), Arrays.asList("fullname"));
+        handleHiddenParameter(get("include", search.projection.includes, ""), Arrays.asList("fullname"));
 
-        search.projection.includes = "id,geo_params";
-        handleDisplayedParameter(post(search), Arrays.asList("params.startdate"));
-        handleDisplayedParameter(get("include", search.projection.includes), Arrays.asList("params.startdate"));
+        //unexisting column should not return 404 nor 403 without column filter
+        search.projection.includes = "id,params,unexisting";
+        handleDisplayedParameter(post(search, ""), Arrays.asList("params.country"));
+        handleDisplayedParameter(get("include", search.projection.includes, ""), Arrays.asList("params.country"));
+        handleHiddenParameter(post(search, ""), Arrays.asList("fullname"));
+        handleHiddenParameter(get("include", search.projection.includes, ""), Arrays.asList("fullname"));
 
         search.projection.includes = null;
 
+        //an empty column filter is not considered in column filter
         search.projection.excludes = "fullname";
-        handleHiddenParameter(post(search), Arrays.asList("fullname"));
-        handleHiddenParameter(get("exclude", search.projection.excludes), Arrays.asList("fullname"));
+        handleDisplayedParameter(post(search, ""), Arrays.asList("params.country"));
+        handleDisplayedParameter(get("exclude", search.projection.excludes, ""), Arrays.asList("params.country"));
+        handleHiddenParameter(post(search, ""), Arrays.asList("fullname"));
+        handleHiddenParameter(get("exclude", search.projection.excludes, ""), Arrays.asList("fullname"));
 
         search.projection.excludes = null;
+    }
+
+    @Test
+    public void testIncludeExcludeFilterWithAvailableColumn() throws Exception {
+        search.projection.includes = "id,params*";
+        handleDisplayedParameter(post(search, "id,params.country"), Arrays.asList("params.country", "id", "params.startdate"));
+        handleDisplayedParameter(get("include", search.projection.includes, "id,params.country"), Arrays.asList("params.country", "id", "params.startdate"));
+
+        handleHiddenParameter(post(search, "id,params.country"), Arrays.asList("params.job,fullname"));
+        handleHiddenParameter(get("include", search.projection.includes, "id,params.country"), Arrays.asList("params.job,fullname"));
+
+        search.projection.includes = "id,geo_params,unexisting*";
+        handleDisplayedParameter(post(search, "id, geo_params"), Arrays.asList("params.startdate"));
+        handleDisplayedParameter(get("include", search.projection.includes, "id, geo_params"), Arrays.asList("params.startdate"));
+
+        search.projection.includes = "param*";
+        handleDisplayedParameter(post(search, "*params"), Arrays.asList("params.startdate", "params.age", "params.job", "params.country"));
+        handleDisplayedParameter(get("include", search.projection.includes, "*params"), Arrays.asList("params.startdate", "params.age", "params.job", "params.country"));
+        handleHiddenParameter(post(search, "*params"), Arrays.asList("fullname"));
+        handleHiddenParameter(get("include", search.projection.includes, "*params"), Arrays.asList("fullname"));
+
+        handleDisplayedParameter(post(search, "params"), Arrays.asList("params.startdate", "params.age", "params.job", "params.country"));
+        handleDisplayedParameter(get("include", search.projection.includes, "params"), Arrays.asList("params.startdate", "params.age", "params.job", "params.country"));
+        handleHiddenParameter(post(search, "params"), Arrays.asList("fullname"));
+        handleHiddenParameter(get("include", search.projection.includes, "params"), Arrays.asList("fullname"));
+
+        //unexisting column should not break if used in includes and filter, it is simply not returned
+        search.projection.includes = "unexisting";
+        handleHiddenParameter(post(search, "unexisting"), Arrays.asList("unexisting"));
+        handleHiddenParameter(get("unexisting", search.projection.includes, "params"), Arrays.asList("unexisting"));
+
+        //include without wildcard can be used if a filter matches
+        search.projection.includes = "id,params";
+        handleDisplayedParameter(post(search, "id,params"), Arrays.asList("params.country"));
+        handleDisplayedParameter(get("include", search.projection.includes, "id,params"), Arrays.asList("params.country"));
+
+        handleDisplayedParameter(post(search, "id,params*"), Arrays.asList("params.country"));
+        handleDisplayedParameter(get("include", search.projection.includes, "id,params*"), Arrays.asList("params.country"));
+
 
         search.projection.excludes = "params.job,fullname";
         search.projection.includes = "geo_params.geometry";
-        handleDisplayedParameter(post(search), Arrays.asList("id", "params.startdate",  "geo_params.centroid"));
+        handleDisplayedParameter(post(search, "params.job,fullname,geo_params.geometry"), Arrays.asList("id", "params.startdate",  "geo_params.centroid"));
         handleDisplayedParameter(givenFilterableRequestParams().param("include", search.projection.includes)
                 .param("exclude", search.projection.excludes)
+                .header("column-filter", "params.job,fullname,geo_params.geometry")
                 .when().get(getUrlPath("geodata"))
                 .then(), Arrays.asList("id", "params.startdate",  "geo_params.centroid"));
+
+        //exclude is not column filtered
+        search.projection.includes = null;
+        search.projection.excludes = "fullname";
+        handleDisplayedParameter(post(search, "id"), Arrays.asList("id"));
+        handleDisplayedParameter(get("exclude", search.projection.excludes, "id"), Arrays.asList("id"));
+        handleHiddenParameter(post(search, "id"), Arrays.asList("fullname", "params.country"));
+        handleHiddenParameter(get("exclude", search.projection.excludes, "id"), Arrays.asList("fullname", "params.country"));
+
+        handleHiddenParameter(post(search, "id,fullname"), Arrays.asList("fullname", "params.country"));
+        handleHiddenParameter(get("exclude", search.projection.excludes, "id,fullname"), Arrays.asList("fullname", "params.country"));
+
+        search.projection.includes = null;
+        search.projection.excludes = null;
+    }
+
+    @Test
+    public void testIncludeExcludeFilterWithUnavailableColumn() throws Exception {
+        search.projection.includes = "fullname";
+        handleUnavailableColumn(post(search, "id"));
+        handleUnavailableColumn(get("include", search.projection.includes, "id"));
+
+        //column existence is not checked, column filter is applied as usually
+        search.projection.includes = "id,geo_params,unexisting";
+        handleUnavailableColumn(post(search, "id, geo_params"));
+        handleUnavailableColumn(get("include", search.projection.includes, "id, geo_params"));
+
+        //without wildcard, a root path cannnot be included if a filter doesn't match
+        search.projection.includes = "id,params";
+        handleUnavailableColumn(post(search, "id,params.country"));
+        handleUnavailableColumn(get("include", search.projection.includes, "id,params.country"));
 
         search.projection.includes = null;
         search.projection.excludes = null;
@@ -80,6 +160,14 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
     private ValidatableResponse post(Request request) {
         RequestSpecification req = givenFilterableRequestBody();
         return req.body(handlePostRequest(request))
+                .when().post(getUrlPath("geodata"))
+                .then();
+    }
+
+    private ValidatableResponse post(Request request, String columnFilter) {
+        RequestSpecification req = givenFilterableRequestBody();
+        return req.body(handlePostRequest(request))
+                .header("column-filter", columnFilter)
                 .when().post(getUrlPath("geodata"))
                 .then();
     }

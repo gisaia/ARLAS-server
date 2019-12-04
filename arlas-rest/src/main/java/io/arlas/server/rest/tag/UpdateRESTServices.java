@@ -24,7 +24,6 @@ import io.arlas.server.services.UpdateServices;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 @Deprecated

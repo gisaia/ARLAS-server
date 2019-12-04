@@ -60,10 +60,10 @@ public class UpdateServices extends ExploreServices{
         updater.setCollectionReference(collectionReference);
         applyFilter(request.headerRequest.filter, updater);
         if(request.basicRequest!=null){
-            applyFilter(request.basicRequest.filter,updater);
-            setPageSizeAndFrom(((Search)request.basicRequest).page,updater);
+            applyFilter(request.basicRequest.filter, updater);
+            setPageSizeAndFrom(((Search)request.basicRequest).page, updater);
             sortPage(((Search) request.basicRequest).page, updater);
-            applyProjection(((Search) request.basicRequest).projection, updater);
+            applyProjection(((Search) request.basicRequest).projection, updater, request.columnFilter, collectionReference);
         }
         return updater;
     }

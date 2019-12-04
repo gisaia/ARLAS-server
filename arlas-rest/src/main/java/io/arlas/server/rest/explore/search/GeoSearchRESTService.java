@@ -21,7 +21,6 @@ package io.arlas.server.rest.explore.search;
 
 
 import com.codahale.metrics.annotation.Timed;
-import com.sun.research.ws.wadl.Param;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.MixedRequest;
@@ -42,7 +41,6 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -129,6 +127,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -214,12 +215,16 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
         search.page = ParamsParser.getPage(size, from, sort,after,before);
         search.projection = ParamsParser.getProjection(include, exclude);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(searchHeader);
         request.headerRequest = searchHeader;
+        request.columnFilter = columnFilter;
 
         FeatureCollection fc = getFeatures(collectionReference, request, (flat!=null && flat));
         return cache(Response.ok(fc), maxagecache);
@@ -313,6 +318,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -413,6 +421,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     notgintersect,
                     dateformat,
                     partitionFilter,
+                    columnFilter,
                     pretty,
                     flat,
                     include,
@@ -460,6 +469,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -482,11 +494,17 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
+
+        exploreServices.setValidGeoFilters(search);
+        exploreServices.setValidGeoFilters(searchHeader);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        exploreServices.setValidGeoFilters(search);
-        exploreServices.setValidGeoFilters(searchHeader);
+        request.columnFilter = columnFilter;
+
         FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat));
         return cache(Response.ok(fc), maxagecache);
     }

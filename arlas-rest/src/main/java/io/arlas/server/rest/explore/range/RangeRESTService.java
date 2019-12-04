@@ -31,6 +31,7 @@ import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -40,16 +41,19 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class RangeRESTService extends ExploreRESTServices {
-    public RangeRESTService(ExploreServices exploreServices) { super(exploreServices);}
+
+    public RangeRESTService(ExploreServices exploreServices) {
+        super(exploreServices);
+    }
 
     @Timed
     @Path("{collection}/_range")
@@ -133,6 +137,9 @@ public class RangeRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -157,12 +164,16 @@ public class RangeRESTService extends ExploreRESTServices {
         RangeRequest rangeRequest = new RangeRequest();
         rangeRequest.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
         rangeRequest.field = field;
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, rangeRequest);
+
         RangeRequest rangeRequestHeader = new RangeRequest();
         rangeRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = rangeRequest;
         exploreServices.setValidGeoFilters(rangeRequestHeader);
         request.headerRequest = rangeRequestHeader;
+        request.columnFilter = columnFilter;
 
         RangeResponse rangeResponse = getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
@@ -200,6 +211,9 @@ public class RangeRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -227,8 +241,11 @@ public class RangeRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(rangeRequest);
         exploreServices.setValidGeoFilters(rangeRequestHeader);
 
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, rangeRequest);
+
         request.basicRequest = rangeRequest;
         request.headerRequest = rangeRequestHeader;
+        request.columnFilter = columnFilter;
 
         RangeResponse rangeResponse = getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);

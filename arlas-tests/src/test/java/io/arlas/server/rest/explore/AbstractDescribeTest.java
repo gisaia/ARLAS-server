@@ -59,7 +59,7 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
     }
 
     @Test
-    public void testDescribeFeatureWithFullColumFilter() throws Exception {
+    public void testDescribeFeatureWithColumFilter() throws Exception {
         handleMatchingResponse(get(Optional.of("*ullname,*arams")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
         handleMatchingResponse(get(Optional.of("*ullnam*,*aram*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
         handleMatchingResponse(get(Optional.of("*ullnam*,*aram*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
@@ -67,10 +67,9 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
     }
 
     @Test
-    public void testDescribeFeatureWithSpecificFullColumFilter() throws Exception {
+    public void testDescribeFeatureWithSpecificColumFilter() throws Exception {
         handleNotMatchingResponse(get(Optional.of("*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
         handleMatchingResponse(get(Optional.of("fullname,*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
-
         handleNotMatchingResponse(get(Optional.of("fullname,params.")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
     }
 

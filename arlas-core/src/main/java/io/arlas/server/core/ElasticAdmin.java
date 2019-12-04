@@ -26,6 +26,7 @@ import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.utils.ColumnFilterUtil;
+import io.arlas.server.utils.FilterMatcherUtil;
 import org.apache.logging.log4j.util.Strings;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -37,6 +38,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ElasticAdmin {
 
@@ -109,7 +112,7 @@ public class ElasticAdmin {
             namespace.push(key.toString());
             String path = Strings.join(namespace,'.');
             boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
-            boolean isPathAllowed = ColumnFilterUtil.isAllowed(columnFilterPredicates, path);
+            boolean isPathAllowed = FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path);
             if (!excludePath && isPathAllowed) {
                 if (source.get(key) instanceof Map) {
                     Map property = (Map) source.get(key);
@@ -166,6 +169,38 @@ public class ElasticAdmin {
             }
         }
         return collections;
+    }
+
+    /**
+     * Get the parameters paths of a collection, using the given filter predicates
+     * @param collectionReference
+     * @param filterPredicates
+     * @return
+     */
+    public Set<String> getCollectionFields(CollectionReference collectionReference, Optional<String> filterPredicates) {
+
+        Map<String, CollectionReferenceDescriptionProperty> collectionFilteredProperties =
+                this.describeCollection(collectionReference, filterPredicates).properties;
+
+        return getPropertiesFields(collectionFilteredProperties, "")
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Extract the fields of the given paths, recursively
+     * @param properties
+     * @param parentPath
+     * @return
+     */
+    private Stream<String> getPropertiesFields(Map<String, CollectionReferenceDescriptionProperty> properties, String parentPath) {
+        return properties.entrySet().stream().map(es -> {
+            if (es.getValue().type == ElasticType.OBJECT) {
+                return getPropertiesFields(es.getValue().properties, parentPath + es.getKey() + ".");
+            } else {
+                return Stream.of(parentPath + es.getKey());
+            }
+        })
+                .flatMap(x -> x);
     }
 
 }
