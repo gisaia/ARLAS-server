@@ -37,12 +37,12 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferenceDao {
 
@@ -72,7 +72,7 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
 
         BoolQueryBuilder ogcBoolQuery = QueryBuilders.boolQuery();
         BoolQueryBuilder ogcIdsQBoundingBoxBoolQuery = ElasticFilter.filter(ids, "dublin_core_element_name.identifier", q, "internal.fulltext", boundingBox, "dublin_core_element_name.coverage");
-        BoolQueryBuilder ogcConstraintBoolQuery = ElasticFilter.filter(constraint, getMetacollectionDescription(), service);
+        BoolQueryBuilder ogcConstraintBoolQuery = ElasticFilter.filter(constraint, getMetacollectionDescription(), service, Optional.empty());
         ogcBoolQuery.filter(ogcIdsQBoundingBoxBoolQuery).filter(ogcConstraintBoolQuery);
         return getCollectionReferences(ogcBoolQuery, includes, excludes, size, from);
     }
@@ -83,7 +83,7 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
 
         BoolQueryBuilder ogcBoolQuery = QueryBuilders.boolQuery();
         BoolQueryBuilder ogcIdsQBoundingBoxBoolQuery = ElasticFilter.filter(ids, "dublin_core_element_name.identifier", q, "internal.fulltext", boundingBox, "dublin_core_element_name.coverage");
-        BoolQueryBuilder ogcConstraintBoolQuery = ElasticFilter.filter(constraint, getMetacollectionDescription(), service);
+        BoolQueryBuilder ogcConstraintBoolQuery = ElasticFilter.filter(constraint, getMetacollectionDescription(), service, Optional.empty());
         ogcBoolQuery.filter(ogcIdsQBoundingBoxBoolQuery).filter(ogcConstraintBoolQuery);
         ogcBoolQuery.filter(QueryBuilders.boolQuery().mustNot(QueryBuilders.matchQuery("dublin_core_element_name.identifier", collectionReferenceToRemove.params.dublinCoreElementName.identifier)));
         return getCollectionReferences(ogcBoolQuery, includes, excludes, size, from);

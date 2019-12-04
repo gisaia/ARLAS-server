@@ -19,16 +19,14 @@
 
 package io.arlas.server.utils;
 
-import io.arlas.server.exceptions.ColumnUnavailableException;
-import io.arlas.server.exceptions.InternalServerErrorException;
-import io.arlas.server.exceptions.NotFoundException;
+import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Projection;
 import io.arlas.server.model.request.Request;
+import io.arlas.server.model.response.CollectionReferenceDescription;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,27 +48,6 @@ public class ColumnFilterUtil {
     private static final Set<String> REQUEST_FIELDS_EXTRACTOR_INCLUDE = RequestFieldsExtractor.INCLUDE_ALL.stream().filter(i -> i != RequestFieldsExtractor.INCLUDE_SEARCH_EXCLUDE).collect(Collectors.toSet());
 
     /**
-     * Add collection mandatory fields, but only if a column filter is provided
-     * @param columnFilter
-     * @param collectionReference
-     * @return
-     */
-    public static Optional<Set<String>> getColumnFilterPredicates(Optional<String> columnFilter, CollectionReference collectionReference) {
-        return FilterMatcherUtil.filterToPredicatesAsStream(columnFilter)
-                .map(cols -> Stream.concat(
-                        cols,
-                        Arrays.asList(
-                                collectionReference.params.idPath,
-                                collectionReference.params.geometryPath,
-                                collectionReference.params.centroidPath,
-                                collectionReference.params.timestampPath)
-                                .stream()
-                                .map(
-                                        c -> c.replaceAll("\\.", "\\\\.")))
-                        .collect(Collectors.toSet()));
-    }
-
-    /**
      * Check that there aren't forbidden fields into the requests, and that fields are compatible with FGA prerequisites
      * @param columnFilter
      * @param collectionReference
@@ -79,15 +56,15 @@ public class ColumnFilterUtil {
      * @throws ColumnUnavailableException if a field is forbidden
      * @return
      */
-    public static Optional<Set<String>> assertRequestAllowed(Optional<String> columnFilter,
-                                                      CollectionReference collectionReference,
-                                                      Request basicRequest)
+    public static void assertRequestAllowed(Optional<String> columnFilter,
+                                                             CollectionReference collectionReference,
+                                                             Request basicRequest)
             throws InternalServerErrorException, ColumnUnavailableException, NotFoundException {
 
         Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionReference);
 
         if (!columnFilterPredicates.isPresent()) {
-            return columnFilterPredicates;
+            return;
         }
 
         assertQHasCol(basicRequest);
@@ -101,8 +78,6 @@ public class ColumnFilterUtil {
         if (!forbiddenFields.isEmpty()) {
             throw new ColumnUnavailableException(forbiddenFields);
         }
-
-        return columnFilterPredicates;
     }
 
     /**
@@ -119,6 +94,44 @@ public class ColumnFilterUtil {
 
         if (qWithoutCol > 0) {
             throw new ColumnUnavailableException("Searching with 'q' parameter without an explicit column is not available");
+        }
+    }
+
+    public static void assertFieldAvailable(Optional<String> columnFilter, CollectionReference collectionReference, String field) throws ColumnUnavailableException {
+        Optional<Set<String>> columFilterPredicates = getColumnFilterPredicates(columnFilter, collectionReference);
+        assertFieldAvailable(columFilterPredicates, field);
+    }
+
+    public static void assertFieldAvailable(Optional<Set<String>> columnFilterPredicates, String field) throws ColumnUnavailableException {
+
+        if (!FilterMatcherUtil.matches(columnFilterPredicates, field)) {
+            throw new ColumnUnavailableException(new HashSet<>(Arrays.asList(field)));
+        }
+    }
+
+    /**
+     * Check if an openGisFilter uses only fields allowed in column filter
+     * @param columnFilter
+     * @param collectionDescription
+     * @param openGisFilter
+     * @throws ColumnUnavailableException
+     */
+    public static void assertOpenGisFilterAllowed(Optional<String> columnFilter, CollectionReferenceDescription collectionDescription,
+                                                  List<String> openGisFilter) throws ArlasException {
+
+        Optional<String> cleanColumnFilter = ColumnFilterUtil.cleanColumnFilter(columnFilter);
+
+        if (!cleanColumnFilter.isPresent()) {
+            return;
+        }
+
+        Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionDescription);
+        Set<String> forbiddenFields = openGisFilter.stream()
+                .filter(f -> !FilterMatcherUtil.matches(columnFilterPredicates, f))
+                .collect(Collectors.toSet());
+
+        if (!forbiddenFields.isEmpty()) {
+            throw new ColumnUnavailableException(forbiddenFields);
         }
     }
 
@@ -142,15 +155,38 @@ public class ColumnFilterUtil {
      * @return
      */
     public static boolean isValidColumnFilterPresent(Optional<String> columnFilter) {
+        return cleanColumnFilter(columnFilter).isPresent();
+    }
+
+    public static Optional<String> cleanColumnFilter(Optional<String> columnFilter) {
 
         if (columnFilter == null) {
             LOGGER.error("column filter is null, Optional.empty() is expected instead");
-            return false;
+            return Optional.empty();
         }
-        
-        return columnFilter
-                .filter(StringUtils::isNotBlank)
-                .isPresent();
+
+        return columnFilter.filter(StringUtils::isNotBlank);
+    }
+
+    /**
+     * Add collection mandatory fields, but only if a column filter is provided
+     * @param columnFilter
+     * @param collectionReference
+     * @return
+     */
+    public static Optional<Set<String>> getColumnFilterPredicates(Optional<String> columnFilter, CollectionReference collectionReference) {
+        return FilterMatcherUtil.filterToPredicatesAsStream(columnFilter)
+                .map(cols -> Stream.concat(
+                        cols,
+                        Arrays.asList(
+                                collectionReference.params.idPath,
+                                collectionReference.params.geometryPath,
+                                collectionReference.params.centroidPath,
+                                collectionReference.params.timestampPath)
+                                .stream()
+                                .map(
+                                        c -> c.replaceAll("\\.", "\\\\.")))
+                        .collect(Collectors.toSet()));
     }
 
 }

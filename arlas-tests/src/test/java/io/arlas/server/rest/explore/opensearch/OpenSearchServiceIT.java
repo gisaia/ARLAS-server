@@ -48,7 +48,7 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
         AVAILABLE_COLUMNS.put("params.tags", 2);
     }
     private static final List<String> MANDATORY_COLUMNS = Arrays.asList("id", "params.startdate");
-    private static final List<String> ALIASED_COLUMNS = Arrays.asList("params.keywords", "params.stopdate");
+    private static final List<String> ALIASED_COLUMNS = Arrays.asList("params.keywords");
 
     /**
      * Return a set with all mandatory columns and columns passed as parameter.
