@@ -205,9 +205,9 @@ public class WFSRESTService extends OGCRESTService {
         String serviceUrl = serverBaseUrl + "ogc/wfs/" + collectionName + "/?";
         QName featureQname = new QName(serviceUrl, collectionName, wfsConfiguration.featureNamespace);
         WFSCheckParam.checkTypeNames(collectionName, typenames);
-        String[] exludes = null;
+        String[] excludes = null;
         if (collectionReference.params.excludeWfsFields != null) {
-            exludes = collectionReference.params.excludeWfsFields.split(",");
+            excludes = collectionReference.params.excludeWfsFields.split(",");
         }
 
         switch (requestType) {
@@ -245,10 +245,10 @@ public class WFSRESTService extends OGCRESTService {
                 WFSCheckParam.checkSrsName(srsname);
                 StreamingOutput getFeatureResponse = null;
                 if (storedquery_id != null) {
-                    Object response = wfsToolService.getFeature(id, bbox, filter, resourceid, storedquery_id, partitionFilter, collectionReference, exludes);
+                    Object response = wfsToolService.getFeature(id, bbox, filter, resourceid, storedquery_id, partitionFilter, collectionReference, excludes);
                     getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureByIdResponse(response, collectionReferenceDescription, serviceUrl);
                 } else {
-                    List<Object> featureList = wfsToolService.getFeatures(id, bbox, filter, resourceid, partitionFilter, collectionReference, exludes, startindex, count);
+                    List<Object> featureList = wfsToolService.getFeatures(id, bbox, filter, resourceid, partitionFilter, collectionReference, excludes, startindex, count);
                     getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureResponse(wfsHandler.ogcConfiguration, collectionReferenceDescription, startindex, count, featureList, serviceUrl);
                 }
                 return Response.ok(getFeatureResponse).type(MediaType.APPLICATION_XML).build();
@@ -256,7 +256,7 @@ public class WFSRESTService extends OGCRESTService {
             case GetPropertyValue:
                 String include = OGCCheckParam.formatValueReference(valuereference, collectionReferenceDescription);
                 ValueCollectionType valueCollectionType = wfsToolService.getPropertyValue(id, bbox, filter, resourceid, storedquery_id, partitionFilter,
-                        collectionReference, include, exludes, startindex, count);
+                        collectionReference, include, excludes, startindex, count);
                 return Response.ok(wfsHandler.wfsFactory.createValueCollection(valueCollectionType)).type(MediaType.APPLICATION_XML).build();
             default:
                 throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.WFS);
