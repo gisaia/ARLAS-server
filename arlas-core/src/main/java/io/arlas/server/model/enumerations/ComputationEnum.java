@@ -25,7 +25,7 @@ import io.arlas.server.exceptions.InvalidParameterException;
 import java.util.Arrays;
 
 public enum ComputationEnum {
-    AVG("avg"), MAX("max"), MIN("min"), SUM("sum"), CARDINALITY("cardinality"), SPANNING("spanning");
+    AVG("avg"), MAX("max"), MIN("min"), SUM("sum"), CARDINALITY("cardinality"), SPANNING("spanning"), GEOBBOX("geobbox"), GEOCENTROID("geocentroid");
 
     private final String value;
     private static final String INVALID_COMPUTATION_METRIC = "Invalid metric : must be one of ";

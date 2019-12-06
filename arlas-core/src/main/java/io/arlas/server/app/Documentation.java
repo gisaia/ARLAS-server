@@ -309,7 +309,7 @@ public class Documentation {
 
     public static final String COMPUTE_OPERATION = "Computes the given metric on a field in the collection, given the filters";
     public static final String COMPUTE_FIELD = "The field on which the metric is calculated.";
-    public static final String COMPUTE_METRIC = "The metric to compute : `max, min, avg, sum, cardinality, spanning`.";
+    public static final String COMPUTE_METRIC = "The metric to compute : `max, min, avg, sum, cardinality, spanning, geobbox, geocentroid`.";
 
 
 }

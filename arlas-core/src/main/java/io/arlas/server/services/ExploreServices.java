@@ -165,6 +165,8 @@ public class ExploreServices {
         computationResponse.metric = metric;
         computationResponse.totalnb = response.getHits().getTotalHits().value;
         List<org.elasticsearch.search.aggregations.Aggregation> aggregations = response.getAggregations().asList();
+        computationResponse.value = null;
+        computationResponse.geometry = null;
 
         if (computationResponse.totalnb > 0) {
             switch (metric) {
@@ -172,7 +174,7 @@ public class ExploreServices {
                     computationResponse.value = ((Avg)aggregations.get(0)).getValue();
                     break;
                 case CARDINALITY:
-                    computationResponse.value = ((Cardinality)aggregations.get(0)).getValue();
+                    computationResponse.value = new Double(((Cardinality)aggregations.get(0)).getValue());
                     break;
                 case MAX:
                     computationResponse.value = ((Max)aggregations.get(0)).getValue();
@@ -194,6 +196,13 @@ public class ExploreServices {
                     break;
                 case SUM:
                     computationResponse.value = ((Sum)aggregations.get(0)).getValue();
+                    break;
+                case GEOBBOX:
+                    computationResponse.geometry = createBox(((GeoBounds)aggregations.get(0)));
+                    break;
+                case GEOCENTROID:
+                    GeoPoint centroid = ((GeoCentroid) aggregations.get(0)).centroid();
+                    computationResponse.geometry = new Point(centroid.getLon(), centroid.getLat());
                     break;
             }
         }
