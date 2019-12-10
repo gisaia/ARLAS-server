@@ -15,6 +15,7 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `page` | Search and return the elements found in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `page` | Search and return the elements found in the collection as features, given the filters |
 | /arlas/explore/`{collection}`/**_geosearch**/`{z}`/`{x}`/`{y}`?`filter` & `form` & `projection` & `page` | Search and return the elements found in the collection and localized in the given tile(x,y,z) as features, given the filters |
+| /arlas/explore/`{collection}`/**_tile**/`{z}`/`{x}`/`{y}`.png?`filter` & `form` & `projection` & `page` | Return the PNG corresponding to the elements found in the collection and localized in the given tile(x,y,z), given the filters |
 | /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s), given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_geoaggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_geoaggregate**/`{geohash}`?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) and localized in the given `{geohash}` as features, given the filters and the aggregation parameters |
@@ -261,6 +262,49 @@ In the case of `lt`, `gt`, `lte`, `gte`, `range` operations that are applied on 
 
 > Example: `curl --header "Partition-Filter: {f":[[{"field":"city","op":"eq","value":"Bordeaux"}]]}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
 
+#### Column filtering
+
+A coma-separated list of columns can be passed in request header `column-filter`. Wildcards are supported.
+
+A column filter stands for the fields that are available to a request body:
+- if a request body field doesn't belong to the column filter, a 403 is returned with the message `The field '%s' isn't available` or `The fields '%s' aren't available`;
+- only fields that belong to the column filter can be returned. 
+
+Examples of `column-filter`:
+
+- `params.city,params.country` make available `params.city` and `params.country` 
+- `params`, `params*`, `params.*`, `*params` make available `params.city`, `params.country`, `params.weight`, and so on.
+- `*` make all fields available
+- `*.*` make only subfields available, e.g. `params.city` and `params.country` but not `id`
+
+If no column filter, or a blank column filter is provided, then it isn't eventually used.
+
+The following endpoints use this header:
+
+| Endpoint | Filtering result |
+| --------------------------------------------------- | --------------------------------------------------- |
+| /arlas/explore/**_list**                 | Only fields matching this filter will be returned |
+| /arlas/explore/`{collection}`/**_describe** | Only fields matching this filter will be returned |
+| /arlas/explore/`{collection}`/**_count** | Return a 403 if one of the filter fields is not in the column filter |
+| /arlas/explore/`{collection}`/**_range** | Return a 403 if the field, or one of the filter fields, is not in the column filter. Otherwise only fields matching the filter will be returned |
+| /arlas/explore/`{collection}`/**_search** | Return a 403 if one of the filter, projection and page fields is not in the column filter. Otherwise only fields matching the filter will be returned |
+| /arlas/explore/`{collection}`/**_geosearch** | Return a 403 if one of the filter, projection or page fields is not in the column filter. Otherwise only fields matching the filter will be returned |
+| /arlas/explore/`{collection}`/**_geosearch/`{z}`/`{x}`/`{y}`** | Return a 403 if one of the filter, projection or page fields is not in the column filter. Otherwise only fields matching the filter will be returned |
+| /arlas/explore/`{collections}`/**_aggregate** | Return a 403 if one of the aggregation or filter fields is not in the column filter |
+| /arlas/explore/`{collections}`/**_tile**/`{z}`/`{x}`/`{y}`.png | Return a 403 if one of the filter, projection or page fields is not in the column filter |
+| /arlas/explore/`{collections}`/**_geoaggregate** | Return a 403 if one of the aggregation or filter fields is not in the column filter |
+| /arlas/explore/`{collections}`/**_geoaggregate**/`{geohash}` | Return a 403 if one of the aggregation or filter fields is not in the column filter |
+| /arlas/explore/ogc/**opensearch**/{collection} | Only fields matching this filter will be returned |
+
+On top of that, a query ("q" parameter) filter MUST target a specific field:
+- `fullname:john` is valid
+- `john` isn't valid and will return a 403
+- `params*:john` isn't valid neither and will return a 403
+
+If a `projection` with an `includes` parameter is used, then:
+- included fields that are wildcards aren't checked; they do not return a 403 if they don't match the column filter;
+- and only included fields that match the column filter are returned
+
 ---
 ### Part: `form`
 
@@ -360,4 +404,4 @@ The `page` url part allows the following parameters to be specified:
 ---
 ## OpenSearch
 
-If enabled, ARLAS offers an Opensearch Description document (`/arlas/ogc/opensearch/{collection}`).
+If enabled, ARLAS offers an Opensearch Description document (`/arlas/explore/ogc/opensearch/{collection}`).
