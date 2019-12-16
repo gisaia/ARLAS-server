@@ -116,7 +116,7 @@ public class ElasticAdmin {
                         collectionProperty.properties = getFromSource(collectionReference, (Map) property.get("properties"), namespace, excludeFields);
                     }
                     if(collectionReference.params.taggableFields!=null) {
-                        collectionProperty.taggable = Arrays.stream(collectionReference.params.taggableFields.split(",")).anyMatch(taggable -> taggable.equals(path));
+                        collectionProperty.taggable = Arrays.stream(collectionReference.params.taggableFields.split(",")).anyMatch(taggable -> taggable.trim().equals(path));
                     }
                     ret.put(key.toString(), collectionProperty);
                 }
