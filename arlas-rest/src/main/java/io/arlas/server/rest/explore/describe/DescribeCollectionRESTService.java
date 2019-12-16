@@ -31,13 +31,15 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class DescribeCollectionRESTService extends ExploreRESTServices {
+
+
     public DescribeCollectionRESTService(ExploreServices exploreServices) {
         super(exploreServices);
     }
@@ -61,6 +63,9 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
                     required = true)
             @PathParam(value = "collection") String collection,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -83,7 +88,8 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
         }
 
         ElasticAdmin elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
-        CollectionReferenceDescription collectionReferenceDescription = elasticAdmin.describeCollection(collectionReference);
+        CollectionReferenceDescription collectionReferenceDescription = elasticAdmin.describeCollection(collectionReference, columnFilter);
+
         return cache(Response.ok(collectionReferenceDescription), maxagecache);
     }
 }

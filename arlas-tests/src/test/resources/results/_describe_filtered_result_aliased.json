@@ -1,0 +1,163 @@
+{
+  "properties": {
+    "fullname": {
+      "type": "TEXT",
+      "taggable": false
+    },
+    "id": {
+      "type": "KEYWORD",
+      "taggable": false
+    },
+    "params": {
+      "type": "OBJECT",
+      "properties": {
+        "country": {
+          "type": "KEYWORD",
+          "taggable": false
+        },
+        "keywords": {
+          "type": "KEYWORD",
+          "taggable": false
+        },
+        "weight": {
+          "type": "INTEGER",
+          "taggable": false
+        },
+        "job": {
+          "type": "KEYWORD",
+          "taggable": true
+        },
+        "startdate": {
+          "type": "DATE",
+          "format": "epoch_millis",
+          "taggable": false
+        },
+        "stopdate": {
+          "type": "DATE",
+          "format": "epoch_millis",
+          "taggable": false
+        },
+        "age": {
+          "type": "INTEGER",
+          "taggable": false
+        },
+        "tags": {
+          "type": "KEYWORD",
+          "taggable": true
+        }
+      },
+      "taggable": false
+    },
+    "geo_params": {
+      "type": "OBJECT",
+      "properties": {
+        "centroid": {
+          "type": "GEO_POINT",
+          "taggable": false
+        },
+        "geometry": {
+          "type": "GEO_SHAPE",
+          "taggable": false
+        }
+      },
+      "taggable": false
+    }
+  },
+  "collection_name": "geodata",
+  "params": {
+    "index_name": "dataset",
+    "type_name": "mytype",
+    "id_path": "id",
+    "geometry_path": "geo_params.geometry",
+    "centroid_path": "geo_params.centroid",
+    "timestamp_path": "params.startdate",
+    "exclude_fields": "params.ci*",
+    "update_max_hits": 2147483647,
+    "taggable_fields": "params.tags,params.job",
+    "exclude_wfs_fields": "params.country",
+    "custom_params": {
+      "timestamp_format": "epoch_millis"
+    },
+    "inspire": {
+      "keywords": [
+        {
+          "value": "geodata"
+        }
+      ],
+      "topic_categories": [
+        "biota"
+      ],
+      "lineage": "Dataset loaded for testing",
+      "languages": [
+        "eng"
+      ],
+      "inspire_uri": {
+        "code": "57af3023-7aec-4ce9-acd5-a6c939bff72f",
+        "namespace": "ARLAS.GEODATA"
+      },
+      "inspire_limitation_access": {
+        "access_constraints": "otherRestrictions",
+        "other_constraints": "no limitations apply",
+        "classification": "unclassified"
+      },
+      "inspire_use_conditions": "no conditions apply"
+    },
+    "dublin_core_element_name": {
+      "title": "geodata",
+      "creator": "",
+      "subject": "",
+      "description": "geodata set for testing",
+      "publisher": "",
+      "contributor": "",
+      "type": "",
+      "format": "",
+      "identifier": "57af3023-7aec-4ce9-acd5-a6c939bff72f",
+      "source": "",
+      "language": "eng",
+      "bbox": {
+        "north": 90,
+        "south": -90,
+        "east": 180,
+        "west": -180
+      },
+      "date": "2019-12-09T16:09:07",
+      "coverage": {
+        "coordinates": [
+          [
+            [
+              -180,
+              -90
+            ],
+            [
+              180,
+              -90
+            ],
+            [
+              180,
+              90
+            ],
+            [
+              -180,
+              90
+            ],
+            [
+              -180,
+              -90
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "coverage_centroid": "0.0,0.0"
+    },
+    "raster_tile_url": {
+      "url": "{id}/{z}/{x}/{y}.png",
+      "id_path": "id",
+      "min_z": 5,
+      "max_z": 18,
+      "check_geometry": true
+    },
+    "raster_tile_width": 256,
+    "raster_tile_height": 256
+  }
+}

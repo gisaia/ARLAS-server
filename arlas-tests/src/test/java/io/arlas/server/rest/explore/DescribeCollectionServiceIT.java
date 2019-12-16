@@ -38,7 +38,21 @@ public class DescribeCollectionServiceIT extends AbstractDescribeTest {
     }
 
     @Override
-    protected void handleResponse(ValidatableResponse response, JsonPath jsonPath) {
-        compare(response, jsonPath, Optional.empty());
+    protected String getFilteredDescribeResultPath() {
+        return "results/" + (DataSetTool.ALIASED_COLLECTION ? "_describe_filtered_result_aliased.json" : "_describe_filtered_result.json");
+    }
+
+    @Override
+    protected void handleMatchingResponse(ValidatableResponse response, JsonPath jsonPath) {
+        handleResponse(response, jsonPath, true);
+    }
+
+    @Override
+    protected void handleNotMatchingResponse(ValidatableResponse response, JsonPath jsonPath) {
+        handleResponse(response, jsonPath, false);
+    }
+
+    private void handleResponse(ValidatableResponse response, JsonPath jsonPath, boolean areParamsEqual) {
+        compare(response, jsonPath, Optional.empty(), areParamsEqual);
     }
 }
