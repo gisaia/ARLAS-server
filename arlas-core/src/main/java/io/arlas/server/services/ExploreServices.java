@@ -20,6 +20,7 @@
 package io.arlas.server.services;
 
 import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
@@ -55,7 +56,6 @@ import org.elasticsearch.search.aggregations.metrics.geobounds.GeoBounds;
 import org.elasticsearch.search.aggregations.metrics.geocentroid.GeoCentroid;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
 import org.geojson.*;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
@@ -69,6 +69,7 @@ public class ExploreServices {
 
     protected Client client;
     protected CollectionReferenceDao daoCollectionReference;
+    protected ElasticAdmin elasticAdmin;
     private ResponseCacheManager responseCacheManager = null;
     private ArlasServerConfiguration configuration;
 
@@ -78,6 +79,7 @@ public class ExploreServices {
         this.client = client;
         this.configuration = configuration;
         this.daoCollectionReference = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
+        this.elasticAdmin = new ElasticAdmin(client);
         this.responseCacheManager = new ResponseCacheManager(configuration.arlasrestcachetimeout);
     }
 
@@ -125,7 +127,7 @@ public class ExploreServices {
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
         paginate(((Search) request.basicRequest).page, collectionReference, fluidSearch);
-        applyProjection(((Search) request.basicRequest).projection, fluidSearch);
+        applyProjection(((Search) request.basicRequest).projection, fluidSearch, request.columnFilter, collectionReference);
         return fluidSearch.exec().getHits();
     }
 
@@ -292,10 +294,15 @@ public class ExploreServices {
         }
     }
 
-    protected void applyProjection(Projection projection, FluidSearch fluidSearch) {
-        if (projection != null && !Strings.isNullOrEmpty(projection.includes)) {
+    protected void applyProjection(Projection projection, FluidSearch fluidSearch, Optional<String> columnFilter, CollectionReference collectionReference) {
+        if (ColumnFilterUtil.isValidColumnFilterPresent(columnFilter)) {
+            String filteredIncludes = ColumnFilterUtil.getFilteredIncludes(columnFilter, projection, elasticAdmin.getCollectionFields(collectionReference, columnFilter));
+            fluidSearch = fluidSearch.include(filteredIncludes);
+
+        } else if (projection != null && !Strings.isNullOrEmpty(projection.includes)) {
             fluidSearch = fluidSearch.include(projection.includes);
         }
+
         if (projection != null && !Strings.isNullOrEmpty(projection.excludes)) {
             fluidSearch = fluidSearch.exclude(projection.excludes);
         }

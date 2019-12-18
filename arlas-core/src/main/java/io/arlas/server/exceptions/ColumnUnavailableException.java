@@ -17,25 +17,27 @@
  * under the License.
  */
 
-package io.arlas.server.rest.plugins.eo;
+package io.arlas.server.exceptions;
 
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.utils.Tile;
-import java.awt.image.BufferedImage;
+import javax.ws.rs.core.Response;
+import java.util.Set;
 
-public class RasterTile extends Tile {
-	BufferedImage img;
-	
-	public RasterTile(int x, int y, int z, BufferedImage img) throws ArlasException {
-		super(x,y,z);
-		this.img = img;
+/**
+ * To be thrown when a column is not available to a user
+ */
+public class ColumnUnavailableException extends ArlasException {
+
+    public ColumnUnavailableException(Set<String> forbiddenColumns) {
+        super(
+                String.format(forbiddenColumns.size() == 1 ?
+                                "The field '%s' isn't available" :
+                                "The fields '%s' aren't available",
+                String.join(", ", forbiddenColumns)));
+        status = Response.Status.FORBIDDEN;
     }
 
-	public BufferedImage getImg() {
-		return img;
-	}
-
-	public void setImg(BufferedImage img) {
-		this.img = img;
-	}
+    public ColumnUnavailableException(String message) {
+        super(message);
+        status = Response.Status.FORBIDDEN;
+    }
 }

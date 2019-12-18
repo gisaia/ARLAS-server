@@ -33,11 +33,8 @@ import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
+import io.arlas.server.utils.*;
 import io.arlas.server.services.ExploreServices;
-import io.arlas.server.utils.BoundingBox;
-import io.arlas.server.utils.GeoTileUtil;
-import io.arlas.server.utils.MapExplorer;
-import io.arlas.server.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -47,11 +44,9 @@ import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -147,6 +142,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -177,12 +175,17 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
         aggregationsRequest.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
+
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = aggregationsRequest;
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
+        request.columnFilter = columnFilter;
+
         FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), Optional.empty());
         return cache(Response.ok(fc), maxagecache);
     }
@@ -276,6 +279,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM ---------------------------
             // --------------------------------------------------------
@@ -324,12 +330,17 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             AggregationsRequest aggregationsRequest = new AggregationsRequest();
             aggregationsRequest.filter = ParamsParser.getFilter(f, q, simplifiedPwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
             aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
+
+            ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
+
             AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
             aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
             MixedRequest request = new MixedRequest();
             exploreServices.setValidGeoFilters(aggregationsRequestHeader);
             request.basicRequest = aggregationsRequest;
             request.headerRequest = aggregationsRequestHeader;
+            request.columnFilter = columnFilter;
+
             FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), Optional.of(geohash));
             return cache(Response.ok(fc), maxagecache);
         } else {
@@ -369,6 +380,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -395,8 +409,13 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         exploreServices.setValidGeoFilters(aggregationRequest);
         exploreServices.setValidGeoFilters(aggregationsRequestHeader);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationRequest);
+
         request.basicRequest = aggregationRequest;
         request.headerRequest = aggregationsRequestHeader;
+        request.columnFilter = columnFilter;
+
         FeatureCollection fc = getFeatureCollection(request, collectionReference, (aggregationRequest.form != null && aggregationRequest.form.flat), Optional.empty());
 
         return cache(Response.ok(fc), maxagecache);

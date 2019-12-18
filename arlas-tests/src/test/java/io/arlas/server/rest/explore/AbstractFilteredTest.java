@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.AbstractTestWithCollection;
 import io.arlas.server.DataSetTool;
-import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.*;
 import io.restassured.response.ValidatableResponse;
@@ -33,10 +32,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.List;
-
 import static org.hamcrest.Matchers.*;
 
 public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
@@ -128,15 +125,16 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0)), 595);
         handleMatchingQueryFilter(header(request.filter), 595);
 
+        //an empty column filter is not considered
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name:is"));
-        handleNotMatchingQueryFilter(post(request));
-        handleNotMatchingQueryFilter(get("q", request.filter.q.get(0).get(0)));
-        handleNotMatchingQueryFilter(header(request.filter));
+        handleNotMatchingQueryFilter(post(request, "column-filter", ""));
+        handleNotMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", ""));
+        handleNotMatchingQueryFilter(header(request.filter, "column-filter", ""));
 
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name is"));
-        handleMatchingQueryFilter(post(request), 595);
-        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0)), 595);
-        handleMatchingQueryFilter(header(request.filter), 595);
+        handleMatchingQueryFilter(post(request, "column-filter", "fullname*"), 595);
+        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", "fullname*"), 595);
+        handleMatchingQueryFilter(header(request.filter, "column-filter", "id"), 595);//header is not column filtered
 
         request.filter.q = Arrays.asList(new MultiValueFilter<>("UnknownQuery"));
         handleNotMatchingQueryFilter(post(request));
@@ -868,6 +866,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleComplexFilter(
                 givenFilterableRequestParams()
                         .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
+                        .header("column-filter", "params.job,params.city,params.country")
                         .param("f", new Expression("params.job", OperatorEnum.eq, "Architect").toString())
                         .param("f", new Expression("params.startdate", OperatorEnum.range, "[1009799<2000000]").toString())
                         .param("pwithin", request.filter.pwithin.get(0).get(0))
@@ -875,21 +874,72 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .param("gintersect", request.filter.gintersect.get(0).get(0))
                         .when().get(getUrlPath("geodata"))
                         .then());
+
         handleComplexFilter(
-                post(request,"partition-filter", objectMapper.writeValueAsString(filterHeader)));
+                post(
+                        request,
+                        "partition-filter",
+                        objectMapper.writeValueAsString(filterHeader),
+                        "column-filter",
+                        "params.job,params.city,params.country"));
 
         filterHeader.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, "Actor")));
         handleNotMatchingRequest(
-                givenFilterableRequestParams().header("partition-filter", objectMapper.writeValueAsString(filterHeader))
+                givenFilterableRequestParams()
+                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
+                        .header("column-filter", "") //an empty column filter is not considered
                         .param("f", (new Expression("params.job", OperatorEnum.eq, "Architect")).toString())
                         .when().get(getUrlPath("geodata"))
                         .then());
         handleNotMatchingRequest(
                 givenFilterableRequestBody().body(request)
                         .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
+                        .header("column-filter", "")//an empty column filter is not considered
                         .when().post(getUrlPath("geodata"))
                         .then());
         request.filter = new Filter();
+    }
+
+    @Test
+    public void testFieldFilterWithUnavailableColumns() throws Exception {
+        request.filter = new Filter();
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, "Architect")));
+
+        handleUnavailableColumn(
+                givenFilterableRequestParams()
+                        .header("column-filter", "params.city")
+                        .param("f", new Expression("params.job", OperatorEnum.eq, "Architect").toString())
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+
+        handleUnavailableColumn(
+                post(
+                        request,
+                        "column-filter",
+                        "params.city"));
+
+        request.filter = new Filter();
+    }
+
+    @Test
+    public void testQueryFilterWithUnavailableColumns() throws Exception {
+        request.filter = new Filter();
+        request.filter.q = Arrays.asList(new MultiValueFilter<>("My name is"));
+        handleUnavailableColumn(post(request, "column-filter", "params.city"));
+        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "params.city"));
+
+        request.filter.q = Arrays.asList(new MultiValueFilter<>("*ullnam*:My name is"));
+        handleUnavailableColumn(post(request, "column-filter", "fullname"));
+        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "fullname"));
+
+        request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name:is"));
+        handleUnavailableColumn(post(request, "column-filter", "params.city"));
+        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "params.city"));
+
+        //used to return 200 in previous implementation, this is anti-regression
+        request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name:is"));
+        handleUnavailableColumn(post(request, "column-filter", "fullname.anything"));
+        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "fullname.anything"));
     }
 
     //----------------------------------------------------------------
@@ -1096,6 +1146,10 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
     protected abstract void handleNotMatchingRequest(ValidatableResponse then);
 
+    protected void handleUnavailableColumn(ValidatableResponse then) {
+        then.statusCode(403).body(containsString("available"));
+    }
+
     //----------------------------------------------------------------
     //---------------------- SPECIFIC BEHAVIORS ----------------------
     //----------------------------------------------------------------
@@ -1185,6 +1239,17 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .then();
     }
 
+    private ValidatableResponse get(String param, Object paramValue, String headerkey, String headerValue) {
+        RequestSpecification req = givenFilterableRequestParams();
+        for (Pair<String, String> extraParam : this.extraParams) {
+            req = req.param(extraParam.getKey(), extraParam.getValue());
+        }
+        return req.param(param, paramValue)
+                .header(headerkey, headerValue)
+                .when().get(getUrlPath("geodata"))
+                .then();
+    }
+
     private ValidatableResponse get(List<Pair<String, String>> params) {
         RequestSpecification req = givenFilterableRequestParams();
         for (Pair<String, String> extraParam : this.extraParams) {
@@ -1204,6 +1269,14 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .then();
     }
 
+    private ValidatableResponse header(Filter filter, String headerKey, String headerValue) throws JsonProcessingException {
+        return givenFilterableRequestParams()
+                .header("Partition-Filter", objectMapper.writeValueAsString(filter))
+                .header(headerKey, headerValue)
+                .when().get(getUrlPath("geodata"))
+                .then();
+    }
+
     private ValidatableResponse post(Request request) {
         RequestSpecification req = givenFilterableRequestBody();
         return req.body(handlePostRequest(request))
@@ -1219,5 +1292,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .then();
     }
 
+    private ValidatableResponse post(Request request, String headerkey1, String headerValue1, String headerkey2, String headerValue2) {
+        return givenFilterableRequestBody().body(handlePostRequest(request))
+                .header(headerkey1, headerValue1)
+                .header(headerkey2, headerValue2)
+                .when().post(getUrlPath("geodata"))
+                .then();
+    }
 
 }

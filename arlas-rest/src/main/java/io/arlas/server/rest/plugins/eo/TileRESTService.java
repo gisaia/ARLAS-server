@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import cyclops.control.Try;
 import cyclops.data.tuple.Tuple2;
 import io.arlas.server.app.Documentation;
+import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.RasterTileURL;
@@ -41,7 +42,6 @@ import io.swagger.annotations.ApiResponses;
 import org.geojson.FeatureCollection;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
-
 import javax.imageio.ImageIO;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -147,6 +147,9 @@ public class TileRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  PAGE    -----------------------
             // --------------------------------------------------------
@@ -239,11 +242,14 @@ public class TileRESTService extends ExploreRESTServices {
             search.page = ParamsParser.getPage(size, from, sort, after,before);
             search.projection = ParamsParser.getProjection(collectionReference.params.rasterTileURL.idPath+","+collectionReference.params.geometryPath, null);
 
+            ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+
             Search searchHeader = new Search();
             searchHeader.filter = ParamsParser.getFilter(partitionFilter);
             MixedRequest request = new MixedRequest();
             request.basicRequest = search;
             request.headerRequest = searchHeader;
+            request.columnFilter = columnFilter;
 
             Queue<TileProvider<RasterTile>> providers = new LinkedList<>(findCandidateTiles(collectionReference, request).stream()
                     .filter(match -> match._2().map(
@@ -285,7 +291,9 @@ public class TileRESTService extends ExploreRESTServices {
         }
     }
 
-    protected List<Tuple2<String,Optional<Geometry>>> findCandidateTiles(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
+    protected List<Tuple2<String,Optional<Geometry>>> findCandidateTiles(CollectionReference collectionReference, MixedRequest request)
+            throws ArlasException, IOException {
+
         return Arrays.stream(this.getExploreServices().search(request, collectionReference).getHits())
                 .map(hit->Tuple2.of(
                         "" + MapExplorer.getObjectFromPath(collectionReference.params.rasterTileURL.idPath, hit.getSourceAsMap()), // Let's get the ID of the match

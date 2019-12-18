@@ -20,6 +20,7 @@
 package io.arlas.server.rest.explore.search;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.app.Documentation;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.Link;
@@ -27,15 +28,11 @@ import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Page;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.model.response.Error;
-import io.arlas.server.model.response.Hit;
-import io.arlas.server.model.response.Hits;
+import io.arlas.server.model.response.*;
 import io.arlas.server.ns.ATOM;
-import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
-import io.arlas.server.utils.CheckParams;
-import io.arlas.server.utils.ParamsParser;
-import io.arlas.server.utils.StringUtil;
+import io.arlas.server.utils.*;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -44,7 +41,6 @@ import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -131,6 +127,9 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+//            @ApiParam(hidden = true) TODO uncomment
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -209,6 +208,7 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
+
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
@@ -227,20 +227,25 @@ public class SearchRESTService extends ExploreRESTServices {
             List<String> excludeField = Arrays.asList(exclude.split(","));
             CheckParams.checkExcludeField(excludeField, fields);
         }
+
         Search search = new Search();
         search.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
         search.page = ParamsParser.getPage(size, from, sort,after,before);
         search.projection = ParamsParser.getProjection(include, exclude);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(searchHeader);
         request.headerRequest = searchHeader;
+        request.columnFilter = columnFilter;
+
         Hits hits = getArlasHits(request, collectionReference,BooleanUtils.isTrue(flat),uriInfo,"GET");
         return cache(Response.ok(hits), maxagecache);
     }
-
 
     @Timed
     @Path("{collection}/_search")
@@ -273,6 +278,9 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -296,11 +304,17 @@ public class SearchRESTService extends ExploreRESTServices {
 
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
+
+        exploreServices.setValidGeoFilters(search);
+        exploreServices.setValidGeoFilters(searchHeader);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        exploreServices.setValidGeoFilters(search);
-        exploreServices.setValidGeoFilters(searchHeader);
+        request.columnFilter = columnFilter;
+
         Hits hits = getArlasHits(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)),uriInfo,"POST");
         return cache(Response.ok(hits), maxagecache);
     }

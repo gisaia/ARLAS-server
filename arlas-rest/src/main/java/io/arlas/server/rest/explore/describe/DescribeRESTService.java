@@ -41,8 +41,12 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class DescribeRESTService extends ExploreRESTServices {
+
+    private ElasticAdmin elasticAdmin;
+
     public DescribeRESTService(ExploreServices exploreServices) {
         super(exploreServices);
+        this.elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
     }
 
     @Timed
@@ -74,9 +78,10 @@ public class DescribeRESTService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+
         List<CollectionReference> collectionReferences = exploreServices.getDaoCollectionReference().getAllCollectionReferences();
-        ElasticAdmin elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
         List<CollectionReferenceDescription> collectionReferenceDescriptionList = elasticAdmin.describeAllCollections(collectionReferences, columnFilter);
+
         return cache(Response.ok(collectionReferenceDescriptionList), maxagecache);
     }
 }

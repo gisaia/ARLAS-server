@@ -30,20 +30,22 @@ import io.arlas.server.model.response.Hits;
 import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
+import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.elasticsearch.search.SearchHits;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class CountRESTService extends ExploreRESTServices {
+
 
     public CountRESTService(ExploreServices exploreServices) {
         super(exploreServices);
@@ -120,6 +122,9 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionfilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -145,12 +150,16 @@ public class CountRESTService extends ExploreRESTServices {
 
         Count count = new Count();
         count.filter = ParamsParser.getFilter(f, q, pwithin, gwithin, gintersect, notpwithin, notgwithin, notgintersect, dateformat);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, count);
+
         MixedRequest request = new MixedRequest();
         request.basicRequest = count;
         Count countHeader = new Count();
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
         exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
+        request.columnFilter = columnFilter;
 
         Hits hits = getArlasHits(collectionReference, request);
         return cache(Response.ok(hits), maxagecache);
@@ -183,6 +192,9 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Partition-Filter") String partitionfilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -204,11 +216,15 @@ public class CountRESTService extends ExploreRESTServices {
 
         MixedRequest request = new MixedRequest();
         exploreServices.setValidGeoFilters(count);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, count);
+
         request.basicRequest = count;
         Count countHeader = new Count();
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
         exploreServices.setValidGeoFilters(countHeader);
         request.headerRequest = countHeader;
+        request.columnFilter = columnFilter;
 
         Hits hits = getArlasHits(collectionReference, request);
         return Response.ok(hits).build();

@@ -29,6 +29,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.dropwizard.jersey.params.IntParam;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.algorithm.Orientation;
@@ -379,7 +380,7 @@ public class ParamsParser {
         List<String> strings = null;
         if (multiValueFilters != null) {
             strings = new ArrayList<>();
-             for (MultiValueFilter<String> multiValueFilter: multiValueFilters){
+            for (MultiValueFilter<String> multiValueFilter: multiValueFilters){
                 String semiColonsSeparatedString = "";
                 for (String value : multiValueFilter) {
                     semiColonsSeparatedString += value + ";";
