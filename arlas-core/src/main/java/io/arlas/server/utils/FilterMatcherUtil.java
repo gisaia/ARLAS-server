@@ -36,7 +36,7 @@ public class FilterMatcherUtil {
     private static final Map<String, Pattern> PATTERN_COMPILED_CACHE = new HashMap<>();
     private static final Pattern EMPTY_PATTERN = Pattern.compile("");
 
-    //these are metacharacters, i.a. caracters that can be used within regexp. If present in filter: we escape them. Except the "star" that is a wildcard.
+    //these are metacharacters, i.a. characters that can be used within regexp. If present in filter: we escape them. Except the "star" that is a wildcard.
     private static final Map<String, String> PREDICATE_REPLACE_CHAR = Arrays.asList("\\","^","$","{","}","[","]","(",")",".","+","?","|","<",">","-","&","%").stream()
             .collect(Collectors.toMap(c -> c, c -> "\\" + c));
     static {
