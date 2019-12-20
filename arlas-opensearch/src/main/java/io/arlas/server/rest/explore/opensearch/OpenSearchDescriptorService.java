@@ -135,7 +135,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             description.tags = os.tags;
         }
         Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, cr);
-        addURLs(prefix, description.url, admin.describeCollection(cr).properties, new Stack<>(), columnFilterPredicates);
+        addURLs(prefix, description.url, admin.describeCollection(cr, columnFilter).properties, new Stack<>());
         List<Url> urls = new ArrayList<>();
         description.url.forEach(url -> {
             urls.add(url(url.template + "&gintersect={geo:box?}"));
@@ -145,7 +145,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
         return cache(Response.ok(description), maxagecache);
     }
 
-    private void addURLs(String templatePrefix, List<Url> urls, Map<String, CollectionReferenceDescriptionProperty> properties, Stack<String> namespace, Optional<Set<String>> columnFilterPredicates) {
+    private void addURLs(String templatePrefix, List<Url> urls, Map<String, CollectionReferenceDescriptionProperty> properties, Stack<String> namespace) {
         if (properties == null) {
             return;
         }
@@ -153,35 +153,33 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             CollectionReferenceDescriptionProperty property = properties.get(key);
             namespace.push(key);
             if (property.type == ElasticType.OBJECT) {
-                addURLs(templatePrefix, urls, property.properties, namespace, columnFilterPredicates);
+                addURLs(templatePrefix, urls, property.properties, namespace);
             } else {
                 String fieldPath = String.join(".", new ArrayList<>(namespace));
-                if (FilterMatcherUtil.matches(columnFilterPredicates, fieldPath)) {
-                    switch (property.type) {
-                        case DATE:
-                            addNumberUrls(urls, templatePrefix, fieldPath, "long");
-                            break;
-                        case LONG:
-                            addNumberUrls(urls, templatePrefix, fieldPath, "long");
-                            break;
-                        case DOUBLE:
-                            addNumberUrls(urls, templatePrefix, fieldPath, "double");
-                        case FLOAT:
-                            addNumberUrls(urls, templatePrefix, fieldPath, "float");
-                        case SHORT:
-                            addNumberUrls(urls, templatePrefix, fieldPath, "short");
-                            break;
-                        case INTEGER:
-                            addNumberUrls(urls, templatePrefix, fieldPath, "integer");
-                            break;
-                        case TEXT:
-                            urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
-                            urls.add(url(templatePrefix + "?f=" + fieldPath + ":like:{text?}"));
-                            break;
-                        case KEYWORD:
-                            urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
-                            break;
-                    }
+                switch (property.type) {
+                    case DATE:
+                        addNumberUrls(urls, templatePrefix, fieldPath, "long");
+                        break;
+                    case LONG:
+                        addNumberUrls(urls, templatePrefix, fieldPath, "long");
+                        break;
+                    case DOUBLE:
+                        addNumberUrls(urls, templatePrefix, fieldPath, "double");
+                    case FLOAT:
+                        addNumberUrls(urls, templatePrefix, fieldPath, "float");
+                    case SHORT:
+                        addNumberUrls(urls, templatePrefix, fieldPath, "short");
+                        break;
+                    case INTEGER:
+                        addNumberUrls(urls, templatePrefix, fieldPath, "integer");
+                        break;
+                    case TEXT:
+                        urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
+                        urls.add(url(templatePrefix + "?f=" + fieldPath + ":like:{text?}"));
+                        break;
+                    case KEYWORD:
+                        urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
+                        break;
                 }
             }
             namespace.pop();
