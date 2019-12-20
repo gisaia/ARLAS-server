@@ -29,6 +29,11 @@
             "format": "epoch_millis",
             "taggable": false
           },
+          "stopdate": {
+            "type": "DATE",
+            "format": "epoch_millis",
+            "taggable": false
+          },
           "age": {
             "type": "INTEGER",
             "taggable": false
@@ -190,6 +195,11 @@
             "taggable": true
           },
           "startdate": {
+            "type": "DATE",
+            "format": "epoch_millis",
+            "taggable": false
+          },
+          "stopdate": {
             "type": "DATE",
             "format": "epoch_millis",
             "taggable": false

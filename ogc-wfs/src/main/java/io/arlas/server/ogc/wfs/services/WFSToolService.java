@@ -26,16 +26,18 @@ import net.opengis.wfs._2.ValueCollectionType;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public interface WFSToolService {
 
-    public CollectionReferenceDescription getCollectionReferenceDescription(CollectionReference collectionReference) throws IOException;
+    CollectionReferenceDescription getCollectionReferenceDescription(CollectionReference collectionReference) throws IOException;
 
-    public Object getFeature(String id, String bbox, String constraint, String resourceid, String storedquery_id,
-                             String partitionFilter, CollectionReference collectionReference, String[] excludes) throws ArlasException, IOException;
-    public List<Object> getFeatures(String id, String bbox, String constraint, String resourceid,
-                                    String partitionFilter, CollectionReference collectionReference, String[] excludes, Integer startindex, Integer count) throws ArlasException, IOException;
+    Object getFeature(String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter, CollectionReference collectionReference, String[] excludes,
+                      Optional<String> columnFilter) throws ArlasException, IOException;
 
-    public ValueCollectionType getPropertyValue (String id, String bbox, String constraint, String resourceid, String storedquery_id,
-    String partitionFilter, CollectionReference collectionReference, String include, String[] excludes, Integer startindex, Integer count) throws ArlasException, IOException;
+    List<Object> getFeatures(String id, String bbox, String constraint, String resourceid, String partitionFilter, CollectionReference collectionReference, String[] excludes, Integer startindex, Integer count,
+                             Optional<String> columnFilter) throws ArlasException, IOException;
+
+    ValueCollectionType getPropertyValue(String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter, CollectionReference collectionReference, String include, String[] excludes,
+                                         Integer startindex, Integer count, Optional<String> columnFilter) throws ArlasException, IOException;
 }

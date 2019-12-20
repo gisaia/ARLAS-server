@@ -32,7 +32,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -42,11 +41,8 @@ import java.util.concurrent.ExecutionException;
 
 public class DescribeRESTService extends ExploreRESTServices {
 
-    private ElasticAdmin elasticAdmin;
-
     public DescribeRESTService(ExploreServices exploreServices) {
         super(exploreServices);
-        this.elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
     }
 
     @Timed
@@ -80,7 +76,7 @@ public class DescribeRESTService extends ExploreRESTServices {
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
 
         List<CollectionReference> collectionReferences = exploreServices.getDaoCollectionReference().getAllCollectionReferences();
-        List<CollectionReferenceDescription> collectionReferenceDescriptionList = elasticAdmin.describeAllCollections(collectionReferences, columnFilter);
+        List<CollectionReferenceDescription> collectionReferenceDescriptionList = exploreServices.getElasticAdmin().describeAllCollections(collectionReferences, columnFilter);
 
         return cache(Response.ok(collectionReferenceDescriptionList), maxagecache);
     }

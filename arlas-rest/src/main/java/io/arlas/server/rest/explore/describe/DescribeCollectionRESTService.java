@@ -39,11 +39,8 @@ import java.util.concurrent.ExecutionException;
 
 public class DescribeCollectionRESTService extends ExploreRESTServices {
 
-    private ElasticAdmin elasticAdmin;
-
     public DescribeCollectionRESTService(ExploreServices exploreServices) {
         super(exploreServices);
-        this.elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
     }
 
     @Timed
@@ -91,7 +88,7 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
-        CollectionReferenceDescription collectionReferenceDescription = elasticAdmin.describeCollection(collectionReference, columnFilter);
+        CollectionReferenceDescription collectionReferenceDescription = exploreServices.getElasticAdmin().describeCollection(collectionReference, columnFilter);
 
         return cache(Response.ok(collectionReferenceDescription), maxagecache);
     }
