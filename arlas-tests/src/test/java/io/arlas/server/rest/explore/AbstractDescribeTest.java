@@ -71,6 +71,9 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
         handleNotMatchingResponse(get(Optional.of("*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
         handleMatchingResponse(get(Optional.of("fullname,*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
         handleNotMatchingResponse(get(Optional.of("fullname,params.")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+
+        //anti regression - this used to work
+        handleNotMatchingResponse(get(Optional.of("fullname.unknown,params,,geo_params.wktgeomet")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
     }
 
     /**
