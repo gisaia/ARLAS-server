@@ -67,9 +67,10 @@ public class FilterMatcherUtil {
      * Checking paths `params` and `params.city`, this will return `true` for both if `params.city` belongs to predicates
      * @param predicates
      * @param path
+     * @param checkWithin
      * @return
      */
-    public static boolean matchesOrWithin(Optional<Set<String>> predicates, String path) {
+    public static boolean matchesOrWithin(Optional<Set<String>> predicates, String path, boolean checkWithin) {
         if (StringUtils.isBlank(path)) {
             return false;
         }
@@ -77,7 +78,7 @@ public class FilterMatcherUtil {
         return predicates.map(
                 cf -> cf.stream().anyMatch(c ->
                         //for fields: test if match. For parent path: also test if a filter starts with path
-                        c.startsWith(path + "\\.") || addOrGetFromCache(c).matcher(path).matches()))
+                        addOrGetFromCache(c).matcher(path).matches() || checkWithin && c.startsWith(path + "\\.")))
                 //default if filter isn't present: allow
                 .orElse(true);
     }

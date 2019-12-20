@@ -112,8 +112,7 @@ public class ElasticAdmin {
             namespace.push(key.toString());
             String path = Strings.join(namespace,'.');
             boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
-            boolean isPathAllowed = FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path);
-            if (!excludePath && isPathAllowed) {
+            if (!excludePath) {
                 if (source.get(key) instanceof Map) {
                     Map property = (Map) source.get(key);
 
@@ -123,20 +122,23 @@ public class ElasticAdmin {
                     } else {
                         collectionProperty.type = ElasticType.OBJECT;
                     }
-                    if (property.containsKey("format")) {
-                        String format = property.get("format").toString();
-                        if (format == null && collectionProperty.type.equals(ElasticType.DATE)) {
-                            format = CollectionReference.DEFAULT_TIMESTAMP_FORMAT;
+                    if (FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, collectionProperty.type == ElasticType.OBJECT)) {
+
+                        if (property.containsKey("format")) {
+                            String format = property.get("format").toString();
+                            if (format == null && collectionProperty.type.equals(ElasticType.DATE)) {
+                                format = CollectionReference.DEFAULT_TIMESTAMP_FORMAT;
+                            }
+                            collectionProperty.format = format;
                         }
-                        collectionProperty.format = format;
+                        if (property.containsKey("properties") && property.get("properties") instanceof Map) {
+                            collectionProperty.properties = getFromSource(collectionReference, (Map) property.get("properties"), namespace, excludeFields, columnFilterPredicates);
+                        }
+                        if (collectionReference.params.taggableFields != null) {
+                            collectionProperty.taggable = Arrays.stream(collectionReference.params.taggableFields.split(",")).anyMatch(taggable -> taggable.equals(path));
+                        }
+                        ret.put(key.toString(), collectionProperty);
                     }
-                    if (property.containsKey("properties") && property.get("properties") instanceof Map) {
-                        collectionProperty.properties = getFromSource(collectionReference, (Map) property.get("properties"), namespace, excludeFields, columnFilterPredicates);
-                    }
-                    if (collectionReference.params.taggableFields != null) {
-                        collectionProperty.taggable = Arrays.stream(collectionReference.params.taggableFields.split(",")).anyMatch(taggable -> taggable.equals(path));
-                    }
-                    ret.put(key.toString(), collectionProperty);
                 }
             }
             namespace.pop();

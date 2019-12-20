@@ -55,7 +55,7 @@ public class XmlUtils {
             namespace.push(key);
             String path = String.join(".", new ArrayList<>(namespace));
             boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
-            boolean isAllowed = FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path);
+            boolean isAllowed = FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, property.type == ElasticType.OBJECT);
             if (!excludePath && isAllowed) {
                 if (property.type == ElasticType.OBJECT) {
                     parsePropertiesXsd(property.properties, writer, namespace, excludeFields, columnFilterPredicates);
