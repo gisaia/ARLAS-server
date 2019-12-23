@@ -44,7 +44,7 @@ public class DescribeRESTService extends ExploreRESTServices {
 
     public DescribeRESTService(ExploreServices exploreServices) {
         super(exploreServices);
-        elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
+        this.elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
     }
 
     @Timed
@@ -78,6 +78,7 @@ public class DescribeRESTService extends ExploreRESTServices {
     ) throws IOException, ArlasException {
         List<CollectionReference> collectionReferences = exploreServices.getDaoCollectionReference().getAllCollectionReferences();
         List<CollectionReferenceDescription> collectionReferenceDescriptionList = elasticAdmin.describeAllCollections(collectionReferences, columnFilter);
+
         return cache(Response.ok(collectionReferenceDescriptionList), maxagecache);
     }
 }

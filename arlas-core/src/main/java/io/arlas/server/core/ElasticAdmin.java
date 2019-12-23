@@ -173,4 +173,36 @@ public class ElasticAdmin {
         return collections;
     }
 
+    /**
+     * Get the parameters paths of a collection, using the given filter predicates
+     * @param collectionReference
+     * @param filterPredicates
+     * @return
+     */
+    public Set<String> getCollectionFields(CollectionReference collectionReference, Optional<String> filterPredicates) {
+
+        Map<String, CollectionReferenceDescriptionProperty> collectionFilteredProperties =
+                this.describeCollection(collectionReference, filterPredicates).properties;
+
+        return getPropertiesFields(collectionFilteredProperties, "")
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Extract the fields of the given paths, recursively
+     * @param properties
+     * @param parentPath
+     * @return
+     */
+    private Stream<String> getPropertiesFields(Map<String, CollectionReferenceDescriptionProperty> properties, String parentPath) {
+        return properties.entrySet().stream().map(es -> {
+            if (es.getValue().type == ElasticType.OBJECT) {
+                return getPropertiesFields(es.getValue().properties, parentPath + es.getKey() + ".");
+            } else {
+                return Stream.of(parentPath + es.getKey());
+            }
+        })
+                .flatMap(x -> x);
+    }
+
 }

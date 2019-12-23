@@ -42,7 +42,7 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
 
     public DescribeCollectionRESTService(ExploreServices exploreServices) {
         super(exploreServices);
-        elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
+        this.elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
     }
 
     @Timed

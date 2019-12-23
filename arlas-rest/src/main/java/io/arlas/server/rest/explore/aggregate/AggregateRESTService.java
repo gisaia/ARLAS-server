@@ -30,6 +30,7 @@ import io.arlas.server.model.response.Error;
 import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
+import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
@@ -39,13 +40,13 @@ import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -109,6 +110,9 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -138,12 +142,16 @@ public class AggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
         aggregationsRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
+
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = aggregationsRequest;
         exploreServices.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
+        request.columnFilter = columnFilter;
 
         AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
@@ -181,6 +189,9 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -200,6 +211,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         Long startArlasTime = System.nanoTime();
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
+
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
@@ -209,8 +221,12 @@ public class AggregateRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         exploreServices.setValidGeoFilters(collectionReference, aggregationsRequest);
         exploreServices.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
+
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
+        request.columnFilter = columnFilter;
 
         AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, (aggregationsRequest.form != null && BooleanUtils.isTrue(aggregationsRequest.form.flat)));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);

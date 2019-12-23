@@ -102,6 +102,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -192,7 +195,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         }
 
         return geosearch(collectionReference,
-                ParamsParser.getFilter(collectionReference, f, q, dateformat), partitionFilter,
+                ParamsParser.getFilter(collectionReference, f, q, dateformat), partitionFilter, columnFilter,
                 flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries);
     }
 
@@ -253,6 +256,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -350,7 +356,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
         return geosearch(collectionReference,
                 ParamsParser.getFilter(collectionReference, f, q, dateformat, bbox, pwithinBbox),
-                partitionFilter, flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries);
+                partitionFilter, columnFilter, flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries);
     }
 
 
@@ -385,6 +391,9 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -411,12 +420,18 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         search.projection = ParamsParser.enrichIncludes(search.projection, search.returned_geometries);
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
+
+        exploreServices.setValidGeoFilters(collectionReference, search);
+        exploreServices.setValidGeoFilters(collectionReference, searchHeader);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        exploreServices.setValidGeoFilters(collectionReference, search);
-        exploreServices.setValidGeoFilters(collectionReference, searchHeader);
-        FeatureCollection fc = getFeatures(collectionReference, request, (search.form != null && search.form.flat));
+        request.columnFilter = columnFilter;
+
+        FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat));
         return cache(Response.ok(fc), maxagecache);
     }
 
@@ -472,7 +487,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
     }
 
     private Response geosearch(CollectionReference collectionReference, Filter filter, String partitionFilter,
-                               Boolean flat, String include, String exclude, IntParam size, IntParam from,
+                               Optional<String> columnFilter, Boolean flat, String include, String exclude, IntParam size, IntParam from,
                                String sort, String after, String before, Integer maxagecache, String returned_geometries) throws ArlasException, IOException {
 
         CheckParams.checkReturnedGeometries(collectionReference, include, exclude, returned_geometries);
@@ -483,12 +498,16 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         search.projection = ParamsParser.getProjection(include, exclude);
         search.projection = ParamsParser.enrichIncludes(search.projection, returned_geometries);
         search.returned_geometries = returned_geometries;
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(collectionReference, searchHeader);
         request.headerRequest = searchHeader;
+        request.columnFilter = columnFilter;
         FeatureCollection fc = getFeatures(collectionReference, request, (flat != null && flat));
         return cache(Response.ok(fc), maxagecache);
     }

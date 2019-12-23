@@ -36,12 +36,30 @@ public class FilterMatcherUtil {
     private static final Map<String, Pattern> PATTERN_COMPILED_CACHE = new HashMap<>();
     private static final Pattern EMPTY_PATTERN = Pattern.compile("");
 
-    //these are metacharacters, i.a. caracters that can be used within regexp. If present in filter: we escape them. Except the "star" that is a wildcard.
+    //these are metacharacters, i.a. characters that can be used within regexp. If present in filter: we escape them. Except the "star" that is a wildcard.
     private static final Map<String, String> PREDICATE_REPLACE_CHAR = Arrays.asList("\\","^","$","{","}","[","]","(",")",".","+","?","|","<",">","-","&","%").stream()
             .collect(Collectors.toMap(c -> c, c -> "\\" + c));
     static {
         PREDICATE_REPLACE_CHAR.put(" ", "");
         PREDICATE_REPLACE_CHAR.put("*", ".*");
+    }
+
+    /**
+     * Check if a field matches the predicates
+     * @param predicates
+     * @param field
+     * @return
+     */
+    public static boolean matches(Optional<Set<String>> predicates, String field) {
+        if (StringUtils.isBlank(field)) {
+            return false;
+        }
+
+        return predicates.map(
+                cf -> cf.stream().anyMatch(c ->
+                        addOrGetFromCache(c).matcher(field).matches()))
+                //default if filter isn't present: allow
+                .orElse(true);
     }
 
     /**
@@ -84,6 +102,12 @@ public class FilterMatcherUtil {
                                 .map(c -> c.endsWith(".*") ? Arrays.asList(c) : Arrays.asList(c, c + "\\..*"))
                                 .flatMap(Collection::stream)
                 );
+    }
+
+    public static Optional<Set<String>> filterToPredicatesAsSet(Optional<String> filter) {
+        return filterToPredicatesAsStream(filter)
+                .map(
+                        p -> p.collect(Collectors.toSet()));
     }
 
     /**
