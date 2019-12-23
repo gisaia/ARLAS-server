@@ -31,14 +31,18 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Optional;
 
 public class DescribeCollectionRESTService extends ExploreRESTServices {
+
+    private ElasticAdmin elasticAdmin;
+
     public DescribeCollectionRESTService(ExploreServices exploreServices) {
         super(exploreServices);
+        elasticAdmin = new ElasticAdmin(this.getExploreServices().getClient());
     }
 
     @Timed
@@ -60,6 +64,9 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
                     required = true)
             @PathParam(value = "collection") String collection,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -75,13 +82,16 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws IOException, ArlasException {
+
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
+
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
 
-        CollectionReferenceDescription collectionReferenceDescription = new ElasticAdmin(exploreServices.getClient()).describeCollection(collectionReference);
+        CollectionReferenceDescription collectionReferenceDescription = elasticAdmin.describeCollection(collectionReference, columnFilter);
+
         return cache(Response.ok(collectionReferenceDescription), maxagecache);
     }
 }

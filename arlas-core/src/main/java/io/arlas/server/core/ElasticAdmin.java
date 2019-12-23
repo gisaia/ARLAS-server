@@ -25,6 +25,8 @@ import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.utils.ColumnFilterUtil;
+import io.arlas.server.utils.FilterMatcherUtil;
 import org.apache.logging.log4j.util.Strings;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -33,10 +35,11 @@ import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ElasticAdmin {
 
@@ -49,7 +52,12 @@ public class ElasticAdmin {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public CollectionReferenceDescription describeCollection(CollectionReference collectionReference) throws IOException {
+    public CollectionReferenceDescription describeCollection(CollectionReference collectionReference) {
+        return this.describeCollection(collectionReference, Optional.empty());
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public CollectionReferenceDescription describeCollection(CollectionReference collectionReference, Optional<String> columnFilter) {
         ArrayList<Pattern> excludeFields = new ArrayList<>();
         if (collectionReference.params.excludeFields != null) {
             Arrays.asList(collectionReference.params.excludeFields.split(",")).forEach(field -> {
@@ -65,11 +73,13 @@ public class ElasticAdmin {
         Iterator<String> indeces = response.getMappings().keysIt();
 
         Map<String, CollectionReferenceDescriptionProperty> properties = new HashMap<>();
+        Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionReference);
+
         while(indeces.hasNext()) {
             String index = indeces.next();
             LinkedHashMap fields = (LinkedHashMap) response.getMappings()
                     .get(index).get(collectionReferenceDescription.params.typeName).sourceAsMap().get("properties");
-            properties = union(properties, getFromSource(collectionReference, fields, new Stack<>(), excludeFields));
+            properties = union(properties, getFromSource(collectionReference, fields, new Stack<>(), excludeFields, columnFilterPredicates));
         }
 
         collectionReferenceDescription.properties = properties;
@@ -90,8 +100,14 @@ public class ElasticAdmin {
         return ret;
     }
 
-    private Map<String, CollectionReferenceDescriptionProperty> getFromSource(CollectionReference collectionReference,Map source, Stack<String> namespace, ArrayList<Pattern> excludeFields) {
+    private Map<String, CollectionReferenceDescriptionProperty> getFromSource(
+            CollectionReference collectionReference,
+            Map source, Stack<String> namespace,
+            ArrayList<Pattern> excludeFields,
+            Optional<Set<String>> columnFilterPredicates) {
+
         Map<String, CollectionReferenceDescriptionProperty> ret = new HashMap<>();
+
         for (Object key : source.keySet()) {
             namespace.push(key.toString());
             String path = Strings.join(namespace,'.');
@@ -99,26 +115,30 @@ public class ElasticAdmin {
             if (!excludePath) {
                 if (source.get(key) instanceof Map) {
                     Map property = (Map) source.get(key);
+
                     CollectionReferenceDescriptionProperty collectionProperty = new CollectionReferenceDescriptionProperty();
                     if (property.containsKey("type")) {
                         collectionProperty.type = ElasticType.getType(property.get("type"));
                     } else {
                         collectionProperty.type = ElasticType.OBJECT;
                     }
-                    if (property.containsKey("format")) {
-                        String format = property.get("format").toString();
-                        if (format == null && collectionProperty.type.equals(ElasticType.DATE)) {
-                            format = CollectionReference.DEFAULT_TIMESTAMP_FORMAT;
+                    if (FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, collectionProperty.type == ElasticType.OBJECT)) {
+
+                        if (property.containsKey("format")) {
+                            String format = property.get("format").toString();
+                            if (format == null && collectionProperty.type.equals(ElasticType.DATE)) {
+                                format = CollectionReference.DEFAULT_TIMESTAMP_FORMAT;
+                            }
+                            collectionProperty.format = format;
                         }
-                        collectionProperty.format = format;
+                        if (property.containsKey("properties") && property.get("properties") instanceof Map) {
+                            collectionProperty.properties = getFromSource(collectionReference, (Map) property.get("properties"), namespace, excludeFields, columnFilterPredicates);
+                        }
+                        if (collectionReference.params.taggableFields != null) {
+                            collectionProperty.taggable = Arrays.stream(collectionReference.params.taggableFields.split(",")).anyMatch(taggable -> taggable.equals(path));
+                        }
+                        ret.put(key.toString(), collectionProperty);
                     }
-                    if (property.containsKey("properties") && property.get("properties") instanceof Map) {
-                        collectionProperty.properties = getFromSource(collectionReference, (Map) property.get("properties"), namespace, excludeFields);
-                    }
-                    if(collectionReference.params.taggableFields!=null) {
-                        collectionProperty.taggable = Arrays.stream(collectionReference.params.taggableFields.split(",")).anyMatch(taggable -> taggable.trim().equals(path));
-                    }
-                    ret.put(key.toString(), collectionProperty);
                 }
             }
             namespace.pop();
@@ -126,10 +146,10 @@ public class ElasticAdmin {
         return ret;
     }
 
-    public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList) throws IOException, ArlasException {
+    public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList, Optional<String> columnFilter) throws IOException, ArlasException {
         List<CollectionReferenceDescription> collectionReferenceDescriptionList = new ArrayList<>();
         for (CollectionReference collectionReference : collectionReferenceList) {
-            collectionReferenceDescriptionList.add(describeCollection(collectionReference));
+            collectionReferenceDescriptionList.add(describeCollection(collectionReference, columnFilter));
         }
         return collectionReferenceDescriptionList;
     }
@@ -152,4 +172,5 @@ public class ElasticAdmin {
         }
         return collections;
     }
+
 }

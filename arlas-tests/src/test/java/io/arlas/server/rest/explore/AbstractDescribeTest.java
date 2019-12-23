@@ -18,12 +18,14 @@
  */
 
 package io.arlas.server.rest.explore;
+
 import io.arlas.server.AbstractTestWithCollection;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Test;
 import java.util.Optional;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static io.restassured.RestAssured.given;
 
 public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
@@ -35,7 +37,44 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
 
     @Test
     public void testDescribeFeature() throws Exception {
-        handleResponse(get(Optional.empty()), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.empty()), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+    }
+
+    @Test
+    public void testDescribeFeatureWithEmptyColumFilter() throws Exception {
+        handleMatchingResponse(get(Optional.of("")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+    }
+
+    @Test
+    public void testDescribeFeatureWithFullnameAndParamsInColumFilter() throws Exception {
+        handleMatchingResponse(get(Optional.of("fullname,params,,geo_params.wktgeomet")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("*fullname*,params.*,geo_params.metry")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("fullname,params.country,params.weight,params.job,params.age,params.tags,params.keywords,params.stopdate")),
+                new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("fullnam*,param*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("fullname,*.country,*arams.weight,param*.job,*age,*ags,params.*eywor*,*arams.stopdate*")),
+                new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("fullname,params.*ountry,params.weigh*,params.*o*,*aram*.age,params.tags,params.keywords*,params.stopdate")),
+                new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
+    }
+
+    @Test
+    public void testDescribeFeatureWithFullColumFilter() throws Exception {
+        handleMatchingResponse(get(Optional.of("*ullname,*arams")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("*ullnam*,*aram*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("*ullnam*,*aram*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+    }
+
+    @Test
+    public void testDescribeFeatureWithSpecificFullColumFilter() throws Exception {
+        handleNotMatchingResponse(get(Optional.of("*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("fullname,*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+
+        handleNotMatchingResponse(get(Optional.of("fullname,params.")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+
+        //anti regression - this used to work
+        handleNotMatchingResponse(get(Optional.of("fullname.unknown,params,,geo_params.wktgeomet")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
     }
 
     /**
@@ -45,11 +84,19 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
     protected abstract String getDescribeResultPath();
 
     /**
+     * Path to expected filtered `describe` result
+     * @return
+     */
+    protected abstract String getFilteredDescribeResultPath();
+
+    /**
      * Compare the response to the given json
      * @param response
      * @param jsonPath
      */
-    protected abstract void handleResponse(ValidatableResponse response, JsonPath jsonPath);
+    protected abstract void handleMatchingResponse(ValidatableResponse response, JsonPath jsonPath);
+
+    protected abstract void handleNotMatchingResponse(ValidatableResponse response, JsonPath jsonPath);
 
     private ValidatableResponse get(Optional<String> columnFilter) {
         return given()
@@ -66,12 +113,12 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
      * @param jsonPath
      * @param index
      */
-    protected void compare(ValidatableResponse response, JsonPath jsonPath, Optional<Integer> index) {
+    protected void compare(ValidatableResponse response, JsonPath jsonPath, Optional<Integer> index, boolean areParamsEqual) {
         String jsonIndex = index.map(i -> "[" + i + "].").orElse("");
         response
                 .body(
                         jsonIndex + "properties",
-                        equalTo(jsonPath.getMap(jsonIndex + "properties")))
+                        areParamsEqual ? equalTo(jsonPath.getMap(jsonIndex + "properties")) : not(equalTo(jsonPath.getMap(jsonIndex + "properties"))))
                 .and()
                 .body(
                         jsonIndex + "collection_name",

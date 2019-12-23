@@ -39,6 +39,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class CollectionAutoDiscover extends Task implements Runnable {
 
@@ -61,7 +62,7 @@ public class CollectionAutoDiscover extends Task implements Runnable {
             List<CollectionReferenceDescription> discoveredCollections = admin.getAllIndecesAsCollections();
             List<CollectionReferenceDescription> existingCollections = null;
             try {
-                existingCollections = admin.describeAllCollections(collectionDao.getAllCollectionReferences());
+                existingCollections = admin.describeAllCollections(collectionDao.getAllCollectionReferences(), Optional.empty());
             } catch (Exception e) {
                 existingCollections = new ArrayList<>();
             }
