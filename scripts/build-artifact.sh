@@ -8,7 +8,7 @@ function clean_maven {
 		-v $PWD:/opt/maven \
 		-v $HOME/.m2:/root/.m2 \
 		maven:3.5.0-jdk-8 \
-		mvn clean
+		mvn clean -B
 }
 
 function clean_exit {
@@ -30,7 +30,7 @@ docker run --rm \
 	-v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	maven:3.5.0-jdk-8 \
-	mvn clean install
+	mvn clean install -B
 
 echo "===> prepare arlas-server artifact"
 cp conf/configuration.yaml .

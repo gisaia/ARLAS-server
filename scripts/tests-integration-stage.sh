@@ -9,7 +9,7 @@ function clean_docker {
 		-v $PWD:/opt/maven \
 		-v $HOME/.m2:/root/.m2 \
 		maven:3.5.0-jdk-8 \
-		mvn clean
+		mvn clean -B
 }
 
 function clean_exit {
@@ -93,7 +93,7 @@ function test_rest() {
         -e WKT_GEOMETRIES=${WKT_GEOMETRIES} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
-        mvn "-Dit.test=*,!AuthServiceIT,!CollectionTool" verify -DskipTests=false -DfailIfNoTests=false
+        mvn "-Dit.test=*,!AuthServiceIT,!CollectionTool" verify -DskipTests=false -DfailIfNoTests=false -B
 }
 
 function test_auth() {
@@ -124,7 +124,7 @@ function test_auth() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
-        mvn -Dit.test=AuthServiceIT verify -DskipTests=false -DfailIfNoTests=false
+        mvn -Dit.test=AuthServiceIT verify -DskipTests=false -DfailIfNoTests=false -B
 }
 
 function test_wfs() {
@@ -148,7 +148,7 @@ function test_wfs() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
-        mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="load" -pl arlas-tests
+        mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="load" -pl arlas-tests -B
 
     docker run --rm \
          --net arlas_default \
@@ -168,7 +168,7 @@ function test_wfs() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
-        mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="delete" -pl arlas-tests
+        mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="delete" -pl arlas-tests -B
 }
 
 
@@ -191,7 +191,7 @@ function test_csw() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
-        mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="loadcsw" -pl arlas-tests
+        mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="loadcsw" -pl arlas-tests -B
 
     docker run --rm \
          --net arlas_default \
@@ -210,7 +210,7 @@ function test_csw() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
-        mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="deletecsw" -pl arlas-tests
+        mvn exec:java -Dexec.mainClass="io.arlas.server.CollectionTool" -Dexec.classpathScope=test -Dexec.args="deletecsw" -pl arlas-tests -B
 }
 
 function test_doc() {
