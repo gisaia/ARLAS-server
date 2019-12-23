@@ -32,10 +32,8 @@ import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.List;
-
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
@@ -49,10 +47,10 @@ public class WFSServiceIT extends AbstractTestWithCollection {
     }
 
     @Test
-    public void testHeaderFilter() throws Exception {
+    public void testGetFeatureHeaderFilter() throws Exception {
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),//"job:eq:Architect"
                 new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1009799<1009801]")));
-        handleHeaderFilter(
+        handleGetFeatureHeaderFilter(
                 get(Arrays.asList(
                         new ImmutablePair<>("SERVICE", "WFS"),
                         new ImmutablePair<>("VERSION", "2.0.0"),
@@ -62,14 +60,38 @@ public class WFSServiceIT extends AbstractTestWithCollection {
     }
 
     @Test
-    public void testNoHeaderFilter() throws Exception {
-        handleNoHeaderFilter(
+    public void testGetFeatureNoHeaderFilter() throws Exception {
+        handleGetFeatureNoHeaderFilter(
                 get(Arrays.asList(
                         new ImmutablePair<>("SERVICE", "WFS"),
                         new ImmutablePair<>("VERSION", "2.0.0"),
                         new ImmutablePair<>("COUNT", "1000"),
                         new ImmutablePair<>("REQUEST", "GetFeature")), new Filter())
         );
+    }
+
+
+    @Test
+    public void testGetPropertyValueNoHeaderFilter() throws Exception {
+        handleGetPropertyValueNoHeaderFilter(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")), new Filter()));
+    }
+
+    @Test
+    public void testGetPropertyValueHeaderFilter() throws Exception {
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),//"job:eq:Architect"
+                new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1009799<1009801]")));
+
+        handleGetPropertyValueHeaderFilter(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")), request.filter));
     }
 
     @Test
@@ -100,7 +122,7 @@ public class WFSServiceIT extends AbstractTestWithCollection {
         );
     }
 
-    public void handleHeaderFilter(ValidatableResponse then) throws Exception {
+    public void handleGetFeatureHeaderFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
                 .body("wfs:FeatureCollection.@numberReturned", equalTo("2"))
                 .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "job", equalTo("Architect"))
@@ -108,12 +130,24 @@ public class WFSServiceIT extends AbstractTestWithCollection {
                 .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "city.size()", equalTo(0));
     }
 
-    public void handleNoHeaderFilter(ValidatableResponse then) throws Exception {
+    public void handleGetFeatureNoHeaderFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
                 .body("wfs:FeatureCollection.@numberReturned", equalTo("595"))
                 .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "job", isOneOf(DataSetTool.jobs))
                 .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "country.size()", equalTo(0))
                 .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "city.size()", equalTo(0));
+    }
+
+    public void handleGetPropertyValueNoHeaderFilter(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+                .body("ValueCollection.member.size()", equalTo(595))
+                .body("ValueCollection.member[0]", isOneOf(DataSetTool.jobs));;
+    }
+
+    public void handleGetPropertyValueHeaderFilter(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+                .body("ValueCollection.member.size()", equalTo(2))
+                .body("ValueCollection.member[0]", isOneOf(DataSetTool.jobs));;
     }
 
     public void handleInspireGetCapabilities(ValidatableResponse then) throws Exception {
@@ -128,10 +162,20 @@ public class WFSServiceIT extends AbstractTestWithCollection {
     public void handleDescribeFeature(ValidatableResponse then) throws Exception {
         if(!DataSetTool.ALIASED_COLLECTION) {
             then.statusCode(200)
-                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(8));
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(9));
         } else {
             then.statusCode(200)
                     .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(10));
+        }
+    }
+
+    public void handleDescribeFeatureColumnFilter(ValidatableResponse then) throws Exception {
+        if(!DataSetTool.ALIASED_COLLECTION) {
+            then.statusCode(200)
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(7));
+        } else {
+            then.statusCode(200)
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(9));
         }
     }
 
@@ -148,4 +192,5 @@ public class WFSServiceIT extends AbstractTestWithCollection {
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
+
 }
