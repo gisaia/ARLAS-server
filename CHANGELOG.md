@@ -1,21 +1,95 @@
 # Change Log
 
-## [v11.6.3](https://github.com/gisaia/ARLAS-server/tree/v11.6.3) (2019-10-21)
+## [v11.6.4](https://github.com/gisaia/ARLAS-server/tree/v11.6.4) (2019-12-20)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.2...v11.6.4)
+
+**Fixed bugs:**
+
+- Describe does not return properly the list of taggable fields [\#568](https://github.com/gisaia/ARLAS-server/issues/568)
+- Describe does not return properly the list of taggable fields [\#569](https://github.com/gisaia/ARLAS-server/pull/569) ([alainbodiguel](https://github.com/alainbodiguel))
+
+## [v12.7.2](https://github.com/gisaia/ARLAS-server/tree/v12.7.2) (2019-11-25)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.1...v12.7.2)
+
+**New stuff:**
+
+- Support array of geohashes for geo-point fields [\#556](https://github.com/gisaia/ARLAS-server/issues/556)
+
+## [v12.7.1](https://github.com/gisaia/ARLAS-server/tree/v12.7.1) (2019-11-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.0...v12.7.1)
+
+**Fixed bugs:**
+
+- \[GEOAGGREGATE\] apply fetch\_geometry strategy on the geo-point on which we aggregate [\#552](https://github.com/gisaia/ARLAS-server/issues/552)
+
+## [v12.7.0](https://github.com/gisaia/ARLAS-server/tree/v12.7.0) (2019-11-15)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.2...v12.7.0)
+
+**Breaking changes:**
+
+- Remove tag api [\#535](https://github.com/gisaia/ARLAS-server/issues/535) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[Multi-geometry\] Support multi\_geometries in geometric filters [\#465](https://github.com/gisaia/ARLAS-server/issues/465) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+**New stuff:**
+
+- Add HTTPS in the swagger definition [\#513](https://github.com/gisaia/ARLAS-server/issues/513)
+- \[auth-4\] Variable support in rules and headers [\#497](https://github.com/gisaia/ARLAS-server/issues/497) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[auth-3\] Authorization mode: headers processing [\#496](https://github.com/gisaia/ARLAS-server/issues/496) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[auth-2\] Authorization mode: rules processing [\#495](https://github.com/gisaia/ARLAS-server/issues/495) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[auth-1\] Authentication mode support [\#494](https://github.com/gisaia/ARLAS-server/issues/494) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- \[Multi-geometry\] return one or multiple geometries in \_geosearch responses [\#466](https://github.com/gisaia/ARLAS-server/issues/466) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Add \_compute endpoint [\#463](https://github.com/gisaia/ARLAS-server/issues/463) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+**Fixed bugs:**
+
+- TimestampTypeMapper unit test fails [\#548](https://github.com/gisaia/ARLAS-server/issues/548)
+- ARLAS Rest services: header keys must be case insensitive [\#472](https://github.com/gisaia/ARLAS-server/issues/472) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+**Miscellaneous:**
+
+- Deprecate \_range endpoint [\#550](https://github.com/gisaia/ARLAS-server/issues/550) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+## [v11.7.2](https://github.com/gisaia/ARLAS-server/tree/v11.7.2) (2019-11-08)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.1...v11.7.2)
+
+**Fixed bugs:**
+
+- Fix Datehistogram key bug due to bump to ES7 [\#541](https://github.com/gisaia/ARLAS-server/pull/541) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
+**Miscellaneous:**
+
+- \[Server\] Generate API documentation [\#542](https://github.com/gisaia/ARLAS-server/issues/542) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
+## [v11.7.1](https://github.com/gisaia/ARLAS-server/tree/v11.7.1) (2019-10-29)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.6.3...v11.7.1)
+
+**New stuff:**
+
+- Add support for Elastic Cloud [\#530](https://github.com/gisaia/ARLAS-server/issues/530)
+
+**Fixed bugs:**
+
+- Remove redundant execution of range query [\#533](https://github.com/gisaia/ARLAS-server/pull/533) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
+## [v11.6.3](https://github.com/gisaia/ARLAS-server/tree/v11.6.3) (2019-10-22)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.7.0...v11.6.3)
 
 **New stuff:**
 
-- Add support for Elastic Cloud [\#530](https://github.com/gisaia/ARLAS-server/issues/530)
 - Add support for Elastic Cloud [\#537](https://github.com/gisaia/ARLAS-server/issues/537)
-- Arlas Server xpack - connection to Elastic Cloud [\#531](https://github.com/gisaia/ARLAS-server/pull/531) ([alainbodiguel](https://github.com/alainbodiguel))
 
 **Fixed bugs:**
 
 - Make sure to remove before in next and after in previous  [\#529](https://github.com/gisaia/ARLAS-server/issues/529)
 - Remove redundant execution of range query [\#539](https://github.com/gisaia/ARLAS-server/issues/539)
 - Make sure to remove before in next and after in previous [\#538](https://github.com/gisaia/ARLAS-server/issues/538)
-- Remove redundant execution of range query [\#533](https://github.com/gisaia/ARLAS-server/pull/533) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [v11.7.0](https://github.com/gisaia/ARLAS-server/tree/v11.7.0) (2019-09-19)
 
@@ -37,7 +111,6 @@
 
 **New stuff:**
 
-- Add HTTPS in the swagger definition [\#513](https://github.com/gisaia/ARLAS-server/issues/513)
 - Publish arlas-admin module in cloudsmith [\#511](https://github.com/gisaia/ARLAS-server/issues/511)
 - Pwithin request should support WKT geometry [\#500](https://github.com/gisaia/ARLAS-server/issues/500)
 - Add HTTPS in the swagger definition [\#515](https://github.com/gisaia/ARLAS-server/pull/515) ([alainbodiguel](https://github.com/alainbodiguel))
@@ -63,10 +136,6 @@
 
 - \[Auth-6\] Add more tests to auth module [\#508](https://github.com/gisaia/ARLAS-server/issues/508)
 - \[auth-5\] Change configuration to snake case [\#498](https://github.com/gisaia/ARLAS-server/issues/498) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
-- \[auth-4\] Variable support in rules and headers [\#497](https://github.com/gisaia/ARLAS-server/issues/497) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
-- \[auth-3\] Authorization mode: headers processing [\#496](https://github.com/gisaia/ARLAS-server/issues/496) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
-- \[auth-2\] Authorization mode: rules processing [\#495](https://github.com/gisaia/ARLAS-server/issues/495) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
-- \[auth-1\] Authentication mode support [\#494](https://github.com/gisaia/ARLAS-server/issues/494) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
 - Support geometries that are indexed as WKT [\#510](https://github.com/gisaia/ARLAS-server/issues/510)
 - Push arlas jars in maven repos [\#485](https://github.com/gisaia/ARLAS-server/issues/485)
 - Add more tests to auth module  [\#509](https://github.com/gisaia/ARLAS-server/pull/509) ([alainbodiguel](https://github.com/alainbodiguel))

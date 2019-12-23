@@ -2,7 +2,7 @@
   "swagger" : "2.0",
   "info" : {
     "description" : "Explore the content of ARLAS collections",
-    "version" : "11.6.4-SNAPSHOT",
+    "version" : "11.1.0",
     "title" : "ARLAS Exploration API",
     "contact" : {
       "name" : "Gisaia",
@@ -24,6 +24,41 @@
   } ],
   "schemes" : [ "http", "https" ],
   "paths" : {
+    "/collections" : {
+      "get" : {
+        "tags" : [ "collections" ],
+        "summary" : "Get all collection references",
+        "description" : "Get all collection references in ARLAS",
+        "operationId" : "getAll_1",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/CollectionReference"
+              }
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/collections/_export" : {
       "get" : {
         "tags" : [ "collections" ],
@@ -71,41 +106,6 @@
             "description" : "Successful operation",
             "schema" : {
               "type" : "string"
-            }
-          },
-          "500" : {
-            "description" : "Arlas Server Error.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/collections" : {
-      "get" : {
-        "tags" : [ "collections" ],
-        "summary" : "Get all collection references",
-        "description" : "Get all collection references in ARLAS",
-        "operationId" : "getAll_1",
-        "consumes" : [ "application/json;charset=utf-8" ],
-        "produces" : [ "application/json;charset=utf-8" ],
-        "parameters" : [ {
-          "name" : "pretty",
-          "in" : "query",
-          "description" : "Pretty print",
-          "required" : false,
-          "type" : "boolean",
-          "default" : false
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful operation",
-            "schema" : {
-              "type" : "array",
-              "items" : {
-                "$ref" : "#/definitions/CollectionReference"
-              }
             }
           },
           "500" : {
@@ -2029,6 +2029,11 @@
           "name" : "dateformat",
           "in" : "query",
           "description" : "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "Column-Filter",
+          "in" : "header",
           "required" : false,
           "type" : "string"
         }, {
