@@ -21,6 +21,7 @@ package io.arlas.server.utils;
 
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.model.request.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -33,14 +34,16 @@ public class RequestFieldsExtractor {
     public static final String INCLUDE_SEARCH_SORT = "search_sort";
     public static final String INCLUDE_SEARCH_INCLUDE = "search_include";
     public static final String INCLUDE_SEARCH_EXCLUDE = "search_exclude";
+    public static final String INCLUDE_SEARCH_RETURNED_GEOMETRIES = "search_returned_geometries";
     public static final String INCLUDE_AGG_FIELD = "agg_field";
     public static final String INCLUDE_AGG_FETCH_GEOMETRY = "agg_fetch_geometry";
     public static final String INCLUDE_AGG_FETCH_HITS = "agg_fetch_hits";
     public static final String INCLUDE_AGG_METRICS = "agg_metrics";
     public static final String INCLUDE_RANGE_FIELD = "range_field";
+    public static final String INCLUDE_COMPUTATION_FIELD = "computation_field";
 
-    public static final Set<String> INCLUDE_ALL  = new HashSet(Arrays.asList(INCLUDE_F, INCLUDE_Q, INCLUDE_SEARCH_SORT,INCLUDE_SEARCH_INCLUDE, INCLUDE_SEARCH_EXCLUDE, INCLUDE_AGG_FIELD, INCLUDE_AGG_FETCH_GEOMETRY,
-            INCLUDE_AGG_FETCH_HITS, INCLUDE_AGG_METRICS, INCLUDE_RANGE_FIELD));
+    public static final Set<String> INCLUDE_ALL  = new HashSet(Arrays.asList(INCLUDE_F, INCLUDE_Q, INCLUDE_SEARCH_SORT,INCLUDE_SEARCH_INCLUDE, INCLUDE_SEARCH_EXCLUDE, INCLUDE_SEARCH_RETURNED_GEOMETRIES,
+            INCLUDE_AGG_FIELD, INCLUDE_AGG_FETCH_GEOMETRY, INCLUDE_AGG_FETCH_HITS, INCLUDE_AGG_METRICS, INCLUDE_RANGE_FIELD, INCLUDE_COMPUTATION_FIELD));
 
     public static Stream<String> extract(Request request, Set<String> includeFields) throws InternalServerErrorException {
         IRequestFieldsExtractor requestExtractor;
@@ -54,11 +57,14 @@ public class RequestFieldsExtractor {
             requestExtractor = new AggregationRequestFieldsExtractor();
         } else if (request.getClass() == RangeRequest.class) {
             requestExtractor = new RangeRequestFieldsExtractor();
+        } else if (request.getClass() == ComputationRequest.class) {
+            requestExtractor = new ComputationRequestFieldsExtractor();
         } else {
             throw new InternalServerErrorException("Request type is not supported");
         }
 
-        return requestExtractor.getCols(request, includeFields);
+        Stream<String> colsStream = requestExtractor.getCols(request, includeFields);
+        return colsStream.filter(StringUtils::isNotBlank);
     }
 
     private interface IRequestFieldsExtractor<T extends Request> {
@@ -99,8 +105,9 @@ public class RequestFieldsExtractor {
             Stream<String> sortCols = includeFields.contains(INCLUDE_SEARCH_SORT) ? getSortCols(request) : Stream.of();
             Stream<String> includeCols = includeFields.contains(INCLUDE_SEARCH_INCLUDE) ? getIncludeCols(request) : Stream.of();
             Stream<String> excludeCols = includeFields.contains(INCLUDE_SEARCH_EXCLUDE) ? getExcludeCols(request) : Stream.of();
+            Stream<String> returnedGeometries = includeFields.contains(INCLUDE_SEARCH_RETURNED_GEOMETRIES) ? getReturnedGeometriesCols(request) : Stream.of();
 
-            return Stream.of(super.getCols(request, includeFields), sortCols, includeCols, excludeCols)
+            return Stream.of(super.getCols(request, includeFields), sortCols, includeCols, excludeCols, returnedGeometries)
                     .flatMap(x -> x);
         }
 
@@ -128,6 +135,12 @@ public class RequestFieldsExtractor {
         private Stream<String> getExcludeCols(Search search) {
             return Optional.ofNullable(search.projection).flatMap(p -> Optional.ofNullable(p.excludes)
                     .map(i -> Arrays.stream(i.split(","))))
+                    .orElse(Stream.of());
+        }
+
+        private Stream<String> getReturnedGeometriesCols(Search search) {
+            return Optional.ofNullable(search.returned_geometries)
+                    .map(i -> Arrays.stream(i.split(",")))
                     .orElse(Stream.of());
         }
     }
@@ -196,6 +209,22 @@ public class RequestFieldsExtractor {
         }
     }
 
+    private static class ComputationRequestFieldsExtractor extends BasicRequestFieldsExtractor<ComputationRequest> {
+
+        @Override
+        public Stream<String> getCols(ComputationRequest request, Set<String> includeFields) {
+
+            Stream<String> computationCol = includeFields.contains(INCLUDE_COMPUTATION_FIELD) ? getComputationCol(request) : Stream.of();
+
+            return Stream.concat(super.getCols(request, includeFields), computationCol);
+        }
+
+        private Stream<String> getComputationCol(ComputationRequest request) {
+            return Optional.ofNullable(request.field)
+                    .map(Stream::of)
+                    .orElse(Stream.of());
+        }
+    }
 
 }
 

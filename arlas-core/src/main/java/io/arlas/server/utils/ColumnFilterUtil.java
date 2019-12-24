@@ -23,7 +23,6 @@ import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Projection;
 import io.arlas.server.model.request.Request;
-import io.arlas.server.model.response.CollectionReferenceDescription;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,10 +96,10 @@ public class ColumnFilterUtil {
         }
     }
 
-    public static String getFilteredIncludes(Optional<String> columnFilter, Projection projection, Set<String> allowedFields) {
+    public static Optional<String> getFilteredIncludes(Optional<String> columnFilter, Projection projection, Set<String> allowedFields) {
 
         if (projection == null || StringUtils.isBlank(projection.includes)) {
-            return columnFilter.get();
+            return Optional.ofNullable(columnFilter.get());
         }
 
         Optional<Set<String>> includesPredicates = FilterMatcherUtil.filterToPredicatesAsSet(Optional.of(projection.includes));
@@ -108,7 +107,7 @@ public class ColumnFilterUtil {
         return allowedFields.stream()
                 .filter(
                         f -> FilterMatcherUtil.matches(includesPredicates, f))
-                .collect(Collectors.joining(","));
+                .reduce((left, right) -> left + "," + right);
     }
 
     /**

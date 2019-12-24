@@ -228,16 +228,16 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
     @Test
     public void testPwithinFilter() throws Exception {
-        /** west < east bbox*/
+        /** west < east bbox */
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "-5,-5,5,5")));
-        handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("0,0")));
-        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(post(request, "column-filter", ""), 1, everyItem(equalTo("0,0")));//an empty column filter is not considered
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", ""), 1, everyItem(equalTo("0,0")));//an empty column filter is not considered
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
 
         /** clock-wise WKT */
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "POLYGON((-5 -5, -5 5, 5 5, 5 -5, -5 -5))")));
-        handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("0,0")));
-        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(post(request, "column-filter", "fullname"), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "fullname"), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
 
         /** west > east bbox*/
@@ -394,6 +394,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .when().get(getUrlPath("geodata"))
                         .then());
         handleNotMatchingPwithinComboFilter(header(request.filter));
+
+        //column filter allows other geometry fields
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.other_geopoint", OperatorEnum.within, "-5,-5,5,5")));
+        handleMatchingGeometryFilter(post(request, "column-filter", "geo_params"), 1, everyItem(equalTo("-10,-10")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "geo_params"), 1, everyItem(equalTo("-10,-10")));
 
         request.filter.f = null;
     }
@@ -937,6 +942,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         "column-filter",
                         "params.city"));
 
+        //also filter geometry filters
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.other_geopoint", OperatorEnum.within, "-5,-5,5,5")));
+        handleUnavailableColumn(post(request, "column-filter", "fullname"));
+        handleUnavailableColumn(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "fullname"));
+
         request.filter = new Filter();
     }
 
@@ -959,6 +969,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name:is"));
         handleUnavailableColumn(post(request, "column-filter", "fullname.anything"));
         handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "fullname.anything"));
+
+        request.filter = new Filter();
     }
 
     //----------------------------------------------------------------

@@ -95,10 +95,13 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
         handleHiddenParameter(post(search, "params"), Arrays.asList("fullname"));
         handleHiddenParameter(get("include", search.projection.includes, "params"), Arrays.asList("fullname"));
 
-        //unexisting column should not break if used in includes and filter, it is simply not returned
+        //unexisting column should not break if used in includes and filter, it is simply not returned.
+        // Only mandatory columns should be returned with no existing columns at all in the filter
         search.projection.includes = "unexisting";
-        handleHiddenParameter(post(search, "unexisting"), Arrays.asList("unexisting"));
-        handleHiddenParameter(get("unexisting", search.projection.includes, "params"), Arrays.asList("unexisting"));
+        handleHiddenParameter(post(search, "unexisting"), Arrays.asList("unexisting", "params.job"));
+        handleHiddenParameter(get("include", search.projection.includes, "unexisting"), Arrays.asList("unexisting", "params.job"));
+        handleDisplayedParameter(post(search, "unexisting"), Arrays.asList("params.startdate", "id", "geo_params.centroid"));
+        handleDisplayedParameter(get("include", search.projection.includes, "unexisting"), Arrays.asList("params.startdate", "id", "geo_params.centroid"));
 
         //include without wildcard can be used if a filter matches
         search.projection.includes = "id,params";
@@ -108,6 +111,9 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
         handleDisplayedParameter(post(search, "id,params*"), Arrays.asList("params.country"));
         handleDisplayedParameter(get("include", search.projection.includes, "id,params*"), Arrays.asList("params.country"));
 
+        //not included columns should not be present
+        handleHiddenParameter(post(search, "params,fullname"), Arrays.asList("fullname"));
+        handleHiddenParameter(get("include", search.projection.includes, "params,fullname"), Arrays.asList("fullname"));
 
         search.projection.excludes = "params.job,fullname";
         search.projection.includes = "geo_params.geometry";
@@ -169,6 +175,49 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
                 .then(), search.returned_geometries);
 
         search.projection.includes = null;
+        search.returned_geometries = null;
+    }
+
+    @Test
+    public void testReturnedGeometriesFilterWithEmptyColumnFilter() throws Exception {
+
+        search.returned_geometries = "geo_params.geometry,geo_params.second_geometry";
+
+        handleReturnedMultiGeometries(post(search, ""), search.returned_geometries);
+        handleReturnedMultiGeometries(givenFilterableRequestParams().param("include", search.projection.includes)
+                .header("column-filter", "")
+                .param("returned_geometries",  search.returned_geometries)
+                .when().get(getUrlPath("geodata"))
+                .then(), search.returned_geometries);
+
+        search.returned_geometries = null;
+    }
+
+    @Test
+    public void testReturnedGeometriesFilterWithAvailableColumns() throws Exception {
+
+        search.returned_geometries = "geo_params.geometry,geo_params.second_geometry";
+
+        handleReturnedMultiGeometries(post(search, "geo_params.second_geometry"), search.returned_geometries);
+        handleReturnedMultiGeometries(givenFilterableRequestParams().param("include", search.projection.includes)
+                .header("column-filter", "geo_params.second_geometry")
+                .param("returned_geometries",  search.returned_geometries)
+                .when().get(getUrlPath("geodata"))
+                .then(), search.returned_geometries);
+
+        search.returned_geometries = null;
+    }
+
+    @Test
+    public void testReturnedGeometriesFilterWithUnavailableColumns() throws Exception {
+        search.returned_geometries = "geo_params.geometry,geo_params.second_geometry";
+        handleUnavailableColumn(post(search, "geo_params.geometry"));
+        handleUnavailableColumn(givenFilterableRequestParams().param("include", search.projection.includes)
+                .header("column-filter", "geo_params.geometry")
+                .param("returned_geometries",  search.returned_geometries)
+                .when().get(getUrlPath("geodata"))
+                .then());
+
         search.returned_geometries = null;
     }
 

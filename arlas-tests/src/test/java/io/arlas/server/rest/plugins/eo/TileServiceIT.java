@@ -143,7 +143,7 @@ public class TileServiceIT extends AbstractTestContext {
         image = ImageIO.read(
                 givenTileQuery("f=id:eq:ID_0_10DI_top", Optional.empty())
                         .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
-                coverage = ImageUtil.coverage(image,10);
+        coverage = ImageUtil.coverage(image,10);
 
         Assert.assertThat("image height is 256",
                 image.getHeight(),
