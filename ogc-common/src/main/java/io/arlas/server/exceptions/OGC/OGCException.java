@@ -23,6 +23,7 @@ package io.arlas.server.exceptions.OGC;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.ogc.common.model.response.OGCError;
 import io.arlas.server.ogc.common.model.Service;
+import org.apache.commons.collections.ListUtils;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -88,6 +89,7 @@ public class OGCException extends ArlasException {
     }
 
     public OGCException(List<OGCExceptionMessage> exceptionMessages, Service service) {
+        super(exceptionMessages.stream().filter(em -> (em.getExceptionTexts() != null && !em.getExceptionTexts().isEmpty())).map(em -> em.getExceptionTexts().stream().reduce((a, b) -> a + "\t" + b).orElse("")).reduce((a, b) -> a + "\t" + b).orElse(""));
         this.ogcService = service;
         this.exceptionMessages = exceptionMessages;
     }
@@ -98,6 +100,7 @@ public class OGCException extends ArlasException {
     }
 
     public OGCException(OGCExceptionMessage exceptionMessage, Service service) {
+        super(exceptionMessage.getExceptionTexts().stream().reduce((a, b) -> a + "\n" + b).orElse(""));
         this.ogcService = service;
         exceptionMessages.add(exceptionMessage);
     }
@@ -112,5 +115,11 @@ public class OGCException extends ArlasException {
                 .entity(ogcError.exceptionReport)
                 .type(MediaType.APPLICATION_XML).build();
         return response;
+    }
+
+    public static OGCException getInternalServerException(Exception e, Service service, String locator) {
+        List<OGCExceptionMessage> ogcExceptionMessages = new ArrayList<>();
+        ogcExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INTERNAL_SERVER_ERROR, e.getMessage() , locator));
+        return new OGCException(ogcExceptionMessages, service);
     }
 }

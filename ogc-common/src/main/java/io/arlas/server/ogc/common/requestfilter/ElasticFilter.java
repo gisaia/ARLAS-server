@@ -21,6 +21,7 @@ package io.arlas.server.ogc.common.requestfilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.utils.BoundingBox;
@@ -32,6 +33,8 @@ import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.geotools.filter.v2_0.FESConfiguration;
 import org.geotools.xml.Parser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,6 +45,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class ElasticFilter {
+    private static Logger LOGGER = LoggerFactory.getLogger(ElasticFilter.class);
 
     public static BoolQueryBuilder filter(String[] ids, String idFieldName, String q, String fulltextField, BoundingBox boundingBox, String geometryField) throws IOException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
@@ -86,19 +90,36 @@ public class ElasticFilter {
             FilterToElastic filterToElastic = new FilterToElastic(collectionDescription, service);
             try {
                 InputStream stream = new ByteArrayInputStream(constraint.getBytes(StandardCharsets.UTF_8));
-                org.opengis.filter.Filter openGisFilter = (org.opengis.filter.Filter) parser.parse(stream);
-
+                org.opengis.filter.Filter openGisFilter = (org.opengis.filter.Filter)parser.parse(stream);
                 filterToElastic.encode(openGisFilter);
                 ObjectMapper mapper = new ObjectMapper();
                 String filterQuery = mapper.writeValueAsString(filterToElastic.getQueryBuilder());
                 // TODO : find a better way to remove prefix xml in field name
                 boolQuery.filter(QueryBuilders.wrapperQuery(filterQuery.replace("tns:", "")));
             } catch (SAXException e) {
-                throw filterToElastic.ogcException;
+                if (filterToElastic.ogcException != null) {
+                    LOGGER.debug(filterToElastic.ogcException.getMessage());
+                    throw filterToElastic.ogcException;
+                } else {
+                    LOGGER.debug(e.getMessage());
+                    throw OGCException.getInternalServerException(e, service, "filter");
+                }
             } catch (ParserConfigurationException e) {
-                throw filterToElastic.ogcException;
+                if (filterToElastic.ogcException != null) {
+                    LOGGER.debug(filterToElastic.ogcException.getMessage());
+                    throw filterToElastic.ogcException;
+                } else {
+                    LOGGER.debug(e.getMessage());
+                    throw OGCException.getInternalServerException(e, service, "filter");
+                }
             } catch (RuntimeException e) {
-                throw filterToElastic.ogcException;
+                if (filterToElastic.ogcException != null) {
+                    LOGGER.debug(filterToElastic.ogcException.getMessage());
+                    throw filterToElastic.ogcException;
+                } else {
+                    LOGGER.debug(e.getMessage());
+                    throw OGCException.getInternalServerException(e, service, "filter");
+                }
             }
         }
         return boolQuery;
