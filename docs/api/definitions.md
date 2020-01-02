@@ -144,7 +144,7 @@
 |**field**  <br>*optional*|string|
 |**filter**  <br>*optional*|[Filter](#filter)|
 |**form**  <br>*optional*|[Form](#form)|
-|**metric**  <br>*optional*|enum (AVG, MAX, MIN, SUM, CARDINALITY, SPANNING)|
+|**metric**  <br>*optional*|enum (AVG, MAX, MIN, SUM, CARDINALITY, SPANNING, GEOBBOX, GEOCENTROID)|
 
 
 <a name="computationresponse"></a>
@@ -153,7 +153,8 @@
 |Name|Schema|
 |---|---|
 |**field**  <br>*optional*|string|
-|**metric**  <br>*optional*|enum (AVG, MAX, MIN, SUM, CARDINALITY, SPANNING)|
+|**geometry**  <br>*optional*|[GeoJsonObject](#geojsonobject)|
+|**metric**  <br>*optional*|enum (AVG, MAX, MIN, SUM, CARDINALITY, SPANNING, GEOBBOX, GEOCENTROID)|
 |**query_time**  <br>*optional*|integer (int64)|
 |**total_time**  <br>*optional*|integer (int64)|
 |**totalnb**  <br>*optional*|integer (int64)|

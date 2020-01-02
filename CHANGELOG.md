@@ -1,5 +1,26 @@
 # Change Log
 
+## [v12.7.3](https://github.com/gisaia/ARLAS-server/tree/v12.7.3) (2020-01-02)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.6.4...v12.7.3)
+
+**New stuff:**
+
+-  `\_compute` the bounding or the geocentroid [\#561](https://github.com/gisaia/ARLAS-server/issues/561)
+
+**Miscellaneous:**
+
+- Too many logs on CI [\#577](https://github.com/gisaia/ARLAS-server/issues/577)
+
+## [v11.6.4](https://github.com/gisaia/ARLAS-server/tree/v11.6.4) (2019-12-23)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.2...v11.6.4)
+
+**Fixed bugs:**
+
+- Describe does not return properly the list of taggable fields [\#568](https://github.com/gisaia/ARLAS-server/issues/568)
+- Describe does not return properly the list of taggable fields [\#569](https://github.com/gisaia/ARLAS-server/pull/569) ([alainbodiguel](https://github.com/alainbodiguel))
+
 ## [v12.7.2](https://github.com/gisaia/ARLAS-server/tree/v12.7.2) (2019-11-25)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.1...v12.7.2)
