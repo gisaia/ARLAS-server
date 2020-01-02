@@ -100,6 +100,8 @@ public class FluidSearch {
     public static final String FIELD_AVG_VALUE = "field_avg_value";
     public static final String FIELD_SUM_VALUE = "field_sum_value";
     public static final String FIELD_CARDINALITY_VALUE = "field_cardinality_value";
+    public static final String FIELD_GEOBBOX_VALUE = "field_bbox_value";
+    public static final String FIELD_GEOCENTROID_VALUE = "field_centroid_value";
 
 
     public static final String RANDOM_GEOMETRY = "random_geometry";
@@ -585,6 +587,14 @@ public class FluidSearch {
                 minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
                 maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
                 searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(minAggregationBuilder).addAggregation(maxAggregationBuilder);
+                break;
+            case GEOBBOX:
+                GeoBoundsAggregationBuilder geoBoundsAggregationBuilder = AggregationBuilders.geoBounds(FIELD_GEOBBOX_VALUE).field(field);
+                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(geoBoundsAggregationBuilder);
+                break;
+            case GEOCENTROID:
+                GeoCentroidAggregationBuilder geoCentroidAggregationBuilder = AggregationBuilders.geoCentroid(FIELD_GEOCENTROID_VALUE).field(field);
+                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(geoCentroidAggregationBuilder);
                 break;
         }
         return this;

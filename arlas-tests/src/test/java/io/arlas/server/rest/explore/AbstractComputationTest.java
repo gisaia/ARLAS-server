@@ -82,6 +82,19 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
         handleComputationRequest(post(computationRequest), 271, 374900);
         handleComputationRequest(get(computationRequest.field, computationRequest.metric.value()), 271, 374900);
 
+        /** GEOCENTROID **/
+        computationRequest.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.within, "-20,-20,30,30")));
+        computationRequest.field = "geo_params.centroid";
+        computationRequest.metric = ComputationEnum.GEOCENTROID;
+        handleGeocentroidComputationRequest(post(computationRequest), 16, 4.9f, 4.9f, 5, 5);
+        handleGeocentroidComputationRequest(get(computationRequest.field, computationRequest.metric.value(), "f", computationRequest.filter.f.get(0).get(0).toString()), 16, 4.9f, 4.9f, 5, 5);
+
+        /** GEOBBOX **/
+        computationRequest.field = "geo_params.centroid";
+        computationRequest.metric = ComputationEnum.GEOBBOX;
+        handleGeoboxComputationRequest(post(computationRequest), 16, -11, -11, 20, 20);
+        handleGeoboxComputationRequest(get(computationRequest.field, computationRequest.metric.value(), "f", computationRequest.filter.f.get(0).get(0).toString()), 16, -11, -11, 20, 20);
+
 
         /** EMPTY RESPONSE : RESTRICTIVE FILTER**/
         computationRequest.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.lt, "0")));
@@ -109,9 +122,20 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
         computationRequest.metric = ComputationEnum.MAX;
         handleInvalidComputationRequest(post(computationRequest));
         handleInvalidComputationRequest(get(computationRequest.field, computationRequest.metric.value()));
+
+        computationRequest.field = "geo_params.geometry";
+        computationRequest.metric = ComputationEnum.GEOBBOX;
+        handleInvalidComputationRequest(post(computationRequest));
+        handleInvalidComputationRequest(get(computationRequest.field, computationRequest.metric.value()));
+
+        computationRequest.metric = ComputationEnum.GEOCENTROID;
+        handleInvalidComputationRequest(post(computationRequest));
+        handleInvalidComputationRequest(get(computationRequest.field, computationRequest.metric.value()));
     }
 
     protected abstract void handleComputationRequest(ValidatableResponse then, int count, float value) throws Exception;
+    protected abstract void handleGeoboxComputationRequest(ValidatableResponse then, int count, float west, float south, float east, float north) throws Exception;
+    protected abstract void handleGeocentroidComputationRequest(ValidatableResponse then, int count, float west, float south, float east, float north) throws Exception;
     protected abstract void handleComputationEmptyResponse(ValidatableResponse then) throws Exception;
     protected abstract void handleInvalidComputationRequest(ValidatableResponse then) throws Exception;
 

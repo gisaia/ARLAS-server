@@ -142,8 +142,13 @@ public class CheckParams {
             if (computationRequest.metric == null) {
                 throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + INVALID_COMPUTE_METRIC);
             }
-            /** Except for CARDINALITY, the field on which the metric is computed should be numeric or date**/
-            if (!computationRequest.metric.equals(ComputationEnum.CARDINALITY)) {
+            if (computationRequest.metric.equals(ComputationEnum.GEOBBOX) || computationRequest.metric.equals(ComputationEnum.GEOCENTROID)) {
+                ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, computationRequest.field, false);
+                if (!ElasticType.GEO_POINT.equals(fieldType) && !ElasticType.UNKNOWN.equals(fieldType)) {
+                    throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + "`" + computationRequest.metric + "` must be applied on a geo-point field");
+                }
+            } else if (!computationRequest.metric.equals(ComputationEnum.CARDINALITY)) {
+                /** Except for CARDINALITY, GEOBBOX and GEOCENTROID, the field on which the metric is computed should be numeric or date**/
                 ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, computationRequest.field, false);
                 if (!ElasticType.getComputableTypes().contains(fieldType)) {
                     throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + "`" + computationRequest.metric + "` must be applied on a numeric or date field");

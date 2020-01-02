@@ -25,7 +25,7 @@ import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 
 public class ComputeServiceIT extends AbstractComputationTest {
 
@@ -42,6 +42,27 @@ public class ComputeServiceIT extends AbstractComputationTest {
     }
 
     @Override
+    protected void handleGeoboxComputationRequest(ValidatableResponse then, int count, float west, float south, float east, float north) throws Exception {
+        then.statusCode(200)
+                .body("totalnb", equalTo(count))
+                .body("geometry.coordinates", hasItem(everyItem(hasItem(greaterThanOrEqualTo(west)))))
+                .body("geometry.coordinates", hasItem(everyItem(hasItem(greaterThanOrEqualTo(south)))))
+                .body("geometry.coordinates", hasItem(everyItem(hasItem(lessThanOrEqualTo(east)))))
+                .body("geometry.coordinates", hasItem(everyItem(hasItem(lessThanOrEqualTo(north)))));
+    }
+
+    @Override
+    protected void handleGeocentroidComputationRequest(ValidatableResponse then, int count, float west, float south, float east, float north) throws Exception {
+        then.statusCode(200)
+                .body("totalnb", equalTo(count))
+                .body("geometry.coordinates", hasItem((greaterThanOrEqualTo(west))))
+                .body("geometry.coordinates", hasItem(greaterThanOrEqualTo(south)))
+                .body("geometry.coordinates", hasItem(lessThanOrEqualTo(east)))
+                .body("geometry.coordinates", hasItem(lessThanOrEqualTo(north)));
+    }
+
+
+    @Override
     protected void handleInvalidComputationRequest(ValidatableResponse then) throws Exception {
         then.statusCode(400);
     }
@@ -50,7 +71,7 @@ public class ComputeServiceIT extends AbstractComputationTest {
     protected void handleComputationEmptyResponse(ValidatableResponse then) throws Exception {
         then.statusCode(200)
                 .body("totalnb", equalTo(0))
-                .body("value", equalTo(0f));
+                .body("value", isEmptyOrNullString());
     }
 
     @Override

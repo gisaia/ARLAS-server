@@ -280,7 +280,17 @@ The `compute` url part is used in `_range` and `_compute` services.
 | Parameter  | Default value | Values       | Description          | Multiple |
 | ---------- | ------------- | ------------ | -------------------- | -------- |
 | **field** | `false`       | `true,false` | The field on which the metric is calculated         | false    |
-| **flat**   | `false`       | `true,false` | The metric to compute  | false    |
+| **metric**   | ``       | `max, min, avg, sum, cardinality, spanning, geobbox, geocentroid` | The metric to compute  | false    |
+
+!!! note 'Note'
+    - `max` : the maximum value of the given field. Field should be numeric or date.
+    - `min` : the minimum value of the given field. Field should be numeric or date.
+    - `avg` : the average of the given field values. Field should be numeric or date.
+    - `sum` : the sum of the given field values. Field should be numeric or date.
+    - `cardinality` : the number of distinct values of the given field.
+    - `spanning` : the range value (max-min) of the given field. Field should be numeric or date.
+    - `geobbox` : the extend of data based on the given geo-point field.
+    - `geocentroid` : the centroid of data based on the given geo-point field.
 
 !!! info '_range is deprecated'
     Starting from v12.7.0, `_range` endpoint is deprecated. You can use the new endpoint `_compute`.

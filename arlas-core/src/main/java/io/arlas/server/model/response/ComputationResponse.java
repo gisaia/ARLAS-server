@@ -20,9 +20,11 @@
 package io.arlas.server.model.response;
 
 import io.arlas.server.model.enumerations.ComputationEnum;
+import org.geojson.GeoJsonObject;
 
 public class ComputationResponse extends OperationInfo {
     public String field;
     public ComputationEnum metric;
-    public double value;
+    public Double value;
+    public GeoJsonObject geometry;
 }
