@@ -134,7 +134,6 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             description.syndicationRight = os.syndicationRight;
             description.tags = os.tags;
         }
-        Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, cr);
         addURLs(prefix, description.url, admin.describeCollection(cr, columnFilter).properties, new Stack<>());
         List<Url> urls = new ArrayList<>();
         description.url.forEach(url -> {
