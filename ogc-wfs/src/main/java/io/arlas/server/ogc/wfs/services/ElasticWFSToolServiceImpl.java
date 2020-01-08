@@ -33,6 +33,7 @@ import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
 import io.arlas.server.services.ExploreServices;
+import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
 import net.opengis.wfs._2.MemberPropertyType;
@@ -47,6 +48,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import static io.arlas.server.utils.CheckParams.isBboxLatLonInCorrectRanges;
@@ -67,13 +69,14 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
     }
 
     @Override
-    public Object getFeature(String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter, CollectionReference collectionReference, String[] excludes) throws ArlasException, IOException {
-        buildWFSQuery(WFSRequestType.GetFeature, id, bbox, constraint, resourceid, storedquery_id, partitionFilter, collectionReference);
+    public Object getFeature(String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter, CollectionReference collectionReference, String[] excludes, Optional<String> columnFilter) throws ArlasException, IOException {
+        buildWFSQuery(WFSRequestType.GetFeature, id, bbox, constraint, resourceid, storedquery_id, partitionFilter, collectionReference, columnFilter);
         SearchHit response;
+        String[] includes = columnFilterToIncludes(collectionReference, columnFilter);
         try {
             SearchHits hitsGetFeature = exploreServices.getClient()
                     .prepareSearch(collectionReference.params.indexName)
-                    .setFetchSource(null, excludes)
+                    .setFetchSource(includes, excludes)
                     .setQuery(wfsQuery)
                     .execute()
                     .get()
@@ -92,14 +95,18 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
     }
 
     @Override
-    public List<Object> getFeatures(String id, String bbox, String constraint, String resourceid, String partitionFilter, CollectionReference collectionReference, String[] excludes, Integer startindex, Integer count) throws ArlasException, IOException {
-        buildWFSQuery(null, id, bbox, constraint, resourceid, null, partitionFilter, collectionReference);
+    public List<Object> getFeatures(String id, String bbox, String constraint, String resourceid, String partitionFilter, CollectionReference collectionReference, String[] excludes, Integer startindex, Integer count,
+                                    Optional<String> columnFilter) throws ArlasException, IOException {
+
+        buildWFSQuery(null, id, bbox, constraint, resourceid, null, partitionFilter, collectionReference, columnFilter);
         List<Object> featureList = new ArrayList<>();
+        String[] includes = columnFilterToIncludes(collectionReference, columnFilter);
+
         try {
             SearchHits hitsGetFeature = exploreServices
                     .getClient()
                     .prepareSearch(collectionReference.params.indexName)
-                    .setFetchSource(null, excludes)
+                    .setFetchSource(includes, excludes)
                     .setQuery(wfsQuery)
                     .setFrom(startindex)
                     .setSize(count)
@@ -117,10 +124,21 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
         return featureList;
     }
 
+    private String[] columnFilterToIncludes(CollectionReference collectionReference, Optional<String> columnFilter) {
+        //return null if no column filter: it avoids the ElasticAdmin query
+        return ColumnFilterUtil
+                .cleanColumnFilter(columnFilter)
+                .map(cf ->
+                        exploreServices.getElasticAdmin().getCollectionFields(collectionReference, Optional.of(cf)).stream().toArray(String[] ::new))
+                .orElse(null);
+    }
+
     @Override
-    public ValueCollectionType getPropertyValue (String id, String bbox, String constraint, String resourceid, String storedquery_id,
-                                                 String partitionFilter, CollectionReference collectionReference, String include, String[] excludes, Integer startindex, Integer count) throws ArlasException, IOException {
-        buildWFSQuery(WFSRequestType.GetPropertyValue, id, bbox, constraint, resourceid, storedquery_id, partitionFilter, collectionReference);
+    public ValueCollectionType getPropertyValue(String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter,
+                                                CollectionReference collectionReference, String include, String[] excludes, Integer startindex, Integer count,
+                                                Optional<String> columnFilter) throws ArlasException, IOException {
+
+        buildWFSQuery(WFSRequestType.GetPropertyValue, id, bbox, constraint, resourceid, storedquery_id, partitionFilter, collectionReference, columnFilter);
         ValueCollectionType valueCollectionType = new ValueCollectionType();
         try {
             SearchHits hitsGetPropertyValue = exploreServices.getClient()
@@ -146,13 +164,15 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
     }
 
 
-    private void buildWFSQuery(WFSRequestType requestType, String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter, CollectionReference collectionReference) throws ArlasException, IOException{
+    private void buildWFSQuery(WFSRequestType requestType, String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter,
+                               CollectionReference collectionReference, Optional<String> columnFilter) throws ArlasException, IOException{
+
         wfsQuery = QueryBuilders.boolQuery();
         FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
         fluidSearch.setCollectionReference(getCollectionReferenceDescription(collectionReference));
         addCollectionFilter(fluidSearch, collectionReference);
         if (constraint != null) {
-            wfsQuery.filter(ElasticFilter.filter(constraint, getCollectionReferenceDescription(collectionReference), Service.WFS));
+            wfsQuery.filter(ElasticFilter.filter(constraint, getCollectionReferenceDescription(collectionReference), Service.WFS, columnFilter));
         } else if (bbox != null) {
             buildBboxQuery(bbox, collectionReference);
         } else if (resourceid != null) {

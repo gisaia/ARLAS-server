@@ -23,6 +23,7 @@ import io.arlas.server.exceptions.*;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Projection;
 import io.arlas.server.model.request.Request;
+import io.arlas.server.model.response.CollectionReferenceDescription;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class ColumnFilterUtil {
     public static void assertRequestAllowed(Optional<String> columnFilter,
                                             CollectionReference collectionReference,
                                             Request basicRequest)
-            throws InternalServerErrorException, ColumnUnavailableException, NotFoundException {
+            throws InternalServerErrorException, ColumnUnavailableException {
 
         Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionReference);
 
@@ -93,6 +94,44 @@ public class ColumnFilterUtil {
 
         if (qWithoutCol > 0) {
             throw new ColumnUnavailableException("Searching with 'q' parameter without an explicit column is not available");
+        }
+    }
+
+    public static void assertFieldAvailable(Optional<String> columnFilter, CollectionReference collectionReference, String field) throws ColumnUnavailableException {
+        Optional<Set<String>> columFilterPredicates = getColumnFilterPredicates(columnFilter, collectionReference);
+        assertFieldAvailable(columFilterPredicates, field);
+    }
+
+    public static void assertFieldAvailable(Optional<Set<String>> columnFilterPredicates, String field) throws ColumnUnavailableException {
+
+        if (!FilterMatcherUtil.matches(columnFilterPredicates, field)) {
+            throw new ColumnUnavailableException(new HashSet<>(Arrays.asList(field)));
+        }
+    }
+
+    /**
+     * Check if an openGisFilter uses only fields allowed in column filter
+     * @param columnFilter
+     * @param collectionDescription
+     * @param openGisFilter
+     * @throws ColumnUnavailableException
+     */
+    public static void assertOpenGisFilterAllowed(Optional<String> columnFilter, CollectionReferenceDescription collectionDescription,
+                                                  List<String> openGisFilter) throws ArlasException {
+
+        Optional<String> cleanColumnFilter = ColumnFilterUtil.cleanColumnFilter(columnFilter);
+
+        if (!cleanColumnFilter.isPresent()) {
+            return;
+        }
+
+        Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionDescription);
+        Set<String> forbiddenFields = openGisFilter.stream()
+                .filter(f -> !FilterMatcherUtil.matches(columnFilterPredicates, f))
+                .collect(Collectors.toSet());
+
+        if (!forbiddenFields.isEmpty()) {
+            throw new ColumnUnavailableException(forbiddenFields);
         }
     }
 

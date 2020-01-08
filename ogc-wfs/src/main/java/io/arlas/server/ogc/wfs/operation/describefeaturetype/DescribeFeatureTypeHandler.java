@@ -24,6 +24,8 @@ import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.common.utils.XmlUtils;
+import io.arlas.server.utils.ColumnFilterUtil;
+import io.arlas.server.utils.FilterMatcherUtil;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
@@ -33,6 +35,7 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
@@ -44,28 +47,23 @@ public class DescribeFeatureTypeHandler {
         this.wfsHandler = wfsHandler;
     }
 
-    public StreamingOutput getDescribeFeatureTypeResponse(CollectionReference collectionReference, String uri) {
+    public StreamingOutput getDescribeFeatureTypeResponse(CollectionReference collectionReference, String uri, Optional<String> columnFilter) {
 
-        StreamingOutput streamingOutput = new StreamingOutput() {
-            @Override
-            public void write(OutputStream outputStream) throws WebApplicationException {
-                try {
-                    writeArlasFeatureSchema(outputStream, collectionReference, uri);
+        StreamingOutput streamingOutput = outputStream -> {
+            try {
+                writeArlasFeatureSchema(outputStream, collectionReference, uri, columnFilter);
 
-                } catch (XMLStreamException e) {
-                    e.printStackTrace();
-                }
+            } catch (XMLStreamException e) {
+                e.printStackTrace();
             }
         };
         return streamingOutput;
     }
 
-    public void writeArlasFeatureSchema(OutputStream outputStream, CollectionReference collectionReference, String uri) throws XMLStreamException {
+    public void writeArlasFeatureSchema(OutputStream outputStream, CollectionReference collectionReference, String uri, Optional<String> columnFilter) throws XMLStreamException {
 
         String collectionName = collectionReference.collectionName;
         String geometryPath = collectionReference.params.geometryPath;
-        String timestampPath = collectionReference.params.timestampPath;
-
 
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(outputStream);
@@ -121,7 +119,12 @@ public class DescribeFeatureTypeHandler {
                 excludeFields.add(Pattern.compile("^" + field.replace(".", "\\.").replace("*", ".*") + "$"));
             });
         }
-        XmlUtils.parsePropertiesXsd(((CollectionReferenceDescription) collectionReference).properties, writer, new Stack<String>(), excludeFields);
+        XmlUtils.parsePropertiesXsd(
+                ((CollectionReferenceDescription) collectionReference).properties,
+                writer,
+                new Stack<String>(),
+                excludeFields,
+                ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionReference));
 
 
         writer.writeEndElement();

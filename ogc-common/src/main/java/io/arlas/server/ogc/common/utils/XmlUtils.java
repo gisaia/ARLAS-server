@@ -24,6 +24,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.model.response.TimestampType;
+import io.arlas.server.utils.FilterMatcherUtil;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.TimestampTypeMapper;
 import org.joda.time.DateTime;
@@ -46,15 +47,18 @@ public class XmlUtils {
     public static final String TYPE = "type";
     public static final String MIN_OCCURS = "minOccurs";
 
-    public static void parsePropertiesXsd(Map<String, CollectionReferenceDescriptionProperty> properties, XMLStreamWriter writer, Stack<String> namespace, ArrayList<Pattern> excludeFields) throws XMLStreamException {
+    public static void parsePropertiesXsd(Map<String, CollectionReferenceDescriptionProperty> properties, XMLStreamWriter writer, Stack<String> namespace, ArrayList<Pattern> excludeFields,
+                                          Optional<Set<String>> columnFilterPredicates) throws XMLStreamException {
+
         for (String key : properties.keySet()) {
             CollectionReferenceDescriptionProperty property = properties.get(key);
             namespace.push(key);
             String path = String.join(".", new ArrayList<>(namespace));
             boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
-            if (!excludePath) {
+            boolean isAllowed = FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, property.type == ElasticType.OBJECT);
+            if (!excludePath && isAllowed) {
                 if (property.type == ElasticType.OBJECT) {
-                    parsePropertiesXsd(property.properties, writer, namespace, excludeFields);
+                    parsePropertiesXsd(property.properties, writer, namespace, excludeFields, columnFilterPredicates);
                 } else {
                     writeElementForType(writer, String.join(".", new ArrayList<>(namespace)), property);
                 }
