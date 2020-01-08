@@ -135,7 +135,7 @@ public class ColumnFilterUtil {
         }
     }
 
-    public static Optional<String> getFilteredIncludes(Optional<String> columnFilter, Projection projection, Set<String> allowedFields) {
+    public static Optional<String> getFilteredIncludes(Optional<String> columnFilter, Projection projection, Set<String> collectionAllowedFields) {
 
         if (projection == null || StringUtils.isBlank(projection.includes)) {
             return Optional.ofNullable(columnFilter.get());
@@ -143,7 +143,7 @@ public class ColumnFilterUtil {
 
         Optional<Set<String>> includesPredicates = FilterMatcherUtil.filterToPredicatesAsSet(Optional.of(projection.includes));
 
-        return allowedFields.stream()
+        return collectionAllowedFields.stream()
                 .filter(
                         f -> FilterMatcherUtil.matches(includesPredicates, f))
                 .reduce((left, right) -> left + "," + right);
@@ -178,15 +178,19 @@ public class ColumnFilterUtil {
         return FilterMatcherUtil.filterToPredicatesAsStream(columnFilter)
                 .map(cols -> Stream.concat(
                         cols,
-                        Arrays.asList(
-                                collectionReference.params.idPath,
-                                collectionReference.params.geometryPath,
-                                collectionReference.params.centroidPath,
-                                collectionReference.params.timestampPath)
+                        getCollectionMandatoryPaths(collectionReference)
                                 .stream()
                                 .map(
                                         c -> c.replaceAll("\\.", "\\\\.")))
                         .collect(Collectors.toSet()));
+    }
+
+    public static List<String> getCollectionMandatoryPaths(CollectionReference collectionReference) {
+        return Arrays.asList(
+                collectionReference.params.idPath,
+                collectionReference.params.geometryPath,
+                collectionReference.params.centroidPath,
+                collectionReference.params.timestampPath);
     }
 
 }

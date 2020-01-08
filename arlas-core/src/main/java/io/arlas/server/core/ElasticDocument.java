@@ -35,11 +35,11 @@ public class ElasticDocument {
         this.client = client;
     }
 
-    public Map<String, Object> getSource(CollectionReference collectionReference, String identifier) throws ExecutionException, InterruptedException {
+    public Map<String, Object> getSource(CollectionReference collectionReference, String identifier, String[] includes) throws ExecutionException, InterruptedException {
         String[] excludes = collectionReference.params.excludeFields.split(",");
         SearchHits hits = client
                 .prepareSearch(collectionReference.params.indexName)
-                .setFetchSource(null, excludes)
+                .setFetchSource(includes, excludes)
                 .setQuery(QueryBuilders.matchQuery(collectionReference.params.idPath, identifier))
                 .execute()
                 .get()
