@@ -300,7 +300,10 @@ public class ExploreServices {
 
     protected void applyProjection(Projection projection, FluidSearch fluidSearch, Optional<String> columnFilter, CollectionReference collectionReference) {
         if (ColumnFilterUtil.isValidColumnFilterPresent(columnFilter)) {
-            String filteredIncludes = ColumnFilterUtil.getFilteredIncludes(columnFilter, projection, elasticAdmin.getCollectionFields(collectionReference, columnFilter));
+            String filteredIncludes = ColumnFilterUtil.getFilteredIncludes(columnFilter, projection, elasticAdmin.getCollectionFields(collectionReference, columnFilter))
+                    .orElse(
+                            // if filteredIncludes were to be null or an empty string, FluidSearch would then build a bad request
+                            fluidSearch.getCollectionPaths().stream().collect(Collectors.joining(",")));
             fluidSearch = fluidSearch.include(filteredIncludes);
 
         } else if (projection != null && !Strings.isNullOrEmpty(projection.includes)) {
