@@ -105,6 +105,10 @@ public class ExploreServices {
         this.client = client;
     }
 
+    public ElasticAdmin getElasticAdmin() {
+        return elasticAdmin;
+    }
+
     public CollectionReferenceDao getDaoCollectionReference() {
         return daoCollectionReference;
     }
