@@ -59,7 +59,7 @@ public class ColumnFilterUtil {
     public static void assertRequestAllowed(Optional<String> columnFilter,
                                                              CollectionReference collectionReference,
                                                              Request basicRequest)
-            throws InternalServerErrorException, ColumnUnavailableException, NotFoundException {
+            throws InternalServerErrorException, ColumnUnavailableException {
 
         Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionReference);
 

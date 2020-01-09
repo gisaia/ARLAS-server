@@ -76,6 +76,10 @@ public class ElasticFilter {
         return boolQuery;
     }
 
+    public static BoolQueryBuilder filter(String constraint, CollectionReferenceDescription collectionDescription, Service service) throws IOException, ArlasException {
+        return ElasticFilter.filter(constraint, collectionDescription, service, Optional.empty());
+    }
+
     public static BoolQueryBuilder filter(String constraint, CollectionReferenceDescription collectionDescription, Service service, Optional<String> columnFilter) throws IOException, ArlasException {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         FESConfiguration configuration = new FESConfiguration();
