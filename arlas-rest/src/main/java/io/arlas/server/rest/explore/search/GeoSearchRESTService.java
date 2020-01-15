@@ -431,7 +431,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        request.columnFilter = columnFilter;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
         FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat));
         return cache(Response.ok(fc), maxagecache);
@@ -510,7 +510,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(collectionReference, searchHeader);
         request.headerRequest = searchHeader;
-        request.columnFilter = columnFilter;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
         FeatureCollection fc = getFeatures(collectionReference, request, (flat != null && flat));
         return cache(Response.ok(fc), maxagecache);
     }

@@ -138,7 +138,7 @@ public class ComputeRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = computationRequest;
         request.headerRequest = computationRequestHeader;
-        request.columnFilter = columnFilter;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
         ComputationResponse computationResponse = exploreServices.compute(request, collectionReference);
         return cache(Response.ok(computationResponse), maxagecache) ;
     }
@@ -209,7 +209,7 @@ public class ComputeRESTService extends ExploreRESTServices {
 
         request.basicRequest = computationRequest;
         request.headerRequest = computationRequestHeader;
-        request.columnFilter = columnFilter;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
         ComputationResponse computationResponse = exploreServices.compute(request, collectionReference);
         return cache(Response.ok(computationResponse), maxagecache) ;
     }

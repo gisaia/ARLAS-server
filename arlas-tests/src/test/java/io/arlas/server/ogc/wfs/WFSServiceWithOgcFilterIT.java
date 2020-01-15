@@ -73,6 +73,27 @@ public class WFSServiceWithOgcFilterIT extends AbstractWFSServiceTest {
     }
 
     @Test
+    public void testGetFeatureFilterWithCollectionBasedColumnFiltering() throws Exception {
+        handleOK(
+                get(getFeatureParams(),
+                        new Filter(),
+                        Optional.of(COLLECTION_NAME + ":params"))
+        );
+
+        handleUnavailableColumn(
+                get(getFeatureParams(),
+                        new Filter(),
+                        Optional.of("notExisting:params,fullname"))
+        );
+
+        handleUnavailableCollection(
+                get(getFeatureParams(),
+                        new Filter(),
+                        Optional.of("notExisting:params"))
+        );
+    }
+
+    @Test
     public void testGetPropertyValueFilter() throws Exception {
         //TODO test the result, not only response code
         handleOK(
@@ -106,6 +127,28 @@ public class WFSServiceWithOgcFilterIT extends AbstractWFSServiceTest {
                         new Filter(),
                         Optional.of("fullname"))
         );
+    }
+
+    @Test
+    public void testGetPropertyValueFilterWithCollectionBasedColumnFiltering() throws Exception {
+        handleOK(
+                get(getGetPropertyValueParams(),
+                        new Filter(),
+                        Optional.of(COLLECTION_NAME + ":params"))
+        );
+
+        handleUnavailableColumn(
+                get(getGetPropertyValueParams(),
+                        new Filter(),
+                        Optional.of("notExisting:params,fullname"))
+        );
+
+        handleUnavailableCollection(
+                get(getGetPropertyValueParams(),
+                        new Filter(),
+                        Optional.of("notExisting:params"))
+        );
+
     }
 
     private List<Pair<String, String>> getFeatureParams() {

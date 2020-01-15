@@ -26,10 +26,13 @@ import io.arlas.server.model.request.Filter;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.stringContainsInOrder;
 
 public abstract class AbstractWFSServiceTest extends AbstractTestWithCollection {
 
@@ -45,7 +48,11 @@ public abstract class AbstractWFSServiceTest extends AbstractTestWithCollection 
     }
 
     public void handleUnavailableColumn(ValidatableResponse then) throws Exception {
-        then.statusCode(403).body(containsString("available"));
+        then.statusCode(403).body(stringContainsInOrder(Arrays.asList("column", "available")));
+    }
+
+    public void handleUnavailableCollection(ValidatableResponse then) throws Exception {
+        then.statusCode(403).body(stringContainsInOrder(Arrays.asList("collection", "available")));
     }
 
     protected RequestSpecification givenFilterableRequestParams() {

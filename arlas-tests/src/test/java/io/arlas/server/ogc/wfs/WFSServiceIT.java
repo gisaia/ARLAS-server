@@ -95,6 +95,45 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
     }
 
     @Test
+    public void testGetFeatureWithCollectionBasedColumnFiltering() throws Exception {
+        handleGetFeatureNoHeaderFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("COUNT", "1000"),
+                        new ImmutablePair<>("REQUEST", "GetFeature")),
+                        new Filter(),
+                        Optional.of("params.job,params.country,params.city")));
+
+        handleGetFeatureNoHeaderFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("COUNT", "1000"),
+                        new ImmutablePair<>("REQUEST", "GetFeature")),
+                        new Filter(),
+                        Optional.of(COLLECTION_NAME + ":params.job," + COLLECTION_NAME + ":params.country," + COLLECTION_NAME + "params.city")));
+
+        handleGetFeatureColumnFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("COUNT", "1000"),
+                        new ImmutablePair<>("REQUEST", "GetFeature")),
+                        new Filter(),
+                        Optional.of("notExisting:params.job,notExisting:params.country,notExisting:params.city,params.startdate")));
+
+        handleUnavailableCollection(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("COUNT", "1000"),
+                        new ImmutablePair<>("REQUEST", "GetFeature")),
+                        new Filter(),
+                        Optional.of("notExisting:params")));
+    }
+
+    @Test
     public void testGetPropertyValueNoHeaderFilter() throws Exception {
         handleGetPropertyValueNoHeaderFilter(get(Arrays.asList(
                 new ImmutablePair<>("SERVICE", "WFS"),
@@ -149,6 +188,45 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
                 new ImmutablePair<>("valuereference", "params.job")),
                 new Filter(),
                 Optional.of("id")));
+    }
+
+    @Test
+    public void testGetPropertyValueWitCollectionBasedColumnFilter() throws Exception {
+        handleGetPropertyValueNoHeaderFilter(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")),
+                new Filter(),
+                Optional.of("params.job")));
+
+        handleGetPropertyValueNoHeaderFilter(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")),
+                new Filter(),
+                Optional.of(COLLECTION_NAME + ":params.job")));
+
+        handleUnavailableColumn(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")),
+                new Filter(),
+                Optional.of("fullname,notExisting:params.job")));
+
+        handleUnavailableCollection(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")),
+                new Filter(),
+                Optional.of("notExisting:params.job")));
     }
 
     @Test
@@ -212,7 +290,41 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
                         new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
                         new Filter(),
                         Optional.of("par*")));
+    }
 
+    @Test
+    public void testDescribeFeatureWithCollectionBasedColumnFiltering() throws Exception {
+        handleDescribeFeature(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
+                        new Filter(),
+                        Optional.of("params,fullname")));
+
+        handleDescribeFeature(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
+                        new Filter(),
+                        Optional.of(COLLECTION_NAME + ":params," + COLLECTION_NAME + ":fullname")));
+
+        handleDescribeFeatureColumnFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
+                        new Filter(),
+                        Optional.of(COLLECTION_NAME + ":params,notExisting:fullname")));
+
+        handleUnavailableCollection(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
+                        new Filter(),
+                        Optional.of("notExisting:fullname")));
     }
 
     public void handleGetFeatureHeaderFilter(ValidatableResponse then) throws Exception {

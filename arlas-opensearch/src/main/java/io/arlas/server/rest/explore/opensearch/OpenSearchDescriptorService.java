@@ -100,6 +100,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
         if (cr == null) {
             throw new NotFoundException(collection);
         }
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Arrays.asList(cr));
         OpenSearchDescription description = new OpenSearchDescription();
         String prefix = uri.getBaseUri().toURL().toString() + uri.getPath() + "/../_search";
 

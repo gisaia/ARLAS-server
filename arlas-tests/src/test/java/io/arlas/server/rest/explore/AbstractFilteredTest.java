@@ -951,6 +951,25 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     }
 
     @Test
+    public void testFieldFilterWithCollectionBasedColumnFiltering() throws Exception {
+
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0])));
+        handleFieldFilter(post(request, "column-filter", "params.job"), 59, "Actor");
+        handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "params.job"), 59, "Actor");
+
+        handleFieldFilter(post(request, "column-filter", COLLECTION_NAME + ":params.job"), 59, "Actor");
+        handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", COLLECTION_NAME + ":params.job"), 59, "Actor");
+
+        handleUnavailableColumn(post(request, "column-filter", "fullname,notExisting:params.job"));
+        handleUnavailableColumn(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "fullname,notExisting:params.job"));
+
+        handleUnavailableCollection(post(request, "column-filter", "notExisting:params.job"));
+        handleUnavailableCollection(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "notExisting:params.job"));
+
+        request.filter = new Filter();
+    }
+
+    @Test
     public void testQueryFilterWithUnavailableColumns() throws Exception {
         request.filter = new Filter();
         request.filter.q = Arrays.asList(new MultiValueFilter<>("My name is"));
@@ -971,6 +990,24 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "fullname.anything"));
 
         request.filter = new Filter();
+    }
+
+    @Test
+    public void testQueryFilterWithCollectionBasedColumnFiltering() throws Exception {
+        request.filter = new Filter();
+        request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name is"));
+
+        handleMatchingQueryFilter(post(request, "column-filter", "fullname*"), 595);
+        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", "fullname*"), 595);
+
+        handleMatchingQueryFilter(post(request, "column-filter", COLLECTION_NAME + ":fullname*"), 595);
+        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", COLLECTION_NAME + ":fullname*"), 595);
+
+        handleUnavailableColumn(post(request, "column-filter", "params,notExisting:fullname*"));
+        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "params,notExisting:fullname*"));
+
+        handleUnavailableCollection(post(request, "column-filter", "notExisting:fullname*"));
+        handleUnavailableCollection(get("q", request.filter.q.get(0).get(0), "column-filter", "notExisting:fullname*"));
     }
 
     //----------------------------------------------------------------
@@ -1234,7 +1271,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     protected abstract void handleNotMatchingRequest(ValidatableResponse then);
 
     protected void handleUnavailableColumn(ValidatableResponse then) {
-        then.statusCode(403).body(containsString("available"));
+        then.statusCode(403).body(stringContainsInOrder(Arrays.asList("column", "available")));
+    }
+
+    protected void handleUnavailableCollection(ValidatableResponse then) {
+        then.statusCode(403).body(stringContainsInOrder(Arrays.asList("collection", "available")));
     }
 
     //----------------------------------------------------------------

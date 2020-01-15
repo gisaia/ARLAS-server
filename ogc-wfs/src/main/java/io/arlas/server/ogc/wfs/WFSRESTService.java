@@ -54,6 +54,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -189,7 +190,7 @@ public class WFSRESTService extends OGCRESTService {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Column-Filter") Optional<String> columnFilter
 
-    ) throws IOException, ArlasException, ParserConfigurationException, SAXException, ExecutionException, InterruptedException {
+    ) throws IOException, ArlasException {
 
         Version requestVersion = VersionUtils.getVersion(version, Service.WFS);
         RequestUtils.checkRequestTypeByName(request, WFSConstant.SUPPORTED_WFS_REQUESTYPE, Service.WFS);
@@ -204,6 +205,8 @@ public class WFSRESTService extends OGCRESTService {
         if (collectionReference == null) {
             throw new OGCException(OGCExceptionCode.NOT_FOUND, "Collection not found " + collection, Service.WFS);
         }
+
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Arrays.asList(collectionReference));
 
         CollectionReferenceDescription collectionReferenceDescription = wfsToolService.getCollectionReferenceDescription(collectionReference);
         String collectionName = collectionReferenceDescription.collectionName;

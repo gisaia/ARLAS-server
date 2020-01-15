@@ -72,7 +72,7 @@ public class DescribeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws IOException, ArlasException {
+    ) throws ArlasException {
         List<CollectionReference> collectionReferences = exploreServices.getDaoCollectionReference().getAllCollectionReferences();
         List<CollectionReferenceDescription> collectionReferenceDescriptionList = exploreServices.getElasticAdmin().describeAllCollections(collectionReferences, columnFilter);
 

@@ -27,6 +27,7 @@ import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
+import io.arlas.server.utils.ColumnFilterUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -34,6 +35,7 @@ import io.swagger.annotations.ApiResponses;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class DescribeCollectionRESTService extends ExploreRESTServices {
@@ -87,6 +89,7 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Arrays.asList(collectionReference));
         CollectionReferenceDescription collectionReferenceDescription = exploreServices.getElasticAdmin().describeCollection(collectionReference, columnFilter);
 
         return cache(Response.ok(collectionReferenceDescription), maxagecache);

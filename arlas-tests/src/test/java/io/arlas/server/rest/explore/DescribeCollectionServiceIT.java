@@ -22,7 +22,9 @@ package io.arlas.server.rest.explore;
 import io.arlas.server.DataSetTool;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ValidatableResponse;
+import org.hamcrest.Matchers;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 public class DescribeCollectionServiceIT extends AbstractDescribeTest {
@@ -30,6 +32,18 @@ public class DescribeCollectionServiceIT extends AbstractDescribeTest {
     @Override
     protected String getUrlPath(String collection) {
         return arlasPath + "explore/" + collection + "/_describe";
+    }
+
+    @Override
+    public void testDescribeFeatureWithCollectionBasedColumFiltering() throws Exception {
+        handleMatchingResponse(get(Optional.of("fullname,params,geo_params")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of(COLLECTION_NAME + ":fullname," + COLLECTION_NAME + ":params," + COLLECTION_NAME + ":geo_params")),
+                new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleNotMatchingResponse(
+                get(Optional.of("notExisting:fullname,notExisting:params,notExisting:geo_params,params.startdate")),
+                new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+
+        handleUnavailableCollection(get(Optional.of("notExisting:fullname,notExisting:params,notExisting:geo_params")));
     }
 
     @Override
@@ -50,6 +64,11 @@ public class DescribeCollectionServiceIT extends AbstractDescribeTest {
     @Override
     protected void handleNotMatchingResponse(ValidatableResponse response, JsonPath jsonPath) {
         handleResponse(response, jsonPath, false);
+    }
+
+    private void handleUnavailableCollection(ValidatableResponse response) {
+        response.statusCode(403)
+        .body(Matchers.stringContainsInOrder(Arrays.asList("collection", "available")));
     }
 
     private void handleResponse(ValidatableResponse response, JsonPath jsonPath, boolean areParamsEqual) {

@@ -111,6 +111,23 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     }
 
     @Test
+    public void testPageSortWithCollectionBasedColumnFiltering() throws Exception {
+        search.page.sort = "-params.job";
+
+        handleSortParameter(post(search, "params.job,fullname"), "Dancer");
+        handleSortParameter(get("sort", search.page.sort, "params.job,fullname"), "Dancer");
+
+        handleSortParameter(post(search, COLLECTION_NAME + ":params.job," + COLLECTION_NAME + ":fullname"), "Dancer");
+        handleSortParameter(get("sort", search.page.sort, COLLECTION_NAME + ":params.job," + COLLECTION_NAME + ":fullname"), "Dancer");
+
+        handleUnavailableColumn(post(search, "notExisting:params.job,fullname"));
+        handleUnavailableColumn(get("sort", search.page.sort, "notExisting:params.job,fullname"));
+
+        handleUnavailableCollection(post(search, "notExisting:params.job"));
+        handleUnavailableCollection(get("sort", search.page.sort, "notExisting:params.job"));
+    }
+
+    @Test
     public void testPOSTSortWithAfterParameters() throws Exception {
         search.page.sort = "params.startdate,id";
         search.page.size = 3;

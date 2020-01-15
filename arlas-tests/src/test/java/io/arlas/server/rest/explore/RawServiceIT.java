@@ -23,11 +23,12 @@ import io.arlas.server.AbstractTestWithCollection;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.junit.Test;
+
+import java.util.Arrays;
 import java.util.Optional;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.*;
 
 public class RawServiceIT extends AbstractTestWithCollection {
 
@@ -77,6 +78,36 @@ public class RawServiceIT extends AbstractTestWithCollection {
                 FLATTEN_CHAR);
     }
 
+    @Test
+    public void testGetArlasHitCollectionBasedColumnFiltering() throws Exception {
+        handleRawQueryWithColumnsFiltered(
+                givenRawQuery("/ID__170__20DI", Optional.empty(), Optional.of("id")));
+        handleRawQueryWithColumnsFiltered(
+                givenRawQuery("/ID__170__20DI", Optional.of(Boolean.TRUE), Optional.of("id")),
+                FLATTEN_CHAR);
+
+        handleRawQueryWithColumnsFiltered(
+                givenRawQuery("/ID__170__20DI", Optional.empty(), Optional.of(COLLECTION_NAME + ":id")));
+        handleRawQueryWithColumnsFiltered(
+                givenRawQuery("/ID__170__20DI", Optional.of(Boolean.TRUE), Optional.of(COLLECTION_NAME + ":id")),
+                FLATTEN_CHAR);
+
+        handleRawQuery(
+                givenRawQuery("/ID__170__20DI", Optional.empty(), Optional.of(COLLECTION_NAME + ":id,fullname")));
+        handleRawQuery(
+                givenRawQuery("/ID__170__20DI", Optional.of(Boolean.TRUE), Optional.of(COLLECTION_NAME + ":id,fullname")),
+                FLATTEN_CHAR);
+
+        handleRawQueryWithColumnsFiltered(
+                givenRawQuery("/ID__170__20DI", Optional.empty(), Optional.of(COLLECTION_NAME + ":id,notExisting:fullname")));
+        handleRawQueryWithColumnsFiltered(
+                givenRawQuery("/ID__170__20DI", Optional.of(Boolean.TRUE), Optional.of(COLLECTION_NAME + ":id,notExisting:fullname")),
+                FLATTEN_CHAR);
+
+        handleUnavailableCollection(givenRawQuery("/ID__170__20DI", Optional.empty(), Optional.of("notExisting:fullname")));
+        handleUnavailableCollection(givenRawQuery("/ID__170__20DI", Optional.of(Boolean.TRUE), Optional.of("notExisting:fullname")));
+    }
+
     @Override
     protected String getUrlPath(String collection) {
         return arlasPath + "explore/" + collection;
@@ -108,6 +139,11 @@ public class RawServiceIT extends AbstractTestWithCollection {
                 .body("data.fullname", isEmptyOrNullString())
                 .body("data.params" + separator + "startdate", equalTo(813400))
                 .body("data.params" + separator + "city", isEmptyOrNullString());
+    }
+
+    private void handleUnavailableCollection(ValidatableResponse then) {
+        then.statusCode(403)
+                .body(stringContainsInOrder(Arrays.asList("collection", "available")));
     }
 
     private ValidatableResponse givenRawQuery(String identifier, Optional<Boolean> flatParam, Optional<String> columnFilter) {

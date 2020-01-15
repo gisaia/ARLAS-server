@@ -76,6 +76,9 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
         handleNotMatchingResponse(get(Optional.of("fullname.unknown,params,,geo_params.wktgeomet")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
     }
 
+    @Test
+    abstract public void testDescribeFeatureWithCollectionBasedColumFiltering() throws Exception;
+
     /**
      * Path to expected `describe` result
      * @return
@@ -97,7 +100,7 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
 
     protected abstract void handleNotMatchingResponse(ValidatableResponse response, JsonPath jsonPath);
 
-    private ValidatableResponse get(Optional<String> columnFilter) {
+    protected ValidatableResponse get(Optional<String> columnFilter) {
         return given()
                 .header("column-filter", columnFilter.orElse(""))
                 .when()

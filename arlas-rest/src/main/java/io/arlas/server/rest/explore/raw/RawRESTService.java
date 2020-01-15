@@ -38,6 +38,7 @@ import org.apache.commons.lang.BooleanUtils;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -108,6 +109,8 @@ public class RawRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException("Collection " + collection + " not found.");
         }
+
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Arrays.asList(collectionReference));
 
         ElasticDocument elasticDoc = new ElasticDocument(this.getExploreServices().getClient());
 

@@ -27,6 +27,7 @@ import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.FilterMatcherUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -146,12 +147,13 @@ public class ElasticAdmin {
         return ret;
     }
 
-    public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList, Optional<String> columnFilter) throws IOException, ArlasException {
-        List<CollectionReferenceDescription> collectionReferenceDescriptionList = new ArrayList<>();
-        for (CollectionReference collectionReference : collectionReferenceList) {
-            collectionReferenceDescriptionList.add(describeCollection(collectionReference, columnFilter));
-        }
-        return collectionReferenceDescriptionList;
+    public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList, Optional<String> columnFilter) {
+
+        Stream<CollectionReference> filteredCollectionReferenceList =
+                collectionReferenceList.stream().filter(collection ->
+                        !ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent()
+                                || ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter,collection).isPresent());
+        return filteredCollectionReferenceList.map(collectionReference -> describeCollection(collectionReference, columnFilter)).collect(Collectors.toList());
     }
 
     public List<CollectionReferenceDescription> getAllIndecesAsCollections() throws IOException {

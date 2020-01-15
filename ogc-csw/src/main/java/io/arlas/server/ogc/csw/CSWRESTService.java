@@ -44,16 +44,15 @@ import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
 import io.arlas.server.utils.BoundingBox;
+import io.arlas.server.utils.ColumnFilterUtil;
 import io.swagger.annotations.*;
 import net.opengis.cat.csw._3.AbstractRecordType;
 import net.opengis.cat.csw._3.CapabilitiesType;
 import net.opengis.cat.csw._3.GetRecordsResponseType;
+import org.apache.commons.collections.CollectionUtils;
 import org.xml.sax.SAXException;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -226,6 +225,13 @@ public class CSWRESTService extends OGCRESTService {
             @QueryParam(value = "language") String language,
 
             // --------------------------------------------------------
+            // -----------------------  FILTER  -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
+            // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
             @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
@@ -321,7 +327,9 @@ public class CSWRESTService extends OGCRESTService {
                 i++;
             }
         }
-        List<CollectionReference> collections = new ArrayList<>();
+
+        List<CollectionReference> collections;
+
         switch (requestType) {
             case GetCapabilities:
                 GetCapabilitiesHandler getCapabilitiesHandler = cswHandler.getCapabilitiesHandler;
@@ -329,16 +337,24 @@ public class CSWRESTService extends OGCRESTService {
                 String serviceUrl = serverBaseUri + "ogc/csw/?";
                 getCapabilitiesHandler.setCapabilitiesType(responseSections, serviceUrl, serverBaseUri + "ogc/csw/opensearch");
                 if (cswHandler.inspireConfiguration.enabled) {
-                    List<CollectionReference> allCollections = dao.getAllCollectionReferences();
-                    allCollections.removeIf(collectionReference -> collectionReference.collectionName.equals(getMetacollectionName()));
-                    getCapabilitiesHandler.addINSPIRECompliantElements(allCollections, responseSections, serviceUrl, language);
+                    collections = dao.getAllCollectionReferences();
+
+                    collections.removeIf(collectionReference -> collectionReference.collectionName.equals(getMetacollectionName()));
+                    filterCollectionsByColumnFilter(columnFilter, collections);
+
+                    if (CollectionUtils.isNotEmpty(collections)) {
+                        getCapabilitiesHandler.addINSPIRECompliantElements(collections, responseSections, serviceUrl, language);
+                    }
                 }
                 JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse();
                 return Response.ok(getCapabilitiesResponse).type(acceptFormatMediaType).build();
             case GetRecords:
                 GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
+
                 CollectionReferences collectionReferences = getCollectionReferencesForGetRecords(elements, null, maxRecords, startPosition, ids, query, constraint, boundingBox);
-                collections = collectionReferences.collectionReferences;
+                collections = new ArrayList<>(collectionReferences.collectionReferences);
+                filterCollectionsByColumnFilter(columnFilter, collections);
+
                 long recordsMatched = collectionReferences.totalCollectionReferences;
                 if (recordIds != null && recordIds.length() > 0) {
                     if (collections.size() == 0) {
@@ -351,11 +367,14 @@ public class CSWRESTService extends OGCRESTService {
             case GetRecordById:
                 GetRecordsByIdHandler getRecordsByIdHandler = cswHandler.getRecordsByIdHandler;
                 CollectionReferences recordCollectionReferences = ogcDao.getCollectionReferences(elements, null, maxRecords, startPosition - 1, ids, query, constraint, boundingBox);
+                collections = new ArrayList<>(recordCollectionReferences.collectionReferences);
+                ColumnFilterUtil.assertCollectionsAllowed(columnFilter, collections);
+
                 if (outputSchema != null && outputSchema.equals(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA[2])) {
-                    GetRecordByIdResponse getRecordByIdResponse = getRecordsByIdHandler.getMDMetadaTypeResponse(recordCollectionReferences.collectionReferences, ElementSetName.valueOf(elementSetName));
+                    GetRecordByIdResponse getRecordByIdResponse = getRecordsByIdHandler.getMDMetadaTypeResponse(collections, ElementSetName.valueOf(elementSetName));
                     return Response.ok(getRecordByIdResponse).type(outputFormatMediaType).build();
                 } else {
-                    AbstractRecordType abstractRecordType = getRecordsByIdHandler.getAbstractRecordTypeResponse(recordCollectionReferences.collectionReferences, ElementSetName.valueOf(elementSetName));
+                    AbstractRecordType abstractRecordType = getRecordsByIdHandler.getAbstractRecordTypeResponse(collections, ElementSetName.valueOf(elementSetName));
                     return Response.ok(abstractRecordType).type(outputFormatMediaType).build();
                 }
             default:
@@ -363,6 +382,10 @@ public class CSWRESTService extends OGCRESTService {
         }
     }
 
+    private void filterCollectionsByColumnFilter(@HeaderParam("Column-Filter") @ApiParam(hidden = true) Optional<String> columnFilter, List<CollectionReference> collections) {
+        collections.removeIf(collection ->
+                ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent() && !ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collection).isPresent());
+    }
 
 
     @Timed

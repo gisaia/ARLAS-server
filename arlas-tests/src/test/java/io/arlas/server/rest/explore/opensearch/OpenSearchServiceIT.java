@@ -88,6 +88,15 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
         handleOpenSearchFeatureByColumn(get("params.*"), withColumns("params."));
     }
 
+    @Test
+    public void testOpenSearchFeatureWithCollectionBasedColumnFiltering() throws Exception {
+        handleOpenSearchFeatureByColumn(get(COLLECTION_NAME + ":fullname,notExisting:params"), withColumns("fullname"));
+        handleOpenSearchFeatureByColumn(get("params.startdate,notExisting:params"), withColumns());
+        handleOpenSearchFeatureByColumn(get(COLLECTION_NAME + ":params,notExisting:fullname"), withColumns("params."));
+        handleOpenSearchFeatureByColumn(get(COLLECTION_NAME + ":params.*,notExisting:full*"), withColumns("params."));
+        handleUnavailableCollection(get("notExisting:full*"));
+    }
+
     private void handleOpenSearchFeature(ValidatableResponse then) throws Exception {
         handleOpenSearchFeatureByColumn(then, withColumns(""));
     }
@@ -100,6 +109,11 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
                 .root("ns2:OpenSearchDescription.ns2:Url.@template.grep(~/.*%s.*/).size()");
 
         expectedFields.entrySet().forEach(e -> root.body(withArgs(e.getKey()), is(e.getValue())));
+    }
+
+    private void handleUnavailableCollection(ValidatableResponse then) {
+        then.statusCode(403)
+                .body(stringContainsInOrder(Arrays.asList("collection", "available")));
     }
 
     protected RequestSpecification givenXmlNamespace(){

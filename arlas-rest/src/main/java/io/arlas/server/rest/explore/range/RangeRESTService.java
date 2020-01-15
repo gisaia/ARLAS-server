@@ -145,7 +145,7 @@ public class RangeRESTService extends ExploreRESTServices {
         request.basicRequest = rangeRequest;
         exploreServices.setValidGeoFilters(collectionReference, rangeRequestHeader);
         request.headerRequest = rangeRequestHeader;
-        request.columnFilter = columnFilter;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
         RangeResponse rangeResponse = getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
@@ -218,7 +218,7 @@ public class RangeRESTService extends ExploreRESTServices {
 
         request.basicRequest = rangeRequest;
         request.headerRequest = rangeRequestHeader;
-        request.columnFilter = columnFilter;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
         RangeResponse rangeResponse = getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);

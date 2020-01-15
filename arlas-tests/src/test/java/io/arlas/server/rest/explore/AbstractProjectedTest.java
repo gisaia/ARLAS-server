@@ -160,6 +160,22 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
     }
 
     @Test
+    public void testIncludeExcludeFilterWithCollectionBasedColumnFiltering() throws Exception {
+        search.projection.includes = "fullname";
+        handleDisplayedParameter(post(search, "fullname"), Arrays.asList("fullname"));
+        handleDisplayedParameter(get("include", search.projection.includes, "fullname"), Arrays.asList("fullname"));
+
+        handleDisplayedParameter(post(search, COLLECTION_NAME + ":fullname"), Arrays.asList("fullname"));
+        handleDisplayedParameter(get("include", search.projection.includes, COLLECTION_NAME + ":fullname"), Arrays.asList("fullname"));
+
+        handleUnavailableColumn(post(search, "params,notExisting:fullname"));
+        handleUnavailableColumn(get("include", search.projection.includes, "params,notExisting:fullname"));
+
+        handleUnavailableCollection(post(search, "notExisting:fullname"));
+        handleUnavailableCollection(get("include", search.projection.includes, "notExisting:fullname"));
+    }
+
+    @Test
     public void testReturnedGeometriesFilter() throws Exception {
         // requested geometry does not exist in collection
         search.returned_geometries = "geo_params.foo_geometry";
@@ -214,6 +230,42 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
         handleUnavailableColumn(post(search, "geo_params.geometry"));
         handleUnavailableColumn(givenFilterableRequestParams().param("include", search.projection.includes)
                 .header("column-filter", "geo_params.geometry")
+                .param("returned_geometries",  search.returned_geometries)
+                .when().get(getUrlPath("geodata"))
+                .then());
+
+        search.returned_geometries = null;
+    }
+
+    @Test
+    public void testReturnedGeometriesFilterWitCollectionBasedColumnFiltering() throws Exception {
+
+        search.returned_geometries = "geo_params.geometry,geo_params.second_geometry";
+
+        handleReturnedMultiGeometries(post(search, "geo_params.second_geometry"), search.returned_geometries);
+        handleReturnedMultiGeometries(givenFilterableRequestParams().param("include", search.projection.includes)
+                .header("column-filter", "geo_params.second_geometry")
+                .param("returned_geometries",  search.returned_geometries)
+                .when().get(getUrlPath("geodata"))
+                .then(), search.returned_geometries);
+
+        handleReturnedMultiGeometries(post(search, COLLECTION_NAME + ":geo_params.second_geometry"), search.returned_geometries);
+        handleReturnedMultiGeometries(givenFilterableRequestParams().param("include", search.projection.includes)
+                .header("column-filter", COLLECTION_NAME + ":geo_params.second_geometry")
+                .param("returned_geometries",  search.returned_geometries)
+                .when().get(getUrlPath("geodata"))
+                .then(), search.returned_geometries);
+
+        handleUnavailableColumn(post(search, "fullname,notExisting:geo_params.second_geometry"));
+        handleUnavailableColumn(givenFilterableRequestParams().param("include", search.projection.includes)
+                .header("column-filter", "fullname,notExisting:geo_params.second_geometry")
+                .param("returned_geometries",  search.returned_geometries)
+                .when().get(getUrlPath("geodata"))
+                .then());
+
+        handleUnavailableCollection(post(search, "notExisting:geo_params.second_geometry"));
+        handleUnavailableCollection(givenFilterableRequestParams().param("include", search.projection.includes)
+                .header("column-filter", "notExisting:geo_params.second_geometry")
                 .param("returned_geometries",  search.returned_geometries)
                 .when().get(getUrlPath("geodata"))
                 .then());

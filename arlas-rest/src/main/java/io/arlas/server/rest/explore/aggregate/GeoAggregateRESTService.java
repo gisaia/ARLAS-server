@@ -314,7 +314,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
         request.basicRequest = aggregationRequest;
         request.headerRequest = aggregationsRequestHeader;
-        request.columnFilter = columnFilter;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
         FeatureCollection fc = getFeatureCollection(request, collectionReference, (aggregationRequest.form != null && aggregationRequest.form.flat), Optional.empty());
 
@@ -335,7 +335,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         exploreServices.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
-        request.columnFilter = columnFilter;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
         FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), geohash);
         return cache(Response.ok(fc), maxagecache);
     }

@@ -19,24 +19,18 @@
 
 package io.arlas.server.exceptions;
 
+import io.arlas.server.model.CollectionReference;
+
 import javax.ws.rs.core.Response;
-import java.util.Set;
 
-/**
- * To be thrown when an element is column-filtered to a user
- */
-public class ColumnUnavailableException extends ArlasException {
+public class CollectionUnavailableException extends ArlasException {
 
-    public ColumnUnavailableException(Set<String> forbiddenColumns) {
-        this(
-                String.format(forbiddenColumns.size() == 1 ?
-                                "The column '%s' isn't available" :
-                                "The columns '%s' aren't available",
-                String.join(", ", forbiddenColumns)));
-    }
-
-    public ColumnUnavailableException(String message) {
+    public CollectionUnavailableException(String message) {
         super(message);
         status = Response.Status.FORBIDDEN;
+    }
+
+    public CollectionUnavailableException(CollectionReference collectionReference) {
+        this("Target collection " + collectionReference.collectionName + " is not available");
     }
 }

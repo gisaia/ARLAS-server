@@ -22,6 +22,7 @@ package io.arlas.server.rest.explore;
 import io.arlas.server.DataSetTool;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ValidatableResponse;
+import org.hamcrest.Matchers;
 
 import java.util.Optional;
 
@@ -30,6 +31,46 @@ public class DescribeServiceIT extends AbstractDescribeTest {
     @Override
     protected String getUrlPath(String collection) {
         return arlasPath + "explore/_list";
+    }
+
+    @Override
+    public void testDescribeFeatureWithCollectionBasedColumFiltering() throws Exception {
+        handleMatchingResponse(get(Optional.of("fullname,params,geo_params")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of(COLLECTION_NAME + ":fullname," + COLLECTION_NAME + ":params," + COLLECTION_NAME + ":geo_params," + COLLECTION_NAME_ACTOR + ":fullname," + COLLECTION_NAME_ACTOR +
+                        ":params," + COLLECTION_NAME_ACTOR + ":geo_params")),
+                new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+
+        ValidatableResponse fullGeodataPartialActorResponse = get(Optional.of(COLLECTION_NAME + ":fullname," + COLLECTION_NAME + ":params," + COLLECTION_NAME + ":geo_params," +  COLLECTION_NAME_ACTOR + ":fullname," +
+                COLLECTION_NAME_ACTOR + ":params,notExisting:geo_params"));
+        compare(fullGeodataPartialActorResponse, new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())), Optional.of(0), true);
+        compare(fullGeodataPartialActorResponse, new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())), Optional.of(1), true);
+
+        handleNotMatchingResponse(get(Optional.of(COLLECTION_NAME + ":nofield," + COLLECTION_NAME_ACTOR + ":nofield,notExisting:*ullname,notExisting:*arams")),
+                new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+
+        //collection should also be filtered if no field is allowed for it
+        get(Optional.of("notExisting:geo_params"))
+            .statusCode(200)
+            .body(".", Matchers.iterableWithSize(0));
+
+        get(Optional.of(COLLECTION_NAME + ":fullname," + COLLECTION_NAME + ":params," + COLLECTION_NAME + ":geo_params"))
+            .statusCode(200)
+            .body(".", Matchers.iterableWithSize(1))
+            .body("[0].collection_name", Matchers.equalTo(COLLECTION_NAME))
+            .body("[1].collection_name", Matchers.isEmptyOrNullString());
+
+        //however a field no related to any collection makes all collections allowed
+        get(Optional.of("toto"))
+                .statusCode(200)
+                .body(".", Matchers.iterableWithSize(2))
+                .body("[0].collection_name", Matchers.equalTo(COLLECTION_NAME))
+                .body("[1].collection_name", Matchers.equalTo(COLLECTION_NAME_ACTOR));
+
+        get(Optional.empty())
+                .statusCode(200)
+                .body(".", Matchers.iterableWithSize(2))
+                .body("[0].collection_name", Matchers.equalTo(COLLECTION_NAME))
+                .body("[1].collection_name", Matchers.equalTo(COLLECTION_NAME_ACTOR));
     }
 
     @Override

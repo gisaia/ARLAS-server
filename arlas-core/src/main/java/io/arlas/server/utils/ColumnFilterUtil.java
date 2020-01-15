@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,20 +49,34 @@ public class ColumnFilterUtil {
     private static final Set<String> REQUEST_FIELDS_EXTRACTOR_INCLUDE = RequestFieldsExtractor.INCLUDE_ALL.stream().filter(i -> i != RequestFieldsExtractor.INCLUDE_SEARCH_EXCLUDE).collect(Collectors.toSet());
 
     /**
-     * Check that there aren't forbidden fields into the requests, and that fields are compatible with FGA prerequisites
+     * Check that there aren't forbidden fields into the requests, and that fields are compatible with FGA prerequisites.
+     * Also check that the target collection is allowed (at least one column of the collection is available, or
+     * there is at least one column - in the column filter - that is not related to a specific collection).
      * @param columnFilter
      * @param collectionReference
      * @param basicRequest
      * @throws InternalServerErrorException if fields cannot be extracted from requests
      * @throws ColumnUnavailableException if a field is forbidden
+     * @throws CollectionUnavailableException if the target collection is forbidden
      * @return
      */
     public static void assertRequestAllowed(Optional<String> columnFilter,
                                             CollectionReference collectionReference,
                                             Request basicRequest)
-            throws InternalServerErrorException, ColumnUnavailableException {
+            throws InternalServerErrorException, ColumnUnavailableException, CollectionUnavailableException {
 
-        Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionReference);
+        Optional<String> cleanColumnFilter = cleanColumnFilter(columnFilter);
+
+        if (!cleanColumnFilter.isPresent()) {
+            return;
+        }
+
+        Optional<String> collectionColumnFilter = getCollectionRelatedColumnFilter(cleanColumnFilter, collectionReference);
+        if (!collectionColumnFilter.isPresent()) {
+            throw new CollectionUnavailableException(collectionReference);
+        }
+
+        Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(collectionColumnFilter, collectionReference);
 
         if (!columnFilterPredicates.isPresent()) {
             return;
@@ -176,6 +191,7 @@ public class ColumnFilterUtil {
      */
     public static Optional<Set<String>> getColumnFilterPredicates(Optional<String> columnFilter, CollectionReference collectionReference) {
         return FilterMatcherUtil.filterToPredicatesAsStream(columnFilter)
+                .map(getCollectionFilters(collectionReference))
                 .map(cols -> Stream.concat(
                         cols,
                         getCollectionMandatoryPaths(collectionReference)
@@ -191,6 +207,42 @@ public class ColumnFilterUtil {
                 collectionReference.params.geometryPath,
                 collectionReference.params.centroidPath,
                 collectionReference.params.timestampPath);
+    }
+
+    /**
+     * Return the column filter related to a collection.
+     * It DOES NOT include the collection mandatory path.
+     * @param columnFilter
+     * @param collectionReference
+     * @return
+     */
+    public static Optional<String> getCollectionRelatedColumnFilter(Optional<String> columnFilter, CollectionReference collectionReference) {
+        return cleanColumnFilter(columnFilter)
+                .map(cf -> Arrays.stream(cf.split(",")))
+                .map(getCollectionFilters(collectionReference))
+                .map(cols -> cols.collect(Collectors.joining(",")))
+                .filter(StringUtils::isNotBlank);
+    }
+
+    private static Function<Stream<String>, Stream<String>> getCollectionFilters(CollectionReference collectionReference) {
+        String collectionPrefix = collectionReference.collectionName + ":";
+        return cols -> cols
+                .filter(col -> !col.contains(":") || col.startsWith(collectionPrefix))
+                .map(col -> col.startsWith(collectionPrefix) ? StringUtils.substringAfter(col, collectionPrefix) : col);
+    }
+
+    public static void assertCollectionsAllowed(Optional<String> columnFilter, List<CollectionReference> collections) throws CollectionUnavailableException {
+        Optional<String> cleanColumnFilter = cleanColumnFilter(columnFilter);
+
+        if (!cleanColumnFilter.isPresent()) {
+            return;
+        }
+
+        for (CollectionReference collection : collections) {
+            if (!getCollectionRelatedColumnFilter(cleanColumnFilter, collection).isPresent()) {
+                throw new CollectionUnavailableException(collection);
+            }
+        }
     }
 
 }

@@ -40,6 +40,7 @@ import java.util.stream.Stream;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
+import static io.arlas.server.CollectionTool.COLLECTION_NAME;
 
 public class TileServiceIT extends AbstractTestContext {
     @Override
@@ -193,8 +194,24 @@ public class TileServiceIT extends AbstractTestContext {
 
     @Test
     public void testTileWithUnavailableColumn() {
-        givenTileQuery("f=id:eq:ID_0_10DI_bottom&f=fullname:eq:any", Optional.of("id"))
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom&f=fullname:eq:My name is ID_0_10DI", Optional.of("id"))
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+    }
+
+    @Test
+    public void testTileWithCollectionBasedColumnFiltering() {
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom&f=fullname:eq:My name is ID_0_10DI", Optional.of("fullname"))
+                .statusCode(Response.Status.OK.getStatusCode());
+
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom&f=fullname:eq:My name is ID_0_10DI", Optional.of(COLLECTION_NAME + ":fullname"))
+                .statusCode(Response.Status.OK.getStatusCode());
+
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom&f=fullname:eq:My name is ID_0_10DI", Optional.of("params,notExisting:fullname"))
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom", Optional.of("notExisting:fullname"))
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
     }
 
 }

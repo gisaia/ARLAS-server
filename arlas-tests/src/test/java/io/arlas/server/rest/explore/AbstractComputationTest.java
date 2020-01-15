@@ -149,6 +149,24 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
         handleUnavailableColumn(get(computationRequest.field, computationRequest.metric.value(), "fullname"));
     }
 
+    @Test
+    public void testComputeRequestWithCollectionBasedColumnFiltering() throws Exception {
+        computationRequest.field = "params.age";
+        computationRequest.metric = ComputationEnum.AVG;
+
+        handleComputationRequest(post(computationRequest, "params"), 595, 3702.8571428571427f);
+        handleComputationRequest(get(computationRequest.field, computationRequest.metric.value(), "params"), 595, 3702.8571428571427f);
+
+        handleComputationRequest(post(computationRequest, COLLECTION_NAME + ":params"), 595, 3702.8571428571427f);
+        handleComputationRequest(get(computationRequest.field, computationRequest.metric.value(), COLLECTION_NAME + ":params"), 595, 3702.8571428571427f);
+
+        handleUnavailableColumn(post(computationRequest, "fullname,notExisting:params"));
+        handleUnavailableColumn(get(computationRequest.field, computationRequest.metric.value(), "fullname,notExisting:params"));
+
+        handleUnavailableCollection(post(computationRequest, "notExisting:params"));
+        handleUnavailableCollection(get(computationRequest.field, computationRequest.metric.value(), "notExisting:params"));
+    }
+
     protected abstract void handleComputationRequest(ValidatableResponse then, int count, float value) throws Exception;
     protected abstract void handleGeoboxComputationRequest(ValidatableResponse then, int count, float west, float south, float east, float north) throws Exception;
     protected abstract void handleGeocentroidComputationRequest(ValidatableResponse then, int count, float west, float south, float east, float north) throws Exception;
