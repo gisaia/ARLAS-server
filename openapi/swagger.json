@@ -2,7 +2,7 @@
   "swagger" : "2.0",
   "info" : {
     "description" : "Explore the content of ARLAS collections",
-    "version" : "-SNAPSHOT",
+    "version" : "11.1.1",
     "title" : "ARLAS Exploration API",
     "contact" : {
       "name" : "Gisaia",
@@ -1121,7 +1121,10 @@
           "200" : {
             "description" : "Successful operation",
             "schema" : {
-              "$ref" : "#/definitions/CollectionReferenceDescription"
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/CollectionReferenceDescription"
+              }
             }
           },
           "500" : {
@@ -2029,11 +2032,6 @@
           "name" : "dateformat",
           "in" : "query",
           "description" : "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations",
-          "required" : false,
-          "type" : "string"
-        }, {
-          "name" : "Column-Filter",
-          "in" : "header",
           "required" : false,
           "type" : "string"
         }, {

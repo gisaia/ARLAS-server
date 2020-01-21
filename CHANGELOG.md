@@ -1,13 +1,21 @@
 # Change Log
 
-## [v11.6.4](https://github.com/gisaia/ARLAS-server/tree/v11.6.4) (2019-12-20)
+## [v11.6.5](https://github.com/gisaia/ARLAS-server/tree/v11.6.5) (2020-01-16)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.3...v11.6.5)
+
+**Fixed bugs:**
+
+- Hide column-filter header un SearchRESTService [\#578](https://github.com/gisaia/ARLAS-server/issues/578)
+- responseContainer of _list endpoint is invalid [\#585](https://github.com/gisaia/ARLAS-server/issues/585)
+
+## [v11.6.4](https://github.com/gisaia/ARLAS-server/tree/v11.6.4) (2019-12-23)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.2...v11.6.4)
 
 **Fixed bugs:**
 
 - Describe does not return properly the list of taggable fields [\#568](https://github.com/gisaia/ARLAS-server/issues/568)
-- Describe does not return properly the list of taggable fields [\#569](https://github.com/gisaia/ARLAS-server/pull/569) ([alainbodiguel](https://github.com/alainbodiguel))
 
 ## [v12.7.2](https://github.com/gisaia/ARLAS-server/tree/v12.7.2) (2019-11-25)
 
