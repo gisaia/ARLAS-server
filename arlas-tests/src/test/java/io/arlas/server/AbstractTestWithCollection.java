@@ -40,7 +40,7 @@ public abstract class AbstractTestWithCollection extends AbstractTestContext {
     }
 
     @BeforeClass
-    public static void beforeClass() {
+    public static void beforeClass() throws IOException {
         new CollectionTool().load(10000);
     }
 

@@ -28,7 +28,7 @@ public class OGCRESTService {
     protected OGCCollectionReferenceDao ogcDao = null;
     private static final String META_COLLECTION_NAME = "metacollection";
 
-    protected String getMetacollactionName() {
+    protected String getMetacollectionName() {
         return META_COLLECTION_NAME;
     }
 

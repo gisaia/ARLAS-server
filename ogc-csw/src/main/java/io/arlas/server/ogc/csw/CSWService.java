@@ -50,9 +50,9 @@ public class CSWService extends CSWRESTService {
 
     private void initMetaCollection(String index, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws ArlasException {
         List<CollectionReference> collectionReferences =  dao.getAllCollectionReferences();
-        long count = collectionReferences.stream().filter(collectionReference -> collectionReference.collectionName.equals(getMetacollactionName())).count();
+        long count = collectionReferences.stream().filter(collectionReference -> collectionReference.collectionName.equals(getMetacollectionName())).count();
         if (count > 0) {
-            dao.deleteCollectionReference(getMetacollactionName());
+            dao.deleteCollectionReference(getMetacollectionName());
         }
         CollectionReference metacolletion = createMetaCollection(index, ogcConfiguration, inspireConfiguration);
         dao.putCollectionReference(metacolletion);
@@ -60,7 +60,7 @@ public class CSWService extends CSWRESTService {
 
     private CollectionReference createMetaCollection(String index, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws ArlasException {
         CollectionReference collectionReference =  new CollectionReference();
-        collectionReference.collectionName = getMetacollactionName();
+        collectionReference.collectionName = getMetacollectionName();
         MetaCollectionReferenceParameters collectionReferenceParameters = new MetaCollectionReferenceParameters();
         collectionReferenceParameters.indexName = index;
         collectionReferenceParameters.typeName = "collection";

@@ -49,7 +49,7 @@ public class TileServiceIT extends AbstractTestContext {
     }
 
     @BeforeClass
-    public static void beforeClass() throws JsonProcessingException, InterruptedException {
+    public static void beforeClass() throws IOException, InterruptedException {
         AbstractTestWithCollection.beforeClass();
 
         ObjectMapper mapper = new ObjectMapper();

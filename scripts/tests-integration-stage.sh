@@ -85,7 +85,7 @@ function test_rest() {
         -e ARLAS_PORT="9999" \
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
-        -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED=true}\
+        -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED}\
         -e ARLAS_SERVICE_RASTER_TILES_ENABLE=${ARLAS_SERVICE_RASTER_TILES_ENABLE} \
         -e ARLAS_TILE_URL=${ARLAS_TILE_URL} \
         -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
@@ -93,7 +93,7 @@ function test_rest() {
         -e WKT_GEOMETRIES=${WKT_GEOMETRIES} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
-        mvn "-Dit.test=*,!AuthServiceIT,!CollectionTool" verify -DskipTests=false -DfailIfNoTests=false -B
+        mvn "-Dit.test=*,!AuthServiceIT,!CollectionTool,!CSWServiceIT,!WFSService*IT" verify -DskipTests=false -DfailIfNoTests=false -B
 }
 
 function test_auth() {
@@ -143,6 +143,20 @@ function test_wfs() {
         -e ARLAS_PORT="9999" \
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED}\
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+        --net arlas_default \
+        maven:3.5.0-jdk-8 \
+        mvn "-Dit.test=WFSService*IT" verify -DskipTests=false -DfailIfNoTests=false -B
+    docker run --rm \
+        -w /opt/maven \
+        -v $PWD:/opt/maven \
+        -v $HOME/.m2:/root/.m2 \
+        -e ARLAS_HOST="arlas-server" \
+        -e ARLAS_PORT="9999" \
+        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
         -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED} \
         -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
@@ -178,6 +192,7 @@ function test_csw() {
     export ARLAS_APP_PATH="/pathtest"
     export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"
     export ARLAS_SERVICE_CSW_ENABLE=true
+    export ARLAS_INSPIRE_ENABLED=true
     start_stack
     docker run --rm \
         -w /opt/maven \
@@ -187,6 +202,22 @@ function test_csw() {
         -e ARLAS_PORT="9999" \
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED=true}\
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+        --net arlas_default \
+        maven:3.5.0-jdk-8 \
+        mvn "-Dit.test=CSWServiceIT" verify -DskipTests=false -DfailIfNoTests=false -B
+
+    docker run --rm \
+        -w /opt/maven \
+        -v $PWD:/opt/maven \
+        -v $HOME/.m2:/root/.m2 \
+        -e ARLAS_HOST="arlas-server" \
+        -e ARLAS_PORT="9999" \
+        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED=true}\
         -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \

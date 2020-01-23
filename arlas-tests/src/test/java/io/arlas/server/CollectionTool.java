@@ -94,8 +94,7 @@ public class CollectionTool extends AbstractTestContext {
         params.rasterTileHeight=256;
         params.inspire = new Inspire();
         params.inspire.lineage = DataSetTool.DATASET_INSPIRE_LINEAGE;
-        params.inspire.topicCategories = new ArrayList<>();
-        params.inspire.topicCategories.add(DataSetTool.DATASET_INSPIRE_TOPIC_CATEGORY);
+        params.inspire.topicCategories = Arrays.asList(DataSetTool.DATASET_INSPIRE_TOPIC_CATEGORY);
         params.dublinCoreElementName = new DublinCoreElementName();
         params.dublinCoreElementName.title = DataSetTool.DATASET_DUBLIN_CORE_TITLE;
         params.dublinCoreElementName.description = DataSetTool.DATASET_DUBLIN_CORE_DESCRIPTION;
@@ -145,6 +144,9 @@ public class CollectionTool extends AbstractTestContext {
                     params.excludeWfsFields = DataSetTool.DATASET_EXCLUDE_WFS_FIELDS;
                     params.rasterTileURL = DataSetTool.DATASET_TILE_URL;
                     params.dublinCoreElementName=dublinCoreElementName;
+                    params.inspire = new Inspire();
+                    params.inspire.lineage = DataSetTool.DATASET_INSPIRE_LINEAGE;
+                    params.inspire.topicCategories = Arrays.asList(DataSetTool.DATASET_INSPIRE_TOPIC_CATEGORY);
                     String url = arlasPath + "collections/" + dublinCoreElementName.title.split(" ")[0].toLowerCase();
                     // PUT new collection
                     given().contentType("application/json").body(params).when().put(url).then().statusCode(200);
