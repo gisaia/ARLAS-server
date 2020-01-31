@@ -9,7 +9,7 @@
     "type": "image",
     "format": "png/jpeg",
     "source": "WWF",
-    "language": "english",
+    "language": "eng",
     "bbox": {
       "north": 23.443089,
       "south": 12.254128,
@@ -27,7 +27,7 @@
     "type": "point",
     "format": "Geojson",
     "source": "",
-    "language": "english",
+    "language": "eng",
     "bbox": {
       "north": 32.546813,
       "south": 24.886436,
@@ -45,7 +45,7 @@
     "type": "point",
     "format": "Geojson",
     "source": "",
-    "language": "english",
+    "language": "eng",
     "bbox": {
       "north": 32.546813,
       "south": 24.886436,
@@ -63,7 +63,7 @@
     "type": "point",
     "format": "Geojson",
     "source": "",
-    "language": "english",
+    "language": "eng",
     "bbox": {
       "north": 32.546813,
       "south": 24.886436,
@@ -81,7 +81,7 @@
       "type": "image",
       "format": "gif",
       "source": "",
-      "language": "english",
+      "language": "eng",
       "bbox": {
         "north": -8.581021,
         "south": -25.641526,
@@ -100,7 +100,7 @@
       "type": "image",
       "format": "gif",
       "source": "",
-      "language": "english",
+      "language": "eng",
       "bbox": {
         "north": -8.581021,
         "south": -25.641526,

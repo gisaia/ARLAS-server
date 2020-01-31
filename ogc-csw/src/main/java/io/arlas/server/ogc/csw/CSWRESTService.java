@@ -330,7 +330,7 @@ public class CSWRESTService extends OGCRESTService {
                 getCapabilitiesHandler.setCapabilitiesType(responseSections, serviceUrl, serverBaseUri + "ogc/csw/opensearch");
                 if (cswHandler.inspireConfiguration.enabled) {
                     List<CollectionReference> allCollections = dao.getAllCollectionReferences();
-                    allCollections.removeIf(collectionReference -> collectionReference.collectionName.equals(getMetacollactionName()));
+                    allCollections.removeIf(collectionReference -> collectionReference.collectionName.equals(getMetacollectionName()));
                     getCapabilitiesHandler.addINSPIRECompliantElements(allCollections, responseSections, serviceUrl, language);
                 }
                 JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse();
@@ -388,12 +388,12 @@ public class CSWRESTService extends OGCRESTService {
 
     private CollectionReferences getCollectionReferencesForGetRecords(String[] elements, String[]
             excludes, int maxRecords, int startPosition, String[] ids, String q, String constraint, BoundingBox boundingBox) throws IOException, ArlasException {
-        CollectionReference metacollection = dao.getCollectionReference(getMetacollactionName());
+        CollectionReference metacollection = dao.getCollectionReference(getMetacollectionName());
 
         // First we check if there is only "metacollection" that is returned. If this is the case, it means that the queried param is a config param. Thus all collections should be returned
         CollectionReferences collectionReferences = ogcDao.getCollectionReferences(elements, null, 2, startPosition - 1, ids, q, constraint, boundingBox);
 
-        if (collectionReferences.totalCollectionReferences == 1 && collectionReferences.collectionReferences.size() == 1 && collectionReferences.collectionReferences.get(0).collectionName.equals(getMetacollactionName())) {
+        if (collectionReferences.totalCollectionReferences == 1 && collectionReferences.collectionReferences.size() == 1 && collectionReferences.collectionReferences.get(0).collectionName.equals(getMetacollectionName())) {
             return ogcDao.getAllCollectionReferencesExceptOne(elements, null, maxRecords, startPosition - 1,  metacollection);
         } else {
             return ogcDao.getCollectionReferencesExceptOne(elements, null, maxRecords, startPosition - 1, ids, q, constraint, boundingBox, metacollection);
