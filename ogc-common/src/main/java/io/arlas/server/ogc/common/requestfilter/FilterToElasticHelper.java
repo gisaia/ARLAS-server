@@ -43,10 +43,7 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.*;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 class FilterToElasticHelper {
     org.slf4j.Logger LOGGER = LoggerFactory.getLogger(FilterToElasticHelper.class);
@@ -165,10 +162,9 @@ class FilterToElasticHelper {
                 CheckParams.checkWKT(geometry.toString());
             } catch (ArlasException e) {
                 LOGGER.debug(e.getMessage());
-                List<OGCExceptionMessage> wfsExceptionMessages = new ArrayList<>();
-                wfsExceptionMessages.add(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, e.getMessage() + " ["+ geometry + "]" , "filter"));
+                List<OGCExceptionMessage> wfsExceptionMessages = Arrays.asList(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, e.getMessage() + " ["+ geometry + "]" , "filter"));
                 delegate.ogcException = new OGCException(wfsExceptionMessages, Service.WFS);
-                throw new RuntimeException();
+                throw new RuntimeException(e);
             }
         }
 
