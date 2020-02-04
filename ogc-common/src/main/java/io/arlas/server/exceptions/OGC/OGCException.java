@@ -92,7 +92,7 @@ public class OGCException extends ArlasException {
     }
 
     public OGCException(List<OGCExceptionMessage> exceptionMessages, Service service) {
-        super(exceptionMessages.stream().filter(em -> (!CollectionUtils.isEmpty(em.getExceptionTexts()))).map(em -> em.getExceptionTexts().stream().collect(Collectors.joining("\t"))).collect(Collectors.joining("\t")));
+        super(exceptionMessages.stream().filter(em -> (!CollectionUtils.isEmpty(em.getExceptionTexts()))).flatMap(em -> em.getExceptionTexts().stream()).collect(Collectors.joining("\t")));
         this.ogcService = service;
         this.exceptionMessages = exceptionMessages;
     }

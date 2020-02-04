@@ -96,23 +96,7 @@ public class ElasticFilter {
                 String filterQuery = mapper.writeValueAsString(filterToElastic.getQueryBuilder());
                 // TODO : find a better way to remove prefix xml in field name
                 boolQuery.filter(QueryBuilders.wrapperQuery(filterQuery.replace("tns:", "")));
-            } catch (SAXException e) {
-                if (filterToElastic.ogcException != null) {
-                    LOGGER.debug(filterToElastic.ogcException.getMessage());
-                    throw filterToElastic.ogcException;
-                } else {
-                    LOGGER.debug(e.getMessage());
-                    throw OGCException.getInternalServerException(e, service, "filter");
-                }
-            } catch (ParserConfigurationException e) {
-                if (filterToElastic.ogcException != null) {
-                    LOGGER.debug(filterToElastic.ogcException.getMessage());
-                    throw filterToElastic.ogcException;
-                } else {
-                    LOGGER.debug(e.getMessage());
-                    throw OGCException.getInternalServerException(e, service, "filter");
-                }
-            } catch (RuntimeException e) {
+            } catch (SAXException | ParserConfigurationException | RuntimeException e) {
                 if (filterToElastic.ogcException != null) {
                     LOGGER.debug(filterToElastic.ogcException.getMessage());
                     throw filterToElastic.ogcException;
