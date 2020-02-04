@@ -35,8 +35,8 @@ import java.util.stream.Collectors;
 
 public class GeoUtil {
 
-    public static final String INVALID_WKT_RANGE = "Invalid WKT geometry. Coordinates must be contained in the Envelope -360, 360, -180, 180";
-    public static final String INVALID_WKT = "Invalid WKT geometry.";
+    public static final String INVALID_WKT_RANGE = "Invalid geometry. Coordinates must be contained in the Envelope -360, 360, -180, 180";
+    public static final String INVALID_WKT = "Invalid geometry ";
     /**
      *
      * @param bbox 'west,south,east,north'
@@ -138,7 +138,7 @@ public class GeoUtil {
             // Geometry validity is already checked when parsing requests parameters
             geom = wkt.read(geometry);
         } catch (ParseException ex) {
-            throw new InvalidParameterException(INVALID_WKT + ": " + ex.getMessage());
+            throw new InvalidParameterException(INVALID_WKT + ": " + ex.getMessage() + ".");
         }
         return geom;
     }

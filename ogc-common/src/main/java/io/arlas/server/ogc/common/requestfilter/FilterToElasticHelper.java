@@ -21,13 +21,21 @@ package io.arlas.server.ogc.common.requestfilter;
 
 import com.google.common.collect.ImmutableMap;
 import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.operation.valid.IsValidOp;
+import com.vividsolutions.jts.operation.valid.TopologyValidationError;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.exceptions.OGC.OGCExceptionMessage;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.XmlUtils;
+import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.GeoTypeMapper;
+import org.geojson.GeoJsonObject;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.JTS;
+
 import org.locationtech.spatial4j.shape.SpatialRelation;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
@@ -35,10 +43,7 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.*;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 class FilterToElasticHelper {
     org.slf4j.Logger LOGGER = LoggerFactory.getLogger(FilterToElasticHelper.class);
@@ -151,6 +156,16 @@ class FilterToElasticHelper {
             }
             e2.accept(delegate, extraData);
             shapeBuilder = delegate.currentShapeBuilder;
+            try {
+                GeoJsonObject object = GeoTypeMapper.getGeoJsonObject(shapeBuilder);
+                Geometry geometry = this.geometry.evaluate(object, Geometry.class);
+                CheckParams.checkWKT(geometry.toString());
+            } catch (ArlasException e) {
+                LOGGER.debug(e.getMessage());
+                List<OGCExceptionMessage> wfsExceptionMessages = Arrays.asList(new OGCExceptionMessage(OGCExceptionCode.INVALID_PARAMETER_VALUE, e.getMessage() + " ["+ geometry + "]" , "filter"));
+                delegate.ogcException = new OGCException(wfsExceptionMessages, Service.WFS);
+                throw new RuntimeException(e);
+            }
         }
 
         if (shapeRelation != null && shapeBuilder != null) {
