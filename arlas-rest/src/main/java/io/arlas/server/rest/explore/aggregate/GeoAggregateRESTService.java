@@ -358,15 +358,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         FeatureCollection fc = new FeatureCollection();
         ObjectMapper mapper = new ObjectMapper();
         List<AggregationResponse> elements = aggregationResponse.elements;
-        if (geohash.isPresent() && precision.isPresent()) {
-            if (geohash.get().length() < precision.get()) {
-                elements = aggregationResponse.elements.stream()
-                        .filter(element -> element.keyAsString.toString().startsWith(geohash.get())).collect(Collectors.toList());
-            } else {
-                elements = aggregationResponse.elements.stream()
-                        .filter(element -> element.keyAsString.toString().equals(geohash.get().substring(0, precision.get()))).collect(Collectors.toList());
-            }
-        }
         if (elements != null && elements.size() > 0) {
             for (AggregationResponse element : elements) {
                 Feature feature = new Feature();
@@ -374,6 +365,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 properties.put("count", element.count);
                 if (mainAggregationType == AggregationTypeEnum.geohash) {
                     properties.put("geohash", element.keyAsString);
+                    if (geohash.isPresent()) {
+                        properties.put("parent_geohash", geohash.get());
+                    }
                 } else {
                     properties.put("key", element.keyAsString);
                 }

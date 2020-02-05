@@ -60,10 +60,7 @@ public abstract class AbstractGeohashTiledTest extends AbstractAggregatedTest {
 
     }
 
-    @Test
-    public void testNoMatchingGeohashTile() throws Exception {
-        handleNotMatchingGeohashTile(geohashTileGet("geohash:geo_params.centroid:interval-3", "ar"));
-    }
+
 
     //----------------------------------------------------------------
     //---------------------- SPECIFIC BEHAVIORS ----------------------
@@ -74,8 +71,6 @@ public abstract class AbstractGeohashTiledTest extends AbstractAggregatedTest {
     protected abstract void handleGeohashTileLessThanPrecision(ValidatableResponse then, int featuresSize, String geohash) throws Exception;
 
     protected abstract void handleGeohashTileDisjointFromPwithin(ValidatableResponse then) throws Exception;
-
-    protected abstract void handleNotMatchingGeohashTile(ValidatableResponse then) throws Exception;
 
     private ValidatableResponse geohashTileGet(Object paramValue, String geohash) {
         return given().param("agg", paramValue)
