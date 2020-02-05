@@ -117,6 +117,9 @@ public class TileRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // -----------------------  PAGE    -----------------------
             // --------------------------------------------------------
@@ -199,11 +202,14 @@ public class TileRESTService extends ExploreRESTServices {
         search.page = ParamsParser.getPage(size, from, sort, after,before);
         search.projection = ParamsParser.getProjection(collectionReference.params.rasterTileURL.idPath+","+collectionReference.params.geometryPath, null);
 
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
         Queue<TileProvider<RasterTile>> providers = new LinkedList<>(findCandidateTiles(collectionReference, request).stream()
                 .filter(match -> match._2().map(

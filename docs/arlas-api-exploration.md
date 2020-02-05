@@ -260,6 +260,52 @@ In the case of `lt`, `gt`, `lte`, `gte`, `range` operations that are applied on 
 
 > Example: `curl --header "partition-filter: {f":[[{"field":"city","op":"eq","value":"Bordeaux"}]]}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
 
+#### Column filtering
+
+A coma-separated list of columns can be passed in request header `column-filter`. Wildcards are supported.
+
+A column filter stands for the fields that are available to a request body:
+- if a request body field doesn't belong to the column filter, a 403 is returned with the message `The field '%s' isn't available` or `The fields '%s' aren't available`;
+- only fields that belong to the column filter can be returned. 
+
+A column filter can be related to a collection, e.g. `mycollection:myfield` or it can be related to every collection, e.g. `myfield`. Trying to access a collection with no available field returns a 403.
+
+Examples of `column-filter`:
+
+- `mycollection:params.city,mycollection::params.country` make availables `params.city` and `params.country` for collection `mycollection`
+- `params`, `params*`, `params.*`, `*params` make available `params.city`, `params.country`, `params.weight`, and so on. for every collection
+- `*` makes all fields available
+- `*.*` makes only subfields available, e.g. `params.city` and `params.country` but not `id`
+
+If no column filter, or a blank column filter is provided, then it isn't eventually used.
+
+The following endpoints use this header:
+
+| Endpoint | Filtering result |
+| --------------------------------------------------- | --------------------------------------------------- |
+| /arlas/explore/**_list**                 | Only fields and collections matching this filter will be returned (if no field of a collection is available, this one is not returned at all). |
+| /arlas/explore/`{collection}`/**_describe** | Only fields matching this filter will be returned. Return a 403 if target collection is not available. |
+| /arlas/explore/`{collection}`/**_count** | Return a 403 if one of the filter fields is not in the column filter. Return a 403 if target collection is not available. |
+| /arlas/explore/`{collection}`/**_range** | Return a 403 if the field, or one of the filter fields, is not in the column filter. Otherwise only fields matching the filter will be returned. Return a 403 if target collection is not available. |
+| /arlas/explore/`{collection}`/**_compute** | Return a 403 if the field, or one of the filter fields, is not in the column filter. Return a 403 if target collection is not available. |
+| /arlas/explore/`{collection}`/**_search** | Return a 403 if one of the filter, projection and page fields is not in the column filter. Otherwise only fields matching the filter will be returned. Return a 403 if target collection is not available. |
+| /arlas/explore/`{collection}`/**_geosearch** | Return a 403 if one of the filter, projection or page fields is not in the column filter. Otherwise only fields matching the filter will be returned. Return a 403 if target collection is not available. |
+| /arlas/explore/`{collection}`/**_geosearch/`{z}`/`{x}`/`{y}`** | Return a 403 if one of the filter, projection or page fields is not in the column filter. Otherwise only fields matching the filter will be returned. Return a 403 if target collection is not available. |
+| /arlas/explore/`{collections}`/**_aggregate** | Return a 403 if one of the aggregation or filter fields is not in the column filter. Return a 403 if target collection is not available. |
+| /arlas/explore/`{collections}`/**_tile**/`{z}`/`{x}`/`{y}`.png | Return a 403 if one of the filter, projection or page fields is not in the column filter. Return a 403 if target collection is not available. |
+| /arlas/explore/`{collections}`/**_geoaggregate** | Return a 403 if one of the aggregation or filter fields is not in the column filter. Return a 403 if target collection is not available. |
+| /arlas/explore/`{collections}`/**_geoaggregate**/`{geohash}` | Return a 403 if one of the aggregation or filter fields is not in the column filter. Return a 403 if target collection is not available. |
+| /arlas/explore/ogc/**opensearch**/{collection} | Only fields matching this filter will be returned. Return a 403 if target collection is not available. |
+
+On top of that, a query ("q" parameter) filter MUST target a specific field:
+- `fullname:john` is valid
+- `john` isn't valid and will return a 403
+- `params*:john` isn't valid neither and will return a 403
+
+If a `projection` with an `includes` parameter is used, then:
+- included fields that are wildcards aren't checked; they do not return a 403 if they don't match the column filter;
+- and only included fields that match the column filter are returned
+
 ---
 ### Part: `form`
 

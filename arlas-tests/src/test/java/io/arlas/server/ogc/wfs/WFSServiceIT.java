@@ -19,9 +19,6 @@
 
 package io.arlas.server.ogc.wfs;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.AbstractTestWithCollection;
 import io.arlas.server.DataSetTool;
 import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.Filter;
@@ -30,46 +27,206 @@ import io.arlas.server.model.enumerations.OperatorEnum;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
-
 import java.util.Arrays;
-import java.util.List;
-
-import static io.restassured.RestAssured.given;
+import java.util.Optional;
 import static org.hamcrest.Matchers.*;
+import static io.restassured.RestAssured.given;
 
-public class WFSServiceIT extends AbstractTestWithCollection {
-
-    private static ObjectMapper objectMapper = new ObjectMapper();
-
-    @Override
-    protected String getUrlPath(String collection) {
-        return arlasPath + "ogc/wfs/" + collection;
-    }
+public class WFSServiceIT extends AbstractWFSServiceTest {
 
     @Test
-    public void testHeaderFilter() throws Exception {
-        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),//"job:eq:Architect"
+    public void testGetFeatureHeaderFilter() throws Exception {
+        Filter filter = new Filter();
+        filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),//"job:eq:Architect"
                 new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1009799<1009801]")));
-        handleHeaderFilter(
+        handleGetFeatureHeaderFilter(
                 get(Arrays.asList(
                         new ImmutablePair<>("SERVICE", "WFS"),
                         new ImmutablePair<>("VERSION", "2.0.0"),
                         new ImmutablePair<>("COUNT", "1000"),
-                        new ImmutablePair<>("REQUEST", "GetFeature")), request.filter)
+                        new ImmutablePair<>("REQUEST", "GetFeature")), filter)
         );
     }
 
     @Test
-    public void testNoHeaderFilter() throws Exception {
-        handleNoHeaderFilter(
+    public void testGetFeatureNoHeaderFilter() throws Exception {
+        handleGetFeatureNoHeaderFilter(
                 get(Arrays.asList(
                         new ImmutablePair<>("SERVICE", "WFS"),
                         new ImmutablePair<>("VERSION", "2.0.0"),
                         new ImmutablePair<>("COUNT", "1000"),
                         new ImmutablePair<>("REQUEST", "GetFeature")), new Filter())
         );
+    }
+
+    @Test
+    public void testGetFeatureWithAvailableColumn() throws Exception {
+        //an empty column filter is not considered
+        handleGetFeatureNoHeaderFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("COUNT", "1000"),
+                        new ImmutablePair<>("REQUEST", "GetFeature")),
+                        new Filter(),
+                        Optional.of("")));
+
+        handleGetFeatureNoHeaderFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("COUNT", "1000"),
+                        new ImmutablePair<>("REQUEST", "GetFeature")),
+                        new Filter(),
+                        Optional.of("params.job,params.country,params.city")));
+    }
+
+    @Test
+    public void testGetFeatureWithNotReturnedColumn() throws Exception {
+        handleGetFeatureColumnFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("COUNT", "1000"),
+                        new ImmutablePair<>("REQUEST", "GetFeature")),
+                        new Filter(),
+                        Optional.of("id")));
+    }
+
+    @Test
+    public void testGetFeatureWithCollectionBasedColumnFiltering() throws Exception {
+        handleGetFeatureNoHeaderFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("COUNT", "1000"),
+                        new ImmutablePair<>("REQUEST", "GetFeature")),
+                        new Filter(),
+                        Optional.of("params.job,params.country,params.city")));
+
+        handleGetFeatureNoHeaderFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("COUNT", "1000"),
+                        new ImmutablePair<>("REQUEST", "GetFeature")),
+                        new Filter(),
+                        Optional.of(COLLECTION_NAME + ":params.job," + COLLECTION_NAME + ":params.country," + COLLECTION_NAME + "params.city")));
+
+        handleGetFeatureColumnFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("COUNT", "1000"),
+                        new ImmutablePair<>("REQUEST", "GetFeature")),
+                        new Filter(),
+                        Optional.of("notExisting:params.job,notExisting:params.country,notExisting:params.city,params.startdate")));
+
+        handleUnavailableCollection(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("COUNT", "1000"),
+                        new ImmutablePair<>("REQUEST", "GetFeature")),
+                        new Filter(),
+                        Optional.of("notExisting:params")));
+    }
+
+    @Test
+    public void testGetPropertyValueNoHeaderFilter() throws Exception {
+        handleGetPropertyValueNoHeaderFilter(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")), new Filter()));
+    }
+
+    @Test
+    public void testGetPropertyValueHeaderFilter() throws Exception {
+        Filter filter = new Filter();
+        filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),
+                new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1009799<1009801]")));
+
+        handleGetPropertyValueHeaderFilter(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")), filter));
+    }
+
+    @Test
+    public void testGetPropertyValueWithAvailableColumn() throws Exception {
+        handleGetPropertyValueNoHeaderFilter(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")),
+                new Filter(),
+                Optional.of("")));
+
+        handleGetPropertyValueNoHeaderFilter(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")),
+                new Filter(),
+                Optional.of("params.job")));
+    }
+
+    @Test
+    public void testGetPropertyValueWithUnavailableColumn() throws Exception {
+        handleUnavailableColumn(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")),
+                new Filter(),
+                Optional.of("id")));
+    }
+
+    @Test
+    public void testGetPropertyValueWitCollectionBasedColumnFilter() throws Exception {
+        handleGetPropertyValueNoHeaderFilter(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")),
+                new Filter(),
+                Optional.of("params.job")));
+
+        handleGetPropertyValueNoHeaderFilter(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")),
+                new Filter(),
+                Optional.of(COLLECTION_NAME + ":params.job")));
+
+        handleUnavailableColumn(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")),
+                new Filter(),
+                Optional.of("fullname,notExisting:params.job")));
+
+        handleUnavailableCollection(get(Arrays.asList(
+                new ImmutablePair<>("SERVICE", "WFS"),
+                new ImmutablePair<>("VERSION", "2.0.0"),
+                new ImmutablePair<>("COUNT", "1000"),
+                new ImmutablePair<>("REQUEST", "GetPropertyValue"),
+                new ImmutablePair<>("valuereference", "params.job")),
+                new Filter(),
+                Optional.of("notExisting:params.job")));
     }
 
     @Test
@@ -100,7 +257,77 @@ public class WFSServiceIT extends AbstractTestWithCollection {
         );
     }
 
-    public void handleHeaderFilter(ValidatableResponse then) throws Exception {
+    @Test
+    public void testDescribeFeatureWithAvailableColumn() throws Exception {
+        handleDescribeFeature(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
+                        new Filter(),
+                        Optional.of("")));
+
+        handleDescribeFeature(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
+                        new Filter(),
+                        Optional.of("params,fullname")));
+
+        handleDescribeFeatureColumnFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
+                        new Filter(),
+                        Optional.of("params")));
+
+        handleDescribeFeatureColumnFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
+                        new Filter(),
+                        Optional.of("par*")));
+    }
+
+    @Test
+    public void testDescribeFeatureWithCollectionBasedColumnFiltering() throws Exception {
+        handleDescribeFeature(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
+                        new Filter(),
+                        Optional.of("params,fullname")));
+
+        handleDescribeFeature(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
+                        new Filter(),
+                        Optional.of(COLLECTION_NAME + ":params," + COLLECTION_NAME + ":fullname")));
+
+        handleDescribeFeatureColumnFilter(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
+                        new Filter(),
+                        Optional.of(COLLECTION_NAME + ":params,notExisting:fullname")));
+
+        handleUnavailableCollection(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
+                        new Filter(),
+                        Optional.of("notExisting:fullname")));
+    }
+
+    public void handleGetFeatureHeaderFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
                 .body("wfs:FeatureCollection.@numberReturned", equalTo("2"))
                 .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "job", equalTo("Architect"))
@@ -108,12 +335,24 @@ public class WFSServiceIT extends AbstractTestWithCollection {
                 .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "city.size()", equalTo(0));
     }
 
-    public void handleNoHeaderFilter(ValidatableResponse then) throws Exception {
+    public void handleGetFeatureNoHeaderFilter(ValidatableResponse then) throws Exception {
         then.statusCode(200)
                 .body("wfs:FeatureCollection.@numberReturned", equalTo("595"))
                 .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "job", isOneOf(DataSetTool.jobs))
                 .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "country.size()", equalTo(0))
                 .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "city.size()", equalTo(0));
+    }
+
+    public void handleGetPropertyValueNoHeaderFilter(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+                .body("ValueCollection.member.size()", equalTo(595))
+                .body("ValueCollection.member[0]", isOneOf(DataSetTool.jobs));;
+    }
+
+    public void handleGetPropertyValueHeaderFilter(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+                .body("ValueCollection.member.size()", equalTo(2))
+                .body("ValueCollection.member[0]", isOneOf(DataSetTool.jobs));;
     }
 
     public void handleInspireGetCapabilities(ValidatableResponse then) throws Exception {
@@ -128,10 +367,20 @@ public class WFSServiceIT extends AbstractTestWithCollection {
     public void handleDescribeFeature(ValidatableResponse then) throws Exception {
         if(!DataSetTool.ALIASED_COLLECTION) {
             then.statusCode(200)
-                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(8));
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(9));
         } else {
             then.statusCode(200)
                     .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(10));
+        }
+    }
+
+    public void handleDescribeFeatureColumnFilter(ValidatableResponse then) throws Exception {
+        if(!DataSetTool.ALIASED_COLLECTION) {
+            then.statusCode(200)
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(8));
+        } else {
+            then.statusCode(200)
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(9));
         }
     }
 
@@ -139,13 +388,11 @@ public class WFSServiceIT extends AbstractTestWithCollection {
         return given().contentType("application/xml");
     }
 
-    private ValidatableResponse get(List<Pair<String, String>> params, Filter headerFilter) throws JsonProcessingException {
-        RequestSpecification req = givenFilterableRequestParams().header("partition-filter", objectMapper.writeValueAsString(headerFilter));
-        for (Pair<String, String> param : params) {
-            req = req.param(param.getKey(), param.getValue());
-        }
-        return req
-                .when().get(getUrlPath("geodata"))
-                .then();
+    private void handleGetFeatureColumnFilter(ValidatableResponse then) {
+        then.statusCode(200)
+                .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "job.size()", equalTo(0))
+                .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "fullname.size()", equalTo(0))
+                .body("wfs:FeatureCollection.member[1].geodata.params" + FLATTEN_CHAR + "age.size()", equalTo(0));
     }
+
 }

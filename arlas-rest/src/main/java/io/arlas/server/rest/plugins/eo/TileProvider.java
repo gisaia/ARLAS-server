@@ -22,7 +22,6 @@ package io.arlas.server.rest.plugins.eo;
 import cyclops.control.Try;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.utils.Tile;
-
 import java.util.Optional;
 
 public interface TileProvider <TILE_RESULT extends Tile> {

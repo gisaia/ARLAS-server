@@ -36,6 +36,7 @@ server:
   connector:
     type: http
     port: ${ARLAS_PORT:-9999}
+    maxRequestHeaderSize: 8KiB
   maxThreads: ${ARLAS_MAX_THREADS:-1024}
   minThreads: ${ARLAS_MIN_THREADS:-8}
   maxQueuedRequests: ${ARLAS_MAX_QUEUED_REQUESTS:-1024}

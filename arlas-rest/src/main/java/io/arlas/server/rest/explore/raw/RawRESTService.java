@@ -29,16 +29,18 @@ import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Hit;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
+import io.arlas.server.utils.ColumnFilterUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang.BooleanUtils;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class RawRESTService extends ExploreRESTServices {
@@ -82,12 +84,19 @@ public class RawRESTService extends ExploreRESTServices {
                     defaultValue = "false",
                     required = false)
             @QueryParam(value = "pretty") Boolean pretty,
+
             @ApiParam(name = "flat", value = Documentation.FORM_FLAT,
                     allowMultiple = false,
                     defaultValue = "false",
                     required = false)
             @QueryParam(value = "flat") Boolean flat,
 
+            // --------------------------------------------------------
+            // -----------------------  FILTER  -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
@@ -101,8 +110,17 @@ public class RawRESTService extends ExploreRESTServices {
             throw new NotFoundException("Collection " + collection + " not found.");
         }
 
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Arrays.asList(collectionReference));
+
         ElasticDocument elasticDoc = new ElasticDocument(this.getExploreServices().getClient());
-        Map<String, Object> source = elasticDoc.getSource(collectionReference, identifier);
+
+        String[] includes = ColumnFilterUtil.cleanColumnFilter(columnFilter)
+                .map(cf -> cf + "," + String.join(",", ColumnFilterUtil.getCollectionMandatoryPaths(collectionReference)))
+                .map(i -> i.split(","))
+                .orElse(null);
+
+        Map<String, Object> source = elasticDoc.getSource(collectionReference, identifier, includes);
+
         if (source == null || source.isEmpty()) {
             throw new NotFoundException("Document " + identifier + " not found.");
         }

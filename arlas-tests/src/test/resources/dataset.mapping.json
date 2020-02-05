@@ -33,6 +33,10 @@
         "startdate": {
           "type": "date",
           "format": "epoch_millis"
+        },
+        "stopdate": {
+          "type": "date",
+          "format": "epoch_millis"
         }
       }
     },

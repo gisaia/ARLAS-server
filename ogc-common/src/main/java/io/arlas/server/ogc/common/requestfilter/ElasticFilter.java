@@ -24,7 +24,9 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
+import io.arlas.server.ogc.common.utils.OpenGISFieldsExtractor;
 import io.arlas.server.utils.BoundingBox;
+import io.arlas.server.utils.ColumnFilterUtil;
 import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
 import org.elasticsearch.common.geo.builders.PolygonBuilder;
 import org.elasticsearch.common.geo.builders.ShapeBuilder;
@@ -36,13 +38,13 @@ import org.geotools.xml.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Optional;
 
 public class ElasticFilter {
     private static Logger LOGGER = LoggerFactory.getLogger(ElasticFilter.class);
@@ -79,6 +81,10 @@ public class ElasticFilter {
     }
 
     public static BoolQueryBuilder filter(String constraint, CollectionReferenceDescription collectionDescription, Service service) throws IOException, ArlasException {
+        return ElasticFilter.filter(constraint, collectionDescription, service, Optional.empty());
+    }
+
+    public static BoolQueryBuilder filter(String constraint, CollectionReferenceDescription collectionDescription, Service service, Optional<String> columnFilter) throws IOException, ArlasException {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         FESConfiguration configuration = new FESConfiguration();
         Parser parser = new Parser(configuration);
@@ -90,7 +96,12 @@ public class ElasticFilter {
             FilterToElastic filterToElastic = new FilterToElastic(collectionDescription, service);
             try {
                 InputStream stream = new ByteArrayInputStream(constraint.getBytes(StandardCharsets.UTF_8));
-                org.opengis.filter.Filter openGisFilter = (org.opengis.filter.Filter)parser.parse(stream);
+                org.opengis.filter.Filter openGisFilter = (org.opengis.filter.Filter) parser.parse(stream);
+
+                if (ColumnFilterUtil.isValidColumnFilterPresent(columnFilter)) {
+                    ColumnFilterUtil.assertOpenGisFilterAllowed(columnFilter, collectionDescription, OpenGISFieldsExtractor.extract(openGisFilter));
+                }
+
                 filterToElastic.encode(openGisFilter);
                 ObjectMapper mapper = new ObjectMapper();
                 String filterQuery = mapper.writeValueAsString(filterToElastic.getQueryBuilder());
@@ -108,4 +119,5 @@ public class ElasticFilter {
         }
         return boolQuery;
     }
+
 }

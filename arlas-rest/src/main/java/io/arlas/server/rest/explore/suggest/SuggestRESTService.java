@@ -26,11 +26,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class SuggestRESTService extends ExploreRESTServices {
@@ -57,7 +57,7 @@ public class SuggestRESTService extends ExploreRESTServices {
             @PathParam(value = "collections") String collections,
 
             // --------------------------------------------------------
-            // -----------------------  FILTER  -----------------------
+            // -----------------------  SEARCH  -----------------------
             // --------------------------------------------------------
             @ApiParam(name = "f",
                     value = "- A triplet for filtering the result. Multiple filter can be provided. " +
@@ -99,6 +99,16 @@ public class SuggestRESTService extends ExploreRESTServices {
                     allowMultiple = false,
                     required = false)
             @QueryParam(value = "q") String q,
+
+            // --------------------------------------------------------
+            // -----------------------  FILTER  -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Partition-Filter") String partitionFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------

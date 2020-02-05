@@ -20,7 +20,6 @@
 package io.arlas.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.DublinCoreElementName;
 import io.arlas.server.model.enumerations.OperatorEnum;
@@ -29,16 +28,11 @@ import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.*;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 
@@ -78,6 +72,9 @@ public class CollectionTool extends AbstractTestContext {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
 
         CollectionReferenceParameters params = new CollectionReferenceParameters();

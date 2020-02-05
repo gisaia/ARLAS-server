@@ -23,24 +23,24 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.*;
 import io.arlas.server.utils.ImageUtil;
+import io.restassured.response.ValidatableResponse;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
 import org.hamcrest.Matchers;
 import org.junit.*;
-
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.Response;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
+import java.util.Optional;
 import java.util.stream.Stream;
-
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
+import static io.arlas.server.CollectionTool.COLLECTION_NAME;
 
 public class TileServiceIT extends AbstractTestContext {
     @Override
@@ -107,14 +107,21 @@ public class TileServiceIT extends AbstractTestContext {
                 );
     }
 
+    private ValidatableResponse givenTileQuery(String params, Optional<String> columnFilter) {
+        return columnFilter
+                .map(cf -> given().header("column-filter", cf))
+                .orElse(given())
+                .when()
+                .get(getUrlPath(CollectionTool.COLLECTION_NAME) + "/10/511/484.png?" + params)
+                .then();
+    }
+
     @Test
     public void testTile() throws InterruptedException, IOException {
         // The top of the tile pyramid is empty => Coverage is around 50%
-        BufferedImage image = ImageIO.read(given()
-                .when()
-                .get(getUrlPath(CollectionTool.COLLECTION_NAME) + "/10/511/484.png?f=id:eq:ID_0_10DI_bottom")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
+        BufferedImage image = ImageIO.read(
+                givenTileQuery("f=id:eq:ID_0_10DI_bottom", Optional.empty())
+                        .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
 
         Assert.assertThat("image height is 256",
                 image.getHeight(),
@@ -134,12 +141,10 @@ public class TileServiceIT extends AbstractTestContext {
                 lessThan(60));
 
         // The bottom of the tile pyramid is empty => Coverage is around 50%
-        image =ImageIO.read(given()
-                .when()
-                .get(getUrlPath(CollectionTool.COLLECTION_NAME) + "/10/511/484.png?f=id:eq:ID_0_10DI_top")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
-                coverage = ImageUtil.coverage(image,10);
+        image = ImageIO.read(
+                givenTileQuery("f=id:eq:ID_0_10DI_top", Optional.empty())
+                        .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
+        coverage = ImageUtil.coverage(image,10);
 
         Assert.assertThat("image height is 256",
                 image.getHeight(),
@@ -157,11 +162,9 @@ public class TileServiceIT extends AbstractTestContext {
                 lessThan(60));
 
         // The top and bottom are combined => Coverage is around 100%
-        image =ImageIO.read(given()
-                .when()
-                .get(getUrlPath(CollectionTool.COLLECTION_NAME) + "/10/511/484.png?f=id:eq:ID_0_10DI_bottom,ID_0_10DI_top&coverage=70")
-                .then()
-                .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
+        image = ImageIO.read(
+                givenTileQuery("f=id:eq:ID_0_10DI_bottom,ID_0_10DI_top&coverage=70", Optional.empty())
+                        .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
 
         Assert.assertThat("image height is 256",
                 image.getHeight(),
@@ -176,4 +179,39 @@ public class TileServiceIT extends AbstractTestContext {
                 coverage,
                 greaterThan(90));
     }
+
+    @Test
+    public void testTileWithEmptyColumnFilter() {
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom", Optional.of(""))
+                .statusCode(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testTileWithAvailableColumn() {
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom", Optional.of("id"))
+                .statusCode(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testTileWithUnavailableColumn() {
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom&f=fullname:eq:My name is ID_0_10DI", Optional.of("id"))
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+    }
+
+    @Test
+    public void testTileWithCollectionBasedColumnFiltering() {
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom&f=fullname:eq:My name is ID_0_10DI", Optional.of("fullname"))
+                .statusCode(Response.Status.OK.getStatusCode());
+
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom&f=fullname:eq:My name is ID_0_10DI", Optional.of(COLLECTION_NAME + ":fullname"))
+                .statusCode(Response.Status.OK.getStatusCode());
+
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom&f=fullname:eq:My name is ID_0_10DI", Optional.of("params,notExisting:fullname"))
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom", Optional.of("notExisting:fullname"))
+                .statusCode(Response.Status.FORBIDDEN.getStatusCode());
+
+    }
+
 }

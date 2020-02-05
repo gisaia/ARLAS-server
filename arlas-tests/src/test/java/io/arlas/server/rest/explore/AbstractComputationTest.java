@@ -48,8 +48,8 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
         /** AVG **/
         computationRequest.field = "params.age";
         computationRequest.metric = ComputationEnum.AVG;
-        handleComputationRequest(post(computationRequest), 595, 3702.8571428571427f);
-        handleComputationRequest(get(computationRequest.field, computationRequest.metric.value()), 595, 3702.8571428571427f);
+        handleComputationRequest(post(computationRequest, ""), 595, 3702.8571428571427f);//empty column filter is not considered
+        handleComputationRequest(get(computationRequest.field, computationRequest.metric.value(), ""), 595, 3702.8571428571427f);//empty column filter is not considered
 
         /** CARDINALITY **/
         computationRequest.field = "params.job";
@@ -133,6 +133,40 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
         handleInvalidComputationRequest(get(computationRequest.field, computationRequest.metric.value()));
     }
 
+    @Test
+    public void testComputeRequestWithAvailableColumns() throws Exception {
+        computationRequest.field = "params.age";
+        computationRequest.metric = ComputationEnum.AVG;
+        handleComputationRequest(post(computationRequest, "params"), 595, 3702.8571428571427f);
+        handleComputationRequest(get(computationRequest.field, computationRequest.metric.value(), "params"), 595, 3702.8571428571427f);
+    }
+
+    @Test
+    public void testComputeRequestWithUnavailableColumns() throws Exception {
+        computationRequest.field = "params.age";
+        computationRequest.metric = ComputationEnum.AVG;
+        handleUnavailableColumn(post(computationRequest, "fullname"));
+        handleUnavailableColumn(get(computationRequest.field, computationRequest.metric.value(), "fullname"));
+    }
+
+    @Test
+    public void testComputeRequestWithCollectionBasedColumnFiltering() throws Exception {
+        computationRequest.field = "params.age";
+        computationRequest.metric = ComputationEnum.AVG;
+
+        handleComputationRequest(post(computationRequest, "params"), 595, 3702.8571428571427f);
+        handleComputationRequest(get(computationRequest.field, computationRequest.metric.value(), "params"), 595, 3702.8571428571427f);
+
+        handleComputationRequest(post(computationRequest, COLLECTION_NAME + ":params"), 595, 3702.8571428571427f);
+        handleComputationRequest(get(computationRequest.field, computationRequest.metric.value(), COLLECTION_NAME + ":params"), 595, 3702.8571428571427f);
+
+        handleUnavailableColumn(post(computationRequest, "fullname,notExisting:params"));
+        handleUnavailableColumn(get(computationRequest.field, computationRequest.metric.value(), "fullname,notExisting:params"));
+
+        handleUnavailableCollection(post(computationRequest, "notExisting:params"));
+        handleUnavailableCollection(get(computationRequest.field, computationRequest.metric.value(), "notExisting:params"));
+    }
+
     protected abstract void handleComputationRequest(ValidatableResponse then, int count, float value) throws Exception;
     protected abstract void handleGeoboxComputationRequest(ValidatableResponse then, int count, float west, float south, float east, float north) throws Exception;
     protected abstract void handleGeocentroidComputationRequest(ValidatableResponse then, int count, float west, float south, float east, float north) throws Exception;
@@ -145,12 +179,30 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
                 .then();
     }
 
+    private ValidatableResponse post(Request request, String columnFilter) {
+        return given()
+                .contentType("application/json;charset=utf-8")
+                .header("column-filter", columnFilter)
+                .body(request)
+                .when().post(getUrlPath("geodata"))
+                .then();
+    }
+
     private ValidatableResponse get(String field, String metric) {
         return given().param("field", field).param("metric", metric)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
 
+    private ValidatableResponse get(String field, String metric, String columnFilter) {
+        return given()
+                .header("column-filter", columnFilter)
+                .param("field", field)
+                .param("metric", metric)
+                .when()
+                .get(getUrlPath("geodata"))
+                .then();
+    }
     private ValidatableResponse get(String field, String metric, String param, Object paramValue) {
         return given().param("field", field).param("metric", metric).param(param, paramValue)
                 .when().get(getUrlPath("geodata"))

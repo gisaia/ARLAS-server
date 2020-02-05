@@ -86,6 +86,32 @@ public abstract class AbstractFieldRangeTest  extends AbstractFilteredTest {
         handleInvalidFieldRangeRequest(get(rangeRequest.field));
     }
 
+    @Test
+    public void testFieldRangeRequestWithUnavailableColums() throws Exception {
+        rangeRequest.field = "params.weight";
+        handleUnavailableColumn(post(rangeRequest, "id"));
+        handleUnavailableColumn(get(rangeRequest.field, "id"));
+    }
+
+    @Test
+    public void testFieldRangeRequestCollectionBasedColumFiltering() throws Exception {
+        rangeRequest.field = "params.weight";
+        rangeRequest.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[763600<1013700]")));
+
+        handleFieldRangeRequest(post(rangeRequest, "params.weight"), 1, -6000, -6000);
+        handleFieldRangeRequest(get(rangeRequest.field,"f", rangeRequest.filter.f.get(0).get(0).toString(), "params.weight"), 1, -6000, -6000);
+
+        handleFieldRangeRequest(post(rangeRequest, COLLECTION_NAME + ":params.weight"), 1, -6000, -6000);
+        handleFieldRangeRequest(get(rangeRequest.field,"f", rangeRequest.filter.f.get(0).get(0).toString(), COLLECTION_NAME + ":params.weight"), 1, -6000, -6000);
+
+        handleUnavailableColumn(post(rangeRequest, "fullname,notExisting:params.weight"));
+        handleUnavailableColumn(get(rangeRequest.field,"f", rangeRequest.filter.f.get(0).get(0).toString(), "fullname,notExisting:params.weight"));
+
+        handleUnavailableCollection(post(rangeRequest, "notExisting:params.weight"));
+        handleUnavailableCollection(get(rangeRequest.field,"f", rangeRequest.filter.f.get(0).get(0).toString(), "notExisting:params.weight"));
+
+    }
+
     protected abstract void handleFieldRangeRequest(ValidatableResponse then, int count, float minValue, float maxValue) throws Exception;
     protected abstract void handleFieldRangeEmptyResponse(ValidatableResponse then) throws Exception;
 
@@ -97,8 +123,23 @@ public abstract class AbstractFieldRangeTest  extends AbstractFilteredTest {
                 .then();
     }
 
+    private ValidatableResponse post(Request request, String columnFilter) {
+        return given().contentType("application/json;charset=utf-8").body(request)
+                .header("column-filter", columnFilter)
+                .when().post(getUrlPath("geodata"))
+                .then();
+    }
+
     private ValidatableResponse get(Object paramValue) {
         return given().param("field", paramValue)
+                .when().get(getUrlPath("geodata"))
+                .then();
+    }
+
+    private ValidatableResponse get(Object paramValue, String columnFilter) {
+        return given()
+                .header("column-filter", columnFilter)
+                .param("field", paramValue)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
@@ -109,5 +150,13 @@ public abstract class AbstractFieldRangeTest  extends AbstractFilteredTest {
                 .then();
     }
 
+    private ValidatableResponse get(String field, String param, Object paramValue, String columnFilter) {
+        return given()
+                .header("column-filter", columnFilter)
+                .param("field", field)
+                .param(param, paramValue)
+                .when().get(getUrlPath("geodata"))
+                .then();
+    }
 
 }

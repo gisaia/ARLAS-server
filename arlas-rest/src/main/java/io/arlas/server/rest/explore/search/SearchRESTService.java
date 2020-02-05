@@ -28,14 +28,11 @@ import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Page;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.model.response.Error;
-import io.arlas.server.model.response.Hit;
-import io.arlas.server.model.response.Hits;
+import io.arlas.server.model.response.*;
 import io.arlas.server.ns.ATOM;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
-import io.arlas.server.utils.CheckParams;
-import io.arlas.server.utils.ParamsParser;
-import io.arlas.server.utils.StringUtil;
+import io.arlas.server.utils.*;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -44,7 +41,6 @@ import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -99,6 +95,9 @@ public class SearchRESTService extends ExploreRESTServices {
 
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -190,25 +189,29 @@ public class SearchRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-
         CheckParams.checkReturnedGeometries(collectionReference, include, exclude, returned_geometries);
 
         Search search = new Search();
         search.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         search.page = ParamsParser.getPage(size, from, sort,after,before);
         search.projection = ParamsParser.getProjection(include, exclude);
-        search.projection = ParamsParser.enrichIncludes(search.projection, returned_geometries);
         search.returned_geometries = returned_geometries;
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+
+        search.projection = ParamsParser.enrichIncludes(search.projection, returned_geometries);
+
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         exploreServices.setValidGeoFilters(collectionReference, searchHeader);
         request.headerRequest = searchHeader;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);;
+
         Hits hits = getArlasHits(request, collectionReference, BooleanUtils.isTrue(flat), uriInfo,"GET");
         return cache(Response.ok(hits), maxagecache);
     }
-
 
     @Timed
     @Path("{collection}/_search")
@@ -241,6 +244,9 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -264,15 +270,23 @@ public class SearchRESTService extends ExploreRESTServices {
 
         String includes = search.projection != null ? search.projection.includes : null;
         String excludes = search.projection != null ? search.projection.excludes : null;
-        CheckParams.checkReturnedGeometries(collectionReference, includes, excludes, search.returned_geometries);
-        search.projection = ParamsParser.enrichIncludes(search.projection, search.returned_geometries);
+
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
+
+        exploreServices.setValidGeoFilters(collectionReference, search);
+        exploreServices.setValidGeoFilters(collectionReference, searchHeader);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+        CheckParams.checkReturnedGeometries(collectionReference, includes, excludes, search.returned_geometries);
+
+        search.projection = ParamsParser.enrichIncludes(search.projection, search.returned_geometries);
+
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        exploreServices.setValidGeoFilters(collectionReference, search);
-        exploreServices.setValidGeoFilters(collectionReference, searchHeader);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+
         Hits hits = getArlasHits(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)),uriInfo,"POST");
         return cache(Response.ok(hits), maxagecache);
     }

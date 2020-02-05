@@ -213,3 +213,36 @@ You can query collection references metadata using the following parameters
 !!! note
    - `bbox` and `recordids` can't be used together
    - `recordids` and `q` can't be used together
+
+## Column filtering
+
+A coma-separated list of columns can be passed in request header `column-filter`. Wildcards are supported.
+
+A column filter stands for the fields that are available to a request body:
+- if a request body field doesn't belong to the column filter, a 403 is returned with the message `The field '%s' isn't available` or `The fields '%s' aren't available`;
+- only fields that belong to the column filter can be returned.
+
+A column filter can be related to a collection, e.g. `mycollection:myfield` or it can be related to every collection, e.g. `myfield`. Trying to access a collection with no available field returns a 403.
+
+Examples of `column-filter`:
+
+- `mycollection:params.city,mycollection::params.country` make availables `params.city` and `params.country` for collection `mycollection`
+- `params`, `params*`, `params.*`, `*params` make available `params.city`, `params.country`, `params.weight`, and so on. for every collection
+- `*` makes all fields available
+- `*.*` makes only subfields available, e.g. `params.city` and `params.country` but not `id`
+
+If no column filter, or a blank column filter is provided, then it isn't eventually used.
+
+The following OGC operations use this header:
+
+| Endpoint       | Request                           | Filtering result |
+| -------------- | --------------------------------- | ------------------ |
+|  WFS           | GetCapabilities                   | Return 403 if target collection is not available. |
+|  WFS           | DescribeFeatureType               | Only fields matching the filter will be returned. Return 403 if target collection is not available. |
+|  WFS           | ListStoredQueries                 | Return 403 if target collection is not available. |
+|  WFS           | DescribeStoredQueries             | Return 403 if target collection is not available. |
+|  WFS           | GetFeature                        | Only fields matching the filter will be returned. Return 403 if target collection is not available. |
+|  WFS           | GetPropertyValue                  | Return 403 if target collection or column is not available. |
+|  CSW           | GetCapabilities                   | Only collections matching the filter will be returned. |
+|  CSW           | GetRecords                        | Only collections matching the filter will be returned. |
+|  CSW           | GetRecordById                     | Return 403 if target collection or column is not available. |

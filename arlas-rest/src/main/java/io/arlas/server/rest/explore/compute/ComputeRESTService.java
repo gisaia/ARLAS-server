@@ -30,15 +30,16 @@ import io.arlas.server.model.response.ComputationResponse;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
+import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Optional;
 
 public class ComputeRESTService extends ExploreRESTServices {
 
@@ -101,6 +102,9 @@ public class ComputeRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -125,12 +129,16 @@ public class ComputeRESTService extends ExploreRESTServices {
         computationRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         computationRequest.field = field;
         computationRequest.metric = ComputationEnum.fromValue(metric);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, computationRequest);
+
         ComputationRequest computationRequestHeader = new ComputationRequest();
         computationRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         exploreServices.setValidGeoFilters(collectionReference, computationRequestHeader);
         MixedRequest request = new MixedRequest();
         request.basicRequest = computationRequest;
         request.headerRequest = computationRequestHeader;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
         ComputationResponse computationResponse = exploreServices.compute(request, collectionReference);
         return cache(Response.ok(computationResponse), maxagecache) ;
     }
@@ -168,6 +176,9 @@ public class ComputeRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -194,8 +205,11 @@ public class ComputeRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(collectionReference, computationRequest);
         exploreServices.setValidGeoFilters(collectionReference, computationRequestHeader);
 
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, computationRequest);
+
         request.basicRequest = computationRequest;
         request.headerRequest = computationRequestHeader;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
         ComputationResponse computationResponse = exploreServices.compute(request, collectionReference);
         return cache(Response.ok(computationResponse), maxagecache) ;
     }

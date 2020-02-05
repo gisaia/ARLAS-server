@@ -51,30 +51,26 @@ public class CollectionReferenceManager {
     }
 
     public ElasticType getType(CollectionReference collectionReference, String field, boolean throwException) throws ArlasException {
-        try {
-            ElasticType elasticType = map.get(collectionReference.collectionName + "-" + field);
-            if (elasticType == null) {
-                String[] props = field.split("\\.");
-                CollectionReferenceDescriptionProperty esField = elasticAdmin.describeCollection(collectionReference).properties.get(props[0]);
-                for (int i=1; i<props.length; i++) {
-                    esField = esField.properties.get(props[i]);
-                }
-                if (esField != null) {
-                    elasticType = esField.type;
-                    map.put(collectionReference.collectionName + "-" + field, elasticType);
-                } else {
-                    if (throwException) {
-                        throw new ArlasException("Field '" + field + "' not found in collection " + collectionReference.collectionName);
-                    } else {
-                        elasticType = ElasticType.UNKNOWN;
-                    }
-
-                }
+        ElasticType elasticType = map.get(collectionReference.collectionName + "-" + field);
+        if (elasticType == null) {
+            String[] props = field.split("\\.");
+            CollectionReferenceDescriptionProperty esField = elasticAdmin.describeCollection(collectionReference).properties.get(props[0]);
+            for (int i=1; i<props.length; i++) {
+                esField = esField.properties.get(props[i]);
             }
-            return elasticType;
-        } catch (IOException e) {
-            throw new ArlasException("Impossible to get collection description:" + e.getMessage());
+            if (esField != null) {
+                elasticType = esField.type;
+                map.put(collectionReference.collectionName + "-" + field, elasticType);
+            } else {
+                if (throwException) {
+                    throw new ArlasException("Field '" + field + "' not found in collection " + collectionReference.collectionName);
+                } else {
+                    elasticType = ElasticType.UNKNOWN;
+                }
+
+            }
         }
+        return elasticType;
     }
 
     public static void setCollectionGeometriesType(Object source, CollectionReference collectionReference) throws ArlasException {

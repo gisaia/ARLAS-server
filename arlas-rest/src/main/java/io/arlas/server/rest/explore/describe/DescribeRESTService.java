@@ -32,13 +32,14 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public class DescribeRESTService extends ExploreRESTServices {
+
     public DescribeRESTService(ExploreServices exploreServices) {
         super(exploreServices);
     }
@@ -52,6 +53,10 @@ public class DescribeRESTService extends ExploreRESTServices {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReferenceDescription.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
     public Response list(
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -67,9 +72,10 @@ public class DescribeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws IOException, ArlasException {
+    ) throws ArlasException {
         List<CollectionReference> collectionReferences = exploreServices.getDaoCollectionReference().getAllCollectionReferences();
-        List<CollectionReferenceDescription> collectionReferenceDescriptionList = new ElasticAdmin(exploreServices.getClient()).describeAllCollections(collectionReferences);
+        List<CollectionReferenceDescription> collectionReferenceDescriptionList = exploreServices.getElasticAdmin().describeAllCollections(collectionReferences, columnFilter);
+
         return cache(Response.ok(collectionReferenceDescriptionList), maxagecache);
     }
 }

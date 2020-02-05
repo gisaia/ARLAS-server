@@ -24,7 +24,6 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.utils.ImageUtil;
 import io.arlas.server.utils.Tile;
-
 import java.awt.*;
 import java.util.Optional;
 import java.util.Queue;

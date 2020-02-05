@@ -238,12 +238,12 @@ public class ATOMSearchServiceIT extends AbstractProjectedTest {
     //----------------------------------------------------------------
     @Override
     protected RequestSpecification givenBigSizedRequestParams() {
-        return given().param("q", "My name is");
+        return given().param("q", "fullname:My name is");
     }
 
     @Override
     protected RequestSpecification givenBigSizedRequestParamsPost() {
-        search.filter.q = Arrays.asList(new MultiValueFilter<>("My name is"));
+        search.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name is"));
         return given().contentType("application/json");
     }
 

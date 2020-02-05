@@ -35,6 +35,8 @@ import io.arlas.server.services.ExploreServices;
 import io.arlas.server.rest.explore.opensearch.model.Image;
 import io.arlas.server.rest.explore.opensearch.model.OpenSearchDescription;
 import io.arlas.server.rest.explore.opensearch.model.Url;
+import io.arlas.server.utils.ColumnFilterUtil;
+import io.arlas.server.utils.FilterMatcherUtil;
 import io.arlas.server.utils.StringUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -46,13 +48,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class OpenSearchDescriptorService extends ExploreRESTServices {
+    ElasticAdmin admin;
     OpensearchConfiguration opensearchConfiguration;
 
     @Context
@@ -60,6 +60,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
 
     public OpenSearchDescriptorService(ExploreServices exploreServices, OpensearchConfiguration opensearchConfiguration) {
         super(exploreServices);
+        this.admin = exploreServices.getElasticAdmin();
         this.opensearchConfiguration = opensearchConfiguration;
     }
 
@@ -84,6 +85,11 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
+            // ----------------------- FILTERS- -----------------------
+            // --------------------------------------------------------
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
@@ -94,8 +100,9 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
         if (cr == null) {
             throw new NotFoundException(collection);
         }
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Arrays.asList(cr));
         OpenSearchDescription description = new OpenSearchDescription();
-        String prefix = uri.getBaseUri().toURL().toString() + uri.getPath().toString() + "/../_search";
+        String prefix = uri.getBaseUri().toURL().toString() + uri.getPath() + "/../_search";
 
         //[scheme:][//authority][path][?query][#fragment]
         if (cr.params.openSearch != null) {
@@ -128,7 +135,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             description.syndicationRight = os.syndicationRight;
             description.tags = os.tags;
         }
-        addURLs(prefix, description.url, new ElasticAdmin(exploreServices.getClient()).describeCollection(cr).properties, new Stack<>());
+        addURLs(prefix, description.url, admin.describeCollection(cr, columnFilter).properties, new Stack<>());
         List<Url> urls = new ArrayList<>();
         description.url.forEach(url -> {
             urls.add(url(url.template + "&f="+cr.params.geometryPath+":intersect:{geo:box?}"));

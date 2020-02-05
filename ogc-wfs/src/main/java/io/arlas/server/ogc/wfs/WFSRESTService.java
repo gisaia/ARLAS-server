@@ -40,12 +40,12 @@ import io.arlas.server.ogc.wfs.utils.ExtendedWFSCapabilitiesType;
 import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
+import io.arlas.server.utils.ColumnFilterUtil;
 import io.swagger.annotations.*;
 import net.opengis.wfs._2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -54,6 +54,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -182,9 +183,14 @@ public class WFSRESTService extends OGCRESTService {
                     allowMultiple = false,
                     required = false)
             @QueryParam(value = "language") String language,
+
+            //header filters
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter
-    ) throws IOException, ArlasException, ParserConfigurationException, SAXException, ExecutionException, InterruptedException {
+            @HeaderParam(value = "Partition-Filter") String partitionFilter,
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter
+
+    ) throws IOException, ArlasException {
 
         Version requestVersion = VersionUtils.getVersion(version, Service.WFS);
         RequestUtils.checkRequestTypeByName(request, WFSConstant.SUPPORTED_WFS_REQUESTYPE, Service.WFS);
@@ -200,14 +206,16 @@ public class WFSRESTService extends OGCRESTService {
             throw new OGCException(OGCExceptionCode.NOT_FOUND, "Collection not found " + collection, Service.WFS);
         }
 
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Arrays.asList(collectionReference));
+
         CollectionReferenceDescription collectionReferenceDescription = wfsToolService.getCollectionReferenceDescription(collectionReference);
         String collectionName = collectionReferenceDescription.collectionName;
         String serviceUrl = serverBaseUrl + "ogc/wfs/" + collectionName + "/?";
         QName featureQname = new QName(serviceUrl, collectionName, wfsConfiguration.featureNamespace);
         WFSCheckParam.checkTypeNames(collectionName, typenames);
-        String[] exludes = null;
+        String[] excludes = null;
         if (collectionReference.params.excludeWfsFields != null) {
-            exludes = collectionReference.params.excludeWfsFields.split(",");
+            excludes = collectionReference.params.excludeWfsFields.split(",");
         }
 
         switch (requestType) {
@@ -227,7 +235,7 @@ public class WFSRESTService extends OGCRESTService {
 
                         .build();
             case DescribeFeatureType:
-                StreamingOutput describeFeatureTypeResponse = wfsHandler.describeFeatureTypeHandler.getDescribeFeatureTypeResponse(collectionReferenceDescription, serviceUrl);
+                StreamingOutput describeFeatureTypeResponse = wfsHandler.describeFeatureTypeHandler.getDescribeFeatureTypeResponse(collectionReferenceDescription, serviceUrl, columnFilter);
                 return Response.ok(describeFeatureTypeResponse).type(MediaType.APPLICATION_XML).build();
             case ListStoredQueries:
                 wfsHandler.listStoredQueriesHandler.setFeatureType(featureQname);
@@ -244,19 +252,23 @@ public class WFSRESTService extends OGCRESTService {
             case GetFeature:
                 WFSCheckParam.checkSrsName(srsname);
                 StreamingOutput getFeatureResponse = null;
+
                 if (storedquery_id != null) {
-                    Object response = wfsToolService.getFeature(id, bbox, filter, resourceid, storedquery_id, partitionFilter, collectionReference, exludes);
+                    Object response = wfsToolService.getFeature(id, bbox, filter, resourceid, storedquery_id, partitionFilter, collectionReference, excludes, columnFilter);
                     getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureByIdResponse(response, collectionReferenceDescription, serviceUrl);
                 } else {
-                    List<Object> featureList = wfsToolService.getFeatures(id, bbox, filter, resourceid, partitionFilter, collectionReference, exludes, startindex, count);
+                    List<Object> featureList = wfsToolService.getFeatures(id, bbox, filter, resourceid, partitionFilter, collectionReference, excludes, startindex, count, columnFilter);
                     getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureResponse(wfsHandler.ogcConfiguration, collectionReferenceDescription, startindex, count, featureList, serviceUrl);
                 }
                 return Response.ok(getFeatureResponse).type(MediaType.APPLICATION_XML).build();
 
             case GetPropertyValue:
+
                 String include = OGCCheckParam.formatValueReference(valuereference, collectionReferenceDescription);
+                ColumnFilterUtil.assertFieldAvailable(columnFilter, collectionReference, include);
+
                 ValueCollectionType valueCollectionType = wfsToolService.getPropertyValue(id, bbox, filter, resourceid, storedquery_id, partitionFilter,
-                        collectionReference, include, exludes, startindex, count);
+                        collectionReference, include, excludes, startindex, count, columnFilter);
                 return Response.ok(wfsHandler.wfsFactory.createValueCollection(valueCollectionType)).type(MediaType.APPLICATION_XML).build();
             default:
                 throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.WFS);
