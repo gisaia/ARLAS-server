@@ -357,12 +357,6 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features", equalTo(null));
     }
 
-    @Override
-    protected void handleNotMatchingGeohashTile(ValidatableResponse then) {
-        then.statusCode(200)
-                .body("features", equalTo(null));
-    }
-
     //----------------------------------------------------------------
     //----------------------- FORM PART ------------------------------
     //----------------------------------------------------------------
