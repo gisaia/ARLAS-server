@@ -248,7 +248,7 @@ List the collections configured in ARLAS.
 
 |HTTP Code|Description|Schema|
 |---|---|---|
-|**200**|Successful operation|[CollectionReferenceDescription](#collectionreferencedescription)|
+|**200**|Successful operation|< [CollectionReferenceDescription](#collectionreferencedescription) > array|
 |**400**|Bad request.|[Error](#error)|
 |**500**|Arlas Server Error.|[Error](#error)|
 

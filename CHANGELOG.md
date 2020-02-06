@@ -1,5 +1,31 @@
 # Change Log
 
+## [v12.7.4](https://github.com/gisaia/ARLAS-server/tree/v12.7.4) (2020-02-05)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.6.5...v12.7.4)
+
+**New stuff:**
+
+- \[Tiled Geoaggregate\] Set the geohash tile on which the geoaggregation is excetuded in the response [\#599](https://github.com/gisaia/ARLAS-server/issues/599)
+- \[Tiled Geoaggregate\] return all buckets resulting from a tiled geoaggregate query [\#598](https://github.com/gisaia/ARLAS-server/issues/598)
+- Apply FGA \(column filtering\) to v12 [\#597](https://github.com/gisaia/ARLAS-server/issues/597)
+- Make FGA header compatible with multiple collections [\#586](https://github.com/gisaia/ARLAS-server/issues/586)
+- Fine grain access \(column filtering\) [\#558](https://github.com/gisaia/ARLAS-server/issues/558)
+
+**Fixed bugs:**
+
+- OGC Spatial Filters : Handle invalid geometries exception [\#583](https://github.com/gisaia/ARLAS-server/issues/583) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
+- OGC filter with unparsable XML throws NPE [\#573](https://github.com/gisaia/ARLAS-server/issues/573) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
+
+## [v11.6.5](https://github.com/gisaia/ARLAS-server/tree/v11.6.5) (2020-01-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.3...v11.6.5)
+
+**Fixed bugs:**
+
+- responseContainer of \_list endpoint is invalid [\#585](https://github.com/gisaia/ARLAS-server/issues/585) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Hide column-filter header un SearchRESTService [\#578](https://github.com/gisaia/ARLAS-server/issues/578)
+
 ## [v12.7.3](https://github.com/gisaia/ARLAS-server/tree/v12.7.3) (2020-01-02)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.6.4...v12.7.3)

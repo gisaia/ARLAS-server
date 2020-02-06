@@ -2,7 +2,7 @@
   "swagger" : "2.0",
   "info" : {
     "description" : "Explore the content of ARLAS collections",
-    "version" : "12.0.4-SNAPSHOT",
+    "version" : "12.0.4",
     "title" : "ARLAS Exploration API",
     "contact" : {
       "name" : "Gisaia",
@@ -1024,7 +1024,10 @@
           "200" : {
             "description" : "Successful operation",
             "schema" : {
-              "$ref" : "#/definitions/CollectionReferenceDescription"
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/CollectionReferenceDescription"
+              }
             }
           },
           "500" : {
