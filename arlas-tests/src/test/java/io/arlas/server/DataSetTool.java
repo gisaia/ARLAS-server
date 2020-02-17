@@ -25,7 +25,7 @@ import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.model.RasterTileURL;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.core.util.IOUtils;
-import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
@@ -181,9 +181,9 @@ public class DataSetTool {
                 data.geo_params.geometry = new Polygon(coords);
                 data.geo_params.second_geometry = new Polygon(second_coords);
                 data.geo_params.wktgeometry = wktGeometry;
-                IndexResponse response = client.prepareIndex(indexName, DATASET_TYPE_NAME, "ES_ID_TEST" + data.id)
-                        .setSource(mapper.writer().writeValueAsString(data), XContentType.JSON)
-                        .get();
+                IndexRequest request = new IndexRequest(indexName).id("ES_ID_TEST" + data.id);
+                request.source(mapper.writer().writeValueAsString(data), XContentType.JSON);
+                client.index(request).actionGet();
             }
         }
     }

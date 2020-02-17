@@ -28,18 +28,15 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
-import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
-import io.arlas.server.model.enumerations.AccessConstraintEnum;
-import io.arlas.server.model.enumerations.InspireAccessClassificationEnum;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ElasticTool;
 import io.arlas.server.utils.StringUtil;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -180,8 +177,9 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         checkCollectionReferenceParameters(collectionReference);
         IndexResponse response = null;
         try {
-            response = client.prepareIndex(arlasIndex, "collection", collectionReference.collectionName)
-                    .setSource(mapper.writeValueAsString(collectionReference.params), XContentType.JSON).get();
+            IndexRequest request = new IndexRequest(arlasIndex).id(collectionReference.collectionName);
+            request.source(mapper.writeValueAsString(collectionReference.params), XContentType.JSON);
+            response = client.index(request).actionGet();
         } catch (JsonProcessingException e) {
             new InternalServerErrorException("Can not put collection " + collectionReference.collectionName, e);
         }

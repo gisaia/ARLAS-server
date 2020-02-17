@@ -19,16 +19,20 @@
 
 package io.arlas.server.rest.plugins.eo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.*;
 import io.arlas.server.utils.ImageUtil;
 import io.restassured.response.ValidatableResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
 import org.hamcrest.Matchers;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.Response;
 import java.awt.image.BufferedImage;
@@ -37,10 +41,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import static io.arlas.server.CollectionTool.COLLECTION_NAME;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
-import static io.arlas.server.CollectionTool.COLLECTION_NAME;
 
 public class TileServiceIT extends AbstractTestContext {
     @Override
@@ -77,15 +82,15 @@ public class TileServiceIT extends AbstractTestContext {
         data.geo_params.geometry = new Polygon(coords);
         data.geo_params.wktgeometry = wktGeometry;
         String indexName=DataSetTool.ALIASED_COLLECTION?DataSetTool.DATASET_INDEX_NAME+"_original":DataSetTool.DATASET_INDEX_NAME;
-        DataSetTool.client.prepareIndex(indexName, DataSetTool.DATASET_TYPE_NAME, "ES_ID_TEST" + data.id)
-                .setSource(mapper.writer().writeValueAsString(data), XContentType.JSON)
-                .get();
+        IndexRequest request = new IndexRequest(indexName).id("ES_ID_TEST" + data.id);
+        request.source(mapper.writer().writeValueAsString(data), XContentType.JSON);
+        DataSetTool.client.index(request).actionGet();
 
         data.id = String.valueOf("ID_" + i + "_" + j + "DI_top").replace("-", "_");
         data.fullname = "My name is " + data.id;
-        DataSetTool.client.prepareIndex(indexName, DataSetTool.DATASET_TYPE_NAME, "ES_ID_TEST" + data.id)
-                .setSource(mapper.writer().writeValueAsString(data), XContentType.JSON)
-                .get();
+        request = new IndexRequest(indexName).id("ES_ID_TEST" + data.id);
+        request.source(mapper.writer().writeValueAsString(data), XContentType.JSON);
+        DataSetTool.client.index(request).actionGet();
         Thread.sleep(5000);
     }
 
