@@ -39,7 +39,10 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.ClearScrollRequest;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -48,6 +51,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
@@ -114,10 +118,15 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
         try {
             QueryBuilder qb = QueryBuilders.matchAllQuery();
+            SearchRequest request = new SearchRequest(arlasIndex);
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             //Exclude old include_fields for support old collection
-            SearchResponse scrollResp = client.prepareSearch(arlasIndex).setFetchSource(null, "include_fields")
-                    .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC).setScroll(new TimeValue(60000))
-                    .setQuery(qb).setSize(100).get(); // max of 100 hits will be returned for each scroll
+            searchSourceBuilder.fetchSource(null, "include_fields")
+                    .sort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
+                    .query(qb).size(100);// max of 100 hits will be returned for each scroll
+            request.source(searchSourceBuilder);
+            request.scroll(new TimeValue(60000));
+            SearchResponse scrollResp = client.search(request).actionGet();
             do {
                 for (SearchHit hit : scrollResp.getHits().getHits()) {
                     String source = hit.getSourceAsString();
@@ -127,10 +136,15 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                         throw new InternalServerErrorException("Can not fetch collection", e);
                     }
                 }
-                scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000))
-                        .execute().actionGet();
+                SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollResp.getScrollId());
+                scrollRequest.scroll(new TimeValue(60000));
+                scrollResp = client.searchScroll(scrollRequest).actionGet();
             }
             while (scrollResp.getHits().getHits().length != 0); // Zero hits mark the end of the scroll and the while loop.
+
+            ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
+            clearScrollRequest.addScrollId(scrollResp.getScrollId());
+            client.clearScroll(clearScrollRequest).actionGet();
         } catch (IndexNotFoundException e) {
             throw new InternalServerErrorException("Unreachable collections", e);
         }

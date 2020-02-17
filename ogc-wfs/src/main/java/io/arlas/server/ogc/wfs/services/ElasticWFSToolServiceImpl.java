@@ -18,17 +18,16 @@
  */
 package io.arlas.server.ogc.wfs.services;
 
-import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
 import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
+import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
@@ -38,18 +37,19 @@ import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
 import net.opengis.wfs._2.MemberPropertyType;
 import net.opengis.wfs._2.ValueCollectionType;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import static io.arlas.server.utils.CheckParams.isBboxLatLonInCorrectRanges;
 
@@ -73,23 +73,17 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
         buildWFSQuery(WFSRequestType.GetFeature, id, bbox, constraint, resourceid, storedquery_id, partitionFilter, collectionReference, columnFilter);
         SearchHit response;
         String[] includes = columnFilterToIncludes(collectionReference, columnFilter);
-        try {
-            SearchHits hitsGetFeature = exploreServices.getClient()
-                    .prepareSearch(collectionReference.params.indexName)
-                    .setFetchSource(includes, excludes)
-                    .setQuery(wfsQuery)
-                    .execute()
-                    .get()
-                    .getHits();
-            if (hitsGetFeature.getHits().length > 0) {
-                response = hitsGetFeature.getAt(0);
-            } else {
-                throw new OGCException(OGCExceptionCode.NOT_FOUND, "Data not found", "resourceid", Service.WFS);
-            }
-        } catch (InterruptedException e) {
-            throw new InternalServerErrorException("Cannot fetch feature : " + e.getMessage());
-        } catch (ExecutionException e) {
-            throw new InternalServerErrorException("Cannot fetch feature : " + e.getMessage());
+        SearchRequest request = new SearchRequest(collectionReference.params.indexName);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.fetchSource(includes, excludes)
+                .query(wfsQuery);
+        request.source(searchSourceBuilder);
+        SearchHits hitsGetFeature = exploreServices.getClient()
+                .search(request).actionGet().getHits();
+        if (hitsGetFeature.getHits().length > 0) {
+            response = hitsGetFeature.getAt(0);
+        } else {
+            throw new OGCException(OGCExceptionCode.NOT_FOUND, "Data not found", "resourceid", Service.WFS);
         }
         return response;
     }
@@ -101,25 +95,17 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
         buildWFSQuery(null, id, bbox, constraint, resourceid, null, partitionFilter, collectionReference, columnFilter);
         List<Object> featureList = new ArrayList<>();
         String[] includes = columnFilterToIncludes(collectionReference, columnFilter);
-
-        try {
-            SearchHits hitsGetFeature = exploreServices
-                    .getClient()
-                    .prepareSearch(collectionReference.params.indexName)
-                    .setFetchSource(includes, excludes)
-                    .setQuery(wfsQuery)
-                    .setFrom(startindex)
-                    .setSize(count)
-                    .execute()
-                    .get()
-                    .getHits();
-            for (int i = 0; i < hitsGetFeature.getHits().length; i++) {
-                featureList.add(hitsGetFeature.getAt(i));
-            }
-        }catch (InterruptedException e) {
-            throw new InternalServerErrorException("Cannot fetch features : " + e.getMessage());
-        } catch (ExecutionException e) {
-            throw new InternalServerErrorException("Cannot fetch features : " + e.getMessage());
+        SearchRequest request = new SearchRequest(collectionReference.params.indexName);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.fetchSource(includes, excludes)
+                .query(wfsQuery)
+                .from(startindex)
+                .size(count);
+        request.source(searchSourceBuilder);
+        SearchHits hitsGetFeature = exploreServices.getClient()
+                .search(request).actionGet().getHits();
+        for (int i = 0; i < hitsGetFeature.getHits().length; i++) {
+            featureList.add(hitsGetFeature.getAt(i));
         }
         return featureList;
     }
@@ -140,25 +126,19 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
 
         buildWFSQuery(WFSRequestType.GetPropertyValue, id, bbox, constraint, resourceid, storedquery_id, partitionFilter, collectionReference, columnFilter);
         ValueCollectionType valueCollectionType = new ValueCollectionType();
-        try {
-            SearchHits hitsGetPropertyValue = exploreServices.getClient()
-                    .prepareSearch(collectionReference.params.indexName)
-                    .setFetchSource(new String[]{include}, excludes)
-                    .setQuery(wfsQuery)
-                    .setFrom(startindex)
-                    .setSize(count)
-                    .execute()
-                    .get()
-                    .getHits();
-            for (int i = 0; i < hitsGetPropertyValue.getHits().length; i++) {
-                MemberPropertyType e = new MemberPropertyType();
-                e.getContent().add(MapExplorer.getObjectFromPath(include, hitsGetPropertyValue.getAt(i).getSourceAsMap()));
-                valueCollectionType.getMember().add(e);
-            }
-        }catch (InterruptedException e) {
-            throw new InternalServerErrorException("Cannot fetch property value : " + e.getMessage() );
-        } catch (ExecutionException e) {
-            throw new InternalServerErrorException("Cannot fetch property value : " + e.getMessage());
+        SearchRequest request = new SearchRequest(collectionReference.params.indexName);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.fetchSource(new String[]{include}, excludes)
+                .query(wfsQuery)
+                .from(startindex)
+                .size(count);
+        request.source(searchSourceBuilder);
+        SearchHits hitsGetPropertyValue = exploreServices.getClient()
+                .search(request).actionGet().getHits();
+        for (int i = 0; i < hitsGetPropertyValue.getHits().length; i++) {
+            MemberPropertyType e = new MemberPropertyType();
+            e.getContent().add(MapExplorer.getObjectFromPath(include, hitsGetPropertyValue.getAt(i).getSourceAsMap()));
+            valueCollectionType.getMember().add(e);
         }
         return valueCollectionType;
     }

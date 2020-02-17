@@ -32,7 +32,7 @@ import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.model.response.TimestampType;
 import io.arlas.server.utils.*;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
@@ -51,6 +51,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.*;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.locationtech.jts.geom.*;
@@ -111,8 +112,8 @@ public class FluidSearch {
     private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
 
     private Client client;
-    private ElasticAdmin elasticAdmin;
-    private SearchRequestBuilder searchRequestBuilder;
+    SearchRequest request;
+    private SearchSourceBuilder searchSourceBuilder;
     private BoolQueryBuilder boolQueryBuilder;
     private CollectionReference collectionReference;
     private CollectionReferenceManager collectionReferenceManager;
@@ -122,9 +123,9 @@ public class FluidSearch {
 
     public FluidSearch(Client client) {
         this.client = client;
-        this.elasticAdmin = new ElasticAdmin(client);
         this.collectionReferenceManager = CollectionReferenceManager.getInstance();
         boolQueryBuilder = QueryBuilders.boolQuery();
+        searchSourceBuilder = new SearchSourceBuilder();
     }
 
     protected Client getClient(){return client;}
@@ -134,8 +135,8 @@ public class FluidSearch {
     }
 
     public SearchResponse exec() throws ArlasException {
-        searchRequestBuilder.setQuery(boolQueryBuilder);
-        searchRequestBuilder.setTrackTotalHits(true);
+        searchSourceBuilder.query(boolQueryBuilder);
+        searchSourceBuilder.trackTotalHits(true);
 
         if (collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
             if (exclude.isEmpty()) {
@@ -172,12 +173,13 @@ public class FluidSearch {
         if (excludeFields.length == 0) {
             excludeFields = null;
         }
-        searchRequestBuilder = searchRequestBuilder.setFetchSource(includeFields, excludeFields);
+        searchSourceBuilder = searchSourceBuilder.fetchSource(includeFields, excludeFields);
 
         //Get Elasticsearch response
-        LOGGER.debug("QUERY : " + searchRequestBuilder.toString());
+        LOGGER.debug("QUERY : " + searchSourceBuilder.toString());
         SearchResponse result = null;
-        result = searchRequestBuilder.get();
+        request.source(searchSourceBuilder);
+        result = client.search(request).actionGet();
         return result;
     }
 
@@ -475,13 +477,13 @@ public class FluidSearch {
     }
 
     public FluidSearch filterSize(Integer size, Integer from) {
-        searchRequestBuilder = searchRequestBuilder.setSize(size).setFrom(from);
+        searchSourceBuilder = searchSourceBuilder.size(size).from(from);
         return this;
     }
 
 
     public FluidSearch searchAfter(String after) {
-        searchRequestBuilder = searchRequestBuilder.searchAfter(after.split(","));
+        searchSourceBuilder = searchSourceBuilder.searchAfter(after.split(","));
         return this;
     }
 
@@ -502,7 +504,7 @@ public class FluidSearch {
                 if (field.split(" ").length > 1) {
                     geoDistanceSort(field, sortOrder);
                 } else {
-                    searchRequestBuilder = searchRequestBuilder.addSort(field, sortOrder);
+                    searchSourceBuilder = searchSourceBuilder.sort(field, sortOrder);
                 }
             }
         }
@@ -512,7 +514,7 @@ public class FluidSearch {
     private void geoDistanceSort(String geoSort, SortOrder sortOrder) throws ArlasException {
         GeoPoint sortOnPoint = ParamsParser.getGeoSortParams(geoSort);
         String geoSortField = collectionReference.params.centroidPath;
-        searchRequestBuilder = searchRequestBuilder.addSort(SortBuilders.geoDistanceSort(geoSortField, sortOnPoint.lat(), sortOnPoint.lon())
+        searchSourceBuilder = searchSourceBuilder.sort(SortBuilders.geoDistanceSort(geoSortField, sortOnPoint.lat(), sortOnPoint.lon())
                 .order(sortOrder).geoDistance(GeoDistance.PLANE));
     }
 
@@ -549,7 +551,7 @@ public class FluidSearch {
     public FluidSearch aggregate(List<Aggregation> aggregations, Boolean isGeoAggregate) throws ArlasException {
         AggregationBuilder aggregationBuilder = null;
         aggregationBuilder = aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate, 0);
-        searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(aggregationBuilder);
+        searchSourceBuilder = searchSourceBuilder.size(0).aggregation(aggregationBuilder);
         return this;
     }
 
@@ -557,7 +559,7 @@ public class FluidSearch {
         boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.existsQuery(field));
         MinAggregationBuilder minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
         MaxAggregationBuilder maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
-        searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(minAggregationBuilder).addAggregation(maxAggregationBuilder);
+        searchSourceBuilder = searchSourceBuilder.size(0).aggregation(minAggregationBuilder).aggregation(maxAggregationBuilder);
         return this;
     }
 
@@ -566,35 +568,35 @@ public class FluidSearch {
         switch (metric) {
             case AVG:
                 AvgAggregationBuilder avgAggregationBuilder = AggregationBuilders.avg(FIELD_AVG_VALUE).field(field);
-                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(avgAggregationBuilder);
+                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(avgAggregationBuilder);
                 break;
             case MAX:
                 MaxAggregationBuilder maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
-                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(maxAggregationBuilder);
+                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(maxAggregationBuilder);
                 break;
             case MIN:
                 MinAggregationBuilder minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
-                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(minAggregationBuilder);
+                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(minAggregationBuilder);
                 break;
             case SUM:
                 SumAggregationBuilder sumAggregationBuilder = AggregationBuilders.sum(FIELD_SUM_VALUE).field(field);
-                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(sumAggregationBuilder);
+                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(sumAggregationBuilder);
             case CARDINALITY:
                 CardinalityAggregationBuilder cardinalityAggregationBuilder = AggregationBuilders.cardinality(FIELD_CARDINALITY_VALUE).field(field);
-                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(cardinalityAggregationBuilder);
+                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(cardinalityAggregationBuilder);
                 break;
             case SPANNING:
                 minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
                 maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
-                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(minAggregationBuilder).addAggregation(maxAggregationBuilder);
+                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(minAggregationBuilder).aggregation(maxAggregationBuilder);
                 break;
             case GEOBBOX:
                 GeoBoundsAggregationBuilder geoBoundsAggregationBuilder = AggregationBuilders.geoBounds(FIELD_GEOBBOX_VALUE).field(field);
-                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(geoBoundsAggregationBuilder);
+                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(geoBoundsAggregationBuilder);
                 break;
             case GEOCENTROID:
                 GeoCentroidAggregationBuilder geoCentroidAggregationBuilder = AggregationBuilders.geoCentroid(FIELD_GEOCENTROID_VALUE).field(field);
-                searchRequestBuilder = searchRequestBuilder.setSize(0).addAggregation(geoCentroidAggregationBuilder);
+                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(geoCentroidAggregationBuilder);
                 break;
         }
         return this;
@@ -990,7 +992,7 @@ public class FluidSearch {
 
     public void setCollectionReference(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
-        searchRequestBuilder = client.prepareSearch(collectionReference.params.indexName).setTypes(collectionReference.params.typeName);
+        request = new SearchRequest(collectionReference.params.indexName);
     }
 
     public CollectionReference getCollectionReference() {
