@@ -117,7 +117,7 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))))
                 .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))))
                 .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))))
-                .body("features[0].properties.metrics.size()", equalTo(elementsSize));
+                .body("features[0].properties.metrics", elementsSize == 0 ? isEmptyOrNullString() : hasSize(elementsSize));
     }
 
     @Override

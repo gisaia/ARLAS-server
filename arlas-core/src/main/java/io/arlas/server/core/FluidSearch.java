@@ -103,10 +103,9 @@ public class FluidSearch {
     public static final String FIELD_GEOBBOX_VALUE = "field_bbox_value";
     public static final String FIELD_GEOCENTROID_VALUE = "field_centroid_value";
 
-
-    public static final String RANDOM_GEOMETRY = "random_geometry";
-    public static final String FIRST_GEOMETRY = "first_geometry";
-    public static final String LAST_GEOMETRY = "last_geometry";
+    public static final String METRIC_SUFFIX = "_metric";
+    public static final String AGGREGATED_GEOMETRY_SUFFIX = "_aggregated_geometry";
+    public static final String RAW_GEOMETRY_SUFFIX = "_raw_geometry";
 
     private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
 
@@ -521,8 +520,8 @@ public class FluidSearch {
         //check the agg syntax is correct
         Aggregation aggregationModel = aggregations.get(0);
         if (isGeoAggregate && counter == 0) {
-            if (aggregationModel.type != AggregationTypeEnum.geohash && aggregationModel.fetchGeometry == null) {
-                throw new NotAllowedException("'" + aggregationModel.type.name() +"' aggregation type is not allowed in _geoaggregate service if fetchGeometry strategy is not specified");
+            if (aggregationModel.type != AggregationTypeEnum.geohash && aggregationModel.rawGeometries == null && aggregationModel.aggregatedGeometries == null) {
+                throw new NotAllowedException("'" + aggregationModel.type.name() +"' aggregation type is not allowed in _geoaggregate service if at least `aggregated_geometries` or `raw_geometries` parameters are not specified");
             }
         }
         switch (aggregationModel.type) {
@@ -549,7 +548,7 @@ public class FluidSearch {
 
     public FluidSearch aggregate(List<Aggregation> aggregations, Boolean isGeoAggregate) throws ArlasException {
         AggregationBuilder aggregationBuilder = null;
-        aggregationBuilder = aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate, 0);
+        aggregationBuilder = aggregateRecursive(new ArrayList<>(aggregations), aggregationBuilder, isGeoAggregate, 0);
         searchSourceBuilder = searchSourceBuilder.size(0).aggregation(aggregationBuilder);
         return this;
     }
@@ -647,21 +646,21 @@ public class FluidSearch {
         //get the field, format, collect_field, collect_fct, order, on
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setHitsToFetch(aggregationModel, dateHistogramAggregationBuilder);
-        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggeragatedGeometryStrategy(aggregationModel, dateHistogramAggregationBuilder);
+        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregatedGeometries(aggregationModel, dateHistogramAggregationBuilder);
+        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setRawGeometries(aggregationModel, dateHistogramAggregationBuilder);
         return dateHistogramAggregationBuilder;
     }
 
     // construct and returns the geohash aggregationModel builder
     private GeoGridAggregationBuilder buildGeohashAggregation(Aggregation aggregationModel) throws ArlasException {
-        String geohashAggName = Optional.ofNullable(aggregationModel.fetchGeometry).map(fg -> fg.strategy).filter(strategy -> strategy == AggregatedGeometryStrategyEnum.geohash)
-                .map(s -> GEOHASH_AGG_WITH_GEOASH_STRATEGY).orElse(GEOHASH_AGG);
-        GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(geohashAggName);
+        GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(GEOHASH_AGG);
         //get the precision
         Integer precision = (Integer)aggregationModel.interval.value;
         geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
         //get the field, format, collect_field, collect_fct, order, on
         geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
-        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggeragatedGeometryStrategy(aggregationModel, geoHashAggregationBuilder);
+        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggregatedGeometries(aggregationModel, geoHashAggregationBuilder);
+        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setRawGeometries(aggregationModel, geoHashAggregationBuilder);
         geoHashAggregationBuilder = (GeoGridAggregationBuilder) setHitsToFetch(aggregationModel, geoHashAggregationBuilder);
         return geoHashAggregationBuilder;
     }
@@ -673,7 +672,8 @@ public class FluidSearch {
         //get the field, format, collect_field, collect_fct, order, on
         histogramAggregationBuilder = (HistogramAggregationBuilder) setAggregationParameters(aggregationModel, histogramAggregationBuilder);
         histogramAggregationBuilder = (HistogramAggregationBuilder) setHitsToFetch(aggregationModel, histogramAggregationBuilder);
-        histogramAggregationBuilder = (HistogramAggregationBuilder) setAggeragatedGeometryStrategy(aggregationModel, histogramAggregationBuilder);
+        histogramAggregationBuilder = (HistogramAggregationBuilder) setAggregatedGeometries(aggregationModel, histogramAggregationBuilder);
+        histogramAggregationBuilder = (HistogramAggregationBuilder) setRawGeometries(aggregationModel, histogramAggregationBuilder);
         return histogramAggregationBuilder;
     }
 
@@ -682,7 +682,8 @@ public class FluidSearch {
         TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(TERM_AGG);
         //get the field, format, collect_field, collect_fct, order, on
         termsAggregationBuilder = (TermsAggregationBuilder) setAggregationParameters(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregationBuilder) setAggeragatedGeometryStrategy(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregationBuilder) setAggregatedGeometries(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregationBuilder) setRawGeometries(aggregationModel, termsAggregationBuilder);
         termsAggregationBuilder = (TermsAggregationBuilder) setHitsToFetch(aggregationModel, termsAggregationBuilder);
         if (aggregationModel.include != null && !aggregationModel.include.isEmpty()) {
             String[] includeList = aggregationModel.include.split(",");
@@ -737,24 +738,22 @@ public class FluidSearch {
                         break;
                     case GEOCENTROID:
                         setGeoMetricAggregationCollectField(m);
-                        // This suffix will be used in the AggregationResponse construction in order to distinguish the case when the centroid
-                        // should be provided as metrics only and when it should be the geometry of the geoagragation
-                        String centroidSuffix = ":" + collectionReference.params.centroidPath.replace(".", ArlasServerConfiguration.FLATTEN_CHAR);
-                        if (aggregationModel.fetchGeometry != null && aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.centroid) {
-                            centroidSuffix = "-bucket";
+                        /** We calculate this metric only if it wasn't requested as a geometry to return in `aggregatedGeometries` parameter **/
+                        if (!(aggregationModel.aggregatedGeometries != null && aggregationModel.aggregatedGeometries.contains(AggregatedGeometryEnum.CENTROID))) {
+                            metricAggregationBuilder = AggregationBuilders.geoCentroid(CollectionFunction.GEOCENTROID.name().toLowerCase()).field(m.collectField);
                         }
-                        metricAggregationBuilder = AggregationBuilders.geoCentroid(CollectionFunction.GEOCENTROID.name().toLowerCase() + centroidSuffix).field(m.collectField);
                         break;
                     case GEOBBOX:
                         setGeoMetricAggregationCollectField(m);
-                        String bboxSuffix = ":" + collectionReference.params.centroidPath.replace(".", ArlasServerConfiguration.FLATTEN_CHAR);
-                        if (aggregationModel.fetchGeometry != null && aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.bbox) {
-                            bboxSuffix = "-bucket";
+                        /** We calculate this metric only if it wasn't requested as a geometry to return in `aggregatedGeometries` parameter **/
+                        if (!(aggregationModel.aggregatedGeometries != null && aggregationModel.aggregatedGeometries.contains(AggregatedGeometryEnum.BBOX))) {
+                            metricAggregationBuilder = AggregationBuilders.geoBounds(CollectionFunction.GEOBBOX.name().toLowerCase()).field(m.collectField);
                         }
-                        metricAggregationBuilder = AggregationBuilders.geoBounds(CollectionFunction.GEOBBOX.name().toLowerCase() + bboxSuffix).field(m.collectField);
                         break;
                 }
-                aggregationBuilder.subAggregation(metricAggregationBuilder);
+                if (metricAggregationBuilder != null) {
+                    aggregationBuilder.subAggregation(metricAggregationBuilder);
+                }
 
                 // Getting the first metric aggregation builder that is different from GEOBBOX and GEOCENTROID, on which the order will be applied
                 if (firstMetricAggregationBuilder == null && m.collectFct != CollectionFunction.GEOBBOX &&  m.collectFct != CollectionFunction.GEOCENTROID) {
@@ -777,45 +776,43 @@ public class FluidSearch {
         return aggregationBuilder;
     }
 
-    private ValuesSourceAggregationBuilder setAggeragatedGeometryStrategy(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
-        if (aggregationModel.fetchGeometry != null) {
-            String strategyField = (aggregationModel.type.equals(AggregationTypeEnum.geohash) ? aggregationModel.field : collectionReference.params.centroidPath);
-            if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.bbox) {
-                // Check if geobbox is not already asked as a sub-aggregation
-                if ((aggregationModel.metrics != null && aggregationModel.metrics.stream().map(m -> m.collectFct).filter(collectFct -> collectFct.name().equals(CollectionFunction.GEOBBOX.name())).count() == 0) || aggregationModel.metrics == null) {
-                    ValuesSourceAggregationBuilder metricAggregation = AggregationBuilders.geoBounds(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket").field(strategyField);
+    private ValuesSourceAggregationBuilder setAggregatedGeometries(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
+        if (aggregationModel.aggregatedGeometries != null) {
+            String aggregationGeoField = (aggregationModel.type.equals(AggregationTypeEnum.geohash) ? aggregationModel.field : collectionReference.params.centroidPath);
+            aggregationModel.aggregatedGeometries.forEach(ag -> {
+                if (ag == AggregatedGeometryEnum.BBOX) {
+                    ValuesSourceAggregationBuilder metricAggregation = AggregationBuilders.geoBounds(AggregatedGeometryEnum.BBOX.value() + AGGREGATED_GEOMETRY_SUFFIX).field(aggregationGeoField);
+                    aggregationBuilder.subAggregation(metricAggregation);
+                } else if (ag == AggregatedGeometryEnum.CENTROID) {
+                    ValuesSourceAggregationBuilder metricAggregation = AggregationBuilders.geoCentroid(AggregatedGeometryEnum.CENTROID.value() + AGGREGATED_GEOMETRY_SUFFIX).field(aggregationGeoField);
                     aggregationBuilder.subAggregation(metricAggregation);
                 }
-            } else if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.centroid) {
-                // if geocentroid is not already asked as a sub-aggregation
-                if ((aggregationModel.metrics != null && aggregationModel.metrics.stream().map(m -> m.collectFct).filter(collectFct -> collectFct.name().equals(CollectionFunction.GEOCENTROID.name())).count() == 0) || aggregationModel.metrics == null) {
-                    ValuesSourceAggregationBuilder metricAggregation = AggregationBuilders.geoCentroid(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket").field(strategyField);
-                    aggregationBuilder.subAggregation(metricAggregation);
-                }
-            } else if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.geohash) {
-                // aggregationModel.type is necesseraly AggregationTypeEnum.geohash. We already return the centroid of each geohash by default => nothing to implement here => create geohash geometry at response stage
-            } else if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.byDefault) {
-                if (aggregationModel.type !=  AggregationTypeEnum.geohash) {
-                    String[] includes = {collectionReference.params.geometryPath, collectionReference.params.centroidPath};
-                    TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(RANDOM_GEOMETRY).size(1).fetchSource(includes, null);
-                    aggregationBuilder.subAggregation(topHitsAggregationBuilder);
-                }
-                // if aggregationModel.type ==  AggregationTypeEnum.geohash then we already return the centroid of each geohash by default => nothing to implement
-            } else {
-                String[] includes = {collectionReference.params.geometryPath, collectionReference.params.centroidPath};
-                String sortField = (aggregationModel.fetchGeometry.field != null) ? aggregationModel.fetchGeometry.field : collectionReference.params.timestampPath;
-                if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.first) {
-                    TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(FIRST_GEOMETRY).size(1).sort(sortField, SortOrder.ASC).fetchSource(includes, null);
-                    aggregationBuilder.subAggregation(topHitsAggregationBuilder);
-                } else if (aggregationModel.fetchGeometry.strategy == AggregatedGeometryStrategyEnum.last) {
-                    TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(LAST_GEOMETRY).size(1).sort(sortField, SortOrder.DESC).fetchSource(includes, null);
-                    aggregationBuilder.subAggregation(topHitsAggregationBuilder);
-                }
-            }
+            });
         }
         return aggregationBuilder;
     }
 
+    private ValuesSourceAggregationBuilder setRawGeometries(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
+        if (aggregationModel.rawGeometries != null) {
+            if (!aggregationModel.rawGeometries.geometries.isEmpty()) {
+                String[] includes = aggregationModel.rawGeometries.geometries.stream().toArray(String[]::new);
+                TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(RAW_GEOMETRY_SUFFIX).size(1).fetchSource(includes, null);
+                for (String field : Arrays.asList(aggregationModel.rawGeometries.sort.split(","))) {
+                    String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
+                    ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, collectionReference.params.typeName, unsignedField);
+                    if (field.startsWith("+")) {
+                        topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
+                    } else if (field.startsWith("-")) {
+                        topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
+                    } else {
+                        topHitsAggregationBuilder.sort(field, SortOrder.ASC);
+                    }
+                }
+                aggregationBuilder.subAggregation(topHitsAggregationBuilder);
+            }
+        }
+        return aggregationBuilder;
+    }
     private ValuesSourceAggregationBuilder setHitsToFetch(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
         if (aggregationModel.fetchHits != null) {
             TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(FETCH_HITS_AGG);

@@ -56,7 +56,8 @@ public class ParamsParser {
     private static final String AGG_ON_PARAM = "on-";
     private static final String AGG_SIZE_PARAM = "size-";
     private static final String AGG_INCLUDE_PARAM = "include-";
-    private static final String AGG_FETCHGEOMETRY_PARAM = "fetch_geometry";
+    private static final String AGG_RAW_GEOMETRIES_PARAM = "raw_geometries-";
+    private static final String AGG_AGGREGATED_GEOMETRIES_PARAM = "aggregated_geometries-";
     private static final String INVALID_DATE_MATH_EXPRESSION = "Invalid date math expression";
     private static final String AGG_FETCHHITS_PARAM = "fetch_hits-";
 
@@ -66,19 +67,21 @@ public class ParamsParser {
     private static final List<OperatorEnum> GEO_OP_WITHIN = Arrays.asList(OperatorEnum.within, OperatorEnum.notwithin);
     private static final  GeometryFactory GEOMETRY_FACTORY = new GeometryFactory(new PrecisionModel(), 4326);
     private static final List<OperatorEnum> GEO_OP_INTERSECTS = Arrays.asList(OperatorEnum.intersects, OperatorEnum.notintersects);
+    public static final String INVALID_AGG_RETURNED_GEOMETRIES = "Invalid `returned_geometries` parameter. It should be `returned_geometries-{comma separated strategies and geo_fields}(+/-sort_field)`";
+
     public static final String RANGE_ALIASES_CHARACTER = "$";
     public static final String TIMESTAMP_ALIAS = "timestamp";
     public static final String BAD_FIELD_ALIAS = "This alias does not represent a collection configured field. ";
 
 
-    public static List<Aggregation> getAggregations(List<String> agg) throws ArlasException {
+    public static List<Aggregation> getAggregations(CollectionReference collectionReference, List<String> agg) throws ArlasException {
         List<Aggregation> aggregations = new ArrayList<>();
         if (agg != null && agg.size() > 0) {
             for (String aggregation : agg) {
                 Aggregation aggregationModel;
                 if (CheckParams.isAggregationParamValid(aggregation)) {
                     List<String> aggParameters = Arrays.asList(aggregation.split(":"));
-                    aggregationModel = getAggregationModel(aggParameters);
+                    aggregationModel = getAggregationModel(collectionReference, aggParameters);
                     aggregations.add(aggregationModel);
                 }
             }
@@ -86,7 +89,7 @@ public class ParamsParser {
         return aggregations;
     }
 
-    public static Aggregation getAggregationModel(List<String> agg) throws ArlasException {
+    public static Aggregation getAggregationModel(CollectionReference collectionReference, List<String> agg) throws ArlasException {
         Aggregation aggregationModel = new Aggregation();
         aggregationModel.type = AggregationTypeEnum.valueOf(agg.get(0));
         for (String parameter : agg) {
@@ -110,8 +113,10 @@ public class ParamsParser {
                 aggregationModel.size = parameter.substring(AGG_SIZE_PARAM.length());
             } else if (parameter.contains(AGG_INCLUDE_PARAM)) {
                 aggregationModel.include = parameter.substring(AGG_INCLUDE_PARAM.length());
-            } else if (parameter.contains(AGG_FETCHGEOMETRY_PARAM)) {
-                aggregationModel.fetchGeometry = getAggregatedGeometry(parameter.substring(AGG_FETCHGEOMETRY_PARAM.length()));
+            } else if (parameter.contains(AGG_RAW_GEOMETRIES_PARAM)) {
+                aggregationModel.rawGeometries = getAggregationRawGeometries(parameter.substring(AGG_RAW_GEOMETRIES_PARAM.length()), collectionReference);
+            } else if (parameter.contains(AGG_AGGREGATED_GEOMETRIES_PARAM)) {
+                aggregationModel.aggregatedGeometries = getAggregatedGeometries(parameter.substring(AGG_AGGREGATED_GEOMETRIES_PARAM.length()));
             } else if (parameter.contains(AGG_FETCHHITS_PARAM)) {
                 aggregationModel.fetchHits = getHitsFetcher(parameter.substring(AGG_FETCHHITS_PARAM.length()));
             } else if (parameter.equals(agg.get(1))) {
@@ -125,63 +130,50 @@ public class ParamsParser {
     private static HitsFetcher getHitsFetcher(String fetchHitsString) throws ArlasException {
         HitsFetcher hitsFetcher = new HitsFetcher();
         if (StringUtil.isNullOrEmpty(fetchHitsString)) {
-            throw new BadRequestException("fetchHits should not be null nor empty");
+            throw new BadRequestException("fetch_hits should not be null nor empty");
         }
         Matcher matcher = HITS_FETCHER_PATTERN.matcher(fetchHitsString);
         if (!matcher.matches()) {
-            throw new InvalidParameterException("Invalid fetchHits syntax. It should respect the following pattern : {size*}(+{field1}, -{field2}, {field3}, ...)");
+            throw new InvalidParameterException("Invalid fetch_hits syntax. It should respect the following pattern : {size*}(+{field1}, -{field2}, {field3}, ...)");
         }
         hitsFetcher.size = Optional.ofNullable(ParamsParser.tryParseInteger(matcher.group(1))).orElse(1);
         hitsFetcher.include = Arrays.asList(matcher.group(3).split(","));
         return hitsFetcher;
     }
 
-    private static AggregatedGeometry getAggregatedGeometry(String fetchGeometryString) throws ArlasException {
-        AggregatedGeometry aggregatedGeometry = null;
-        if (fetchGeometryString != null) {
-            if (fetchGeometryString.contains("-")) {
-                String[] fetchOptions = fetchGeometryString.split("-");
-                if (fetchOptions.length == 2) {
-                    String option = fetchOptions[1];
-                    if (option.equals(AggregatedGeometryStrategyEnum.bbox.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.bbox);
-                    } else if (option.equals(AggregatedGeometryStrategyEnum.centroid.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.centroid);
-                    } else if (option.equals(AggregatedGeometryStrategyEnum.byDefault.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
-                    } else if (option.equals(AggregatedGeometryStrategyEnum.first.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first);
-                    } else if (option.equals(AggregatedGeometryStrategyEnum.last.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last);
-                    } else if (option.equals(AggregatedGeometryStrategyEnum.geohash.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.geohash);
-                    } else {
-                        throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
-                    }
-                } else if (fetchOptions.length == 3) {
-                    String field = fetchOptions[1];
-                    // TODO check field existence ?
-                    String option = fetchOptions[2];
-                    if (option.equals(AggregatedGeometryStrategyEnum.first.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.first, field);
-                    } else if (option.equals(AggregatedGeometryStrategyEnum.last.name())) {
-                        aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.last, field);
-                    } else {
-                        throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
-                    }
-                } else {
-                    throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
-                }
+    private static RawGeometries getAggregationRawGeometries(String rawGeometriesString, CollectionReference collectionReference) throws ArlasException {
+        RawGeometries rawGeometries = null;
+        if (!StringUtil.isNullOrEmpty(rawGeometriesString)) {
+            Matcher sortMatcher = Pattern.compile("\\((.*?)\\)$").matcher(rawGeometriesString);
+            rawGeometries = new RawGeometries();
+            if (sortMatcher.find()) {
+                rawGeometries.sort = sortMatcher.group(1);
             } else {
-                if (fetchGeometryString.equals("")) {
-                    aggregatedGeometry = new AggregatedGeometry(AggregatedGeometryStrategyEnum.byDefault);
-                } else {
-                    throw new InvalidParameterException(CheckParams.INVALID_FETCHGEOMETRY);
-                }
+                rawGeometries.sort = collectionReference.params.timestampPath;
             }
-
+            String geometriesString = sortMatcher.replaceAll("");
+            List<String> geometries = Arrays.asList(geometriesString.split(",")).stream().distinct().collect(Collectors.toList());
+            if (geometries.isEmpty()) {
+                throw new InvalidParameterException(INVALID_AGG_RETURNED_GEOMETRIES);
+            } else {
+                rawGeometries.geometries = geometries;
+            }
         }
-        return aggregatedGeometry;
+        return rawGeometries;
+    }
+
+    private static List<AggregatedGeometryEnum> getAggregatedGeometries(String aggregatedGeometriesString) throws ArlasException {
+        List<AggregatedGeometryEnum> aggregatedGeometries = null;
+        if (!StringUtil.isNullOrEmpty(aggregatedGeometriesString)) {
+            Set<String> aggregatedGeometriesStrings = new HashSet<>(Arrays.asList(aggregatedGeometriesString.split(",")));
+            for (String ag : aggregatedGeometriesStrings) {
+                if (aggregatedGeometries == null) {
+                    aggregatedGeometries = new ArrayList<>();
+                }
+                aggregatedGeometries.add(AggregatedGeometryEnum.fromValue(ag));
+            }
+        }
+        return aggregatedGeometries;
     }
 
     private static List<Metric> getAggregationMetrics(List<String> agg) throws ArlasException {

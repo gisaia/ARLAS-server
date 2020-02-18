@@ -17,31 +17,19 @@
  * under the License.
  */
 
-package io.arlas.server.model.request;
+package io.arlas.server.model.enumerations;
 
-import io.arlas.server.model.enumerations.AggregatedGeometryStrategyEnum;
+public enum AggregationGeometryEnum {
+    RAW("raw"), AGGREGATED("aggregated");
 
-public class AggregatedGeometry {
-    public AggregatedGeometryStrategyEnum strategy;
-    public String field;
+    private final String value;
 
-    public AggregatedGeometry() {
+    AggregationGeometryEnum(String v) {
+        value = v;
     }
 
-    public AggregatedGeometry(AggregatedGeometryStrategyEnum strategy, String field) {
-        this.strategy = strategy;
-        this.field = field;
+    public String value() {
+        return value;
     }
 
-    public AggregatedGeometry(AggregatedGeometryStrategyEnum strategy) {
-        this.strategy = strategy;
-    }
-
-    public String flatten() {
-        if (field != null) {
-            return field + '-' + strategy.name();
-        } else {
-            return strategy.name();
-        }
-    }
 }

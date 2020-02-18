@@ -142,7 +142,7 @@ public class ElasticTool {
         for (String field : fields) {
             GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(index, field);
             if (data == null || data.sourceAsMap().isEmpty()) {
-                throw new NotFoundException("Unable to find " + field + " in " + index + ".");
+                throw new NotFoundException("Unable to find `" + field + "` field in `" + index + "` index.");
             }
         }
         return true;

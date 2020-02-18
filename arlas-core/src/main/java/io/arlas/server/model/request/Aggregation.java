@@ -21,6 +21,7 @@ package io.arlas.server.model.request;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.arlas.server.model.enumerations.AggregatedGeometryEnum;
 import io.arlas.server.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.model.enumerations.Order;
 import io.arlas.server.model.enumerations.OrderOn;
@@ -38,7 +39,8 @@ public class Aggregation {
     public OrderOn on;
     public String size;
     public String include;
-    public AggregatedGeometry fetchGeometry;
+    public RawGeometries rawGeometries;
+    public List<AggregatedGeometryEnum> aggregatedGeometries;
     public HitsFetcher fetchHits;
 
     public Aggregation() {

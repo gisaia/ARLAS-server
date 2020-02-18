@@ -25,6 +25,7 @@ import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.Documentation;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.enumerations.AggregationGeometryEnum;
 import io.arlas.server.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.*;
@@ -37,6 +38,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.collections.CollectionUtils;
+
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
@@ -54,6 +57,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
     private static final String FEATURE_TYPE_KEY = "feature_type";
     private static final String FEATURE_TYPE_VALUE = "aggregation";
+    private static final String GEOMETRY_REFERENCE = "geometry_ref";
+    private static final String GEOMETRY_TYPE = "geometry_type";
 
     @Timed
     @Path("{collection}/_geoaggregate")
@@ -323,9 +328,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                                   Boolean flat, List<String> agg, Integer maxagecache, Optional<String> geohash) throws ArlasException, IOException {
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
         aggregationsRequest.filter = filter;
-        aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
+        aggregationsRequest.aggregations = ParamsParser.getAggregations(collectionReference, agg);
         exploreServices.setValidGeoFilters(collectionReference, aggregationsRequest);
-
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
 
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
@@ -343,11 +347,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         Optional<Interval> interval = Optional.ofNullable(((AggregationsRequest) request.basicRequest).aggregations.get(0).interval);
         Optional<Number> precision = interval.map(i -> i.value);
         FeatureCollection fc;
-        AggregationTypeEnum maintAggregationType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
+        AggregationTypeEnum mainAggregationType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
         AggregationResponse aggregationResponse = this.getExploreServices()
                 .formatAggregationResult(this.getExploreServices().aggregate(request, collectionReference, true),
                         collectionReference.collectionName, System.nanoTime());
-        fc = toGeoJson(aggregationResponse, maintAggregationType, flat, geohash, precision.map(p->p.intValue()));
+        fc = toGeoJson(aggregationResponse, mainAggregationType, flat, geohash, precision.map(p->p.intValue()));
         return fc;
     }
 
@@ -355,39 +359,46 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         FeatureCollection fc = new FeatureCollection();
         ObjectMapper mapper = new ObjectMapper();
         List<AggregationResponse> elements = aggregationResponse.elements;
-        if (elements != null && elements.size() > 0) {
+        if (!CollectionUtils.isEmpty(elements)) {
             for (AggregationResponse element : elements) {
-                Feature feature = new Feature();
-                Map<String, Object> properties = new HashMap<>();
-                properties.put("count", element.count);
-                if (mainAggregationType == AggregationTypeEnum.geohash) {
-                    properties.put("geohash", element.keyAsString);
-                    if (geohash.isPresent()) {
-                        properties.put("parent_geohash", geohash.get());
-                    }
-                } else {
-                    properties.put("key", element.keyAsString);
-                }
-                if (flat) {
-                    this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))).forEach((key, value) -> {
-                        properties.put(key, value);
-                    });
+               if (!CollectionUtils.isEmpty(element.geometries)) {
+                   element.geometries.forEach(g -> {
+                       Feature feature = new Feature();
+                       Map<String, Object> properties = new HashMap<>();
+                       properties.put("count", element.count);
+                       if (mainAggregationType == AggregationTypeEnum.geohash) {
+                           properties.put("geohash", element.keyAsString);
+                           if (geohash.isPresent()) {
+                               properties.put("parent_geohash", geohash.get());
+                           }
+                       } else {
+                           properties.put("key", element.keyAsString);
+                       }
+                       if (flat) {
+                           this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))).forEach((key, value) -> {
+                               properties.put(key, value);
+                           });
 
-                    if (element.hits != null) {
-                        properties.put("hits", element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>())));
-                    }
-                }else{
-                    properties.put("elements", element.elements);
-                    properties.put("metrics", element.metrics);
-                    if (element.hits != null) {
-                        properties.put("hits", element.hits);
-                    }
-                }
-                feature.setProperties(properties);
-                feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
-                GeoJsonObject g = element.geometry;
-                feature.setGeometry(g);
-                fc.add(feature);
+                           if (element.hits != null) {
+                               properties.put("hits", element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>())));
+                           }
+                       }else{
+                           properties.put("elements", element.elements);
+                           properties.put("metrics", element.metrics);
+                           if (element.hits != null) {
+                               properties.put("hits", element.hits);
+                           }
+                       }
+                       feature.setProperties(properties);
+                       feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
+                       feature.setProperty(GEOMETRY_REFERENCE, g.reference);
+                       String aggregationGeometryType = g.isRaw ? AggregationGeometryEnum.RAW.value() : AggregationGeometryEnum.AGGREGATED.value();
+                       feature.setProperty(GEOMETRY_TYPE, aggregationGeometryType);
+                       GeoJsonObject geometry = g.geometry;
+                       feature.setGeometry(geometry);
+                       fc.add(feature);
+                   });
+               }
             }
         }
         return fc;

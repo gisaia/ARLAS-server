@@ -17,8 +17,34 @@
  * under the License.
  */
 
-package io.arlas.server.model.enumerations;
+package io.arlas.server.model.request;
 
-public enum AggregatedGeometryStrategyEnum {
-    bbox, centroid, geohash, first, last, byDefault
+import io.arlas.server.utils.StringUtil;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class RawGeometries {
+    public List<String> geometries;
+    public String sort;
+
+    public RawGeometries() {
+    }
+
+    public RawGeometries(List<String> geometries, String sort) {
+        this.geometries = geometries;
+        this.sort = sort;
+    }
+
+    public RawGeometries(List<String> geometries) {
+        this.geometries = geometries;
+    }
+
+    public String flatten() {
+        if (!StringUtil.isNullOrEmpty(sort)) {
+            return geometries.stream().collect(Collectors.joining(",")) + "-(" + sort + ")";
+        } else {
+            return geometries.stream().collect(Collectors.joining(","));
+        }
+    }
 }

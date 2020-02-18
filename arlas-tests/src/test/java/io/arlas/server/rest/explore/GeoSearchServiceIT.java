@@ -228,7 +228,7 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
 
     @Override
     protected void handleFailedReturnedGeometries(ValidatableResponse then) {
-        then.statusCode(500);
+        then.statusCode(404);
     }
 
     //----------------------------------------------------------------
