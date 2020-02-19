@@ -56,32 +56,19 @@ public class CollectionReferenceManager {
             String[] props = field.split("\\.");
             CollectionReferenceDescriptionProperty esField = elasticAdmin.describeCollection(collectionReference).properties.get(props[0]);
             if (esField == null) {
-                if (throwException) {
-                    throw new NotFoundException("Field '" + field + "' not found in collection " + collectionReference.collectionName);
-                } else {
-                    return ElasticType.UNKNOWN;
-                }
+                return getUnknownType(field, esField, collectionReference.collectionName, throwException);
             }
             for (int i=1; i<props.length; i++) {
                 esField = esField.properties.get(props[i]);
                 if (esField == null) {
-                    if (throwException) {
-                        throw new NotFoundException("Field '" + field + "' not found in collection " + collectionReference.collectionName);
-                    } else {
-                        return ElasticType.UNKNOWN;
-                    }
+                    return getUnknownType(field, esField, collectionReference.collectionName, throwException);
                 }
             }
             if (esField != null) {
                 elasticType = esField.type;
                 map.put(collectionReference.collectionName + "-" + field, elasticType);
             } else {
-                if (throwException) {
-                    throw new NotFoundException("Field '" + field + "' not found in collection " + collectionReference.collectionName);
-                } else {
-                    elasticType = ElasticType.UNKNOWN;
-                }
-
+                return getUnknownType(field, esField, collectionReference.collectionName, throwException);
             }
         }
         return elasticType;
@@ -116,6 +103,14 @@ public class CollectionReferenceManager {
                         collectionReference.params.setGeometryType(path, GeoTypeMapper.getGeometryType(geometry));
                 }
             }
+        }
+    }
+
+    private ElasticType getUnknownType(String parentField, CollectionReferenceDescriptionProperty pathField, String collectionName, boolean throwException) throws ArlasException{
+        if (throwException) {
+            throw new NotFoundException("Field '" + parentField + "' not found in collection " + collectionName);
+        } else {
+            return ElasticType.UNKNOWN;
         }
     }
 }

@@ -527,20 +527,21 @@ public class ExploreServices {
         }
     }
 
-    public AggregationResponse formatAggregationResult(SearchResponse response, String collection, Long startQuery) {
+    public AggregationResponse formatAggregationResult(SearchResponse response, CollectionReference collection, List<Aggregation> aggregationsRequest, int aggTreeDepth, Long startQuery) {
         AggregationResponse aggregationResponse = new AggregationResponse();
         aggregationResponse.totalnb = response.getHits().getTotalHits().value;
         aggregationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
-        return formatAggregationResult((MultiBucketsAggregation) response.getAggregations().asList().get(0), aggregationResponse, collection);
+        return formatAggregationResult((MultiBucketsAggregation) response.getAggregations().asList().get(0), aggregationResponse, collection, aggregationsRequest, aggTreeDepth);
     }
 
-    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse, CollectionReference collection, List<Aggregation> aggregationsRequest, int i) {
+
+    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse, CollectionReference collection, List<Aggregation> aggregationsRequest, int aggTreeDepth) {
         aggregationResponse.name = aggregation.getName();
         if (aggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
             aggregationResponse.sumotherdoccounts = ((Terms) aggregation).getSumOfOtherDocCounts();
         }
-        RawGeometries rawGeometries = aggregationsRequest.size() > i ? aggregationsRequest.get(i).rawGeometries : null;
-        List<AggregatedGeometryEnum> aggregatedGeometries = aggregationsRequest.size() > i ? aggregationsRequest.get(i).aggregatedGeometries : null;
+        RawGeometries rawGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).rawGeometries : null;
+        List<AggregatedGeometryEnum> aggregatedGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).aggregatedGeometries : null;
         aggregationResponse.elements = new ArrayList<AggregationResponse>();
         List<MultiBucketsAggregation.Bucket> buckets = (List<MultiBucketsAggregation.Bucket>) aggregation.getBuckets();
         buckets.forEach(bucket -> {
@@ -591,7 +592,7 @@ public class ExploreServices {
                                 .map(hitsList -> hitsList.stream().map(hit -> hit.getSourceAsMap()).collect(Collectors.toList()))
                                 .orElse(new ArrayList());
                     } else if (Arrays.asList(FluidSearch.DATEHISTOGRAM_AGG, FluidSearch.HISTOGRAM_AGG, FluidSearch.TERM_AGG, FluidSearch.GEOHASH_AGG).contains(subAggregation.getName())) {
-                        subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection, aggregationsRequest, i+1);
+                        subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
                     } else if (isAggregatedGeometry(subAggregation.getName(), aggregatedGeometries)) {
                         subAggregationResponse = null;
                         ReturnedGeometry returnedGeometry = new ReturnedGeometry();
@@ -665,8 +666,8 @@ public class ExploreServices {
                         subAggregationResponse = null;
                         AggregationMetric aggregationMetric = new AggregationMetric();
                         aggregationMetric.type = subAggregation.getName().split(":")[0];
+                        aggregationMetric.field = subAggregation.getName().split(":")[1];
                         if (!aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                            aggregationMetric.field = subAggregation.getName().split(":")[1];
                             aggregationMetric.value = (((NumericMetricsAggregation.SingleValue) subAggregation).value());
                         } else {
                             FeatureCollection fc = new FeatureCollection();
@@ -682,7 +683,6 @@ public class ExploreServices {
                                 feature.setGeometry(g);
                                 fc.add(feature);
                             }
-                            aggregationMetric.field = collection.params.centroidPath;
                             aggregationMetric.value = fc;
                         }
                         element.metrics.add(aggregationMetric);

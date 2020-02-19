@@ -154,6 +154,41 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
+    protected void handleMatchingAggregateWithAggregatedGeometries(ValidatableResponse then, int featuresSize, int nbGeometries, String... geometries) {
+        then
+                .body("elements", hasSize(featuresSize))
+                .body("elements.geometries", everyItem(hasSize(nbGeometries)))
+                .body("elements.geometries.is_raw", everyItem(everyItem(equalTo(false))))
+                .body("elements.geometries.reference", everyItem(everyItem(isOneOf(geometries))));
+    }
+
+    @Override
+    protected void handleMatchingAggregateWithRawGeometries(ValidatableResponse then, int featuresSize, int nbGeometries, String... geometries) {
+        then
+                .body("elements", hasSize(featuresSize))
+                .body("elements.geometries", everyItem(hasSize(nbGeometries)))
+                .body("elements.geometries.is_raw", everyItem(everyItem(equalTo(true))))
+                .body("elements.geometries.reference", everyItem(everyItem(isOneOf(geometries))));
+    }
+
+
+    @Override
+    protected void handleMatchingAggregateWithMixedGeometries(ValidatableResponse then, int featuresSize, int nbGeometries, String... geometries) {
+        then
+                .body("elements", hasSize(featuresSize))
+                .body("elements.geometries", everyItem(hasSize(nbGeometries)))
+                .body("elements.geometries.is_raw", everyItem(everyItem(isOneOf(true, false))))
+                .body("elements.geometries.reference", everyItem(everyItem(isOneOf(geometries))));
+    }
+
+    @Override
+    protected void handleMatchingAggregateWithGeoMetric(ValidatableResponse then, int nbMetrics, String... fields) {
+        then
+                .body("elements.metrics", nbMetrics > 0 ? everyItem(hasSize(nbMetrics)) : everyItem(nullValue()))
+                .body("elements.metrics.field", nbMetrics > 0 ? everyItem(everyItem(isOneOf(fields))) : everyItem(nullValue()));
+    }
+
+    @Override
     protected void handleMatchingAggregateWithFetchedHits(ValidatableResponse then, int featuresSize, int nbhits, String... items) throws Exception {
         then.statusCode(200)
                 .body("elements.size()", equalTo(featuresSize))

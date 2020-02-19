@@ -350,7 +350,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         AggregationTypeEnum mainAggregationType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
         AggregationResponse aggregationResponse = this.getExploreServices()
                 .formatAggregationResult(this.getExploreServices().aggregate(request, collectionReference, true),
-                        collectionReference.collectionName, System.nanoTime());
+                        collectionReference, ((AggregationsRequest) request.basicRequest).aggregations, 0, System.nanoTime());
         fc = toGeoJson(aggregationResponse, mainAggregationType, flat, geohash, precision.map(p->p.intValue()));
         return fc;
     }

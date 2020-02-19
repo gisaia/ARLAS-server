@@ -667,6 +667,47 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
     }
 
     @Test
+    public void testReturnedGeometries() throws Exception {
+        /** this test aim to verify the response structure of aggregations using `aggregated_geometries` and `raw_geometries` parameters**/
+
+        aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.geohash;
+        aggregationRequest.aggregations.get(0).field = "geo_params.centroid";
+        aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
+
+
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.BBOX);
+        handleMatchingAggregateWithAggregatedGeometries(post(aggregationRequest), 32, 1, AggregatedGeometryEnum.BBOX.value());
+        handleMatchingAggregateWithAggregatedGeometries(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-bbox"), 32, 1, AggregatedGeometryEnum.BBOX.value());
+
+
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.BBOX, AggregatedGeometryEnum.CENTROID);
+        handleMatchingAggregateWithAggregatedGeometries(post(aggregationRequest), 32 ,2, AggregatedGeometryEnum.BBOX.value(), AggregatedGeometryEnum.CENTROID.value());
+        handleMatchingAggregateWithAggregatedGeometries(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-bbox,centroid"), 32, 2, AggregatedGeometryEnum.BBOX.value(), AggregatedGeometryEnum.CENTROID.value());
+
+
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = null;
+        aggregationRequest.aggregations.get(0).rawGeometries = new RawGeometries(Arrays.asList("geo_params.geometry", "geo_params.centroid"));
+        handleMatchingAggregateWithRawGeometries(post(aggregationRequest), 32, 2, "geo_params.geometry", "geo_params.centroid");
+        handleMatchingAggregateWithRawGeometries(get("geohash:geo_params.centroid:interval-1:raw_geometries-geo_params.geometry,geo_params.centroid"), 32, 2, "geo_params.geometry", "geo_params.centroid");
+
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.BBOX, AggregatedGeometryEnum.CENTROID);
+        handleMatchingAggregateWithMixedGeometries(post(aggregationRequest), 32, 4,  AggregatedGeometryEnum.BBOX.value(), AggregatedGeometryEnum.CENTROID.value(), "geo_params.geometry", "geo_params.centroid");
+        handleMatchingAggregateWithMixedGeometries(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-bbox,centroid:raw_geometries-geo_params.geometry,geo_params.centroid"), 32, 4,  AggregatedGeometryEnum.BBOX.value(), AggregatedGeometryEnum.CENTROID.value(), "geo_params.geometry", "geo_params.centroid");
+
+        aggregationRequest.aggregations.get(0).rawGeometries = null;
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("geo_params.centroid", CollectionFunction.GEOCENTROID));
+
+        handleMatchingAggregateWithGeoMetric(post(aggregationRequest), 0);
+        handleMatchingAggregateWithGeoMetric(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-bbox,centroid:collect_field-geo_params.centroid:collect_fct-geocentroid"), 0);
+
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("geo_params.other_geopoint", CollectionFunction.GEOCENTROID));
+        handleMatchingAggregateWithGeoMetric(post(aggregationRequest), 1, "geo_params_other_geopoint");
+        handleMatchingAggregateWithGeoMetric(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-bbox,centroid:collect_field-geo_params.centroid:collect_fct-geocentroid:collect_field-geo_params.other_geopoint:collect_fct-geocentroid"), 1, "geo_params_other_geopoint");
+
+    }
+
+    @Test
     public void testMultiAggregate() throws Exception {
         Aggregation aggregationModelSub = new Aggregation();
         aggregationRequest.aggregations.add(aggregationModelSub);
@@ -957,6 +998,14 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
     protected abstract void handleMatchingGeohashAggregateCenter(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
 
     protected abstract void handleMatchingAggregateWithGeometry(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception;
+
+    protected abstract void handleMatchingAggregateWithAggregatedGeometries(ValidatableResponse then, int featuresSize, int nbGeometries, String... geometries);
+
+    protected abstract void handleMatchingAggregateWithRawGeometries(ValidatableResponse then, int featuresSize, int nbGeometries, String... geometries);
+
+    protected abstract void handleMatchingAggregateWithMixedGeometries(ValidatableResponse then, int featuresSize, int nbGeometries, String... geometries);
+
+    protected abstract void handleMatchingAggregateWithGeoMetric(ValidatableResponse then, int nbMetrics, String... fields);
 
     protected abstract void handleMatchingAggregateWithFetchedHits(ValidatableResponse then, int featuresSize, int nbhits, String... items) throws Exception;
 

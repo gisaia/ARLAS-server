@@ -237,7 +237,7 @@ public class AggregateRESTService extends ExploreRESTServices {
     public AggregationResponse getArlasAggregation(MixedRequest request, CollectionReference collectionReference, boolean flat) throws ArlasException, IOException {
         AggregationResponse aggregationResponse = this.getExploreServices()
                 .formatAggregationResult(this.getExploreServices().aggregate(request, collectionReference, false),
-                        collectionReference.collectionName, System.nanoTime());
+                        collectionReference, ((AggregationsRequest) request.basicRequest).aggregations, 0, System.nanoTime());
         return  flat ? flatten(aggregationResponse) : aggregationResponse;
     }
 
