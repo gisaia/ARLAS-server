@@ -546,12 +546,12 @@ public class ExploreServices {
         buckets.forEach(bucket -> {
             AggregationResponse element = new AggregationResponse();
             element.keyAsString = bucket.getKeyAsString();
-            /** if it is a `geohash` aggregation type, we set the GEOHASH_CENTER and GEOHASH aggregated geometries if they're requested **/
+            /** if it is a `geohash` aggregation type, we set the GEOHASHCENTER and GEOHASH aggregated geometries if they're requested **/
             if (aggregationResponse.name.equals(FluidSearch.GEOHASH_AGG)) {
                 GeoPoint geoPoint = getGeohashCentre(element.keyAsString.toString());
                 element.key = geoPoint;
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
-                    aggregatedGeometries.stream().filter(g -> g == AggregatedGeometryEnum.GEOHASH_CENTER || g == AggregatedGeometryEnum.GEOHASH).forEach(g -> {
+                    aggregatedGeometries.stream().filter(g -> g == AggregatedGeometryEnum.GEOHASHCENTER || g == AggregatedGeometryEnum.GEOHASH).forEach(g -> {
                         ReturnedGeometry returnedGeometry = new ReturnedGeometry();
                         returnedGeometry.reference = g.value();
                         returnedGeometry.isRaw = false;

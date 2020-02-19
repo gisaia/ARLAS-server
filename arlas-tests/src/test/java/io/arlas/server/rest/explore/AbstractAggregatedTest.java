@@ -67,7 +67,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingGeohashAggregateCenter(post(aggregationRequest), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
         handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1"), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
 
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.GEOHASH_CENTER);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.GEOHASHCENTER);
         handleMatchingGeohashAggregate(post(aggregationRequest), 32, 16, 25);
         handleMatchingGeohashAggregate(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-geohash_center"), 32, 16, 25);
 

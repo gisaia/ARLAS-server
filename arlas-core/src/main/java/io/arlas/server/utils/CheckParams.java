@@ -32,7 +32,6 @@ import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.model.response.RangeResponse;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
@@ -241,17 +240,17 @@ public class CheckParams {
         if (aggregationModel.aggregatedGeometries != null) {
             List<AggregatedGeometryEnum> geometries = aggregationModel.aggregatedGeometries;
             if (!geometries.isEmpty()) {
-                if ((geometries.contains(AggregatedGeometryEnum.GEOHASH) || geometries.contains(AggregatedGeometryEnum.GEOHASH_CENTER)) && aggregationModel.type != AggregationTypeEnum.geohash) {
+                if ((geometries.contains(AggregatedGeometryEnum.GEOHASH) || geometries.contains(AggregatedGeometryEnum.GEOHASHCENTER)) && aggregationModel.type != AggregationTypeEnum.geohash) {
                     throw new NotAllowedException(AGGREGATED_GEOMETRY_NOT_SUPPORTED);
                 }
                 if (aggregationModel.type == AggregationTypeEnum.geohash && aggregationModel.aggregatedGeometries.isEmpty() && aggregationModel.rawGeometries == null) {
                     aggregationModel.aggregatedGeometries = new ArrayList<>();
-                    aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.GEOHASH_CENTER);
+                    aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.GEOHASHCENTER);
                 }
             }
         } else if (aggregationModel.type == AggregationTypeEnum.geohash && aggregationModel.rawGeometries == null) {
             aggregationModel.aggregatedGeometries = new ArrayList<>();
-            aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.GEOHASH_CENTER);
+            aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.GEOHASHCENTER);
         }
     }
 

@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum AggregatedGeometryEnum {
-    BBOX("bbox"), CENTROID("centroid"), GEOHASH("geohash"), GEOHASH_CENTER("geohash_center");
+    BBOX("bbox"), CENTROID("centroid"), GEOHASH("geohash"), GEOHASHCENTER("geohash_center");
 
     private final String value;
     private static final String INVALID_AGGREGATED_GEOMETRY = "Invalid aggregated geometry `";
@@ -40,7 +40,7 @@ public enum AggregatedGeometryEnum {
     }
     public static AggregatedGeometryEnum fromValue(String v) throws ArlasException {
         for (AggregatedGeometryEnum c: AggregatedGeometryEnum.values()) {
-            if (c.value.equals(v.toLowerCase())) {
+            if (c.value.equals(v.toLowerCase()) || c.name().toLowerCase().equals(v.toLowerCase())) {
                 return c;
             }
         }
