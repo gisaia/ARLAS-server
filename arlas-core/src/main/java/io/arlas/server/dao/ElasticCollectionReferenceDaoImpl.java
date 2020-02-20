@@ -35,6 +35,7 @@ import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ElasticTool;
 import io.arlas.server.utils.StringUtil;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
@@ -138,7 +139,8 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     @Override
     public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException {
-        DeleteResponse response = client.prepareDelete(arlasIndex, "collection", ref).get();
+        DeleteRequest request = new DeleteRequest(arlasIndex, ref);
+        DeleteResponse response = client.delete(request).actionGet();
         if (response.status().equals(RestStatus.NOT_FOUND)) {
             throw new NotFoundException("collection " + ref + " not found.");
         } else if (!response.status().equals(RestStatus.OK)) {

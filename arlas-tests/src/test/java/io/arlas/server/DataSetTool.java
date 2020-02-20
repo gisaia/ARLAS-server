@@ -26,6 +26,7 @@ import io.arlas.server.model.RasterTileURL;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
@@ -131,7 +132,8 @@ public class DataSetTool {
     private static void createIndex(String indexName, String mappingFileName) throws IOException {
         String mapping = IOUtils.toString(new InputStreamReader(DataSetTool.class.getClassLoader().getResourceAsStream(mappingFileName)));
         try {
-            adminClient.indices().prepareDelete(indexName).get();
+            DeleteIndexRequest request = new DeleteIndexRequest(indexName);
+            client.admin().indices().delete(request).actionGet();
         } catch (Exception e) {
         }
         adminClient.indices().prepareCreate(indexName).addMapping(DATASET_TYPE_NAME, mapping, XContentType.JSON).get();
@@ -190,10 +192,10 @@ public class DataSetTool {
 
     public static void clearDataSet() {
         if(!ALIASED_COLLECTION) {
-            adminClient.indices().prepareDelete(DATASET_INDEX_NAME).get();
+            client.admin().indices().delete(new DeleteIndexRequest(DATASET_INDEX_NAME)).actionGet();
         } else {
-            adminClient.indices().prepareDelete(DATASET_INDEX_NAME+"_original").get();
-            adminClient.indices().prepareDelete(DATASET_INDEX_NAME+"_alt").get();
+            client.admin().indices().delete(new DeleteIndexRequest(DATASET_INDEX_NAME+"_original")).actionGet();
+            client.admin().indices().delete(new DeleteIndexRequest(DATASET_INDEX_NAME+"_alt")).actionGet();
         }
     }
 
