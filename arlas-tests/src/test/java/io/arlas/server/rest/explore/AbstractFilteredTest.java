@@ -433,6 +433,19 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
 
+        /** clock-wise WKT*/
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.within, "POLYGON((-170 -2, -170 2, 170 2, 170 -2, -170 -2))")));
+        handleMatchingGeometryFilter(post(request), 33, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 33, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 33, everyItem(startsWith("0,")));
+
+
+        /** counter clock-wise WKT*/
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.within, "POLYGON((-170 -2, 170 -2, 170 2, -170 2, -170 -2))")));
+        handleNotMatchingGwithinFilter(post(request));
+        handleNotMatchingGwithinFilter(get("f", request.filter.f.get(0).get(0).toString()));
+        handleNotMatchingGwithinFilter(header(request.filter));
+
         /** counter clock-wise WKT */
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.within, "POLYGON((-2 -2, 2 -2, 2 2,-2 2, -2 -2))")));
         handleMatchingGeometryFilter(post(request), 34, everyItem(startsWith("0,")));
@@ -599,6 +612,18 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
+
+        /** clock-wise WKT*/
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.intersects, "POLYGON((-170 -2, -170 2, 170 2, 170 -2, -170 -2))")));
+        handleMatchingGeometryFilter(post(request), 35, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 35, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 35, everyItem(startsWith("0,")));
+
+        /** counter clock-wise WKT*/
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.intersects, "POLYGON((-170 -2, 170 -2, 170 2, -170 2, -170 -2))")));
+        handleMatchingGeometryFilter(post(request), 2, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 2, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 2, everyItem(startsWith("0,")));
 
         /** counter clock-wise WKT */
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.intersects, "POLYGON((-2 -2, 2 -2, 2 2,-2 2, -2 -2))")));
