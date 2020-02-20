@@ -37,13 +37,8 @@ import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationMetric;
 import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.ComputationResponse;
-import io.arlas.server.utils.GeoTypeMapper;
-import io.arlas.server.utils.MapExplorer;
-import io.arlas.server.utils.ResponseCacheManager;
-import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.*;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
@@ -53,7 +48,6 @@ import org.elasticsearch.search.aggregations.InternalAggregation;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.*;
-
 import org.geojson.*;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.io.GeohashUtils;
@@ -115,10 +109,6 @@ public class ExploreServices {
 
     public ResponseCacheManager getResponseCacheManager() {
         return responseCacheManager;
-    }
-
-    public SearchRequestBuilder init(CollectionReference collection) {
-        return client.prepareSearch(collection.params.indexName);
     }
 
     public SearchHits count(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {

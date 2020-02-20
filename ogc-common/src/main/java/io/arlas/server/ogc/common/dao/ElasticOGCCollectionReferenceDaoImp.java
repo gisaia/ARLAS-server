@@ -33,12 +33,15 @@ import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
 import io.arlas.server.utils.BoundingBox;
 import io.arlas.server.utils.ElasticTool;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -107,11 +110,12 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
             excludes = new String[]{"include_fields"};
         }
         try {
-            SearchResponse response = client.prepareSearch(arlasIndex)
-                    .setFetchSource(includes, excludes)
-                    .setFrom(from)
-                    .setSize(size)
-                    .setQuery(boolQueryBuilder).get();
+            SearchRequest request = new SearchRequest(arlasIndex);
+            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+            searchSourceBuilder.query(boolQueryBuilder).from(from).size(size)
+                .fetchSource(includes, excludes);
+            request.source(searchSourceBuilder);
+            SearchResponse response = client.search(request).actionGet();
 
             collectionReferences.totalCollectionReferences = response.getHits().getTotalHits().value;
             for (SearchHit hit : response.getHits().getHits()) {
