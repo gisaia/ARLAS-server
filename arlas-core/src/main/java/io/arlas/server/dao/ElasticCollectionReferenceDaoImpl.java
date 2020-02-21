@@ -31,9 +31,11 @@ import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
+import io.arlas.server.model.response.IndexPurgeResult;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ElasticTool;
 import io.arlas.server.utils.StringUtil;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -43,6 +45,7 @@ import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -59,6 +62,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao {
 
@@ -164,6 +168,25 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             collections.invalidate(ref);
             collections.cleanUp();
         }
+    }
+
+    @Override
+    public List<IndexPurgeResult> purgeCollectionReference(String collection, List<String> suffixes) throws ArlasException {
+        String indexPrefix = getCollectionReference(collection).params.indexName;
+        if (!indexPrefix.endsWith("*")) {
+            // we expect the indexName to be of the form "prefix_*", otherwise we can't apply suffixes to it
+            return new ArrayList<>();
+        }
+
+        return suffixes.stream().map(suffix -> {
+            String index = indexPrefix.replace("*", suffix);
+            try {
+                AcknowledgedResponse deleteIndexResponse = client.admin().indices().delete(new DeleteIndexRequest(index)).actionGet();
+                return new IndexPurgeResult(index, deleteIndexResponse.isAcknowledged(), "");
+            } catch (Exception e) {
+                return new IndexPurgeResult(index, false, e.getMessage());
+            }
+        }).collect(Collectors.toList());
     }
 
     private void checkCollectionReferenceParameters(CollectionReference collectionReference) throws ArlasException {

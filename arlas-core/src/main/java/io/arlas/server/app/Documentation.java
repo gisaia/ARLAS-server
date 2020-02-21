@@ -304,12 +304,11 @@ public class Documentation {
     public static final String RANGE_OPERATION = "Calculates the min and max values of a field in the collection, given the filters";
     public static final String RANGE_FIELD = "The field whose range is calculated";
 
-    public static final String TAG_OPERATION=   "Search and tag the elements found in the collection, given the filters (Deprecated)";
-    public static final String UNTAG_OPERATION=   "Search and untag the elements found in the collection, given the filters (Deprecated)";
-
     public static final String COMPUTE_OPERATION = "Computes the given metric on a field in the collection, given the filters";
     public static final String COMPUTE_FIELD = "The field on which the metric is calculated.";
     public static final String COMPUTE_METRIC = "The metric to compute : `max, min, avg, sum, cardinality, spanning, geobbox, geocentroid`.";
+
+    public static final String PURGE_PARAM = "A suffix to be added to the collection underlying index name, in order to get the full index name to delete.";
 
 
 }

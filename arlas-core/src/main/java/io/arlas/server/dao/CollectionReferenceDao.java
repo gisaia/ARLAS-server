@@ -21,6 +21,7 @@ package io.arlas.server.dao;
 
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.response.IndexPurgeResult;
 
 import java.util.List;
 
@@ -28,14 +29,16 @@ import java.util.List;
  * DAO interface for collection references
  */
 public interface CollectionReferenceDao {
-    public void initCollectionDatabase() throws ArlasException;
+    void initCollectionDatabase() throws ArlasException;
 
-    public CollectionReference getCollectionReference(String ref) throws ArlasException;
+    CollectionReference getCollectionReference(String ref) throws ArlasException;
 
-    public List<CollectionReference> getAllCollectionReferences() throws ArlasException;
+    List<CollectionReference> getAllCollectionReferences() throws ArlasException;
 
-    public CollectionReference putCollectionReference(CollectionReference collectionReference)
+    CollectionReference putCollectionReference(CollectionReference collectionReference)
             throws ArlasException;
 
-    public void deleteCollectionReference(String ref) throws ArlasException;
+    void deleteCollectionReference(String ref) throws ArlasException;
+
+    List<IndexPurgeResult> purgeCollectionReference(String collection, List<String> suffixes) throws ArlasException;
 }

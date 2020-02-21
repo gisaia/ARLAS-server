@@ -29,6 +29,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.*;
 import io.arlas.server.model.response.Error;
+import io.arlas.server.model.response.IndexPurgeResult;
 import io.arlas.server.model.response.Success;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ResponseFormatter;
@@ -287,6 +288,51 @@ public abstract class CollectionService extends CollectionRESTServices {
         }
         dao.deleteCollectionReference(collection);
         return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
+    }
+
+    @Timed
+    @Path("{collection}/_purge")
+    @DELETE
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(
+            value = "Purge a collection reference partially",
+            produces = UTF8JSON,
+            notes = "Purge a collection reference partially",
+            consumes = UTF8JSON
+    )
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = IndexPurgeResult.class),
+            @ApiResponse(code = 404, message = "Collection not found.", response = Error.class),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+
+    public Response purge(
+            @ApiParam(
+                    name = "collection",
+                    value = "collection",
+                    allowMultiple = false,
+                    required = true)
+            @PathParam(value = "collection") String collection,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(
+                    name = "suffix",
+                    value = Documentation.PURGE_PARAM,
+                    allowMultiple = true,
+                    required = true)
+            @QueryParam(value = "suffix") List<String> suffixes,
+
+            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
+                    allowMultiple = false,
+                    defaultValue = "false",
+                    required = false)
+            @QueryParam(value = "pretty") Boolean pretty
+    ) throws ArlasException {
+        if (collection != null && collection.equals(META_COLLECTION_NAME)) {
+            throw new NotAllowedException("Forbidden operation on '" + META_COLLECTION_NAME + "'");
+        }
+        return ResponseFormatter.getResultResponse(dao.purgeCollectionReference(collection, suffixes));
     }
 
     private void removeMetacollection(List<CollectionReference> collectionReferences) {
