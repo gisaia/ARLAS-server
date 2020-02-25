@@ -1,0 +1,10 @@
+    <distributionManagement>
+        <snapshotRepository>
+            <id>io.arlas.server.client</id>
+            <url>https://maven.cloudsmith.io/gisaia/public/</url>
+        </snapshotRepository>
+        <repository>
+            <id>io.arlas.server.client</id>
+            <url>https://maven.cloudsmith.io/gisaia/public/</url>
+        </repository>
+    </distributionManagement>

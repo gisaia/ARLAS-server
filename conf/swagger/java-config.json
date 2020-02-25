@@ -1,0 +1,18 @@
+{
+  "modelPackage" : "io.arlas.client.model",
+  "apiPackage"   : "io.arlas.client.api",
+  "groupId" : "io.arlas",
+  "artifactId"  : "arlas-server-client",
+  "artifactDescription": "Explore the ARLAS collections",
+  "artifactVersion": "API_VERSION",
+  "developerName" : "Gisaïa",
+  "developerEmail" : "contact@gisaia.com",
+  "developerOrganization" : "Gisaïa",
+  "developerOrganizationUrl": "https://gisaia.com",
+  "dateLibrary" : "java8",
+  "licenseName": " Apache License Version 2.0",
+  "scmConnection": "scm:git:https://github.com/gisaia/ARLAS-server",
+  "scmDeveloperConnection": "scm:git:https://github.com/gisaia/ARLAS-server",
+  "scmUrl": "https://github.com/gisaia/ARLAS-server",
+  "library": "jersey2"
+}
