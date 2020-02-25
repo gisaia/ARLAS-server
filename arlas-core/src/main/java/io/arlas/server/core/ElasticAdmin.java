@@ -19,7 +19,6 @@
 
 package io.arlas.server.core;
 
-import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.response.CollectionReferenceDescription;
@@ -27,7 +26,6 @@ import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.FilterMatcherUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
@@ -36,6 +34,7 @@ import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -68,16 +67,18 @@ public class ElasticAdmin {
         CollectionReferenceDescription collectionReferenceDescription = new CollectionReferenceDescription();
         collectionReferenceDescription.params = collectionReference.params;
         collectionReferenceDescription.collectionName = collectionReference.collectionName;
-        GetMappingsResponse response;
-        response = client.admin().indices()
-                .prepareGetMappings(collectionReferenceDescription.params.indexName).setTypes(collectionReferenceDescription.params.typeName).get();
-        Iterator<String> indeces = response.getMappings().keysIt();
+
+        GetMappingsRequest request = new GetMappingsRequest();
+        request.indices(collectionReferenceDescription.params.indexName);
+        GetMappingsResponse response = client.admin().indices().getMappings(request).actionGet();
+
+        Iterator<String> indices = response.getMappings().keysIt();
 
         Map<String, CollectionReferenceDescriptionProperty> properties = new HashMap<>();
         Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionReference);
 
-        while(indeces.hasNext()) {
-            String index = indeces.next();
+        while(indices.hasNext()) {
+            String index = indices.next();
             LinkedHashMap fields = (LinkedHashMap) response.getMappings()
                     .get(index).get(collectionReferenceDescription.params.typeName).sourceAsMap().get("properties");
             properties = union(properties, getFromSource(collectionReference, fields, new Stack<>(), excludeFields, columnFilterPredicates));
@@ -156,7 +157,7 @@ public class ElasticAdmin {
         return filteredCollectionReferenceList.map(collectionReference -> describeCollection(collectionReference, columnFilter)).collect(Collectors.toList());
     }
 
-    public List<CollectionReferenceDescription> getAllIndecesAsCollections() throws IOException {
+    public List<CollectionReferenceDescription> getAllIndicesAsCollections() throws IOException {
         List<CollectionReferenceDescription> collections = new ArrayList<CollectionReferenceDescription>();
         ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> indices = client.admin().indices().getMappings(new GetMappingsRequest()).actionGet().getMappings();
         for (Iterator<String> indexNames = indices.keysIt(); indexNames.hasNext(); ) {

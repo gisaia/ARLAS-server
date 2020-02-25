@@ -34,6 +34,8 @@ import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ElasticTool;
 import io.arlas.server.utils.StringUtil;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -95,10 +97,9 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     @Override
     public void initCollectionDatabase() {
-        try {
-            client.admin().indices().prepareGetIndex().setIndices(arlasIndex).get();
+        if (client.admin().indices().exists(new IndicesExistsRequest(arlasIndex)).actionGet().isExists()) {
             ElasticTool.putExtendedMapping(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, this.getClass().getClassLoader().getResourceAsStream(ARLAS_MAPPING_FILE_NAME));
-        } catch (IndexNotFoundException e) {
+        } else {
             ElasticTool.createArlasIndex(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, ARLAS_MAPPING_FILE_NAME);
         }
     }
@@ -182,8 +183,8 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             CheckParams.checkExcludeField(excludeField, fields);
         }
         ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, collectionReference.params.typeName, fields.toArray(new String[fields.size()]));
-        List<String> indeces = ElasticTool.getIndecesName(client, collectionReference.params.indexName, collectionReference.params.typeName);
-        for (String index : indeces) {
+        List<String> indices = ElasticTool.getIndicesName(client, collectionReference.params.indexName, collectionReference.params.typeName);
+        for (String index : indices) {
             setTimestampFormatOfCollectionReference(index, collectionReference.params);
         }
     }
@@ -216,8 +217,12 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
     private void setTimestampFormatOfCollectionReference(String index, CollectionReferenceParameters collectionRefParams) {
         String timestampField = collectionRefParams.timestampPath;
-        String[] timestampFieldArray = {timestampField};
-        GetFieldMappingsResponse response = client.admin().indices().prepareGetFieldMappings(index).setTypes(collectionRefParams.typeName).setFields(timestampFieldArray).get();
+
+        GetFieldMappingsRequest request = new GetFieldMappingsRequest();
+        request.indices(index);
+        request.fields(timestampField);
+        GetFieldMappingsResponse response = client.admin().indices().getFieldMappings(request).actionGet();
+
         GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(index, collectionRefParams.typeName, timestampField);
         if (data != null) {
             String[] fields = timestampField.split("\\.");

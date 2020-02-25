@@ -59,7 +59,7 @@ public class CollectionAutoDiscover extends Task implements Runnable {
     @Override
     public void execute(ImmutableMultimap<String, String> arg0, PrintWriter arg1) throws Exception {
         try {
-            List<CollectionReferenceDescription> discoveredCollections = admin.getAllIndecesAsCollections();
+            List<CollectionReferenceDescription> discoveredCollections = admin.getAllIndicesAsCollections();
             List<CollectionReferenceDescription> existingCollections = null;
             try {
                 existingCollections = admin.describeAllCollections(collectionDao.getAllCollectionReferences(), Optional.empty());
