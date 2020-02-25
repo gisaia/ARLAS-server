@@ -56,7 +56,7 @@ public class ElasticsearchHealthCheck extends HealthCheck {
     private boolean checkElasticsearch() {
         boolean ret = true;
         try {
-            admin.getAllIndecesAsCollections();
+            admin.getAllIndicesAsCollections();
         } catch (Exception e) {
             ret = false;
         }

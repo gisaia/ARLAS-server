@@ -25,8 +25,10 @@ import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.model.RasterTileURL;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.core.util.IOUtils;
-import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
@@ -123,7 +125,7 @@ public class DataSetTool {
             fillIndex(DATASET_INDEX_NAME+"_original",-170,0,-80,80);
             createIndex(DATASET_INDEX_NAME+"_alt","dataset.alternate.mapping.json");
             fillIndex(DATASET_INDEX_NAME+"_alt",10,170,-80,80);
-            adminClient.indices().prepareAliases().addAlias(DATASET_INDEX_NAME+"*",DATASET_INDEX_NAME).get();
+            addAlias(DATASET_INDEX_NAME+"*", DATASET_INDEX_NAME);
             LOGGER.info("Indices created : " + DATASET_INDEX_NAME + "_original," + DATASET_INDEX_NAME + "_alt");
             LOGGER.info("Alias created : " + DATASET_INDEX_NAME);
         }
@@ -136,7 +138,19 @@ public class DataSetTool {
             client.admin().indices().delete(request).actionGet();
         } catch (Exception e) {
         }
-        adminClient.indices().prepareCreate(indexName).addMapping(DATASET_TYPE_NAME, mapping, XContentType.JSON).get();
+        CreateIndexRequest request = new CreateIndexRequest(indexName);
+        request.mapping(DATASET_TYPE_NAME, mapping, XContentType.JSON);
+        adminClient.indices().create(request).actionGet();
+    }
+
+    private static void addAlias(String index, String alias) {
+        IndicesAliasesRequest request = new IndicesAliasesRequest();
+        IndicesAliasesRequest.AliasActions aliasAction =
+                new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
+                        .index(index)
+                        .alias(alias);
+        request.addAliasAction(aliasAction);
+        client.admin().indices().aliases(request).actionGet();
     }
 
     private static void fillIndex(String indexName, int lonMin, int lonMax, int latMin, int latMax) throws JsonProcessingException {
