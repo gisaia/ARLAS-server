@@ -20,9 +20,6 @@
 package io.arlas.server.utils;
 
 import com.neovisionaries.i18n.LanguageAlpha3Code;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
-import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.managers.CollectionReferenceManager;
@@ -34,13 +31,8 @@ import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.model.response.RangeResponse;
 import org.joda.time.format.DateTimeFormat;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.PrecisionModel;
-import org.locationtech.jts.io.WKTReader;
-import org.locationtech.jts.operation.valid.IsValidOp;
-import org.locationtech.jts.operation.valid.TopologyValidationError;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -50,7 +42,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class CheckParams {
 

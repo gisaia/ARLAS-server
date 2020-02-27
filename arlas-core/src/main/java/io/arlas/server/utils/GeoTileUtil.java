@@ -93,10 +93,10 @@ public class GeoTileUtil {
                 for (int i = 0; i< queryGeometry.getNumGeometries(); i++) {
                     Polygon subGeometry = (Polygon) queryGeometry.getGeometryN(i);
                     // Validity of the WKT is already checked in getValidGeoFilters
-                    List<Polygon> subGeometries = GeoUtil.splitGeometryOnDateline(subGeometry)._1();
+                    List<Polygon> subGeometries = GeoUtil.splitPolygon(subGeometry)._1();
                     subGeometries.forEach(geometry -> {
                         Geometry intersectionGeometry = geometry.intersection(bboxGeometry);
-                        if (!intersectionGeometry.toString().equals("POLYGON EMPTY")) {
+                        if (!GeoUtil.isPolygonEmpty(intersectionGeometry)) {
                             /** we only consider geometries that intersects the bbox as a Polygon**/
                             if (intersectionGeometry.getGeometryType().equals("Polygon")) {
                                 intersections.add(intersectionGeometry);

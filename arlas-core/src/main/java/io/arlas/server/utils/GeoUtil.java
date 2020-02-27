@@ -37,6 +37,7 @@ public class GeoUtil {
 
     public static final String INVALID_WKT_RANGE = "Invalid geometry. Coordinates must be contained in the Envelope -360, 360, -180, 180";
     public static final String INVALID_WKT = "Invalid geometry ";
+    public static final String POLYGON_EMPTY = "POLYGON EMPTY";
     /**
      *
      * @param bbox 'west,south,east,north'
@@ -167,23 +168,29 @@ public class GeoUtil {
     }
 
     /**
-     *
-     * @param polygon CW oriented geometry
-     * @return List of geometries with longitudes between -180 and 180 and a join of thoses geometries in a MultiPolygon
+     * Splits the CW oriented polygon into a list of polygons with longitudes between -180 and 180 and with a longitude extent <= 180
+     * @param polygon CW oriented polygon
+     * @return The list of polygons and a join of these polygons in a MultiPolygon as a Tuple
      * @throws ArlasException
      */
-    public static Tuple2<List<Polygon>, Geometry> splitGeometryOnDateline(Polygon polygon) throws ArlasException {
+    public static Tuple2<List<Polygon>, Geometry> splitPolygon(Polygon polygon) throws ArlasException {
         Envelope envelope = polygon.getEnvelopeInternal();
         List<Polygon> geometries = new ArrayList<>();
         double envelopeEast = envelope.getMaxX();
         double envelopeWest = envelope.getMinX();
+        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+        Geometry middleWest = geometryFactory.toGeometry(new Envelope(-180, 0, -90, 90));
+        Geometry middleEast = geometryFactory.toGeometry(new Envelope(0, 180, -90, 90));
         if (envelopeEast <= 180 && envelopeWest >= -180) {
             /** longitudes between -180 and 180**/
-            geometries.add(polygon);
+            if ((envelopeEast - envelopeWest) > 180) {
+                geometries = Arrays.asList(middleWest.intersection(polygon), middleEast.intersection(polygon))
+                        .stream().filter(g ->!isPolygonEmpty(g) && CheckParams.isPolygon(g)).map(g -> (Polygon)g).collect(Collectors.toList());
+            } else {
+                geometries.add(polygon);
+            }
             return new Tuple2(geometries, polygon);
         } else {
-            GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
-            Geometry middle = geometryFactory.toGeometry(new Envelope(-180, 180, -90, 90));
             Geometry left = geometryFactory.toGeometry(new Envelope(-360, -180, -90, 90));
             Geometry right = geometryFactory.toGeometry(new Envelope(180, 360, -90, 90));
             if (envelopeWest >= 180 || envelopeEast <= -180) {
@@ -192,17 +199,20 @@ public class GeoUtil {
                 return new Tuple2(geometries, polygon);
             } else if (envelopeEast > 180) {
                 /**  west is between -180 and 180 & east is beyond 180*/
-                Polygon[] polygons = {(Polygon)middle.intersection(polygon), (Polygon)toCanonicalLongitudes(right.intersection(polygon))};
-                geometries.add(polygons[0]);
-                geometries.add(polygons[1]);
-                return new Tuple2<>(geometries, new MultiPolygon(polygons,geometryFactory));
+                geometries = Arrays.asList(middleWest.intersection(polygon), middleEast.intersection(polygon), toCanonicalLongitudes(right.intersection(polygon)))
+                        .stream().filter(g ->!isPolygonEmpty(g) && CheckParams.isPolygon(g)).map(g -> (Polygon)g).collect(Collectors.toList());
+                return new Tuple2<>(geometries, new MultiPolygon(geometries.stream().toArray(Polygon[]::new),geometryFactory));
             } else if (envelopeWest < -180) {
                 /**  west is between -360 and -180 & east is between -180 and 180*/
-                Polygon[] polygons = {(Polygon)middle.intersection(polygon), (Polygon)toCanonicalLongitudes(left.intersection(polygon))};
-                geometries.add(polygons[0]);
-                geometries.add(polygons[1]);
-                return new Tuple2<>(geometries, new MultiPolygon(polygons,geometryFactory));            }
+                geometries = new ArrayList<>(Arrays.asList(middleWest.intersection(polygon), middleEast.intersection(polygon), toCanonicalLongitudes(left.intersection(polygon)))
+                        .stream().filter(g ->!isPolygonEmpty(g) && CheckParams.isPolygon(g)).map(g -> (Polygon)g).collect(Collectors.toList()));
+                return new Tuple2<>(geometries, new MultiPolygon(geometries.stream().toArray(Polygon[]::new),geometryFactory));
+            }
         }
         return new Tuple2(geometries, polygon);
+    }
+
+    public static boolean isPolygonEmpty(Geometry geometry) {
+       return POLYGON_EMPTY.equals(geometry.toString());
     }
 }

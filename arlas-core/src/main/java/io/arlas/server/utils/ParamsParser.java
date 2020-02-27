@@ -282,7 +282,7 @@ public class ParamsParser {
 
                     if (GEO_OP.contains(OperatorEnum.valueOf(operands[1]))) {
                         boolean isPwithin = isPwithin(collectionReference, operands[0], operands[1]);
-                        value = getValidGeometry(value, isPwithin);
+                        value = getValidGeometry(value);
                         if (isPwithin && tileBbox != null){
                             Geometry simplifiedGeometry = GeoTileUtil.bboxIntersects(tileBbox, value);
                             if (simplifiedGeometry != null) {
@@ -353,13 +353,12 @@ public class ParamsParser {
     public static Expression getValidGeoFilter(CollectionReference collectionReference, Expression expression) throws ArlasException {
         intersectsToWithin(collectionReference, expression);
         if (GEO_OP.contains(expression.op)) {
-            boolean isPwithin = isPwithin(collectionReference, expression.field, expression.op.name());
-            expression.value = getValidGeometry(expression.value, isPwithin);
+            expression.value = getValidGeometry(expression.value);
         }
         return expression;
     }
 
-    public static String getValidGeometry(String geo, boolean isPwithin) throws ArlasException{
+    public static String getValidGeometry(String geo) throws ArlasException{
         if (CheckParams.isBboxMatch(geo)) {
             CheckParams.checkBbox(geo);
             return geo;
@@ -398,24 +397,9 @@ public class ParamsParser {
                         if (err != null) {
                             throw new InvalidParameterException("A Polygon of the given WKT is right oriented. Unable to reverse the orientation of the polygon : " + err);
                         }
-                        if (isPwithin) {
-                            /** split the polygon if it crosses the dateline */
-                            polygonList.addAll(GeoUtil.splitGeometryOnDateline((Polygon) GeoUtil.readWKT(tmpGeometry.toString()))._1());
-                        } else {
-                            polygonList.add(tmpGeometry);
-                        }
+                        polygonList.addAll(GeoUtil.splitPolygon((Polygon) GeoUtil.readWKT(tmpGeometry.toString()))._1());
                     } else {
-                        Envelope e = subWkt.getEnvelopeInternal();
-                        double west = e.getMinX();
-                        double east = e.getMaxX();
-                        if ((east - west) == 360) {
-                            if (west < -180) {
-                                GeoUtil.translateLongitudes(subWkt, -west - 180, true);
-                            } else if (east > 180) {
-                                GeoUtil.translateLongitudes(subWkt, east - 180, false);
-                            }
-                        }
-                        polygonList.add(subWkt);
+                        polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1());
                     }
                 }
                 if (polygonList.size() == 1) {
