@@ -21,7 +21,6 @@ ARLAS can run as a docker container. A rich set of properties of the configurati
 ```shell
 docker run -ti -d \
    --name arlas-server \
-   -e "ARLAS_ELASTIC_CLUSTER=my-own-cluster" \
    gisaia/arlas-server:latest
 ```
 
@@ -84,6 +83,7 @@ docker run -ti -d \
 | ARLAS_ELASTIC_ENABLE_SSL  | elastic-enable-ssl  | false          | use SSL to connect to elasticsearch |
 | ARLAS_ELASTIC_CREDENTIALS | elastic-credentials | user:password  | credentials to connect to elasticsearch |
 | ARLAS_ELASTIC_COMPRESS    | elastic-compress    | true           | transport.compress parameter of the elasticsearch connection |
+| ARLAS_ELASTIC_SKIP_MASTER | elastic-skip-master | true           | Skip dedicated master in Rest client |
 
 !!! note 
     (*) Note that the IP addresses the sniffer connects to are the ones declared as the publish address in those node’s Elasticsearch config.
