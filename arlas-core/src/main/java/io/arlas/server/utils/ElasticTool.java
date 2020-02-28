@@ -20,12 +20,18 @@
 package io.arlas.server.utils;
 
 import com.fasterxml.jackson.databind.ObjectReader;
+import io.arlas.server.app.ElasticConfiguration;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -37,7 +43,11 @@ import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.*;
+import org.elasticsearch.client.sniff.ElasticsearchNodesSniffer;
+import org.elasticsearch.client.sniff.NodesSniffer;
+import org.elasticsearch.client.sniff.SniffOnFailureListener;
+import org.elasticsearch.client.sniff.Sniffer;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.joda.Joda;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -55,6 +65,45 @@ public class ElasticTool {
 
     private static final String ES_DATE_TYPE = "date";
     private static final String ES_TYPE = "type";
+
+    public static RestHighLevelClient getRestHighLevelClient(ElasticConfiguration conf) {
+        // disable JVM default policies of caching positive hostname resolutions indefinitely
+        // because the Elastic load balancer can change IP addresses
+        java.security.Security.setProperty("networkaddress.cache.ttl" , "60");
+
+        RestClientBuilder restClientBuilder = RestClient.builder(conf.getElasticNodes());
+        if (conf.elasticSkipMaster) {
+            restClientBuilder.setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS);
+        }
+
+        // Authentication needed ?
+        if (!StringUtil.isNullOrEmpty(conf.elasticCredentials)) {
+            String[] credentials = conf.getCredentials();
+            final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(credentials[0], credentials[1]));
+
+            restClientBuilder.setHttpClientConfigCallback(
+                    httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+        }
+
+        RestHighLevelClient client = new RestHighLevelClient(restClientBuilder);
+
+        // Sniffing should be disabled with Elasticsearch Service (cloud)
+        if (conf.elasticsniffing) {
+            SniffOnFailureListener sniffOnFailureListener = new SniffOnFailureListener();
+            restClientBuilder.setFailureListener(sniffOnFailureListener);
+            NodesSniffer nodesSniffer = new ElasticsearchNodesSniffer(
+                    client.getLowLevelClient(),
+                    ElasticsearchNodesSniffer.DEFAULT_SNIFF_REQUEST_TIMEOUT,
+                    conf.elasticEnableSsl ? ElasticsearchNodesSniffer.Scheme.HTTPS : ElasticsearchNodesSniffer.Scheme.HTTP);
+            Sniffer sniffer = Sniffer.builder(client.getLowLevelClient())
+                    .setSniffAfterFailureDelayMillis(30000)
+                    .setNodesSniffer(nodesSniffer).build();
+            sniffOnFailureListener.setSniffer(sniffer);
+        }
+
+        return client;
+    }
 
     public static CreateIndexResponse createArlasIndex(Client client, String arlasIndexName, String arlasMappingName, String arlasMappingFileName)  {
         CreateIndexResponse createIndexResponse = null;

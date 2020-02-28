@@ -59,23 +59,34 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("swagger")
     public SwaggerBundleConfiguration swaggerBundleConfiguration;
 
+    // ES configuration to be migrated to dedicated block
+    @Deprecated
     @JsonProperty("elastic-nodes")
     public String elasticnodes;
 
+    @Deprecated
     @JsonProperty("elastic-sniffing")
     public Boolean elasticsniffing;
 
+    @Deprecated
     @JsonProperty("elastic-cluster")
     public String elasticcluster;
 
+    @Deprecated
     @JsonProperty("elastic-enable-ssl")
     public Boolean elasticEnableSsl;
 
+    @Deprecated
     @JsonProperty("elastic-credentials")
     public String elasticCredentials;
 
+    @Deprecated
     @JsonProperty("elastic-compress")
     public Boolean elasticCompress;
+
+    // New way of configuring ES
+    @JsonProperty("elastic")
+    public ElasticConfiguration elasticConfiguration;
 
     @JsonProperty("arlas-index")
     public String arlasindex;
@@ -144,9 +155,16 @@ public class ArlasServerConfiguration extends Configuration {
     }
 
     public void check() throws ArlasConfigurationException {
-        if (getElasticNodes().isEmpty()) {
-            throw new ArlasConfigurationException("Elastic search configuration missing in config file.");
+        if (elasticConfiguration == null) {
+            elasticConfiguration = new ElasticConfiguration();
+            elasticConfiguration.elasticnodes = elasticnodes;
+            elasticConfiguration.elasticsniffing = elasticsniffing;
+            elasticConfiguration.elasticEnableSsl = elasticEnableSsl;
+            elasticConfiguration.elasticCredentials = elasticCredentials;
         }
+
+        elasticConfiguration.check();
+
         if (zipkinConfiguration == null) {
             throw new ArlasConfigurationException("Zipkin configuration missing in config file.");
         }
