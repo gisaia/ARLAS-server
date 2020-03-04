@@ -20,19 +20,21 @@
 package io.arlas.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.DublinCoreElementName;
+import io.arlas.server.model.Inspire;
 import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.MultiValueFilter;
-import io.arlas.server.model.*;
 import org.junit.Test;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Arrays;
+
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 
@@ -41,7 +43,7 @@ public class CollectionTool extends AbstractTestContext {
     public static String COLLECTION_NAME = "geodata";
     public static String COLLECTION_NAME_ACTOR = "geodata_actor";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ArlasException {
         switch (args[0]) {
             case "load":
                 new CollectionTool().load();
@@ -60,11 +62,11 @@ public class CollectionTool extends AbstractTestContext {
     }
 
     @Test
-    public  void load() {
+    public  void load() throws ArlasException {
         this.load(0);
     }
 
-    public  void load(long sleepAfter) {
+    public  void load(long sleepAfter) throws ArlasException {
 
         try {
             DataSetTool.loadDataSet();
@@ -123,6 +125,8 @@ public class CollectionTool extends AbstractTestContext {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ArlasException e) {
             e.printStackTrace();
         }
 

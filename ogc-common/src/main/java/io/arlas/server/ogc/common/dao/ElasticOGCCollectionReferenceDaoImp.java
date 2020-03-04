@@ -32,10 +32,10 @@ import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
 import io.arlas.server.utils.BoundingBox;
+import io.arlas.server.utils.ElasticClient;
 import io.arlas.server.utils.ElasticTool;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -44,10 +44,11 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferenceDao {
 
-    Client client;
+    ElasticClient client;
     String arlasIndex;
     Service service;
 
@@ -61,7 +62,7 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
         reader = mapper.readerFor(CollectionReferenceParameters.class);
     }
 
-    public ElasticOGCCollectionReferenceDaoImp(Client client, String index, Service service) {
+    public ElasticOGCCollectionReferenceDaoImp(ElasticClient client, String index, Service service) {
         this.client = client;
         this.arlasIndex = index;
         this.service = service;
@@ -92,7 +93,7 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
 
     @Override
     public CollectionReferences getAllCollectionReferencesExceptOne(String[] includes, String[] excludes, int size, int from,
-                                                                  CollectionReference collectionReferenceToRemove) throws ArlasException, IOException {
+                                                                  CollectionReference collectionReferenceToRemove) throws ArlasException {
 
         BoolQueryBuilder ogcBoolQuery = QueryBuilders.boolQuery();
         ogcBoolQuery.filter(QueryBuilders.boolQuery().mustNot(QueryBuilders.matchQuery("dublin_core_element_name.identifier", collectionReferenceToRemove.params.dublinCoreElementName.identifier)));
@@ -105,7 +106,9 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
 
         //Exclude old include_fields for support old collection
         if (excludes != null) {
-            excludes[excludes.length + 1] = "include_fields";
+            String[] copy = Arrays.copyOf(excludes, excludes.length + 1);
+            copy[excludes.length] = "include_fields";
+            excludes = copy;
         } else {
             excludes = new String[]{"include_fields"};
         }
@@ -115,7 +118,7 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
             searchSourceBuilder.query(boolQueryBuilder).from(from).size(size)
                 .fetchSource(includes, excludes);
             request.source(searchSourceBuilder);
-            SearchResponse response = client.search(request).actionGet();
+            SearchResponse response = client.search(request);
 
             collectionReferences.totalCollectionReferences = response.getHits().getTotalHits().value;
             for (SearchHit hit : response.getHits().getHits()) {

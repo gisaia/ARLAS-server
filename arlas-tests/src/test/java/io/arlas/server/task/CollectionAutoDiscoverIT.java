@@ -42,12 +42,15 @@ public class CollectionAutoDiscoverIT extends AbstractTestWithDataSet {
             when().post(getUrlPath("collection-auto-discover"))
                     .then().statusCode(200);
 
-            // GET collection
+            // GET collection with type name
             when().get(arlasPath + "collections/" + DataSetTool.DATASET_INDEX_NAME + "-" + DataSetTool.DATASET_TYPE_NAME)
+                    .then().statusCode(404);
+
+            // GET collection without type name
+            when().get(arlasPath + "collections/" + DataSetTool.DATASET_INDEX_NAME)
                     .then().statusCode(200)
-                    .body("collection_name", equalTo(DataSetTool.DATASET_INDEX_NAME + "-" + DataSetTool.DATASET_TYPE_NAME))
+                    .body("collection_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
                     .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
-                    .body("params.type_name", equalTo(DataSetTool.DATASET_TYPE_NAME))
                     .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
                     .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
                     .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
@@ -62,7 +65,7 @@ public class CollectionAutoDiscoverIT extends AbstractTestWithDataSet {
             getAllCollections(hasSize(1));
 
             // DELETE collection
-            when().delete(arlasPath + "collections/" + DataSetTool.DATASET_INDEX_NAME + "-" + DataSetTool.DATASET_TYPE_NAME)
+            when().delete(arlasPath + "collections/" + DataSetTool.DATASET_INDEX_NAME)
                     .then().statusCode(200);
         }
     }

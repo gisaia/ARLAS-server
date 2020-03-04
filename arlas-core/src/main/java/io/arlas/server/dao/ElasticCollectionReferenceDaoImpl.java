@@ -32,22 +32,17 @@ import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.ElasticClient;
 import io.arlas.server.utils.ElasticTool;
 import io.arlas.server.utils.StringUtil;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
-import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.client.indices.GetFieldMappingsResponse;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -65,7 +60,7 @@ import java.util.concurrent.TimeUnit;
 public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao {
 
 
-    Client client = null;
+    ElasticClient client = null;
     String arlasIndex = null;
     private static LoadingCache<String, CollectionReference> collections = null;
     private static ObjectMapper mapper;
@@ -80,7 +75,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         reader = mapper.readerFor(CollectionReferenceParameters.class);
     }
 
-    public ElasticCollectionReferenceDaoImpl(Client client, String arlasIndex, int arlasCacheSize, int arlasCacheTimeout) {
+    public ElasticCollectionReferenceDaoImpl(ElasticClient client, String arlasIndex, int arlasCacheSize, int arlasCacheTimeout) {
         super();
         this.client = client;
         this.arlasIndex = arlasIndex;
@@ -89,15 +84,15 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 .expireAfterWrite(arlasCacheTimeout, TimeUnit.SECONDS)
                 .build(
                         new CacheLoader<String, CollectionReference>() {
-                            public CollectionReference load(String ref) throws ArlasException {
+                            public CollectionReference load(String ref) throws ArlasException, IOException {
                                 return ElasticTool.getCollectionReferenceFromES(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, reader, ref);
                             }
                         });
     }
 
     @Override
-    public void initCollectionDatabase() {
-        if (client.admin().indices().exists(new IndicesExistsRequest(arlasIndex)).actionGet().isExists()) {
+    public void initCollectionDatabase() throws ArlasException {
+        if (client.indexExists(arlasIndex)) {
             ElasticTool.putExtendedMapping(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, this.getClass().getClassLoader().getResourceAsStream(ARLAS_MAPPING_FILE_NAME));
         } else {
             ElasticTool.createArlasIndex(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, ARLAS_MAPPING_FILE_NAME);
@@ -127,7 +122,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                     .query(qb).size(100);// max of 100 hits will be returned for each scroll
             request.source(searchSourceBuilder);
             request.scroll(new TimeValue(60000));
-            SearchResponse scrollResp = client.search(request).actionGet();
+            SearchResponse scrollResp = client.search(request);
             do {
                 for (SearchHit hit : scrollResp.getHits().getHits()) {
                     String source = hit.getSourceAsString();
@@ -139,13 +134,13 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 }
                 SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollResp.getScrollId());
                 scrollRequest.scroll(new TimeValue(60000));
-                scrollResp = client.searchScroll(scrollRequest).actionGet();
+                scrollResp = client.searchScroll(scrollRequest);
             }
             while (scrollResp.getHits().getHits().length != 0); // Zero hits mark the end of the scroll and the while loop.
 
             ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
             clearScrollRequest.addScrollId(scrollResp.getScrollId());
-            client.clearScroll(clearScrollRequest).actionGet();
+            client.clearScroll(clearScrollRequest);
         } catch (IndexNotFoundException e) {
             throw new InternalServerErrorException("Unreachable collections", e);
         }
@@ -153,9 +148,8 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     }
 
     @Override
-    public void deleteCollectionReference(String ref) throws NotFoundException, InternalServerErrorException {
-        DeleteRequest request = new DeleteRequest(arlasIndex, ref);
-        DeleteResponse response = client.delete(request).actionGet();
+    public void deleteCollectionReference(String ref) throws ArlasException {
+        DeleteResponse response = client.delete(arlasIndex, ref);
         if (response.status().equals(RestStatus.NOT_FOUND)) {
             throw new NotFoundException("collection " + ref + " not found.");
         } else if (!response.status().equals(RestStatus.OK)) {
@@ -194,9 +188,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         checkCollectionReferenceParameters(collectionReference);
         IndexResponse response = null;
         try {
-            IndexRequest request = new IndexRequest(arlasIndex).id(collectionReference.collectionName);
-            request.source(mapper.writeValueAsString(collectionReference.params), XContentType.JSON);
-            response = client.index(request).actionGet();
+            response = client.index(arlasIndex, collectionReference.collectionName, mapper.writeValueAsString(collectionReference.params));
         } catch (JsonProcessingException e) {
             new InternalServerErrorException("Can not put collection " + collectionReference.collectionName, e);
         }
@@ -215,15 +207,12 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
 
 
 
-    private void setTimestampFormatOfCollectionReference(String index, CollectionReferenceParameters collectionRefParams) {
+    private void setTimestampFormatOfCollectionReference(String index, CollectionReferenceParameters collectionRefParams) throws ArlasException {
         String timestampField = collectionRefParams.timestampPath;
 
-        GetFieldMappingsRequest request = new GetFieldMappingsRequest();
-        request.indices(index);
-        request.fields(timestampField);
-        GetFieldMappingsResponse response = client.admin().indices().getFieldMappings(request).actionGet();
+        GetFieldMappingsResponse response = client.getFieldMapping(index, timestampField);
 
-        GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(index, collectionRefParams.typeName, timestampField);
+        GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(index, timestampField);
         if (data != null) {
             String[] fields = timestampField.split("\\.");
             String field = fields[fields.length - 1];

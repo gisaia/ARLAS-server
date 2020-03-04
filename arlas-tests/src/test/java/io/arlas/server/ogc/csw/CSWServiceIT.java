@@ -22,6 +22,7 @@ package io.arlas.server.ogc.csw;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.AbstractTestWithCollection;
 import io.arlas.server.CollectionTool;
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.DublinCoreElementName;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
@@ -50,7 +51,7 @@ public class CSWServiceIT extends AbstractTestWithCollection {
     }
 
     @BeforeClass
-    public static void beforeClass() throws IOException {
+    public static void beforeClass() throws ArlasException, IOException {
         InputStreamReader dcelementForCollection = new InputStreamReader(CollectionTool.class.getClassLoader().getResourceAsStream("csw.collection.dcelements.json"));
         dcelements = new ObjectMapper().readValue(dcelementForCollection, DublinCoreElementName[].class);
 

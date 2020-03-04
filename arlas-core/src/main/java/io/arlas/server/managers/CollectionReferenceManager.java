@@ -24,11 +24,10 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.utils.ElasticClient;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
-import org.elasticsearch.client.Client;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,7 +45,7 @@ public class CollectionReferenceManager {
         map = new ConcurrentHashMap<>();
     }
 
-    public void init(Client client) {
+    public void init(ElasticClient client) {
         this.elasticAdmin = new ElasticAdmin(client);
     }
 

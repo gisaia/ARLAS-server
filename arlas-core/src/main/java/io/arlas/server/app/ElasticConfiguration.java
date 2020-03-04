@@ -53,7 +53,7 @@ public class ElasticConfiguration {
         }
     }
 
-    public String[] getCredentials() {
+    public static String[] getCredentials(String elasticCredentials) {
         return elasticCredentials.indexOf(":") != -1 ?
                 new String[]{ elasticCredentials.substring(0, elasticCredentials.indexOf(":")),
                         elasticCredentials.substring(elasticCredentials.indexOf(":") + 1) } :

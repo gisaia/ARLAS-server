@@ -27,36 +27,31 @@ import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.logging.log4j.core.util.IOUtils;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
-import org.elasticsearch.client.*;
+import org.elasticsearch.client.NodeSelector;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.CreateIndexResponse;
+import org.elasticsearch.client.indices.GetFieldMappingsResponse;
 import org.elasticsearch.client.sniff.ElasticsearchNodesSniffer;
 import org.elasticsearch.client.sniff.NodesSniffer;
 import org.elasticsearch.client.sniff.SniffOnFailureListener;
 import org.elasticsearch.client.sniff.Sniffer;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.joda.Joda;
-import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.IndexNotFoundException;
-import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,19 +61,31 @@ public class ElasticTool {
     private static final String ES_DATE_TYPE = "date";
     private static final String ES_TYPE = "type";
 
-    public static RestHighLevelClient getRestHighLevelClient(ElasticConfiguration conf) {
+    public static ImmutablePair<RestHighLevelClient, Sniffer> getRestHighLevelClient(ElasticConfiguration conf) {
+        return ElasticTool.getRestHighLevelClient(conf.getElasticNodes(),
+                conf.elasticEnableSsl,
+                conf.elasticCredentials,
+                conf.elasticSkipMaster,
+                conf.elasticsniffing);
+    }
+    public static ImmutablePair<RestHighLevelClient, Sniffer> getRestHighLevelClient(HttpHost[] nodes,
+                                                                            boolean ssl,
+                                                                            String cred,
+                                                                            boolean skipMaster,
+                                                                            boolean sniffing) {
         // disable JVM default policies of caching positive hostname resolutions indefinitely
         // because the Elastic load balancer can change IP addresses
         java.security.Security.setProperty("networkaddress.cache.ttl" , "60");
+        java.security.Security.setProperty("networkaddress.cache.negative.ttl" , "0");
 
-        RestClientBuilder restClientBuilder = RestClient.builder(conf.getElasticNodes());
-        if (conf.elasticSkipMaster) {
+        RestClientBuilder restClientBuilder = RestClient.builder(nodes);
+        if (skipMaster) {
             restClientBuilder.setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS);
         }
 
         // Authentication needed ?
-        if (!StringUtil.isNullOrEmpty(conf.elasticCredentials)) {
-            String[] credentials = conf.getCredentials();
+        if (!StringUtil.isNullOrEmpty(cred)) {
+            String[] credentials = ElasticConfiguration.getCredentials(cred);
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(credentials[0], credentials[1]));
 
@@ -89,115 +96,90 @@ public class ElasticTool {
         RestHighLevelClient client = new RestHighLevelClient(restClientBuilder);
 
         // Sniffing should be disabled with Elasticsearch Service (cloud)
-        if (conf.elasticsniffing) {
+        Sniffer sniffer = null;
+        if (sniffing) {
             SniffOnFailureListener sniffOnFailureListener = new SniffOnFailureListener();
             restClientBuilder.setFailureListener(sniffOnFailureListener);
             NodesSniffer nodesSniffer = new ElasticsearchNodesSniffer(
                     client.getLowLevelClient(),
                     ElasticsearchNodesSniffer.DEFAULT_SNIFF_REQUEST_TIMEOUT,
-                    conf.elasticEnableSsl ? ElasticsearchNodesSniffer.Scheme.HTTPS : ElasticsearchNodesSniffer.Scheme.HTTP);
-            Sniffer sniffer = Sniffer.builder(client.getLowLevelClient())
+                    ssl ? ElasticsearchNodesSniffer.Scheme.HTTPS : ElasticsearchNodesSniffer.Scheme.HTTP);
+            sniffer = Sniffer.builder(client.getLowLevelClient())
                     .setSniffAfterFailureDelayMillis(30000)
                     .setNodesSniffer(nodesSniffer).build();
             sniffOnFailureListener.setSniffer(sniffer);
         }
 
-        return client;
+        return new ImmutablePair<>(client, sniffer);
     }
 
-    public static CreateIndexResponse createArlasIndex(Client client, String arlasIndexName, String arlasMappingName, String arlasMappingFileName)  {
-        CreateIndexResponse createIndexResponse = null;
+    public static CreateIndexResponse createArlasIndex(ElasticClient client,
+                                                       String arlasIndexName,
+                                                       String arlasMappingName,
+                                                       String arlasMappingFileName) throws ArlasException {
         try {
             String arlasMapping = IOUtils.toString(new InputStreamReader(ElasticTool.class.getClassLoader().getResourceAsStream(arlasMappingFileName)));
-            CreateIndexRequest request = new CreateIndexRequest(arlasIndexName);
-            request.mapping(arlasMappingName, arlasMapping, XContentType.JSON);
-            createIndexResponse = client.admin().indices().create(request).actionGet();
+            return client.createIndex(arlasIndexName, arlasMapping);
         } catch (IOException e) {
-            new InternalServerErrorException("Can not initialize the collection database", e);
+            throw new InternalServerErrorException(e.getMessage());
         }
-        return createIndexResponse;
     }
 
-    public static AcknowledgedResponse putExtendedMapping(Client client, String arlasIndexName, String arlasMappingName, InputStream in) {
-        AcknowledgedResponse putMappingResponse = null;
+    public static AcknowledgedResponse putExtendedMapping(ElasticClient client,
+                                                          String arlasIndexName,
+                                                          String arlasMappingName,
+                                                          InputStream in) throws ArlasException {
         try {
             String arlasMapping = IOUtils.toString(new InputStreamReader(in));
-            PutMappingRequest request = new PutMappingRequest(arlasIndexName);
-            request.source(arlasMapping, XContentType.JSON);
-            request.type(arlasMappingName);
-            putMappingResponse = client.admin().indices().putMapping(request).actionGet();
+            return client.putMapping(arlasIndexName, arlasMapping);
         } catch (IOException e) {
-            new InternalServerErrorException("Cannot update " + arlasIndexName + " mapping");
+            throw new InternalServerErrorException(e.getMessage());
         }
-        return putMappingResponse;
     }
 
-    public static boolean checkIndexMappingFields(Client client, String index, String typeName, String... fields) throws ArlasException {
-        GetFieldMappingsRequest request = new GetFieldMappingsRequest();
-        request.indices(index);
-        request.fields(fields);
-        GetFieldMappingsResponse response = client.admin().indices().getFieldMappings(request).actionGet();
+    public static boolean checkIndexMappingFields(ElasticClient client,
+                                                  String index,
+                                                  String typeName,
+                                                  String... fields) throws ArlasException {
+        GetFieldMappingsResponse response = client.getFieldMapping(index, fields);
         for (String field : fields) {
-            GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(index, typeName, field);
-            if (data == null || data.isNull()) {
-                throw new NotFoundException("Unable to find " + field + " from " + typeName + " in " + index + ".");
+            GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(index, field);
+            if (data == null || data.sourceAsMap().isEmpty()) {
+                throw new NotFoundException("Unable to find " + field + " in " + index + ".");
             }
         }
         return true;
     }
 
-    public static boolean checkAliasMappingFields(Client client, String alias, String typeName, String... fields) throws ArlasException {
+    public static boolean checkAliasMappingFields(ElasticClient client,
+                                                  String alias,
+                                                  String typeName,
+                                                  String... fields) throws ArlasException {
         List<String> indices = ElasticTool.getIndicesName(client, alias, typeName);
         for (String index : indices) { checkIndexMappingFields(client, index, typeName, fields); }
         return true;
     }
 
-    public static List<String> getIndicesName(Client client, String alias, String typeName) throws ArlasException {
-        GetMappingsResponse response;
-        try {
-            GetMappingsRequest request = new GetMappingsRequest();
-            request.indices(alias);
-            response = client.admin().indices().getMappings(request).actionGet();
-            if (response.getMappings().isEmpty()) {
-                throw new NotFoundException("No types in " + alias + ".");
-            }
-        } catch (ArlasException e) {
-            throw e;
-        } catch (IndexNotFoundException e) {
-            throw new NotFoundException("Index " + alias + " does not exist.");
-        } catch (Exception e) {
-            throw new NotFoundException("Unable to access " + typeName + " in " + alias + ".");
-        }
+    public static List<String> getIndicesName(ElasticClient client, String alias, String typeName) throws ArlasException {
+        Map<String, LinkedHashMap> response = client.getMappings(alias);
 
-        List<String> indices = IteratorUtils.toList(response.getMappings().keysIt());
+        List<String> indices = IteratorUtils.toList(response.keySet().iterator());
         for (String index : indices) {
-            //check type
-            try {
-                if (!response.getMappings().get(index).containsKey(typeName)) {
-                    throw new NotFoundException("Type " + typeName + " does not exist in " + alias + ".");
-                }
-                Object properties = response.getMappings().get(index).get(typeName).sourceAsMap().get("properties");
-                if (properties == null) {
-                    throw new NotFoundException("Unable to find properties from " + typeName + " in " + index + ".");
-                }
-            } catch (Exception e) {
-                throw new NotFoundException("Unable to get " + typeName + " in " + index + ".");
+            Object properties = response.get(index);
+            if (properties == null) {
+                throw new NotFoundException("Unable to find properties in " + index + ".");
             }
-        };
+        }
         return indices;
     }
 
-    public static CollectionReference getCollectionReferenceFromES(Client client, String index, String type, ObjectReader reader, String ref) throws ArlasException {
+    public static CollectionReference getCollectionReferenceFromES(ElasticClient client, String index, String type, ObjectReader reader, String ref) throws ArlasException, IOException {
         CollectionReference collection = new CollectionReference(ref);
         //Exclude old include_fields for support old collection
-        GetRequest request = new GetRequest(index, ref);
         String[] includes = Strings.EMPTY_ARRAY;
         String[] excludes = new String[]{"include_fields"};
-        FetchSourceContext fetchSourceContext =
-                new FetchSourceContext(true, includes, excludes);
-        request.fetchSourceContext(fetchSourceContext);
-        GetResponse hit = client.get(request).actionGet();
-        String source = hit.getSourceAsString();
+
+        String source = client.getHit(index, ref, includes, excludes);
         if (source != null) {
             try {
                 collection.params = reader.readValue(source);
@@ -210,22 +192,15 @@ public class ElasticTool {
         return collection;
     }
 
-    public static boolean isDateField(String field, Client client, String index, String typeName) throws ArlasException {
-        GetFieldMappingsResponse response;
-        try {
-            GetFieldMappingsRequest request = new GetFieldMappingsRequest();
-            request.indices(index);
-            request.fields(field);
-            response = client.admin().indices().getFieldMappings(request).actionGet();
-        } catch (IndexNotFoundException e) {
-            throw new NotFoundException("Index " + index + " does not exist.");
-        }
+    public static boolean isDateField(String field, ElasticClient client, String index, String typeName) throws ArlasException {
+        GetFieldMappingsResponse response = client.getFieldMapping(index, field);
+
         String lastKey = field.substring(field.lastIndexOf(".") + 1);
         return response.mappings().keySet()
                 .stream()
                 .anyMatch(indexName -> {
-                    GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(indexName, typeName, field);
-                    boolean isFieldMetadaAMap = (data != null && !data.isNull() && data.sourceAsMap().get(lastKey) instanceof Map);
+                    GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(indexName, field);
+                    boolean isFieldMetadaAMap = (data != null && data.sourceAsMap().get(lastKey) instanceof Map);
                     if (isFieldMetadaAMap) {
                         return Optional.of(((Map)data.sourceAsMap().get(lastKey)))
                                 .map(m -> m.get(ES_TYPE))

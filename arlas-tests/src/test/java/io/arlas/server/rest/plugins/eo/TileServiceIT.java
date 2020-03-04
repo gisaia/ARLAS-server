@@ -21,10 +21,9 @@ package io.arlas.server.rest.plugins.eo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.*;
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.utils.ImageUtil;
 import io.restassured.response.ValidatableResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
 import org.hamcrest.Matchers;
@@ -54,7 +53,7 @@ public class TileServiceIT extends AbstractTestContext {
     }
 
     @BeforeClass
-    public static void beforeClass() throws IOException, InterruptedException {
+    public static void beforeClass() throws IOException, InterruptedException, ArlasException {
         AbstractTestWithCollection.beforeClass();
 
         ObjectMapper mapper = new ObjectMapper();
@@ -82,15 +81,11 @@ public class TileServiceIT extends AbstractTestContext {
         data.geo_params.geometry = new Polygon(coords);
         data.geo_params.wktgeometry = wktGeometry;
         String indexName=DataSetTool.ALIASED_COLLECTION?DataSetTool.DATASET_INDEX_NAME+"_original":DataSetTool.DATASET_INDEX_NAME;
-        IndexRequest request = new IndexRequest(indexName).id("ES_ID_TEST" + data.id);
-        request.source(mapper.writer().writeValueAsString(data), XContentType.JSON);
-        DataSetTool.client.index(request).actionGet();
+        DataSetTool.client.index(indexName, "ES_ID_TEST" + data.id, mapper.writer().writeValueAsString(data));
 
         data.id = String.valueOf("ID_" + i + "_" + j + "DI_top").replace("-", "_");
         data.fullname = "My name is " + data.id;
-        request = new IndexRequest(indexName).id("ES_ID_TEST" + data.id);
-        request.source(mapper.writer().writeValueAsString(data), XContentType.JSON);
-        DataSetTool.client.index(request).actionGet();
+        DataSetTool.client.index(indexName, "ES_ID_TEST" + data.id, mapper.writer().writeValueAsString(data));
         Thread.sleep(5000);
     }
 

@@ -46,10 +46,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static io.arlas.server.utils.CheckParams.isBboxLatLonInCorrectRanges;
 
@@ -63,7 +60,7 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
     }
 
     @Override
-    public CollectionReferenceDescription getCollectionReferenceDescription(CollectionReference collectionReference) throws IOException {
+    public CollectionReferenceDescription getCollectionReferenceDescription(CollectionReference collectionReference) throws ArlasException {
         ElasticAdmin elasticAdmin = new ElasticAdmin(exploreServices.getClient());
         return elasticAdmin.describeCollection(collectionReference);
     }
@@ -79,7 +76,7 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
                 .query(wfsQuery);
         request.source(searchSourceBuilder);
         SearchHits hitsGetFeature = exploreServices.getClient()
-                .search(request).actionGet().getHits();
+                .search(request).getHits();
         if (hitsGetFeature.getHits().length > 0) {
             response = hitsGetFeature.getAt(0);
         } else {
@@ -103,20 +100,23 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
                 .size(count);
         request.source(searchSourceBuilder);
         SearchHits hitsGetFeature = exploreServices.getClient()
-                .search(request).actionGet().getHits();
+                .search(request).getHits();
         for (int i = 0; i < hitsGetFeature.getHits().length; i++) {
             featureList.add(hitsGetFeature.getAt(i));
         }
         return featureList;
     }
 
-    private String[] columnFilterToIncludes(CollectionReference collectionReference, Optional<String> columnFilter) {
+    private String[] columnFilterToIncludes(CollectionReference collectionReference, Optional<String> columnFilter) throws ArlasException {
         //return null if no column filter: it avoids the ElasticAdmin query
-        return ColumnFilterUtil
-                .cleanColumnFilter(columnFilter)
-                .map(cf ->
-                        exploreServices.getElasticAdmin().getCollectionFields(collectionReference, Optional.of(cf)).stream().toArray(String[] ::new))
-                .orElse(null);
+        // Can't use lambdas because of the need to throw the exception of getCollectionFields()
+        Optional<String> cf = ColumnFilterUtil.cleanColumnFilter(columnFilter);
+        if (cf.isPresent()) {
+            Set<String> fields = exploreServices.getElasticAdmin().getCollectionFields(collectionReference, cf);
+            return fields.toArray(new String[fields.size()]);
+        }
+        return null;
+
     }
 
     @Override
@@ -134,7 +134,7 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
                 .size(count);
         request.source(searchSourceBuilder);
         SearchHits hitsGetPropertyValue = exploreServices.getClient()
-                .search(request).actionGet().getHits();
+                .search(request).getHits();
         for (int i = 0; i < hitsGetPropertyValue.getHits().length; i++) {
             MemberPropertyType e = new MemberPropertyType();
             e.getContent().add(MapExplorer.getObjectFromPath(include, hitsGetPropertyValue.getAt(i).getSourceAsMap()));

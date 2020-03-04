@@ -31,7 +31,9 @@ import org.slf4j.LoggerFactory;
 public class ElasticNodesInfo {
     static Logger LOGGER = LoggerFactory.getLogger(ElasticNodesInfo.class);
 
-    public static void printNodesInfo(Client client, TransportClient transportClient) {
+    public static void printNodesInfo(ElasticClient client) {
+        //  Not yet implemented in RestHighLevelClient
+        /*
         NodesInfoRequest nodesInfoRequest = new NodesInfoRequest();
         nodesInfoRequest.clear().jvm(false).os(false).process(true);
         ActionFuture<NodesInfoResponse> nodesInfoResponseActionFuture = client.admin().cluster().nodesInfo(nodesInfoRequest);
@@ -56,6 +58,6 @@ public class ElasticNodesInfo {
             LOGGER.info("Connected Transport address : ".concat(node.getAddress().getAddress()));
             LOGGER.info("Connected role : ".concat(node.getRoles().toString()));
         });
-
+        */
     }
 }

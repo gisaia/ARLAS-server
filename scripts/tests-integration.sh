@@ -4,9 +4,9 @@ set -e
 export ELASTIC_VERSION="7.6.0"
 
 function clean_exit {
-    ARG=$?
+  ARG=$?
 	echo "===> Exit status = ${ARG}"
-    exit $ARG
+  exit $ARG
 }
 trap clean_exit EXIT
 

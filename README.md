@@ -60,7 +60,7 @@ Then, go to `http://localhost:9999/arlas/swagger` for exploring and testing the 
 ### Docker
 
 ```sh
-docker run -d -p 9999:9999  -e ARLAS_ELASTIC_NODES=my-host:9300 -e ARLAS_ELASTIC_CLUSTER=elasticsearch  gisaia/arlas-server:latest
+docker run -d -p 9999:9999  -e ARLAS_ELASTIC_NODES=my-host:9200 -e ARLAS_ELASTIC_CLUSTER=elasticsearch  gisaia/arlas-server:latest
 ```
 
 ## Running the tests
@@ -83,7 +83,7 @@ Have a look to the official [elasticsearch image documentation](https://www.elas
 
 ```sh
 export ARLAS_HOST="localhost"; export ARLAS_PORT="9999"; export ARLAS_PREFIX="/arlas/";
-export ARLAS_ELASTIC_NODES="localhost:9300";
+export ARLAS_ELASTIC_NODES="localhost:9200";
 mvn clean install -DskipTests=false
 ```
 
