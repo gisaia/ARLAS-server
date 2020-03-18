@@ -62,7 +62,6 @@ public class GetFeatureHandler {
             public void write(OutputStream outputStream) throws WebApplicationException {
                 try {
                     doGetFeatureResults(configuration, outputStream, start, count, rs, collectionReference, uri);
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -129,7 +128,6 @@ public class GetFeatureHandler {
 
         writeFeatureMembersStream(writer, rs, returnMaxFeatures, startIndex, memberElementName, collectionReference, uri);
         writer.flush();
-
 
     }
 
