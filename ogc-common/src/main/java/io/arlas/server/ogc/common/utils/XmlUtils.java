@@ -21,6 +21,7 @@ package io.arlas.server.ogc.common.utils;
 
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.model.response.TimestampType;
@@ -30,6 +31,8 @@ import io.arlas.server.utils.TimestampTypeMapper;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -39,7 +42,7 @@ import java.util.regex.Pattern;
 
 public class XmlUtils {
 
-
+    protected static Logger LOGGER = LoggerFactory.getLogger(XmlUtils.class);
     public static String pointPathSubstitute;
 
     public static final String ELEMENT = "element";
@@ -68,47 +71,38 @@ public class XmlUtils {
     }
 
     public static void parsePropertiesXml(Map<String, CollectionReferenceDescriptionProperty> properties, XMLStreamWriter writer, Stack<String> namespace, String uri, Object source, String prefix, ArrayList<Pattern> excludeFields) throws XMLStreamException, ArlasException {
-        for (String key : properties.keySet()) {
-            CollectionReferenceDescriptionProperty property = properties.get(key);
-            namespace.push(key);
-            String path = String.join(".", new ArrayList<>(namespace));
-            boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
-            if (!excludePath) {
-                if (property.type == ElasticType.OBJECT) {
-                    parsePropertiesXml(property.properties, writer, namespace, uri, source, prefix, excludeFields);
-                } else {
-                    Object valueObject = MapExplorer.getObjectFromPath(String.join(".", new ArrayList<>(namespace)), source);
-                    if (valueObject != null && property.type != ElasticType.DATE && property.type != ElasticType.GEO_POINT && property.type != ElasticType.GEO_SHAPE) {
-                        String value = valueObject.toString();
-                        writeElement(writer, String.join(".", new ArrayList<>(namespace)), value, uri, prefix);
-                    }else if(valueObject != null && property.type == ElasticType.DATE ){
-                        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
-                        f.setTimeZone(TimeZone.getTimeZone("UTC"));
-                        if(property.format.equals("epoch_millis")||property.format.equals("epoch_seconds")) {
-                            Long value = TimestampTypeMapper.getTimestamp(valueObject,property.format);
-                            String timestamp = "" + value;
-                            writeElement(writer, String.join(".", new ArrayList<>(namespace)), f.format(new Date(Long.parseLong(timestamp))), uri, prefix);
-                        }else{
-                            DateTimeFormatter dtf = null;
-                            TimestampType type = TimestampType.getElasticsearchPatternName(property.format);
-                            if (type.name().equals("UNKNOWN")) {
-                                dtf = DateTimeFormat.forPattern(property.format);
-                            } else {
-                                dtf = type.dateTimeFormatter;
-                            }
-                            if (dtf != null) {
-                                DateTime jodatime = dtf.parseDateTime((String)valueObject);
-                                Long value = jodatime.getMillis();
-                                String timestamp = "" + value;
-                                writeElement(writer, String.join(".", new ArrayList<>(namespace)), f.format(new Date(Long.parseLong(timestamp))), uri, prefix);
-                            }
-                        }
-                    }
-                }
-            }
-            namespace.pop();
-        }
-    }
+           if (properties != null) {
+               for (String key : properties.keySet()) {
+                   CollectionReferenceDescriptionProperty property = properties.get(key);
+                   namespace.push(key);
+                   String path = String.join(".", new ArrayList<>(namespace));
+                   boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
+                   if (!excludePath) {
+                       if (property.type == ElasticType.OBJECT) {
+                           parsePropertiesXml(property.properties, writer, namespace, uri, source, prefix, excludeFields);
+                       } else {
+                           Object valueObject = MapExplorer.getObjectFromPath(String.join(".", new ArrayList<>(namespace)), source);
+                           if (valueObject != null && property.type != ElasticType.DATE && property.type != ElasticType.GEO_POINT && property.type != ElasticType.GEO_SHAPE) {
+                               String value = valueObject.toString();
+                               writeElement(writer, String.join(".", new ArrayList<>(namespace)), value, uri, prefix);
+                           }else if(valueObject != null && property.type == ElasticType.DATE ){
+                               SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
+                               f.setTimeZone(TimeZone.getTimeZone("UTC"));
+                               if (property.format == null) {
+                                   property.format = CollectionReference.DEFAULT_TIMESTAMP_FORMAT;
+                               }
+                               Long timestamp = TimestampTypeMapper.getTimestamp(valueObject,property.format);
+                               writeElement(writer, String.join(".", new ArrayList<>(namespace)), f.format(new Date(timestamp)), uri, prefix);
+                           }
+                       }
+                   }
+                   namespace.pop();
+               }
+           } else {
+               writeElement(writer, String.join(".", new ArrayList<>(namespace)), null, uri, prefix);
+           }
+       }
+
 
     //Function used to avoid point in XML name element, replace point in path property of object json
     public static String replacePointPath(String originalName) {

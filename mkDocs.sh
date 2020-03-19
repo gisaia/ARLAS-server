@@ -73,7 +73,7 @@ docker run --rm \
 BASEDIR=$PWD
 
 cd ${BASEDIR}/target/tmp/typescript-fetch/
-docker run -a STDERR --rm  -i -v `pwd`:/docs gisaia/typedocgen:0.0.4 generatedoc api.ts
+docker run -a STDERR --rm  -i -v `pwd`:/docs gisaia/typedocgen:0.0.5 generatedoc api.ts
 cd ${BASEDIR}
 
 docker run --rm \
