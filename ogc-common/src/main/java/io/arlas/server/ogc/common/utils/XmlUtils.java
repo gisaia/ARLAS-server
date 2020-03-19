@@ -27,7 +27,9 @@ import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.utils.FilterMatcherUtil;
 import io.arlas.server.utils.MapExplorer;
+import io.arlas.server.utils.StringUtil;
 import io.arlas.server.utils.TimestampTypeMapper;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +158,7 @@ public class XmlUtils {
 
     private static void writeElement(XMLStreamWriter xmlStream, String nameToDisplay, String value, String uri, String prefix) throws XMLStreamException, ArlasException {
         nameToDisplay = replacePointPath(nameToDisplay);
-        if (nameToDisplay != null && nameToDisplay.length() > 0) {
+        if (!StringUtils.isBlank(nameToDisplay)) {
             /** check if the name to display respects the w3c recommendation**/
             String startChar = nameToDisplay.substring(0,1);
             Matcher sm = ELEMENT_NAME_START_CHAR_PATTERN.matcher(startChar);
@@ -164,7 +166,7 @@ public class XmlUtils {
             if (!sm.matches() || !m.matches()) {
                 /** This error is thrown after response.ok() has been sent. Therefore it's written in the XML itself**/
                 xmlStream.writeCharacters("\n \n");
-                xmlStream.writeCharacters("ERROR WHILE PARSING WRITING XML. Element name : '" + nameToDisplay + "' is invalid");
+                xmlStream.writeCharacters("ERROR WHILE WRITING XML. Element name : '" + nameToDisplay + "' is invalid");
                 xmlStream.flush();
                 xmlStream.close();
                 throw new InternalServerErrorException("Element name : '" + nameToDisplay + "' is invalid");
