@@ -24,9 +24,9 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.utils.GeoFormat;
+import io.arlas.server.ogc.common.utils.XmlUtils;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
-import io.arlas.server.ogc.common.utils.XmlUtils;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import org.elasticsearch.search.SearchHit;
@@ -77,7 +77,6 @@ public class GetFeatureHandler {
             public void write(OutputStream outputStream) throws WebApplicationException {
                 try {
                     doGetFeatureByIdResults(outputStream, rs, collectionReference, uri);
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -125,10 +124,8 @@ public class GetFeatureHandler {
 
         int startIndex = 0;
         if (start != null) startIndex = start;
-
         writeFeatureMembersStream(writer, rs, returnMaxFeatures, startIndex, memberElementName, collectionReference, uri);
         writer.flush();
-
     }
 
     protected String getCurrentDateTimeWithoutMilliseconds() {

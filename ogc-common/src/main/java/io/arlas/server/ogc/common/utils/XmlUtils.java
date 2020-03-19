@@ -21,16 +21,15 @@ package io.arlas.server.ogc.common.utils;
 
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
-import io.arlas.server.model.response.TimestampType;
 import io.arlas.server.utils.FilterMatcherUtil;
 import io.arlas.server.utils.MapExplorer;
+import io.arlas.server.utils.StringUtil;
 import io.arlas.server.utils.TimestampTypeMapper;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +37,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class XmlUtils {
@@ -49,6 +49,11 @@ public class XmlUtils {
     public static final String NAME = "name";
     public static final String TYPE = "type";
     public static final String MIN_OCCURS = "minOccurs";
+
+    /** These regex are taken from W3C Recommendation https://www.w3.org/TR/REC-xml/#sec-common-syn. This link https://stackoverflow.com/questions/4618757/why-is-my-regex-failing helped adapting the regex to Java **/
+    private static final String ELEMENT_NAME_START_CHAR = ":|[A-Z]|_|[a-z]|[\\xC0-\\xD6]|[\\xD8-\\xF6]|[\\u00F8-\\u02FF]|[\\u0370-\\u037D]|[\\u037F-\\u1FFF]|[\\u200C-\\u200D]|[\\u2070-\\u218F]|[\\u2C00-\\u2FEF]|[\\u3001-\\uD7FF]|[\\uF900-\\uFDCF]|[\\uFDF0-\\uFFFD]|[\\uD800-\\uDB7F][\\uDC00-\\uDFFF]";
+    private static final Pattern ELEMENT_NAME_START_CHAR_PATTERN = Pattern.compile(ELEMENT_NAME_START_CHAR);
+    private static final Pattern ELEMENT_NAME_CHAR_PATTERN = Pattern.compile("(" + ELEMENT_NAME_START_CHAR + "|-|\\.|[0-9]|\\xB7|[\\u0300-\\u036F]|[\\u203F-\\u2040])*");
 
     public static void parsePropertiesXsd(Map<String, CollectionReferenceDescriptionProperty> properties, XMLStreamWriter writer, Stack<String> namespace, ArrayList<Pattern> excludeFields,
                                           Optional<Set<String>> columnFilterPredicates) throws XMLStreamException {
@@ -151,8 +156,22 @@ public class XmlUtils {
         }
     }
 
-    private static void writeElement(XMLStreamWriter xmlStream, String nameToDisplay, String value, String uri, String prefix) throws XMLStreamException {
+    private static void writeElement(XMLStreamWriter xmlStream, String nameToDisplay, String value, String uri, String prefix) throws XMLStreamException, ArlasException {
         nameToDisplay = replacePointPath(nameToDisplay);
+        if (!StringUtils.isBlank(nameToDisplay)) {
+            /** check if the name to display respects the w3c recommendation**/
+            String startChar = nameToDisplay.substring(0,1);
+            Matcher sm = ELEMENT_NAME_START_CHAR_PATTERN.matcher(startChar);
+            Matcher m = ELEMENT_NAME_CHAR_PATTERN.matcher(nameToDisplay);
+            if (!sm.matches() || !m.matches()) {
+                /** This error is thrown after response.ok() has been sent. Therefore it's written in the XML itself**/
+                xmlStream.writeCharacters("\n \n");
+                xmlStream.writeCharacters("ERROR WHILE WRITING XML. Element name : '" + nameToDisplay + "' is invalid");
+                xmlStream.flush();
+                xmlStream.close();
+                throw new InternalServerErrorException("Element name : '" + nameToDisplay + "' is invalid");
+            }
+        }
         xmlStream.writeStartElement(prefix, nameToDisplay, uri);
         xmlStream.writeCharacters(value);
         xmlStream.writeEndElement();
