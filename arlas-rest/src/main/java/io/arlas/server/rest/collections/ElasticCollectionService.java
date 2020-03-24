@@ -22,11 +22,11 @@ package io.arlas.server.rest.collections;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
-import org.elasticsearch.client.Client;
+import io.arlas.server.utils.ElasticClient;
 
 public class ElasticCollectionService extends CollectionService {
 
-    public ElasticCollectionService(Client client, ArlasServerConfiguration configuration) throws ArlasException {
+    public ElasticCollectionService(ElasticClient client, ArlasServerConfiguration configuration) throws ArlasException {
         super();
         this.dao = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
         this.inspireConfigurationEnabled = configuration.inspireConfiguration.enabled;

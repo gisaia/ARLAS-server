@@ -76,13 +76,11 @@ docker run -ti -d \
 
 | Environment variable      | ARLAS Server configuration variable | Default | Description |
 | --- | --- | --- | ---     |
-| ARLAS_ELASTIC_NODES       | elastic-nodes       | localhost:9300 | coma separated list of elasticsearch nodes as host:port values |
+| ARLAS_ELASTIC_NODES       | elastic-nodes       | localhost:9200 | coma separated list of elasticsearch nodes as host:port values |
 | ARLAS_ELASTIC_SNIFFING    | elastic-sniffing    | false          | allow elasticsearch to dynamically add new hosts and remove old ones (*)|
-| ARLAS_ELASTIC_CLUSTER     | elastic-cluster     | elasticsearch  | clustername of the elasticsearch cluster that is used for storing ARLAS configuration |
 | ARLAS_ELASTIC_INDEX       | arlas-index         | .arlas         | name of the index that is used for storing ARLAS configuration |
 | ARLAS_ELASTIC_ENABLE_SSL  | elastic-enable-ssl  | false          | use SSL to connect to elasticsearch |
 | ARLAS_ELASTIC_CREDENTIALS | elastic-credentials | user:password  | credentials to connect to elasticsearch |
-| ARLAS_ELASTIC_COMPRESS    | elastic-compress    | true           | transport.compress parameter of the elasticsearch connection |
 | ARLAS_ELASTIC_SKIP_MASTER | elastic-skip-master | true           | Skip dedicated master in Rest client |
 
 !!! note 

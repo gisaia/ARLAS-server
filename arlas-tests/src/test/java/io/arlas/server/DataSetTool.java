@@ -21,20 +21,16 @@ package io.arlas.server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.app.ElasticConfiguration;
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.RasterTileURL;
-import org.apache.commons.lang3.tuple.Pair;
+import io.arlas.server.utils.ElasticClient;
+import io.arlas.server.utils.ElasticTool;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.http.HttpHost;
 import org.apache.logging.log4j.core.util.IOUtils;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.AdminClient;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.sniff.Sniffer;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
 import org.slf4j.Logger;
@@ -42,7 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -84,36 +79,24 @@ public class DataSetTool {
             "Austria"
     };
 
-    public static AdminClient adminClient;
-    public static Client client;
+    public static ElasticClient client;
     public static boolean ALIASED_COLLECTION;
     public static boolean WKT_GEOMETRIES;
 
     static {
-        try {
-            Settings settings = null;
-            List<Pair<String,Integer>> nodes = ArlasServerConfiguration.getElasticNodes(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_NODES")).orElse("localhost:9300"));
-            if ("localhost".equals(nodes.get(0).getLeft())) {
-                settings = Settings.EMPTY;
-            } else {
-                settings = Settings.builder().put("cluster.name", "docker-cluster").build();
-            }
-            client = new PreBuiltTransportClient(settings)
-                    .addTransportAddress(new TransportAddress(InetAddress.getByName(nodes.get(0).getLeft()), nodes.get(0).getRight()));
-            adminClient = client.admin();
-            ALIASED_COLLECTION = Optional.ofNullable(System.getenv("ALIASED_COLLECTION")).orElse("false").equals("true");
-            WKT_GEOMETRIES = false;
-            LOGGER.info("Load data in " + nodes.get(0).getLeft() + ":" + nodes.get(0).getRight() + " with ALIASED_COLLECTION=" + ALIASED_COLLECTION);
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
+        HttpHost[] nodes = ElasticConfiguration.getElasticNodes(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_NODES")).orElse("localhost:9200"), false);
+        ImmutablePair<RestHighLevelClient, Sniffer> pair = ElasticTool.getRestHighLevelClient(nodes,false, null, true, true);
+        client = new ElasticClient(pair.getLeft(), pair.getRight());
+        ALIASED_COLLECTION = Optional.ofNullable(System.getenv("ALIASED_COLLECTION")).orElse("false").equals("true");
+        WKT_GEOMETRIES = false;
+        LOGGER.info("Load data in " + nodes[0].getHostName() + ":" + nodes[0].getPort() + " with ALIASED_COLLECTION=" + ALIASED_COLLECTION);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ArlasException {
         DataSetTool.loadDataSet();
     }
 
-    public static void loadDataSet() throws IOException {
+    public static void loadDataSet() throws IOException, ArlasException {
         if(!ALIASED_COLLECTION) {
             //Create a single index with all data
             createIndex(DATASET_INDEX_NAME,"dataset.mapping.json");
@@ -131,29 +114,20 @@ public class DataSetTool {
         }
     }
 
-    private static void createIndex(String indexName, String mappingFileName) throws IOException {
+    private static void createIndex(String indexName, String mappingFileName) throws IOException, ArlasException {
         String mapping = IOUtils.toString(new InputStreamReader(DataSetTool.class.getClassLoader().getResourceAsStream(mappingFileName)));
         try {
-            DeleteIndexRequest request = new DeleteIndexRequest(indexName);
-            client.admin().indices().delete(request).actionGet();
+            client.deleteIndex(indexName);
         } catch (Exception e) {
         }
-        CreateIndexRequest request = new CreateIndexRequest(indexName);
-        request.mapping(DATASET_TYPE_NAME, mapping, XContentType.JSON);
-        adminClient.indices().create(request).actionGet();
+        client.createIndex(indexName, mapping);
     }
 
-    private static void addAlias(String index, String alias) {
-        IndicesAliasesRequest request = new IndicesAliasesRequest();
-        IndicesAliasesRequest.AliasActions aliasAction =
-                new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
-                        .index(index)
-                        .alias(alias);
-        request.addAliasAction(aliasAction);
-        client.admin().indices().aliases(request).actionGet();
+    private static void addAlias(String index, String alias) throws ArlasException {
+        client.aliasIndex(index, alias);
     }
 
-    private static void fillIndex(String indexName, int lonMin, int lonMax, int latMin, int latMax) throws JsonProcessingException {
+    private static void fillIndex(String indexName, int lonMin, int lonMax, int latMin, int latMax) throws JsonProcessingException, ArlasException {
         Data data;
         ObjectMapper mapper = new ObjectMapper();
 
@@ -197,19 +171,21 @@ public class DataSetTool {
                 data.geo_params.geometry = new Polygon(coords);
                 data.geo_params.second_geometry = new Polygon(second_coords);
                 data.geo_params.wktgeometry = wktGeometry;
-                IndexRequest request = new IndexRequest(indexName).id("ES_ID_TEST" + data.id);
-                request.source(mapper.writer().writeValueAsString(data), XContentType.JSON);
-                client.index(request).actionGet();
+                client.index(indexName, "ES_ID_TEST" + data.id, mapper.writer().writeValueAsString(data));
             }
         }
     }
 
     public static void clearDataSet() {
-        if(!ALIASED_COLLECTION) {
-            client.admin().indices().delete(new DeleteIndexRequest(DATASET_INDEX_NAME)).actionGet();
-        } else {
-            client.admin().indices().delete(new DeleteIndexRequest(DATASET_INDEX_NAME+"_original")).actionGet();
-            client.admin().indices().delete(new DeleteIndexRequest(DATASET_INDEX_NAME+"_alt")).actionGet();
+        try {
+            if (!ALIASED_COLLECTION) {
+                client.deleteIndex(DATASET_INDEX_NAME);
+            } else {
+                client.deleteIndex(DATASET_INDEX_NAME + "_original");
+                client.deleteIndex(DATASET_INDEX_NAME + "_alt");
+            }
+        } catch (ArlasException e) {
+            e.printStackTrace();
         }
     }
 

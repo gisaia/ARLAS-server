@@ -212,7 +212,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireInvalidTopicCategoryJsonAsMap());
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
 
-        // PUT new collection with Invalid TopicCatecory
+        // PUT new collection with Invalid TopicCategory
         handleInvalidCollectionParameters(put(jsonAsMap));
 
         // PUT new collection with Invalid dublin core language
@@ -231,9 +231,6 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
         jsonAsMap.put(CollectionReference.ID_PATH, "id");
-
-        // PUT new collection without specifying type_name
-        handleNotFoundCollectionParameters(put(jsonAsMap));
 
         jsonAsMap.put(CollectionReference.TYPE_NAME, DataSetTool.DATASET_TYPE_NAME);
         jsonAsMap.put(CollectionReference.ID_PATH, "unkownId");

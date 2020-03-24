@@ -19,7 +19,7 @@ elif ! [[ -z ${ARLAS_ELASTIC_NODES+x} ]] && [[ $# == 0 ]]; then
       ;;
     *)
       # no port specified, using default
-      port=9300
+      port=9200
       ;;
 
   esac

@@ -19,32 +19,32 @@
 
 package io.arlas.server.core;
 
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.utils.ElasticClient;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class ElasticDocument {
 
-    public Client client;
+    public ElasticClient client;
 
-    public ElasticDocument(Client client) {
+    public ElasticDocument(ElasticClient client) {
         this.client = client;
     }
 
-    public Map<String, Object> getSource(CollectionReference collectionReference, String identifier, String[] includes) throws ExecutionException, InterruptedException {
+    public Map<String, Object> getSource(CollectionReference collectionReference, String identifier, String[] includes) throws ArlasException {
         String[] excludes = collectionReference.params.excludeFields.split(",");
         SearchRequest request = new SearchRequest(collectionReference.params.indexName);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchQuery(collectionReference.params.idPath, identifier))
                 .fetchSource(includes, excludes);
         request.source(searchSourceBuilder);
-        SearchHits hits = client.search(request).actionGet().getHits();
+        SearchHits hits = client.search(request).getHits();
         Map<String, Object> response = null;
         if (hits.getHits().length > 0) {
             response = hits.getAt(0).getSourceAsMap();

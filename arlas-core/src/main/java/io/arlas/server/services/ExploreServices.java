@@ -40,11 +40,9 @@ import io.arlas.server.model.response.ComputationResponse;
 import io.arlas.server.utils.*;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.InternalAggregation;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.*;
@@ -53,7 +51,6 @@ import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.io.GeohashUtils;
 import org.locationtech.spatial4j.shape.Rectangle;
 
-import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -67,7 +64,7 @@ public class ExploreServices {
     public static final Integer SEARCH_DEFAULT_PAGE_SIZE = 10;
     public static final Integer SEARCH_DEFAULT_PAGE_FROM = 0;
 
-    protected Client client;
+    protected ElasticClient client;
     protected CollectionReferenceDao daoCollectionReference;
     private ResponseCacheManager responseCacheManager = null;
     private ArlasServerConfiguration configuration;
@@ -75,7 +72,7 @@ public class ExploreServices {
 
     public ExploreServices() {}
 
-    public ExploreServices(Client client, ArlasServerConfiguration configuration) {
+    public ExploreServices(ElasticClient client, ArlasServerConfiguration configuration) {
         this.client = client;
         this.elasticAdmin = new ElasticAdmin(client);
         this.configuration = configuration;
@@ -91,11 +88,11 @@ public class ExploreServices {
         return baseUri;
     }
 
-    public Client getClient() {
+    public ElasticClient getClient() {
         return client;
     }
 
-    public void setClient(Client client) {
+    public void setClient(ElasticClient client) {
         this.client = client;
     }
 
@@ -111,7 +108,7 @@ public class ExploreServices {
         return responseCacheManager;
     }
 
-    public SearchHits count(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
+    public SearchHits count(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
@@ -120,7 +117,7 @@ public class ExploreServices {
         return fluidSearch.exec().getHits();
     }
 
-    public SearchHits search(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
+    public SearchHits search(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
@@ -131,7 +128,7 @@ public class ExploreServices {
         return fluidSearch.exec().getHits();
     }
 
-    public SearchResponse aggregate(MixedRequest request, CollectionReference collectionReference, Boolean isGeoAggregation) throws ArlasException, IOException {
+    public SearchResponse aggregate(MixedRequest request, CollectionReference collectionReference, Boolean isGeoAggregation) throws ArlasException {
         CheckParams.checkAggregationRequest(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
@@ -142,7 +139,7 @@ public class ExploreServices {
         return fluidSearch.exec();
     }
 
-    public ComputationResponse compute(MixedRequest request, CollectionReference collectionReference) throws ArlasException{
+    public ComputationResponse compute(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         CheckParams.checkComputationRequest(request.basicRequest, collectionReference);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
@@ -206,7 +203,7 @@ public class ExploreServices {
     }
 
 
-    public SearchResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException {
+    public SearchResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         CheckParams.checkRangeRequestField(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
@@ -323,7 +320,7 @@ public class ExploreServices {
         }
     }
 
-    protected void applyProjection(Projection projection, FluidSearch fluidSearch, Optional<String> columnFilter, CollectionReference collectionReference) {
+    protected void applyProjection(Projection projection, FluidSearch fluidSearch, Optional<String> columnFilter, CollectionReference collectionReference) throws ArlasException {
         if (ColumnFilterUtil.isValidColumnFilterPresent(columnFilter)) {
             String filteredIncludes = ColumnFilterUtil.getFilteredIncludes(columnFilter, projection, elasticAdmin.getCollectionFields(collectionReference, columnFilter))
                     .orElse(
@@ -421,7 +418,7 @@ public class ExploreServices {
                         aggregationMetric.type = subAggregation.getName().split(":")[0];
                         if (!aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase())
                                 && !aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase() + "-bucket") && !aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase() + "-bucket")) {
-                            aggregationMetric.value = (((InternalAggregation) subAggregation).getProperty("value"));
+                            aggregationMetric.value = (((NumericMetricsAggregation.SingleValue) subAggregation).value());
                         } else {
                             FeatureCollection fc = new FeatureCollection();
                             Feature feature = new Feature();

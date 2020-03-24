@@ -20,6 +20,7 @@
 package io.arlas.server;
 
 import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.Request;
 import org.junit.AfterClass;
@@ -40,7 +41,7 @@ public abstract class AbstractTestWithCollection extends AbstractTestContext {
     }
 
     @BeforeClass
-    public static void beforeClass() throws IOException {
+    public static void beforeClass() throws ArlasException, IOException {
         new CollectionTool().load(10000);
     }
 

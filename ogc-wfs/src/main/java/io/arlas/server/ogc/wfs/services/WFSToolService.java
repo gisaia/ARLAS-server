@@ -30,7 +30,7 @@ import java.util.Optional;
 
 public interface WFSToolService {
 
-    CollectionReferenceDescription getCollectionReferenceDescription(CollectionReference collectionReference) throws IOException;
+    CollectionReferenceDescription getCollectionReferenceDescription(CollectionReference collectionReference) throws IOException, ArlasException;
 
     Object getFeature(String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter, CollectionReference collectionReference, String[] excludes,
                       Optional<String> columnFilter) throws ArlasException, IOException;

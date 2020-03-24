@@ -75,7 +75,7 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
     }
 
     @Override
-    public void writeTo(Hits hits, Class aClass, Type type, Annotation[] annotations, MediaType mediaType, MultivaluedMap multivaluedMap, OutputStream outputStream) throws IOException, WebApplicationException {
+    public void writeTo(Hits hits, Class aClass, Type type, Annotation[] annotations, MediaType mediaType, MultivaluedMap multivaluedMap, OutputStream outputStream) throws WebApplicationException {
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         try {
             XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(outputStream);
@@ -161,7 +161,7 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
             }
             writer.writeEndElement();
             writer.flush();
-        } catch (XMLStreamException e) {
+        } catch (ArlasException | XMLStreamException e) {
             e.printStackTrace();
             new WebApplicationException(e);
         }

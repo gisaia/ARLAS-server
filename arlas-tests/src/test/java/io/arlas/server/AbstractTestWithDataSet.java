@@ -19,6 +19,7 @@
 
 package io.arlas.server;
 
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.Request;
 import org.junit.AfterClass;
@@ -42,6 +43,8 @@ public abstract class AbstractTestWithDataSet extends AbstractTestContext {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ArlasException e) {
             e.printStackTrace();
         }
 

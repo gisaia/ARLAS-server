@@ -19,23 +19,19 @@
 
 package io.arlas.server.core;
 
+import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.utils.ColumnFilterUtil;
+import io.arlas.server.utils.ElasticClient;
 import io.arlas.server.utils.FilterMatcherUtil;
 import org.apache.logging.log4j.util.Strings;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,19 +41,20 @@ public class ElasticAdmin {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ElasticAdmin.class);
 
-    public Client client;
+    public ElasticClient client;
 
-    public ElasticAdmin(Client client) {
+    public ElasticAdmin(ElasticClient client) {
         this.client = client;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public CollectionReferenceDescription describeCollection(CollectionReference collectionReference) {
+    public CollectionReferenceDescription describeCollection(CollectionReference collectionReference) throws ArlasException {
         return this.describeCollection(collectionReference, Optional.empty());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public CollectionReferenceDescription describeCollection(CollectionReference collectionReference, Optional<String> columnFilter) {
+    public CollectionReferenceDescription describeCollection(CollectionReference collectionReference,
+                                                             Optional<String> columnFilter) throws ArlasException {
         ArrayList<Pattern> excludeFields = new ArrayList<>();
         if (collectionReference.params.excludeFields != null) {
             Arrays.asList(collectionReference.params.excludeFields.split(",")).forEach(field -> {
@@ -68,19 +65,16 @@ public class ElasticAdmin {
         collectionReferenceDescription.params = collectionReference.params;
         collectionReferenceDescription.collectionName = collectionReference.collectionName;
 
-        GetMappingsRequest request = new GetMappingsRequest();
-        request.indices(collectionReferenceDescription.params.indexName);
-        GetMappingsResponse response = client.admin().indices().getMappings(request).actionGet();
+        Map<String, LinkedHashMap> response = client.getMappings(collectionReferenceDescription.params.indexName);
 
-        Iterator<String> indices = response.getMappings().keysIt();
+        Iterator<String> indices = response.keySet().iterator();
 
         Map<String, CollectionReferenceDescriptionProperty> properties = new HashMap<>();
         Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionReference);
 
-        while(indices.hasNext()) {
+        while (indices.hasNext()) {
             String index = indices.next();
-            LinkedHashMap fields = (LinkedHashMap) response.getMappings()
-                    .get(index).get(collectionReferenceDescription.params.typeName).sourceAsMap().get("properties");
+            LinkedHashMap fields = response.get(index);
             properties = union(properties, getFromSource(collectionReference, fields, new Stack<>(), excludeFields, columnFilterPredicates));
         }
 
@@ -148,30 +142,30 @@ public class ElasticAdmin {
         return ret;
     }
 
-    public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList, Optional<String> columnFilter) {
+    public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList, Optional<String> columnFilter) throws ArlasException {
 
-        Stream<CollectionReference> filteredCollectionReferenceList =
-                collectionReferenceList.stream().filter(collection ->
-                        !ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent()
-                                || ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter,collection).isPresent());
-        return filteredCollectionReferenceList.map(collectionReference -> describeCollection(collectionReference, columnFilter)).collect(Collectors.toList());
+        // Can't use lambdas because of the need to throw the exception of describeCollection()
+        List<CollectionReferenceDescription> res  = new ArrayList<>();
+        for (CollectionReference collection : collectionReferenceList) {
+            if (!ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent()
+                    || ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter,collection).isPresent()) {
+                res.add(describeCollection(collection, columnFilter));
+            }
+        }
+        return res;
     }
 
-    public List<CollectionReferenceDescription> getAllIndicesAsCollections() throws IOException {
+    public List<CollectionReferenceDescription> getAllIndicesAsCollections() throws ArlasException {
         List<CollectionReferenceDescription> collections = new ArrayList<CollectionReferenceDescription>();
-        ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> indices = client.admin().indices().getMappings(new GetMappingsRequest()).actionGet().getMappings();
-        for (Iterator<String> indexNames = indices.keysIt(); indexNames.hasNext(); ) {
+        Map<String, LinkedHashMap> indices = client.getMappings();
+
+        for (Iterator<String> indexNames = indices.keySet().iterator(); indexNames.hasNext(); ) {
             String indexName = indexNames.next();
-            ImmutableOpenMap<String, MappingMetaData> mappings = indices.get(indexName);
-            for (Iterator<String> mappingNames = mappings.keysIt(); mappingNames.hasNext(); ) {
-                String mappingName = mappingNames.next();
-                CollectionReference collection = new CollectionReference();
-                collection.collectionName = indexName + "-" + mappingName;
-                collection.params = new CollectionReferenceParameters();
-                collection.params.indexName = indexName;
-                collection.params.typeName = mappingName;
-                collections.add(describeCollection(collection));
-            }
+            CollectionReference collection = new CollectionReference();
+            collection.collectionName = indexName;
+            collection.params = new CollectionReferenceParameters();
+            collection.params.indexName = indexName;
+            collections.add(describeCollection(collection));
         }
         return collections;
     }
@@ -182,7 +176,7 @@ public class ElasticAdmin {
      * @param filterPredicates
      * @return
      */
-    public Set<String> getCollectionFields(CollectionReference collectionReference, Optional<String> filterPredicates) {
+    public Set<String> getCollectionFields(CollectionReference collectionReference, Optional<String> filterPredicates) throws ArlasException {
 
         Map<String, CollectionReferenceDescriptionProperty> collectionFilteredProperties =
                 this.describeCollection(collectionReference, filterPredicates).properties;

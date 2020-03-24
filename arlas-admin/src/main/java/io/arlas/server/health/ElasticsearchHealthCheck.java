@@ -20,33 +20,36 @@ package io.arlas.server.health;
 
 import com.codahale.metrics.health.HealthCheck;
 import io.arlas.server.core.ElasticAdmin;
-import org.elasticsearch.action.ActionFuture;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.utils.ElasticClient;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 
 public class ElasticsearchHealthCheck extends HealthCheck {
 
     private ElasticAdmin admin;
-    private Client client;
-    public ElasticsearchHealthCheck(Client client) {
+    private ElasticClient client;
+    public ElasticsearchHealthCheck(ElasticClient client) {
         this.admin = new ElasticAdmin(client);
         this.client =client;
     }
 
     @Override
-    protected HealthCheck.Result check() {
+    protected HealthCheck.Result check() throws ArlasException {
         ResultBuilder resultBuilder = Result.builder();
         if (checkElasticsearch()) {
-            NodesInfoRequest nodesInfoRequest = new NodesInfoRequest();
-            nodesInfoRequest.clear().jvm(false).os(false).process(true);
-            ActionFuture<NodesInfoResponse> nodesInfoResponseActionFuture = client.admin().cluster().nodesInfo(nodesInfoRequest);
-            resultBuilder.healthy();
-            resultBuilder.withDetail("nodes",nodesInfoResponseActionFuture.actionGet().getNodes());
-            if(client instanceof TransportClient){
-                resultBuilder.withDetail("connected_nodes",((TransportClient)this.client).connectedNodes());
+            //Not yet implemented in RestHighLevelClient
+//            NodesInfoRequest nodesInfoRequest = new NodesInfoRequest();
+//            nodesInfoRequest.clear().jvm(false).os(false).process(true);
+//            ActionFuture<NodesInfoResponse> nodesInfoResponseActionFuture = client.admin().cluster().nodesInfo(nodesInfoRequest);
+            ClusterHealthResponse response = client.health();
+            if (response.getStatus() != ClusterHealthStatus.RED) {
+                resultBuilder.healthy();
             }
+//            resultBuilder.withDetail("nodes",nodesInfoResponseActionFuture.actionGet().getNodes());
+//            if(client instanceof TransportClient){
+//                resultBuilder.withDetail("connected_nodes",((TransportClient)this.client).connectedNodes());
+//            }
             return resultBuilder.build();
         } else {
             return Result.unhealthy("Cannot connect to elasticsearch cluster");

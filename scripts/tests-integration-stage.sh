@@ -88,7 +88,7 @@ function test_rest() {
         -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED}\
         -e ARLAS_SERVICE_RASTER_TILES_ENABLE=${ARLAS_SERVICE_RASTER_TILES_ENABLE} \
         -e ARLAS_TILE_URL=${ARLAS_TILE_URL} \
-        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         -e WKT_GEOMETRIES=${WKT_GEOMETRIES} \
         --net arlas_default \
@@ -120,7 +120,7 @@ function test_auth() {
         -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED=true}\
         -e ARLAS_SERVICE_RASTER_TILES_ENABLE=${ARLAS_SERVICE_RASTER_TILES_ENABLE} \
         -e ARLAS_TILE_URL=${ARLAS_TILE_URL} \
-        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
@@ -144,7 +144,7 @@ function test_wfs() {
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
         -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED}\
-        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
@@ -158,7 +158,7 @@ function test_wfs() {
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
         -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED} \
-        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
@@ -178,7 +178,7 @@ function test_wfs() {
         -e ARLAS_PORT="9999" \
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
-        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
@@ -203,7 +203,7 @@ function test_csw() {
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
         -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED=true}\
-        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
@@ -218,7 +218,7 @@ function test_csw() {
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
         -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED=true}\
-        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
@@ -237,7 +237,7 @@ function test_csw() {
         -e ARLAS_PORT="9999" \
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
-        -e ARLAS_ELASTIC_NODES="elasticsearch:9300" \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \

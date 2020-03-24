@@ -34,7 +34,6 @@ import io.arlas.server.model.response.TimestampType;
 import io.arlas.server.utils.*;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.common.geo.GeoPoint;
@@ -111,7 +110,7 @@ public class FluidSearch {
 
     private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
 
-    private Client client;
+    private ElasticClient client;
     SearchRequest request;
     private SearchSourceBuilder searchSourceBuilder;
     private BoolQueryBuilder boolQueryBuilder;
@@ -121,14 +120,12 @@ public class FluidSearch {
     private List<String> include = new ArrayList<>();
     private List<String> exclude = new ArrayList<>();
 
-    public FluidSearch(Client client) {
+    public FluidSearch(ElasticClient client) {
         this.client = client;
         this.collectionReferenceManager = CollectionReferenceManager.getInstance();
         boolQueryBuilder = QueryBuilders.boolQuery();
         searchSourceBuilder = new SearchSourceBuilder();
     }
-
-    protected Client getClient(){return client;}
 
     public BoolQueryBuilder getBoolQueryBuilder() {
         return boolQueryBuilder;
@@ -179,7 +176,7 @@ public class FluidSearch {
         LOGGER.debug("QUERY : " + searchSourceBuilder.toString());
         SearchResponse result = null;
         request.source(searchSourceBuilder);
-        result = client.search(request).actionGet();
+        result = client.search(request);
         return result;
     }
 

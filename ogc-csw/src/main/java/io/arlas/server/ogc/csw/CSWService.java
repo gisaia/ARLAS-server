@@ -24,23 +24,25 @@ import io.arlas.server.app.InspireConfiguration;
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.*;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.MetaCollectionReferenceParameters;
+import io.arlas.server.model.OgcInspireConfigurationParameters;
 import io.arlas.server.ogc.common.dao.ElasticOGCCollectionReferenceDaoImp;
 import io.arlas.server.ogc.common.model.Service;
-import org.elasticsearch.client.Client;
+import io.arlas.server.utils.ElasticClient;
 
 import java.util.List;
 
 public class CSWService extends CSWRESTService {
 
-    Client client;
+    ElasticClient client;
 
     private static final String META_COLLECTION_ID_PATH = "dublin_core_element_name.identifier";
     private static final String META_COLLECTION_GEOMETRY_PATH = "dublin_core_element_name.coverage";
     private static final String META_COLLECTION_CENTROID_PATH = "dublin_core_element_name.coverage_centroid";
     private static final String META_COLLECTION_TIMESTAMP_PATH = "dublin_core_element_name.date";
 
-    public CSWService(Client client, CSWHandler cswHandler, ArlasServerConfiguration configuration) throws ArlasException {
+    public CSWService(ElasticClient client, CSWHandler cswHandler, ArlasServerConfiguration configuration) throws ArlasException {
         super(cswHandler);
         this.client = client;
         this.dao = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
