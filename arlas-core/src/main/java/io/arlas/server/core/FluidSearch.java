@@ -127,6 +127,8 @@ public class FluidSearch {
         searchSourceBuilder = new SearchSourceBuilder();
     }
 
+    protected ElasticClient getClient() { return client; }
+
     public BoolQueryBuilder getBoolQueryBuilder() {
         return boolQueryBuilder;
     }
