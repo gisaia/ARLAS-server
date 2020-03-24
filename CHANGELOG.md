@@ -1,6 +1,15 @@
 # Change Log
 
-## [v12.7.4](https://github.com/gisaia/ARLAS-server/tree/v12.7.4) (2020-02-05)
+## [v12.7.5](https://github.com/gisaia/ARLAS-server/tree/v12.7.5) (2020-03-19)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.4...v12.7.5)
+
+**Fixed bugs:**
+
+- NullPointer exception thrown when writing xml after a GetFeature or GetFeatureById request [\#616](https://github.com/gisaia/ARLAS-server/issues/616) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
+- WFS GetFeature and GetFeatureById can return an invalid XML without throwing an error [\#615](https://github.com/gisaia/ARLAS-server/issues/615) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
+
+## [v12.7.4](https://github.com/gisaia/ARLAS-server/tree/v12.7.4) (2020-02-06)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v11.6.5...v12.7.4)
 
