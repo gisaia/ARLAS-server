@@ -35,7 +35,7 @@ import javax.ws.rs.core.Response;
                 title = "ARLAS Exploration API",
                 description = "Explore the content of ARLAS collections",
                 license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
-                version = "API_VERSION"),
+                version = "12.0.6"),
         schemes = { SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS })
 
 public abstract class ExploreRESTServices {

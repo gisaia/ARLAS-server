@@ -1,6 +1,14 @@
 # Change Log
 
-## [v12.7.5](https://github.com/gisaia/ARLAS-server/tree/v12.7.5) (2020-03-19)
+## [v12.7.6](https://github.com/gisaia/ARLAS-server/tree/v12.7.6) (2020-03-24)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.5...v12.7.6)
+
+**New stuff:**
+
+- Using New Rest High Level Client for ES [\#612](https://github.com/gisaia/ARLAS-server/pull/612) ([alainbodiguel](https://github.com/alainbodiguel))
+
+## [v12.7.5](https://github.com/gisaia/ARLAS-server/tree/v12.7.5) (2020-03-24)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.4...v12.7.5)
 
