@@ -199,6 +199,16 @@ else
     echo "=> Generate client APIs"
     ls target/tmp/
 
+    mkdir -p target/tmp/java-api
+    docker run --rm \
+        -e GROUP_ID="$(id -g)" \
+        -e USER_ID="$(id -u)" \
+        --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
+        --mount dst=/input/config.json,src="$PROJECT_ROOT_DIRECTORY/conf/swagger/java-config.json",type=bind,ro \
+        --mount dst=/output,src="$PWD/target/tmp/java-api",type=bind \
+        gisaia/swagger-codegen-2.3.1 \
+            -l java --type-mappings GeoJsonObject=Object
+
     mkdir -p target/tmp/typescript-fetch
     docker run --rm \
         -e GROUP_ID="$(id -g)" \
@@ -282,6 +292,16 @@ if [ "$SIMULATE" == "NO" ]; then
     # publish arlas-admin jar
     cd ${BASEDIR}/arlas-admin
     mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
+    # publish arlas-server-client jar
+    if [[ "$SKIP_API" == "NO" ]]; then
+        cd ${BASEDIR}/target/tmp/java-api
+        mvn versions:set -DnewVersion=${ARLAS_VERSION}
+        sed '$e cat ${BASEDIR}/conf/maven/distribution-arlas-client.xml' pom.xml >> ${BASEDIR}/target/tmp/java-api/pom_with_distribution.xml
+        mv ${BASEDIR}/target/tmp/java-api/pom_with_distribution.xml ${BASEDIR}/target/tmp/java-api/pom.xml
+        mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
+    else
+         echo "=> Skipping publishing arlas-server-client jar"
+    fi;
     cd ${BASEDIR}
 else echo "=> Skip pushing jars in maven repo"; fi
 
