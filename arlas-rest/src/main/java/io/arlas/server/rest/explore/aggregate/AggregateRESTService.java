@@ -142,6 +142,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
         aggregationsRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
+        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequest);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
 
