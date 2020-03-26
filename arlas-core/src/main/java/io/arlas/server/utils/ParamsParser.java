@@ -264,6 +264,17 @@ public class ParamsParser {
         return getFilter(collectionReference, filters, q, dateFormat, null, null);
     }
 
+    /**
+     *
+     * @param collectionReference collection reference is used to get the type of geometries in geofilters when tileBbox is specified. Can be set to null
+     * @param filters list of f filters
+     * @param q list of q filters
+     * @param dateFormat format of dates values that are used in f and q filters to query dates
+     * @param tileBbox bounding box of the tile. Used in tiled geosearch
+     * @param pwithinBbox a `point-within-bbox` expression
+     * @return Filter objet
+     * @throws ArlasException
+     */
     public static Filter getFilter(CollectionReference collectionReference,
                                    List<String> filters, List<String> q, String dateFormat,
                                    BoundingBox tileBbox, Expression pwithinBbox) throws ArlasException {
@@ -281,19 +292,20 @@ public class ParamsParser {
                     String value = String.join(":", Arrays.copyOfRange(operands, 2, operands.length));
 
                     if (GEO_OP.contains(OperatorEnum.valueOf(operands[1]))) {
-                        boolean isPwithin = isPwithin(collectionReference, operands[0], operands[1]);
                         value = getValidGeometry(value);
-                        if (isPwithin && tileBbox != null){
-                            Geometry simplifiedGeometry = GeoTileUtil.bboxIntersects(tileBbox, value);
-                            if (simplifiedGeometry != null) {
-                                value = simplifiedGeometry.toString();
+                        if(tileBbox != null && collectionReference != null) {
+                            boolean isPwithin = isPwithin(collectionReference, operands[0], operands[1]);
+                            if (isPwithin){
+                                Geometry simplifiedGeometry = GeoTileUtil.bboxIntersects(tileBbox, value);
+                                if (simplifiedGeometry != null) {
+                                    value = simplifiedGeometry.toString();
+                                }
                             }
                         }
-                    }
 
+                    }
                     if (value != null) {
                         Expression expression = new Expression(operands[0], OperatorEnum.valueOf(operands[1]), value);
-                        intersectsToWithin(collectionReference, expression);
                         multiFilter.add(expression);
                     }
                 }

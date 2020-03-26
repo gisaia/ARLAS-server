@@ -326,6 +326,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
         aggregationsRequest.filter = filter;
         aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
+        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequest);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
 

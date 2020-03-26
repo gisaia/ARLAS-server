@@ -136,6 +136,7 @@ public class RangeRESTService extends ExploreRESTServices {
         RangeRequest rangeRequest = new RangeRequest();
         rangeRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         rangeRequest.field = field;
+        exploreServices.setValidGeoFilters(collectionReference, rangeRequest);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, rangeRequest);
 
