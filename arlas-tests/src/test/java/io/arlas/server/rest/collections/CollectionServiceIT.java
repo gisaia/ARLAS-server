@@ -52,7 +52,6 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .then().statusCode(200)
                 .body("collection_name", equalTo("foo"))
                 .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
-                .body("params.type_name", equalTo(DataSetTool.DATASET_TYPE_NAME))
                 .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
                 .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
                 .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
@@ -168,7 +167,6 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
         // PUT new collection with Index type Only
         jsonAsMap.remove(CollectionReference.INDEX_NAME);
-        jsonAsMap.put(CollectionReference.TYPE_NAME, DataSetTool.DATASET_TYPE_NAME);
         handleInvalidCollectionParameters(put(jsonAsMap));
 
         // GET uncreated collection foo
@@ -232,13 +230,12 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
         jsonAsMap.put(CollectionReference.ID_PATH, "id");
 
-        jsonAsMap.put(CollectionReference.TYPE_NAME, DataSetTool.DATASET_TYPE_NAME);
         jsonAsMap.put(CollectionReference.ID_PATH, "unkownId");
 
-        // PUT new collection with non-existing 'id' field from DATASET_TYPE_NAME in DATASET_INDEX_NAME
+        // PUT new collection with non-existing 'id' field in DATASET_INDEX_NAME
         handleNotFoundCollectionParameters(put(jsonAsMap));
 
-        // PUT new collection with non-existing 'geometry' field from DATASET_TYPE_NAME in DATASET_INDEX_NAME
+        // PUT new collection with non-existing 'geometry' field in DATASET_INDEX_NAME
         jsonAsMap.put(CollectionReference.ID_PATH, DataSetTool.DATASET_ID_PATH);
         jsonAsMap.put(CollectionReference.GEOMETRY_PATH, "geom");
         handleNotFoundCollectionParameters(put(jsonAsMap));
@@ -270,7 +267,6 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     private Map<String, Object> getJsonAsMap() {
         Map<String, Object> jsonAsMap = new HashMap<>();
         jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
-        jsonAsMap.put(CollectionReference.TYPE_NAME, DataSetTool.DATASET_TYPE_NAME);
         jsonAsMap.put(CollectionReference.ID_PATH, DataSetTool.DATASET_ID_PATH);
         jsonAsMap.put(CollectionReference.GEOMETRY_PATH, DataSetTool.DATASET_GEOMETRY_PATH);
         jsonAsMap.put(CollectionReference.CENTROID_PATH, DataSetTool.DATASET_CENTROID_PATH);

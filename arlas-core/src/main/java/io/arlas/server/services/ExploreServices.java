@@ -266,7 +266,7 @@ public class ExploreServices {
                         .filter(expression -> expression.op == OperatorEnum.gt || expression.op == OperatorEnum.lt || expression.op == OperatorEnum.gte || expression.op == OperatorEnum.lte || expression.op == OperatorEnum.range)
                         .anyMatch(expression -> {
                             try {
-                                return ElasticTool.isDateField(ParamsParser.getFieldFromFieldAliases(expression.field, collectionReference), client, collectionReference.params.indexName, collectionReference.params.typeName);
+                                return ElasticTool.isDateField(ParamsParser.getFieldFromFieldAliases(expression.field, collectionReference), client, collectionReference.params.indexName);
                             } catch (ArlasException e) {
                                 throw new RuntimeException(e);
                             }

@@ -44,7 +44,6 @@ public class CollectionReference {
     public static final String DUBLIN_CORE_TITLE = "title";
     public static final String DUBLIN_CORE_DESCRIPTION = "description";
     public static final String DUBLIN_CORE_LANGUAGE = "language";
-    private static final String DEFAULT_TYPE_NAME = "_doc";
 
 
     @JsonProperty(value = "collection_name", required = true)
@@ -62,9 +61,6 @@ public class CollectionReference {
 
     public CollectionReference(String collectionName, CollectionReferenceParameters params) {
         this.collectionName = collectionName;
-        if (params.typeName == null) {
-            params.typeName = DEFAULT_TYPE_NAME;
-        }
         this.params = params;
 
     }

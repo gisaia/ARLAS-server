@@ -33,8 +33,7 @@ public class CollectionReferenceDescription extends CollectionReference {
         boolean ret = false;
         if (obj instanceof CollectionReferenceDescription) {
             CollectionReferenceDescription collection = (CollectionReferenceDescription) obj;
-            ret = collection.params.indexName.equals(this.params.indexName)
-                    && collection.params.typeName.equals(this.params.typeName);
+            ret = collection.params.indexName.equals(this.params.indexName);
         }
         return ret;
     }

@@ -65,7 +65,6 @@ public class CSWService extends CSWRESTService {
         collectionReference.collectionName = getMetacollectionName();
         MetaCollectionReferenceParameters collectionReferenceParameters = new MetaCollectionReferenceParameters();
         collectionReferenceParameters.indexName = index;
-        collectionReferenceParameters.typeName = "collection";
         collectionReferenceParameters.idPath = META_COLLECTION_ID_PATH;
         collectionReferenceParameters.geometryPath = META_COLLECTION_GEOMETRY_PATH;
         collectionReferenceParameters.centroidPath = META_COLLECTION_CENTROID_PATH;

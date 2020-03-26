@@ -76,12 +76,12 @@ docker run -ti -d \
 
 | Environment variable      | ARLAS Server configuration variable | Default | Description |
 | --- | --- | --- | ---     |
-| ARLAS_ELASTIC_NODES       | elastic-nodes       | localhost:9200 | coma separated list of elasticsearch nodes as host:port values |
-| ARLAS_ELASTIC_SNIFFING    | elastic-sniffing    | false          | allow elasticsearch to dynamically add new hosts and remove old ones (*)|
+| ARLAS_ELASTIC_NODES       | elastic.elastic-nodes       | localhost:9200 | coma separated list of elasticsearch nodes as host:port values |
+| ARLAS_ELASTIC_SNIFFING    | elastic.elastic-sniffing    | false          | allow elasticsearch to dynamically add new hosts and remove old ones (*)|
 | ARLAS_ELASTIC_INDEX       | arlas-index         | .arlas         | name of the index that is used for storing ARLAS configuration |
-| ARLAS_ELASTIC_ENABLE_SSL  | elastic-enable-ssl  | false          | use SSL to connect to elasticsearch |
-| ARLAS_ELASTIC_CREDENTIALS | elastic-credentials | user:password  | credentials to connect to elasticsearch |
-| ARLAS_ELASTIC_SKIP_MASTER | elastic-skip-master | true           | Skip dedicated master in Rest client |
+| ARLAS_ELASTIC_ENABLE_SSL  | elastic.elastic-enable-ssl  | false          | use SSL to connect to elasticsearch |
+| ARLAS_ELASTIC_CREDENTIALS | elastic.elastic-credentials | user:password  | credentials to connect to elasticsearch |
+| ARLAS_ELASTIC_SKIP_MASTER | elastic.elastic-skip-master | true           | Skip dedicated master in Rest client |
 
 !!! note 
     (*) Note that the IP addresses the sniffer connects to are the ones declared as the publish address in those node’s Elasticsearch config.

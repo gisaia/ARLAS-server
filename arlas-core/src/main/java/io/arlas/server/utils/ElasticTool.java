@@ -115,7 +115,6 @@ public class ElasticTool {
 
     public static CreateIndexResponse createArlasIndex(ElasticClient client,
                                                        String arlasIndexName,
-                                                       String arlasMappingName,
                                                        String arlasMappingFileName) throws ArlasException {
         try {
             String arlasMapping = IOUtils.toString(new InputStreamReader(ElasticTool.class.getClassLoader().getResourceAsStream(arlasMappingFileName)));
@@ -127,7 +126,6 @@ public class ElasticTool {
 
     public static AcknowledgedResponse putExtendedMapping(ElasticClient client,
                                                           String arlasIndexName,
-                                                          String arlasMappingName,
                                                           InputStream in) throws ArlasException {
         try {
             String arlasMapping = IOUtils.toString(new InputStreamReader(in));
@@ -139,7 +137,6 @@ public class ElasticTool {
 
     public static boolean checkIndexMappingFields(ElasticClient client,
                                                   String index,
-                                                  String typeName,
                                                   String... fields) throws ArlasException {
         GetFieldMappingsResponse response = client.getFieldMapping(index, fields);
         for (String field : fields) {
@@ -153,14 +150,13 @@ public class ElasticTool {
 
     public static boolean checkAliasMappingFields(ElasticClient client,
                                                   String alias,
-                                                  String typeName,
                                                   String... fields) throws ArlasException {
-        List<String> indices = ElasticTool.getIndicesName(client, alias, typeName);
-        for (String index : indices) { checkIndexMappingFields(client, index, typeName, fields); }
+        List<String> indices = ElasticTool.getIndicesName(client, alias);
+        for (String index : indices) { checkIndexMappingFields(client, index, fields); }
         return true;
     }
 
-    public static List<String> getIndicesName(ElasticClient client, String alias, String typeName) throws ArlasException {
+    public static List<String> getIndicesName(ElasticClient client, String alias) throws ArlasException {
         Map<String, LinkedHashMap> response = client.getMappings(alias);
 
         List<String> indices = IteratorUtils.toList(response.keySet().iterator());
@@ -173,7 +169,7 @@ public class ElasticTool {
         return indices;
     }
 
-    public static CollectionReference getCollectionReferenceFromES(ElasticClient client, String index, String type, ObjectReader reader, String ref) throws ArlasException, IOException {
+    public static CollectionReference getCollectionReferenceFromES(ElasticClient client, String index, ObjectReader reader, String ref) throws ArlasException, IOException {
         CollectionReference collection = new CollectionReference(ref);
         //Exclude old include_fields for support old collection
         String[] includes = Strings.EMPTY_ARRAY;
@@ -192,7 +188,7 @@ public class ElasticTool {
         return collection;
     }
 
-    public static boolean isDateField(String field, ElasticClient client, String index, String typeName) throws ArlasException {
+    public static boolean isDateField(String field, ElasticClient client, String index) throws ArlasException {
         GetFieldMappingsResponse response = client.getFieldMapping(index, field);
 
         String lastKey = field.substring(field.lastIndexOf(".") + 1);

@@ -42,10 +42,6 @@ public class CollectionAutoDiscoverIT extends AbstractTestWithDataSet {
             when().post(getUrlPath("collection-auto-discover"))
                     .then().statusCode(200);
 
-            // GET collection with type name
-            when().get(arlasPath + "collections/" + DataSetTool.DATASET_INDEX_NAME + "-" + DataSetTool.DATASET_TYPE_NAME)
-                    .then().statusCode(404);
-
             // GET collection without type name
             when().get(arlasPath + "collections/" + DataSetTool.DATASET_INDEX_NAME)
                     .then().statusCode(200)
