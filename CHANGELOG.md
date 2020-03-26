@@ -1,5 +1,13 @@
 # Change Log
 
+## [v12.7.7](https://github.com/gisaia/ARLAS-server/tree/v12.7.7) (2020-03-26)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.6...v12.7.7)
+
+**New stuff:**
+
+- Generate a Java client api and push it in maven repo [\#486](https://github.com/gisaia/ARLAS-server/issues/486)
+
 ## [v12.7.6](https://github.com/gisaia/ARLAS-server/tree/v12.7.6) (2020-03-24)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.5...v12.7.6)
