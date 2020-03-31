@@ -54,7 +54,6 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
 
     private static ObjectMapper mapper;
     private static ObjectReader reader;
-    private static final String ARLAS_INDEX_MAPPING_NAME = "collection";
 
     static {
         mapper = new ObjectMapper();
@@ -142,7 +141,7 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
 
     private CollectionReferenceDescription getMetacollectionDescription() throws ArlasException, IOException {
         ElasticAdmin elasticAdmin = new ElasticAdmin(client);
-        CollectionReference metaCollection = ElasticTool.getCollectionReferenceFromES(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, reader, "metacollection");
+        CollectionReference metaCollection = ElasticTool.getCollectionReferenceFromES(client, arlasIndex, reader, "metacollection");
         return elasticAdmin.describeCollection(metaCollection);
     }
 }

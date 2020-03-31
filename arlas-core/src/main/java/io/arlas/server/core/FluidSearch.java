@@ -825,7 +825,7 @@ public class FluidSearch {
             if (aggregationModel.fetchHits.include != null) {
                 for (String field : aggregationModel.fetchHits.include) {
                     String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
-                    ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, collectionReference.params.typeName, unsignedField);
+                    ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
                     includes.add(unsignedField);
                     if (field.startsWith("+")) {
                         topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
@@ -986,7 +986,7 @@ public class FluidSearch {
     }
 
     public boolean isDateField(String field) throws ArlasException {
-        return ElasticTool.isDateField(field, client, collectionReference.params.indexName, collectionReference.params.typeName);
+        return ElasticTool.isDateField(field, client, collectionReference.params.indexName);
     }
 
     public void setCollectionReference(CollectionReference collectionReference) {

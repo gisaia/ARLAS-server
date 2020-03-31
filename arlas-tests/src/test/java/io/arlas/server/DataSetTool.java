@@ -47,7 +47,6 @@ public class DataSetTool {
     static Logger LOGGER = LoggerFactory.getLogger(DataSetTool.class);
 
     public final static String DATASET_INDEX_NAME="dataset";
-    public final static String DATASET_TYPE_NAME="mytype";
     public final static String DATASET_ID_PATH="id";
     public final static String DATASET_GEO_PARAMS="geo_params";
     public final static String DATASET_GEOMETRY_PATH="geo_params.geometry";

@@ -236,9 +236,6 @@ public abstract class CollectionService extends CollectionRESTServices {
     }
 
     public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters) throws ArlasException, JsonProcessingException {
-        if (collectionReferenceParameters.typeName != null) {
-            LOGGER.warn("`" + CollectionReference.TYPE_NAME + "` is deprecated and will be removed in the v12.7.0");
-        }
         CollectionReference collectionReference = new CollectionReference(collection, collectionReferenceParameters);
         setDefaultInspireParameters(collectionReference);
         if (inspireConfigurationEnabled) {

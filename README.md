@@ -136,8 +136,10 @@ This project has been initiated and is maintained by Gisaïa
 
 ### The Team
 - Barbet Matthieu
+- Bodiguel Alain
 - Bousquet Sébastien
 - Dezou Laurent
 - Falquier Sébastien
 - Gaudan Sylvain
 - Hamou Mohamed
+- Thiébaud Laurent

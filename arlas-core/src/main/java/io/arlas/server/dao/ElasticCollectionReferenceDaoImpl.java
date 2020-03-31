@@ -60,13 +60,12 @@ import java.util.concurrent.TimeUnit;
 public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao {
 
 
-    ElasticClient client = null;
-    String arlasIndex = null;
+    ElasticClient client;
+    String arlasIndex;
     private static LoadingCache<String, CollectionReference> collections = null;
     private static ObjectMapper mapper;
     private static ObjectReader reader;
     private static final String ARLAS_MAPPING_FILE_NAME = "arlas.mapping.json";
-    private static final String ARLAS_INDEX_MAPPING_NAME = "collection";
 
 
     static {
@@ -85,7 +84,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
                 .build(
                         new CacheLoader<String, CollectionReference>() {
                             public CollectionReference load(String ref) throws ArlasException, IOException {
-                                return ElasticTool.getCollectionReferenceFromES(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, reader, ref);
+                                return ElasticTool.getCollectionReferenceFromES(client, arlasIndex, reader, ref);
                             }
                         });
     }
@@ -93,9 +92,9 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     @Override
     public void initCollectionDatabase() throws ArlasException {
         if (client.indexExists(arlasIndex)) {
-            ElasticTool.putExtendedMapping(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, this.getClass().getClassLoader().getResourceAsStream(ARLAS_MAPPING_FILE_NAME));
+            ElasticTool.putExtendedMapping(client, arlasIndex, this.getClass().getClassLoader().getResourceAsStream(ARLAS_MAPPING_FILE_NAME));
         } else {
-            ElasticTool.createArlasIndex(client, arlasIndex, ARLAS_INDEX_MAPPING_NAME, ARLAS_MAPPING_FILE_NAME);
+            ElasticTool.createArlasIndex(client, arlasIndex, ARLAS_MAPPING_FILE_NAME);
         }
     }
 
@@ -176,8 +175,8 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             List<String> excludeField = Arrays.asList(collectionReference.params.excludeFields.split(","));
             CheckParams.checkExcludeField(excludeField, fields);
         }
-        ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, collectionReference.params.typeName, fields.toArray(new String[fields.size()]));
-        List<String> indices = ElasticTool.getIndicesName(client, collectionReference.params.indexName, collectionReference.params.typeName);
+        ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, fields.toArray(new String[fields.size()]));
+        List<String> indices = ElasticTool.getIndicesName(client, collectionReference.params.indexName);
         for (String index : indices) {
             setTimestampFormatOfCollectionReference(index, collectionReference.params);
         }
@@ -186,11 +185,11 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
     @Override
     public CollectionReference putCollectionReference(CollectionReference collectionReference) throws ArlasException {
         checkCollectionReferenceParameters(collectionReference);
-        IndexResponse response = null;
+        IndexResponse response;
         try {
             response = client.index(arlasIndex, collectionReference.collectionName, mapper.writeValueAsString(collectionReference.params));
         } catch (JsonProcessingException e) {
-            new InternalServerErrorException("Can not put collection " + collectionReference.collectionName, e);
+            throw new InternalServerErrorException("Can not put collection " + collectionReference.collectionName, e);
         }
 
         if (response.status().getStatus() != RestStatus.OK.getStatus()
