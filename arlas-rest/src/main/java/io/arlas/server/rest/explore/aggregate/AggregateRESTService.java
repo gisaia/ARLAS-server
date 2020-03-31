@@ -21,13 +21,13 @@ package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.app.Documentation;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.AggregationsRequest;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.Error;
-import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.ColumnFilterUtil;
@@ -38,8 +38,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang.BooleanUtils;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -236,14 +235,9 @@ public class AggregateRESTService extends ExploreRESTServices {
     }
 
     public AggregationResponse getArlasAggregation(MixedRequest request, CollectionReference collectionReference, boolean flat) throws ArlasException, IOException {
-        AggregationResponse aggregationResponse = new AggregationResponse();
-        Long startQuery = System.nanoTime();
-        SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, false);
-        MultiBucketsAggregation aggregation;
-        aggregation = (MultiBucketsAggregation) response.getAggregations().asList().get(0);
-        aggregationResponse.totalnb = response.getHits().getTotalHits().value;
-        aggregationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
-        aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse, collectionReference.collectionName);
+        AggregationResponse aggregationResponse = this.getExploreServices()
+                .formatAggregationResult(this.getExploreServices().aggregate(request, collectionReference, false),
+                        collectionReference.collectionName, System.nanoTime());
         return  flat ? flatten(aggregationResponse) : aggregationResponse;
     }
 

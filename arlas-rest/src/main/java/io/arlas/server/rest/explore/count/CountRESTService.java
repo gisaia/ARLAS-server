@@ -20,6 +20,7 @@
 package io.arlas.server.rest.explore.count;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.app.Documentation;
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
@@ -27,7 +28,6 @@ import io.arlas.server.model.request.Count;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Hits;
-import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.ColumnFilterUtil;
@@ -36,7 +36,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.elasticsearch.search.SearchHits;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -131,7 +131,7 @@ public class CountRESTService extends ExploreRESTServices {
         request.headerRequest = countHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        Hits hits = getArlasHits(collectionReference, request);
+        Hits hits = this.getExploreServices().count(request, collectionReference);
         return cache(Response.ok(hits), maxagecache);
     }
 
@@ -196,15 +196,7 @@ public class CountRESTService extends ExploreRESTServices {
         request.headerRequest = countHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        Hits hits = getArlasHits(collectionReference, request);
+        Hits hits = this.getExploreServices().count(request, collectionReference);
         return Response.ok(hits).build();
-    }
-
-    protected Hits getArlasHits(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
-        SearchHits searchHits = this.getExploreServices().count(request, collectionReference);
-        Hits hits = new Hits(collectionReference.collectionName);
-        hits.totalnb = searchHits.getTotalHits().value;
-        hits.nbhits = searchHits.getHits().length;
-        return hits;
     }
 }

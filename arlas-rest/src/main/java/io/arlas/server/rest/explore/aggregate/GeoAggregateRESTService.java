@@ -31,22 +31,20 @@ import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.utils.*;
 import io.arlas.server.services.ExploreServices;
+import io.arlas.server.utils.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
 
@@ -345,12 +343,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         Optional<Interval> interval = Optional.ofNullable(((AggregationsRequest) request.basicRequest).aggregations.get(0).interval);
         Optional<Number> precision = interval.map(i -> i.value);
         FeatureCollection fc;
-        AggregationResponse aggregationResponse = new AggregationResponse();
         AggregationTypeEnum maintAggregationType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
-        SearchResponse response = this.getExploreServices().aggregate(request, collectionReference, true);
-        MultiBucketsAggregation aggregation;
-        aggregation = (MultiBucketsAggregation) response.getAggregations().asList().get(0);
-        aggregationResponse = this.getExploreServices().formatAggregationResult(aggregation, aggregationResponse, collectionReference.collectionName);
+        AggregationResponse aggregationResponse = this.getExploreServices()
+                .formatAggregationResult(this.getExploreServices().aggregate(request, collectionReference, true),
+                        collectionReference.collectionName, System.nanoTime());
         fc = toGeoJson(aggregationResponse, maintAggregationType, flat, geohash, precision.map(p->p.intValue()));
         return fc;
     }
