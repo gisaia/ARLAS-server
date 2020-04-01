@@ -29,19 +29,19 @@ import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.Link;
 import io.arlas.server.model.enumerations.CollectionFunction;
 import io.arlas.server.model.enumerations.ComputationEnum;
 import io.arlas.server.model.enumerations.GeoTypeEnum;
 import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.*;
-import io.arlas.server.model.response.AggregationMetric;
-import io.arlas.server.model.response.AggregationResponse;
-import io.arlas.server.model.response.ComputationResponse;
+import io.arlas.server.model.response.*;
 import io.arlas.server.utils.*;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoPoint;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -51,6 +51,7 @@ import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.io.GeohashUtils;
 import org.locationtech.spatial4j.shape.Rectangle;
 
+import javax.ws.rs.core.UriInfo;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -63,6 +64,10 @@ public class ExploreServices {
 
     public static final Integer SEARCH_DEFAULT_PAGE_SIZE = 10;
     public static final Integer SEARCH_DEFAULT_PAGE_FROM = 0;
+
+    private static final String FEATURE_TYPE_KEY = "feature_type";
+    private static final String FEATURE_TYPE_VALUE = "hit";
+    private static final String FEATURE_GEOMETRY_PATH = "geometry_path";
 
     protected ElasticClient client;
     protected CollectionReferenceDao daoCollectionReference;
@@ -108,13 +113,19 @@ public class ExploreServices {
         return responseCacheManager;
     }
 
-    public SearchHits count(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
+    public Hits count(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
-        return fluidSearch.exec().getHits();
+        SearchHits searchHits = fluidSearch.exec().getHits();
+
+        Hits hits = new Hits(collectionReference.collectionName);
+        hits.totalnb = searchHits.getTotalHits().value;
+        hits.nbhits = searchHits.getHits().length;
+        return hits;
+
     }
 
     public SearchHits search(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
@@ -202,8 +213,154 @@ public class ExploreServices {
         return computationResponse;
     }
 
+    public Hits getSearchHits(MixedRequest request, CollectionReference collectionReference, Boolean flat, UriInfo uriInfo, String method) throws ArlasException {
+        UriInfoWrapper uriInfoUtil = new UriInfoWrapper(uriInfo, getBaseUri());
+        SearchHits searchHits = search(request, collectionReference);
+        Search searchRequest  = (Search)request.basicRequest;
+        Hits hits = new Hits(collectionReference.collectionName);
+        hits.totalnb = searchHits.getTotalHits().value;
+        hits.nbhits = searchHits.getHits().length;
+        HashMap<String, Link> links = new HashMap<>();
+        hits.hits = new ArrayList<>((int) hits.nbhits);
+        List<SearchHit>searchHitList= Arrays.asList(searchHits.getHits());
+        if(searchRequest.page != null && searchRequest.page.before != null ){
+            Collections.reverse(searchHitList);
+        }
+        for (SearchHit hit : searchHitList) {
+            hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), searchRequest.returned_geometries, flat, false));
+        }
+        Link self = new Link();
+        self.href = uriInfoUtil.getRequestUri();
+        self.method = method;
+        Link next = null;
+        Link previous = null;
+        int lastIndex = (int) hits.nbhits -1;
+        String sortParam = searchRequest.page != null ? searchRequest.page.sort : null;
+        String afterParam = searchRequest.page != null ? searchRequest.page.after : null;
+        String beforeParam = searchRequest.page != null ? searchRequest.page.before : null;
+        Integer sizeParam = searchRequest.page != null ? searchRequest.page.size : ExploreServices.SEARCH_DEFAULT_PAGE_SIZE;
+        String lastHitAfter = "";
+        String firstHitAfter = "";
+        if (lastIndex >= 0 && sizeParam == hits.nbhits && sortParam != null && (afterParam != null || sortParam.contains(collectionReference.params.idPath))) {
+            next = new Link();
+            next.method = method;
+            // Use sorted value of last element return by ES to build after param of next & previous link
+            lastHitAfter = Arrays.stream(searchHitList.get(lastIndex).getSortValues()).map(value->value.toString()).collect(Collectors.joining(","));
+        }
+        if (searchHitList.size()>0 && sortParam != null && (beforeParam != null || sortParam.contains(collectionReference.params.idPath))) {
+            previous = new Link();
+            previous.method = method;
+            firstHitAfter = Arrays.stream(searchHitList.get(0).getSortValues()).map(value->value.toString()).collect(Collectors.joining(","));
+        }
 
-    public SearchResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
+        switch (method){
+            case"GET":
+                links.put("self", self);
+                if (next != null){
+                    next.href = uriInfoUtil.getNextHref(lastHitAfter);
+                    links.put("next", next);
+                }
+                if (previous != null){
+                    previous.href = uriInfoUtil.getPreviousHref(firstHitAfter);
+                    links.put("previous", previous);
+                }
+                break;
+            case"POST":
+                self.body = searchRequest;
+                links.put("self", self);
+                if (next != null){
+                    Page nextPage = new Page();
+                    Search search = new Search();
+                    search.filter = searchRequest.filter;
+                    search.form = searchRequest.form;
+                    search.projection =searchRequest.projection;
+                    search.returned_geometries = searchRequest.returned_geometries;
+                    nextPage.sort=searchRequest.page.sort;
+                    nextPage.size=searchRequest.page.size;
+                    nextPage.from =searchRequest.page.from;
+                    nextPage.after = lastHitAfter;
+                    search.page = nextPage;
+                    next.href = self.href;
+                    next.body = search;
+                    links.put("next", next);
+                }
+                if (previous != null){
+                    Page previousPage = new Page();
+                    Search search = new Search();
+                    search.filter = searchRequest.filter;
+                    search.form = searchRequest.form;
+                    search.projection =searchRequest.projection;
+                    search.returned_geometries = searchRequest.returned_geometries;
+                    previousPage.sort=searchRequest.page.sort;
+                    previousPage.size=searchRequest.page.size;
+                    previousPage.from =searchRequest.page.from;
+                    previousPage.before = firstHitAfter;
+                    search.page = previousPage;
+                    previous.href = self.href;
+                    previous.body = search;
+                    links.put("previous", previous);
+                }
+                break;
+        }
+        hits.links = links;
+        return hits;
+    }
+
+    public FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request, boolean flat) throws ArlasException {
+        SearchHits searchHits = search(request, collectionReference);
+        Search searchRequest = (Search) request.basicRequest;
+        FeatureCollection fc = new FeatureCollection();
+        List<SearchHit> results = Arrays.asList(searchHits.getHits());
+        if (searchRequest.page != null && searchRequest.page.before != null) {
+            Collections.reverse(results);
+        }
+        for (SearchHit hit : results) {
+            Map<String, Object> source = hit.getSourceAsMap();
+            Hit arlasHit = new Hit(collectionReference, source, searchRequest.returned_geometries, flat, true);
+            if (searchRequest.returned_geometries != null) {
+                for (String path : searchRequest.returned_geometries.split(",")) {
+                    GeoJsonObject g = arlasHit.getGeometry(path);
+                    if (g != null) {
+                        fc.add(getFeatureFromHit(arlasHit, path, g));
+                    }
+                }
+            } else {
+                //Apply geometry or centroid to geo json feature
+                if (arlasHit.md.geometry != null) {
+                    fc.add(getFeatureFromHit(arlasHit, collectionReference.params.geometryPath, arlasHit.md.geometry));
+                } else if (arlasHit.md.centroid != null) {
+                    fc.add(getFeatureFromHit(arlasHit, collectionReference.params.centroidPath, arlasHit.md.centroid));
+                }
+            }
+        }
+        return fc;
+    }
+
+    private Feature getFeatureFromHit(Hit arlasHit, String path, GeoJsonObject geometry) {
+        Feature feature = new Feature();
+
+        /** Setting geometry of geojson */
+        feature.setGeometry(geometry);
+
+        /** setting the properties of the geojson */
+        feature.setProperties(new HashMap<>(arlasHit.getDataAsMap()));
+
+        /** Setting the Metadata (md) in properties of geojson.
+         * Only id, timestamp and centroid are set in the MD. The geometry is already returned in the geojson.*/
+        MD md = new MD();
+        md.id = arlasHit.md.id;
+        md.timestamp = arlasHit.md.timestamp;
+        md.centroid = arlasHit.md.centroid;
+        feature.setProperty(MD.class.getSimpleName().toLowerCase(), md);
+
+        /** Setting the feature type of the geojson */
+        feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
+        feature.setProperty(FEATURE_GEOMETRY_PATH, path);
+        return feature;
+    }
+
+    public RangeResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
+        Long startQuery = System.nanoTime();
         CheckParams.checkRangeRequestField(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
@@ -217,7 +374,28 @@ public class ExploreServices {
         } catch (SearchPhaseExecutionException e) {
             throw new InvalidParameterException("The field's type must be numeric");
         }
-        return response;
+
+        org.elasticsearch.search.aggregations.Aggregation firstAggregation = response.getAggregations().asList().get(0);
+        org.elasticsearch.search.aggregations.Aggregation secondAggregation = response.getAggregations().asList().get(1);
+
+        RangeResponse rangeResponse = new RangeResponse();
+        rangeResponse.totalnb = response.getHits().getTotalHits().value;
+        if (rangeResponse.totalnb > 0) {
+            if (firstAggregation.getName().equals(FluidSearch.FIELD_MIN_VALUE)) {
+                rangeResponse.min = ((Min)firstAggregation).getValue();
+                rangeResponse.max = ((Max)secondAggregation).getValue();
+            } else {
+                rangeResponse.min = ((Min)secondAggregation).getValue();
+                rangeResponse.max = ((Max)firstAggregation).getValue();
+            }
+            CheckParams.checkRangeFieldExists(rangeResponse);
+        } else {
+            rangeResponse.min = rangeResponse.max = null;
+        }
+
+        rangeResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
+
+        return rangeResponse;
     }
 
     protected void applyAggregation(List<Aggregation> aggregations, FluidSearch fluidSearch, Boolean isGeoAggregation) throws ArlasException {
@@ -335,6 +513,13 @@ public class ExploreServices {
         if (projection != null && !Strings.isNullOrEmpty(projection.excludes)) {
             fluidSearch = fluidSearch.exclude(projection.excludes);
         }
+    }
+
+    public AggregationResponse formatAggregationResult(SearchResponse response, String collection, Long startQuery) {
+        AggregationResponse aggregationResponse = new AggregationResponse();
+        aggregationResponse.totalnb = response.getHits().getTotalHits().value;
+        aggregationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
+        return formatAggregationResult((MultiBucketsAggregation) response.getAggregations().asList().get(0), aggregationResponse, collection);
     }
 
     public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse, String collection) {

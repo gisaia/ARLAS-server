@@ -30,8 +30,6 @@ import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.model.response.Error;
-import io.arlas.server.model.response.Hit;
-import io.arlas.server.model.response.MD;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.*;
@@ -40,27 +38,19 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.geojson.Feature;
 import org.geojson.FeatureCollection;
-import org.geojson.GeoJsonObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 public class GeoSearchRESTService extends ExploreRESTServices {
 
     public GeoSearchRESTService(ExploreServices exploreServices) {
         super(exploreServices);
     }
-
-    private static final String FEATURE_TYPE_KEY = "feature_type";
-    private static final String FEATURE_TYPE_VALUE = "hit";
-    private static final String FEATURE_GEOMETRY_PATH = "geometry_path";
-
 
     @Timed
     @Path("{collection}/_geosearch")
@@ -433,59 +423,8 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.headerRequest = searchHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        FeatureCollection fc = getFeatures(collectionReference, request, (search.form!=null && search.form.flat));
+        FeatureCollection fc = this.exploreServices.getFeatures(collectionReference, request, (search.form!=null && search.form.flat));
         return cache(Response.ok(fc), maxagecache);
-    }
-
-    protected FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request, boolean flat) throws ArlasException, IOException {
-        SearchHits searchHits = this.getExploreServices().search(request, collectionReference);
-        Search searchRequest = (Search) request.basicRequest;
-        FeatureCollection fc = new FeatureCollection();
-        List<SearchHit> results = Arrays.asList(searchHits.getHits());
-        if (searchRequest.page != null && searchRequest.page.before != null) {
-            Collections.reverse(results);
-        }
-        for (SearchHit hit : results) {
-            Map<String, Object> source = hit.getSourceAsMap();
-            Hit arlasHit = new Hit(collectionReference, source, searchRequest.returned_geometries, flat, true);
-            if (searchRequest.returned_geometries != null) {
-                for (String path : searchRequest.returned_geometries.split(",")) {
-                    GeoJsonObject g = arlasHit.getGeometry(path);
-                    if (g != null) fc.add(getFeatureFromHit(arlasHit, path, g));
-                }
-            } else {
-                //Apply geometry or centroid to geo json feature
-                if (arlasHit.md.geometry != null) {
-                    fc.add(getFeatureFromHit(arlasHit, collectionReference.params.geometryPath, arlasHit.md.geometry));
-                } else if (arlasHit.md.centroid != null) {
-                    fc.add(getFeatureFromHit(arlasHit, collectionReference.params.centroidPath, arlasHit.md.centroid));
-                }
-            }
-        }
-        return fc;
-    }
-
-    private Feature getFeatureFromHit(Hit arlasHit, String path, GeoJsonObject geometry) {
-        Feature feature = new Feature();
-
-        /** Setting geometry of geojson */
-        feature.setGeometry(geometry);
-
-        /** setting the properties of the geojson */
-        feature.setProperties(new HashMap<>(arlasHit.getDataAsMap()));
-
-        /** Setting the Metadata (md) in properties of geojson.
-         * Only id, timestamp and centroid are set in the MD. The geometry is already returned in the geojson.*/
-        MD md = new MD();
-        md.id = arlasHit.md.id;
-        md.timestamp = arlasHit.md.timestamp;
-        md.centroid = arlasHit.md.centroid;
-        feature.setProperty(MD.class.getSimpleName().toLowerCase(), md);
-
-        /** Setting the feature type of the geojson */
-        feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
-        feature.setProperty(FEATURE_GEOMETRY_PATH, path);
-        return feature;
     }
 
     private Response geosearch(CollectionReference collectionReference, Filter filter, String partitionFilter,
@@ -512,7 +451,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         exploreServices.setValidGeoFilters(collectionReference, searchHeader);
         request.headerRequest = searchHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
-        FeatureCollection fc = getFeatures(collectionReference, request, (flat != null && flat));
+        FeatureCollection fc = this.exploreServices.getFeatures(collectionReference, request, (flat != null && flat));
         return cache(Response.ok(fc), maxagecache);
     }
 

@@ -21,7 +21,6 @@ package io.arlas.server.rest.explore.range;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.app.Documentation;
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.MixedRequest;
@@ -30,17 +29,12 @@ import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.RangeResponse;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.services.ExploreServices;
-import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.metrics.Max;
-import org.elasticsearch.search.aggregations.metrics.Min;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -148,7 +142,7 @@ public class RangeRESTService extends ExploreRESTServices {
         request.headerRequest = rangeRequestHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        RangeResponse rangeResponse = getFieldRange(request, collectionReference);
+        RangeResponse rangeResponse = this.getExploreServices().getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(rangeResponse), maxagecache);
     }
@@ -221,33 +215,8 @@ public class RangeRESTService extends ExploreRESTServices {
         request.headerRequest = rangeRequestHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        RangeResponse rangeResponse = getFieldRange(request, collectionReference);
+        RangeResponse rangeResponse = this.getExploreServices().getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(rangeResponse), maxagecache);
-    }
-
-    public RangeResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException, IOException{
-        RangeResponse rangeResponse = new RangeResponse();
-        Long startQuery = System.nanoTime();
-        SearchResponse response = this.getExploreServices().getFieldRange(request, collectionReference);
-        Aggregation firstAggregation = response.getAggregations().asList().get(0);
-        Aggregation secondAggregation = response.getAggregations().asList().get(1);
-
-        rangeResponse.totalnb = response.getHits().getTotalHits().value;
-        if (rangeResponse.totalnb > 0) {
-            if (firstAggregation.getName().equals(FluidSearch.FIELD_MIN_VALUE)) {
-                rangeResponse.min = ((Min)firstAggregation).getValue();
-                rangeResponse.max = ((Max)secondAggregation).getValue();
-            } else {
-                rangeResponse.min = ((Min)secondAggregation).getValue();
-                rangeResponse.max = ((Max)firstAggregation).getValue();
-            }
-            CheckParams.checkRangeFieldExists(rangeResponse);
-        } else {
-            rangeResponse.min = rangeResponse.max = null;
-        }
-        
-        rangeResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
-        return rangeResponse;
     }
 }
