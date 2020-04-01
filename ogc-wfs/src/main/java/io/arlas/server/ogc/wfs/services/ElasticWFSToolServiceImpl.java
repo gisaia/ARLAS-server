@@ -41,7 +41,6 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
@@ -66,9 +65,8 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
     }
 
     @Override
-    public Object getFeature(String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter, CollectionReference collectionReference, String[] excludes, Optional<String> columnFilter) throws ArlasException, IOException {
+    public Map<String, Object> getFeature(String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter, CollectionReference collectionReference, String[] excludes, Optional<String> columnFilter) throws ArlasException, IOException {
         buildWFSQuery(WFSRequestType.GetFeature, id, bbox, constraint, resourceid, storedquery_id, partitionFilter, collectionReference, columnFilter);
-        SearchHit response;
         String[] includes = columnFilterToIncludes(collectionReference, columnFilter);
         SearchRequest request = new SearchRequest(collectionReference.params.indexName);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -78,19 +76,19 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
         SearchHits hitsGetFeature = exploreServices.getClient()
                 .search(request).getHits();
         if (hitsGetFeature.getHits().length > 0) {
-            response = hitsGetFeature.getAt(0);
+            return hitsGetFeature.getAt(0).getSourceAsMap();
         } else {
             throw new OGCException(OGCExceptionCode.NOT_FOUND, "Data not found", "resourceid", Service.WFS);
         }
-        return response;
+
     }
 
     @Override
-    public List<Object> getFeatures(String id, String bbox, String constraint, String resourceid, String partitionFilter, CollectionReference collectionReference, String[] excludes, Integer startindex, Integer count,
+    public List<Map<String, Object>> getFeatures(String id, String bbox, String constraint, String resourceid, String partitionFilter, CollectionReference collectionReference, String[] excludes, Integer startindex, Integer count,
                                     Optional<String> columnFilter) throws ArlasException, IOException {
 
         buildWFSQuery(null, id, bbox, constraint, resourceid, null, partitionFilter, collectionReference, columnFilter);
-        List<Object> featureList = new ArrayList<>();
+        List<Map<String, Object>> featureList = new ArrayList<>();
         String[] includes = columnFilterToIncludes(collectionReference, columnFilter);
         SearchRequest request = new SearchRequest(collectionReference.params.indexName);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -102,7 +100,7 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
         SearchHits hitsGetFeature = exploreServices.getClient()
                 .search(request).getHits();
         for (int i = 0; i < hitsGetFeature.getHits().length; i++) {
-            featureList.add(hitsGetFeature.getAt(i));
+            featureList.add(hitsGetFeature.getAt(i).getSourceAsMap());
         }
         return featureList;
     }
