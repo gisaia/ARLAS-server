@@ -20,6 +20,7 @@
 package io.arlas.server.rest.explore.opensearch;
 
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.impl.elastic.core.ElasticAdmin;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.Feed;
 import io.arlas.server.model.response.*;
