@@ -29,7 +29,6 @@ import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
-import org.elasticsearch.search.SearchHit;
 import org.geojson.GeoJsonObject;
 
 import javax.ws.rs.WebApplicationException;
@@ -55,7 +54,7 @@ public class GetFeatureHandler {
         this.featureNamespace = wfsHandler.wfsConfiguration.featureNamespace;
     }
 
-    public StreamingOutput getFeatureResponse(OGCConfiguration configuration, CollectionReferenceDescription collectionReference, Integer start, Integer count, List<Object> rs, String uri) {
+    public StreamingOutput getFeatureResponse(OGCConfiguration configuration, CollectionReferenceDescription collectionReference, Integer start, Integer count, List<Map<String, Object>> rs, String uri) {
 
         StreamingOutput streamingOutput = new StreamingOutput() {
             @Override
@@ -70,7 +69,7 @@ public class GetFeatureHandler {
         return streamingOutput;
     }
 
-    public StreamingOutput getFeatureByIdResponse(Object rs, CollectionReferenceDescription collectionReference, String uri) {
+    public StreamingOutput getFeatureByIdResponse(Map<String, Object> rs, CollectionReferenceDescription collectionReference, String uri) {
 
         StreamingOutput streamingOutput = new StreamingOutput() {
             @Override
@@ -85,7 +84,7 @@ public class GetFeatureHandler {
         return streamingOutput;
     }
 
-    public void doGetFeatureByIdResults(OutputStream outputStream, Object rs, CollectionReferenceDescription collectionReference, String uri) throws XMLStreamException, ArlasException {
+    public void doGetFeatureByIdResults(OutputStream outputStream, Map<String, Object> rs, CollectionReferenceDescription collectionReference, String uri) throws XMLStreamException, ArlasException {
 
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(outputStream);
@@ -93,7 +92,7 @@ public class GetFeatureHandler {
         writer.flush();
     }
 
-    public void doGetFeatureResults(OGCConfiguration configuration, OutputStream outputStream, Integer start, Integer count, List<Object> rs,
+    public void doGetFeatureResults(OGCConfiguration configuration, OutputStream outputStream, Integer start, Integer count, List<Map<String, Object>> rs,
                                     CollectionReferenceDescription collectionReference, String uri)
             throws Exception {
 
@@ -135,7 +134,7 @@ public class GetFeatureHandler {
         return simpleDateFormat.format(new Date(msSince1970));
     }
 
-    private void writeFeatureMembersStream(XMLStreamWriter xmlStream, List<Object> rs,
+    private void writeFeatureMembersStream(XMLStreamWriter xmlStream, List<Map<String, Object>> rs,
                                            int maxFeatures, int startIndex,
                                            QName featureMemberEl, CollectionReferenceDescription collectionReference, String uri)
             throws XMLStreamException, FactoryConfigurationError, ArlasException {
@@ -145,7 +144,7 @@ public class GetFeatureHandler {
         // retrieve and write result features
         int featuresAdded = 0;
         if (rs.size() > 0) {
-            for (Object member : rs) {
+            for (Map<String, Object> member : rs) {
                 if (featuresAdded == maxFeatures) {
                     // limit the number of features written to maxfeatures
                     break;
@@ -157,7 +156,7 @@ public class GetFeatureHandler {
         xmlStream.writeEndElement();
     }
 
-    protected void writeMemberFeature(Object member, XMLStreamWriter xmlStream, QName featureMemberEl, CollectionReferenceDescription collectionReference, String uri)
+    protected void writeMemberFeature(Map<String, Object> member, XMLStreamWriter xmlStream, QName featureMemberEl, CollectionReferenceDescription collectionReference, String uri)
             throws XMLStreamException, ArlasException {
         xmlStream.writeStartElement(featureMemberEl.getNamespaceURI(), featureMemberEl.getLocalPart());
         writeFeature(member, xmlStream, collectionReference, uri, false);
@@ -165,7 +164,7 @@ public class GetFeatureHandler {
     }
 
 
-    protected void writeFeature(Object member, XMLStreamWriter xmlStream, CollectionReferenceDescription
+    protected void writeFeature(Map<String, Object> source, XMLStreamWriter xmlStream, CollectionReferenceDescription
             collectionReference, String uri, Boolean isByID) throws XMLStreamException, ArlasException {
 
         String collectionName = collectionReference.collectionName;
@@ -174,7 +173,6 @@ public class GetFeatureHandler {
         String timestampPath = collectionReference.params.timestampPath;
 
         GeoJsonObject geometry = null;
-        Object source = ((SearchHit) member).getSourceAsMap();
         CollectionReferenceManager.setCollectionGeometriesType(source, collectionReference);
         String id = null;
         if (idPath != null) {
