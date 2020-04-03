@@ -80,8 +80,8 @@ The sub-parameters possible values are:
 | **size**          | {size}                                          | Defines how many buckets should be returned. |
 | **include**       | Comma separated strings (4)                     | Specifies the values for which buckets will be created. |
 | **aggregated_geometries** | Comma separated strings : `bbox`, `centroid`, `geohash_center`, `geohash` |  Allows to specify a list of aggregated forms of geometries that represent the bucket (5)(6)|
-| **raw_geometries** | `{Comma separated geo_fields}(+{field1}, {field2}, -{field3}, ...)` |  Allows to specify a list of raw geometries provided by a hit that represents the bucket and that's elected by a sort (7)(8)|
-| **fetch_hits**     | `{optionalNumberOfHist}(+{field1}, {field2}, -{field3}, ...)`    | Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits. The hits can be sorted according 0-* fields by preceding the field name by `+` for ascending sort, `-` for descending sort or nothing if no sort is desired on a field.|
+| **raw_geometries** | `{geo_field1}(+{field1}, ...);{geo_field2}(-{field2}, ...)` |  Allows to specify a list of raw geometries provided by hits that represent the bucket and that are elected by a sort (7)(8)|
+| **fetch_hits**     | `{optionalNumberOfHist}(+{field1}, {field2}, -{field3}, ...)`    | Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits. The hits can be sorted according 0-* fields by preceding the field name by `+` for ascending sort, `-` for descending sort or nothing if no sort is desired on a field.(9)|
 
 (1) Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
 
@@ -122,12 +122,13 @@ The `order` is applied on the first collect_fct `avg` (that is different from `g
  
 (8) The response :
 
- - For `_aggregate` service: the aggregated geometries are returned in `geometries` list in the json response. Each object inside this list has : the `reference` to the geometry path, the geojson `geometry` and an attribute `is_raw` set to true. 
+ - For `_aggregate` service: the aggregated geometries are returned in `geometries` list in the json response. Each object inside this list has : the `reference` to the geometry path, the used sort, the geojson `geometry` and an attribute `is_raw` set to true. 
  - For `_geoaggregate` service: each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified raw geometries. The properties of each feature has :
      - **geometry_ref** attribute that informs which geometry path is returned.
      - **geometry_type** attribute set to *raw*.
-
-
+     - **geometry_sort** attribute that informs how the geometry path is fetched (with what sort).
+     - > Example: `raw_geometries-geo_field1,geo_field2  ||  raw_geometries-geo_field(-field1,field2) || raw_geometries-geo_field1(field1);geo_field2(field2,field3)`
+(9)
  - > Example: `fetch_hits-3(-timestamp, geometry)`. The 3 last positions are retrieved for each bucket 
 
 *Note* that if the number of hits to fetch is not specified, 1 is considered as default.

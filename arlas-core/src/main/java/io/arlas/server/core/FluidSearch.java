@@ -25,10 +25,7 @@ import io.arlas.server.exceptions.*;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
-import io.arlas.server.model.request.Aggregation;
-import io.arlas.server.model.request.Expression;
-import io.arlas.server.model.request.Metric;
-import io.arlas.server.model.request.MultiValueFilter;
+import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.model.response.TimestampType;
 import io.arlas.server.utils.*;
@@ -794,21 +791,29 @@ public class FluidSearch {
     }
 
     private ValuesSourceAggregationBuilder setRawGeometries(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
-        if (aggregationModel.rawGeometries != null && !aggregationModel.rawGeometries.geometries.isEmpty()) {
-            String[] includes = aggregationModel.rawGeometries.geometries.stream().toArray(String[]::new);
-            TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(RAW_GEOMETRY_SUFFIX).size(1).fetchSource(includes, null);
-            for (String field : Arrays.asList(aggregationModel.rawGeometries.sort.split(","))) {
-                String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
-                ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
-                if (field.startsWith("+")) {
-                    topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
-                } else if (field.startsWith("-")) {
-                    topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
-                } else {
-                    topHitsAggregationBuilder.sort(field, SortOrder.ASC);
+        if (aggregationModel.rawGeometries != null) {
+            Map<String, Set<String>> rgs = new HashMap<>();
+            aggregationModel.rawGeometries.forEach(rg -> {
+                Set<String> geos = rgs.get(rg.sort);
+                if (geos == null) geos = new HashSet<>();
+                geos.add(rg.geometry);
+                rgs.put(rg.sort, geos);
+            });
+            for (String sort: rgs.keySet()) {
+                String[] includes = rgs.get(sort).stream().toArray(String[]::new);
+                TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(RAW_GEOMETRY_SUFFIX + sort).size(1).fetchSource(includes, null);
+                for (String field : sort.split(",")) {
+                    String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
+                    ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
+                    if (field.startsWith("+") || !field.startsWith("-")) {
+                        topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
+                    } else {
+                        topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
+                    }
                 }
+                aggregationBuilder.subAggregation(topHitsAggregationBuilder);
             }
-            aggregationBuilder.subAggregation(topHitsAggregationBuilder);
+
         }
         return aggregationBuilder;
     }
@@ -823,9 +828,9 @@ public class FluidSearch {
                     String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
                     ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
                     includes.add(unsignedField);
-                    if (field.startsWith("+")) {
+                    if (field.startsWith("+") || !field.startsWith("-")) {
                         topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
-                    } else if (field.startsWith("-")) {
+                    } else {
                         topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
                     }
                 }

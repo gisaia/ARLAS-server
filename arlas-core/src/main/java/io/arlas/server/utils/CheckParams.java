@@ -32,6 +32,7 @@ import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.model.response.RangeResponse;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
@@ -220,20 +221,19 @@ public class CheckParams {
 
     public static void checkRawGeometriesParameter(Aggregation aggregationModel, CollectionReference collectionReference) throws ArlasException {
         if (aggregationModel.rawGeometries != null) {
-            if (CollectionUtils.isEmpty(aggregationModel.rawGeometries.geometries)) {
-                throw new BadRequestException(RAW_GEOMETRIES_NULL_OR_EMPTY);
-            } else {
-                for(String geo : aggregationModel.rawGeometries.geometries) {
-                    ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, geo, true); // will throw ArlasException if not existing
+            for (RawGeometry rg : aggregationModel.rawGeometries) {
+                if (StringUtils.isBlank(rg.geometry)) {
+                    throw new BadRequestException(RAW_GEOMETRIES_NULL_OR_EMPTY);
+                } else {
+                    ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, rg.geometry, true); // will throw ArlasException if not existing
                     if (fieldType != ElasticType.GEO_POINT && fieldType != ElasticType.GEO_SHAPE) {
-                        throw new InvalidParameterException("`" + geo + "` is not a geo-point or a geo-shape field");
+                        throw new InvalidParameterException("`" + rg.geometry + "` is not a geo-point or a geo-shape field");
+                    }
+                    if (StringUtils.isBlank(rg.sort)) {
+                        rg.sort = collectionReference.params.timestampPath;
                     }
                 }
-                if (StringUtil.isNullOrEmpty(aggregationModel.rawGeometries.sort)) {
-                    aggregationModel.rawGeometries.sort = collectionReference.params.timestampPath;
-                }
             }
-
         }
     }
     public static void checkAggregatedGeometryParameter(Aggregation aggregationModel) throws ArlasException {

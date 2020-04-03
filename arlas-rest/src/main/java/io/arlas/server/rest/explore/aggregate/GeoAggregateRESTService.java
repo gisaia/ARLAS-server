@@ -59,6 +59,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     private static final String FEATURE_TYPE_VALUE = "aggregation";
     private static final String GEOMETRY_REFERENCE = "geometry_ref";
     private static final String GEOMETRY_TYPE = "geometry_type";
+    private static final String GEOMETRY_SORT = "geometry_sort";
 
     @Timed
     @Path("{collection}/_geoaggregate")
@@ -394,6 +395,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                        feature.setProperty(GEOMETRY_REFERENCE, g.reference);
                        String aggregationGeometryType = g.isRaw ? AggregationGeometryEnum.RAW.value() : AggregationGeometryEnum.AGGREGATED.value();
                        feature.setProperty(GEOMETRY_TYPE, aggregationGeometryType);
+                       feature.setProperty(GEOMETRY_SORT, g.sort);
                        GeoJsonObject geometry = g.geometry;
                        feature.setGeometry(geometry);
                        fc.add(feature);

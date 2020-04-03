@@ -39,7 +39,7 @@ public class Aggregation {
     public OrderOn on;
     public String size;
     public String include;
-    public RawGeometries rawGeometries;
+    public List<RawGeometry> rawGeometries;
     public List<AggregatedGeometryEnum> aggregatedGeometries;
     public HitsFetcher fetchHits;
 

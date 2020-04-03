@@ -179,9 +179,9 @@ public class Documentation {
             "\n \n" +
             "- **raw_geometries**" +
             "\n \n" +
-            "    > **What it does**: Allows to specify a list of raw geometries provided by a hit that represents the bucket and that's elected by a sort" +
+            "    > **What it does**: Allows to specify a list of raw geometries provided by hits that represent the bucket and that are elected by a sort" +
             "\n \n" +
-            "    > __**Syntax**__: `raw_geometries-{COMMA_SEPARATED_GEOMETRY_FIELDS}({COMMA_SEPERATED_SORT_FIELDS})`." +
+            "    > __**Syntax**__: `raw_geometries-{GEOMETRY_FIELD}({COMMA_SEPERATED_SORT_FIELDS});{GEOMETRY_FIELD2}({COMMA_SEPERATED_SORT_FIELDS2})`." +
             "\n \n" +
             "    > __**Available raw geometries**__: any field of the collection whose type is **geo-point** or **geo-shape**." +
             "\n \n" +
@@ -189,9 +189,9 @@ public class Documentation {
             "\n \n" +
             "       - a sort field can be preceded by '-' for descending sort. Otherwise the sort is ascending" +
             "\n \n" +
-            "    > __**Response**__: the aggregated geometries are returned in `geometries` list in the json response. Each object inside this list has : the reference to the geometry path, the geojson geometry and an attribute `is_raw` set to true" +
+            "    > __**Response**__: the aggregated geometries are returned in `geometries` list in the json response. Each object inside this list has : the reference to the geometry path, the used sort, the geojson geometry and an attribute `is_raw` set to true" +
             "\n \n" +
-            "    > __**Example**__: `raw_geometries-geo_field1,geo_field2  ||  raw_geometries-geo_field(-field1,field2)`" +
+            "    > __**Example**__: `raw_geometries-geo_field1,geo_field2  ||  raw_geometries-geo_field(-field1,field2)` || raw_geometries-geo_field1(field1);geo_field2(field2,field3)" +
             "\n \n" +
             "- **fetch_hits** " +
             "\n \n" +
@@ -292,9 +292,9 @@ public class Documentation {
             "\n \n" +
             "- **raw_geometries**" +
             "\n \n" +
-            "    > **What it does**: Allows to specify a list of raw geometries provided by a hit that represents the bucket and that's elected by a sort" +
+            "    > **What it does**: Allows to specify a list of raw geometries provided by hits that represent the bucket and thata are elected by a sort" +
             "\n \n" +
-            "    > __**Syntax**__: `raw_geometries-{COMMA_SEPARATED_GEOMETRY_FIELDS}({COMMA_SEPERATED_SORT_FIELDS})`." +
+            "    > __**Syntax**__: `raw_geometries-{GEOMETRY_FIELD}({COMMA_SEPERATED_SORT_FIELDS});{GEOMETRY_FIELD2}({COMMA_SEPERATED_SORT_FIELDS2})`." +
             "\n \n" +
             "    > __**Available raw geometries**__: any field of the collection whose type is **geo-point** or **geo-shape**." +
             "\n \n" +
@@ -308,7 +308,9 @@ public class Documentation {
             "\n \n" +
             "       - **geometry_type** attribute set to *raw*" +
             "\n \n" +
-            "    > __**Example**__: `raw_geometries-geo_field1,geo_field2  ||  raw_geometries-geo_field(-field1,field2)`" +
+            "       - **geometry_sort** attribute that informs how the geometry path is fetched (with what sort)" +
+            "\n \n" +
+            "    > __**Example**__: `raw_geometries-geo_field1,geo_field2  ||  raw_geometries-geo_field(-field1,field2)` || raw_geometries-geo_field1(field1);geo_field2(field2,field3)" +
             "\n \n" +
             "- **fetch_hits** " +
             "\n \n" +

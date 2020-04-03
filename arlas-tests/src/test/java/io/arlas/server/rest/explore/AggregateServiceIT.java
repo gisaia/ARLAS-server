@@ -159,7 +159,8 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
                 .body("elements", hasSize(featuresSize))
                 .body("elements.geometries", everyItem(hasSize(nbGeometries)))
                 .body("elements.geometries.is_raw", everyItem(everyItem(equalTo(false))))
-                .body("elements.geometries.reference", everyItem(everyItem(isOneOf(geometries))));
+                .body("elements.geometries.reference", everyItem(everyItem(isOneOf(geometries))))
+                .body("elements.geometries.sort", everyItem(everyItem(nullValue())));
     }
 
     @Override
@@ -171,6 +172,15 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
                 .body("elements.geometries.reference", everyItem(everyItem(isOneOf(geometries))));
     }
 
+    @Override
+    protected void handleMatchingAggregateWithRawGeometriesSorts(ValidatableResponse then, int featuresSize, int nbGeometries, String geometry, String... sorts) {
+        then
+                .body("elements", hasSize(featuresSize))
+                .body("elements.geometries", everyItem(hasSize(nbGeometries)))
+                .body("elements.geometries.is_raw", everyItem(everyItem(equalTo(true))))
+                .body("elements.geometries.reference", everyItem(everyItem(equalTo(geometry))))
+                .body("elements.geometries.sort", everyItem(everyItem(isOneOf(sorts))));
+    }
 
     @Override
     protected void handleMatchingAggregateWithMixedGeometries(ValidatableResponse then, int featuresSize, int nbGeometries, String... geometries) {

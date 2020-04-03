@@ -19,32 +19,19 @@
 
 package io.arlas.server.model.request;
 
-import io.arlas.server.utils.StringUtil;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class RawGeometries {
-    public List<String> geometries;
+public class RawGeometry {
+    public String geometry;
     public String sort;
 
-    public RawGeometries() {
+    public RawGeometry() {
     }
 
-    public RawGeometries(List<String> geometries, String sort) {
-        this.geometries = geometries;
+    public RawGeometry(String geometry) {
+        this.geometry = geometry;
+    }
+
+    public RawGeometry(String geometry, String sort) {
+        this.geometry = geometry;
         this.sort = sort;
-    }
-
-    public RawGeometries(List<String> geometries) {
-        this.geometries = geometries;
-    }
-
-    public String flatten() {
-        if (!StringUtil.isNullOrEmpty(sort)) {
-            return geometries.stream().collect(Collectors.joining(",")) + "-(" + sort + ")";
-        } else {
-            return geometries.stream().collect(Collectors.joining(","));
-        }
     }
 }

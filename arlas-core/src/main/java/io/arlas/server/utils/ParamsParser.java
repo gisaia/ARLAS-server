@@ -30,6 +30,7 @@ import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.ElasticType;
 import io.dropwizard.jersey.params.IntParam;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.algorithm.Orientation;
@@ -62,11 +63,11 @@ public class ParamsParser {
     private static final String AGG_FETCHHITS_PARAM = "fetch_hits-";
 
     private static final Pattern HITS_FETCHER_PATTERN = Pattern.compile("(\\d*)(\\()(.*)(\\))");
+    private static final Pattern SORT_FIELDS_PATTERN = Pattern.compile("\\((.*?)\\)$");
 
     private static final List<OperatorEnum> GEO_OP = Arrays.asList(OperatorEnum.within, OperatorEnum.notwithin, OperatorEnum.intersects, OperatorEnum.notintersects);
     private static final List<OperatorEnum> GEO_OP_WITHIN = Arrays.asList(OperatorEnum.within, OperatorEnum.notwithin);
     private static final  GeometryFactory GEOMETRY_FACTORY = new GeometryFactory(new PrecisionModel(), 4326);
-    private static final List<OperatorEnum> GEO_OP_INTERSECTS = Arrays.asList(OperatorEnum.intersects, OperatorEnum.notintersects);
     public static final String INVALID_AGG_RETURNED_GEOMETRIES = "Invalid `returned_geometries` parameter. It should be `returned_geometries-{comma separated strategies and geo_fields}(+/-sort_field)`";
 
     public static final String RANGE_ALIASES_CHARACTER = "$";
@@ -140,28 +141,29 @@ public class ParamsParser {
         hitsFetcher.include = Arrays.asList(matcher.group(3).split(","));
         return hitsFetcher;
     }
-
-    private static RawGeometries getAggregationRawGeometries(String rawGeometriesString, CollectionReference collectionReference) throws ArlasException {
-        RawGeometries rawGeometries = null;
+    
+    private static List<RawGeometry> getAggregationRawGeometries(String rawGeometriesString, CollectionReference collectionReference) throws ArlasException {
+        List<RawGeometry> rawGeometries = new ArrayList<>();
         if (!StringUtil.isNullOrEmpty(rawGeometriesString)) {
-            Matcher sortMatcher = Pattern.compile("\\((.*?)\\)$").matcher(rawGeometriesString);
-            rawGeometries = new RawGeometries();
-            if (sortMatcher.find()) {
-                rawGeometries.sort = sortMatcher.group(1);
-            } else {
-                rawGeometries.sort = collectionReference.params.timestampPath;
-            }
-            String geometriesString = sortMatcher.replaceAll("");
-            List<String> geometries = Arrays.asList(geometriesString.split(",")).stream().distinct().collect(Collectors.toList());
-            if (geometries.isEmpty()) {
-                throw new InvalidParameterException(INVALID_AGG_RETURNED_GEOMETRIES);
-            } else {
-                rawGeometries.geometries = geometries;
+            for(String rg: Arrays.asList(rawGeometriesString.split(";"))) {
+                Matcher sortMatcher = SORT_FIELDS_PATTERN.matcher(rg);
+                RawGeometry rawGeometry = new RawGeometry();
+                if (sortMatcher.find()) {
+                    rawGeometry.sort = sortMatcher.group(1);
+                } else {
+                    rawGeometry.sort = collectionReference.params.timestampPath;
+                }
+                String geometriesString = sortMatcher.replaceAll("");
+                if (StringUtils.isBlank(geometriesString)) {
+                    throw new InvalidParameterException(INVALID_AGG_RETURNED_GEOMETRIES);
+                } else {
+                    rawGeometry.geometry = geometriesString;
+                }
+                rawGeometries.add(rawGeometry);
             }
         }
         return rawGeometries;
     }
-
     private static List<AggregatedGeometryEnum> getAggregatedGeometries(String aggregatedGeometriesString) throws ArlasException {
         List<AggregatedGeometryEnum> aggregatedGeometries = null;
         if (!StringUtil.isNullOrEmpty(aggregatedGeometriesString)) {

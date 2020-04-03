@@ -26,5 +26,6 @@ import org.geojson.GeoJsonObject;
 public class ReturnedGeometry {
     public String reference;
     public GeoJsonObject geometry;
+    public String sort;
     public boolean isRaw;
 }

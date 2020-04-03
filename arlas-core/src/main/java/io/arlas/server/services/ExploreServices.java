@@ -80,6 +80,7 @@ public class ExploreServices {
     private static final String FEATURE_TYPE_VALUE = "hit";
     private static final String FEATURE_GEOMETRY_PATH = "geometry_path";
 
+
     protected ElasticClient client;
     protected CollectionReferenceDao daoCollectionReference;
     private ResponseCacheManager responseCacheManager = null;
@@ -534,15 +535,14 @@ public class ExploreServices {
         return formatAggregationResult((MultiBucketsAggregation) response.getAggregations().asList().get(0), aggregationResponse, collection, aggregationsRequest, aggTreeDepth);
     }
 
-
     public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse, CollectionReference collection, List<Aggregation> aggregationsRequest, int aggTreeDepth) {
         aggregationResponse.name = aggregation.getName();
         if (aggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
             aggregationResponse.sumotherdoccounts = ((Terms) aggregation).getSumOfOtherDocCounts();
         }
-        RawGeometries rawGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).rawGeometries : null;
+        List<RawGeometry> rawGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).rawGeometries : null;
         List<AggregatedGeometryEnum> aggregatedGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).aggregatedGeometries : null;
-        aggregationResponse.elements = new ArrayList<AggregationResponse>();
+        aggregationResponse.elements = new ArrayList<>();
         List<MultiBucketsAggregation.Bucket> buckets = (List<MultiBucketsAggregation.Bucket>) aggregation.getBuckets();
         buckets.forEach(bucket -> {
             AggregationResponse element = new AggregationResponse();
@@ -574,7 +574,7 @@ public class ExploreServices {
                 element.key = bucket.getKey();
             }
             element.count = bucket.getDocCount();
-            element.elements = new ArrayList<AggregationResponse>();
+            element.elements = new ArrayList<>();
             if (bucket.getAggregations().asList().size() == 0) {
                 element.elements = null;
                 aggregationResponse.elements.add(element);
@@ -611,18 +611,20 @@ public class ExploreServices {
                             element.geometries = new ArrayList<>();
                         }
                         element.geometries.add(returnedGeometry);
-                    } else if (subAggregation.getName().equals(FluidSearch.RAW_GEOMETRY_SUFFIX)) {
+                    } else if (subAggregation.getName().startsWith(FluidSearch.RAW_GEOMETRY_SUFFIX)) {
+                        String sort = subAggregation.getName().substring(FluidSearch.RAW_GEOMETRY_SUFFIX.length(), subAggregation.getName().length());
                         subAggregationResponse = null;
                         long nbHits = ((TopHits) subAggregation).getHits().getTotalHits().value;
                         if (nbHits > 0) {
                             List<SearchHit> hits = Arrays.asList(((TopHits) subAggregation).getHits().getHits());
                             for (SearchHit hit: hits) {
                                 Map source = hit.getSourceAsMap();
-                                if (rawGeometries != null && !CollectionUtils.isEmpty(rawGeometries.geometries)) {
-                                    rawGeometries.geometries.forEach(g -> {
+                                if (rawGeometries != null) {
+                                    List<String> geometries = rawGeometries.stream().filter(rg -> rg.sort.equals(sort)).map(rg -> rg.geometry).collect(Collectors.toList());
+                                    geometries.forEach(g -> {
                                         GeoJsonObject geometryGeoJson = null;
                                         try {
-                                            CollectionReferenceManager.setCollectionGeometriesType(source, collection, rawGeometries.geometries.stream().collect(Collectors.joining(",")));
+                                            CollectionReferenceManager.setCollectionGeometriesType(source, collection, geometries.stream().collect(Collectors.joining(",")));
                                             GeoTypeEnum geometryType = null;
                                             Object geometry = MapExplorer.getObjectFromPath(g, source);
                                             ReturnedGeometry returnedGeometry = null;
@@ -643,6 +645,7 @@ public class ExploreServices {
                                             if (geometryGeoJson != null) {
                                                 returnedGeometry.geometry = geometryGeoJson;
                                                 returnedGeometry.isRaw = true;
+                                                returnedGeometry.sort = sort;
                                                 if (element.geometries == null) {
                                                     element.geometries = new ArrayList<>();
                                                 }
@@ -712,8 +715,7 @@ public class ExploreServices {
 
     private boolean isAggregatedGeometry(String subName, List<AggregatedGeometryEnum> geometries) {
         if(!CollectionUtils.isEmpty(geometries)) {
-            long n = geometries.stream().map(g -> g.value() + FluidSearch.AGGREGATED_GEOMETRY_SUFFIX).filter(g -> g.equals(subName)).count();
-            return n > 0;
+            return geometries.stream().map(g -> g.value() + FluidSearch.AGGREGATED_GEOMETRY_SUFFIX).anyMatch(g -> g.equals(subName));
         }
         return false;
     }

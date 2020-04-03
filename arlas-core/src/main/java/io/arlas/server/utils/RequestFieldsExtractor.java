@@ -24,6 +24,7 @@ import io.arlas.server.model.request.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RequestFieldsExtractor {
@@ -172,10 +173,10 @@ public class RequestFieldsExtractor {
 
         private Stream<String> getRawGeometriesCol(Aggregation agg) {
             return Optional.ofNullable(agg.rawGeometries).map(rg -> {
-                Stream<String> geometriesStream =  Optional.ofNullable(rg.geometries).map(g -> g.stream()).orElse(Stream.of());
-                Stream<String> sortStream =  Optional.ofNullable(rg.sort).map(sort -> Arrays.asList(sort.split(",")).stream().map(
+                Stream<String> geometriesStream =  Optional.ofNullable(rg).map(g -> g.stream().map(r -> r.geometry).collect(Collectors.toSet())).map(g -> g.stream()).orElse(Stream.of());
+                Stream<String> sortStream = Optional.ofNullable(rg).map(g -> g.stream().map(r -> r.sort).collect(Collectors.joining(","))).map(sort -> Arrays.asList(sort.split(",")).stream().map(
                         (String s )-> s.startsWith("-") || s.startsWith("+") ? s.substring(1) : s
-                )).orElse(Stream.of());
+                ).collect(Collectors.toSet())).map(g -> g.stream()).orElse(Stream.of());
                 return Stream.of(geometriesStream, sortStream).flatMap(x -> x);
             }).orElse(Stream.of());
         }

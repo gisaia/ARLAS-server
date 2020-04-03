@@ -135,7 +135,8 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
         then
                 .body("features", hasSize(featuresSize * nbGeometries))
                 .body("features.properties.geometry_type", everyItem(equalTo("aggregated")))
-                .body("features.properties.geometry_ref", everyItem(isOneOf(geometries)));
+                .body("features.properties.geometry_ref", everyItem(isOneOf(geometries)))
+                .body("features.properties.geometry_sort", everyItem(nullValue()));
     }
 
     @Override
@@ -144,6 +145,15 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features", hasSize(featuresSize * nbGeometries))
                 .body("features.properties.geometry_type", everyItem(equalTo("raw")))
                 .body("features.properties.geometry_ref", everyItem(isOneOf(geometries)));
+    }
+
+    @Override
+    protected void handleMatchingAggregateWithRawGeometriesSorts(ValidatableResponse then, int featuresSize, int nbGeometries, String geometry, String... sorts) {
+        then
+                .body("features", hasSize(featuresSize * nbGeometries))
+                .body("features.properties.geometry_type", everyItem(equalTo("raw")))
+                .body("features.properties.geometry_ref", everyItem(equalTo(geometry)))
+                .body("features.properties.geometry_sort", everyItem(isOneOf(sorts)));
     }
 
     @Override
