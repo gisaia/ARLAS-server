@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.services;
+package io.arlas.server.impl.elastic.services;
 
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.dao.CollectionReferenceDao;
@@ -25,6 +25,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.impl.elastic.core.ElasticAdmin;
+import io.arlas.server.impl.elastic.core.ElasticDocument;
 import io.arlas.server.impl.elastic.core.FluidSearch;
 import io.arlas.server.impl.elastic.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.impl.elastic.utils.ElasticClient;
@@ -36,6 +37,7 @@ import io.arlas.server.model.Link;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.*;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.utils.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
@@ -57,42 +59,22 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class ExploreServices {
-
-    public static final Integer SEARCH_DEFAULT_PAGE_SIZE = 10;
-    public static final Integer SEARCH_DEFAULT_PAGE_FROM = 0;
+public class ElasticExploreServiceImpl extends ExploreService {
 
     private static final String FEATURE_TYPE_KEY = "feature_type";
     private static final String FEATURE_TYPE_VALUE = "hit";
     private static final String FEATURE_GEOMETRY_PATH = "geometry_path";
 
-
     protected ElasticClient client;
-    protected CollectionReferenceDao daoCollectionReference;
-    private ResponseCacheManager responseCacheManager = null;
-    private ArlasServerConfiguration configuration;
     private ElasticAdmin elasticAdmin;
 
-    public ExploreServices() {}
-
-    public ExploreServices(ElasticClient client, ArlasServerConfiguration configuration) {
+    public ElasticExploreServiceImpl(ElasticClient client, ArlasServerConfiguration configuration) {
+        super(configuration);
         this.client = client;
         this.elasticAdmin = new ElasticAdmin(client);
-        this.configuration = configuration;
         this.daoCollectionReference = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
-        this.responseCacheManager = new ResponseCacheManager(configuration.arlasrestcachetimeout);
-    }
-
-    public String getBaseUri() {
-        String baseUri = null;
-        if (configuration.arlasBaseUri != null) {
-            baseUri =  configuration.arlasBaseUri;
-        }
-        return baseUri;
     }
 
     public ElasticClient getClient() {
@@ -107,14 +89,24 @@ public class ExploreServices {
         return elasticAdmin;
     }
 
+    @Override
     public CollectionReferenceDao getDaoCollectionReference() {
         return daoCollectionReference;
     }
 
-    public ResponseCacheManager getResponseCacheManager() {
-        return responseCacheManager;
+    @Override
+    public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
+                                                                       Optional<String> columnFilter) throws ArlasException {
+        return elasticAdmin.describeAllCollections(collectionReferenceList, columnFilter);
     }
 
+    @Override
+    public CollectionReferenceDescription describeCollection(CollectionReference collectionReference,
+                                                                      Optional<String> columnFilter) throws ArlasException {
+        return elasticAdmin.describeCollection(collectionReference, columnFilter);
+    }
+
+    @Override
     public Hits count(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
@@ -127,32 +119,9 @@ public class ExploreServices {
         hits.totalnb = searchHits.getTotalHits().value;
         hits.nbhits = searchHits.getHits().length;
         return hits;
-
     }
 
-    public SearchHits search(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
-        FluidSearch fluidSearch = new FluidSearch(client);
-        fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(collectionReference.params.filter, fluidSearch);
-        applyFilter(request.basicRequest.filter, fluidSearch);
-        applyFilter(request.headerRequest.filter, fluidSearch);
-        paginate(((Search) request.basicRequest).page, collectionReference, fluidSearch);
-        applyProjection(((Search) request.basicRequest).projection, fluidSearch, request.columnFilter, collectionReference);
-        return fluidSearch.exec().getHits();
-    }
-
-
-    public SearchResponse aggregate(MixedRequest request, CollectionReference collectionReference, Boolean isGeoAggregation) throws ArlasException {
-        CheckParams.checkAggregationRequest(request.basicRequest, collectionReference);
-        FluidSearch fluidSearch = new FluidSearch(client);
-        fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(collectionReference.params.filter, fluidSearch);
-        applyFilter(request.basicRequest.filter, fluidSearch);
-        applyFilter(request.headerRequest.filter, fluidSearch);
-        applyAggregation(((AggregationsRequest) request.basicRequest).aggregations, fluidSearch, isGeoAggregation);
-        return fluidSearch.exec();
-    }
-
+    @Override
     public ComputationResponse compute(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         CheckParams.checkComputationRequest(request.basicRequest, collectionReference);
         FluidSearch fluidSearch = new FluidSearch(client);
@@ -165,7 +134,7 @@ public class ExploreServices {
         fluidSearch = fluidSearch.compute(field, metric);
         SearchResponse response = fluidSearch.exec();
         ComputationResponse computationResponse = new ComputationResponse();
-        Long startQueryTimestamp = System.nanoTime();
+        long startQueryTimestamp = System.nanoTime();
         computationResponse.field = field;
         computationResponse.metric = metric;
         computationResponse.totalnb = response.getHits().getTotalHits().value;
@@ -179,7 +148,7 @@ public class ExploreServices {
                     computationResponse.value = ((Avg)aggregations.get(0)).getValue();
                     break;
                 case CARDINALITY:
-                    computationResponse.value = new Double(((Cardinality)aggregations.get(0)).getValue());
+                    computationResponse.value = (double) ((Cardinality) aggregations.get(0)).getValue();
                     break;
                 case MAX:
                     computationResponse.value = ((Max)aggregations.get(0)).getValue();
@@ -216,9 +185,10 @@ public class ExploreServices {
         return computationResponse;
     }
 
-    public Hits getSearchHits(MixedRequest request, CollectionReference collectionReference, Boolean flat, UriInfo uriInfo, String method) throws ArlasException {
+    @Override
+    public Hits search(MixedRequest request, CollectionReference collectionReference, Boolean flat, UriInfo uriInfo, String method) throws ArlasException {
         UriInfoWrapper uriInfoUtil = new UriInfoWrapper(uriInfo, getBaseUri());
-        SearchHits searchHits = search(request, collectionReference);
+        SearchHits searchHits = getSearchHits(request, collectionReference);
         Search searchRequest  = (Search)request.basicRequest;
         Hits hits = new Hits(collectionReference.collectionName);
         hits.totalnb = searchHits.getTotalHits().value;
@@ -241,19 +211,19 @@ public class ExploreServices {
         String sortParam = searchRequest.page != null ? searchRequest.page.sort : null;
         String afterParam = searchRequest.page != null ? searchRequest.page.after : null;
         String beforeParam = searchRequest.page != null ? searchRequest.page.before : null;
-        Integer sizeParam = searchRequest.page != null ? searchRequest.page.size : ExploreServices.SEARCH_DEFAULT_PAGE_SIZE;
+        Integer sizeParam = searchRequest.page != null ? searchRequest.page.size : SEARCH_DEFAULT_PAGE_SIZE;
         String lastHitAfter = "";
         String firstHitAfter = "";
         if (lastIndex >= 0 && sizeParam == hits.nbhits && sortParam != null && (afterParam != null || sortParam.contains(collectionReference.params.idPath))) {
             next = new Link();
             next.method = method;
             // Use sorted value of last element return by ES to build after param of next & previous link
-            lastHitAfter = Arrays.stream(searchHitList.get(lastIndex).getSortValues()).map(value->value.toString()).collect(Collectors.joining(","));
+            lastHitAfter = Arrays.stream(searchHitList.get(lastIndex).getSortValues()).map(Object::toString).collect(Collectors.joining(","));
         }
         if (searchHitList.size()>0 && sortParam != null && (beforeParam != null || sortParam.contains(collectionReference.params.idPath))) {
             previous = new Link();
             previous.method = method;
-            firstHitAfter = Arrays.stream(searchHitList.get(0).getSortValues()).map(value->value.toString()).collect(Collectors.joining(","));
+            firstHitAfter = Arrays.stream(searchHitList.get(0).getSortValues()).map(Object::toString).collect(Collectors.joining(","));
         }
 
         switch (method){
@@ -309,8 +279,25 @@ public class ExploreServices {
         return hits;
     }
 
-    public FeatureCollection getFeatures(CollectionReference collectionReference, MixedRequest request, boolean flat) throws ArlasException {
-        SearchHits searchHits = search(request, collectionReference);
+    @Override
+    public List<Map<String, Object>> searchAsRaw(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
+        return Arrays.stream(getSearchHits(request, collectionReference).getHits()).map(SearchHit::getSourceAsMap).collect(Collectors.toList());
+    }
+
+    private SearchHits getSearchHits(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
+        FluidSearch fluidSearch = new FluidSearch(client);
+        fluidSearch.setCollectionReference(collectionReference);
+        applyFilter(collectionReference.params.filter, fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch);
+        applyFilter(request.headerRequest.filter, fluidSearch);
+        paginate(((Search) request.basicRequest).page, collectionReference, fluidSearch);
+        applyProjection(((Search) request.basicRequest).projection, fluidSearch, request.columnFilter, collectionReference);
+        return fluidSearch.exec().getHits();
+    }
+
+    @Override
+    public FeatureCollection getFeatures(MixedRequest request, CollectionReference collectionReference, boolean flat) throws ArlasException {
+        SearchHits searchHits = getSearchHits(request, collectionReference);
         Search searchRequest = (Search) request.basicRequest;
         FeatureCollection fc = new FeatureCollection();
         List<SearchHit> results = Arrays.asList(searchHits.getHits());
@@ -361,8 +348,14 @@ public class ExploreServices {
         return feature;
     }
 
+    @Override
+    public Map<String, Object> getRawDoc(CollectionReference collectionReference, String identifier, String[] includes) throws ArlasException {
+        return new ElasticDocument(client).getSource(collectionReference, identifier, includes);
+    }
+
+    @Override
     public RangeResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
-        Long startQuery = System.nanoTime();
+        long startQuery = System.nanoTime();
         CheckParams.checkRangeRequestField(request.basicRequest);
         FluidSearch fluidSearch = new FluidSearch(client);
         fluidSearch.setCollectionReference(collectionReference);
@@ -400,14 +393,14 @@ public class ExploreServices {
         return rangeResponse;
     }
 
-    protected void applyAggregation(List<Aggregation> aggregations, FluidSearch fluidSearch, Boolean isGeoAggregation) throws ArlasException {
-        if (aggregations != null && aggregations != null && !aggregations.isEmpty()) {
-            fluidSearch = fluidSearch.aggregate(aggregations, isGeoAggregation);
+    private void applyAggregation(List<Aggregation> aggregations, FluidSearch fluidSearch, Boolean isGeoAggregation) throws ArlasException {
+        if (aggregations != null && !aggregations.isEmpty()) {
+            fluidSearch.aggregate(aggregations, isGeoAggregation);
         }
     }
 
-    protected void applyRangeRequest(String field, FluidSearch fluidSearch) throws ArlasException {
-        fluidSearch = fluidSearch.getFieldRange(field);
+    private void applyRangeRequest(String field, FluidSearch fluidSearch) {
+        fluidSearch.getFieldRange(field);
     }
 
     public void applyFilter(Filter filter, FluidSearch fluidSearch) throws ArlasException {
@@ -430,16 +423,10 @@ public class ExploreServices {
         }
     }
 
-    public void setValidGeoFilters(CollectionReference collectionReference, Request request) throws ArlasException {
-        if (request != null && request.filter != null) {
-            request.filter = ParamsParser.getFilterWithValidGeos(collectionReference, request.filter);
-        }
-    }
-
     /**
      * This method checks whether in all the expressions of the filter `f`, a date field has been queried using `lte`, `gte`, `lt`, `gt` or `range` operations
      * **/
-    protected boolean filterFHasDateQuery(Filter filter, CollectionReference collectionReference) {
+    private boolean filterFHasDateQuery(Filter filter, CollectionReference collectionReference) {
         return filter.f.stream()
                 .anyMatch(expressions -> expressions
                         .stream()
@@ -454,16 +441,16 @@ public class ExploreServices {
                 );
     }
 
-    protected void paginate(Page page, CollectionReference collectionReference, FluidSearch fluidSearch) throws ArlasException {
+    private void paginate(Page page, CollectionReference collectionReference, FluidSearch fluidSearch) throws ArlasException {
         setPageSizeAndFrom(page, fluidSearch);
         searchAfterPage(page, collectionReference.params.idPath, fluidSearch);
-        if(page!=null){
-            if(page.before != null){
+        if (page != null) {
+            if (page.before != null) {
                 Page newPage = page;
                 newPage.sort = Arrays.stream(page.sort.split(","))
                         .map(field -> field.startsWith("-") ? field.substring(1) : "-".concat(field)).collect(Collectors.joining(","));
                 sortPage(newPage, fluidSearch);
-            }else{
+            } else {
                 sortPage(page, fluidSearch);
             }
         }
@@ -479,7 +466,7 @@ public class ExploreServices {
             }
             CheckParams.checkPageSize(page);
             CheckParams.checkPageFrom(page);
-            fluidSearch = fluidSearch.filterSize(page.size, page.from);
+            fluidSearch.filterSize(page.size, page.from);
         }
     }
 
@@ -490,13 +477,13 @@ public class ExploreServices {
         }
         if (page != null && page.before != null) {
             CheckParams.checkPageAfter(page, idCollectionField);
-            fluidSearch = fluidSearch.searchAfter(page.before);
+            fluidSearch.searchAfter(page.before);
         }
     }
 
-    protected void sortPage(Page page, FluidSearch fluidSearch) throws ArlasException {
+    private void sortPage(Page page, FluidSearch fluidSearch) throws ArlasException {
         if (page != null && page.sort != null) {
-            fluidSearch = fluidSearch.sort(page.sort);
+            fluidSearch.sort(page.sort);
         }
     }
 
@@ -517,14 +504,33 @@ public class ExploreServices {
         }
     }
 
-    public AggregationResponse formatAggregationResult(SearchResponse response, CollectionReference collection, List<Aggregation> aggregationsRequest, int aggTreeDepth, Long startQuery) {
+    @Override
+    public AggregationResponse aggregate(MixedRequest request,
+                                         CollectionReference collectionReference,
+                                         Boolean isGeoAggregation,
+                                         List<Aggregation> aggregationsRequests,
+                                         int aggTreeDepth,
+                                         Long startQuery) throws ArlasException {
+        SearchResponse response = aggregate(request, collectionReference, isGeoAggregation);
         AggregationResponse aggregationResponse = new AggregationResponse();
         aggregationResponse.totalnb = response.getHits().getTotalHits().value;
         aggregationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
-        return formatAggregationResult((MultiBucketsAggregation) response.getAggregations().asList().get(0), aggregationResponse, collection, aggregationsRequest, aggTreeDepth);
+        return formatAggregationResult((MultiBucketsAggregation) response.getAggregations().asList().get(0), aggregationResponse, collectionReference, aggregationsRequests, aggTreeDepth);
     }
 
-    public AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse, CollectionReference collection, List<Aggregation> aggregationsRequest, int aggTreeDepth) {
+    private SearchResponse aggregate(MixedRequest request, CollectionReference collectionReference, Boolean isGeoAggregation) throws ArlasException {
+        CheckParams.checkAggregationRequest(request.basicRequest, collectionReference);
+        FluidSearch fluidSearch = new FluidSearch(client);
+        fluidSearch.setCollectionReference(collectionReference);
+        applyFilter(collectionReference.params.filter, fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch);
+        applyFilter(request.headerRequest.filter, fluidSearch);
+        applyAggregation(((AggregationsRequest) request.basicRequest).aggregations, fluidSearch, isGeoAggregation);
+        return fluidSearch.exec();
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse, CollectionReference collection, List<Aggregation> aggregationsRequest, int aggTreeDepth) {
         aggregationResponse.name = aggregation.getName();
         if (aggregationResponse.name.equals(FluidSearch.TERM_AGG)) {
             aggregationResponse.sumotherdoccounts = ((Terms) aggregation).getSumOfOtherDocCounts();
@@ -536,7 +542,7 @@ public class ExploreServices {
         buckets.forEach(bucket -> {
             AggregationResponse element = new AggregationResponse();
             element.keyAsString = bucket.getKeyAsString();
-            /** if it is a `geohash` aggregation type, we set the GEOHASHCENTER and GEOHASH aggregated geometries if they're requested **/
+            // if it is a `geohash` aggregation type, we set the GEOHASHCENTER and GEOHASH aggregated geometries if they're requested
             if (aggregationResponse.name.equals(FluidSearch.GEOHASH_AGG)) {
                 GeoPoint geoPoint = getGeohashCentre(element.keyAsString.toString());
                 element.key = geoPoint;
@@ -566,7 +572,6 @@ public class ExploreServices {
             element.elements = new ArrayList<>();
             if (bucket.getAggregations().asList().size() == 0) {
                 element.elements = null;
-                aggregationResponse.elements.add(element);
             } else {
                 bucket.getAggregations().forEach(subAggregation -> {
                     AggregationResponse subAggregationResponse = new AggregationResponse();
@@ -577,8 +582,8 @@ public class ExploreServices {
                     if (subAggregation.getName().equals(FluidSearch.FETCH_HITS_AGG)) {
                         subAggregationResponse = null;
                         element.hits = Optional.ofNullable(((TopHits)subAggregation).getHits().getHits())
-                                .map(hitsArray -> Arrays.asList(hitsArray))
-                                .map(hitsList -> hitsList.stream().map(hit -> hit.getSourceAsMap()).collect(Collectors.toList()))
+                                .map(Arrays::asList)
+                                .map(hitsList -> hitsList.stream().map(SearchHit::getSourceAsMap).collect(Collectors.toList()))
                                 .orElse(new ArrayList());
                     } else if (Arrays.asList(FluidSearch.DATEHISTOGRAM_AGG, FluidSearch.HISTOGRAM_AGG, FluidSearch.TERM_AGG, FluidSearch.GEOHASH_AGG).contains(subAggregation.getName())) {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
@@ -601,20 +606,20 @@ public class ExploreServices {
                         }
                         element.geometries.add(returnedGeometry);
                     } else if (subAggregation.getName().startsWith(FluidSearch.RAW_GEOMETRY_SUFFIX)) {
-                        String sort = subAggregation.getName().substring(FluidSearch.RAW_GEOMETRY_SUFFIX.length(), subAggregation.getName().length());
+                        String sort = subAggregation.getName().substring(FluidSearch.RAW_GEOMETRY_SUFFIX.length());
                         subAggregationResponse = null;
                         long nbHits = ((TopHits) subAggregation).getHits().getTotalHits().value;
                         if (nbHits > 0) {
-                            List<SearchHit> hits = Arrays.asList(((TopHits) subAggregation).getHits().getHits());
+                            SearchHit[] hits = ((TopHits) subAggregation).getHits().getHits();
                             for (SearchHit hit: hits) {
                                 Map source = hit.getSourceAsMap();
                                 if (rawGeometries != null) {
                                     List<String> geometries = rawGeometries.stream().filter(rg -> rg.sort.equals(sort)).map(rg -> rg.geometry).collect(Collectors.toList());
                                     geometries.forEach(g -> {
-                                        GeoJsonObject geometryGeoJson = null;
+                                        GeoJsonObject geometryGeoJson;
                                         try {
-                                            CollectionReferenceManager.setCollectionGeometriesType(source, collection, geometries.stream().collect(Collectors.joining(",")));
-                                            GeoTypeEnum geometryType = null;
+                                            CollectionReferenceManager.setCollectionGeometriesType(source, collection, String.join(",", geometries));
+                                            GeoTypeEnum geometryType;
                                             Object geometry = MapExplorer.getObjectFromPath(g, source);
                                             ReturnedGeometry returnedGeometry = null;
                                             if (geometry != null) {
@@ -665,8 +670,7 @@ public class ExploreServices {
                             FeatureCollection fc = new FeatureCollection();
                             Feature feature = new Feature();
                             if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                Polygon box = createBox((GeoBounds) subAggregation);
-                                GeoJsonObject g = box;
+                                GeoJsonObject g = createBox((GeoBounds) subAggregation);
                                 feature.setGeometry(g);
                                 fc.add(feature);
                             } else if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase())) {
@@ -683,24 +687,12 @@ public class ExploreServices {
                         element.elements.add(subAggregationResponse);
                     }
                 });
-                aggregationResponse.elements.add(element);
             }
+            aggregationResponse.elements.add(element);
         });
         return aggregationResponse;
     }
 
-
-    public Map<String, Object> flat(AggregationResponse element, Function<Map<List<String>, Object>, Map<String, Object>> keyStringifier, Predicate<String> keyPartFiler) {
-        Map<List<String>, Object> flatted = new HashMap<>();
-        flat(flatted, element, new ArrayList<>());
-        return keyStringifier.apply(flatted.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().stream().filter(keyPartFiler).collect(Collectors.toList()), e -> e.getValue())));
-    }
-
-    public Map<String, Object> flat(AggregationResponse element, Function<Map<List<String>, Object>, Map<String, Object>> keyStringifier) {
-        Map<List<String>, Object> flatted = new HashMap<>();
-        flat(flatted, element, new ArrayList<>());
-        return keyStringifier.apply(flatted);
-    }
 
     private boolean isAggregatedGeometry(String subName, List<AggregatedGeometryEnum> geometries) {
         if(!CollectionUtils.isEmpty(geometries)) {
@@ -709,48 +701,16 @@ public class ExploreServices {
         return false;
     }
 
-    private void flat(Map<List<String>, Object> flat, AggregationResponse element, List<String> keyParts) {
-        addToFlat(flat, keyParts, "count", element.count);
-        addToFlat(flat, keyParts, "key", element.key);
-        addToFlat(flat, keyParts, "key_as_string", element.keyAsString);
-        addToFlat(flat, keyParts, "name", element.name);
-        addToFlat(flat, keyParts, "query_time", element.queryTime);
-        addToFlat(flat, keyParts, "sumotherdoccounts", element.sumotherdoccounts);
-        addToFlat(flat, keyParts, "totalnb", element.totalnb);
-        addToFlat(flat, keyParts, "totalTime", element.totalTime);
-        if (element.metrics != null) {
-            element.metrics.forEach(metric -> addToFlat(flat, newKeyParts(newKeyParts(keyParts, metric.field), metric.type), "", metric.value));
-        }
-        int idx = 0;
-        if (element.elements != null) {
-            for (AggregationResponse subElement : element.elements) {
-                flat(flat, subElement, newKeyParts(newKeyParts(keyParts, "elements"), "" + (idx++)));
-            }
-        }
-    }
-
-    private void addToFlat(Map<List<String>, Object> flat, List<String> keyParts, String key, Object value) {
-        if (value != null) {
-            flat.put(newKeyParts(keyParts, key), value);
-        }
-    }
-
-    private List<String> newKeyParts(List<String> keyParts, String key) {
-        List<String> newOne = new ArrayList<>(keyParts);
-        newOne.add(key);
-        return newOne;
-    }
-
     private GeoPoint getGeohashCentre(String geohash) {
         Rectangle bbox = GeohashUtils.decodeBoundary(geohash, SpatialContext.GEO);
 
         Double maxLon = bbox.getMaxX();
         Double minLon = bbox.getMinX();
-        Double lon = (maxLon + minLon) / 2;
+        double lon = (maxLon + minLon) / 2;
 
         Double maxLat = bbox.getMaxY();
         Double minLat = bbox.getMinY();
-        Double lat = (maxLat + minLat) / 2;
+        double lat = (maxLat + minLat) / 2;
 
         return new GeoPoint(lat, lon);
     }

@@ -29,7 +29,7 @@ import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Hits;
 import io.arlas.server.ns.ATOM;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.ParamsParser;
@@ -44,14 +44,13 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 public class SearchRESTService extends ExploreRESTServices {
 
-    public SearchRESTService(ExploreServices exploreServices) {
-        super(exploreServices);
+    public SearchRESTService(ExploreService exploreService) {
+        super(exploreService);
     }
 
     @Timed
@@ -70,7 +69,6 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(
                     name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
             // --------------------------------------------------------
@@ -78,18 +76,16 @@ public class SearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(name = "f",
                     value = Documentation.FILTER_PARAM_F,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
-                    allowMultiple = true,
-                    required = false)
+            @ApiParam(name = "q",
+                    value = Documentation.FILTER_PARAM_Q,
+                    allowMultiple = true)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
-                    allowMultiple = false,
-                    required = false)
+            @ApiParam(name = "dateformat",
+                    value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(hidden = true)
@@ -101,40 +97,36 @@ public class SearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @DefaultValue("false")
             @QueryParam(value = "pretty") Boolean pretty,
 
-            @ApiParam(name = "flat", value = Documentation.FORM_FLAT,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "flat",
+                    value = Documentation.FORM_FLAT,
+                    defaultValue = "false")
             @QueryParam(value = "flat") Boolean flat,
 
             // --------------------------------------------------------
             // -----------------------  PROJECTION   -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(name = "include", value = Documentation.PROJECTION_PARAM_INCLUDE,
+            @ApiParam(name = "include",
+                    value = Documentation.PROJECTION_PARAM_INCLUDE,
                     allowMultiple = true,
-                    defaultValue = "*",
-                    required = false)
+                    defaultValue = "*")
             @QueryParam(value = "include") String include,
 
-            @ApiParam(name = "exclude", value = Documentation.PROJECTION_PARAM_EXCLUDE,
+            @ApiParam(name = "exclude",
+                    value = Documentation.PROJECTION_PARAM_EXCLUDE,
                     allowMultiple = true,
-                    defaultValue = "",
-                    required = false)
+                    defaultValue = "")
             @QueryParam(value = "exclude") String exclude,
 
             @ApiParam(name = "returned_geometries",
                     value = Documentation.PROJECTION_PARAM_RETURNED_GEOMETRIES,
-                    allowMultiple = false,
-                    defaultValue = "",
-                    required = false)
+                    defaultValue = "")
             @QueryParam(value = "returned_geometries") String returned_geometries,
 
             // --------------------------------------------------------
@@ -144,46 +136,38 @@ public class SearchRESTService extends ExploreRESTServices {
             @ApiParam(name = "size", value = Documentation.PAGE_PARAM_SIZE,
                     defaultValue = "10",
                     allowableValues = "range[1, infinity]",
-                    type = "integer",
-                    required = false)
+                    type = "integer")
             @DefaultValue("10")
             @QueryParam(value = "size") IntParam size,
 
             @ApiParam(name = "from", value = Documentation.PAGE_PARAM_FROM,
                     defaultValue = "0",
                     allowableValues = "range[0, infinity]",
-                    type = "integer",
-                    required = false)
+                    type = "integer")
             @DefaultValue("0")
             @QueryParam(value = "from") IntParam from,
 
             @ApiParam(name = "sort",
-                    value = Documentation.PAGE_PARAM_SORT,
-                    allowMultiple = false,
-                    required = false)
+                    value = Documentation.PAGE_PARAM_SORT)
             @QueryParam(value = "sort") String sort,
 
 
             @ApiParam(name = "after",
-                    value = Documentation.PAGE_PARAM_AFTER,
-                    allowMultiple = false,
-                    required = false)
+                    value = Documentation.PAGE_PARAM_AFTER)
             @QueryParam(value = "after") String after,
 
             @ApiParam(name = "before",
-                    value = Documentation.PAGE_PARAM_BEFORE,
-                    allowMultiple = false,
-                    required = false)
+                    value = Documentation.PAGE_PARAM_BEFORE)
             @QueryParam(value = "before") String before,
 
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws IOException, NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+    ) throws NotFoundException, ArlasException {
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -195,7 +179,7 @@ public class SearchRESTService extends ExploreRESTServices {
         search.page = ParamsParser.getPage(size, from, sort,after,before);
         search.projection = ParamsParser.getProjection(include, exclude);
         search.returned_geometries = returned_geometries;
-        exploreServices.setValidGeoFilters(collectionReference, search);
+        exploreService.setValidGeoFilters(collectionReference, search);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
 
@@ -205,11 +189,11 @@ public class SearchRESTService extends ExploreRESTServices {
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
-        exploreServices.setValidGeoFilters(collectionReference, searchHeader);
+        exploreService.setValidGeoFilters(collectionReference, searchHeader);
         request.headerRequest = searchHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        Hits hits = this.exploreServices.getSearchHits(request, collectionReference, BooleanUtils.isTrue(flat), uriInfo,"GET");
+        Hits hits = exploreService.search(request, collectionReference, BooleanUtils.isTrue(flat), uriInfo,"GET");
         return cache(Response.ok(hits), maxagecache);
     }
 
@@ -226,10 +210,8 @@ public class SearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
             // --------------------------------------------------------
@@ -250,19 +232,18 @@ public class SearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws IOException, NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+    ) throws NotFoundException, ArlasException {
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -274,8 +255,8 @@ public class SearchRESTService extends ExploreRESTServices {
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(partitionFilter);
 
-        exploreServices.setValidGeoFilters(collectionReference, search);
-        exploreServices.setValidGeoFilters(collectionReference, searchHeader);
+        exploreService.setValidGeoFilters(collectionReference, search);
+        exploreService.setValidGeoFilters(collectionReference, searchHeader);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
         CheckParams.checkReturnedGeometries(collectionReference, includes, excludes, search.returned_geometries);
@@ -287,7 +268,7 @@ public class SearchRESTService extends ExploreRESTServices {
         request.headerRequest = searchHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        Hits hits = this.exploreServices.getSearchHits(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)),uriInfo,"POST");
+        Hits hits = exploreService.search(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)),uriInfo,"POST");
         return cache(Response.ok(hits), maxagecache);
     }
 }

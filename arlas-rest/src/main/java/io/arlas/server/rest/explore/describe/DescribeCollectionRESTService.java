@@ -25,7 +25,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -34,13 +34,13 @@ import io.swagger.annotations.ApiResponses;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 public class DescribeCollectionRESTService extends ExploreRESTServices {
 
-    public DescribeCollectionRESTService(ExploreServices exploreServices) {
-        super(exploreServices);
+    public DescribeCollectionRESTService(ExploreService exploreService) {
+        super(exploreService);
     }
 
     @Timed
@@ -58,7 +58,6 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
             @ApiParam(
                     name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
 
@@ -68,28 +67,27 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = "Pretty print",
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = "Pretty print",
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws ArlasException {
 
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
 
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
 
-        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Arrays.asList(collectionReference));
-        CollectionReferenceDescription collectionReferenceDescription = exploreServices.getElasticAdmin().describeCollection(collectionReference, columnFilter);
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Collections.singletonList(collectionReference));
+        CollectionReferenceDescription collectionReferenceDescription = exploreService.describeCollection(collectionReference, columnFilter);
 
         return cache(Response.ok(collectionReferenceDescription), maxagecache);
     }

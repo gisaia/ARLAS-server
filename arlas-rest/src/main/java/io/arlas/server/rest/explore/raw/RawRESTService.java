@@ -23,12 +23,11 @@ import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.app.Documentation;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.NotFoundException;
-import io.arlas.server.impl.elastic.core.ElasticDocument;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Hit;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -38,13 +37,14 @@ import org.apache.commons.lang.BooleanUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
 public class RawRESTService extends ExploreRESTServices {
-    public RawRESTService(ExploreServices exploreServices) {
-        super(exploreServices);
+
+    public RawRESTService(ExploreService exploreService) {
+        super(exploreService);
     }
 
     @Timed
@@ -61,33 +61,27 @@ public class RawRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
 
-            @ApiParam(
-                    name = "identifier",
+            @ApiParam(name = "identifier",
                     value = "identifier",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "identifier") String identifier,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = "Pretty print",
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = "Pretty print",
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
-            @ApiParam(name = "flat", value = Documentation.FORM_FLAT,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "flat",
+                    value = Documentation.FORM_FLAT,
+                    defaultValue = "false")
             @QueryParam(value = "flat") Boolean flat,
 
             // --------------------------------------------------------
@@ -100,25 +94,23 @@ public class RawRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws ArlasException {
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException("Collection " + collection + " not found.");
         }
 
-        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Arrays.asList(collectionReference));
-
-        ElasticDocument elasticDoc = new ElasticDocument(this.getExploreServices().getClient());
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Collections.singletonList(collectionReference));
 
         String[] includes = ColumnFilterUtil.cleanColumnFilter(columnFilter)
                 .map(cf -> cf + "," + String.join(",", ColumnFilterUtil.getCollectionMandatoryPaths(collectionReference)))
                 .map(i -> i.split(","))
                 .orElse(null);
 
-        Map<String, Object> source = elasticDoc.getSource(collectionReference, identifier, includes);
+        Map<String, Object> source = exploreService.getRawDoc(collectionReference, identifier, includes);
 
         if (source == null || source.isEmpty()) {
             throw new NotFoundException("Document " + identifier + " not found.");

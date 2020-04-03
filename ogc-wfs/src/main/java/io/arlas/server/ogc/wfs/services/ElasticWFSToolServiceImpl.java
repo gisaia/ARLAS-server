@@ -23,6 +23,7 @@ import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.impl.elastic.core.ElasticAdmin;
 import io.arlas.server.impl.elastic.core.FluidSearch;
+import io.arlas.server.impl.elastic.services.ElasticExploreServiceImpl;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.response.CollectionReferenceDescription;
@@ -31,7 +32,6 @@ import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
-import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
@@ -50,11 +50,11 @@ import java.util.*;
 import static io.arlas.server.utils.CheckParams.isBboxLatLonInCorrectRanges;
 
 public class ElasticWFSToolServiceImpl implements WFSToolService {
-    ExploreServices exploreServices;
+    ElasticExploreServiceImpl exploreServices;
     BoolQueryBuilder wfsQuery = QueryBuilders.boolQuery();
 
 
-    public ElasticWFSToolServiceImpl(ExploreServices exploreServices) {
+    public ElasticWFSToolServiceImpl(ElasticExploreServiceImpl exploreServices) {
         this.exploreServices = exploreServices;
     }
 
@@ -111,7 +111,7 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
         Optional<String> cf = ColumnFilterUtil.cleanColumnFilter(columnFilter);
         if (cf.isPresent()) {
             Set<String> fields = exploreServices.getElasticAdmin().getCollectionFields(collectionReference, cf);
-            return fields.toArray(new String[fields.size()]);
+            return fields.toArray(new String[0]);
         }
         return null;
 
@@ -174,7 +174,7 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
     private void buildRessourceIdQuery(String resourceid,  CollectionReference collectionReference) {
         if (resourceid.contains(",")) {
             BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-            for (String resourceIdValue : Arrays.asList(resourceid.split(","))) {
+            for (String resourceIdValue : resourceid.split(",")) {
                 orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(collectionReference.params.idPath, resourceIdValue));
             }
             wfsQuery = wfsQuery.filter(orBoolQueryBuilder);

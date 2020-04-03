@@ -28,7 +28,7 @@ import io.arlas.server.model.request.RangeRequest;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.RangeResponse;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
@@ -46,8 +46,8 @@ import java.util.concurrent.TimeUnit;
 @Deprecated
 public class RangeRESTService extends ExploreRESTServices {
 
-    public RangeRESTService(ExploreServices exploreServices) {
-        super(exploreServices);
+    public RangeRESTService(ExploreService exploreService) {
+        super(exploreService);
     }
 
     @Timed
@@ -122,7 +122,7 @@ public class RangeRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws InterruptedException, ExecutionException, IOException, ArlasException {
         Long startArlasTime = System.nanoTime();
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -130,7 +130,7 @@ public class RangeRESTService extends ExploreRESTServices {
         RangeRequest rangeRequest = new RangeRequest();
         rangeRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         rangeRequest.field = field;
-        exploreServices.setValidGeoFilters(collectionReference, rangeRequest);
+        exploreService.setValidGeoFilters(collectionReference, rangeRequest);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, rangeRequest);
 
@@ -138,11 +138,11 @@ public class RangeRESTService extends ExploreRESTServices {
         rangeRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = rangeRequest;
-        exploreServices.setValidGeoFilters(collectionReference, rangeRequestHeader);
+        exploreService.setValidGeoFilters(collectionReference, rangeRequestHeader);
         request.headerRequest = rangeRequestHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        RangeResponse rangeResponse = this.getExploreServices().getFieldRange(request, collectionReference);
+        RangeResponse rangeResponse = exploreService.getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(rangeResponse), maxagecache);
     }
@@ -198,7 +198,7 @@ public class RangeRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws IOException, NotFoundException, ArlasException {
         Long startArlasTime = System.nanoTime();
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -206,8 +206,8 @@ public class RangeRESTService extends ExploreRESTServices {
         RangeRequest rangeRequestHeader = new RangeRequest();
         rangeRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
-        exploreServices.setValidGeoFilters(collectionReference, rangeRequest);
-        exploreServices.setValidGeoFilters(collectionReference, rangeRequestHeader);
+        exploreService.setValidGeoFilters(collectionReference, rangeRequest);
+        exploreService.setValidGeoFilters(collectionReference, rangeRequestHeader);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, rangeRequest);
 
@@ -215,7 +215,7 @@ public class RangeRESTService extends ExploreRESTServices {
         request.headerRequest = rangeRequestHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        RangeResponse rangeResponse = this.getExploreServices().getFieldRange(request, collectionReference);
+        RangeResponse rangeResponse = exploreService.getFieldRange(request, collectionReference);
         rangeResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(rangeResponse), maxagecache);
     }

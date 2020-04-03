@@ -19,7 +19,7 @@
 
 package io.arlas.server.rest.explore;
 
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,22 +40,17 @@ import javax.ws.rs.core.Response;
 
 public abstract class ExploreRESTServices {
 
-    protected static Logger LOGGER = LoggerFactory.getLogger(ExploreRESTServices.class);
-
-    public ExploreServices getExploreServices() {
-        return exploreServices;
-    }
-
-    protected ExploreServices exploreServices;
-
+    protected static final Logger LOGGER = LoggerFactory.getLogger(ExploreRESTServices.class);
     public static final String UTF8JSON = MediaType.APPLICATION_JSON + ";charset=utf-8";
 
-    public ExploreRESTServices(ExploreServices exploreServices) {
-        this.exploreServices = exploreServices;
+    protected ExploreService exploreService;
+
+    public ExploreRESTServices(ExploreService exploreService) {
+        this.exploreService = exploreService;
     }
 
     public Response cache(Response.ResponseBuilder response, Integer maxagecache) {
-        return exploreServices.getResponseCacheManager().cache(response, maxagecache);
+        return exploreService.getResponseCacheManager().cache(response, maxagecache);
     }
 
     public String getExplorePathUri() {

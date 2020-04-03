@@ -26,7 +26,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -39,8 +39,8 @@ import java.util.Optional;
 
 public class DescribeRESTService extends ExploreRESTServices {
 
-    public DescribeRESTService(ExploreServices exploreServices) {
-        super(exploreServices);
+    public DescribeRESTService(ExploreService exploreService) {
+        super(exploreService);
     }
 
     @Timed
@@ -60,20 +60,19 @@ public class DescribeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws ArlasException {
-        List<CollectionReference> collectionReferences = exploreServices.getDaoCollectionReference().getAllCollectionReferences();
-        List<CollectionReferenceDescription> collectionReferenceDescriptionList = exploreServices.getElasticAdmin().describeAllCollections(collectionReferences, columnFilter);
+        List<CollectionReference> collectionReferences = exploreService.getDaoCollectionReference().getAllCollectionReferences();
+        List<CollectionReferenceDescription> collectionReferenceDescriptionList = exploreService.describeAllCollections(collectionReferences, columnFilter);
 
         return cache(Response.ok(collectionReferenceDescriptionList), maxagecache);
     }

@@ -59,7 +59,7 @@ import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
 import io.arlas.server.rest.plugins.eo.TileRESTService;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.impl.elastic.services.ElasticExploreServiceImpl;
 import io.arlas.server.task.CollectionAutoDiscover;
 import io.arlas.server.utils.PrettyPrintFilter;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
@@ -125,7 +125,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             Optional<HttpTracing> tracing = configuration.zipkinConfiguration.build(environment);
         }
 
-        ExploreServices exploration = new ExploreServices(client, configuration);
+        ElasticExploreServiceImpl exploration = new ElasticExploreServiceImpl(client, configuration);
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
         environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         environment.jersey().register(MultiPartFeature.class);

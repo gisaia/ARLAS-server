@@ -29,13 +29,14 @@ import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.ComputationResponse;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -43,8 +44,8 @@ import java.util.Optional;
 
 public class ComputeRESTService extends ExploreRESTServices {
 
-    public ComputeRESTService(ExploreServices exploreServices) {
-        super(exploreServices);
+    public ComputeRESTService(ExploreService exploreService) {
+        super(exploreService);
     }
 
     @Timed
@@ -60,10 +61,8 @@ public class ComputeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
             // --------------------------------------------------------
@@ -71,13 +70,11 @@ public class ComputeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(name = "field",
                     value = Documentation.COMPUTE_FIELD,
-                    allowMultiple = false,
                     required = true)
             @QueryParam(value = "field") String field,
 
             @ApiParam(name = "metric",
                     value = Documentation.COMPUTE_METRIC,
-                    allowMultiple = false,
                     required = true)
             @QueryParam(value = "metric") String metric,
             // --------------------------------------------------------
@@ -85,18 +82,15 @@ public class ComputeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(name = "f",
                     value = Documentation.FILTER_PARAM_F,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "f") List<String> f,
 
             @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
-                    allowMultiple = false,
-                    required = false)
+            @ApiParam(name = "dateformat",
+                    value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(hidden = true)
@@ -108,19 +102,18 @@ public class ComputeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws ArlasException {
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -129,18 +122,18 @@ public class ComputeRESTService extends ExploreRESTServices {
         computationRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         computationRequest.field = field;
         computationRequest.metric = ComputationEnum.fromValue(metric);
-        exploreServices.setValidGeoFilters(collectionReference, computationRequest);
+        exploreService.setValidGeoFilters(collectionReference, computationRequest);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, computationRequest);
 
         ComputationRequest computationRequestHeader = new ComputationRequest();
         computationRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
-        exploreServices.setValidGeoFilters(collectionReference, computationRequestHeader);
+        exploreService.setValidGeoFilters(collectionReference, computationRequestHeader);
         MixedRequest request = new MixedRequest();
         request.basicRequest = computationRequest;
         request.headerRequest = computationRequestHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
-        ComputationResponse computationResponse = exploreServices.compute(request, collectionReference);
+        ComputationResponse computationResponse = exploreService.compute(request, collectionReference);
         return cache(Response.ok(computationResponse), maxagecache) ;
     }
 
@@ -159,10 +152,8 @@ public class ComputeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
             // --------------------------------------------------------
@@ -183,19 +174,18 @@ public class ComputeRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -203,15 +193,15 @@ public class ComputeRESTService extends ExploreRESTServices {
         ComputationRequest computationRequestHeader = new ComputationRequest();
         computationRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
-        exploreServices.setValidGeoFilters(collectionReference, computationRequest);
-        exploreServices.setValidGeoFilters(collectionReference, computationRequestHeader);
+        exploreService.setValidGeoFilters(collectionReference, computationRequest);
+        exploreService.setValidGeoFilters(collectionReference, computationRequestHeader);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, computationRequest);
 
         request.basicRequest = computationRequest;
         request.headerRequest = computationRequestHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
-        ComputationResponse computationResponse = exploreServices.compute(request, collectionReference);
+        ComputationResponse computationResponse = exploreService.compute(request, collectionReference);
         return cache(Response.ok(computationResponse), maxagecache) ;
     }
 

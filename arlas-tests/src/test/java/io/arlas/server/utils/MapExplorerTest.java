@@ -26,7 +26,6 @@ import org.hamcrest.collection.IsMapContaining;
 import org.hamcrest.core.IsNot;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opengis.filter.Not;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -38,7 +37,7 @@ public class MapExplorerTest {
     public void testFlat() throws IOException {
         Map<String, Object> flat =
                 MapExplorer.flat(
-                        new ObjectMapper().reader(new TypeReference<Map<String, Object>>(){}).readValue(this.getClass().getClassLoader().getResourceAsStream("flatMapTest.json")),
+                        new ObjectMapper().readerFor(new TypeReference<Map<String, Object>>(){}).readValue(this.getClass().getClassLoader().getResourceAsStream("flatMapTest.json")),
                         new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), Collections.singleton("a.e.g.2"));
         Assert.assertThat(flat,IsMapContaining.hasEntry("a_b_0_c", 1));
         Assert.assertThat(flat,IsMapContaining.hasEntry("a_b_1_c", 2));
