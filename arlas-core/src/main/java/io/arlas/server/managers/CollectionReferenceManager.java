@@ -19,14 +19,14 @@
 
 package io.arlas.server.managers;
 
-import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.NotFoundException;
+import io.arlas.server.impl.elastic.core.ElasticAdmin;
+import io.arlas.server.impl.elastic.utils.ElasticClient;
+import io.arlas.server.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
-import io.arlas.server.utils.ElasticClient;
-import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 
 import java.util.Map;

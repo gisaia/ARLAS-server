@@ -27,8 +27,13 @@ import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.auth.AuthenticationFilter;
 import io.arlas.server.auth.AuthorizationFilter;
-import io.arlas.server.exceptions.*;
+import io.arlas.server.exceptions.ArlasExceptionMapper;
+import io.arlas.server.exceptions.ConstraintViolationExceptionMapper;
+import io.arlas.server.exceptions.IllegalArgumentExceptionMapper;
+import io.arlas.server.exceptions.JsonProcessingExceptionMapper;
 import io.arlas.server.health.ElasticsearchHealthCheck;
+import io.arlas.server.impl.elastic.exceptions.ElasticsearchExceptionMapper;
+import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.CSWService;
@@ -56,8 +61,6 @@ import io.arlas.server.rest.explore.suggest.SuggestRESTService;
 import io.arlas.server.rest.plugins.eo.TileRESTService;
 import io.arlas.server.services.ExploreServices;
 import io.arlas.server.task.CollectionAutoDiscover;
-import io.arlas.server.utils.ElasticClient;
-import io.arlas.server.utils.ElasticNodesInfo;
 import io.arlas.server.utils.PrettyPrintFilter;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
 import io.dropwizard.Application;
@@ -221,7 +224,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         if (configuration.arlascorsenabled) {
             configureCors(environment);
         }
-        ElasticNodesInfo.printNodesInfo(client);
     }
 
     private void configureCors(Environment environment) {

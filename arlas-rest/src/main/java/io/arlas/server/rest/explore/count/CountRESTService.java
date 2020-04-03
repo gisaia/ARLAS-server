@@ -21,8 +21,8 @@ package io.arlas.server.rest.explore.count;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.app.Documentation;
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.impl.elastic.core.FluidSearch;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Count;
 import io.arlas.server.model.request.MixedRequest;
@@ -39,7 +39,6 @@ import io.swagger.annotations.ApiResponses;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -108,7 +107,7 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws IOException, NotFoundException, ArlasException {
+    ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -178,7 +177,7 @@ public class CountRESTService extends ExploreRESTServices {
             // -----------------------  SEARCH  -----------------------
             // --------------------------------------------------------
             Count count
-    ) throws IOException, NotFoundException, ArlasException {
+    ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);

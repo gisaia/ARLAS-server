@@ -17,18 +17,20 @@
  * under the License.
  */
 
-package io.arlas.server.core;
+package io.arlas.server.impl.elastic.core;
 
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.utils.ColumnFilterUtil;
-import io.arlas.server.utils.ElasticClient;
 import io.arlas.server.utils.FilterMatcherUtil;
 import org.apache.logging.log4j.util.Strings;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,6 +170,14 @@ public class ElasticAdmin {
             collections.add(describeCollection(collection));
         }
         return collections;
+    }
+
+    public boolean isClusterHealthRed() throws ArlasException {
+        ClusterHealthResponse response = client.health();
+        if (response.getStatus() != ClusterHealthStatus.RED) {
+            return true;
+        }
+        return false;
     }
 
     /**

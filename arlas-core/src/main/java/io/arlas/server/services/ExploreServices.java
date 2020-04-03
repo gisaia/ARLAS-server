@@ -20,32 +20,22 @@
 package io.arlas.server.services;
 
 import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.core.ElasticAdmin;
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.dao.CollectionReferenceDao;
-import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.impl.elastic.core.ElasticAdmin;
+import io.arlas.server.impl.elastic.core.FluidSearch;
+import io.arlas.server.impl.elastic.dao.ElasticCollectionReferenceDaoImpl;
+import io.arlas.server.impl.elastic.utils.ElasticClient;
+import io.arlas.server.impl.elastic.utils.ElasticTool;
+import io.arlas.server.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.Link;
-import io.arlas.server.model.enumerations.CollectionFunction;
-import io.arlas.server.model.enumerations.ComputationEnum;
-import io.arlas.server.model.enumerations.GeoTypeEnum;
-import io.arlas.server.model.enumerations.OperatorEnum;
+import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.*;
-import io.arlas.server.model.enumerations.*;
-import io.arlas.server.model.response.AggregationMetric;
-import io.arlas.server.model.response.AggregationResponse;
-import io.arlas.server.model.response.ComputationResponse;
-
-import io.arlas.server.model.response.ReturnedGeometry;
-import io.arlas.server.utils.GeoTypeMapper;
-import io.arlas.server.utils.MapExplorer;
-import io.arlas.server.utils.ResponseCacheManager;
-import io.arlas.server.utils.CheckParams;
 import io.arlas.server.utils.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
@@ -352,21 +342,20 @@ public class ExploreServices {
     private Feature getFeatureFromHit(Hit arlasHit, String path, GeoJsonObject geometry) {
         Feature feature = new Feature();
 
-        /** Setting geometry of geojson */
+        // Setting geometry of geojson
         feature.setGeometry(geometry);
 
-        /** setting the properties of the geojson */
+        // setting the properties of the geojson
         feature.setProperties(new HashMap<>(arlasHit.getDataAsMap()));
 
-        /** Setting the Metadata (md) in properties of geojson.
-         * Only id, timestamp and centroid are set in the MD. The geometry is already returned in the geojson.*/
+        // Setting the Metadata (md) in properties of geojson. Only id, timestamp and centroid are set in the MD. The geometry is already returned in the geojson.
         MD md = new MD();
         md.id = arlasHit.md.id;
         md.timestamp = arlasHit.md.timestamp;
         md.centroid = arlasHit.md.centroid;
         feature.setProperty(MD.class.getSimpleName().toLowerCase(), md);
 
-        /** Setting the feature type of the geojson */
+        // Setting the feature type of the geojson
         feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
         feature.setProperty(FEATURE_GEOMETRY_PATH, path);
         return feature;

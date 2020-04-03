@@ -85,11 +85,11 @@ public class AtomBuilder {
                             entryType.setUpdated(dateTimeType);
                         } catch (DatatypeConfigurationException e) {
                             e.printStackTrace();
-                            new WebApplicationException(e);
+                            throw new WebApplicationException(e);
                         }
                     } catch (ParseException e) {
                         e.printStackTrace();
-                        new WebApplicationException(e);
+                        throw new WebApplicationException(e);
 
                     }
                     break;
@@ -146,11 +146,11 @@ public class AtomBuilder {
                         entryType.setUpdated(dateTimeType);
                     } catch (DatatypeConfigurationException e) {
                         e.printStackTrace();
-                        new WebApplicationException(e);
+                        throw new WebApplicationException(e);
                     }
                 } catch (ParseException e) {
                     e.printStackTrace();
-                    new WebApplicationException(e);
+                    throw new WebApplicationException(e);
                 }
             });
         });

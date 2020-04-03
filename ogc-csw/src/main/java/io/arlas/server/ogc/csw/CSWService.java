@@ -22,14 +22,14 @@ package io.arlas.server.ogc.csw;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.InspireConfiguration;
 import io.arlas.server.app.OGCConfiguration;
-import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.impl.elastic.dao.ElasticCollectionReferenceDaoImpl;
+import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.MetaCollectionReferenceParameters;
 import io.arlas.server.model.OgcInspireConfigurationParameters;
 import io.arlas.server.ogc.common.dao.ElasticOGCCollectionReferenceDaoImp;
 import io.arlas.server.ogc.common.model.Service;
-import io.arlas.server.utils.ElasticClient;
 
 import java.util.List;
 
@@ -60,7 +60,7 @@ public class CSWService extends CSWRESTService {
         dao.putCollectionReference(metacolletion);
     }
 
-    private CollectionReference createMetaCollection(String index, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws ArlasException {
+    private CollectionReference createMetaCollection(String index, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) {
         CollectionReference collectionReference =  new CollectionReference();
         collectionReference.collectionName = getMetacollectionName();
         MetaCollectionReferenceParameters collectionReferenceParameters = new MetaCollectionReferenceParameters();

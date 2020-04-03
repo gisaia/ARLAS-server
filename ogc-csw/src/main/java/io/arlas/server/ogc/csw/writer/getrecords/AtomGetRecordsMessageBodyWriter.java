@@ -99,7 +99,7 @@ public class AtomGetRecordsMessageBodyWriter implements MessageBodyWriter<GetRec
             feedType.setUpdated(dateTimeType);
         } catch (DatatypeConfigurationException e) {
             e.printStackTrace();
-            new WebApplicationException(e);
+            throw new WebApplicationException(e);
         }
         LinkType linkType = new LinkType();
         linkType.setType(CSWRESTService.MIME_TYPE__OPENSEARCH_XML);
@@ -141,12 +141,12 @@ public class AtomGetRecordsMessageBodyWriter implements MessageBodyWriter<GetRec
                 m.marshal(objectFactory.createFeed(feedType),outputStream);
             } catch (JAXBException e) {
                 e.printStackTrace();
-                new WebApplicationException(e);
+                throw new WebApplicationException(e);
 
             }
         } catch (JAXBException e) {
             e.printStackTrace();
-            new WebApplicationException(e);
+            throw new WebApplicationException(e);
 
         }
     }

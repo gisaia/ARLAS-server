@@ -17,11 +17,11 @@
  * under the License.
  */
 
-package io.arlas.server.core;
+package io.arlas.server.impl.elastic.core;
 
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.utils.ElasticClient;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.utils;
+package io.arlas.server.impl.elastic.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -25,6 +25,8 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.NotImplementedException;
 import io.arlas.server.exceptions.ParseException;
 import io.arlas.server.model.enumerations.GeoTypeEnum;
+import io.arlas.server.utils.GeoUtil;
+import io.arlas.server.utils.ParamsParser;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.geojson.GeoJsonObject;
 import org.geojson.Point;

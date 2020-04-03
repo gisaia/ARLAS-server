@@ -17,14 +17,14 @@
  * under the License.
  */
 
-package io.arlas.server.utils;
+package io.arlas.server.impl.elastic.utils;
 
 import io.arlas.server.app.ElasticConfiguration;
-import io.arlas.server.core.ElasticAdmin;
+import io.arlas.server.impl.elastic.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
-import io.arlas.server.model.Link;
+import io.arlas.server.impl.elastic.utils.ElasticTool;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
@@ -43,7 +43,6 @@ import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.*;
 import org.elasticsearch.client.sniff.Sniffer;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.slf4j.Logger;

@@ -21,9 +21,9 @@ package io.arlas.server.rest.explore.raw;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.app.Documentation;
-import io.arlas.server.core.ElasticDocument;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.NotFoundException;
+import io.arlas.server.impl.elastic.core.ElasticDocument;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Hit;
@@ -35,13 +35,12 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang.BooleanUtils;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public class RawRESTService extends ExploreRESTServices {
     public RawRESTService(ExploreServices exploreServices) {
@@ -103,7 +102,7 @@ public class RawRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+    ) throws ArlasException {
         CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
