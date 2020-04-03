@@ -22,32 +22,27 @@ package io.arlas.server.ogc.csw;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.InspireConfiguration;
 import io.arlas.server.app.OGCConfiguration;
+import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.impl.elastic.dao.ElasticCollectionReferenceDaoImpl;
-import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.MetaCollectionReferenceParameters;
 import io.arlas.server.model.OgcInspireConfigurationParameters;
-import io.arlas.server.ogc.common.dao.ElasticOGCCollectionReferenceDaoImp;
-import io.arlas.server.ogc.common.model.Service;
+import io.arlas.server.ogc.common.dao.OGCCollectionReferenceDao;
 
 import java.util.List;
 
 public class CSWService extends CSWRESTService {
-
-    ElasticClient client;
 
     private static final String META_COLLECTION_ID_PATH = "dublin_core_element_name.identifier";
     private static final String META_COLLECTION_GEOMETRY_PATH = "dublin_core_element_name.coverage";
     private static final String META_COLLECTION_CENTROID_PATH = "dublin_core_element_name.coverage_centroid";
     private static final String META_COLLECTION_TIMESTAMP_PATH = "dublin_core_element_name.date";
 
-    public CSWService(ElasticClient client, CSWHandler cswHandler, ArlasServerConfiguration configuration) throws ArlasException {
+    public CSWService(CollectionReferenceDao collectionDao, OGCCollectionReferenceDao ogcDao, CSWHandler cswHandler, ArlasServerConfiguration configuration) throws ArlasException {
         super(cswHandler);
-        this.client = client;
-        this.dao = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
+        this.dao = collectionDao;
         initMetaCollection(configuration.arlasindex, configuration.ogcConfiguration, configuration.inspireConfiguration);
-        this.ogcDao = new ElasticOGCCollectionReferenceDaoImp(client, configuration.arlasindex, Service.CSW);
+        this.ogcDao = ogcDao;
     }
 
     private void initMetaCollection(String index, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws ArlasException {

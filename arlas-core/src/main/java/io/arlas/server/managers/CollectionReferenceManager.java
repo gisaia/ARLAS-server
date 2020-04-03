@@ -19,10 +19,9 @@
 
 package io.arlas.server.managers;
 
+import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.NotFoundException;
-import io.arlas.server.impl.elastic.core.ElasticAdmin;
-import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
@@ -34,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CollectionReferenceManager {
     private Map<String, ElasticType> map;
-    private ElasticAdmin elasticAdmin;
+    private CollectionReferenceDao collectionReferenceDao;
 
     private static CollectionReferenceManager collectionReferenceManager = new CollectionReferenceManager();
 
@@ -46,15 +45,15 @@ public class CollectionReferenceManager {
         map = new ConcurrentHashMap<>();
     }
 
-    public void init(ElasticClient client) {
-        this.elasticAdmin = new ElasticAdmin(client);
+    public void init(CollectionReferenceDao collectionReferenceDao) {
+        this.collectionReferenceDao = collectionReferenceDao;
     }
 
     public ElasticType getType(CollectionReference collectionReference, String field, boolean throwException) throws ArlasException {
         ElasticType elasticType = map.get(collectionReference.collectionName + "-" + field);
         if (elasticType == null) {
             String[] props = field.split("\\.");
-            CollectionReferenceDescriptionProperty esField = elasticAdmin.describeCollection(collectionReference).properties.get(props[0]);
+            CollectionReferenceDescriptionProperty esField = collectionReferenceDao.describeCollection(collectionReference).properties.get(props[0]);
             if (esField == null) {
                 return getUnknownType(field, esField, collectionReference.collectionName, throwException);
             }

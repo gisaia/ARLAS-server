@@ -22,9 +22,9 @@ package io.arlas.server.ogc.common.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
-import io.arlas.server.impl.elastic.core.ElasticAdmin;
 import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.impl.elastic.utils.ElasticTool;
 import io.arlas.server.model.CollectionReference;
@@ -46,11 +46,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferenceDao {
+public class ElasticOGCCollectionReferenceDao implements OGCCollectionReferenceDao {
 
-    ElasticClient client;
-    String arlasIndex;
-    Service service;
+    private final ElasticClient client;
+    private final String arlasIndex;
+    private final Service service;
+    private final CollectionReferenceDao collectionReferenceDao;
 
     private static ObjectMapper mapper;
     private static ObjectReader reader;
@@ -61,8 +62,9 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
         reader = mapper.readerFor(CollectionReferenceParameters.class);
     }
 
-    public ElasticOGCCollectionReferenceDaoImp(ElasticClient client, String index, Service service) {
+    public ElasticOGCCollectionReferenceDao(ElasticClient client, CollectionReferenceDao collectionReferenceDao, String index, Service service) {
         this.client = client;
+        this.collectionReferenceDao = collectionReferenceDao;
         this.arlasIndex = index;
         this.service = service;
     }
@@ -140,8 +142,7 @@ public class ElasticOGCCollectionReferenceDaoImp implements OGCCollectionReferen
     }
 
     private CollectionReferenceDescription getMetacollectionDescription() throws ArlasException, IOException {
-        ElasticAdmin elasticAdmin = new ElasticAdmin(client);
         CollectionReference metaCollection = ElasticTool.getCollectionReferenceFromES(client, arlasIndex, reader, "metacollection");
-        return elasticAdmin.describeCollection(metaCollection);
+        return collectionReferenceDao.describeCollection(metaCollection);
     }
 }

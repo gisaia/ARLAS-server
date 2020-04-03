@@ -17,16 +17,30 @@
  * under the License.
  */
 
-package io.arlas.server.ogc.wfs;
+package io.arlas.server.app;
 
+import com.codahale.metrics.health.HealthCheck;
 import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.ogc.common.dao.OGCCollectionReferenceDao;
 import io.arlas.server.ogc.wfs.services.WFSToolService;
+import io.arlas.server.services.ExploreService;
 
-public class WFSService extends WFSRESTService {
+import java.util.Map;
 
-    public WFSService(CollectionReferenceDao dao, WFSToolService wfsToolService, WFSHandler wfsHandler) {
-        super(wfsHandler);
-        this.dao = dao;
-        this.wfsToolService = wfsToolService;
+public abstract class DatabaseToolsFactory {
+    protected ArlasServerConfiguration configuration;
+
+    public DatabaseToolsFactory(ArlasServerConfiguration configuration) {
+        this.configuration = configuration;
     }
+
+    public abstract ExploreService getExploreService();
+
+    public abstract CollectionReferenceDao getCollectionReferenceDao();
+
+    public abstract OGCCollectionReferenceDao getOGCCollectionReferenceDao();
+
+    public abstract WFSToolService getWFSToolService();
+
+    public abstract Map<String, HealthCheck> getHealthChecks();
 }

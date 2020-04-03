@@ -149,3 +149,5 @@ arlas_auth:
   public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger,swagger.json}]
   login_url: ${ARLAS_AUTH_LOGIN_URL:-}
   certificate_file: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}
+
+arlas_database_factory_class: ${ARLAS_DATABASE_FACTORY_CLASS:-io.arlas.server.impl.ElasticDatabaseToolsFactory}
