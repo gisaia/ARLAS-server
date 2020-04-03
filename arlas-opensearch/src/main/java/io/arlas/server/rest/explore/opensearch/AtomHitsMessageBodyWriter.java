@@ -20,7 +20,6 @@
 package io.arlas.server.rest.explore.opensearch;
 
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.impl.elastic.core.ElasticAdmin;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.Feed;
 import io.arlas.server.model.response.*;
@@ -29,7 +28,7 @@ import io.arlas.server.ns.GEORSS;
 import io.arlas.server.ns.GML;
 import io.arlas.server.ns.OPENSEARCH;
 import io.arlas.server.ogc.common.utils.GeoFormat;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.StringUtil;
 
@@ -55,10 +54,10 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
     public static final SimpleDateFormat dateFormater =
             new SimpleDateFormat("yyyy-MM.dd'T'hh:mm:ssZ");
 
-    private ExploreServices exploration;
+    private ExploreService exploreService;
 
-    public AtomHitsMessageBodyWriter(ExploreServices exploration) {
-        this.exploration = exploration;
+    public AtomHitsMessageBodyWriter(ExploreService exploreService) {
+        this.exploreService = exploreService;
     }
 
 
@@ -94,13 +93,13 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
 
             writeElement(writer, OPENSEARCH.XML_NS, "totalResults", "" + hits.totalnb);
 
-            CollectionReference cr = null;
+            CollectionReference cr;
             try {
-                cr = exploration.getDaoCollectionReference().getCollectionReference(hits.collection);
+                cr = exploreService.getDaoCollectionReference().getCollectionReference(hits.collection);
             } catch (ArlasException e) {
                 throw new WebApplicationException("Can not access collection metadata", e);
             }
-            CollectionReferenceDescription fields = new ElasticAdmin(exploration.getClient()).describeCollection(cr);
+            CollectionReferenceDescription fields = exploreService.describeCollection(cr, Optional.empty());
 
             if (cr.params.atomFeed != null) {
                 Feed feed = cr.params.atomFeed;
@@ -130,33 +129,29 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
                 writeElement(writer, ATOM.XML_NS, "rights", feed.rights);
                 writeElement(writer, ATOM.XML_NS, "subtitle", feed.subtitle);
             }
-            if (hits != null) {
-                for (Hit hit : hits.hits) {
-                    writer.writeStartElement(ATOM.XML_NS, "entry");
-                    writeElement(writer, ATOM.XML_NS, "id", hit.md.id);
-                    writeElement(writer, ATOM.XML_NS, "title", hit.md.id);
-                    writeElement(writer, ATOM.XML_NS, "update", dateFormater.format(new Date(hit.md.timestamp)));
-                    writer.writeStartElement(ATOM.XML_NS, "content");
-                    if (hit.isFlat()) {
-                        Iterator<String> keysIt = hit.getDataAsMap().keySet().iterator();
-                        while (keysIt.hasNext()) {
-                            String key = keysIt.next();
-                            writeElement(writer, ATOM.XML_NS, key, hit.getDataAsMap().get(key).toString());
-                        }
+            for (Hit hit : hits.hits) {
+                writer.writeStartElement(ATOM.XML_NS, "entry");
+                writeElement(writer, ATOM.XML_NS, "id", hit.md.id);
+                writeElement(writer, ATOM.XML_NS, "title", hit.md.id);
+                writeElement(writer, ATOM.XML_NS, "update", dateFormater.format(new Date(hit.md.timestamp)));
+                writer.writeStartElement(ATOM.XML_NS, "content");
+                if (hit.isFlat()) {
+                    for (String key : hit.getDataAsMap().keySet()) {
+                        writeElement(writer, ATOM.XML_NS, key, hit.getDataAsMap().get(key).toString());
+                    }
 
-                    } else {
-                        writeFields(writer, fields.properties, ATOM.XML_NS, new Stack<>(), hit.data);
-                    }
-                    writer.writeEndElement();
-                    writer.writeStartElement(GEORSS.XML_NS, "where");
-                    if (hit.md.geometry != null) {
-                        GeoFormat.geojson2gml(hit.md.geometry, writer, hit.md.id);
-                    } else {
-                        GeoFormat.geojson2gml(hit.md.centroid, writer, hit.md.id);
-                    }
-                    writer.writeEndElement();
-                    writer.writeEndElement();
+                } else {
+                    writeFields(writer, fields.properties, ATOM.XML_NS, new Stack<>(), hit.data);
                 }
+                writer.writeEndElement();
+                writer.writeStartElement(GEORSS.XML_NS, "where");
+                if (hit.md.geometry != null) {
+                    GeoFormat.geojson2gml(hit.md.geometry, writer, hit.md.id);
+                } else {
+                    GeoFormat.geojson2gml(hit.md.centroid, writer, hit.md.id);
+                }
+                writer.writeEndElement();
+                writer.writeEndElement();
             }
             writer.writeEndElement();
             writer.flush();

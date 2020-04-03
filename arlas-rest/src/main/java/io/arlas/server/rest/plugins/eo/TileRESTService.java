@@ -31,7 +31,7 @@ import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Search;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.utils.*;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.annotations.ApiOperation;
@@ -47,15 +47,17 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 public class TileRESTService extends ExploreRESTServices {
     public final static String PRODUCES_PNG =  "image/png";
 
-    public TileRESTService(ExploreServices exploreServices) {
-        super(exploreServices);
+    public TileRESTService(ExploreService exploreService) {
+        super(exploreService);
     }
 
 
@@ -71,28 +73,20 @@ public class TileRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
-            @ApiParam(
-                    name = "x",
+            @ApiParam(name = "x",
                     value = "x",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "x") Integer x,
-            @ApiParam(
-                    name = "y",
+            @ApiParam(name = "y",
                     value = "y",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "y") Integer y,
-            @ApiParam(
-                    name = "z",
+            @ApiParam(name = "z",
                     value = "z",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "z") Integer z,
             // --------------------------------------------------------
@@ -100,18 +94,15 @@ public class TileRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(name = "f",
                     value = Documentation.FILTER_PARAM_F,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "f") List<String> f,
 
             @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
-                    allowMultiple = false,
-                    required = false)
+            @ApiParam(name = "dateformat",
+                    value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(hidden = true)
@@ -124,38 +115,33 @@ public class TileRESTService extends ExploreRESTServices {
             // -----------------------  PAGE    -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(name = "size", value = Documentation.PAGE_PARAM_SIZE,
+            @ApiParam(name = "size",
+                    value = Documentation.PAGE_PARAM_SIZE,
                     defaultValue = "10",
                     allowableValues = "range[1, infinity]",
-                    type = "integer",
-                    required = false)
+                    type = "integer")
             @DefaultValue("10")
             @QueryParam(value = "size") IntParam size,
 
-            @ApiParam(name = "from", value = Documentation.PAGE_PARAM_FROM,
+            @ApiParam(name = "from",
+                    value = Documentation.PAGE_PARAM_FROM,
                     defaultValue = "0",
                     allowableValues = "range[0, infinity]",
-                    type = "integer",
-                    required = false)
+                    type = "integer")
             @DefaultValue("0")
             @QueryParam(value = "from") IntParam from,
 
             @ApiParam(name = "sort",
                     value = Documentation.PAGE_PARAM_SORT,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "sort") String sort,
 
             @ApiParam(name = "after",
-                    value = Documentation.PAGE_PARAM_AFTER,
-                    allowMultiple = false,
-                    required = false)
+                    value = Documentation.PAGE_PARAM_AFTER)
             @QueryParam(value = "after") String after,
 
             @ApiParam(name = "before",
-                    value = Documentation.PAGE_PARAM_BEFORE,
-                    allowMultiple = false,
-                    required = false)
+                    value = Documentation.PAGE_PARAM_BEFORE)
             @QueryParam(value = "before") String before,
 
             // --------------------------------------------------------
@@ -163,24 +149,20 @@ public class TileRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(name = "sampling",
                     value = TileDocumentation.TILE_SAMPLING,
-                    allowMultiple = false,
-                    defaultValue = "10",
-                    required = false)
+                    defaultValue = "10")
             @QueryParam(value = "sampling") Integer sampling,
             @ApiParam(name = "coverage",
                     value = TileDocumentation.TILE_COVERAGE,
-                    allowMultiple = false,
-                    defaultValue = "70",
-                    required = false)
+                    defaultValue = "70")
             @QueryParam(value = "coverage") Integer coverage,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+    ) throws NotFoundException, ArlasException {
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -211,9 +193,9 @@ public class TileRESTService extends ExploreRESTServices {
         request.headerRequest = searchHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        Queue<TileProvider<RasterTile>> providers = new LinkedList<>(findCandidateTiles(collectionReference, request).stream()
+        Queue<TileProvider<RasterTile>> providers = findCandidateTiles(collectionReference, request).stream()
                 .filter(match -> match._2().map(
-                        polygon->(!collectionReference.params.rasterTileURL.checkGeometry)||polygon.intersects(GeoTileUtil.toPolygon(bbox))) // if geo is available, does it intersect the bbox?
+                        polygon -> (!collectionReference.params.rasterTileURL.checkGeometry) || polygon.intersects(GeoTileUtil.toPolygon(bbox))) // if geo is available, does it intersect the bbox?
                         .orElse(Boolean.TRUE)) // otherwise, let's keep that match, we'll see later if it paints something
                 .map(match -> new URLBasedRasterTileProvider(new RasterTileURL(
                         collectionReference.params.rasterTileURL.url.replace("{id}", Optional.ofNullable(match._1()).orElse("")),
@@ -221,7 +203,7 @@ public class TileRESTService extends ExploreRESTServices {
                         collectionReference.params.rasterTileURL.maxZ,
                         collectionReference.params.rasterTileURL.checkGeometry),
                         collectionReference.params.rasterTileWidth,
-                        collectionReference.params.rasterTileHeight)).collect(Collectors.toList()));
+                        collectionReference.params.rasterTileHeight)).collect(Collectors.toCollection(LinkedList::new));
         if(providers.size()==0){
             return Response.noContent().build();
         }
@@ -231,9 +213,7 @@ public class TileRESTService extends ExploreRESTServices {
                 .upTo(new RasterTileStacker.Percentage(Optional.ofNullable(coverage).orElse(10)))
                 .on(new Tile(x, y, z));
 
-        stacked.onFail(failure->{
-            LOGGER.error("Failed to fetch a tile",failure);
-        });
+        stacked.onFail(failure-> LOGGER.error("Failed to fetch a tile",failure));
 
         return stacked.map(otile->
                 otile.map(tile->
@@ -248,13 +228,13 @@ public class TileRESTService extends ExploreRESTServices {
                 .orElse(Response.noContent().build());// No tile => No content
     }
 
-    protected List<Tuple2<String,Optional<Geometry>>> findCandidateTiles(CollectionReference collectionReference, MixedRequest request) throws ArlasException, IOException {
-        return Arrays.stream(this.getExploreServices().search(request, collectionReference).getHits())
-                .map(hit->Tuple2.of(
-                        "" + MapExplorer.getObjectFromPath(collectionReference.params.rasterTileURL.idPath, hit.getSourceAsMap()), // Let's get the ID of the match
-                        Try.withCatch(() ->GeoTileUtil.getGeometryFromSource(hit.getSourceAsMap(), collectionReference), // and its geometry: must be a polygon
-                                ParseException.class,ClassCastException.class,JsonProcessingException.class) // there might be some troubles when parsing the geometry
-                                .onFail(e ->LOGGER.error("Failed to fetch geometry for "+MapExplorer.getObjectFromPath(collectionReference.params.idPath, hit.getSourceAsMap())))
+    protected List<Tuple2<String,Optional<Geometry>>> findCandidateTiles(CollectionReference collectionReference, MixedRequest request) throws ArlasException {
+        return exploreService.searchAsRaw(request, collectionReference).stream()
+                .map(hit -> Tuple2.of(
+                        "" + MapExplorer.getObjectFromPath(collectionReference.params.rasterTileURL.idPath, hit), // Let's get the ID of the match
+                        Try.withCatch(() -> GeoTileUtil.getGeometryFromSource(hit, collectionReference), // and its geometry: must be a polygon
+                                ParseException.class, ClassCastException.class, JsonProcessingException.class) // there might be some troubles when parsing the geometry
+                                .onFail(e ->LOGGER.error("Failed to fetch geometry for " + MapExplorer.getObjectFromPath(collectionReference.params.idPath, hit)))
                                 .toOptional()// in case there's a problem, we don't need the geometry: the optimisation won't be applied on the hit => an empty Optional is good enough
                 )).collect(Collectors.toList());
     }

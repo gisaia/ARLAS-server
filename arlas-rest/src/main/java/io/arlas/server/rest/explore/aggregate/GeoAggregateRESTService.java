@@ -20,7 +20,6 @@
 package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.Documentation;
 import io.arlas.server.exceptions.ArlasException;
@@ -28,31 +27,32 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.AggregationGeometryEnum;
 import io.arlas.server.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.model.enumerations.OperatorEnum;
-import io.arlas.server.model.request.*;
+import io.arlas.server.model.request.AggregationsRequest;
+import io.arlas.server.model.request.Expression;
+import io.arlas.server.model.request.Filter;
+import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.utils.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.collections.CollectionUtils;
-
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.*;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
 
-    public GeoAggregateRESTService(ExploreServices exploreServices) {
-        super(exploreServices);
+    public GeoAggregateRESTService(ExploreService exploreService) {
+        super(exploreService);
     }
 
     private static final String FEATURE_TYPE_KEY = "feature_type";
@@ -74,10 +74,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
 
@@ -86,7 +84,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(name = "agg",
                     value = Documentation.GEOAGGREGATION_PARAM_AGG,
-                    allowMultiple = false,
                     required = true)
             @QueryParam(value = "agg") List<String> agg,
 
@@ -95,18 +92,16 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(name = "f",
                     value = Documentation.FILTER_PARAM_F,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
-                    allowMultiple = true,
-                    required = false)
+            @ApiParam(name = "q",
+                    value = Documentation.FILTER_PARAM_Q,
+                    allowMultiple = true)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
-                    allowMultiple = false,
-                    required = false)
+            @ApiParam(name = "dateformat",
+                    value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
 
@@ -119,25 +114,22 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
             @ApiParam(name = "flat", value = Documentation.FORM_FLAT,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+                    defaultValue = "false")
             @QueryParam(value = "flat") Boolean flat,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws IOException, NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+    ) throws NotFoundException, ArlasException {
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -162,17 +154,13 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- PATH ---------------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
 
-            @ApiParam(
-                    name = "geohash",
+            @ApiParam(name = "geohash",
                     value = "geohash",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "geohash") String geohash,
 
@@ -180,9 +168,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // ----------------------- AGGREGATION --------------------
             // --------------------------------------------------------
             @ApiParam(name = "agg",
-                    value = Documentation.GEOAGGREGATION_PARAM_AGG,
-                    allowMultiple = false
-            )
+                    value = Documentation.GEOAGGREGATION_PARAM_AGG)
             @QueryParam(value = "agg") List<String> agg,
 
             // --------------------------------------------------------
@@ -190,18 +176,15 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(name = "f",
                     value = Documentation.FILTER_PARAM_F,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "f") List<String> f,
 
             @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
-                    allowMultiple = false,
-                    required = false)
+            @ApiParam(name = "dateformat",
+                    value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(hidden = true)
@@ -213,32 +196,30 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- FORM ---------------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
-            @ApiParam(name = "flat", value = Documentation.FORM_FLAT,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "flat",
+                    value = Documentation.FORM_FLAT,
+                    defaultValue = "false")
             @QueryParam(value = "flat") Boolean flat,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA --------------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws IOException, NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+    ) throws NotFoundException, ArlasException {
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
 
         if (geohash.startsWith("#")) {
-            geohash = geohash.substring(1, geohash.length());
+            geohash = geohash.substring(1);
         }
         BoundingBox bbox = GeoTileUtil.getBoundingBox(geohash);
         Expression pwithinBbox = new Expression(collectionReference.params.centroidPath, OperatorEnum.within,
@@ -266,10 +247,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
             // --------------------------------------------------------
@@ -290,19 +269,18 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws IOException, NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+    ) throws NotFoundException, ArlasException {
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -311,8 +289,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
-        exploreServices.setValidGeoFilters(collectionReference, aggregationRequest);
-        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
+        exploreService.setValidGeoFilters(collectionReference, aggregationRequest);
+        exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationRequest);
 
@@ -326,39 +304,39 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     }
 
     private Response geoaggregate(CollectionReference collectionReference, Filter filter, String partitionFilter, Optional<String> columnFilter,
-                                  Boolean flat, List<String> agg, Integer maxagecache, Optional<String> geohash) throws ArlasException, IOException {
+                                  Boolean flat, List<String> agg, Integer maxagecache, Optional<String> geohash) throws ArlasException {
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
         aggregationsRequest.filter = filter;
         aggregationsRequest.aggregations = ParamsParser.getAggregations(collectionReference, agg);
-        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequest);
+        exploreService.setValidGeoFilters(collectionReference, aggregationsRequest);
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
 
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = aggregationsRequest;
-        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
+        exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
         FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), geohash);
         return cache(Response.ok(fc), maxagecache);
     }
 
-    private FeatureCollection getFeatureCollection(MixedRequest request, CollectionReference collectionReference, boolean flat, Optional<String> geohash) throws ArlasException, IOException {
-        Optional<Interval> interval = Optional.ofNullable(((AggregationsRequest) request.basicRequest).aggregations.get(0).interval);
-        Optional<Number> precision = interval.map(i -> i.value);
+    private FeatureCollection getFeatureCollection(MixedRequest request, CollectionReference collectionReference, boolean flat, Optional<String> geohash) throws ArlasException {
         FeatureCollection fc;
         AggregationTypeEnum mainAggregationType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
-        AggregationResponse aggregationResponse = this.getExploreServices()
-                .formatAggregationResult(this.getExploreServices().aggregate(request, collectionReference, true),
-                        collectionReference, ((AggregationsRequest) request.basicRequest).aggregations, 0, System.nanoTime());
-        fc = toGeoJson(aggregationResponse, mainAggregationType, flat, geohash, precision.map(p->p.intValue()));
+        AggregationResponse aggregationResponse = exploreService.aggregate(request,
+                collectionReference,
+                true,
+                ((AggregationsRequest) request.basicRequest).aggregations,
+                0,
+                System.nanoTime());
+        fc = toGeoJson(aggregationResponse, mainAggregationType, flat, geohash);
         return fc;
     }
 
-    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat, Optional<String> geohash, Optional<Integer> precision) throws IOException {
+    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat, Optional<String> geohash) {
         FeatureCollection fc = new FeatureCollection();
-        ObjectMapper mapper = new ObjectMapper();
         List<AggregationResponse> elements = aggregationResponse.elements;
         if (!CollectionUtils.isEmpty(elements)) {
             for (AggregationResponse element : elements) {
@@ -369,16 +347,12 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                        properties.put("count", element.count);
                        if (mainAggregationType == AggregationTypeEnum.geohash) {
                            properties.put("geohash", element.keyAsString);
-                           if (geohash.isPresent()) {
-                               properties.put("parent_geohash", geohash.get());
-                           }
+                           geohash.ifPresent(s -> properties.put("parent_geohash", s));
                        } else {
                            properties.put("key", element.keyAsString);
                        }
                        if (flat) {
-                           this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))).forEach((key, value) -> {
-                               properties.put(key, value);
-                           });
+                           exploreService.flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))).forEach(properties::put);
 
                            if (element.hits != null) {
                                properties.put("hits", element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>())));

@@ -22,14 +22,13 @@ package io.arlas.server.rest.explore.count;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.app.Documentation;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.impl.elastic.core.FluidSearch;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Count;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Hits;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.ParamsParser;
 import io.swagger.annotations.ApiOperation;
@@ -44,9 +43,8 @@ import java.util.Optional;
 
 public class CountRESTService extends ExploreRESTServices {
 
-
-    public CountRESTService(ExploreServices exploreServices) {
-        super(exploreServices);
+    public CountRESTService(ExploreService exploreService) {
+        super(exploreService);
     }
 
     @Timed
@@ -61,10 +59,8 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collections",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
 
@@ -73,18 +69,15 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(name = "f",
                     value = Documentation.FILTER_PARAM_F,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "f") List<String> f,
 
             @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
-                    allowMultiple = false,
-                    required = false)
+            @ApiParam(name = "dateformat",
+                    value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(hidden = true)
@@ -96,29 +89,25 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference().getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
 
-        FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
-        fluidSearch.setCollectionReference(collectionReference);
-
         Count count = new Count();
         count.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
-        exploreServices.setValidGeoFilters(collectionReference, count);
+        exploreService.setValidGeoFilters(collectionReference, count);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, count);
 
@@ -126,11 +115,11 @@ public class CountRESTService extends ExploreRESTServices {
         request.basicRequest = count;
         Count countHeader = new Count();
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
-        exploreServices.setValidGeoFilters(collectionReference, countHeader);
+        exploreService.setValidGeoFilters(collectionReference, countHeader);
         request.headerRequest = countHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        Hits hits = this.getExploreServices().count(request, collectionReference);
+        Hits hits = exploreService.count(request, collectionReference);
         return cache(Response.ok(hits), maxagecache);
     }
 
@@ -147,10 +136,8 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collections",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
 
@@ -167,10 +154,9 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
@@ -178,24 +164,24 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             Count count
     ) throws NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference().getCollectionReference(collection);
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference().getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
 
         MixedRequest request = new MixedRequest();
-        exploreServices.setValidGeoFilters(collectionReference, count);
+        exploreService.setValidGeoFilters(collectionReference, count);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, count);
 
         request.basicRequest = count;
         Count countHeader = new Count();
         countHeader.filter = ParamsParser.getFilter(partitionfilter);
-        exploreServices.setValidGeoFilters(collectionReference, countHeader);
+        exploreService.setValidGeoFilters(collectionReference, countHeader);
         request.headerRequest = countHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        Hits hits = this.getExploreServices().count(request, collectionReference);
+        Hits hits = exploreService.count(request, collectionReference);
         return Response.ok(hits).build();
     }
 }

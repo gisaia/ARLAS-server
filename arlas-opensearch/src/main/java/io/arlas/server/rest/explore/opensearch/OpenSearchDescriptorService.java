@@ -23,7 +23,6 @@ import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.app.Documentation;
 import io.arlas.server.app.OpensearchConfiguration;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.impl.elastic.core.ElasticAdmin;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.OpenSearch;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
@@ -34,7 +33,7 @@ import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.rest.explore.opensearch.model.Image;
 import io.arlas.server.rest.explore.opensearch.model.OpenSearchDescription;
 import io.arlas.server.rest.explore.opensearch.model.Url;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.StringUtil;
 import io.swagger.annotations.ApiOperation;
@@ -50,15 +49,13 @@ import java.io.IOException;
 import java.util.*;
 
 public class OpenSearchDescriptorService extends ExploreRESTServices {
-    ElasticAdmin admin;
     OpensearchConfiguration opensearchConfiguration;
 
     @Context
     UriInfo uri;
 
-    public OpenSearchDescriptorService(ExploreServices exploreServices, OpensearchConfiguration opensearchConfiguration) {
-        super(exploreServices);
-        this.admin = exploreServices.getElasticAdmin();
+    public OpenSearchDescriptorService(ExploreService exploreService, OpensearchConfiguration opensearchConfiguration) {
+        super(exploreService);
         this.opensearchConfiguration = opensearchConfiguration;
     }
 
@@ -78,7 +75,6 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             @ApiParam(
                     name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
 
@@ -90,24 +86,24 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws IOException, NotFoundException, ArlasException {
-        CollectionReference cr = exploreServices.getDaoCollectionReference()
+        CollectionReference cr = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (cr == null) {
             throw new NotFoundException(collection);
         }
-        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Arrays.asList(cr));
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Collections.singletonList(cr));
         OpenSearchDescription description = new OpenSearchDescription();
         String prefix = uri.getBaseUri().toURL().toString() + uri.getPath() + "/../_search";
 
         //[scheme:][//authority][path][?query][#fragment]
         if (cr.params.openSearch != null) {
             OpenSearch os = cr.params.openSearch;
-            String baseUri = this.getExploreServices().getBaseUri();
+            String baseUri = exploreService.getBaseUri();
             if (!StringUtil.isNullOrEmpty(baseUri)) {
-                prefix = this.getExploreServices().getBaseUri() + this.getExplorePathUri() + collection + "/_search";
+                prefix = exploreService.getBaseUri() + this.getExplorePathUri() + collection + "/_search";
             } else  if (opensearchConfiguration != null && opensearchConfiguration.urlTemplatePrefix != null) {
                 prefix = opensearchConfiguration.urlTemplatePrefix;
                 prefix = prefix.replace(OpensearchConfiguration.COLLECTION_PLACEMARK, collection);
@@ -133,7 +129,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             description.syndicationRight = os.syndicationRight;
             description.tags = os.tags;
         }
-        addURLs(prefix, description.url, admin.describeCollection(cr, columnFilter).properties, new Stack<>());
+        addURLs(prefix, description.url, exploreService.describeCollection(cr, columnFilter).properties, new Stack<>());
         List<Url> urls = new ArrayList<>();
         description.url.forEach(url -> {
             urls.add(url(url.template + "&f="+cr.params.geometryPath+":intersect:{geo:box?}"));
@@ -156,15 +152,15 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
                 String fieldPath = String.join(".", new ArrayList<>(namespace));
                 switch (property.type) {
                     case DATE:
-                        addNumberUrls(urls, templatePrefix, fieldPath, "long");
-                        break;
                     case LONG:
                         addNumberUrls(urls, templatePrefix, fieldPath, "long");
                         break;
                     case DOUBLE:
                         addNumberUrls(urls, templatePrefix, fieldPath, "double");
+                        break;
                     case FLOAT:
                         addNumberUrls(urls, templatePrefix, fieldPath, "float");
+                        break;
                     case SHORT:
                         addNumberUrls(urls, templatePrefix, fieldPath, "short");
                         break;

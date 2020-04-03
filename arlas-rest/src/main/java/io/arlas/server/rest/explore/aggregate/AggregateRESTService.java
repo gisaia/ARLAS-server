@@ -29,7 +29,7 @@ import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
@@ -41,19 +41,17 @@ import org.apache.commons.lang.BooleanUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class AggregateRESTService extends ExploreRESTServices {
 
-    public AggregateRESTService(ExploreServices exploreServices) {
-        super(exploreServices);
+    public AggregateRESTService(ExploreService exploreService) {
+        super(exploreService);
     }
 
     @Timed
@@ -73,7 +71,6 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(
                     name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
 
@@ -81,9 +78,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
             @ApiParam(name = "agg",
-                    value = Documentation.AGGREGATION_PARAM_AGG
-                    ,
-                    allowMultiple = false,
+                    value = Documentation.AGGREGATION_PARAM_AGG,
                     required = true)
             @QueryParam(value = "agg") List<String> agg,
 
@@ -92,18 +87,15 @@ public class AggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(name = "f",
                     value = Documentation.FILTER_PARAM_F,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "f") List<String> f,
 
             @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "dateformat", value = Documentation.FILTER_DATE_FORMAT,
-                    allowMultiple = false,
-                    required = false)
+            @ApiParam(name = "dateformat",
+                    value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(hidden = true)
@@ -116,24 +108,20 @@ public class AggregateRESTService extends ExploreRESTServices {
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
             @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
             @ApiParam(name = "flat", value = Documentation.FORM_FLAT,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+                    defaultValue = "false")
             @QueryParam(value = "flat") Boolean flat,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
-        Long startArlasTime = System.nanoTime();
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+    ) throws ArlasException {
+        long startArlasTime = System.nanoTime();
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -141,7 +129,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
         aggregationsRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(collectionReference, agg);
-        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequest);
+        exploreService.setValidGeoFilters(collectionReference, aggregationsRequest);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
 
@@ -149,7 +137,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = aggregationsRequest;
-        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
+        exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
@@ -174,7 +162,6 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(
                     name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
             // --------------------------------------------------------
@@ -196,20 +183,18 @@ public class AggregateRESTService extends ExploreRESTServices {
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
             @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
-        Long startArlasTime = System.nanoTime();
-        CollectionReference collectionReference = exploreServices.getDaoCollectionReference()
+    ) throws NotFoundException, ArlasException {
+        long startArlasTime = System.nanoTime();
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
                 .getCollectionReference(collection);
 
         if (collectionReference == null) {
@@ -219,8 +204,8 @@ public class AggregateRESTService extends ExploreRESTServices {
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
         MixedRequest request = new MixedRequest();
-        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequest);
-        exploreServices.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
+        exploreService.setValidGeoFilters(collectionReference, aggregationsRequest);
+        exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
 
@@ -234,10 +219,13 @@ public class AggregateRESTService extends ExploreRESTServices {
         return cache(Response.ok(aggregationResponse), maxagecache);
     }
 
-    public AggregationResponse getArlasAggregation(MixedRequest request, CollectionReference collectionReference, boolean flat) throws ArlasException, IOException {
-        AggregationResponse aggregationResponse = this.getExploreServices()
-                .formatAggregationResult(this.getExploreServices().aggregate(request, collectionReference, false),
-                        collectionReference, ((AggregationsRequest) request.basicRequest).aggregations, 0, System.nanoTime());
+    public AggregationResponse getArlasAggregation(MixedRequest request, CollectionReference collectionReference, boolean flat) throws ArlasException {
+        AggregationResponse aggregationResponse = exploreService.aggregate(request,
+                collectionReference,
+                false,
+                ((AggregationsRequest) request.basicRequest).aggregations,
+                0,
+                System.nanoTime());
         return  flat ? flatten(aggregationResponse) : aggregationResponse;
     }
 
@@ -246,18 +234,19 @@ public class AggregateRESTService extends ExploreRESTServices {
         if (elements != null && elements.size() > 0) {
             for (AggregationResponse element : elements) {
                 element.flattenedElements = new HashMap<>();
-                this.getExploreServices().flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s ->(!"elements".equals(s))).forEach((key, value) -> {
-                    element.flattenedElements.put(key,value);
-                });
+                exploreService.flat(
+                                element,
+                                new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR),
+                                s -> (!"elements".equals(s))
+                        )
+                        .forEach((key, value) -> element.flattenedElements.put(key,value));
                 element.elements = null;
                 element.metrics = null;
                 if (element.hits != null) {
-                    List<Object> flattenedHits = element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>())).collect(Collectors.toList());
-                    element.hits = flattenedHits;
+                    element.hits = element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>())).collect(Collectors.toList());
                 }
             }
         }
         return aggregationResponse;
     }
-
 }

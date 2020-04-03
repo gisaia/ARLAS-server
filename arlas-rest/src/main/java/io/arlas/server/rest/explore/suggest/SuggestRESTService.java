@@ -21,22 +21,20 @@ package io.arlas.server.rest.explore.suggest;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
+import io.arlas.server.services.ExploreService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public class SuggestRESTService extends ExploreRESTServices {
-    public SuggestRESTService(ExploreServices exploreServices) {
-        super(exploreServices);
-    }
+
+    public SuggestRESTService(ExploreService exploreService) { super(exploreService); }
 
     @Timed
     @Path("{collections}/_suggest")
@@ -52,7 +50,6 @@ public class SuggestRESTService extends ExploreRESTServices {
             @ApiParam(
                     name = "collections",
                     value = "collections, comma separated",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collections") String collections,
 
@@ -91,13 +88,11 @@ public class SuggestRESTService extends ExploreRESTServices {
                             "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
                     ,
 
-                    allowMultiple = true,
-                    required = false)
+                    allowMultiple = true)
             @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name = "q", value = "A full text search",
-                    allowMultiple = false,
-                    required = false)
+            @ApiParam(name = "q",
+                    value = "A full text search")
             @QueryParam(value = "q") String q,
 
             // --------------------------------------------------------
@@ -114,26 +109,24 @@ public class SuggestRESTService extends ExploreRESTServices {
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
             @ApiParam(name = "pretty", value = "Pretty print",
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // -----------------------  SIZE   -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(name = "size", value = "The maximum number of entries or sub-entries to be returned. The default value is 10",
+            @ApiParam(name = "size",
+                    value = "The maximum number of entries or sub-entries to be returned. The default value is 10",
                     defaultValue = "10",
-                    allowableValues = "range[1, infinity]",
-                    required = false)
+                    allowableValues = "range[1, infinity]")
             @DefaultValue("10")
             @QueryParam(value = "size") Integer size,
 
-            @ApiParam(name = "from", value = "From index to start the search from. Defaults to 0.",
+            @ApiParam(name = "from",
+                    value = "From index to start the search from. Defaults to 0.",
                     defaultValue = "0",
-                    allowableValues = "range[1, infinity]",
-                    required = false)
+                    allowableValues = "range[1, infinity]")
             @DefaultValue("0")
             @QueryParam(value = "size") Integer from,
 
@@ -141,18 +134,17 @@ public class SuggestRESTService extends ExploreRESTServices {
             // -----------------------  SUGGEST   -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(name = "field", value = "Name of the field to be used for retrieving the most relevant terms",
-                    allowMultiple = false,
-                    defaultValue = "_all",
-                    required = false)
+            @ApiParam(name = "field",
+                    value = "Name of the field to be used for retrieving the most relevant terms",
+                    defaultValue = "_all")
             @QueryParam(value = "field") String field,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException {
-        return cache(Response.ok("suggest"), maxagecache);// TODO : right response
+    ) {
+        return cache(Response.ok("suggest"), maxagecache); // TODO : right response
     }
 }
