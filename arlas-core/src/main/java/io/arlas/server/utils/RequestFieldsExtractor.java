@@ -24,6 +24,7 @@ import io.arlas.server.model.request.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RequestFieldsExtractor {
@@ -36,14 +37,14 @@ public class RequestFieldsExtractor {
     public static final String INCLUDE_SEARCH_EXCLUDE = "search_exclude";
     public static final String INCLUDE_SEARCH_RETURNED_GEOMETRIES = "search_returned_geometries";
     public static final String INCLUDE_AGG_FIELD = "agg_field";
-    public static final String INCLUDE_AGG_FETCH_GEOMETRY = "agg_fetch_geometry";
+    public static final String INCLUDE_AGG_RAW_GEOMETRIES = "agg_raw_geometries";
     public static final String INCLUDE_AGG_FETCH_HITS = "agg_fetch_hits";
     public static final String INCLUDE_AGG_METRICS = "agg_metrics";
     public static final String INCLUDE_RANGE_FIELD = "range_field";
     public static final String INCLUDE_COMPUTATION_FIELD = "computation_field";
 
     public static final Set<String> INCLUDE_ALL  = new HashSet(Arrays.asList(INCLUDE_F, INCLUDE_Q, INCLUDE_SEARCH_SORT,INCLUDE_SEARCH_INCLUDE, INCLUDE_SEARCH_EXCLUDE, INCLUDE_SEARCH_RETURNED_GEOMETRIES,
-            INCLUDE_AGG_FIELD, INCLUDE_AGG_FETCH_GEOMETRY, INCLUDE_AGG_FETCH_HITS, INCLUDE_AGG_METRICS, INCLUDE_RANGE_FIELD, INCLUDE_COMPUTATION_FIELD));
+            INCLUDE_AGG_FIELD, INCLUDE_AGG_RAW_GEOMETRIES, INCLUDE_AGG_FETCH_HITS, INCLUDE_AGG_METRICS, INCLUDE_RANGE_FIELD, INCLUDE_COMPUTATION_FIELD));
 
     public static Stream<String> extract(Request request, Set<String> includeFields) throws InternalServerErrorException {
         IRequestFieldsExtractor requestExtractor;
@@ -155,11 +156,11 @@ public class RequestFieldsExtractor {
                     aggs.stream().flatMap(agg -> {
 
                         Stream<String> fieldStream = includeFields.contains(INCLUDE_AGG_FIELD) ? getAggCol(agg) : Stream.of();
-                        Stream<String> fetchGeometryField = includeFields.contains(INCLUDE_AGG_FETCH_GEOMETRY) ? getFetchGeometryCol(agg) : Stream.of();
+                        Stream<String> rawGeometriesFields = includeFields.contains(INCLUDE_AGG_RAW_GEOMETRIES) ? getRawGeometriesCol(agg) : Stream.of();
                         Stream<String> fetchHitsStream = includeFields.contains(INCLUDE_AGG_FETCH_HITS) ? getFetchHitsCols(agg) : Stream.of();
                         Stream<String> metricsStream = includeFields.contains(INCLUDE_AGG_METRICS) ? getMetricsCols(agg) : Stream.of();
 
-                        return Stream.of(fieldStream, fetchGeometryField, fetchHitsStream, metricsStream).flatMap(x -> x);
+                        return Stream.of(fieldStream, rawGeometriesFields, fetchHitsStream, metricsStream).flatMap(x -> x);
                     })
             ).orElse(Stream.of());
 
@@ -170,10 +171,14 @@ public class RequestFieldsExtractor {
             return Optional.ofNullable(agg.field).map(Stream::of).orElse(Stream.of());
         }
 
-        private Stream<String> getFetchGeometryCol(Aggregation agg) {
-            return Optional.ofNullable(agg.fetchGeometry).flatMap(
-                    g -> Optional.ofNullable(g.field).map(Stream::of))
-                    .orElse(Stream.of());
+        private Stream<String> getRawGeometriesCol(Aggregation agg) {
+            return Optional.ofNullable(agg.rawGeometries).map(rg -> {
+                Stream<String> geometriesStream =  Optional.ofNullable(rg).map(g -> g.stream().map(r -> r.geometry).collect(Collectors.toSet())).map(g -> g.stream()).orElse(Stream.of());
+                Stream<String> sortStream = Optional.ofNullable(rg).map(g -> g.stream().map(r -> r.sort).collect(Collectors.joining(","))).map(sort -> Arrays.asList(sort.split(",")).stream().map(
+                        (String s )-> s.startsWith("-") || s.startsWith("+") ? s.substring(1) : s
+                ).collect(Collectors.toSet())).map(g -> g.stream()).orElse(Stream.of());
+                return Stream.of(geometriesStream, sortStream).flatMap(x -> x);
+            }).orElse(Stream.of());
         }
 
         private Stream<String> getFetchHitsCols(Aggregation agg) {

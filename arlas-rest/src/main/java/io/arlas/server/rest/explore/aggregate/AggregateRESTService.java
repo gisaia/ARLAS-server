@@ -140,7 +140,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         }
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
         aggregationsRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
-        aggregationsRequest.aggregations = ParamsParser.getAggregations(agg);
+        aggregationsRequest.aggregations = ParamsParser.getAggregations(collectionReference, agg);
         exploreServices.setValidGeoFilters(collectionReference, aggregationsRequest);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
@@ -237,7 +237,7 @@ public class AggregateRESTService extends ExploreRESTServices {
     public AggregationResponse getArlasAggregation(MixedRequest request, CollectionReference collectionReference, boolean flat) throws ArlasException, IOException {
         AggregationResponse aggregationResponse = this.getExploreServices()
                 .formatAggregationResult(this.getExploreServices().aggregate(request, collectionReference, false),
-                        collectionReference.collectionName, System.nanoTime());
+                        collectionReference, ((AggregationsRequest) request.basicRequest).aggregations, 0, System.nanoTime());
         return  flat ? flatten(aggregationResponse) : aggregationResponse;
     }
 

@@ -20,19 +20,13 @@
 package io.arlas.server.utils;
 
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.response.TimestampType;
 import org.joda.time.*;
 import org.joda.time.format.*;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 public class TimestampTypeMapper {
 

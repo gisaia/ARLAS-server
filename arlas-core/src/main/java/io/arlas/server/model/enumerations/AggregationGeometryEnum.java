@@ -19,6 +19,17 @@
 
 package io.arlas.server.model.enumerations;
 
-public enum AggregatedGeometryStrategyEnum {
-    bbox, centroid, geohash, first, last, byDefault
+public enum AggregationGeometryEnum {
+    RAW("raw"), AGGREGATED("aggregated");
+
+    private final String value;
+
+    AggregationGeometryEnum(String v) {
+        value = v;
+    }
+
+    public String value() {
+        return value;
+    }
+
 }

@@ -20,6 +20,7 @@
 package io.arlas.server.utils;
 
 import com.neovisionaries.i18n.LanguageAlpha3Code;
+
 import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.*;
 import io.arlas.server.managers.CollectionReferenceManager;
@@ -30,9 +31,12 @@ import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.model.response.RangeResponse;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
+
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -66,28 +70,27 @@ public class CheckParams {
     private static final String UNEXISTING_FIELD = "The field name/pattern doesn't exist in the collection";
     private static final String MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD = "Infinity";
     private static final String DATE_NOW = "now";
-    private static final String GEOHASH_STRATEGY_NOT_SUPPORTED = "'geohash' strategy is only supported for geohash aggregation type.";
+    private static final String AGGREGATED_GEOMETRY_NOT_SUPPORTED = "'geohash' & 'geohash_center' are only supported for geohash aggregation type.";
 
     public static final String INTERVAL_NOT_SPECIFIED = "Interval parameter is not specified.";
     public static final String INTERVAL_VALUE_NOT_SPECIFIED = "Interval value is missing.";
     public static final String INTERVAL_UNIT_NOT_SPECIFIED = "Interval unit is missing.";
     public static final String NO_INTERVAL_UNIT_FOR_GEOHASH_NOR_HISTOGRAM = "Interval unit must not be specified for geohash nor histogram aggregations.";
     public static final String NO_TERM_INTERVAL = "'Interval' should not be specified for term aggregation.";
-    public static final String INVALID_FETCHGEOMETRY = "Invalid `fetch_geometry` strategy. It should be `fetch_geometry-bbox`, `fetch_geometry-centroid`, `fetch_geometry-byDefault`" +
-            "`fetch_geometry-first`, `fetch_geometry-last`, `fetch_geometry-{field}-first`, `fetch_geometry-{field}-last` or `fetch_geometry";
+    public static final String RAW_GEOMETRIES_NULL_OR_EMPTY = "'geometries' should not be null nor empty";
 
     public CheckParams() {
     }
 
-    public static void checkAggregationRequest(Request request) throws ArlasException {
+    public static void checkAggregationRequest(Request request, CollectionReference collectionReference) throws ArlasException {
         if (request == null || !(request instanceof AggregationsRequest) || ((AggregationsRequest) request).aggregations == null)
             throw new BadRequestException("Aggregation should not be null");
         else if (request != null) {
-            checkAggregations((AggregationsRequest) request);
+            checkAggregations((AggregationsRequest) request, collectionReference);
         }
     }
 
-    public static void checkAggregationModel(Aggregation aggregation) throws ArlasException {
+    public static void checkAggregationModel(Aggregation aggregation, CollectionReference collectionReference) throws ArlasException {
         // Check 'type' & 'field'
         if (aggregation.type == null || (aggregation.field == null && aggregation.type != AggregationTypeEnum.datehistogram)) {
             throw new InvalidParameterException(INVALID_AGGREGATION);
@@ -108,8 +111,10 @@ public class CheckParams {
         checkAggregationIntervalParameter(aggregation);
         // Check include parameter validity according to aggregation type
         checkAggregationIncludeParameter(aggregation);
-        // Check fetch_geometry validity according to aggregation type
-        checkFetchGeometryParameter(aggregation);
+        // Check aggregated_geometries validity according to aggregation type
+        checkAggregatedGeometryParameter(aggregation);
+        // Check raw_geometries validity according to aggregation type
+        checkRawGeometriesParameter(aggregation, collectionReference);
     }
 
     public static void checkRangeRequestField(Request request) throws ArlasException {
@@ -214,16 +219,38 @@ public class CheckParams {
         }
     }
 
-    public static void checkFetchGeometryParameter(Aggregation aggregationModel) throws ArlasException {
-        if (aggregationModel.fetchGeometry != null) {
-            AggregatedGeometryStrategyEnum fetchGeometryOption = aggregationModel.fetchGeometry.strategy;
-            if ((fetchGeometryOption == AggregatedGeometryStrategyEnum.byDefault || fetchGeometryOption == AggregatedGeometryStrategyEnum.centroid
-                    || fetchGeometryOption == AggregatedGeometryStrategyEnum.bbox) && aggregationModel.fetchGeometry.field != null) {
-                throw new BadRequestException("field should not be specified for byDefault & centroid & bbox fetch_geometry strategies");
+    public static void checkRawGeometriesParameter(Aggregation aggregationModel, CollectionReference collectionReference) throws ArlasException {
+        if (aggregationModel.rawGeometries != null) {
+            for (RawGeometry rg : aggregationModel.rawGeometries) {
+                if (StringUtils.isBlank(rg.geometry)) {
+                    throw new BadRequestException(RAW_GEOMETRIES_NULL_OR_EMPTY);
+                } else {
+                    ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, rg.geometry, true); // will throw ArlasException if not existing
+                    if (fieldType != ElasticType.GEO_POINT && fieldType != ElasticType.GEO_SHAPE) {
+                        throw new InvalidParameterException("`" + rg.geometry + "` is not a geo-point or a geo-shape field");
+                    }
+                    if (StringUtils.isBlank(rg.sort)) {
+                        rg.sort = collectionReference.params.timestampPath;
+                    }
+                }
             }
-            if (fetchGeometryOption == AggregatedGeometryStrategyEnum.geohash && aggregationModel.type != AggregationTypeEnum.geohash) {
-                throw new NotAllowedException(GEOHASH_STRATEGY_NOT_SUPPORTED);
+        }
+    }
+    public static void checkAggregatedGeometryParameter(Aggregation aggregationModel) throws ArlasException {
+        if (aggregationModel.aggregatedGeometries != null) {
+            List<AggregatedGeometryEnum> geometries = aggregationModel.aggregatedGeometries;
+            if (!geometries.isEmpty()) {
+                if ((geometries.contains(AggregatedGeometryEnum.GEOHASH) || geometries.contains(AggregatedGeometryEnum.GEOHASHCENTER)) && aggregationModel.type != AggregationTypeEnum.geohash) {
+                    throw new NotAllowedException(AGGREGATED_GEOMETRY_NOT_SUPPORTED);
+                }
+                if (aggregationModel.type == AggregationTypeEnum.geohash && aggregationModel.aggregatedGeometries.isEmpty() && aggregationModel.rawGeometries == null) {
+                    aggregationModel.aggregatedGeometries = new ArrayList<>();
+                    aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.GEOHASHCENTER);
+                }
             }
+        } else if (aggregationModel.type == AggregationTypeEnum.geohash && aggregationModel.rawGeometries == null) {
+            aggregationModel.aggregatedGeometries = new ArrayList<>();
+            aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.GEOHASHCENTER);
         }
     }
 
@@ -420,10 +447,10 @@ public class CheckParams {
         }
     }
 
-    private static void checkAggregations(AggregationsRequest aggregations) throws ArlasException {
+    private static void checkAggregations(AggregationsRequest aggregations, CollectionReference collectionReference) throws ArlasException {
         if (aggregations != null && aggregations.aggregations != null && aggregations.aggregations.size() > 0) {
             for (Aggregation aggregationModel : aggregations.aggregations) {
-                checkAggregationModel(aggregationModel);
+                checkAggregationModel(aggregationModel, collectionReference);
             }
         }
     }

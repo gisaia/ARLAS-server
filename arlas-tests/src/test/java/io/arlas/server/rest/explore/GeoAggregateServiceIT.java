@@ -117,7 +117,7 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(greaterThanOrEqualTo(centroidLatMin))))))
                 .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))))
                 .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))))
-                .body("features[0].properties.metrics.size()", equalTo(elementsSize));
+                .body("features[0].properties.metrics", elementsSize == 0 ? isEmptyOrNullString() : hasSize(elementsSize));
     }
 
     @Override
@@ -129,6 +129,48 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                 .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLonMax))))))
                 .body("features.geometry.coordinates", everyItem(hasItem(everyItem(hasItem(lessThanOrEqualTo(centroidLatMax))))));
     }
+
+    @Override
+    protected void handleMatchingAggregateWithAggregatedGeometries(ValidatableResponse then, int featuresSize, int nbGeometries, String... geometries) {
+        then
+                .body("features", hasSize(featuresSize * nbGeometries))
+                .body("features.properties.geometry_type", everyItem(equalTo("aggregated")))
+                .body("features.properties.geometry_ref", everyItem(isOneOf(geometries)))
+                .body("features.properties.geometry_sort", everyItem(nullValue()));
+    }
+
+    @Override
+    protected void handleMatchingAggregateWithRawGeometries(ValidatableResponse then, int featuresSize, int nbGeometries, String... geometries) {
+        then
+                .body("features", hasSize(featuresSize * nbGeometries))
+                .body("features.properties.geometry_type", everyItem(equalTo("raw")))
+                .body("features.properties.geometry_ref", everyItem(isOneOf(geometries)));
+    }
+
+    @Override
+    protected void handleMatchingAggregateWithRawGeometriesSorts(ValidatableResponse then, int featuresSize, int nbGeometries, String geometry, String... sorts) {
+        then
+                .body("features", hasSize(featuresSize * nbGeometries))
+                .body("features.properties.geometry_type", everyItem(equalTo("raw")))
+                .body("features.properties.geometry_ref", everyItem(equalTo(geometry)))
+                .body("features.properties.geometry_sort", everyItem(isOneOf(sorts)));
+    }
+
+    @Override
+    protected void handleMatchingAggregateWithMixedGeometries(ValidatableResponse then, int featuresSize, int nbGeometries, String... geometries) {
+        then
+                .body("features", hasSize(featuresSize * nbGeometries))
+                .body("features.properties.geometry_type", everyItem(isOneOf("aggregated", "raw")))
+                .body("features.properties.geometry_ref", everyItem(isOneOf(geometries)));
+    }
+
+    @Override
+    protected void handleMatchingAggregateWithGeoMetric(ValidatableResponse then, int nbMetrics, String... fields) {
+        then
+                .body("features.properties.metrics", nbMetrics > 0 ? everyItem(hasSize(nbMetrics)) : everyItem(nullValue()))
+                .body("features.properties.metrics.field", nbMetrics > 0 ? everyItem(everyItem(isOneOf(fields))) : everyItem(nullValue()));
+    }
+
 
     @Override
     protected void handleMatchingAggregateWithCentroid(ValidatableResponse then, int featuresSize, int featureCountMin, int featureCountMax, float centroidLonMin, float centroidLatMin, float centroidLonMax, float centroidLatMax) throws Exception {

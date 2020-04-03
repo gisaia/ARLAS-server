@@ -21,24 +21,11 @@ package io.arlas.server.model.response;
 
 import io.dropwizard.jackson.JsonSnakeCase;
 import org.geojson.GeoJsonObject;
-import org.geojson.Point;
-import org.geojson.Polygon;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @JsonSnakeCase
-public class AggregationResponse extends OperationInfo {
-    public String name;
-    public Long count;
-    public Long sumotherdoccounts;
-    public Object key;
-    public Object keyAsString;
-    public List<AggregationResponse> elements;
-    public List<AggregationMetric> metrics;
-    public List<Object> hits;
-    public List<ReturnedGeometry> geometries;
-    public Map<String, Object> flattenedElements;
+public class ReturnedGeometry {
+    public String reference;
+    public GeoJsonObject geometry;
+    public String sort;
+    public boolean isRaw;
 }
-

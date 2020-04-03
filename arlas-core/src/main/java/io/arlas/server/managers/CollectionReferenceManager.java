@@ -21,6 +21,7 @@ package io.arlas.server.managers;
 
 import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
@@ -54,19 +55,20 @@ public class CollectionReferenceManager {
         if (elasticType == null) {
             String[] props = field.split("\\.");
             CollectionReferenceDescriptionProperty esField = elasticAdmin.describeCollection(collectionReference).properties.get(props[0]);
+            if (esField == null) {
+                return getUnknownType(field, esField, collectionReference.collectionName, throwException);
+            }
             for (int i=1; i<props.length; i++) {
                 esField = esField.properties.get(props[i]);
+                if (esField == null) {
+                    return getUnknownType(field, esField, collectionReference.collectionName, throwException);
+                }
             }
             if (esField != null) {
                 elasticType = esField.type;
                 map.put(collectionReference.collectionName + "-" + field, elasticType);
             } else {
-                if (throwException) {
-                    throw new ArlasException("Field '" + field + "' not found in collection " + collectionReference.collectionName);
-                } else {
-                    elasticType = ElasticType.UNKNOWN;
-                }
-
+                return getUnknownType(field, esField, collectionReference.collectionName, throwException);
             }
         }
         return elasticType;
@@ -101,6 +103,14 @@ public class CollectionReferenceManager {
                         collectionReference.params.setGeometryType(path, GeoTypeMapper.getGeometryType(geometry));
                 }
             }
+        }
+    }
+
+    private ElasticType getUnknownType(String parentField, CollectionReferenceDescriptionProperty pathField, String collectionName, boolean throwException) throws ArlasException{
+        if (throwException) {
+            throw new NotFoundException("Field '" + parentField + "' not found in collection " + collectionName);
+        } else {
+            return ElasticType.UNKNOWN;
         }
     }
 }

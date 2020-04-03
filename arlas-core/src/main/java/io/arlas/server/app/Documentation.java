@@ -157,43 +157,53 @@ public class Documentation {
             "\n \n" +
             "- {include} Specifies the values for which buckets will be created. This values are comma separated. If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created." +
             "\n \n" +
-            "- **fetch_geometry**" +
+            "- **aggregated_geometries**" +
             "\n \n" +
-            "    > **What it does**: Specifies the strategy of fetching a geometry in each aggregation bucket." +
+            "    > **What it does**: Allows to specify a list of aggregated forms of geometries that represent the bucket." +
             "\n \n" +
-            "    > __**Syntax**__: `fetch_geometry` || `fetch_geometry-{strategy}` || `fetch_geometry-{field}-(first||last)`." +
+            "    > __**Syntax**__: `aggregated_geometries-{COMMA_SEPARATED_AGGREGATED_GEOMETRIES}`." +
             "\n \n" +
-            "    > **fetch_geometry** or **fetch_geometry-byDefault**: the fetched geometry is the centroid of the geohash for `geohash` aggregation or a random geometry for the rest of aggregation types." +
+            "    > __**Available aggregated geometries**__: `centroid, bbox, geohash, geohash_center`." +
             "\n \n" +
-            "    > **fetch_geometry-centroid**: the fetched geometry is the centroid of data inside each bucket." +
+            "       - **centroid**: returns the centroid of data inside the bucket." +
             "\n \n" +
-            "    > **fetch_geometry-bbox**: the fetched geometry is the data extend (bbox) in each bucket." +
+            "       - **bbox**: returns the data extent (bbox) in each bucket." +
             "\n \n" +
-            "    > **fetch_geometry-geohash**: the fetched geometry is the 'geohash' extend of each bucket. This strategy is supported for **geohash** aggregation type only." +
+            "       - **geohash**: returns the 'geohash' extent of each bucket. This form is supported for **geohash** aggregation type only." +
             "\n \n" +
-            "    > **fetch_geometry-first**: the fetched geometry is the first hit's geometry fetched in each bucket (chronologically)" +
+            "       - **geohash_center**: returns the geohash center of each bucket. This form is supported for **geohash** aggregation type only." +
             "\n \n" +
-            "    > **fetch_geometry-last**: the fetched geometry is the first hit's geometry fetched in each bucket (chronologically)" +
+            "    > __**Response**__: the aggregated geometries are returned in `geometries` list in the json response. Each object inside this list has : the reference to the aggregated form, the geojson geometry and an attribute `is_raw` set to false" +
             "\n \n" +
-            "    > **fetch_geometry-{field}-first**: the fetched geometry is the geometry of the first hit - ordered by the {field} - fetched in each bucket." +
+            "    > __**Example**__: `aggregated_geometries-bbox,geohash`" +
             "\n \n" +
-            "    > **fetch_geometry-{field}-last**: the fetched geometry is the geometry of the first hit - ordered by the {field} - fetched in each bucket." +
+            "- **raw_geometries**" +
             "\n \n" +
-            "    > **Note 1**: if **fetch_geometry** is specified, the returned geometry is set int the 'geometry' attribute of the json response." +
+            "    > **What it does**: Allows to specify a list of raw geometries provided by hits that represent the bucket and that are elected by a sort" +
             "\n \n" +
-            "    > **Note 2**: If **fetch_geometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned in 'geometry' attribute of the json response but not in the metrics. Same for **fetch_geometry-bbox** and **collect_fct**=`geobbox`"+
+            "    > __**Syntax**__: `raw_geometries-{GEOMETRY_FIELD}({COMMA_SEPERATED_SORT_FIELDS});{GEOMETRY_FIELD2}({COMMA_SEPERATED_SORT_FIELDS2})`." +
             "\n \n" +
-            "- **fetchHits** " +
+            "    > __**Available raw geometries**__: any field of the collection whose type is **geo-point** or **geo-shape**." +
+            "\n \n" +
+            "       - sort fields are optional. If no sort is specified, an ascending sort on `collection.params.timestamp_path` is applied" +
+            "\n \n" +
+            "       - a sort field can be preceded by '-' for descending sort. Otherwise the sort is ascending" +
+            "\n \n" +
+            "    > __**Response**__: the aggregated geometries are returned in `geometries` list in the json response. Each object inside this list has : the reference to the geometry path, the used sort, the geojson geometry and an attribute `is_raw` set to true" +
+            "\n \n" +
+            "    > __**Example**__: `raw_geometries-geo_field1,geo_field2  ||  raw_geometries-geo_field(-field1,field2)` || raw_geometries-geo_field1(field1);geo_field2(field2,field3)" +
+            "\n \n" +
+            "- **fetch_hits** " +
             "\n \n" +
             "    > **What it does**: Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits." +
             "\n \n" +
-            "    > __**Syntax**__: `fetchHits-{sizeOfHitsToFetch}(+{field1}, {field2}, -{field3}, ...)`." +
+            "    > __**Syntax**__: `fetch_hits-{sizeOfHitsToFetch}(+{field1}, {field2}, -{field3}, ...)`." +
             "\n \n" +
             "    > **Note 1**: `{sizeOfHitsToFetch}` is optional, if not specified, 1 is considered as default." +
             "\n \n" +
             "    > **Note 2**: `{field}` can be preceded by **+** or **-** for **ascending** or **descending** sort of the hits. Order matters." +
             "\n \n" +
-            "    > __**Example**__: `fetchHits-3(-timestamp, geometry)`. Fetches the 3 last positions for each bucket." +
+            "    > __**Example**__: `fetch_hits-3(-timestamp, geometry)`. Fetches the 3 last positions for each bucket." +
             "\n \n" +
             "**agg** parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : order matters. " +
             "\n \n" +
@@ -256,31 +266,51 @@ public class Documentation {
             "\n \n" +
             "- {include} Specifies the values for which buckets will be created. This values are comma separated. If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created." +
             "\n \n" +
-            "- **fetch_geometry**" +
+            "- **aggregated_geometries**" +
             "\n \n" +
-            "    > **What it does**: Specifies the strategy of fetching a geometry in each aggregation bucket." +
+            "    > **What it does**: Allows to specify a list of aggregated forms of geometries that represent the bucket." +
             "\n \n" +
-            "    > __**Syntax**__: `fetch_geometry` || `fetch_geometry-{strategy}` || `fetch_geometry-{field}-(first||last)`." +
+            "    > __**Syntax**__: `aggregated_geometries-{COMMA_SEPARATED_AGGREGATED_GEOMETRIES}`." +
             "\n \n" +
-            "    > **fetch_geometry** or **fetch_geometry-byDefault**: the fetched geometry is the centroid of the geohash for `geohash` aggregation or a random geometry for the rest of aggregation types." +
+            "    > __**Available aggregated geometries**__: `centroid, bbox, geohash, geohash_center`." +
             "\n \n" +
-            "    > **fetch_geometry-centroid**: the fetched geometry is the centroid of data inside each bucket." +
+            "       - **centroid**: returns the centroid of data inside the bucket." +
             "\n \n" +
-            "    > **fetch_geometry-bbox**: the fetched geometry is the data extend (bbox) in each bucket." +
+            "       - **bbox**: returns the data extent (bbox) in each bucket." +
             "\n \n" +
-            "    > **fetch_geometry-geohash**: the fetched geometry is the 'geohash' extend of each bucket. This strategy is supported for **geohash** aggregation type only." +
+            "       - **geohash**: returns the 'geohash' extent of each bucket. This form is supported for **geohash** aggregation type only." +
             "\n \n" +
-            "    > **fetch_geometry-first**: the fetched geometry is the first hit's geometry fetched in each bucket (chronologically)" +
+            "       - **geohash_center**: returns the geohash center of each bucket. This form is supported for **geohash** aggregation type only." +
             "\n \n" +
-            "    > **fetch_geometry-last**: the fetched geometry is the first hit's geometry fetched in each bucket (chronologically)" +
+            "    > __**Response**__: Each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified aggregated geometries. The properties of each feature has :" +
             "\n \n" +
-            "    > **fetch_geometry-{field}-first**: the fetched geometry is the geometry of the first hit - ordered by the {field} - fetched in each bucket." +
+            "       - **geometry_ref** attribute that informs which aggregated form is returned " +
             "\n \n" +
-            "    > **fetch_geometry-{field}-last**: the fetched geometry is the geometry of the first hit - ordered by the {field} - fetched in each bucket." +
+            "       - **geometry_type** attribute set to *aggregated*" +
             "\n \n" +
-            "    > **Note 1**: if **fetch_geometry** is specified, the returned geometry is set int the 'geometry' attribute of the geojson." +
+            "    > __**Example**__: `aggregated_geometries-bbox,geohash`" +
             "\n \n" +
-            "    > **Note 2**: If **fetch_geometry-centroid** and **collect_fct**=`geocentroid` are both set, the centroid of each bucket is only returned in the geojson 'geometry' attribute but not in the metrics. Same for **fetch_geometry-bbox** and **collect_fct**=`geobbox`" +
+            "- **raw_geometries**" +
+            "\n \n" +
+            "    > **What it does**: Allows to specify a list of raw geometries provided by hits that represent the bucket and thata are elected by a sort" +
+            "\n \n" +
+            "    > __**Syntax**__: `raw_geometries-{GEOMETRY_FIELD}({COMMA_SEPERATED_SORT_FIELDS});{GEOMETRY_FIELD2}({COMMA_SEPERATED_SORT_FIELDS2})`." +
+            "\n \n" +
+            "    > __**Available raw geometries**__: any field of the collection whose type is **geo-point** or **geo-shape**." +
+            "\n \n" +
+            "       - sort fields are optional. If no sort is specified, an ascending sort on `collection.params.timestamp_path` is applied" +
+            "\n \n" +
+            "       - a sort field can be preceded by '-' for descending sort. Otherwise the sort is ascending" +
+            "\n \n" +
+            "    > __**Response**__: each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified raw geometries. The properties of each feature has :" +
+            "\n \n" +
+            "       - **geometry_ref** attribute that informs which geometry path is returned " +
+            "\n \n" +
+            "       - **geometry_type** attribute set to *raw*" +
+            "\n \n" +
+            "       - **geometry_sort** attribute that informs how the geometry path is fetched (with what sort)" +
+            "\n \n" +
+            "    > __**Example**__: `raw_geometries-geo_field1,geo_field2  ||  raw_geometries-geo_field(-field1,field2)` || raw_geometries-geo_field1(field1);geo_field2(field2,field3)" +
             "\n \n" +
             "- **fetch_hits** " +
             "\n \n" +

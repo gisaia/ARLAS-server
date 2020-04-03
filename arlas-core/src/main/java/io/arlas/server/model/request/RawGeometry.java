@@ -19,29 +19,19 @@
 
 package io.arlas.server.model.request;
 
-import io.arlas.server.model.enumerations.AggregatedGeometryStrategyEnum;
+public class RawGeometry {
+    public String geometry;
+    public String sort;
 
-public class AggregatedGeometry {
-    public AggregatedGeometryStrategyEnum strategy;
-    public String field;
-
-    public AggregatedGeometry() {
+    public RawGeometry() {
     }
 
-    public AggregatedGeometry(AggregatedGeometryStrategyEnum strategy, String field) {
-        this.strategy = strategy;
-        this.field = field;
+    public RawGeometry(String geometry) {
+        this.geometry = geometry;
     }
 
-    public AggregatedGeometry(AggregatedGeometryStrategyEnum strategy) {
-        this.strategy = strategy;
-    }
-
-    public String flatten() {
-        if (field != null) {
-            return field + '-' + strategy.name();
-        } else {
-            return strategy.name();
-        }
+    public RawGeometry(String geometry, String sort) {
+        this.geometry = geometry;
+        this.sort = sort;
     }
 }
