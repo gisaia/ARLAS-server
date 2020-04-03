@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.utils;
+package io.arlas.server.impl.elastic.utils;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import io.arlas.server.app.ElasticConfiguration;
@@ -25,6 +25,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.utils.StringUtil;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;

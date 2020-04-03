@@ -21,13 +21,13 @@ package io.arlas.server.ogc.wfs.operation.getfeature;
 
 import io.arlas.server.app.OGCConfiguration;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.common.utils.XmlUtils;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
-import io.arlas.server.utils.GeoTypeMapper;
 import io.arlas.server.utils.MapExplorer;
 import org.geojson.GeoJsonObject;
 

@@ -21,21 +21,17 @@ package io.arlas.server.ogc.common.requestfilter;
 
 import com.google.common.collect.ImmutableMap;
 import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.operation.valid.IsValidOp;
-import com.vividsolutions.jts.operation.valid.TopologyValidationError;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.exceptions.OGC.OGCExceptionMessage;
+import io.arlas.server.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.XmlUtils;
 import io.arlas.server.utils.CheckParams;
-import io.arlas.server.utils.GeoTypeMapper;
 import org.geojson.GeoJsonObject;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.JTS;
-
 import org.locationtech.spatial4j.shape.SpatialRelation;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;

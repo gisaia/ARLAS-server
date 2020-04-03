@@ -23,10 +23,10 @@ import com.a9.opensearch.OpenSearchDescription;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.OGCRESTService;
 import io.arlas.server.app.Documentation;
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
+import io.arlas.server.impl.elastic.core.FluidSearch;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferences;
 import io.arlas.server.model.response.Error;
@@ -262,7 +262,7 @@ public class CSWRESTService extends OGCRESTService {
             sectionList = new String[]{"All"};
         } else {
             sectionList = sections.split(",");
-            for (String section : Arrays.asList(sectionList)) {
+            for (String section : sectionList) {
                 if (!Arrays.asList(CSWConstant.SECTION_NAMES).contains(section)) {
                     throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid sections", "sections", Service.CSW);
                 }
@@ -403,7 +403,7 @@ public class CSWRESTService extends OGCRESTService {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws ArlasException {
+    ) {
         OpenSearchHandler openSearchHandler = cswHandler.openSearchHandler;
         OpenSearchDescription description = openSearchHandler.getOpenSearchDescription(serverBaseUri);
         return Response.ok(description).build();
@@ -417,9 +417,9 @@ public class CSWRESTService extends OGCRESTService {
         CollectionReferences collectionReferences = ogcDao.getCollectionReferences(elements, null, 2, startPosition - 1, ids, q, constraint, boundingBox);
 
         if (collectionReferences.totalCollectionReferences == 1 && collectionReferences.collectionReferences.size() == 1 && collectionReferences.collectionReferences.get(0).collectionName.equals(getMetacollectionName())) {
-            return ogcDao.getAllCollectionReferencesExceptOne(elements, null, maxRecords, startPosition - 1,  metacollection);
+            return ogcDao.getAllCollectionReferencesExceptOne(elements, excludes, maxRecords, startPosition - 1,  metacollection);
         } else {
-            return ogcDao.getCollectionReferencesExceptOne(elements, null, maxRecords, startPosition - 1, ids, q, constraint, boundingBox, metacollection);
+            return ogcDao.getCollectionReferencesExceptOne(elements, excludes, maxRecords, startPosition - 1, ids, q, constraint, boundingBox, metacollection);
         }
     }
 }

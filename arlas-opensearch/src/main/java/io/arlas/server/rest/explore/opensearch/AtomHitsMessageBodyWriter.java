@@ -19,8 +19,8 @@
 
 package io.arlas.server.rest.explore.opensearch;
 
-import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.impl.elastic.core.ElasticAdmin;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.Feed;
 import io.arlas.server.model.response.*;
@@ -42,7 +42,6 @@ import javax.ws.rs.ext.Provider;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -163,7 +162,7 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
             writer.flush();
         } catch (ArlasException | XMLStreamException e) {
             e.printStackTrace();
-            new WebApplicationException(e);
+            throw new WebApplicationException(e);
         }
     }
 
@@ -198,7 +197,7 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
                 writer.writeCharacters(value);
                 writer.writeEndElement();
             } catch (XMLStreamException e) {
-                new WebApplicationException(e);
+                throw new WebApplicationException(e);
             }
         }
     }

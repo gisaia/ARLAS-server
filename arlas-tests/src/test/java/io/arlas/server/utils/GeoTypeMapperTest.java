@@ -19,8 +19,8 @@
 
 package io.arlas.server.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.model.enumerations.GeoTypeEnum;
 import org.geojson.Point;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class GeoTypeMapperTest {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void testGetGeoJsonObject() throws ArlasException, JsonProcessingException {
+    public void testGetGeoJsonObject() throws ArlasException {
         String pointStringLatLon = "41.12,-71.34";
         String pointStringGeohash = "drm3btev3e86";
         String pointStringWKT = "POINT(-71.34 41.12)";

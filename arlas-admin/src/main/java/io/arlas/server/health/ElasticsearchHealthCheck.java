@@ -19,37 +19,27 @@
 package io.arlas.server.health;
 
 import com.codahale.metrics.health.HealthCheck;
-import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.utils.ElasticClient;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import io.arlas.server.impl.elastic.core.ElasticAdmin;
+import io.arlas.server.impl.elastic.utils.ElasticClient;
 
 public class ElasticsearchHealthCheck extends HealthCheck {
 
     private ElasticAdmin admin;
-    private ElasticClient client;
+
     public ElasticsearchHealthCheck(ElasticClient client) {
         this.admin = new ElasticAdmin(client);
-        this.client =client;
     }
 
     @Override
     protected HealthCheck.Result check() throws ArlasException {
         ResultBuilder resultBuilder = Result.builder();
         if (checkElasticsearch()) {
-            //Not yet implemented in RestHighLevelClient
-//            NodesInfoRequest nodesInfoRequest = new NodesInfoRequest();
-//            nodesInfoRequest.clear().jvm(false).os(false).process(true);
-//            ActionFuture<NodesInfoResponse> nodesInfoResponseActionFuture = client.admin().cluster().nodesInfo(nodesInfoRequest);
-            ClusterHealthResponse response = client.health();
-            if (response.getStatus() != ClusterHealthStatus.RED) {
+            if (admin.isClusterHealthRed()) {
+                resultBuilder.unhealthy();
+            } else {
                 resultBuilder.healthy();
             }
-//            resultBuilder.withDetail("nodes",nodesInfoResponseActionFuture.actionGet().getNodes());
-//            if(client instanceof TransportClient){
-//                resultBuilder.withDetail("connected_nodes",((TransportClient)this.client).connectedNodes());
-//            }
             return resultBuilder.build();
         } else {
             return Result.unhealthy("Cannot connect to elasticsearch cluster");
@@ -57,12 +47,11 @@ public class ElasticsearchHealthCheck extends HealthCheck {
     }
 
     private boolean checkElasticsearch() {
-        boolean ret = true;
         try {
             admin.getAllIndicesAsCollections();
+            return true;
         } catch (Exception e) {
-            ret = false;
+            return false;
         }
-        return ret;
     }
 }

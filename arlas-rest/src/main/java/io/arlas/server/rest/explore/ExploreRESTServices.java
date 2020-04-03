@@ -19,11 +19,11 @@
 
 package io.arlas.server.rest.explore;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.services.ExploreServices;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -41,8 +41,6 @@ import javax.ws.rs.core.Response;
 public abstract class ExploreRESTServices {
 
     protected static Logger LOGGER = LoggerFactory.getLogger(ExploreRESTServices.class);
-
-    protected static ObjectMapper mapper = new ObjectMapper();
 
     public ExploreServices getExploreServices() {
         return exploreServices;

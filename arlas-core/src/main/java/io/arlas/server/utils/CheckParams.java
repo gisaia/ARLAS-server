@@ -20,9 +20,11 @@
 package io.arlas.server.utils;
 
 import com.neovisionaries.i18n.LanguageAlpha3Code;
-
-import io.arlas.server.core.FluidSearch;
-import io.arlas.server.exceptions.*;
+import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.BadRequestException;
+import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.exceptions.NotAllowedException;
+import io.arlas.server.impl.elastic.core.FluidSearch;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.Inspire;
@@ -36,7 +38,6 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
-
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -144,7 +145,7 @@ public class CheckParams {
                     throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + "`" + computationRequest.metric + "` must be applied on a geo-point field");
                 }
             } else if (!computationRequest.metric.equals(ComputationEnum.CARDINALITY)) {
-                /** Except for CARDINALITY, GEOBBOX and GEOCENTROID, the field on which the metric is computed should be numeric or date**/
+                // Except for CARDINALITY, GEOBBOX and GEOCENTROID, the field on which the metric is computed should be numeric or date
                 ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, computationRequest.field, false);
                 if (!ElasticType.getComputableTypes().contains(fieldType)) {
                     throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + "`" + computationRequest.metric + "` must be applied on a numeric or date field");
@@ -339,12 +340,12 @@ public class CheckParams {
                 afterList = Arrays.asList(page.before.split(","));
             }
             String message = "";
-            /** check compatibility between after with from*/
+            // check compatibility between after with from
             if (page.from != null && page.from != 0) {
                 message = "%s parameter cannot be used if 'from' parameter is higher than 0. If you want to use %s, please set 'from' to 0 or keep it empty";
                 throw new BadRequestException(String.format(message,mode, mode));
             }
-            /** check compatibility between after and sort parameters*/
+            // check compatibility between after and sort parameters
             int afterSize = afterList.size();
             if (page.sort == null) {
                 message = "%s parameter cannot be used without setting 'sort' parameter.";
@@ -367,7 +368,7 @@ public class CheckParams {
         }
     }
 
-    public static void checkRangeValidity(String range) throws ArlasException {
+    public static void checkRangeValidity(String range) {
         if ((range.isEmpty() || !(range.startsWith("[") || range.startsWith("]")) ||
                 !(range.endsWith("[") || range.endsWith("]")) ||
                 !(range.contains("<")))) {

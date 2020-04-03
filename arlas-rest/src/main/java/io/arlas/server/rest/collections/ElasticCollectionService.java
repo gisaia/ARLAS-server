@@ -20,9 +20,9 @@
 package io.arlas.server.rest.collections;
 
 import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
+import io.arlas.server.impl.elastic.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.utils.ElasticClient;
+import io.arlas.server.impl.elastic.utils.ElasticClient;
 
 public class ElasticCollectionService extends CollectionService {
 

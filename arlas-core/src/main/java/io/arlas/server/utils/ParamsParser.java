@@ -20,10 +20,10 @@
 package io.arlas.server.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.impl.elastic.core.FluidSearch;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
@@ -179,7 +179,7 @@ public class ParamsParser {
     }
 
     private static List<Metric> getAggregationMetrics(List<String> agg) throws ArlasException {
-        List<Metric> metrics = new ArrayList<>();
+        List<Metric> metrics;
         try {
             List<String> collectFields = agg.stream().filter(s -> s.contains(AGG_COLLECT_FIELD_PARAM))
                     .map(s -> s.substring(AGG_COLLECT_FIELD_PARAM.length()))
@@ -210,11 +210,11 @@ public class ParamsParser {
         }
     }
 
-    public static Interval getHistogramAggregationInterval(String intervalString) throws ArlasException {
+    public static Interval getHistogramAggregationInterval(String intervalString) {
         return new Interval(tryParseDouble(intervalString), null);
     }
 
-    public static Interval getGeohashAggregationInterval(String intervalString) throws ArlasException {
+    public static Interval getGeohashAggregationInterval(String intervalString) {
         return new Interval(tryParseInteger(intervalString), null);
     }
 
@@ -278,7 +278,7 @@ public class ParamsParser {
             MultiValueFilter<Expression> multiFilter = new MultiValueFilter<>();
             for (String f : getMultiFiltersFromSemiColonsSeparatedString(multiF)) {
                 if (!StringUtil.isNullOrEmpty(f)) {
-                    String operands[] = f.split(":");
+                    String[] operands = f.split(":");
                     if (operands.length < 3) {
                         throw new InvalidParameterException(FluidSearch.INVALID_PARAMETER_F + ": '" + f + "'");
                     }
@@ -306,7 +306,7 @@ public class ParamsParser {
             }
             filter.f.add(multiFilter);
         }
-        /** add a pwithin query if there is no geo-filter inside the tile**/
+        // add a pwithin query if there is no geo-filter inside the tile
         if (pwithinBbox != null) {
             filter.f.add(new MultiValueFilter<>(pwithinBbox));
         }
@@ -370,7 +370,7 @@ public class ParamsParser {
             return geo;
         } else {
             Geometry wkt = getValidWKT(geo);
-            /** For the case of Polygon and MultiPolygon, a check of the coordinates orientation is necessary in order to correctly interpret the "desired" polygon **/
+            // For the case of Polygon and MultiPolygon, a check of the coordinates orientation is necessary in order to correctly interpret the "desired" polygon
             if (wkt.getGeometryType().equals("Polygon") || wkt.getGeometryType().equals("MultiPolygon")) {
                 List<Polygon> polygonList = new ArrayList<>();
                 for (int i = 0; i < wkt.getNumGeometries(); i++) {
@@ -381,11 +381,11 @@ public class ParamsParser {
                         // If the topology of the resulted geometry is not valid, an exception is thrown
                         Polygon tmpGeometry = subWkt.copy();
                         Envelope tmpEnvelope = tmpGeometry.getEnvelopeInternal();
-                        /** east is the minX and west is the maxX*/
+                        // east is the minX and west is the maxX
                         double east = tmpEnvelope.getMinX();
                         double west = tmpEnvelope.getMaxX();
                         if (west > east && ((east < -180 && west >= -180) || (west > 180 && east <= 180))) {
-                            /** It means west > 180 or east < -180 */
+                            // It means west > 180 or east < -180
                             if (west >= 180) {
                                 GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, false, 180);
                             } else if (east <= -180) {
@@ -428,7 +428,7 @@ public class ParamsParser {
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Envelope affectedBounds = new Envelope(-360, 360, -180, 180);
         WKTReader wkt = new WKTReader(geometryFactory);
-        Geometry geom = null;
+        Geometry geom;
         try {
             geom = wkt.read(wktString);
             List<Coordinate> filteredCoord = Arrays.stream(geom.getCoordinates()).filter(coordinate -> affectedBounds.contains(coordinate)).collect(Collectors.toList());
@@ -467,9 +467,7 @@ public class ParamsParser {
                 }
                 try {
                     parsedDate = String.valueOf(DateTimeFormat.forPattern(dateFormat).withZoneUTC().parseDateTime(dateToParse).getMillis());
-                } catch (DateTimeParseException e) {
-                    throw new InvalidParameterException(dateValue + " doesn't match the date format '" + dateFormat + "'. Reason : " + e.getMessage());
-                } catch (IllegalArgumentException e) {
+                } catch (DateTimeParseException | IllegalArgumentException e) {
                     throw new InvalidParameterException(dateValue + " doesn't match the date format '" + dateFormat + "'. Reason : " + e.getMessage());
                 }
                 if (dateValue.contains("||")) {
@@ -501,7 +499,7 @@ public class ParamsParser {
         return filters.split(";");
     }
 
-    public static Page getPage(IntParam size, IntParam from, String sort, String after, String before) throws ArlasException {
+    public static Page getPage(IntParam size, IntParam from, String sort, String after, String before) {
         Page page = new Page();
         page.size = size.get();
         page.from = from.get();
@@ -570,39 +568,6 @@ public class ParamsParser {
         if (s != null) {
             return s;
         } else throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
-    }
-
-    public static void formatRangeValues(Long min, Long max, CollectionReference collectionReference) {
-        String format = collectionReference.params.customParams.get(CollectionReference.TIMESTAMP_FORMAT);
-        TimestampTypeMapper.formatDate(min, format);
-        TimestampTypeMapper.formatDate(max, format);
-    }
-
-    /**
-     *
-     * @param geometries list of geometry strings : a bbox string 'west,south,east,north' or a WKT polygon string
-     * @param bbox a BoundingBox object
-     * @return the list of intersections of each passed geometry with the given bbox.
-     * @throws ArlasException
-     */
-    public static List<String> simplifyPwithinAgainstBbox(List<String> geometries, BoundingBox bbox) throws ArlasException {
-        List<String> simplifiedGeometries = new ArrayList<>();
-        List<MultiValueFilter<String>> geoFilters = ParamsParser.getStringMultiFilter(geometries);
-        if (geoFilters != null && !geoFilters.isEmpty()) {
-            for (MultiValueFilter<String> geos : geoFilters) {
-                List<String> buff = new ArrayList<>();
-                for (String geo : geos) {
-                    Geometry simplifiedGeometry = GeoTileUtil.bboxIntersects(bbox, geo);
-                    if (simplifiedGeometry != null) {
-                        buff.add(simplifiedGeometry.toString());
-                    }
-                }
-                if (buff.size() > 0) {
-                    simplifiedGeometries.add(String.join(";", buff));
-                }
-            }
-        }
-        return simplifiedGeometries;
     }
 
     public static Integer tryParseInteger(String text) {

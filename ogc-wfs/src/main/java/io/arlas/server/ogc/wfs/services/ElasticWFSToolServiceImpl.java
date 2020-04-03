@@ -18,11 +18,11 @@
  */
 package io.arlas.server.ogc.wfs.services;
 
-import io.arlas.server.core.ElasticAdmin;
-import io.arlas.server.core.FluidSearch;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
+import io.arlas.server.impl.elastic.core.ElasticAdmin;
+import io.arlas.server.impl.elastic.core.FluidSearch;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.response.CollectionReferenceDescription;
@@ -196,13 +196,13 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
         }
     }
 
-    private void addPartitionFilter(FluidSearch fluidSearch, String partitionFilter) throws ArlasException, IOException {
+    private void addPartitionFilter(FluidSearch fluidSearch, String partitionFilter) throws ArlasException {
         Filter headerFilter = ParamsParser.getFilter(partitionFilter);
         exploreServices.applyFilter(headerFilter, fluidSearch);
         wfsQuery.filter(fluidSearch.getBoolQueryBuilder());
     }
 
-    private void addCollectionFilter(FluidSearch fluidSearch, CollectionReference collectionReference) throws ArlasException, IOException {
+    private void addCollectionFilter(FluidSearch fluidSearch, CollectionReference collectionReference) throws ArlasException {
         Filter collectionFilter = collectionReference.params.filter;
         exploreServices.applyFilter(collectionFilter, fluidSearch);
         wfsQuery.filter(fluidSearch.getBoolQueryBuilder());

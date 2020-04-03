@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.dao;
+package io.arlas.server.impl.elastic.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,14 +26,15 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
+import io.arlas.server.impl.elastic.utils.ElasticClient;
+import io.arlas.server.impl.elastic.utils.ElasticTool;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.utils.CheckParams;
-import io.arlas.server.utils.ElasticClient;
-import io.arlas.server.utils.ElasticTool;
 import io.arlas.server.utils.StringUtil;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;

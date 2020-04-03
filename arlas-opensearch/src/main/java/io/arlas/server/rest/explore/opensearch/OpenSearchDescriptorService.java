@@ -20,23 +20,22 @@
 package io.arlas.server.rest.explore.opensearch;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.app.Documentation;
 import io.arlas.server.app.OpensearchConfiguration;
-import io.arlas.server.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.impl.elastic.core.ElasticAdmin;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.OpenSearch;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.ns.ATOM;
-import io.arlas.server.app.Documentation;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.services.ExploreServices;
 import io.arlas.server.rest.explore.opensearch.model.Image;
 import io.arlas.server.rest.explore.opensearch.model.OpenSearchDescription;
 import io.arlas.server.rest.explore.opensearch.model.Url;
+import io.arlas.server.services.ExploreServices;
 import io.arlas.server.utils.ColumnFilterUtil;
-import io.arlas.server.utils.FilterMatcherUtil;
 import io.arlas.server.utils.StringUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -49,7 +48,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 public class OpenSearchDescriptorService extends ExploreRESTServices {
     ElasticAdmin admin;
@@ -94,7 +92,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(value = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
-    ) throws InterruptedException, ExecutionException, IOException, NotFoundException, ArlasException {
+    ) throws IOException, NotFoundException, ArlasException {
         CollectionReference cr = exploreServices.getDaoCollectionReference()
                 .getCollectionReference(collection);
         if (cr == null) {

@@ -20,9 +20,12 @@
 package io.arlas.server.utils;
 
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.impl.elastic.utils.ElasticTool;
 import io.arlas.server.model.response.TimestampType;
-import org.joda.time.*;
-import org.joda.time.format.*;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
 
 import java.util.Arrays;
 import java.util.List;

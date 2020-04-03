@@ -17,18 +17,23 @@
  * under the License.
  */
 
-package io.arlas.server.core;
+package io.arlas.server.impl.elastic.core;
 
 
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.*;
+import io.arlas.server.impl.elastic.utils.ElasticClient;
+import io.arlas.server.impl.elastic.utils.ElasticTool;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.model.response.TimestampType;
-import io.arlas.server.utils.*;
+import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.GeoUtil;
+import io.arlas.server.utils.ParamsParser;
+import io.arlas.server.utils.StringUtil;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.Strings;

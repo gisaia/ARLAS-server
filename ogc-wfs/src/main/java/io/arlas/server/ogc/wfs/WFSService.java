@@ -20,15 +20,14 @@
 package io.arlas.server.ogc.wfs;
 
 import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.dao.ElasticCollectionReferenceDaoImpl;
-import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.impl.elastic.dao.ElasticCollectionReferenceDaoImpl;
 import io.arlas.server.ogc.wfs.services.ElasticWFSToolServiceImpl;
 import io.arlas.server.services.ExploreServices;
 
 public class WFSService extends WFSRESTService {
 
 
-    public WFSService(ExploreServices exploreServices, ArlasServerConfiguration configuration, WFSHandler wfsHandler) throws ArlasException {
+    public WFSService(ExploreServices exploreServices, ArlasServerConfiguration configuration, WFSHandler wfsHandler) {
         super(wfsHandler);
         this.dao = new ElasticCollectionReferenceDaoImpl(exploreServices.getClient(), configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
         this.wfsToolService = new ElasticWFSToolServiceImpl(exploreServices);
