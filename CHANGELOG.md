@@ -1,5 +1,14 @@
 # Change Log
 
+## [v12.7.8](https://github.com/gisaia/ARLAS-server/tree/v12.7.8) (2020-04-17)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.7...v12.7.8)
+
+**Maintenance:**
+
+- Update geotools repository [\#627](https://github.com/gisaia/ARLAS-server/pull/627)
+
+
 ## [v12.7.7](https://github.com/gisaia/ARLAS-server/tree/v12.7.7) (2020-03-26)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.6...v12.7.7)
