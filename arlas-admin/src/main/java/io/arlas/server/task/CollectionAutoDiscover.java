@@ -24,9 +24,6 @@ import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.CollectionAutoDiscoverConfiguration;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasConfigurationException;
-import io.arlas.server.impl.elastic.core.ElasticAdmin;
-import io.arlas.server.impl.elastic.dao.ElasticCollectionReferenceDaoImpl;
-import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
@@ -43,26 +40,24 @@ import java.util.Optional;
 
 public class CollectionAutoDiscover extends Task implements Runnable {
 
-    private ElasticAdmin admin;
     private CollectionReferenceDao collectionDao;
     private CollectionAutoDiscoverConfiguration configuration;
 
     Logger LOGGER = LoggerFactory.getLogger(CollectionAutoDiscover.class);
 
-    public CollectionAutoDiscover(ElasticClient client, ArlasServerConfiguration configuration) {
+    public CollectionAutoDiscover(CollectionReferenceDao collectionDao, ArlasServerConfiguration configuration) {
         super("collection-auto-discover");
-        this.admin = new ElasticAdmin(client);
         this.configuration = configuration.collectionAutoDiscoverConfiguration;
-        this.collectionDao = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
+        this.collectionDao = collectionDao;
     }
 
     @Override
     public void execute(ImmutableMultimap<String, String> arg0, PrintWriter arg1) throws Exception {
         try {
-            List<CollectionReferenceDescription> discoveredCollections = admin.getAllIndicesAsCollections();
-            List<CollectionReferenceDescription> existingCollections = null;
+            List<CollectionReferenceDescription> discoveredCollections = collectionDao.getAllIndicesAsCollections();
+            List<CollectionReferenceDescription> existingCollections;
             try {
-                existingCollections = admin.describeAllCollections(collectionDao.getAllCollectionReferences(), Optional.empty());
+                existingCollections = collectionDao.describeAllCollections(collectionDao.getAllCollectionReferences(), Optional.empty());
             } catch (Exception e) {
                 existingCollections = new ArrayList<>();
             }
@@ -86,14 +81,14 @@ public class CollectionAutoDiscover extends Task implements Runnable {
         List<String> geometryPaths = configuration.getPreferredGeometryFieldNames();
         for (String path : idPaths) {
             Object field = MapExplorer.getObjectFromPath(path, collection.properties);
-            if (field != null && field instanceof CollectionReferenceDescriptionProperty) {
+            if (field instanceof CollectionReferenceDescriptionProperty) {
                 collection.params.idPath = path;
                 break;
             }
         }
         for (String path : timestampPaths) {
             Object field = MapExplorer.getObjectFromPath(path, collection.properties);
-            if (field != null && field instanceof CollectionReferenceDescriptionProperty) {
+            if (field instanceof CollectionReferenceDescriptionProperty) {
                 collection.params.timestampPath = path;
                 if (((CollectionReferenceDescriptionProperty) field).format != null) {
                     collection.params.customParams = new HashMap<>();
@@ -104,14 +99,14 @@ public class CollectionAutoDiscover extends Task implements Runnable {
         }
         for (String path : centroidPaths) {
             Object field = MapExplorer.getObjectFromPath(path, collection.properties);
-            if (field != null && field instanceof CollectionReferenceDescriptionProperty) {
+            if (field instanceof CollectionReferenceDescriptionProperty) {
                 collection.params.centroidPath = path;
                 break;
             }
         }
         for (String path : geometryPaths) {
             Object field = MapExplorer.getObjectFromPath(path, collection.properties);
-            if (field != null && field instanceof CollectionReferenceDescriptionProperty) {
+            if (field instanceof CollectionReferenceDescriptionProperty) {
                 collection.params.geometryPath = path;
                 break;
             }

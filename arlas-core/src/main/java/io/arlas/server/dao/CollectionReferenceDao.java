@@ -21,21 +21,36 @@ package io.arlas.server.dao;
 
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.response.CollectionReferenceDescription;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * DAO interface for collection references
  */
 public interface CollectionReferenceDao {
-    public void initCollectionDatabase() throws ArlasException;
+    void initCollectionDatabase() throws ArlasException;
 
-    public CollectionReference getCollectionReference(String ref) throws ArlasException;
+    CollectionReference getCollectionReference(String ref) throws ArlasException;
 
-    public List<CollectionReference> getAllCollectionReferences() throws ArlasException;
+    List<CollectionReference> getAllCollectionReferences() throws ArlasException;
 
-    public CollectionReference putCollectionReference(CollectionReference collectionReference)
-            throws ArlasException;
+    CollectionReference putCollectionReference(CollectionReference collectionReference) throws ArlasException;
 
-    public void deleteCollectionReference(String ref) throws ArlasException;
+    void deleteCollectionReference(String ref) throws ArlasException;
+
+    List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
+                                                                Optional<String> columnFilter) throws ArlasException;
+
+    CollectionReferenceDescription describeCollection(CollectionReference collectionReference) throws ArlasException;
+
+    CollectionReferenceDescription describeCollection(CollectionReference collectionReference,
+                                                      Optional<String> columnFilter) throws ArlasException;
+
+    Set<String> getCollectionFields(CollectionReference collectionReference,
+                                    Optional<String> filterPredicates) throws ArlasException;
+
+    List<CollectionReferenceDescription> getAllIndicesAsCollections() throws ArlasException;
 }

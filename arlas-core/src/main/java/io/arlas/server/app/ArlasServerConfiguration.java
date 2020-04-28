@@ -25,16 +25,11 @@ import io.arlas.server.exceptions.ArlasConfigurationException;
 import io.arlas.server.utils.StringUtil;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ArlasServerConfiguration extends Configuration {
 
@@ -58,31 +53,6 @@ public class ArlasServerConfiguration extends Configuration {
 
     @JsonProperty("swagger")
     public SwaggerBundleConfiguration swaggerBundleConfiguration;
-
-    // ES configuration to be migrated to dedicated block
-    @Deprecated
-    @JsonProperty("elastic-nodes")
-    public String elasticnodes;
-
-    @Deprecated
-    @JsonProperty("elastic-sniffing")
-    public Boolean elasticsniffing;
-
-    @Deprecated
-    @JsonProperty("elastic-cluster")
-    public String elasticcluster;
-
-    @Deprecated
-    @JsonProperty("elastic-enable-ssl")
-    public Boolean elasticEnableSsl;
-
-    @Deprecated
-    @JsonProperty("elastic-credentials")
-    public String elasticCredentials;
-
-    @Deprecated
-    @JsonProperty("elastic-compress")
-    public Boolean elasticCompress;
 
     // New way of configuring ES
     @JsonProperty("elastic")
@@ -130,39 +100,12 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("arlas_auth")
     public ArlasAuthConfiguration arlasAuthConfiguration;
 
+    @JsonProperty("arlas_database_factory_class")
+    public String arlasDatabaseFactoryClass;
+
     public static final String FLATTEN_CHAR = "_";
 
-    public static List<Pair<String,Integer>> getElasticNodes(String esNodes) {
-        List<Pair<String,Integer>> elasticNodes = new ArrayList<>();
-        if(!StringUtil.isNullOrEmpty(esNodes)) {
-            String[] nodes = esNodes.split(",");
-            for(String node : nodes) {
-                String[] hostAndPort = node.split(":");
-                if(hostAndPort.length == 2 && StringUtils.isNumeric(hostAndPort[1])) {
-                    elasticNodes.add(new ImmutablePair<>(hostAndPort[0], Integer.parseInt(hostAndPort[1])));
-                }
-            }
-        }
-        return elasticNodes;
-    }
-
-    public List<Pair<String,Integer>> getElasticNodes() {
-        List<Pair<String,Integer>> elasticNodes = new ArrayList<>();
-        if(!StringUtil.isNullOrEmpty(elasticnodes)) {
-            elasticNodes.addAll(getElasticNodes(elasticnodes));
-        }
-        return elasticNodes;
-    }
-
     public void check() throws ArlasConfigurationException {
-        if (elasticConfiguration == null) {
-            elasticConfiguration = new ElasticConfiguration();
-            elasticConfiguration.elasticnodes = elasticnodes;
-            elasticConfiguration.elasticsniffing = elasticsniffing;
-            elasticConfiguration.elasticEnableSsl = elasticEnableSsl;
-            elasticConfiguration.elasticCredentials = elasticCredentials;
-        }
-
         elasticConfiguration.check();
 
         if (zipkinConfiguration == null) {
@@ -173,14 +116,14 @@ public class ArlasServerConfiguration extends Configuration {
         }
         if (arlasBaseUri != null) {
             try {
-                URI uri = new URI(arlasBaseUri);
+                new URI(arlasBaseUri);
             } catch (URISyntaxException e) {
                 throw new ArlasConfigurationException("The arlas-base-uri is invalid.");
             }
         }
         if (opensearchConfiguration != null && opensearchConfiguration.urlTemplatePrefix != null) {
             try {
-                URI uri = new URI(opensearchConfiguration.urlTemplatePrefix);
+                new URI(opensearchConfiguration.urlTemplatePrefix);
             } catch (URISyntaxException e) {
                 throw new ArlasConfigurationException("The url-template-prefix of Opensearch is invalid.");
             }
@@ -243,11 +186,9 @@ public class ArlasServerConfiguration extends Configuration {
             arlasAuthConfiguration = new ArlasAuthConfiguration();
             arlasAuthConfiguration.enabled = false;
         }
-        if (elasticEnableSsl == null) {
-            elasticEnableSsl = false;
-        }
-        if (elasticCompress == null) {
-            elasticCompress = true;
+
+        if (arlasDatabaseFactoryClass == null) {
+            throw new ArlasConfigurationException("arlas_database_factory_class is missing");
         }
     }
 }

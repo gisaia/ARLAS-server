@@ -20,11 +20,9 @@
 package io.arlas.server.impl.elastic.utils;
 
 import io.arlas.server.app.ElasticConfiguration;
-import io.arlas.server.impl.elastic.core.ElasticAdmin;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
-import io.arlas.server.impl.elastic.utils.ElasticTool;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
@@ -43,18 +41,21 @@ import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.*;
 import org.elasticsearch.client.sniff.Sniffer;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@SuppressWarnings({"rawtypes"})
 public class ElasticClient {
-    private static Logger LOGGER = LoggerFactory.getLogger(ElasticAdmin.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(ElasticClient.class);
 
     private RestHighLevelClient client;
     private Sniffer sniffer;
@@ -63,10 +64,6 @@ public class ElasticClient {
         ImmutablePair<RestHighLevelClient, Sniffer> pair = ElasticTool.getRestHighLevelClient(configuration);
         this.client = pair.getLeft();
         this.sniffer = pair.getRight();
-    }
-
-    public ElasticClient(RestHighLevelClient client) {
-        this(client, null);
     }
 
     public ElasticClient(RestHighLevelClient client, Sniffer sniffer) {
@@ -78,12 +75,13 @@ public class ElasticClient {
         return client;
     }
 
-    public ClusterHealthResponse health() throws ArlasException {
+    public boolean isClusterHealthRed() throws ArlasException {
         try {
-            return client.cluster().health(new ClusterHealthRequest(), RequestOptions.DEFAULT);
+            ClusterHealthResponse response = client.cluster().health(new ClusterHealthRequest(), RequestOptions.DEFAULT);
+            return response.getStatus() == ClusterHealthStatus.RED;
         } catch (IOException e) {
             processException(e, "");
-            return null;
+            return false;
         }
     }
 
@@ -98,7 +96,7 @@ public class ElasticClient {
         }
     }
 
-    public AcknowledgedResponse aliasIndex(String index, String alias) throws ArlasException {
+    public void aliasIndex(String index, String alias) throws ArlasException {
         try {
             IndicesAliasesRequest request = new IndicesAliasesRequest();
             IndicesAliasesRequest.AliasActions aliasAction =
@@ -106,10 +104,9 @@ public class ElasticClient {
                             .index(index)
                             .alias(alias);
             request.addAliasAction(aliasAction);
-            return client.indices().updateAliases(request, RequestOptions.DEFAULT);
+            client.indices().updateAliases(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
             processException(e, index);
-            return null;
         }
     }
 
@@ -189,7 +186,7 @@ public class ElasticClient {
         try {
             return client.search(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            processException(e, request.indices().toString());
+            processException(e, Arrays.toString(request.indices()));
             return null;
         }
     }
@@ -203,12 +200,11 @@ public class ElasticClient {
         }
     }
 
-    public ClearScrollResponse clearScroll(ClearScrollRequest request) throws ArlasException {
+    public void clearScroll(ClearScrollRequest request) throws ArlasException {
         try {
-            return client.clearScroll(request, RequestOptions.DEFAULT);
+            client.clearScroll(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
             processException(e, request.getDescription());
-            return null;
         }
     }
 
@@ -222,12 +218,11 @@ public class ElasticClient {
         }
     }
 
-    public AcknowledgedResponse deleteIndex(String index) throws ArlasException {
+    public void deleteIndex(String index) throws ArlasException {
         try {
-            return client.indices().delete(new DeleteIndexRequest(index), RequestOptions.DEFAULT);
+            client.indices().delete(new DeleteIndexRequest(index), RequestOptions.DEFAULT);
         } catch (IOException e) {
             processException(e, index);
-            return null;
         }
     }
 
@@ -264,7 +259,7 @@ public class ElasticClient {
                 this.sniffer.close();
             }
             this.client.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
     }
 }

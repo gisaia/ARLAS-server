@@ -20,22 +20,21 @@ package io.arlas.server.health;
 
 import com.codahale.metrics.health.HealthCheck;
 import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.impl.elastic.core.ElasticAdmin;
 import io.arlas.server.impl.elastic.utils.ElasticClient;
 
 public class ElasticsearchHealthCheck extends HealthCheck {
 
-    private ElasticAdmin admin;
+    private ElasticClient client;
 
     public ElasticsearchHealthCheck(ElasticClient client) {
-        this.admin = new ElasticAdmin(client);
+        this.client = client;
     }
 
     @Override
     protected HealthCheck.Result check() throws ArlasException {
         ResultBuilder resultBuilder = Result.builder();
         if (checkElasticsearch()) {
-            if (admin.isClusterHealthRed()) {
+            if (client.isClusterHealthRed()) {
                 resultBuilder.unhealthy();
             } else {
                 resultBuilder.healthy();
@@ -48,7 +47,7 @@ public class ElasticsearchHealthCheck extends HealthCheck {
 
     private boolean checkElasticsearch() {
         try {
-            admin.getAllIndicesAsCollections();
+            client.getMappings();
             return true;
         } catch (Exception e) {
             return false;
