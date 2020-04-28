@@ -21,9 +21,8 @@ package io.arlas.server.ogc.wfs.services;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
-import io.arlas.server.impl.elastic.core.ElasticAdmin;
 import io.arlas.server.impl.elastic.core.FluidSearch;
-import io.arlas.server.impl.elastic.services.ElasticExploreServiceImpl;
+import io.arlas.server.impl.elastic.services.ElasticExploreService;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Filter;
 import io.arlas.server.model.response.CollectionReferenceDescription;
@@ -49,19 +48,18 @@ import java.util.*;
 
 import static io.arlas.server.utils.CheckParams.isBboxLatLonInCorrectRanges;
 
-public class ElasticWFSToolServiceImpl implements WFSToolService {
-    ElasticExploreServiceImpl exploreServices;
+public class ElasticWFSToolService implements WFSToolService {
+    ElasticExploreService exploreServices;
     BoolQueryBuilder wfsQuery = QueryBuilders.boolQuery();
 
 
-    public ElasticWFSToolServiceImpl(ElasticExploreServiceImpl exploreServices) {
+    public ElasticWFSToolService(ElasticExploreService exploreServices) {
         this.exploreServices = exploreServices;
     }
 
     @Override
     public CollectionReferenceDescription getCollectionReferenceDescription(CollectionReference collectionReference) throws ArlasException {
-        ElasticAdmin elasticAdmin = new ElasticAdmin(exploreServices.getClient());
-        return elasticAdmin.describeCollection(collectionReference);
+        return exploreServices.getDaoCollectionReference().describeCollection(collectionReference);
     }
 
     @Override
@@ -106,11 +104,11 @@ public class ElasticWFSToolServiceImpl implements WFSToolService {
     }
 
     private String[] columnFilterToIncludes(CollectionReference collectionReference, Optional<String> columnFilter) throws ArlasException {
-        //return null if no column filter: it avoids the ElasticAdmin query
+        // return null if no column filter: it avoids the ES query
         // Can't use lambdas because of the need to throw the exception of getCollectionFields()
         Optional<String> cf = ColumnFilterUtil.cleanColumnFilter(columnFilter);
         if (cf.isPresent()) {
-            Set<String> fields = exploreServices.getElasticAdmin().getCollectionFields(collectionReference, cf);
+            Set<String> fields = exploreServices.getDaoCollectionReference().getCollectionFields(collectionReference, cf);
             return fields.toArray(new String[0]);
         }
         return null;

@@ -34,8 +34,14 @@ import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.impl.elastic.utils.ElasticTool;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
+import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
+import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.ColumnFilterUtil;
+import io.arlas.server.utils.FilterMatcherUtil;
 import io.arlas.server.utils.StringUtil;
+import org.apache.logging.log4j.util.Strings;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.ClearScrollRequest;
@@ -52,22 +58,25 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao {
+@SuppressWarnings({"unchecked", "rawtypes"})
+public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
+    private static Logger LOGGER = LoggerFactory.getLogger(ElasticCollectionReferenceDao.class);
 
-
-    ElasticClient client;
-    String arlasIndex;
     private static LoadingCache<String, CollectionReference> collections = null;
     private static ObjectMapper mapper;
     private static ObjectReader reader;
     private static final String ARLAS_MAPPING_FILE_NAME = "arlas.mapping.json";
-
 
     static {
         mapper = new ObjectMapper();
@@ -75,7 +84,10 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         reader = mapper.readerFor(CollectionReferenceParameters.class);
     }
 
-    public ElasticCollectionReferenceDaoImpl(ElasticClient client, String arlasIndex, int arlasCacheSize, int arlasCacheTimeout) {
+    private ElasticClient client;
+    private String arlasIndex;
+
+    public ElasticCollectionReferenceDao(ElasticClient client, String arlasIndex, int arlasCacheSize, int arlasCacheTimeout) {
         super();
         this.client = client;
         this.arlasIndex = arlasIndex;
@@ -176,7 +188,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             List<String> excludeField = Arrays.asList(collectionReference.params.excludeFields.split(","));
             CheckParams.checkExcludeField(excludeField, fields);
         }
-        ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, fields.toArray(new String[fields.size()]));
+        ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, fields.toArray(new String[0]));
         List<String> indices = ElasticTool.getIndicesName(client, collectionReference.params.indexName);
         for (String index : indices) {
             setTimestampFormatOfCollectionReference(index, collectionReference.params);
@@ -205,8 +217,7 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
         }
     }
 
-
-
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void setTimestampFormatOfCollectionReference(String index, CollectionReferenceParameters collectionRefParams) throws ArlasException {
         String timestampField = collectionRefParams.timestampPath;
 
@@ -218,11 +229,165 @@ public class ElasticCollectionReferenceDaoImpl implements CollectionReferenceDao
             String field = fields[fields.length - 1];
             LinkedHashMap<String, Object> timestampMD = (LinkedHashMap) data.sourceAsMap().get(field);
             collectionRefParams.customParams = new HashMap<>();
-            if (timestampMD.keySet().contains("format")) {
+            if (timestampMD.containsKey("format")) {
                 collectionRefParams.customParams.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
             } else {
                 collectionRefParams.customParams.put(CollectionReference.TIMESTAMP_FORMAT, CollectionReference.DEFAULT_TIMESTAMP_FORMAT);
             }
         }
     }
+
+    // The methods below have been moved from ElasticAdmin (class removed)
+
+    @Override
+    public CollectionReferenceDescription describeCollection(CollectionReference collectionReference) throws ArlasException {
+        return this.describeCollection(collectionReference, Optional.empty());
+    }
+
+    @Override
+    public CollectionReferenceDescription describeCollection(CollectionReference collectionReference,
+                                                             Optional<String> columnFilter) throws ArlasException {
+        ArrayList<Pattern> excludeFields = new ArrayList<>();
+        if (collectionReference.params.excludeFields != null) {
+            Arrays.asList(collectionReference.params.excludeFields.split(","))
+                    .forEach(field -> excludeFields.add(Pattern.compile("^" + field.replace(".", "\\.").replace("*", ".*") + "$")));
+        }
+        CollectionReferenceDescription collectionReferenceDescription = new CollectionReferenceDescription();
+        collectionReferenceDescription.params = collectionReference.params;
+        collectionReferenceDescription.collectionName = collectionReference.collectionName;
+
+        Map<String, LinkedHashMap> response = client.getMappings(collectionReferenceDescription.params.indexName);
+
+        Iterator<String> indices = response.keySet().iterator();
+
+        Map<String, CollectionReferenceDescriptionProperty> properties = new HashMap<>();
+        Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionReference);
+
+        while (indices.hasNext()) {
+            String index = indices.next();
+            LinkedHashMap fields = response.get(index);
+            properties = union(properties, getFromSource(collectionReference, fields, new Stack<>(), excludeFields, columnFilterPredicates));
+        }
+
+        collectionReferenceDescription.properties = properties;
+        return collectionReferenceDescription;
+    }
+
+    private Map<String, CollectionReferenceDescriptionProperty> union(Map<String, CollectionReferenceDescriptionProperty> source,
+                                                                      Map<String, CollectionReferenceDescriptionProperty> update) {
+        Map<String, CollectionReferenceDescriptionProperty> ret = new HashMap<>(source);
+        for (String key : update.keySet()) {
+            if(!ret.containsKey(key)) {
+                ret.put(key,update.get(key));
+            } else if(ret.get(key).type != update.get(key).type) {
+                LOGGER.error("Cannot union field [key=" + key + "] because type mismatch between indices' mappings");
+            } else if(ret.get(key).properties != null && update.get(key).properties != null) {
+                ret.get(key).properties = union(ret.get(key).properties, update.get(key).properties);
+            }
+        }
+        return ret;
+    }
+
+    private Map<String, CollectionReferenceDescriptionProperty> getFromSource(
+            CollectionReference collectionReference,
+            Map source, Stack<String> namespace,
+            ArrayList<Pattern> excludeFields,
+            Optional<Set<String>> columnFilterPredicates) {
+
+        Map<String, CollectionReferenceDescriptionProperty> ret = new HashMap<>();
+
+        for (Object key : source.keySet()) {
+            namespace.push(key.toString());
+            String path = Strings.join(namespace,'.');
+            boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
+            if (!excludePath) {
+                if (source.get(key) instanceof Map) {
+                    Map property = (Map) source.get(key);
+
+                    CollectionReferenceDescriptionProperty collectionProperty = new CollectionReferenceDescriptionProperty();
+                    if (property.containsKey("type")) {
+                        collectionProperty.type = ElasticType.getType(property.get("type"));
+                    } else {
+                        collectionProperty.type = ElasticType.OBJECT;
+                    }
+                    if (FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, collectionProperty.type == ElasticType.OBJECT)) {
+
+                        if (property.containsKey("format")) {
+                            String format = property.get("format").toString();
+                            if (format == null && collectionProperty.type.equals(ElasticType.DATE)) {
+                                format = CollectionReference.DEFAULT_TIMESTAMP_FORMAT;
+                            }
+                            collectionProperty.format = format;
+                        }
+                        if (property.containsKey("properties") && property.get("properties") instanceof Map) {
+                            collectionProperty.properties = getFromSource(collectionReference, (Map) property.get("properties"), namespace, excludeFields, columnFilterPredicates);
+                        }
+                        if (collectionReference.params.taggableFields != null) {
+                            collectionProperty.taggable = Arrays.asList(collectionReference.params.taggableFields.split(",")).contains(path);
+                        }
+                        ret.put(key.toString(), collectionProperty);
+                    }
+                }
+            }
+            namespace.pop();
+        }
+        return ret;
+    }
+
+    @Override
+    public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
+                                                                       Optional<String> columnFilter) throws ArlasException {
+
+        // Can't use lambdas because of the need to throw the exception of describeCollection()
+        List<CollectionReferenceDescription> res  = new ArrayList<>();
+        for (CollectionReference collection : collectionReferenceList) {
+            if (!ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent()
+                    || ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter,collection).isPresent()) {
+                res.add(describeCollection(collection, columnFilter));
+            }
+        }
+        return res;
+    }
+
+    @Override
+    public List<CollectionReferenceDescription> getAllIndicesAsCollections() throws ArlasException {
+        List<CollectionReferenceDescription> collections = new ArrayList<>();
+        Map<String, LinkedHashMap> indices = client.getMappings();
+
+        for (String indexName : indices.keySet()) {
+            CollectionReference collection = new CollectionReference();
+            collection.collectionName = indexName;
+            collection.params = new CollectionReferenceParameters();
+            collection.params.indexName = indexName;
+            collections.add(describeCollection(collection));
+        }
+        return collections;
+    }
+
+    /**
+     * Get the parameters paths of a collection, using the given filter predicates
+     */
+    public Set<String> getCollectionFields(CollectionReference collectionReference, Optional<String> filterPredicates) throws ArlasException {
+
+        Map<String, CollectionReferenceDescriptionProperty> collectionFilteredProperties =
+                this.describeCollection(collectionReference, filterPredicates).properties;
+
+        return getPropertiesFields(collectionFilteredProperties, "")
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Extract the fields of the given paths, recursively
+     */
+    private Stream<String> getPropertiesFields(Map<String, CollectionReferenceDescriptionProperty> properties, String parentPath) {
+        return properties.entrySet().stream().map(es -> {
+            if (es.getValue().type == ElasticType.OBJECT) {
+                return getPropertiesFields(es.getValue().properties, parentPath + es.getKey() + ".");
+            } else {
+                return Stream.of(parentPath + es.getKey());
+            }
+        })
+                .flatMap(x -> x);
+    }
+
 }

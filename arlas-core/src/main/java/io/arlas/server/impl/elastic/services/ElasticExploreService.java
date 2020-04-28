@@ -24,10 +24,9 @@ import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.impl.elastic.core.ElasticAdmin;
 import io.arlas.server.impl.elastic.core.ElasticDocument;
 import io.arlas.server.impl.elastic.core.FluidSearch;
-import io.arlas.server.impl.elastic.dao.ElasticCollectionReferenceDaoImpl;
+import io.arlas.server.impl.elastic.dao.ElasticCollectionReferenceDao;
 import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.impl.elastic.utils.ElasticTool;
 import io.arlas.server.impl.elastic.utils.GeoTypeMapper;
@@ -61,20 +60,18 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class ElasticExploreServiceImpl extends ExploreService {
+public class ElasticExploreService extends ExploreService {
 
     private static final String FEATURE_TYPE_KEY = "feature_type";
     private static final String FEATURE_TYPE_VALUE = "hit";
     private static final String FEATURE_GEOMETRY_PATH = "geometry_path";
 
     protected ElasticClient client;
-    private ElasticAdmin elasticAdmin;
 
-    public ElasticExploreServiceImpl(ElasticClient client, ArlasServerConfiguration configuration) {
+    public ElasticExploreService(ElasticClient client, ArlasServerConfiguration configuration) {
         super(configuration);
         this.client = client;
-        this.elasticAdmin = new ElasticAdmin(client);
-        this.daoCollectionReference = new ElasticCollectionReferenceDaoImpl(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
+        this.daoCollectionReference = new ElasticCollectionReferenceDao(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
     }
 
     public ElasticClient getClient() {
@@ -84,11 +81,6 @@ public class ElasticExploreServiceImpl extends ExploreService {
     public void setClient(ElasticClient client) {
         this.client = client;
     }
-
-    public ElasticAdmin getElasticAdmin() {
-        return elasticAdmin;
-    }
-
     @Override
     public CollectionReferenceDao getDaoCollectionReference() {
         return daoCollectionReference;
@@ -97,13 +89,13 @@ public class ElasticExploreServiceImpl extends ExploreService {
     @Override
     public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
                                                                        Optional<String> columnFilter) throws ArlasException {
-        return elasticAdmin.describeAllCollections(collectionReferenceList, columnFilter);
+        return daoCollectionReference.describeAllCollections(collectionReferenceList, columnFilter);
     }
 
     @Override
     public CollectionReferenceDescription describeCollection(CollectionReference collectionReference,
                                                                       Optional<String> columnFilter) throws ArlasException {
-        return elasticAdmin.describeCollection(collectionReference, columnFilter);
+        return daoCollectionReference.describeCollection(collectionReference, columnFilter);
     }
 
     @Override
@@ -489,7 +481,7 @@ public class ElasticExploreServiceImpl extends ExploreService {
 
     protected void applyProjection(Projection projection, FluidSearch fluidSearch, Optional<String> columnFilter, CollectionReference collectionReference) throws ArlasException {
         if (ColumnFilterUtil.isValidColumnFilterPresent(columnFilter)) {
-            String filteredIncludes = ColumnFilterUtil.getFilteredIncludes(columnFilter, projection, elasticAdmin.getCollectionFields(collectionReference, columnFilter))
+            String filteredIncludes = ColumnFilterUtil.getFilteredIncludes(columnFilter, projection, daoCollectionReference.getCollectionFields(collectionReference, columnFilter))
                     .orElse(
                             // if filteredIncludes were to be null or an empty string, FluidSearch would then build a bad request
                             String.join(",", ColumnFilterUtil.getCollectionMandatoryPaths(collectionReference)));

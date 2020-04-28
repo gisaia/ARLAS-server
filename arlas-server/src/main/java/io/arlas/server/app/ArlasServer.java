@@ -31,9 +31,7 @@ import io.arlas.server.exceptions.ArlasExceptionMapper;
 import io.arlas.server.exceptions.ConstraintViolationExceptionMapper;
 import io.arlas.server.exceptions.IllegalArgumentExceptionMapper;
 import io.arlas.server.exceptions.JsonProcessingExceptionMapper;
-import io.arlas.server.health.ElasticsearchHealthCheck;
 import io.arlas.server.impl.elastic.exceptions.ElasticsearchExceptionMapper;
-import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.CSWService;
@@ -44,7 +42,7 @@ import io.arlas.server.ogc.csw.writer.record.XmlMDMetadataMessageBodyWriter;
 import io.arlas.server.ogc.csw.writer.record.XmlRecordMessageBodyBuilder;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.WFSService;
-import io.arlas.server.rest.collections.ElasticCollectionService;
+import io.arlas.server.rest.collections.CollectionService;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
 import io.arlas.server.rest.explore.aggregate.GeoAggregateRESTService;
 import io.arlas.server.rest.explore.compute.ComputeRESTService;
@@ -59,7 +57,7 @@ import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
 import io.arlas.server.rest.plugins.eo.TileRESTService;
-import io.arlas.server.impl.elastic.services.ElasticExploreServiceImpl;
+import io.arlas.server.services.ExploreService;
 import io.arlas.server.task.CollectionAutoDiscover;
 import io.arlas.server.utils.PrettyPrintFilter;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
@@ -117,15 +115,18 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         configuration.check();
         LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
 
-        ElasticClient client = new ElasticClient(configuration.elasticConfiguration);
+        DatabaseToolsFactory dbToolFactory = (DatabaseToolsFactory) Class
+                .forName(configuration.arlasDatabaseFactoryClass)
+                .getConstructor(ArlasServerConfiguration.class)
+                .newInstance(configuration);
 
-        CollectionReferenceManager.getInstance().init(client);
+        CollectionReferenceManager.getInstance().init(dbToolFactory.getCollectionReferenceDao());
 
         if (configuration.zipkinConfiguration != null) {
             Optional<HttpTracing> tracing = configuration.zipkinConfiguration.build(environment);
         }
 
-        ElasticExploreServiceImpl exploration = new ElasticExploreServiceImpl(client, configuration);
+        ExploreService exploration = dbToolFactory.getExploreService();
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
         environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         environment.jersey().register(MultiPartFeature.class);
@@ -166,7 +167,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         if(configuration.arlasServiceCollectionsEnabled) {
             LOGGER.info("Collection API enabled");
-            environment.jersey().register(new ElasticCollectionService(client, configuration));
+            environment.jersey().register(new CollectionService(configuration, dbToolFactory.getCollectionReferenceDao()));
         } else {
             LOGGER.info("Collection API disabled");
         }
@@ -174,7 +175,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         if(configuration.arlasServiceWFSEnabled){
             LOGGER.info("WFS Service enabled");
             WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration, configuration.ogcConfiguration, configuration.inspireConfiguration, configuration.arlasBaseUri);
-            environment.jersey().register(new WFSService(exploration, configuration, wfsHandler));
+            environment.jersey().register(new WFSService(dbToolFactory.getCollectionReferenceDao(), dbToolFactory.getWFSToolService(), wfsHandler));
         } else {
             LOGGER.info("WFS Service disabled");
         }
@@ -190,7 +191,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         if (configuration.arlasServiceCSWEnabled) {
             LOGGER.info("CSW Service enabled");
             CSWHandler cswHandler = new CSWHandler(configuration.ogcConfiguration, configuration.cswConfiguration, configuration.inspireConfiguration, configuration.arlasBaseUri);
-            environment.jersey().register(new CSWService(client, cswHandler, configuration));
+            environment.jersey().register(new CSWService(dbToolFactory.getCollectionReferenceDao(), dbToolFactory.getOGCCollectionReferenceDao(), cswHandler, configuration));
         } else {
             LOGGER.info("CSW Service disabled");
         }
@@ -207,18 +208,18 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(InsensitiveCaseFilter.class);
 
         //tasks
-        environment.admin().addTask(new CollectionAutoDiscover(client, configuration));
+        environment.admin().addTask(new CollectionAutoDiscover(dbToolFactory.getCollectionReferenceDao(), configuration));
         int scheduleAutoDiscover = configuration.collectionAutoDiscoverConfiguration.schedule;
         if (scheduleAutoDiscover > 0) {
             String nameFormat = "collection-auto-discover-%d";
             ScheduledExecutorServiceBuilder sesBuilder = environment.lifecycle().scheduledExecutorService(nameFormat);
             ScheduledExecutorService ses = sesBuilder.build();
-            Runnable autoDiscoverTask = new CollectionAutoDiscover(client, configuration);
+            Runnable autoDiscoverTask = new CollectionAutoDiscover(dbToolFactory.getCollectionReferenceDao(), configuration);
             ses.scheduleWithFixedDelay(autoDiscoverTask, 10, scheduleAutoDiscover, TimeUnit.SECONDS);
         }
 
         //healthchecks
-        environment.healthChecks().register("elasticsearch", new ElasticsearchHealthCheck(client));
+        dbToolFactory.getHealthChecks().forEach((name, check) -> environment.healthChecks().register(name, check));
 
         //cors
         if (configuration.arlascorsenabled) {

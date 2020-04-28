@@ -20,9 +20,9 @@
 package io.arlas.server.rest.collections;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.Documentation;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
@@ -51,13 +51,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-public abstract class CollectionService extends CollectionRESTServices {
+public class CollectionService extends CollectionRESTServices {
 
-    protected CollectionReferenceDao dao = null;
+    protected CollectionReferenceDao dao;
     protected boolean inspireConfigurationEnabled;
     private static final String META_COLLECTION_NAME = "metacollection";
+
+    public CollectionService(ArlasServerConfiguration configuration, CollectionReferenceDao dao) throws ArlasException {
+        super();
+        this.dao = dao;
+        this.inspireConfigurationEnabled = configuration.inspireConfiguration.enabled;
+        dao.initCollectionDatabase();
+    }
 
     @Timed
     @Path("/")
@@ -78,11 +84,9 @@ public abstract class CollectionService extends CollectionRESTServices {
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
             @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
-    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+    ) throws ArlasException {
         List<CollectionReference> collections = dao.getAllCollectionReferences();
         return ResponseFormatter.getResultResponse(collections);
     }
@@ -101,7 +105,7 @@ public abstract class CollectionService extends CollectionRESTServices {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
-    public Response exportCollections() throws InterruptedException, ExecutionException, IOException, ArlasException {
+    public Response exportCollections() throws ArlasException {
         List<CollectionReference> collections = dao.getAllCollectionReferences();
         String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
         String fileName = "arlas-collections-export_" + date + ".json";
@@ -125,7 +129,7 @@ public abstract class CollectionService extends CollectionRESTServices {
     public Response importCollections(
             @FormDataParam("file") InputStream inputStream,
             @FormDataParam("file") FormDataContentDisposition fileDetail
-    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+    ) throws ArlasException {
         List<CollectionReference> collections = getCollectionsFromInputStream(inputStream);
         List<CollectionReference> savedCollections = new ArrayList<>();
         removeMetacollection(collections);
@@ -171,22 +175,19 @@ public abstract class CollectionService extends CollectionRESTServices {
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     public Response get(
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
-    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+    ) throws ArlasException {
         CollectionReference cr = dao.getCollectionReference(collection);
         return ResponseFormatter.getResultResponse(cr);
     }
@@ -208,10 +209,8 @@ public abstract class CollectionService extends CollectionRESTServices {
             @ApiResponse(code = 404, message = "Not Found Error.", response = Error.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response put(
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
             @ApiParam(name = "collectionParams",
@@ -222,20 +221,19 @@ public abstract class CollectionService extends CollectionRESTServices {
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
 
-    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+    ) throws ArlasException {
         if (collection != null && collection.equals(META_COLLECTION_NAME)) {
             throw new NotAllowedException("'" + META_COLLECTION_NAME + "' is not allowed as a name for collections");
         }
         return ResponseFormatter.getResultResponse(save(collection, collectionReferenceParameters));
     }
 
-    public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters) throws ArlasException, JsonProcessingException {
+    public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters) throws ArlasException {
         CollectionReference collectionReference = new CollectionReference(collection, collectionReferenceParameters);
         setDefaultInspireParameters(collectionReference);
         if (inspireConfigurationEnabled) {
@@ -243,8 +241,7 @@ public abstract class CollectionService extends CollectionRESTServices {
             CheckParams.checkInvalidDublinCoreElementsForInspire(collectionReference);
         }
         CheckParams.checkInvalidInspireParameters(collectionReference);
-        CollectionReference cr = dao.putCollectionReference(collectionReference);
-        return cr;
+        return dao.putCollectionReference(collectionReference);
     }
 
     @Timed
@@ -263,22 +260,19 @@ public abstract class CollectionService extends CollectionRESTServices {
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     public Response delete(
-            @ApiParam(
-                    name = "collection",
+            @ApiParam(name = "collection",
                     value = "collection",
-                    allowMultiple = false,
                     required = true)
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
-    ) throws InterruptedException, ExecutionException, IOException, ArlasException {
+    ) throws ArlasException {
         if (collection != null && collection.equals(META_COLLECTION_NAME)) {
             throw new NotAllowedException("Forbidden operation on '" + META_COLLECTION_NAME + "'");
         }
