@@ -25,6 +25,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import io.arlas.server.app.ArlasAuthConfiguration;
+import io.arlas.server.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.URL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
@@ -51,12 +54,12 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     public AuthorizationFilter(ArlasAuthConfiguration conf) throws Exception {
         this.authConf = conf;
-        this.jwtVerifier = JWT.require(Algorithm.RSA256(getPemPublicKey(conf.certificateFile), null)).build();
+        this.jwtVerifier = JWT.require(Algorithm.RSA256(getPemPublicKey(conf), null)).build();
     }
 
     @Override
     public void filter(ContainerRequestContext ctx) {
-        if (!authConf.getPublicUrisSet().contains(ctx.getUriInfo().getPath()) && ctx.getMethod() != "OPTIONS") {
+        if (!ctx.getUriInfo().getPath().matches(authConf.getPublicRegex()) && ctx.getMethod() != "OPTIONS") {
             try {
                 // header presence and format already checked before in AuthenticationFilter
                 DecodedJWT jwt = jwtVerifier.verify(ctx.getHeaderString(HttpHeaders.AUTHORIZATION).substring(7));
@@ -79,15 +82,24 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     /**
      * Extract RSA public key from a PEM file containing an X.509 certificate.
-     * @param filename
+     * @param conf
      * @return
      * @throws Exception
      */
-    private RSAPublicKey getPemPublicKey(String filename) throws Exception {
+    private RSAPublicKey getPemPublicKey(ArlasAuthConfiguration conf) throws Exception {
         CertificateFactory fact = CertificateFactory.getInstance("X.509");
-        try (FileInputStream is = new FileInputStream (filename)) {
+        try (InputStream is = getCertificateStream(conf)) {
             X509Certificate cer = (X509Certificate) fact.generateCertificate(is);
             return (RSAPublicKey) cer.getPublicKey();
+        }
+    }
+
+    private InputStream getCertificateStream(ArlasAuthConfiguration conf) throws Exception {
+        if (!StringUtil.isNullOrEmpty(conf.certificateUrl)) {
+            return new URL(conf.certificateUrl).openStream();
+        } else {
+            LOGGER.warn("Configuration 'arlas_auth.certificate_file' is deprecated. Consider using 'arlas_auth.certificate_url'.");
+            return new FileInputStream(conf.certificateFile);
         }
     }
 }

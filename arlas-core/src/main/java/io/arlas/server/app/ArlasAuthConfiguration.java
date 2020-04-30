@@ -21,10 +21,7 @@ package io.arlas.server.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ArlasAuthConfiguration {
     @JsonProperty("enabled")
@@ -36,18 +33,19 @@ public class ArlasAuthConfiguration {
     @JsonProperty("login_url")
     public String loginUrl;
 
+    @Deprecated
     @JsonProperty("certificate_file")
     public String certificateFile;
 
-    private Set<String> publicUrisSet;
+    @JsonProperty("certificate_url")
+    public String certificateUrl;
 
-    public Set<String> getPublicUrisSet() {
-        if (this.publicUris == null) {
-            this.publicUris = new ArrayList<>();
+    private String publicRegex;
+    public String getPublicRegex() {
+        if (this.publicRegex == null) {
+            this.publicRegex = "^(" + String.join("|", this.publicUris) + ")";
         }
-        if (this.publicUrisSet == null) {
-            this.publicUrisSet = new HashSet<>(publicUris);
-        }
-        return publicUrisSet;
+        return this.publicRegex;
     }
+
 }
