@@ -65,8 +65,9 @@ docker run -ti -d \
 | Environment variable | ARLAS Server configuration variable | Default | Description |
 | --- | --- | --- | --- |
 | ARLAS_AUTH_ENABLED | arlas_auth.enabled | false | Whether to enable auth or not |
-| ARLAS_AUTH_PUBLIC_URIS | arlas_auth.public_uris | swagger,swagger.json | Comma-separated list of URIs that are to be made publicly available (no auth required to reach them) |
-| ARLAS_AUTH_CERT_FILE | arlas_auth.certificate_file | /opt/app/arlas.pem | Key of the auth service used to validate the JWT token |
+| ARLAS_AUTH_PUBLIC_URIS | arlas_auth.public_uris | swagger.* | Comma-separated list of URIs (as regex) that are to be made publicly available (no auth required to reach them) |
+| ARLAS_AUTH_CERT_FILE | arlas_auth.certificate_file | /opt/app/arlas.pem | Key of the auth service used to validate the JWT token (deprecated) |
+| ARLAS_AUTH_CERT_URL | arlas_auth.certificate_url | - | URL to the key of the auth service used to validate the JWT token |
 
 ### Enabled Services
 

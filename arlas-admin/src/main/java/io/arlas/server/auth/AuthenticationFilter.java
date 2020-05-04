@@ -30,7 +30,6 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
-import java.io.IOException;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)
@@ -43,8 +42,8 @@ public class AuthenticationFilter implements ContainerRequestFilter {
     }
 
     @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
-        if (!authConf.getPublicUrisSet().contains(requestContext.getUriInfo().getPath()) && requestContext.getMethod() != "OPTIONS") {
+    public void filter(ContainerRequestContext requestContext) {
+        if (!requestContext.getUriInfo().getPath().matches(authConf.getPublicRegex()) && requestContext.getMethod() != "OPTIONS") {
             String header = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
             if (header == null || !header.toLowerCase().startsWith("bearer ")) {
                 requestContext.abortWith(
