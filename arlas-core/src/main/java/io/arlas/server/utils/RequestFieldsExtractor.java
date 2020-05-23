@@ -56,8 +56,6 @@ public class RequestFieldsExtractor {
             requestExtractor = new SearchRequestFieldsExtractor();
         } else if (request.getClass() == AggregationsRequest.class) {
             requestExtractor = new AggregationRequestFieldsExtractor();
-        } else if (request.getClass() == RangeRequest.class) {
-            requestExtractor = new RangeRequestFieldsExtractor();
         } else if (request.getClass() == ComputationRequest.class) {
             requestExtractor = new ComputationRequestFieldsExtractor();
         } else {
@@ -196,22 +194,6 @@ public class RequestFieldsExtractor {
                     .orElse(Stream.of());
         }
 
-    }
-
-    private static class RangeRequestFieldsExtractor extends BasicRequestFieldsExtractor<RangeRequest> {
-        @Override
-        public Stream<String> getCols(RangeRequest request, Set<String> includeFields) {
-
-            Stream<String> rangeCol = includeFields.contains(INCLUDE_RANGE_FIELD) ? getRangeCol(request) : Stream.of();
-
-            return Stream.concat(super.getCols(request, includeFields), rangeCol);
-        }
-
-        private Stream<String> getRangeCol(RangeRequest request) {
-            return Optional.ofNullable(request.field)
-                    .map(Stream::of)
-                    .orElse(Stream.of());
-        }
     }
 
     private static class ComputationRequestFieldsExtractor extends BasicRequestFieldsExtractor<ComputationRequest> {

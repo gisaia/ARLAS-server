@@ -137,9 +137,6 @@ public abstract class ExploreService {
     public abstract CollectionReferenceDescription describeCollection(CollectionReference collectionReference,
                                                              Optional<String> columnFilter) throws ArlasException;
 
-    public abstract RangeResponse getFieldRange(MixedRequest request,
-                                                CollectionReference collectionReference) throws ArlasException;
-
     public abstract FeatureCollection getFeatures(MixedRequest request,
                                                   CollectionReference collectionReference,
                                                   boolean flat) throws ArlasException;
