@@ -11,7 +11,6 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/explore/**_list**                 | List  the collections configured in ARLAS |
 | /arlas/explore/`{collection}`/**_describe**?`form` | Describes the structure and the content of the given collection |
 | /arlas/explore/`{collection}`/**_count**?`filter` & `form` | Counts the number of elements found in the collection, given the filters |
-| /arlas/explore/`{collection}`/**_range**?`compute` & `filter` & `form` | **DEPRECATED**. Calculates the min and max values of a field in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_compute**?`compute` & `filter` & `form` | Computes the metric of a field in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_search**?`filter` & `form` & `projection` & `page` & `returned_geometries`| Search and return the elements found in the collection, given the filters |
 | /arlas/explore/`{collection}`/**_geosearch**?`filter` & `form` & `projection` & `page` & `returned_geometries` | Search and return the elements found in the collection as features, given the filters |
@@ -303,7 +302,6 @@ The following endpoints use this header:
 | /arlas/explore/**_list**                 | Only fields and collections matching this filter will be returned (if no field of a collection is available, this one is not returned at all). |
 | /arlas/explore/`{collection}`/**_describe** | Only fields matching this filter will be returned. Return a 403 if target collection is not available. |
 | /arlas/explore/`{collection}`/**_count** | Return a 403 if one of the filter fields is not in the column filter. Return a 403 if target collection is not available. |
-| /arlas/explore/`{collection}`/**_range** | Return a 403 if the field, or one of the filter fields, is not in the column filter. Otherwise only fields matching the filter will be returned. Return a 403 if target collection is not available. |
 | /arlas/explore/`{collection}`/**_compute** | Return a 403 if the field, or one of the filter fields, is not in the column filter. Return a 403 if target collection is not available. |
 | /arlas/explore/`{collection}`/**_search** | Return a 403 if one of the filter, projection and page fields is not in the column filter. Otherwise only fields matching the filter will be returned. Return a 403 if target collection is not available. |
 | /arlas/explore/`{collection}`/**_geosearch** | Return a 403 if one of the filter, projection or page fields is not in the column filter. Otherwise only fields matching the filter will be returned. Return a 403 if target collection is not available. |
@@ -338,7 +336,7 @@ The `form` url part allows the following parameters to be specified:
 ---
 ### Part: `field`
 
-The `compute` url part is used in `_range` and `_compute` services.
+The `compute` url part is used in `_compute` service.
  
 | Parameter  | Default value | Values       | Description          | Multiple |
 | ---------- | ------------- | ------------ | -------------------- | -------- |
@@ -355,8 +353,8 @@ The `compute` url part is used in `_range` and `_compute` services.
     - `geobbox` : the extend of data based on the given geo-point field.
     - `geocentroid` : the centroid of data based on the given geo-point field.
 
-!!! info '_range is deprecated'
-    Starting from v12.7.0, `_range` endpoint is deprecated. You can use the new endpoint `_compute`.
+!!! info '_range endpoint is removed'
+    Starting from v13.7.0, `_range` endpoint is removed. You can use the endpoint `_compute` instead.
     - If you used `_range` to get the `(max-min)` value of the given field, then you can call :  `_compute?field=your_field&metric=spanning`
     - If you used `_range` to get separately the `min` and `max` values of the given field, then you can call `_compute` twice using `_compute?field=your_field&metric=min` and `_compute?field=your_field&metric=max`
 

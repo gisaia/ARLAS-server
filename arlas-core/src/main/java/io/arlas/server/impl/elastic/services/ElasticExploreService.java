@@ -345,46 +345,6 @@ public class ElasticExploreService extends ExploreService {
         return new ElasticDocument(client).getSource(collectionReference, identifier, includes);
     }
 
-    @Override
-    public RangeResponse getFieldRange(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
-        long startQuery = System.nanoTime();
-        CheckParams.checkRangeRequestField(request.basicRequest);
-        FluidSearch fluidSearch = new FluidSearch(client);
-        fluidSearch.setCollectionReference(collectionReference);
-        applyFilter(collectionReference.params.filter, fluidSearch);
-        applyFilter(request.basicRequest.filter, fluidSearch);
-        applyFilter(request.headerRequest.filter, fluidSearch);
-        applyRangeRequest(((RangeRequest) request.basicRequest).field, fluidSearch);
-        SearchResponse response;
-        try {
-            response = fluidSearch.exec();
-        } catch (SearchPhaseExecutionException e) {
-            throw new InvalidParameterException("The field's type must be numeric");
-        }
-
-        org.elasticsearch.search.aggregations.Aggregation firstAggregation = response.getAggregations().asList().get(0);
-        org.elasticsearch.search.aggregations.Aggregation secondAggregation = response.getAggregations().asList().get(1);
-
-        RangeResponse rangeResponse = new RangeResponse();
-        rangeResponse.totalnb = response.getHits().getTotalHits().value;
-        if (rangeResponse.totalnb > 0) {
-            if (firstAggregation.getName().equals(FluidSearch.FIELD_MIN_VALUE)) {
-                rangeResponse.min = ((Min)firstAggregation).getValue();
-                rangeResponse.max = ((Max)secondAggregation).getValue();
-            } else {
-                rangeResponse.min = ((Min)secondAggregation).getValue();
-                rangeResponse.max = ((Max)firstAggregation).getValue();
-            }
-            CheckParams.checkRangeFieldExists(rangeResponse);
-        } else {
-            rangeResponse.min = rangeResponse.max = null;
-        }
-
-        rangeResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
-
-        return rangeResponse;
-    }
-
     private void applyAggregation(List<Aggregation> aggregations, FluidSearch fluidSearch, Boolean isGeoAggregation) throws ArlasException {
         if (aggregations != null && !aggregations.isEmpty()) {
             fluidSearch.aggregate(aggregations, isGeoAggregation);

@@ -32,8 +32,6 @@ import io.arlas.server.model.Keyword;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.ElasticType;
-import io.arlas.server.model.response.RangeResponse;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.geom.Geometry;
@@ -60,7 +58,6 @@ public class CheckParams {
     private static final String INVALID_AGGREGATION_PARAMETER = "Invalid aggregation syntax. Must start with {type}:{field}:...";
     private static final String INVALID_AGGREGATION = "Invalid aggregation parameters. Type and field must be specified";
     private static final String INVALID_AGGREGATION_TYPE = "Invalid aggregation TYPE. Must be datehistogram, geohash, histogram or terms ";
-    private static final String INVALID_RANGE_FIELD = "The field name/path should not be null.";
     private static final String INVALID_COMPUTE_FIELD = "The field name/path should not be null.";
     private static final String INVALID_COMPUTE_METRIC = "The metric value should not be null.";
     private static final String INVALID_COMPUTE_REQUEST = "Invalid compute request : ";
@@ -68,8 +65,6 @@ public class CheckParams {
     private static final String REDUNDANT_COLLECT_FIELD_COLLECT_FCT = "Bad request : the same 'collect-fct' is applied to the same 'collect-field' twice or more.";
     private static final String INVALID_ON_VALUE = "Invalid 'on-' value : ";
     private static final String BAD_COLLECT_FCT_COLLECT_FIELD_NUMBERS = "'collect_field' and 'collect_fct' occurrences should be even.";
-    private static final String UNEXISTING_FIELD = "The field name/pattern doesn't exist in the collection";
-    private static final String MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD = "Infinity";
     private static final String DATE_NOW = "now";
     private static final String AGGREGATED_GEOMETRY_NOT_SUPPORTED = "'geohash' & 'geohash_center' are only supported for geohash aggregation type.";
 
@@ -116,16 +111,6 @@ public class CheckParams {
         checkAggregatedGeometryParameter(aggregation);
         // Check raw_geometries validity according to aggregation type
         checkRawGeometriesParameter(aggregation, collectionReference);
-    }
-
-    public static void checkRangeRequestField(Request request) throws ArlasException {
-        if (request == null || !(request instanceof RangeRequest))
-            throw new BadRequestException("Range request should not be null");
-        else if (request != null) {
-            if (((RangeRequest) request).field == null || ((RangeRequest) request).field.length() == 0) {
-                throw new InvalidParameterException(INVALID_RANGE_FIELD);
-            }
-        }
     }
 
     public static void checkComputationRequest(Request request, CollectionReference collectionReference) throws ArlasException {
@@ -187,12 +172,6 @@ public class CheckParams {
             } catch (IllegalArgumentException e) {
                 throw new InvalidParameterException("Invalid date format '" + dateFormat + "'. Reason : " + e.getMessage());
             }
-        }
-    }
-
-    public static void checkRangeFieldExists(RangeResponse rangeResponse) throws ArlasException {
-        if (rangeResponse.min.toString().equals(MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD) || rangeResponse.min.toString().equals("-" + MIN_MAX_AGG_RESPONSE_FOR_UNEXISTING_FIELD)) {
-            throw new InvalidParameterException(UNEXISTING_FIELD);
         }
     }
 
