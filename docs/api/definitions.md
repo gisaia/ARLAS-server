@@ -2,21 +2,12 @@
 <a name="definitions"></a>
 ## Definitions
 
-<a name="aggregatedgeometry"></a>
-### AggregatedGeometry
-
-|Name|Schema|
-|---|---|
-|**field**  <br>*optional*|string|
-|**strategy**  <br>*optional*|enum (bbox, centroid, geohash, first, last, byDefault)|
-
-
 <a name="aggregation"></a>
 ### Aggregation
 
 |Name|Schema|
 |---|---|
-|**fetch_geometry**  <br>*optional*|[AggregatedGeometry](#aggregatedgeometry)|
+|**aggregated_geometries**  <br>*optional*|< enum (BBOX, CENTROID, GEOHASH, GEOHASHCENTER) > array|
 |**fetch_hits**  <br>*optional*|[HitsFetcher](#hitsfetcher)|
 |**field**  <br>*optional*|string|
 |**format**  <br>*optional*|string|
@@ -25,6 +16,7 @@
 |**metrics**  <br>*optional*|< [Metric](#metric) > array|
 |**on**  <br>*optional*|enum (field, count, result)|
 |**order**  <br>*optional*|enum (asc, desc)|
+|**raw_geometries**  <br>*optional*|< [RawGeometry](#rawgeometry) > array|
 |**size**  <br>*optional*|string|
 |**type**  <br>*optional*|enum (datehistogram, geohash, histogram, term)|
 
@@ -47,7 +39,7 @@
 |**count**  <br>*optional*|integer (int64)|
 |**elements**  <br>*optional*|< [AggregationResponse](#aggregationresponse) > array|
 |**flattened_elements**  <br>*optional*|< string, object > map|
-|**geometry**  <br>*optional*|[GeoJsonObject](#geojsonobject)|
+|**geometries**  <br>*optional*|< [ReturnedGeometry](#returnedgeometry) > array|
 |**hits**  <br>*optional*|< object > array|
 |**key**  <br>*optional*|object|
 |**key_as_string**  <br>*optional*|object|
@@ -132,7 +124,6 @@
 |**raster_tile_width**  <br>*optional*|integer (int32)|
 |**taggable_fields**  <br>*optional*|string|
 |**timestamp_path**  <br>*required*|string|
-|**type_name**  <br>*optional*|string|
 |**update_max_hits**  <br>*optional*|integer (int32)|
 
 
@@ -582,28 +573,6 @@
 |**includes**  <br>*optional*|string|
 
 
-<a name="rangerequest"></a>
-### RangeRequest
-
-|Name|Schema|
-|---|---|
-|**field**  <br>*optional*|string|
-|**filter**  <br>*optional*|[Filter](#filter)|
-|**form**  <br>*optional*|[Form](#form)|
-
-
-<a name="rangeresponse"></a>
-### RangeResponse
-
-|Name|Schema|
-|---|---|
-|**max**  <br>*optional*|object|
-|**min**  <br>*optional*|object|
-|**query_time**  <br>*optional*|integer (int64)|
-|**total_time**  <br>*optional*|integer (int64)|
-|**totalnb**  <br>*optional*|integer (int64)|
-
-
 <a name="rastertileurl"></a>
 ### RasterTileURL
 
@@ -614,6 +583,26 @@
 |**max_z**  <br>*optional*|integer (int32)|
 |**min_z**  <br>*optional*|integer (int32)|
 |**url**  <br>*required*|string|
+
+
+<a name="rawgeometry"></a>
+### RawGeometry
+
+|Name|Schema|
+|---|---|
+|**geometry**  <br>*optional*|string|
+|**sort**  <br>*optional*|string|
+
+
+<a name="returnedgeometry"></a>
+### ReturnedGeometry
+
+|Name|Schema|
+|---|---|
+|**geometry**  <br>*optional*|[GeoJsonObject](#geojsonobject)|
+|**is_raw**  <br>*optional*|boolean|
+|**reference**  <br>*optional*|string|
+|**sort**  <br>*optional*|string|
 
 
 <a name="search"></a>

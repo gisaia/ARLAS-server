@@ -1,5 +1,23 @@
 # Change Log
 
+## [v13.7.0](https://github.com/gisaia/ARLAS-server/tree/v13.7.0) (2020-05-25)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.8...v13.7.0)
+
+**Breaking changes:**
+
+- Add parameter in aggregate endpoint that allows to return multiple geometries [\#604](https://github.com/gisaia/ARLAS-server/issues/604) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Remove \_range endpoint [\#464](https://github.com/gisaia/ARLAS-server/issues/464) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+**New stuff:**
+
+- \[Authentication\] Public URIs as regex [\#628](https://github.com/gisaia/ARLAS-server/issues/628)
+- Extend applying geobbox and geocentroid metrics to any geo-point field [\#606](https://github.com/gisaia/ARLAS-server/issues/606)
+
+## [v12.7.8](https://github.com/gisaia/ARLAS-server/tree/v12.7.8) (2020-04-17)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.7...v12.7.8)
+
 ## [v12.7.7](https://github.com/gisaia/ARLAS-server/tree/v12.7.7) (2020-03-26)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.6...v12.7.7)
