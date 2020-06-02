@@ -1,6 +1,10 @@
 # Change Log
 
-## [v13.7.0](https://github.com/gisaia/ARLAS-server/tree/v13.7.0) (2020-05-25)
+## [v13.7.1](https://github.com/gisaia/ARLAS-server/tree/v13.7.1) (2020-06-02)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v13.7.0...v13.7.1)
+
+## [v13.7.0](https://github.com/gisaia/ARLAS-server/tree/v13.7.0) (2020-05-28)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.8...v13.7.0)
 
