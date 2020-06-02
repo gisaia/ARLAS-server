@@ -81,6 +81,7 @@ elastic:
 arlas-cache-size: ${ARLAS_CACHE_SIZE:-1000}
 arlas-cache-timeout: ${ARLAS_CACHE_TIMEOUT:-60}
 arlas-cors-enabled: ${ARLAS_CORS_ENABLED:-true}
+arlas-rest-cache-timeout: ${ARLAS_REST_CACHE_TIMEOUT:-0}
 
 ########################################################
 ############ COLLECTION DISCOVERY        ###############

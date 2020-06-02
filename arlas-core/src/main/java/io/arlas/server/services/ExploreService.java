@@ -44,16 +44,16 @@ public abstract class ExploreService {
     public static final Integer SEARCH_DEFAULT_PAGE_SIZE = 10;
     public static final Integer SEARCH_DEFAULT_PAGE_FROM = 0;
 
-    private ArlasServerConfiguration configuration;
+    private String baseUri;
     protected CollectionReferenceDao daoCollectionReference;
     protected ResponseCacheManager responseCacheManager;
 
     public ExploreService() {
     }
 
-    public ExploreService(ArlasServerConfiguration configuration) {
-        this.configuration = configuration;
-        this.responseCacheManager = new ResponseCacheManager(configuration.arlasrestcachetimeout);
+    public ExploreService(String baseUri, int arlasRestCacheTimeout) {
+        this.baseUri = baseUri;
+        this.responseCacheManager = new ResponseCacheManager(arlasRestCacheTimeout);
     }
 
     public ResponseCacheManager getResponseCacheManager() {
@@ -61,11 +61,7 @@ public abstract class ExploreService {
     }
 
     public String getBaseUri() {
-        String baseUri = null;
-        if (this.configuration.arlasBaseUri != null) {
-            baseUri =  this.configuration.arlasBaseUri;
-        }
-        return baseUri;
+        return this.baseUri;
     }
 
     public void setValidGeoFilters(CollectionReference collectionReference, Request request) throws ArlasException {

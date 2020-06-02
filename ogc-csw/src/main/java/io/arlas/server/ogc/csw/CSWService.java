@@ -41,7 +41,7 @@ public class CSWService extends CSWRESTService {
     public CSWService(CollectionReferenceDao collectionDao, OGCCollectionReferenceDao ogcDao, CSWHandler cswHandler, ArlasServerConfiguration configuration) throws ArlasException {
         super(cswHandler);
         this.dao = collectionDao;
-        initMetaCollection(configuration.arlasindex, configuration.ogcConfiguration, configuration.inspireConfiguration);
+        initMetaCollection(configuration.arlasIndex, configuration.ogcConfiguration, configuration.inspireConfiguration);
         this.ogcDao = ogcDao;
     }
 

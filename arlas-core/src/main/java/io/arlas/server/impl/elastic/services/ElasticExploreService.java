@@ -68,10 +68,10 @@ public class ElasticExploreService extends ExploreService {
 
     protected ElasticClient client;
 
-    public ElasticExploreService(ElasticClient client, ArlasServerConfiguration configuration) {
-        super(configuration);
+    public ElasticExploreService(ElasticClient client, CollectionReferenceDao collectionReferenceDao, String baseUri, int arlasRestCacheTimeout) {
+        super(baseUri, arlasRestCacheTimeout);
         this.client = client;
-        this.daoCollectionReference = new ElasticCollectionReferenceDao(client, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
+        this.daoCollectionReference = collectionReferenceDao;
     }
 
     public ElasticClient getClient() {
@@ -433,7 +433,7 @@ public class ElasticExploreService extends ExploreService {
         }
     }
 
-    private void sortPage(Page page, FluidSearch fluidSearch) throws ArlasException {
+    protected void sortPage(Page page, FluidSearch fluidSearch) throws ArlasException {
         if (page != null && page.sort != null) {
             fluidSearch.sort(page.sort);
         }

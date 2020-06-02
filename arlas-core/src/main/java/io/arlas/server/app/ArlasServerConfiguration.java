@@ -59,22 +59,22 @@ public class ArlasServerConfiguration extends Configuration {
     public ElasticConfiguration elasticConfiguration;
 
     @JsonProperty("arlas-index")
-    public String arlasindex;
+    public String arlasIndex;
 
     @JsonProperty("arlas-base-uri")
     public String arlasBaseUri;
 
     @JsonProperty("arlas-cache-size")
-    public int arlascachesize;
+    public int arlasCacheSize;
 
     @JsonProperty("arlas-cache-timeout")
-    public int arlascachetimeout;
+    public int arlasCacheTimeout;
 
     @JsonProperty("arlas-rest-cache-timeout")
-    public int arlasrestcachetimeout;
+    public int arlasRestCacheTimeout;
 
     @JsonProperty("arlas-cors-enabled")
-    public Boolean arlascorsenabled;
+    public Boolean arlasCorsEnabled;
 
     @JsonProperty("arlas-service-collections-enabled")
     public Boolean arlasServiceCollectionsEnabled;
@@ -128,17 +128,17 @@ public class ArlasServerConfiguration extends Configuration {
                 throw new ArlasConfigurationException("The url-template-prefix of Opensearch is invalid.");
             }
         }
-        if (StringUtil.isNullOrEmpty(arlasindex)) {
-            arlasindex = ".arlas";
+        if (StringUtil.isNullOrEmpty(arlasIndex)) {
+            arlasIndex = ".arlas";
         }
-        if (arlascachesize < 0) {
-            arlascachesize = 1000;
+        if (arlasCacheSize < 0) {
+            arlasCacheSize = 1000;
         }
-        if (arlascachetimeout < 0) {
-            arlascachetimeout = 60;
+        if (arlasCacheTimeout < 0) {
+            arlasCacheTimeout = 60;
         }
-        if (arlascorsenabled == null) {
-            arlascorsenabled = false;
+        if (arlasCorsEnabled == null) {
+            arlasCorsEnabled = false;
         }
         if (arlasServiceCollectionsEnabled == null) {
             arlasServiceCollectionsEnabled = true;
