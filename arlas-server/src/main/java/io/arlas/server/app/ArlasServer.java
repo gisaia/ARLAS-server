@@ -220,7 +220,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         dbToolFactory.getHealthChecks().forEach((name, check) -> environment.healthChecks().register(name, check));
 
         //cors
-        if (configuration.arlascorsenabled) {
+        if (configuration.arlasCorsEnabled) {
             configureCors(environment);
         }
     }

@@ -53,7 +53,7 @@
     <jackson.version>2.9.8</jackson.version>
 
     <!-- ELASTICSEARCH-->
-    <elastic.version>7.6.0</elastic.version>
+    <elastic.version>7.7.0</elastic.version>
 
     <!-- GEO-->
     <geotools.version>18.0</geotools.version>

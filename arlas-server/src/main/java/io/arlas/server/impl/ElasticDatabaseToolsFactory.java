@@ -41,16 +41,20 @@ public class ElasticDatabaseToolsFactory extends DatabaseToolsFactory {
     private final ElasticClient elasticClient;
     private final ExploreService exploreService;
     private final CollectionReferenceDao collectionReferenceDao;
-    private final OGCCollectionReferenceDao ogcDao;
-    private final WFSToolService wfsService;
+    private OGCCollectionReferenceDao ogcDao;
+    private WFSToolService wfsService;
 
     public ElasticDatabaseToolsFactory(ArlasServerConfiguration configuration) {
         super(configuration);
         this.elasticClient = new ElasticClient(configuration.elasticConfiguration);
-        this.exploreService = new ElasticExploreService(elasticClient, configuration);
-        this.collectionReferenceDao = new ElasticCollectionReferenceDao(elasticClient, configuration.arlasindex, configuration.arlascachesize, configuration.arlascachetimeout);
-        this.ogcDao = new ElasticOGCCollectionReferenceDao(elasticClient, collectionReferenceDao, configuration.arlasindex, Service.CSW);
-        this.wfsService = new ElasticWFSToolService((ElasticExploreService) exploreService);
+        this.collectionReferenceDao = new ElasticCollectionReferenceDao(elasticClient, configuration.arlasIndex, configuration.arlasCacheSize, configuration.arlasCacheTimeout);
+        this.exploreService = new ElasticExploreService(elasticClient, collectionReferenceDao, configuration.arlasBaseUri, configuration.arlasRestCacheTimeout);
+        if (configuration.arlasServiceCSWEnabled) {
+            this.ogcDao = new ElasticOGCCollectionReferenceDao(elasticClient, collectionReferenceDao, configuration.arlasIndex, Service.CSW);
+        }
+        if (configuration.arlasServiceWFSEnabled) {
+            this.wfsService = new ElasticWFSToolService((ElasticExploreService) exploreService);
+        }
     }
 
     @Override

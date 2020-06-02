@@ -104,6 +104,7 @@ docker run -ti -d \
 | --- | --- | --- | --- |
 | ARLAS_CACHE_SIZE                       | arlas-cache-size                  | 1000 | Size of the cache used for managing the collections  |
 | ARLAS_CACHE_TIMEOUT                    | arlas-cache-timeout               | 60 | Number of seconds for the cache used for managing the collections |
+| ARLAS_REST_CACHE_TIMEOUT               | arlas-rest-cache-timeout          | 0 | Number of seconds for the cache used for managing the REST responses |
 | ARLAS_CORS_ENABLED                     | arlas-cors-enabled                | false | whether the Cross-Origin Resource Sharing (CORS) mechanism is enabled or not |
 | ARLAS_COLLECTION_AUTODISCOVER_SCHEDULE | collection-auto-discover.schedule | 0 |  Number of seconds between two auto discovery tasks |
 | N/A                                    | collection-auto-discover.preferred-id-field-name | id,identifier | Name of the id field for auto discovery |
