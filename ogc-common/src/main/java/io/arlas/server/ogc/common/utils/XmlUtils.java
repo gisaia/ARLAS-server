@@ -58,20 +58,23 @@ public class XmlUtils {
     public static void parsePropertiesXsd(Map<String, CollectionReferenceDescriptionProperty> properties, XMLStreamWriter writer, Stack<String> namespace, ArrayList<Pattern> excludeFields,
                                           Optional<Set<String>> columnFilterPredicates) throws XMLStreamException {
 
-        for (String key : properties.keySet()) {
-            CollectionReferenceDescriptionProperty property = properties.get(key);
-            namespace.push(key);
-            String path = String.join(".", new ArrayList<>(namespace));
-            boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
-            boolean isAllowed = FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, property.type == ElasticType.OBJECT);
-            if (!excludePath && isAllowed) {
-                if (property.type == ElasticType.OBJECT) {
-                    parsePropertiesXsd(property.properties, writer, namespace, excludeFields, columnFilterPredicates);
-                } else {
-                    writeElementForType(writer, String.join(".", new ArrayList<>(namespace)), property);
+        // If a field is an object but in mapping enabled = false then properties are null
+        if(properties != null){
+            for (String key : properties.keySet()) {
+                CollectionReferenceDescriptionProperty property = properties.get(key);
+                namespace.push(key);
+                String path = String.join(".", new ArrayList<>(namespace));
+                boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
+                boolean isAllowed = FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, property.type == ElasticType.OBJECT);
+                if (!excludePath && isAllowed) {
+                    if (property.type == ElasticType.OBJECT) {
+                        parsePropertiesXsd(property.properties, writer, namespace, excludeFields, columnFilterPredicates);
+                    } else {
+                        writeElementForType(writer, String.join(".", new ArrayList<>(namespace)), property);
+                    }
                 }
+                namespace.pop();
             }
-            namespace.pop();
         }
     }
 
