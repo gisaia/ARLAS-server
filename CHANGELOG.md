@@ -1,6 +1,50 @@
 # Change Log
 
-## [v12.7.5](https://github.com/gisaia/ARLAS-server/tree/v12.7.5) (2020-03-19)
+## [v12.7.5.1](https://github.com/gisaia/ARLAS-server/tree/v12.7.5.1) (2020-06-30)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v13.7.1...v12.7.5.1)
+
+- NullPointer exception thrown when writing xml after a DescribeFeatureType
+
+## [v13.7.1](https://github.com/gisaia/ARLAS-server/tree/v13.7.1) (2020-06-02)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v13.7.0...v13.7.1)
+
+## [v13.7.0](https://github.com/gisaia/ARLAS-server/tree/v13.7.0) (2020-05-28)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.8...v13.7.0)
+
+**Breaking changes:**
+
+- Add parameter in aggregate endpoint that allows to return multiple geometries [\#604](https://github.com/gisaia/ARLAS-server/issues/604) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Remove \_range endpoint [\#464](https://github.com/gisaia/ARLAS-server/issues/464) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+**New stuff:**
+
+- \[Authentication\] Public URIs as regex [\#628](https://github.com/gisaia/ARLAS-server/issues/628)
+- Extend applying geobbox and geocentroid metrics to any geo-point field [\#606](https://github.com/gisaia/ARLAS-server/issues/606)
+
+## [v12.7.8](https://github.com/gisaia/ARLAS-server/tree/v12.7.8) (2020-04-17)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.7...v12.7.8)
+
+## [v12.7.7](https://github.com/gisaia/ARLAS-server/tree/v12.7.7) (2020-03-26)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.6...v12.7.7)
+
+**New stuff:**
+
+- Generate a Java client api and push it in maven repo [\#486](https://github.com/gisaia/ARLAS-server/issues/486)
+
+## [v12.7.6](https://github.com/gisaia/ARLAS-server/tree/v12.7.6) (2020-03-24)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.5...v12.7.6)
+
+**New stuff:**
+
+- Using New Rest High Level Client for ES [\#612](https://github.com/gisaia/ARLAS-server/pull/612) ([alainbodiguel](https://github.com/alainbodiguel))
+
+## [v12.7.5](https://github.com/gisaia/ARLAS-server/tree/v12.7.5) (2020-03-24)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.4...v12.7.5)
 
