@@ -20,18 +20,15 @@
 package io.arlas.server.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.exceptions.ArlasConfigurationException;
 import io.arlas.server.utils.StringUtil;
-import io.dropwizard.Configuration;
-import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class ArlasServerConfiguration extends Configuration {
+public class ArlasServerConfiguration extends ArlasBaseConfiguration {
 
     @JsonProperty("arlas-wfs")
     public WFSConfiguration wfsConfiguration;
@@ -47,16 +44,6 @@ public class ArlasServerConfiguration extends Configuration {
 
     @JsonProperty("opensearch")
     public OpensearchConfiguration opensearchConfiguration;
-
-    @JsonProperty("zipkin")
-    public ZipkinFactory zipkinConfiguration;
-
-    @JsonProperty("swagger")
-    public SwaggerBundleConfiguration swaggerBundleConfiguration;
-
-    // New way of configuring ES
-    @JsonProperty("elastic")
-    public ElasticConfiguration elasticConfiguration;
 
     @JsonProperty("arlas-index")
     public String arlasIndex;
@@ -97,23 +84,11 @@ public class ArlasServerConfiguration extends Configuration {
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 
-    @JsonProperty("arlas_auth")
-    public ArlasAuthConfiguration arlasAuthConfiguration;
-
-    @JsonProperty("arlas_database_factory_class")
-    public String arlasDatabaseFactoryClass;
-
     public static final String FLATTEN_CHAR = "_";
 
     public void check() throws ArlasConfigurationException {
-        elasticConfiguration.check();
+        super.check();
 
-        if (zipkinConfiguration == null) {
-            throw new ArlasConfigurationException("Zipkin configuration missing in config file.");
-        }
-        if (swaggerBundleConfiguration == null) {
-            throw new ArlasConfigurationException("Swagger configuration missing in config file.");
-        }
         if (arlasBaseUri != null) {
             try {
                 new URI(arlasBaseUri);
@@ -181,14 +156,6 @@ public class ArlasServerConfiguration extends Configuration {
         if (collectionAutoDiscoverConfiguration == null) {
             collectionAutoDiscoverConfiguration = new CollectionAutoDiscoverConfiguration();
             collectionAutoDiscoverConfiguration.schedule = 0;
-        }
-        if (arlasAuthConfiguration == null) {
-            arlasAuthConfiguration = new ArlasAuthConfiguration();
-            arlasAuthConfiguration.enabled = false;
-        }
-
-        if (arlasDatabaseFactoryClass == null) {
-            throw new ArlasConfigurationException("arlas_database_factory_class is missing");
         }
     }
 }
