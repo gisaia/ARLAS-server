@@ -152,5 +152,9 @@ arlas_auth:
   # deprecated
   certificate_file: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}
   certificate_url: ${ARLAS_AUTH_CERT_URL:-}
+  header_user: ${ARLAS_HEADER_USER:-arlas-user}
+  header_group: ${ARLAS_HEADER_GROUP:-arlas-groups}
+  claim_roles: ${ARLAS_CLAIM_ROLES:-http://arlas.io/roles}
+  claim_permissions: ${ARLAS_CLAIM_PERMISSIONS:-http://arlas.io/permissions}
 
 arlas_database_factory_class: ${ARLAS_DATABASE_FACTORY_CLASS:-io.arlas.server.impl.ElasticDatabaseToolsFactory}

@@ -42,6 +42,7 @@ import java.net.URL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
+import java.util.stream.Collectors;
 
 @Provider
 @Priority(Priorities.AUTHORIZATION)
@@ -49,9 +50,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     private final Logger LOGGER = LoggerFactory.getLogger(AuthorizationFilter.class);
     private final JWTVerifier jwtVerifier;
     private final ArlasAuthConfiguration authConf;
-
-    private static final String CLAIM_PERMISSIONS = "http://arlas.io/permissions";
-
+    
     public AuthorizationFilter(ArlasAuthConfiguration conf) throws Exception {
         this.authConf = conf;
         this.jwtVerifier = JWT.require(Algorithm.RSA256(getPemPublicKey(conf), null)).build();
@@ -63,9 +62,27 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             try {
                 // header presence and format already checked before in AuthenticationFilter
                 DecodedJWT jwt = jwtVerifier.verify(ctx.getHeaderString(HttpHeaders.AUTHORIZATION).substring(7));
-                Claim jwtClaim = jwt.getClaim(CLAIM_PERMISSIONS);
-                if (!jwtClaim.isNull()) {
-                    ArlasClaims arlasClaims = new ArlasClaims(jwtClaim.asList(String.class));
+
+                ctx.getHeaders().remove(authConf.headerUser); // remove it in case it's been set manually
+                String userId = jwt.getSubject();
+                if (!StringUtil.isNullOrEmpty(userId)) {
+                    ctx.getHeaders().putSingle(authConf.headerUser, userId);
+                }
+
+                ctx.getHeaders().remove(authConf.headerGroup); // remove it in case it's been set manually
+                Claim jwtClaimRoles = jwt.getClaim(authConf.claimRoles);
+                if (!jwtClaimRoles.isNull()) {
+                    ctx.getHeaders().put(authConf.headerGroup,
+                            jwtClaimRoles.asList(String.class)
+                                    .stream()
+                                    .filter(r -> r.toLowerCase().startsWith("group"))
+                                    .collect(Collectors.toList())
+                    );
+                }
+
+                Claim jwtClaimPermissions = jwt.getClaim(authConf.claimPermissions);
+                if (!jwtClaimPermissions.isNull()) {
+                    ArlasClaims arlasClaims = new ArlasClaims(jwtClaimPermissions.asList(String.class));
                     if (arlasClaims.isAllowed(ctx.getMethod(), ctx.getUriInfo().getPath())) {
                         arlasClaims.injectHeaders(ctx.getHeaders());
                         return;

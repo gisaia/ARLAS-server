@@ -19,9 +19,9 @@
 package io.arlas.server.auth;
 
 public class RuleClaim implements Comparable {
-    public String resource;
+    public String resource; // regex
     public String verbs; // comma separated list of verbs: GET,POST
-    public Integer priority;
+    public Integer priority; // number used to sort rules (matching order)
 
     RuleClaim(String resource, String verbs, Integer priority) {
         this.resource = resource;
@@ -41,5 +41,14 @@ public class RuleClaim implements Comparable {
     @Override
     public int compareTo(Object other) {
         return ((RuleClaim)other).priority - this.priority;
+    }
+
+    @Override
+    public String toString() {
+        return "Rule[" +
+                "r='" + resource + '\'' +
+                "/v='" + verbs + '\'' +
+                "/p=" + priority +
+                ']';
     }
 }
