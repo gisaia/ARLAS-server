@@ -121,7 +121,7 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
     }
 
     @Override
-    public List<CollectionReference> getAllCollectionReferences() throws ArlasException {
+    public List<CollectionReference> getAllCollectionReferences(Optional<String> columnFilter) throws ArlasException {
         List<CollectionReference> collections = new ArrayList<>();
 
         try {
@@ -135,11 +135,18 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
             request.source(searchSourceBuilder);
             request.scroll(new TimeValue(60000));
             SearchResponse scrollResp = client.search(request);
+            Set<String> allowedCollections = ColumnFilterUtil.getAllowedCollections(columnFilter);
             do {
                 for (SearchHit hit : scrollResp.getHits().getHits()) {
                     String source = hit.getSourceAsString();
                     try {
-                        collections.add(new CollectionReference(hit.getId(), reader.readValue(source)));
+                        for (String c : allowedCollections) {
+                            if ((c.endsWith("*") && hit.getId().startsWith(c.substring(0, c.indexOf("*"))))
+                                    || hit.getId().equals(c)){
+                                collections.add(new CollectionReference(hit.getId(), reader.readValue(source)));
+                                break;
+                            }
+                        }
                     } catch (IOException e) {
                         throw new InternalServerErrorException("Can not fetch collection", e);
                     }

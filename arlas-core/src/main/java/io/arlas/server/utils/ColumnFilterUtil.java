@@ -46,7 +46,7 @@ public class ColumnFilterUtil {
     static Logger LOGGER = LoggerFactory.getLogger(ColumnFilterUtil.class);
 
     //extract fields from request but without the `excludes`
-    private static final Set<String> REQUEST_FIELDS_EXTRACTOR_INCLUDE = RequestFieldsExtractor.INCLUDE_ALL.stream().filter(i -> i != RequestFieldsExtractor.INCLUDE_SEARCH_EXCLUDE).collect(Collectors.toSet());
+    private static final Set<String> REQUEST_FIELDS_EXTRACTOR_INCLUDE = RequestFieldsExtractor.INCLUDE_ALL.stream().filter(i -> !i.equalsIgnoreCase(RequestFieldsExtractor.INCLUDE_SEARCH_EXCLUDE)).collect(Collectors.toSet());
 
     /**
      * Check that there aren't forbidden fields into the requests, and that fields are compatible with FGA prerequisites.
@@ -225,10 +225,19 @@ public class ColumnFilterUtil {
     }
 
     private static Function<Stream<String>, Stream<String>> getCollectionFilters(CollectionReference collectionReference) {
-        String collectionPrefix = collectionReference.collectionName + ":";
         return cols -> cols
-                .filter(col -> !col.contains(":") || col.startsWith(collectionPrefix))
-                .map(col -> col.startsWith(collectionPrefix) ? StringUtils.substringAfter(col, collectionPrefix) : col);
+                .filter(col -> !col.contains(":") // "param"
+                        || col.indexOf(":") == 0 // ":param"
+                        || ( // "col*:param" -> col and col_foo must match
+                                (col.substring(0, col.indexOf(":")).endsWith("*") &&
+                                        collectionReference.collectionName.startsWith(col.substring(0, col.indexOf("*"))))
+                        )
+                        || ( // "col:param" -> col must match but not "col_foo"
+                                (!col.substring(0, col.indexOf(":")).endsWith("*") &&
+                                        collectionReference.collectionName.equals(col.substring(0, col.indexOf(":"))))
+                        )
+                )
+                .map(col -> col.contains(":") ? col.substring(col.indexOf(":")+1) : col);
     }
 
     public static void assertCollectionsAllowed(Optional<String> columnFilter, List<CollectionReference> collections) throws CollectionUnavailableException {
@@ -245,4 +254,18 @@ public class ColumnFilterUtil {
         }
     }
 
+    public static Set<String> getAllowedCollections(Optional<String> columnFilter) {
+        if (columnFilter == null || !columnFilter.isPresent()) {
+           return Collections.singleton("*"); // all collections allowed
+        } else {
+            Set<String> res = Arrays.stream(columnFilter.get().split(","))
+                    .map(f -> f.contains(":") ? (f.split(":")[0].length() != 0 ? f.split(":")[0] : "*") : "*") // "param" or ":param" or "col:param"
+                    .collect(Collectors.toSet());
+            if (res.contains("*")) { // if one of the collection is "all" then
+                return Collections.singleton("*"); // all collections allowed
+            } else {
+                return res;
+            }
+        }
+    }
 }

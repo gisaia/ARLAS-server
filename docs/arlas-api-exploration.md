@@ -285,15 +285,18 @@ A column filter stands for the fields that are available to a request body:
 - only fields that belong to the column filter can be returned. 
 
 A column filter can be related to a collection, e.g. `mycollection:myfield` or it can be related to every collection, e.g. `myfield`. Trying to access a collection with no available field returns a 403.
+Collection names can be omitted or end with a '*'.
 
 Examples of `column-filter`:
 
-- `mycollection:params.city,mycollection::params.country` make availables `params.city` and `params.country` for collection `mycollection`
+- `mycollection:params.city,mycollection:params.country` makes available `params.city` and `params.country` for collection `mycollection`
+- `mycollection*:params.city` makes available `params.city` for all collections whose names start with `mycollection`
 - `params`, `params*`, `params.*`, `*params` make available `params.city`, `params.country`, `params.weight`, and so on. for every collection
+- `params`, `:params`, `*:params` make available `params` and subfields for every collection
 - `*` makes all fields available
 - `*.*` makes only subfields available, e.g. `params.city` and `params.country` but not `id`
 
-If no column filter, or a blank column filter is provided, then it isn't eventually used.
+If no column filter, or a blank column filter is provided, then no filtering is done.
 
 The following endpoints use this header:
 
