@@ -43,3 +43,33 @@ A **collection reference** is the description of the elasticsearch index and the
 | Method     | Input Data                                                              | Output Data                            | Description                                                                                                                               |
 | ---------- | ----------------------------------------------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | **POST**   | JSON array of `CollectionReference` as file posted in a multipart param | Array of `CollectionReference` as JSON | Return the full description of all the Collection Reference saved in ARLAS from this request (already stored collections will be updated) |
+
+## Filtering
+
+A coma-separated list of columns can be passed in request header `column-filter`. Wildcards are supported.
+
+A column filter stands for the fields that are available to a request body:
+- if a request body field doesn't belong to the column filter, a 403 is returned with the message `The field '%s' isn't available` or `The fields '%s' aren't available`;
+- only fields that belong to the column filter can be returned. 
+
+A column filter can be related to a collection, e.g. `mycollection:myfield` or it can be related to every collection, e.g. `myfield`. Trying to access a collection with no available field returns a 403.
+Collection names can be omitted or end with a '*'.
+
+Examples of `column-filter`:
+
+- `mycollection:params.city,mycollection:params.country` makes available `params.city` and `params.country` for collection `mycollection`
+- `mycollection*:params.city` makes available `params.city` for all collections whose names start with `mycollection`
+- `params`, `params*`, `params.*`, `*params` make available `params.city`, `params.country`, `params.weight`, and so on. for every collection
+- `params`, `:params`, `*:params` make available `params` and subfields for every collection
+- `*` makes all fields available
+- `*.*` makes only subfields available, e.g. `params.city` and `params.country` but not `id`
+
+If no column filter, or a blank column filter is provided, then no filtering is done.
+
+The following endpoints use this header:
+
+| Endpoint | Filtering result |
+| --------------------------------------------------- | --------------------------------------------------- |
+| /arlas/collections/               | Only allowed collections are listed |
+| /arlas/collections/_export        | Only allowed collections are exported |
+| /arlas/collections/_import        | Import is done only if the collection name is allowed |

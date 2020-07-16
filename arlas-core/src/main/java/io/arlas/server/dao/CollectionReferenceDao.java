@@ -35,7 +35,7 @@ public interface CollectionReferenceDao {
 
     CollectionReference getCollectionReference(String ref) throws ArlasException;
 
-    List<CollectionReference> getAllCollectionReferences() throws ArlasException;
+    List<CollectionReference> getAllCollectionReferences(Optional<String> columnFilter) throws ArlasException;
 
     CollectionReference putCollectionReference(CollectionReference collectionReference) throws ArlasException;
 

@@ -240,7 +240,7 @@ public class CSWRESTService extends OGCRESTService {
                     required = false)
             @QueryParam(value = "pretty") Boolean pretty,
             @Context HttpHeaders headers
-    ) throws ArlasException, DatatypeConfigurationException, IOException, OGCException, ParserConfigurationException, SAXException {
+    ) throws ArlasException, DatatypeConfigurationException, IOException {
         String acceptFormatMediaType = MediaType.APPLICATION_XML;
         String outputFormatMediaType = MediaType.APPLICATION_XML;
         for (MediaType mediaType : headers.getAcceptableMediaTypes()) {
@@ -337,7 +337,7 @@ public class CSWRESTService extends OGCRESTService {
                 String serviceUrl = serverBaseUri + "ogc/csw/?";
                 getCapabilitiesHandler.setCapabilitiesType(responseSections, serviceUrl, serverBaseUri + "ogc/csw/opensearch");
                 if (cswHandler.inspireConfiguration.enabled) {
-                    collections = dao.getAllCollectionReferences();
+                    collections = dao.getAllCollectionReferences(columnFilter);
 
                     collections.removeIf(collectionReference -> collectionReference.collectionName.equals(getMetacollectionName()));
                     filterCollectionsByColumnFilter(columnFilter, collections);

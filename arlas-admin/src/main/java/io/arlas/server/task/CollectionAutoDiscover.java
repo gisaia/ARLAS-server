@@ -57,7 +57,7 @@ public class CollectionAutoDiscover extends Task implements Runnable {
             List<CollectionReferenceDescription> discoveredCollections = collectionDao.getAllIndicesAsCollections();
             List<CollectionReferenceDescription> existingCollections;
             try {
-                existingCollections = collectionDao.describeAllCollections(collectionDao.getAllCollectionReferences(), Optional.empty());
+                existingCollections = collectionDao.describeAllCollections(collectionDao.getAllCollectionReferences(Optional.empty()), Optional.empty());
             } catch (Exception e) {
                 existingCollections = new ArrayList<>();
             }

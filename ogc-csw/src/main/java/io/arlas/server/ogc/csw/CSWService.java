@@ -30,6 +30,7 @@ import io.arlas.server.model.OgcInspireConfigurationParameters;
 import io.arlas.server.ogc.common.dao.OGCCollectionReferenceDao;
 
 import java.util.List;
+import java.util.Optional;
 
 public class CSWService extends CSWRESTService {
 
@@ -46,7 +47,7 @@ public class CSWService extends CSWRESTService {
     }
 
     private void initMetaCollection(String index, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws ArlasException {
-        List<CollectionReference> collectionReferences =  dao.getAllCollectionReferences();
+        List<CollectionReference> collectionReferences =  dao.getAllCollectionReferences(Optional.empty());
         long count = collectionReferences.stream().filter(collectionReference -> collectionReference.collectionName.equals(getMetacollectionName())).count();
         if (count > 0) {
             dao.deleteCollectionReference(getMetacollectionName());

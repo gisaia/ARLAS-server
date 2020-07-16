@@ -26,11 +26,13 @@ import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.Documentation;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.CollectionUnavailableException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.*;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.model.response.Success;
 import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.ResponseFormatter;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -48,9 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class CollectionService extends CollectionRESTServices {
 
@@ -80,6 +80,9 @@ public class CollectionService extends CollectionRESTServices {
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
     public Response getAll(
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -87,7 +90,7 @@ public class CollectionService extends CollectionRESTServices {
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
-        List<CollectionReference> collections = dao.getAllCollectionReferences();
+        List<CollectionReference> collections = dao.getAllCollectionReferences(columnFilter);
         return ResponseFormatter.getResultResponse(collections);
     }
 
@@ -105,8 +108,11 @@ public class CollectionService extends CollectionRESTServices {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
 
-    public Response exportCollections() throws ArlasException {
-        List<CollectionReference> collections = dao.getAllCollectionReferences();
+    public Response exportCollections(
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter
+            ) throws ArlasException {
+        List<CollectionReference> collections = dao.getAllCollectionReferences(columnFilter);
         String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
         String fileName = "arlas-collections-export_" + date + ".json";
         removeMetacollection(collections);
@@ -127,26 +133,36 @@ public class CollectionService extends CollectionRESTServices {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = String.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response importCollections(
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
             @FormDataParam("file") InputStream inputStream,
             @FormDataParam("file") FormDataContentDisposition fileDetail
     ) throws ArlasException {
         List<CollectionReference> collections = getCollectionsFromInputStream(inputStream);
         List<CollectionReference> savedCollections = new ArrayList<>();
         removeMetacollection(collections);
+        Set<String> allowedCollections = ColumnFilterUtil.getAllowedCollections(columnFilter);
         for (CollectionReference collection : collections) {
-            try {
-                savedCollections.add(save(collection.collectionName, collection.params));
-            } catch (Exception e) {
-                if (inspireConfigurationEnabled) {
-                    throw new io.arlas.server.exceptions.InternalServerErrorException("Invalid inspire parameters : " + e.getMessage());
+            for (String c : allowedCollections) {
+                if ((c.endsWith("*") && collection.collectionName.startsWith(c.substring(0, c.indexOf("*"))))
+                        || collection.collectionName.equals(c)){
+                    try {
+                        savedCollections.add(save(collection.collectionName, collection.params));
+                    } catch (Exception e) {
+                        if (inspireConfigurationEnabled) {
+                            throw new io.arlas.server.exceptions.InternalServerErrorException("Invalid inspire parameters : " + e.getMessage());
+                        }
+                        //NOT saved
+                    }
+                } else {
+                    throw new CollectionUnavailableException("Collection '" + collection.collectionName + "' not authorized by column filter");
                 }
-                //NOT saved
             }
         }
         return ResponseFormatter.getResultResponse(savedCollections);
     }
 
-    // convert IputStream to List<CollectionReference>
+    // convert InputStream to List<CollectionReference>
     private static List<CollectionReference> getCollectionsFromInputStream(InputStream is) throws InvalidParameterException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);

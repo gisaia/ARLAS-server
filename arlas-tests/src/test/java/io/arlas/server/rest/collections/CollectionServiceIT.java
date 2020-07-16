@@ -24,20 +24,44 @@ import io.arlas.server.DataSetTool;
 import io.arlas.server.model.CollectionReference;
 import io.restassured.response.ValidatableResponse;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CollectionServiceIT extends AbstractTestWithCollection {
 
     @Test
-    public void testLifecycle() throws Exception {
+    public void test00NotFoundCollectionParameters() throws Exception {
+        Map<String, Object> jsonAsMap = new HashMap<>();
+        jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
+        jsonAsMap.put(CollectionReference.ID_PATH, "id");
+
+        jsonAsMap.put(CollectionReference.ID_PATH, "unkownId");
+
+        // PUT new collection with non-existing 'id' field in DATASET_INDEX_NAME
+        handleNotFoundCollectionParameters(put(jsonAsMap));
+
+        // PUT new collection with non-existing 'geometry' field in DATASET_INDEX_NAME
+        jsonAsMap.put(CollectionReference.ID_PATH, DataSetTool.DATASET_ID_PATH);
+        jsonAsMap.put(CollectionReference.GEOMETRY_PATH, "geom");
+        handleNotFoundCollectionParameters(put(jsonAsMap));
+
+        // GET uncreated collection foo
+        when().get(arlasPath + "collections/foo")
+                .then().statusCode(404);
+    }
+
+    @Test
+    public void test01Lifecycle() throws Exception {
         Map<String, Object> jsonAsMap = getJsonAsMap();
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
@@ -70,7 +94,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     }
 
     @Test
-    public void testGetAllCollections() throws Exception {
+    public void test02GetAllCollections() throws Exception {
         Map<String, Object> jsonAsMap = getJsonAsMap();
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
@@ -107,7 +131,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     }
 
     @Test
-    public void testImportExportCollections() throws Exception {
+    public void test03ImportExportCollections() throws Exception {
 
         // GET all collections
         getAllCollections(array(equalTo(COLLECTION_NAME),equalTo(COLLECTION_NAME_ACTOR)));
@@ -158,7 +182,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     }
 
     @Test
-    public void testInvalidCollectionParameters() throws Exception {
+    public void test04InvalidCollectionParameters() throws Exception {
         Map<String, Object> jsonAsMap = new HashMap<String, Object>();
         jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
@@ -188,7 +212,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     }
 
     @Test
-    public void testMissingInspireDublinCollectionParameters() throws Exception {
+    public void test05MissingInspireDublinCollectionParameters() throws Exception {
         Map<String, Object> jsonAsMap = getJsonAsMap();
 
         // PUT new collection with missing both Inspire & dublin_core parameters
@@ -205,7 +229,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     }
 
     @Test
-    public void testInvalidInspireDublinCollectionParameters() throws Exception {
+    public void test06InvalidInspireDublinCollectionParameters() throws Exception {
         Map<String, Object> jsonAsMap = getJsonAsMap();
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireInvalidTopicCategoryJsonAsMap());
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
@@ -223,26 +247,64 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
 
     @Test
-    public void testNotFoundCollectionParameters() throws Exception {
-        Map<String, Object> jsonAsMap = new HashMap<>();
-        jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
-        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
-        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
-        jsonAsMap.put(CollectionReference.ID_PATH, "id");
+    public void test08WithCollectionFilter() throws Exception {
+        // get collections with NON matching collection filter
+        given().header("column-filter", "notexisting:*")
+                .when().get(arlasPath + "collections/")
+                .then().statusCode(200)
+                .body("collection_name", Matchers.iterableWithSize(0));
 
-        jsonAsMap.put(CollectionReference.ID_PATH, "unkownId");
+        // get collections with one matching collection filter
+        given().header("column-filter", "geodata_actor:*")
+                .when().get(arlasPath + "collections/")
+                .then().statusCode(200)
+                .body("collection_name", everyItem(equalTo(COLLECTION_NAME_ACTOR)));
 
-        // PUT new collection with non-existing 'id' field in DATASET_INDEX_NAME
-        handleNotFoundCollectionParameters(put(jsonAsMap));
+        // get collections with all matching collection filter
+        given().header("column-filter", "geodata*:*")
+                .when().get(arlasPath + "collections/")
+                .then().statusCode(200)
+                .body("collection_name", hasItems(COLLECTION_NAME_ACTOR,COLLECTION_NAME));
 
-        // PUT new collection with non-existing 'geometry' field in DATASET_INDEX_NAME
-        jsonAsMap.put(CollectionReference.ID_PATH, DataSetTool.DATASET_ID_PATH);
-        jsonAsMap.put(CollectionReference.GEOMETRY_PATH, "geom");
-        handleNotFoundCollectionParameters(put(jsonAsMap));
+        // get collections with no collection filter
+        when().get(arlasPath + "collections/")
+                .then().statusCode(200)
+                .body("collection_name", hasItems(COLLECTION_NAME_ACTOR,COLLECTION_NAME));
 
-        // GET uncreated collection foo
-        when().get(arlasPath + "collections/foo")
+        // EXPORT collection with matching collection filter
+        String jsonExport = given()
+                .header("column-filter", COLLECTION_NAME_ACTOR+":*")
+                .when()
+                .get(arlasPath + "collections/_export").asString();
+
+        // EXPORT collections with NON matching collection filter
+        given().header("column-filter", "notexisting:*")
+                .when()
+                .get(arlasPath + "collections/_export").asString().isEmpty();
+
+
+        // DELETE collection
+        when().delete(arlasPath + "collections/" + COLLECTION_NAME_ACTOR)
+                .then().statusCode(200);
+
+        // GET deleted collection
+        when().get(arlasPath + "collections/" + COLLECTION_NAME_ACTOR)
                 .then().statusCode(404);
+
+        // IMPORT collection with matching collection filter
+        given().header("column-filter", COLLECTION_NAME_ACTOR+":*")
+                .multiPart("file", jsonExport)
+                .when().post(arlasPath + "collections/_import")
+                .then().statusCode(200)
+                .body("collection_name", everyItem(equalTo(COLLECTION_NAME_ACTOR)));
+
+
+        // IMPORT a new collection with NON matching collection filter
+        given().header("column-filter", COLLECTION_NAME_ACTOR+":*")
+                .multiPart("file", jsonExport.replaceAll(COLLECTION_NAME, "foo"))
+                .when().post(arlasPath + "collections/_import")
+                .then().statusCode(403);
+
     }
 
 

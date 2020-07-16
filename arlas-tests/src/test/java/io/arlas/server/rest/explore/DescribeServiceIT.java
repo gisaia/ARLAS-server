@@ -23,8 +23,11 @@ import io.arlas.server.DataSetTool;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ValidatableResponse;
 import org.hamcrest.Matchers;
+import org.junit.Test;
 
 import java.util.Optional;
+
+import static io.restassured.RestAssured.given;
 
 public class DescribeServiceIT extends AbstractDescribeTest {
 
@@ -71,6 +74,33 @@ public class DescribeServiceIT extends AbstractDescribeTest {
                 .body(".", Matchers.iterableWithSize(2))
                 .body("[0].collection_name", Matchers.equalTo(COLLECTION_NAME))
                 .body("[1].collection_name", Matchers.equalTo(COLLECTION_NAME_ACTOR));
+    }
+
+    protected ValidatableResponse getWithCollectionFilter(Optional<String> collectionFilter) {
+        return given()
+                .header("column-filter", collectionFilter.orElse(""))
+                .when()
+                .get(getUrlPath("geodata"))
+                .then();
+    }
+
+    @Test
+    public void testDescribeFeatureWithCollectionFilter() throws Exception {
+        getWithCollectionFilter(Optional.of("notExisting:*"))
+                .statusCode(200)
+                .body(".", Matchers.iterableWithSize(0));
+
+        getWithCollectionFilter(Optional.of("geodata_actor:*"))
+                .statusCode(200)
+                .body(".", Matchers.iterableWithSize(1));
+
+        getWithCollectionFilter(Optional.empty())
+                .statusCode(200)
+                .body(".", Matchers.iterableWithSize(2));
+
+        getWithCollectionFilter(Optional.of("geodata*:*"))
+                .statusCode(200)
+                .body(".", Matchers.iterableWithSize(2));
     }
 
     @Override
