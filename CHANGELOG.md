@@ -1,5 +1,20 @@
 # Change Log
 
+## [v13.7.2](https://github.com/gisaia/ARLAS-server/tree/v13.7.2) (2020-07-17)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.5.1...v13.7.2)
+
+**New stuff:**
+
+- Collection filter [\#635](https://github.com/gisaia/ARLAS-server/issues/635)
+- Add variable 'user' to authorisation rules [\#634](https://github.com/gisaia/ARLAS-server/issues/634)
+- Authentication new headers [\#641](https://github.com/gisaia/ARLAS-server/pull/641) ([alainbodiguel](https://github.com/alainbodiguel))
+- Collection filter [\#636](https://github.com/gisaia/ARLAS-server/pull/636) ([alainbodiguel](https://github.com/alainbodiguel))
+
+## [v12.7.5.1](https://github.com/gisaia/ARLAS-server/tree/v12.7.5.1) (2020-06-30)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v13.7.1...v12.7.5.1)
+
 ## [v13.7.1](https://github.com/gisaia/ARLAS-server/tree/v13.7.1) (2020-06-02)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v13.7.0...v13.7.1)

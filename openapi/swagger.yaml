@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   description: "Explore the content of ARLAS collections"
-  version: "13.0.2-SNAPSHOT"
+  version: "13.0.2"
   title: "ARLAS Exploration API"
   contact:
     name: "Gisaia"
@@ -1343,6 +1343,210 @@ paths:
           description: "Not Found Error."
           schema:
             $ref: "#/definitions/Error"
+  /explore/{collection}/_geosearch/{z}/{x}/{y}:
+    get:
+      tags:
+      - "explore"
+      summary: "Tiled GeoSearch"
+      description: "Search and return the elements found in the collection(s) and\
+        \ localized in the given tile(x,y,z) as features, given the filters"
+      operationId: "tiledgeosearch"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "collection"
+        in: "path"
+        description: "collection"
+        required: true
+        type: "string"
+      - name: "x"
+        in: "path"
+        description: "x"
+        required: true
+        type: "integer"
+        format: "int32"
+      - name: "y"
+        in: "path"
+        description: "y"
+        required: true
+        type: "integer"
+        format: "int32"
+      - name: "z"
+        in: "path"
+        description: "z"
+        required: true
+        type: "integer"
+        format: "int32"
+      - name: "f"
+        in: "query"
+        description: "- A triplet for filtering the result. Multiple filter can be\
+          \ provided in distinct parameters (AND operator is applied) or in the same\
+          \ parameter separated by semi-colons (OR operator is applied). The order\
+          \ does not matter. \n \n- A triplet is composed of a field name, a comparison\
+          \ operator and a value. \n \n  The possible values of the comparison operator\
+          \ are : \n \n       Operator |                   Description           \
+          \         | value type\n \n       :eq:     | {fieldName} equals {comma separated\
+          \ values}. **OR** operation is applied for the specified values | numeric\
+          \ or strings \n \n       :ne:     | {fieldName} must not equal {comma separated\
+          \ values }. **AND** operation is applied for the specified values | numeric\
+          \ or strings \n \n       :like:   | {fieldName}  is like {value}       \
+          \              | numeric or strings \n \n       :gte:    | {fieldName} is\
+          \ greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName}\
+          \ is greater than {value}              | numeric \n \n       :lte:    |\
+          \ {fieldName} is less than or equal to {value}     | numeric \n \n     \
+          \  :lt:     | {fieldName}  is less than {value}                | numeric\
+          \ \n \n       :range:  | {fieldName} is between `{comma separated [min<max]\
+          \ values}`. **OR** operation is applied for the specified ranges | numeric\
+          \ or strings. If the field's type is date, then min & max should be timestamps\
+          \ in millisecond or a Date expression\n \n       :within: | {GeofieldName}`\
+          \ is within the `{given WKT string or the given BBOX }` | a WKT string or\
+          \ the BBOX string : `\"west, south, east, north\"` \n \n       :notwithin:|\
+          \ {GeofieldName} is not within the `{given WKT string or the given BBOX\
+          \ }` | a WKT string or the BBOX string : `\"west, south, east, north\"`\
+          \ \n \n       :intersects:| {GeofieldName} intersects the `{given WKT string\
+          \ or the given BBOX }` | a WKT string or the BBOX string : `\"west, south,\
+          \ east, north\"` \n \n       :notintersects:| {GeofieldName} does not intersect\
+          \ the `{given WKT string or the given }` | a WKT string or the BBOX string\
+          \ : `\"west, south, east, north\"` "
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      - name: "q"
+        in: "query"
+        description: "A full text search. Optionally, it's possible to search on a\
+          \ field using this syntax: {fieldname}:{text}"
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      - name: "dateformat"
+        in: "query"
+        description: "The format of dates. This parameter should be set only if a\
+          \ date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte`\
+          \ and `range` operations"
+        required: false
+        type: "string"
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      - name: "flat"
+        in: "query"
+        description: "Flats the property map: only key/value on one level"
+        required: false
+        type: "boolean"
+        default: false
+      - name: "include"
+        in: "query"
+        description: "List the name patterns of the field to be included in the result.\
+          \ Separate patterns with a comma."
+        required: false
+        type: "array"
+        items:
+          type: "string"
+          default: "*"
+        collectionFormat: "multi"
+      - name: "exclude"
+        in: "query"
+        description: "List the name patterns of the field to be excluded in the result.\
+          \ Separate patterns with a comma."
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      - name: "returned_geometries"
+        in: "query"
+        description: "Comma separated geometry field_paths to be included in the result.\
+          \ If not specified, only geometry_path is returned. If geometry_path is\
+          \ null, then centroid_path is returned"
+        required: false
+        type: "string"
+      - name: "size"
+        in: "query"
+        description: "The maximum number of entries or sub-entries to be returned.\
+          \ The default value is 10"
+        required: false
+        type: "integer"
+        default: 10
+        minimum: 1
+      - name: "from"
+        in: "query"
+        description: "From index to start the search from. Defaults to 0."
+        required: false
+        type: "integer"
+        default: 0
+        minimum: 0
+      - name: "sort"
+        in: "query"
+        description: "Sorts the resulted hits on the given fields and/or by distance\
+          \ to a given point:\n \n> __**Syntax**__: `{field1},{field2},-{field3},geodistance:{lat}\
+          \ {lon},{field4}  ...`.\n \n> **Note 1**: `{field}` can be preceded by **'-'**\
+          \  for **descending** sort. By default, sort is ascending.\n \n> **Note\
+          \ 2**: The order of fields matters.\n \n> **Note 3** ***geodistance sort***:\
+          \ Sorts the hits centroids by distance to the given **{lat} {lon}** (ascending\
+          \ distance sort). It can be specified at most 1 time.\n \n> __**Example\
+          \ 1**__: sort=`age,-timestamp`. Resulted hits are sorted by age. For same\
+          \ age hits, they are decreasingly sorted in time.\n \n> __**Example 2**__:\
+          \ sort=`age,geodistance:89 179`. Resulted hits are sorted by age. For same\
+          \ age hits, they are sorted by closest distance to the point(89°,179°)\n\
+          \ \n"
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      - name: "after"
+        in: "query"
+        description: "List of values of fields present in sort param that are used\
+          \ to search after. \n \n> **What it does**: Retrieve the data placed after\
+          \ the pointed element, given the provided order (sort).\n \n> __**Restriction\
+          \ 1**__: **after** param works only combined with **sort** param.\n \n>\
+          \ __**Syntax**__: `after={value1},{value2},...,{valueN} & sort={field1},{field2},...,{fieldN}`.\n\
+          \ \n> **Note 1**: *{value1}` and `{value2}` are the values of `{field1}`\
+          \ and `{field2}` in the last hit returned in the previous search\n \n> **Note\
+          \ 2**: The order of fields and values matters. *{value1},{value2}* must\
+          \ be in the same order of *{field1},{field2}* in **sort** param\n \n> **Note\
+          \ 3**:  The last field `{fieldN}` must be the id field specified in the\
+          \ collection **collection.params.idPath** (returned as **md.id**) and `{valueN}`\
+          \ its corresponding value.\n \n> __**Example**__: *sort=`-date,id` & **after**=`01/02/2019,abcd1234`*.\
+          \ Gets the following hits of the previous search that stopped at date *01/02/2019*\
+          \ and id *abcd1234*.\n \n> __**Restriction 2**__: **from** param must be\
+          \ set to 0 or kept unset\n \n"
+        required: false
+        type: "string"
+      - name: "before"
+        in: "query"
+        description: "Same idea that after param, but to retrieve the data placed\
+          \ before the pointed element, given the provided order (sort)."
+        required: false
+        type: "string"
+      - name: "max-age-cache"
+        in: "query"
+        description: "max-age-cache"
+        required: false
+        type: "integer"
+        format: "int32"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/FeatureCollection"
+        500:
+          description: "Arlas Server Error."
+          schema:
+            $ref: "#/definitions/Error"
+        400:
+          description: "Bad request."
+          schema:
+            $ref: "#/definitions/Error"
   /explore/{collection}/_geosearch:
     get:
       tags:
@@ -1557,210 +1761,6 @@ paths:
         required: false
         type: "boolean"
         default: false
-      - name: "max-age-cache"
-        in: "query"
-        description: "max-age-cache"
-        required: false
-        type: "integer"
-        format: "int32"
-      responses:
-        200:
-          description: "Successful operation"
-          schema:
-            $ref: "#/definitions/FeatureCollection"
-        500:
-          description: "Arlas Server Error."
-          schema:
-            $ref: "#/definitions/Error"
-        400:
-          description: "Bad request."
-          schema:
-            $ref: "#/definitions/Error"
-  /explore/{collection}/_geosearch/{z}/{x}/{y}:
-    get:
-      tags:
-      - "explore"
-      summary: "Tiled GeoSearch"
-      description: "Search and return the elements found in the collection(s) and\
-        \ localized in the given tile(x,y,z) as features, given the filters"
-      operationId: "tiledgeosearch"
-      consumes:
-      - "application/json;charset=utf-8"
-      produces:
-      - "application/json;charset=utf-8"
-      parameters:
-      - name: "collection"
-        in: "path"
-        description: "collection"
-        required: true
-        type: "string"
-      - name: "x"
-        in: "path"
-        description: "x"
-        required: true
-        type: "integer"
-        format: "int32"
-      - name: "y"
-        in: "path"
-        description: "y"
-        required: true
-        type: "integer"
-        format: "int32"
-      - name: "z"
-        in: "path"
-        description: "z"
-        required: true
-        type: "integer"
-        format: "int32"
-      - name: "f"
-        in: "query"
-        description: "- A triplet for filtering the result. Multiple filter can be\
-          \ provided in distinct parameters (AND operator is applied) or in the same\
-          \ parameter separated by semi-colons (OR operator is applied). The order\
-          \ does not matter. \n \n- A triplet is composed of a field name, a comparison\
-          \ operator and a value. \n \n  The possible values of the comparison operator\
-          \ are : \n \n       Operator |                   Description           \
-          \         | value type\n \n       :eq:     | {fieldName} equals {comma separated\
-          \ values}. **OR** operation is applied for the specified values | numeric\
-          \ or strings \n \n       :ne:     | {fieldName} must not equal {comma separated\
-          \ values }. **AND** operation is applied for the specified values | numeric\
-          \ or strings \n \n       :like:   | {fieldName}  is like {value}       \
-          \              | numeric or strings \n \n       :gte:    | {fieldName} is\
-          \ greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName}\
-          \ is greater than {value}              | numeric \n \n       :lte:    |\
-          \ {fieldName} is less than or equal to {value}     | numeric \n \n     \
-          \  :lt:     | {fieldName}  is less than {value}                | numeric\
-          \ \n \n       :range:  | {fieldName} is between `{comma separated [min<max]\
-          \ values}`. **OR** operation is applied for the specified ranges | numeric\
-          \ or strings. If the field's type is date, then min & max should be timestamps\
-          \ in millisecond or a Date expression\n \n       :within: | {GeofieldName}`\
-          \ is within the `{given WKT string or the given BBOX }` | a WKT string or\
-          \ the BBOX string : `\"west, south, east, north\"` \n \n       :notwithin:|\
-          \ {GeofieldName} is not within the `{given WKT string or the given BBOX\
-          \ }` | a WKT string or the BBOX string : `\"west, south, east, north\"`\
-          \ \n \n       :intersects:| {GeofieldName} intersects the `{given WKT string\
-          \ or the given BBOX }` | a WKT string or the BBOX string : `\"west, south,\
-          \ east, north\"` \n \n       :notintersects:| {GeofieldName} does not intersect\
-          \ the `{given WKT string or the given }` | a WKT string or the BBOX string\
-          \ : `\"west, south, east, north\"` "
-        required: false
-        type: "array"
-        items:
-          type: "string"
-        collectionFormat: "multi"
-      - name: "q"
-        in: "query"
-        description: "A full text search. Optionally, it's possible to search on a\
-          \ field using this syntax: {fieldname}:{text}"
-        required: false
-        type: "array"
-        items:
-          type: "string"
-        collectionFormat: "multi"
-      - name: "dateformat"
-        in: "query"
-        description: "The format of dates. This parameter should be set only if a\
-          \ date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte`\
-          \ and `range` operations"
-        required: false
-        type: "string"
-      - name: "pretty"
-        in: "query"
-        description: "Pretty print"
-        required: false
-        type: "boolean"
-        default: false
-      - name: "flat"
-        in: "query"
-        description: "Flats the property map: only key/value on one level"
-        required: false
-        type: "boolean"
-        default: false
-      - name: "include"
-        in: "query"
-        description: "List the name patterns of the field to be included in the result.\
-          \ Separate patterns with a comma."
-        required: false
-        type: "array"
-        items:
-          type: "string"
-          default: "*"
-        collectionFormat: "multi"
-      - name: "exclude"
-        in: "query"
-        description: "List the name patterns of the field to be excluded in the result.\
-          \ Separate patterns with a comma."
-        required: false
-        type: "array"
-        items:
-          type: "string"
-        collectionFormat: "multi"
-      - name: "returned_geometries"
-        in: "query"
-        description: "Comma separated geometry field_paths to be included in the result.\
-          \ If not specified, only geometry_path is returned. If geometry_path is\
-          \ null, then centroid_path is returned"
-        required: false
-        type: "string"
-      - name: "size"
-        in: "query"
-        description: "The maximum number of entries or sub-entries to be returned.\
-          \ The default value is 10"
-        required: false
-        type: "integer"
-        default: 10
-        minimum: 1
-      - name: "from"
-        in: "query"
-        description: "From index to start the search from. Defaults to 0."
-        required: false
-        type: "integer"
-        default: 0
-        minimum: 0
-      - name: "sort"
-        in: "query"
-        description: "Sorts the resulted hits on the given fields and/or by distance\
-          \ to a given point:\n \n> __**Syntax**__: `{field1},{field2},-{field3},geodistance:{lat}\
-          \ {lon},{field4}  ...`.\n \n> **Note 1**: `{field}` can be preceded by **'-'**\
-          \  for **descending** sort. By default, sort is ascending.\n \n> **Note\
-          \ 2**: The order of fields matters.\n \n> **Note 3** ***geodistance sort***:\
-          \ Sorts the hits centroids by distance to the given **{lat} {lon}** (ascending\
-          \ distance sort). It can be specified at most 1 time.\n \n> __**Example\
-          \ 1**__: sort=`age,-timestamp`. Resulted hits are sorted by age. For same\
-          \ age hits, they are decreasingly sorted in time.\n \n> __**Example 2**__:\
-          \ sort=`age,geodistance:89 179`. Resulted hits are sorted by age. For same\
-          \ age hits, they are sorted by closest distance to the point(89°,179°)\n\
-          \ \n"
-        required: false
-        type: "array"
-        items:
-          type: "string"
-        collectionFormat: "multi"
-      - name: "after"
-        in: "query"
-        description: "List of values of fields present in sort param that are used\
-          \ to search after. \n \n> **What it does**: Retrieve the data placed after\
-          \ the pointed element, given the provided order (sort).\n \n> __**Restriction\
-          \ 1**__: **after** param works only combined with **sort** param.\n \n>\
-          \ __**Syntax**__: `after={value1},{value2},...,{valueN} & sort={field1},{field2},...,{fieldN}`.\n\
-          \ \n> **Note 1**: *{value1}` and `{value2}` are the values of `{field1}`\
-          \ and `{field2}` in the last hit returned in the previous search\n \n> **Note\
-          \ 2**: The order of fields and values matters. *{value1},{value2}* must\
-          \ be in the same order of *{field1},{field2}* in **sort** param\n \n> **Note\
-          \ 3**:  The last field `{fieldN}` must be the id field specified in the\
-          \ collection **collection.params.idPath** (returned as **md.id**) and `{valueN}`\
-          \ its corresponding value.\n \n> __**Example**__: *sort=`-date,id` & **after**=`01/02/2019,abcd1234`*.\
-          \ Gets the following hits of the previous search that stopped at date *01/02/2019*\
-          \ and id *abcd1234*.\n \n> __**Restriction 2**__: **from** param must be\
-          \ set to 0 or kept unset\n \n"
-        required: false
-        type: "string"
-      - name: "before"
-        in: "query"
-        description: "Same idea that after param, but to retrieve the data placed\
-          \ before the pointed element, given the provided order (sort)."
-        required: false
-        type: "string"
       - name: "max-age-cache"
         in: "query"
         description: "max-age-cache"
