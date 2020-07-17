@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ArlasClaims {
     private final Logger LOGGER = LoggerFactory.getLogger(ArlasClaims.class);
@@ -36,19 +38,26 @@ public class ArlasClaims {
         this.variables = new HashMap<>();
 
         for (String claim : claims) {
-            String[] splitClaim = claim.split(":");
-            if (splitClaim.length >= 3) {
+            // a claim is either "rule:resource:verbs:priority" or "header:name:value" or "var:name:value"
+            // value can contain ":" so we split up to 3 elements
+            String[] splitClaim = claim.split(":", 3);
+            if (splitClaim.length == 3) {
                 switch (splitClaim[0].toLowerCase().trim()) {
+                    case "r":
                     case "rule":
-                        if (splitClaim.length == 4) {
-                            rules.add(new RuleClaim(splitClaim[1], splitClaim[2], Integer.valueOf(splitClaim[3])));
+                        String[] remains = splitClaim[2].split(":");
+                        if (remains.length == 2) {
+                            rules.add(new RuleClaim(splitClaim[1], remains[0], Integer.valueOf(remains[1])));
                         } else {
                             LOGGER.warn("Invalid rule claim format: " + claim);
                         }
                         break;
+                    case "h":
                     case "header":
                         headers.put(splitClaim[1], splitClaim[2]);
                         break;
+                    case "v":
+                    case "var":
                     case "variable":
                         variables.put(splitClaim[1], splitClaim[2]);
                         break;
@@ -67,8 +76,10 @@ public class ArlasClaims {
     public boolean isAllowed(String method, String path) {
         for (RuleClaim rule : rules) {
             if (rule.match(method, path)) {
+                LOGGER.debug("Matching rule '" + rule.toString() +"' for path '" + path + "' with method " + method);
                 return true; // stop at first matching rule
             }
+            LOGGER.debug("NON Matching rule '" + rule.toString() +"' for path '" + path + "' with method " + method);
         }
         return false;
     }
@@ -78,8 +89,8 @@ public class ArlasClaims {
     }
 
     private void injectVariable(String var, String val) {
-        rules.replaceAll(rc -> rc.withResource(replaceVar(rc.resource, var, val)));
-        headers.replaceAll((header, value) -> replaceVar(value, var, val));
+        rules.replaceAll(rc -> rc.withResource(replaceVar(rc.resource, var, Matcher.quoteReplacement(Pattern.quote(val)))));
+        headers.replaceAll((header, value) -> replaceVar(value, var, Matcher.quoteReplacement(Pattern.quote(val))));
     }
 
     private String replaceVar(String original, String var, String val) {

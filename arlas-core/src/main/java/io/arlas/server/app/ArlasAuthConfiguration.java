@@ -30,6 +30,18 @@ public class ArlasAuthConfiguration {
     @JsonProperty("public_uris")
     public List<String> publicUris;
 
+    @JsonProperty("header_user")
+    public String headerUser;
+
+    @JsonProperty("header_group")
+    public String headerGroup;
+
+    @JsonProperty("claim_roles")
+    public String claimRoles;
+
+    @JsonProperty("claim_permissions")
+    public String claimPermissions;
+
     @JsonProperty("login_url")
     public String loginUrl;
 
