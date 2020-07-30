@@ -47,7 +47,7 @@ public class ArlasClaims {
                     case "rule":
                         String[] remains = splitClaim[2].split(":");
                         if (remains.length == 2) {
-                            rules.add(new RuleClaim(splitClaim[1], remains[0], Integer.valueOf(remains[1])));
+                            rules.add(new RuleClaim(splitClaim[1], remains[0], Integer.valueOf(remains[1].trim())));
                         } else {
                             LOGGER.warn("Invalid rule claim format: " + claim);
                         }
@@ -85,15 +85,20 @@ public class ArlasClaims {
     }
 
     public void injectHeaders(MultivaluedMap<String, String> requestHeaders) {
-        headers.forEach((k,v) -> requestHeaders.add(k, v));
+        headers.forEach((k,v) -> {
+            LOGGER.debug("Injecting header '" + k +"' with value '" + v + "'");
+            requestHeaders.add(k, v);
+        });
     }
 
     private void injectVariable(String var, String val) {
         rules.replaceAll(rc -> rc.withResource(replaceVar(rc.resource, var, Matcher.quoteReplacement(Pattern.quote(val)))));
-        headers.replaceAll((header, value) -> replaceVar(value, var, Matcher.quoteReplacement(Pattern.quote(val))));
+        headers.replaceAll((header, value) -> replaceVar(value, var, val));
     }
 
     private String replaceVar(String original, String var, String val) {
-        return original.replaceAll("\\$\\{" + var + "}", val);
+        String result = original.replaceAll("\\$\\{" + var + "}", val);
+        LOGGER.debug("Injecting variable '" + var + "' in  '" + original +"' results in '" + result + "'");
+        return result;
     }
 }
