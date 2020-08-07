@@ -50,7 +50,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     private final Logger LOGGER = LoggerFactory.getLogger(AuthorizationFilter.class);
     private final JWTVerifier jwtVerifier;
     private final ArlasAuthConfiguration authConf;
-    
+
     public AuthorizationFilter(ArlasAuthConfiguration conf) throws Exception {
         this.authConf = conf;
         this.jwtVerifier = JWT.require(Algorithm.RSA256(getPemPublicKey(conf), null)).build();
@@ -58,10 +58,20 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext ctx) {
-        if (!ctx.getUriInfo().getPath().matches(authConf.getPublicRegex()) && ctx.getMethod() != "OPTIONS") {
+
+        String header = ctx.getHeaderString(HttpHeaders.AUTHORIZATION);
+        if (header == null || !header.toLowerCase().startsWith("bearer ")) {
+            // Check if endpoint is public and if the verb is authorize
+            if (ctx.getUriInfo().getPath().concat(":").concat(ctx.getMethod()).matches(authConf.getPublicRegex()) || ctx.getMethod() == "OPTIONS") {
+                return;
+            }
+        } else {
+            // if a token is provided
+            // if method !== options
+            // verify token and pass it
             try {
                 // header presence and format already checked before in AuthenticationFilter
-                DecodedJWT jwt = jwtVerifier.verify(ctx.getHeaderString(HttpHeaders.AUTHORIZATION).substring(7));
+                DecodedJWT jwt = jwtVerifier.verify(header.substring(7));
 
                 ctx.getHeaders().remove(authConf.headerUser); // remove it in case it's been set manually
                 String userId = jwt.getSubject();
@@ -79,7 +89,6 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                                     .collect(Collectors.toList())
                     );
                 }
-
                 Claim jwtClaimPermissions = jwt.getClaim(authConf.claimPermissions);
                 if (!jwtClaimPermissions.isNull()) {
                     ArlasClaims arlasClaims = new ArlasClaims(jwtClaimPermissions.asList(String.class));
@@ -91,14 +100,14 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             } catch (JWTVerificationException e) {
                 LOGGER.warn("JWT verification failed.", e);
             }
-
-            ctx.abortWith(Response.status(Response.Status.FORBIDDEN)
-                    .build());
         }
+        ctx.abortWith(Response.status(Response.Status.FORBIDDEN)
+                .build());
     }
 
     /**
      * Extract RSA public key from a PEM file containing an X.509 certificate.
+     *
      * @param conf
      * @return
      * @throws Exception

@@ -20,8 +20,12 @@
 package io.arlas.server.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.arlas.server.exceptions.ArlasConfigurationException;
 
+import javax.ws.rs.HttpMethod;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ArlasAuthConfiguration {
     @JsonProperty("enabled")
@@ -53,11 +57,48 @@ public class ArlasAuthConfiguration {
     public String certificateUrl;
 
     private String publicRegex;
-    public String getPublicRegex() {
+    public String getPublicRegex()  {
+        // [swagger.*:*, persist.*:GET/POST/DELETE}]
+        List<String> pathToVerbs = this.publicUris.stream().map(uri -> {
+            String path = uri.split(":")[0];
+            String verbs = uri.split(":")[1];
+            if(verbs.equals("*")){
+                List<String> methods= Arrays.asList(HttpMethod.DELETE, HttpMethod.GET,HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.POST, HttpMethod.PUT);
+                return  methods.stream().map(v ->path.concat(":").concat(v)).collect(Collectors.toList());
+            }else{
+              return  Arrays.stream(verbs.split("/")).map(v ->path.concat(":").concat(v)).collect(Collectors.toList());
+            }
+        }).flatMap(l -> l.stream()) .collect(Collectors.toList());
         if (this.publicRegex == null) {
-            this.publicRegex = "^(" + String.join("|", this.publicUris) + ")";
+            this.publicRegex = "^(" + String.join("|", pathToVerbs) + ")";
         }
         return this.publicRegex;
     }
 
+    public void check() throws ArlasConfigurationException  {
+        List<String> methods = Arrays.asList(HttpMethod.DELETE, HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.POST, HttpMethod.PUT);
+        String errorMsg ="Public uris and verbs list is invalid. Format is  path:* or path:GET/POST/DELETE";
+        if (this.publicUris != null && this.publicUris.size() > 0) {
+            for (String uri : this.publicUris) {
+                String[] pathToVerb = uri.split(":");
+                if (pathToVerb.length != 2) {
+                    throw new ArlasConfigurationException(errorMsg);
+                }
+                String verbs = pathToVerb[1];
+                String[] verbList = verbs.split("/");
+                if (!verbs.equals("*") && verbList.length == 1) {
+                    if (!methods.contains(verbs)) {
+                        throw new ArlasConfigurationException(errorMsg);
+                    }
+                }
+                if (!verbs.equals("*") && verbList.length > 1) {
+                    for (String v : verbList) {
+                        if (!methods.contains(v)) {
+                            throw new ArlasConfigurationException(errorMsg);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

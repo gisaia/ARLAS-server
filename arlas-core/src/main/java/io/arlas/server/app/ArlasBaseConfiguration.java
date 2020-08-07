@@ -25,6 +25,10 @@ import io.arlas.server.exceptions.ArlasConfigurationException;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
+import javax.ws.rs.HttpMethod;
+import java.util.Arrays;
+import java.util.List;
+
 public class ArlasBaseConfiguration extends Configuration {
 
     @JsonProperty("zipkin")
@@ -56,6 +60,8 @@ public class ArlasBaseConfiguration extends Configuration {
         if (arlasAuthConfiguration == null) {
             arlasAuthConfiguration = new ArlasAuthConfiguration();
             arlasAuthConfiguration.enabled = false;
+        } else {
+            arlasAuthConfiguration.check();
         }
 
         if (arlasDatabaseFactoryClass == null) {
