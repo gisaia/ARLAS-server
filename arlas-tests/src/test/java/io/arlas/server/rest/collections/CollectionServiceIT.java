@@ -23,16 +23,17 @@ import io.arlas.server.AbstractTestWithCollection;
 import io.arlas.server.DataSetTool;
 import io.arlas.server.model.CollectionReference;
 import io.restassured.response.ValidatableResponse;
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
+import io.restassured.specification.RequestSpecification;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CollectionServiceIT extends AbstractTestWithCollection {
@@ -105,7 +106,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .then().statusCode(200);
 
         // GET all collections
-        getAllCollections(hasItems(equalTo(COLLECTION_NAME), equalTo("collection1")));
+        getAllCollections(COLLECTION_NAME, COLLECTION_NAME_ACTOR, "collection1");
 
         // DELETE collection 1
         when().delete(arlasPath + "collections/collection1")
@@ -115,18 +116,33 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .then().statusCode(404);
     }
 
-    private void getAllCollections(Matcher matcher) throws InterruptedException {
+    private void getAllCollections(String... collectionNames) throws InterruptedException {
+        getAllCollections(given(), collectionNames);
+    }
+
+    private void getAllCollections(RequestSpecification given, String... collectionNames) throws InterruptedException {
         int cpt = 0;
-        while (cpt > 0 && cpt < 5) {
+        while (cpt >= 0 && cpt < 5) {
             try {
-                when().get(arlasPath + "collections/")
-                        .then().statusCode(200)
-                        .body("collection_name", matcher);
+                getAllCollectionsLoop(given, collectionNames);
                 cpt = -1;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 cpt++;
                 Thread.sleep(1000);
             }
+        }
+        getAllCollectionsLoop(given, collectionNames);
+    }
+
+    private void getAllCollectionsLoop(RequestSpecification given, String... collectionNames) throws AssertionError {
+        CollectionReference[] collections = given.when().get(arlasPath + "collections/")
+                .then().statusCode(200)
+                .extract()
+                .as(CollectionReference[].class);
+        assertThat(collections.length, equalTo(collectionNames.length));
+        List<String> actualCollectionNames = Arrays.stream(collections).map(collection -> collection.collectionName).collect(Collectors.toList());
+        if(collectionNames!= null && collectionNames.length > 0) {
+            assertThat(actualCollectionNames, containsInAnyOrder(collectionNames));
         }
     }
 
@@ -134,7 +150,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     public void test03ImportExportCollections() throws Exception {
 
         // GET all collections
-        getAllCollections(array(equalTo(COLLECTION_NAME),equalTo(COLLECTION_NAME_ACTOR)));
+        getAllCollections(COLLECTION_NAME,COLLECTION_NAME_ACTOR);
 
         // EXPORT all collections
         String jsonExport = get(arlasPath + "collections/_export").asString();
@@ -142,9 +158,13 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         // DELETE collection
         when().delete(arlasPath + "collections/" + COLLECTION_NAME)
                 .then().statusCode(200);
+        when().delete(arlasPath + "collections/" + COLLECTION_NAME_ACTOR)
+                .then().statusCode(200);
 
         // GET deleted collection
         when().get(arlasPath + "collections/" + COLLECTION_NAME)
+                .then().statusCode(404);
+        when().get(arlasPath + "collections/" + COLLECTION_NAME_ACTOR)
                 .then().statusCode(404);
 
         // IMPORT all collections
@@ -154,7 +174,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .body("collection_name", hasItems(COLLECTION_NAME_ACTOR,COLLECTION_NAME));
 
         // GET all collections
-        getAllCollections(everyItem(equalTo(COLLECTION_NAME)));
+        getAllCollections(COLLECTION_NAME_ACTOR,COLLECTION_NAME);
 
         // IMPORT existing collections
         given().multiPart("file", jsonExport)
@@ -163,16 +183,16 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .body("collection_name", hasItems(COLLECTION_NAME_ACTOR,COLLECTION_NAME));
 
         // GET all collections
-        getAllCollections(everyItem(equalTo(COLLECTION_NAME)));
+        getAllCollections(COLLECTION_NAME_ACTOR,COLLECTION_NAME);
 
         // IMPORT a new collection
         given().multiPart("file", jsonExport.replaceAll(COLLECTION_NAME, "foo"))
                 .when().post(arlasPath + "collections/_import")
                 .then().statusCode(200)
-                .body("collection_name", hasItems(equalTo("foo")));
+                .body("collection_name", hasItems("foo","foo_actor"));
 
         // GET all collections
-        getAllCollections(hasItems(equalTo("foo"), array(equalTo(COLLECTION_NAME),equalTo(COLLECTION_NAME_ACTOR))));
+        getAllCollections("foo", "foo_actor", COLLECTION_NAME, COLLECTION_NAME_ACTOR);
 
         // DELETE new collection
         when().delete(arlasPath + "collections/foo")
@@ -249,27 +269,16 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     @Test
     public void test08WithCollectionFilter() throws Exception {
         // get collections with NON matching collection filter
-        given().header("column-filter", "notexisting:*")
-                .when().get(arlasPath + "collections/")
-                .then().statusCode(200)
-                .body("collection_name", Matchers.iterableWithSize(0));
+        getAllCollections(given().header("column-filter", "notexisting:*"));
 
         // get collections with one matching collection filter
-        given().header("column-filter", "geodata_actor:*")
-                .when().get(arlasPath + "collections/")
-                .then().statusCode(200)
-                .body("collection_name", everyItem(equalTo(COLLECTION_NAME_ACTOR)));
+        getAllCollections(given().header("column-filter", "geodata_actor:*"), COLLECTION_NAME_ACTOR);
 
         // get collections with all matching collection filter
-        given().header("column-filter", "geodata*:*")
-                .when().get(arlasPath + "collections/")
-                .then().statusCode(200)
-                .body("collection_name", hasItems(COLLECTION_NAME_ACTOR,COLLECTION_NAME));
+        getAllCollections(given().header("column-filter", "geodata*:*"), COLLECTION_NAME_ACTOR,COLLECTION_NAME);
 
         // get collections with no collection filter
-        when().get(arlasPath + "collections/")
-                .then().statusCode(200)
-                .body("collection_name", hasItems(COLLECTION_NAME_ACTOR,COLLECTION_NAME));
+        getAllCollections(COLLECTION_NAME_ACTOR,COLLECTION_NAME);
 
         // EXPORT collection with matching collection filter
         String jsonExport = given()
