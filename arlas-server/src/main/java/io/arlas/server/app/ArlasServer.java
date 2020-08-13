@@ -110,7 +110,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
     @Override
     public void run(ArlasServerConfiguration configuration, Environment environment) throws Exception {
-        LOGGER.info("Raw configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
+        
         configuration.check();
         LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
 

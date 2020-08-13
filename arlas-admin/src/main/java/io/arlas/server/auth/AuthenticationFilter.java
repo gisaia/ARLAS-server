@@ -43,15 +43,17 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
-        if (!requestContext.getUriInfo().getPath().matches(authConf.getPublicRegex()) && requestContext.getMethod() != "OPTIONS") {
-            String header = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-            if (header == null || !header.toLowerCase().startsWith("bearer ")) {
+        String header = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+        if (header == null || !header.toLowerCase().startsWith("bearer ")) {
+            //If public end point and no authorize verb
+            if ( !requestContext.getUriInfo().getPath().concat(":").concat(requestContext.getMethod()).matches(authConf.getPublicRegex())  && requestContext.getMethod() != "OPTIONS") {
                 requestContext.abortWith(
                         Response.status(Response.Status.UNAUTHORIZED)
                                 .header(HttpHeaders.WWW_AUTHENTICATE,
                                         "Bearer realm=\"ARLAS Server secured access\"")
                                 .header(HttpHeaders.CONTENT_LOCATION, authConf.loginUrl)
                                 .build());
+
             }
         }
     }

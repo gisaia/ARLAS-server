@@ -147,7 +147,7 @@ opensearch:
 ########################################################
 arlas_auth:
   enabled: ${ARLAS_AUTH_ENABLED:-false}
-  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger.*}]
+  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger.*:*,swagger.*:GET/DELETE}]
   login_url: ${ARLAS_AUTH_LOGIN_URL:-}
   # deprecated
   certificate_file: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}
