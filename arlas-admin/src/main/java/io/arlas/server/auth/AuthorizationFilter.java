@@ -53,7 +53,8 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     public AuthorizationFilter(ArlasAuthConfiguration conf) throws Exception {
         this.authConf = conf;
-        this.jwtVerifier = JWT.require(Algorithm.RSA256(getPemPublicKey(conf), null)).build();
+        // See https://github.com/auth0/java-jwt/issues/268 to understand acceptLeeway(3)
+        this.jwtVerifier = JWT.require(Algorithm.RSA256(getPemPublicKey(conf), null)).acceptLeeway(3).build();
     }
 
     @Override
