@@ -12,3 +12,4 @@ dependency-reduced-pom.xml
 *.versionsBackup
 *.bak
 tmp/
+release_test_logs.txt
