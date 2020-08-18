@@ -281,6 +281,7 @@ In the case of `lt`, `gt`, `lte`, `gte`, `range` operations that are applied on 
 A coma-separated list of columns can be passed in request header `column-filter`. Wildcards are supported.
 
 A column filter stands for the fields that are available to a request body:
+
 - if a request body field doesn't belong to the column filter, a 403 is returned with the message `The field '%s' isn't available` or `The fields '%s' aren't available`;
 - only fields that belong to the column filter can be returned. 
 
@@ -316,11 +317,13 @@ The following endpoints use this header:
 | /arlas/explore/ogc/**opensearch**/{collection} | Only fields matching this filter will be returned. Return a 403 if target collection is not available. |
 
 On top of that, a query ("q" parameter) filter MUST target a specific field:
+
 - `fullname:john` is valid
 - `john` isn't valid and will return a 403
 - `params*:john` isn't valid neither and will return a 403
 
 If a `projection` with an `includes` parameter is used, then:
+
 - included fields that are wildcards aren't checked; they do not return a 403 if they don't match the column filter;
 - and only included fields that match the column filter are returned
 
