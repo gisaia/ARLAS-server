@@ -43,6 +43,9 @@ public class ArlasBaseConfiguration extends Configuration {
     @JsonProperty("arlas_auth")
     public ArlasAuthConfiguration arlasAuthConfiguration;
 
+    @JsonProperty("arlas_cors")
+    public ArlasCorsConfiguration arlarsCorsConfiguration;
+
     @JsonProperty("arlas_database_factory_class")
     public String arlasDatabaseFactoryClass;
 
@@ -63,7 +66,10 @@ public class ArlasBaseConfiguration extends Configuration {
         } else {
             arlasAuthConfiguration.check();
         }
-
+        if(arlarsCorsConfiguration == null) {
+            arlarsCorsConfiguration = new ArlasCorsConfiguration();
+            arlarsCorsConfiguration.enabled = false;
+        }
         if (arlasDatabaseFactoryClass == null) {
             throw new ArlasConfigurationException("arlas_database_factory_class is missing");
         }

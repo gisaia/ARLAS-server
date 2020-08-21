@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+export ARLAS_CORS_ENABLED=true
+export ARLAS_CORS_ALLOWED_ORIGINS="http://example.com"
+export ARLAS_CORS_ALLOWED_HEADERS="Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location"
+export ARLAS_CORS_ALLOWED_CREDENTIALS=true
+
 function clean_docker {
     ./scripts/docker-clean.sh
     echo "===> clean maven repository"

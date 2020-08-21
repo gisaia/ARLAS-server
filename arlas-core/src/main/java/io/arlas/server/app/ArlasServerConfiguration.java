@@ -60,9 +60,6 @@ public class ArlasServerConfiguration extends ArlasBaseConfiguration {
     @JsonProperty("arlas-rest-cache-timeout")
     public int arlasRestCacheTimeout;
 
-    @JsonProperty("arlas-cors-enabled")
-    public Boolean arlasCorsEnabled;
-
     @JsonProperty("arlas-service-collections-enabled")
     public Boolean arlasServiceCollectionsEnabled;
 
@@ -111,9 +108,6 @@ public class ArlasServerConfiguration extends ArlasBaseConfiguration {
         }
         if (arlasCacheTimeout < 0) {
             arlasCacheTimeout = 60;
-        }
-        if (arlasCorsEnabled == null) {
-            arlasCorsEnabled = false;
         }
         if (arlasServiceCollectionsEnabled == null) {
             arlasServiceCollectionsEnabled = true;
