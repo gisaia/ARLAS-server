@@ -100,10 +100,11 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 }
             } catch (JWTVerificationException e) {
                 LOGGER.warn("JWT verification failed.", e);
+                ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+                return;
             }
         }
-        ctx.abortWith(Response.status(Response.Status.FORBIDDEN)
-                .build());
+        ctx.abortWith(Response.status(Response.Status.FORBIDDEN).build());
     }
 
     /**

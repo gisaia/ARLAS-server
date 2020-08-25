@@ -80,7 +80,6 @@ elastic:
 # Configuration of the cache
 arlas-cache-size: ${ARLAS_CACHE_SIZE:-1000}
 arlas-cache-timeout: ${ARLAS_CACHE_TIMEOUT:-60}
-arlas-cors-enabled: ${ARLAS_CORS_ENABLED:-true}
 arlas-rest-cache-timeout: ${ARLAS_REST_CACHE_TIMEOUT:-0}
 
 ########################################################
@@ -147,7 +146,7 @@ opensearch:
 ########################################################
 arlas_auth:
   enabled: ${ARLAS_AUTH_ENABLED:-false}
-  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger.*:*,swagger.*:GET/DELETE}]
+  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger.*:*}]
   login_url: ${ARLAS_AUTH_LOGIN_URL:-}
   # deprecated
   certificate_file: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}
@@ -156,5 +155,13 @@ arlas_auth:
   header_group: ${ARLAS_HEADER_GROUP:-arlas-groups}
   claim_roles: ${ARLAS_CLAIM_ROLES:-http://arlas.io/roles}
   claim_permissions: ${ARLAS_CLAIM_PERMISSIONS:-http://arlas.io/permissions}
+
+arlas_cors:
+  enabled: ${ARLAS_CORS_ENABLED:-false}
+  allowed_origins: ${ARLAS_CORS_ALLOWED_ORIGINS:-"*"}
+  allowed_headers: ${ARLAS_CORS_ALLOWED_HEADERS:-"arlas-user,arlas-groups,arlas-organization,X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User"}
+  allowed_methods: ${ARLAS_CORS_ALLOWED_METHODS:-"OPTIONS,GET,PUT,POST,DELETE,HEAD"}
+  allowed_credentials: ${ARLAS_CORS_ALLOWED_CREDENTIALS:-true}
+  exposed_headers: ${ARLAS_CORS_EXPOSED_HEADERS:-"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location,WWW-Authenticate"}
 
 arlas_database_factory_class: ${ARLAS_DATABASE_FACTORY_CLASS:-io.arlas.server.impl.ElasticDatabaseToolsFactory}
