@@ -1,5 +1,24 @@
 # Change Log
 
+## [v14.7.0-beta.1](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-beta.1) (2020-08-25)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v13.7.2...v14.7.0-beta.1)
+
+**Breaking changes:**
+
+- Feature/add cors conf [\#649](https://github.com/gisaia/ARLAS-server/pull/649) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)] ([mbarbet](https://github.com/mbarbet))
+
+**New stuff:**
+
+- Fix jwtVerifier [\#645](https://github.com/gisaia/ARLAS-server/pull/645) ([mbarbet](https://github.com/mbarbet))
+- No longer escaping replacement value in Auth header variables. [\#643](https://github.com/gisaia/ARLAS-server/pull/643) ([alainbodiguel](https://github.com/alainbodiguel))
+
+**Fixed bugs:**
+
+- CollectionServiceIT randomly fails at time of merge [\#642](https://github.com/gisaia/ARLAS-server/issues/642)
+- CollectionServiceIT is faulty [\#637](https://github.com/gisaia/ARLAS-server/issues/637)
+- Fix silent error in \_import [\#650](https://github.com/gisaia/ARLAS-server/pull/650) ([mbarbet](https://github.com/mbarbet))
+
 ## [v13.7.2](https://github.com/gisaia/ARLAS-server/tree/v13.7.2) (2020-07-17)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.5.1...v13.7.2)
