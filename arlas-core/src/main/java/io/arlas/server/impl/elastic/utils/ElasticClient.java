@@ -24,6 +24,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
@@ -140,7 +141,7 @@ public class ElasticClient {
             client.indices().getMapping(request, RequestOptions.DEFAULT).mappings()
                     .forEach((k,v) -> res.put(k, (LinkedHashMap) v.sourceAsMap().get("properties")));
             return res;
-        } catch (IOException e) {
+        } catch (IOException | ElasticsearchException e ) {
             processException(e, index);
             return null;
         }
@@ -237,7 +238,7 @@ public class ElasticClient {
         }
     }
 
-    private void processException(IOException e, String index) throws ArlasException {
+    private void processException(Exception e, String index) throws ArlasException {
         if (e instanceof ResponseException) {
             if (((ResponseException) e).getResponse().getStatusLine().getStatusCode() == 404) {
                 throw new NotFoundException("Index " + index + " does not exist.");

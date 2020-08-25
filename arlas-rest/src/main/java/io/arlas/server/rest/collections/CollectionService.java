@@ -149,10 +149,7 @@ public class CollectionService extends CollectionRESTServices {
                     try {
                         savedCollections.add(save(collection.collectionName, collection.params));
                     } catch (Exception e) {
-                        if (inspireConfigurationEnabled) {
-                            throw new io.arlas.server.exceptions.InternalServerErrorException("Invalid inspire parameters : " + e.getMessage());
-                        }
-                        //NOT saved
+                            throw new io.arlas.server.exceptions.ArlasException(e.getMessage());
                     }
                 } else {
                     throw new CollectionUnavailableException("Collection '" + collection.collectionName + "' not authorized by column filter");
