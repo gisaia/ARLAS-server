@@ -8,20 +8,20 @@ Depending on the use case, some configuration must be set. Refer to [ARLAS serve
 
 * Use case 1: public access, no endpoint is protected (e.g. dev, test deployment)
   - ARLAS server:  set `arlas_auth.enabled` to `false`
-  - ARLAS wui: do not set json property `arlas.authentication` in `config.json` (TODO: add link to WUI or add doc)
+  - ARLAS wui: set [authentication.use_authent](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to `false` in `settings.yaml`
 
 * Use case 2: public access, some endpoints are protected (e.g. demo, freemium deployment)
   - ARLAS server:  set `arlas_auth.enabled` to `true`
   - ARLAS server:  set `arlas_auth.public_uris` to the needed value, 
   e.g. `swagger.*:*,explore/.*:*` will only allow public access to URIs `/swagger.*` and 
   `/explore/.*`
-  - ARLAS wui: do not set json property `arlas.authentication` in `config.json` (TODO: add link to WUI or add doc)
+  - ARLAS wui: set [authentication.use_authent](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to `false` in `settings.yaml`, no further security configuration is needed.
 
 * Use case 3: protected access (e.g. customer deployment)
   - ARLAS server:  set `arlas_auth.enabled` to `true`
   - ARLAS server:  set `arlas_auth.public_uris` to the needed value, 
   e.g. `swagger.*:*` will only allow public access to URIs `/swagger.*`
-  - ARLAS wui: set json property `arlas.authentication` in `config.json` (TODO: add link to WUI or add doc)
+  - ARLAS wui: set [authentication.use_authent](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to `true` in `settings.yaml`. Get more details about [the other security properties to set in ARLAS wui](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/)
 
 NB1: ARLAS server 13.7.0+ is required in order to support wildcards in `arlas_auth.public_uris`  
 
