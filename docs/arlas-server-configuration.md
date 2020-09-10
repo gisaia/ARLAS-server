@@ -73,7 +73,7 @@ docker run -ti -d \
 ### CORS, HEADERS for API response
 
 | Environment variable | ARLAS Server configuration variable | Default | Description |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | ARLAS_CORS_ENABLED | arlas_cors.enabled | false | Whether to configure cors or not |
 | ARLAS_CORS_ALLOWED_ORIGINS | arlas_cors.allowed_origins | "*" | Comma-separated list of allowed origins |
 | ARLAS_CORS_ALLOWED_HEADERS | arlas_cors.allowed_headers | "arlas-user,arlas-groups,arlas-organization,X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User" | Comma-separated list of allowed headers |
