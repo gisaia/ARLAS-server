@@ -1,5 +1,9 @@
 # Change Log
 
+## [v14.7.0-beta.5](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-beta.5) (2020-09-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-beta.4...v14.7.0-beta.5)
+
 ## [v14.7.0-beta.4](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-beta.4) (2020-09-11)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-beta.3...v14.7.0-beta.4)
