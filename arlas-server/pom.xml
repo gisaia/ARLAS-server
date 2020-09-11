@@ -2,41 +2,41 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.arlas</groupId>
   <artifactId>arlas-server</artifactId>
-  <version>14.7.0-SNAPSHOT</version>
+  <version>14.7.0-beta.4</version>
   <packaging>jar</packaging>
   <name>ARLAS server</name>
 
   <parent>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-server-parent</artifactId>
-    <version>14.7.0-SNAPSHOT</version>
+    <version>14.7.0-beta.4</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-rest</artifactId>
-      <version>14.7.0-SNAPSHOT</version>
+      <version>14.7.0-beta.4</version>
     </dependency>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-opensearch</artifactId>
-      <version>14.7.0-SNAPSHOT</version>
+      <version>14.7.0-beta.4</version>
     </dependency>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>ogc-csw</artifactId>
-      <version>14.7.0-SNAPSHOT</version>
+      <version>14.7.0-beta.4</version>
     </dependency>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>ogc-wfs</artifactId>
-      <version>14.7.0-SNAPSHOT</version>
+      <version>14.7.0-beta.4</version>
     </dependency>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-admin</artifactId>
-      <version>14.7.0-SNAPSHOT</version>
+      <version>14.7.0-beta.4</version>
     </dependency>
   </dependencies>
 
