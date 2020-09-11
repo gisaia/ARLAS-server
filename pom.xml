@@ -241,14 +241,6 @@
       </releases>
     </repository>
     <repository>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <id>boundless</id>
-      <name>Boundless Maven Repository</name>
-      <url>http://repo.boundlessgeo.com/main</url>
-    </repository>
-    <repository>
       <id>jcenter</id>
       <url>https://jcenter.bintray.com</url>
     </repository>
