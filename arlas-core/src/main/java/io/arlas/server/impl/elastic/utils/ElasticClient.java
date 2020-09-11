@@ -140,6 +140,11 @@ public class ElasticClient {
             final Map<String, LinkedHashMap> res = new HashMap<>();
             client.indices().getMapping(request, RequestOptions.DEFAULT).mappings()
                     .forEach((k,v) -> res.put(k, (LinkedHashMap) v.sourceAsMap().get("properties")));
+            if(res.isEmpty()){
+                GetIndexTemplatesRequest getIndexTemplatesRequest = new GetIndexTemplatesRequest(index);
+                client.indices().getIndexTemplate(getIndexTemplatesRequest,RequestOptions.DEFAULT)
+                        .getIndexTemplates().forEach(idx -> res.put(idx.name(), (LinkedHashMap) idx.mappings().sourceAsMap().get("properties")));
+            }
             return res;
         } catch (IOException | ElasticsearchException e ) {
             processException(e, index);
