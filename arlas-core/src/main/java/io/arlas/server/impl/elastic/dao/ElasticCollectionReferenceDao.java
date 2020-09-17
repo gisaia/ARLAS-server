@@ -114,7 +114,11 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
     @Override
     public CollectionReference getCollectionReference(String ref) throws ArlasException {
         try {
-            return collections.get(ref);
+            if(!client.getMappings(collections.get(ref).params.indexName).isEmpty()){
+                return collections.get(ref);
+            }else{
+                throw new ArlasException("Collection " + ref + " exists but can not be described. Check if index or template ".concat(collections.get(ref).params.indexName).concat(" exists"));
+            }
         } catch (ExecutionException e) {
             throw new NotFoundException("Collection " + ref + " not found.", e);
         }
@@ -163,7 +167,13 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
         } catch (IndexNotFoundException e) {
             throw new InternalServerErrorException("Unreachable collections", e);
         }
-        return collections;
+        return collections.stream().filter(c-> {
+            try {
+                return !client.getMappings(c.params.indexName).isEmpty();
+            } catch (ArlasException e) {
+                return false;
+            }
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -277,6 +287,9 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
         }
 
         collectionReferenceDescription.properties = properties;
+        if(properties.isEmpty()){
+            throw new ArlasException("This collection can not be described. Check if index or template ".concat(collectionReferenceDescription.params.indexName).concat(" exist in Elasticsearch"));
+        }
         return collectionReferenceDescription;
     }
 
@@ -350,7 +363,10 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
         for (CollectionReference collection : collectionReferenceList) {
             if (!ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent()
                     || ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter,collection).isPresent()) {
-                res.add(describeCollection(collection, columnFilter));
+                try{
+                    CollectionReferenceDescription describe = describeCollection(collection, columnFilter);
+                    res.add(describe);
+                }catch (ArlasException e){}
             }
         }
         return res;
