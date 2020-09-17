@@ -101,6 +101,9 @@ public class DescribeServiceIT extends AbstractDescribeTest {
         getWithCollectionFilter(Optional.of("geodata*:*"))
                 .statusCode(200)
                 .body(".", Matchers.iterableWithSize(2));
+        getWithCollectionFilter(Optional.of("geo*:*"))
+                .statusCode(200)
+                .body(".", Matchers.iterableWithSize(2));
     }
 
     @Override

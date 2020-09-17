@@ -91,9 +91,18 @@ public class FilterMatcherUtil {
     public static Optional<Stream<String>> filterToPredicatesAsStream(Optional<String> filter) {
         return filter
                 .filter(StringUtils::isNotBlank)
-                .map(cf -> EMPTY_PATTERN.splitAsStream(cf)
-                        .map(c -> PREDICATE_REPLACE_CHAR.containsKey(c) ? PREDICATE_REPLACE_CHAR.get(c) : c)
-                        .collect(Collectors.joining()))
+                .map(cf -> {
+                    String[] cfString = cf.split(":");
+                    // input: collection*:param* => avoid replacing collection* with collection.*. Only param* should be replaced with param.*
+                    if (Arrays.asList(cfString).size() == 2) {
+                        return cfString[0] + ':' + EMPTY_PATTERN.splitAsStream(cfString[1])
+                                .map(c -> PREDICATE_REPLACE_CHAR.containsKey(c) ? PREDICATE_REPLACE_CHAR.get(c) : c)
+                                .collect(Collectors.joining());
+                    }
+                    return EMPTY_PATTERN.splitAsStream(cf)
+                            .map(c -> PREDICATE_REPLACE_CHAR.containsKey(c) ? PREDICATE_REPLACE_CHAR.get(c) : c)
+                            .collect(Collectors.joining());
+                })
                 .map(cf ->
                         Arrays.stream(
                                 cf.split(","))
