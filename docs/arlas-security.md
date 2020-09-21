@@ -3,34 +3,40 @@
 This page describes how to configure ARLAS in order to control access to resources and data.
 
 ## Authentication
-Authentication is the process of identifying a user and is a prerequisite to [Authorisation](#authorisation).  
-Depending on the use case, some configuration must be set. Refer to [ARLAS server authentication configuration](arlas-server-configuration.md)
-The following use cases are illustrated with the ARLAS-Server service but are valid for all other ARLAS backe-ends such ARLAS-persistence.
+Authentication is the process of identifying a user and is a prerequisite to [Authorisation](#authorisation). 
 
-* Use case 1: public access, no endpoint is protected (e.g. dev, test deployment)
-  - ARLAS server:  set `arlas_auth.enabled` to `false`
-  - ARLAS wui: set [authentication.use_authent](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to `false` in `settings.yaml`. 
+Depending on the use case, some configuration must be set. Refer to [ARLAS-server authentication configuration](arlas-server-configuration.md)
 
-* Use case 2: public access, some endpoints are protected (e.g. demo, freemium deployment)
-  - ARLAS server:
-       * set `arlas_auth.enabled` to `true`
-       * set `arlas_auth.certificate_url` to the url of the .pem  certificat of the public key link to your identity provider.
-       * set `arlas_auth.public_uris` to the needed value, 
-  e.g. `swagger.*:*,explore/.*:*` will only allow public access to URIs `/swagger.*` and 
-  `/explore/.*`
-  - ARLAS wui: set [authentication.use_authent](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to `false` or `true` in `settings.yaml`, it depends on whether ARLAS wui must access protected end-points or not.
+The following use cases are illustrated with the ARLAS-server service but are valid for all other ARLAS back-ends such as [ARLAS-persistence](https://github.com/gisaia/ARLAS-persistence).
 
-* Use case 3: protected access (e.g. customer deployment)
-  - ARLAS server:  
-       * set `arlas_auth.enabled` to `true`
-       * set `arlas_auth.certificate_url` to the url of the .pem  certificat of the public key link to your identity provider.
-       * set `arlas_auth.public_uris` to the needed value, 
-  e.g. `swagger.*:*` will only allow public access to URIs `/swagger.*`
-  - ARLAS wui: set [authentication.use_authent](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to `true` and [authentication.force_connect](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to true in `settings.yaml`. Get more details about [the other security properties to set in ARLAS wui](http://docs.arlas.io/arlas-tech/current/arlas-wui-security)
+* **Use case 1**: public access, no endpoint is protected (e.g. dev, test deployment)
+    - ARLAS-server:  set `arlas_auth.enabled` to `false`
+    - ARLAS-wui: set [authentication.use_authent](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to `false` in `settings.yaml`. 
 
-NB1: ARLAS server 13.7.0+ is required in order to support wildcards in `arlas_auth.public_uris`  
+* **Use case 2**: public access, some endpoints are protected (e.g. demo, freemium deployment)
+    - ARLAS-server:
+        * set `arlas_auth.enabled` to `true`
+        * set `arlas_auth.certificate_url` to the url of the .pem  certificat of the public key link to your identity provider.
+        * set `arlas_auth.public_uris` to the needed value, 
+    e.g. `swagger.*:*,explore/.*:*` will only allow public access to URIs `/swagger.*` and 
+    `/explore/.*`
+    - ARLAS-wui: set [authentication.use_authent](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to `false` or `true` in `settings.yaml`, it depends on whether ARLAS-wui must access protected end-points or not.
 
-When authentication is enabled, ARLAS server expects to receive an HTTP header `Authorization: bearer <token>` from an identity provider.  
+* **Use case 3**: protected access (e.g. customer deployment)
+    - ARLAS-server:  
+        * set `arlas_auth.enabled` to `true`
+        * set `arlas_auth.certificate_url` to the url of the .pem  certificat of the public key link to your identity provider.
+        * set `arlas_auth.public_uris` to the needed value, 
+    e.g. `swagger.*:*` will only allow public access to URIs `/swagger.*`
+    - ARLAS-wui: set [authentication.use_authent](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to `true` and [authentication.force_connect](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to true in `settings.yaml`.
+
+        !!! info "ARLAS-wui authentication"
+            Get a complete functional [authentication configuration](http://docs.arlas.io/arlas-tech/current/arlas-wui-security) of ARLAS-wui
+
+!!! note "Note"
+    ARLAS-server 13.7.0+ is required in order to support wildcards in `arlas_auth.public_uris`  
+
+When authentication is enabled, ARLAS-server expects to receive an HTTP header `Authorization: bearer <token>` from an identity provider.  
 The token must be an RSA256 encrypted JWT token as specified by [RFC7519](https://tools.ietf.org/html/rfc7519).  
 Example of decoded JWT token payload:
 ```json
@@ -66,27 +72,35 @@ It is assumed that the token of the user provides the following information:
 - A set of roles in a claim `http://arlas.io/roles`
 
 Permissions can be composed of:
-- Variables as key-value pairs, e.g. `variable:${key}:${value}`  
-Variables are injected in rules and headers. For instance:
-```asciidoc
-    "variable:organisation:acme",
-    "header:arlas-organisation:${organisation}",
-```
-will inject a header `arlas-organisation:acme` in the request.
-- A list of headers to be injected to all the requests that require a restricted access 
-(such as the partition-filter), e.g. `header:${header}:${value}`
-- A set of rules, e.g. `rule:${resource}:${verbs}:${priority}`, composed of:
-  * ${resource} is the resource path pattern, relative to /arlas/ (regular expressions can be used)
-  * ${verbs} is the comma separated list of allowed verbs (GET, POST...) for accessing the resources matching the resource path pattern
-  * ${priority} is the rule’s priority. 1 is the lowest priority.
 
-Example:  
-For example a user having the rules:
+- **Variables** as key-value pairs, e.g. `variable:${key}:${value}`  
+Variables are injected in rules and headers. 
+
+*For instance, in the following permissions*
+
+```asciidoc
+"variable:organisation:acme",
+"header:arlas-organisation:${organisation}"
 ```
-rule:/collection/.*:GET:1
+
+*will inject a header `arlas-organisation:acme` in the request.*
+
+- **A list of headers** to be injected to all the requests that require a restricted access 
+(such as the partition-filter), e.g. `header:${header}:${value}`
+
+- **A set of rules**, e.g. `rule:${resource}:${verbs}:${priority}`, composed of:
+    * ${resource} is the resource path pattern, relative to /arlas/ (regular expressions can be used)
+    * ${verbs} is the comma separated list of allowed verbs (GET, POST...) for accessing the resources matching the resource path pattern
+    * ${priority} is the rule’s priority. 1 is the lowest priority.
+
+*For example, a user having the rules:*
+
+```asciidoc
+rule:/collection/.*:GET:1,
 rule:/explore/.*/_search:GET:1
 ```
-Will be able to explore the collections and to search in all of them but won’t be able to add or delete collections and won’t be able to make aggregations.
+
+*will be able to explore the `collections` and to `search` in all of them, but won’t be able to add or delete collections (only `GET` verb is allowed for collections) and won’t be able to make aggregations (the resource `_aggregate` is not defined).*
  
 ## Protect data access
 
@@ -95,16 +109,21 @@ can be set using the header mechanism described above.
 
 #### Column-filter
 
-The header `column-filter` allows you to pass a list of fields of the data.
-Only the fields present in this list are visible in the response during a request.
-This allows certain fields to be restricted to certain users.
-See relevant sections in [ARLAS Exploration API configuration](arlas-api-exploration.md/#column-filtering).
+The header `column-filter` allows you to pass a list of collections and fields of the data.
+Only the collections and fields present in this list are visible in the response of a request.
+
+This allows certain collections and fields to be restricted to certain users.
+
+!!! info "column-filter syntax"
+    See the `column-filter` syntax in [ARLAS Exploration API configuration section](http://docs.arlas.io/arlas-tech/current/arlas-api-exploration/#column-filtering).
 
 
 #### Partition-filter
 
-The header `partition-filter` allows you to pass an ARLAS filter to apply on the request.
-This allows certain data to be restricted to certain users.
-See relevant sections in [ARLAS Exploration API configuration](arlas-api-exploration.md/#partition-filtering).
+The header `partition-filter` allows you to pass an ARLAS filter to apply to the request.
 
+This allows certain data to be restricted to certain users.
+
+!!! info "partition-filter syntax"
+    See the `partition-filter` syntax in [ARLAS Exploration API configuration section](http://docs.arlas.io/arlas-tech/current/arlas-api-exploration/#column-filtering).
 
