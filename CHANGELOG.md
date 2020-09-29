@@ -1,6 +1,10 @@
 # Change Log
 
-## [v14.7.0-beta.8](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-beta.8) (2020-09-11)
+## [v14.7.0-rc.1](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-rc.1) (2020-09-17)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-beta.8...v14.7.0-rc.1)
+
+## [v14.7.0-beta.8](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-beta.8) (2020-09-15)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-beta.7...v14.7.0-beta.8)
 
@@ -22,7 +26,11 @@
 
 ## [v14.7.0-beta.3](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-beta.3) (2020-09-11)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-beta.1...v14.7.0-beta.3)
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-test-doc...v14.7.0-beta.3)
+
+## [v14.7.0-test-doc](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-test-doc) (2020-09-09)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-beta.1...v14.7.0-test-doc)
 
 ## [v14.7.0-beta.1](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-beta.1) (2020-08-25)
 
