@@ -21,10 +21,12 @@ package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OgcInspireConfigurationParameters {
+public class OgcInspireConfigurationParameters implements Serializable {
+    private static final long serialVersionUID = 6082813889579249173L;
     @JsonProperty(value = "responsible_party", required = false)
     public String reponsibleParty;
     @JsonProperty(value = "responsible_party_role", required = false)

@@ -26,11 +26,13 @@ import io.arlas.server.model.enumerations.GeoTypeEnum;
 import io.arlas.server.model.request.Filter;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CollectionReferenceParameters {
+public class CollectionReferenceParameters implements Serializable {
+    private static final long serialVersionUID = 7530916591832941958L;
 
     @NotEmpty
     @JsonProperty(value = "index_name", required = true)

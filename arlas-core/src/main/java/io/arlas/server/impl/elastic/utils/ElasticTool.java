@@ -170,7 +170,7 @@ public class ElasticTool {
         return indices;
     }
 
-    public static CollectionReference getCollectionReferenceFromES(ElasticClient client, String index, ObjectReader reader, String ref) throws ArlasException, IOException {
+    public static CollectionReference getCollectionReferenceFromES(ElasticClient client, String index, ObjectReader reader, String ref) throws ArlasException {
         CollectionReference collection = new CollectionReference(ref);
         //Exclude old include_fields for support old collection
         String[] includes = Strings.EMPTY_ARRAY;

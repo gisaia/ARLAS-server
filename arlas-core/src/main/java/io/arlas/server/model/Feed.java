@@ -21,7 +21,11 @@ package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Feed {
+import java.io.Serializable;
+
+public class Feed implements Serializable {
+    private static final long serialVersionUID = 6426471908963138002L;
+
     @JsonProperty(value = "author", required = false)
     public Person author;
 
@@ -43,7 +47,9 @@ public class Feed {
     @JsonProperty(value = "generator", required = false)
     public Generator generator;
 
-    public class Entry {
+    public class Entry implements Serializable {
+        private static final long serialVersionUID = 4396433264127867485L;
+
         @JsonProperty(value = "title_path", required = false)
         public String titlePath;
 
@@ -78,7 +84,9 @@ public class Feed {
         public String excludes;
     }
 
-    public class Person {
+    public class Person implements Serializable {
+        private static final long serialVersionUID = 1189154847435077931L;
+
         @JsonProperty(value = "name", required = false)
         public String name;
 
@@ -89,7 +97,9 @@ public class Feed {
         public String uri;
     }
 
-    public class Generator {
+    public class Generator implements Serializable {
+        private static final long serialVersionUID = 8255515474918410386L;
+
         @JsonProperty(value = "name", required = false)
         public String name;
 

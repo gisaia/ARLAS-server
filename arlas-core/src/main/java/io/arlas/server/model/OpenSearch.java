@@ -22,8 +22,11 @@ package io.arlas.server.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class  OpenSearch {
+public class  OpenSearch implements Serializable {
+    private static final long serialVersionUID = 2544000439490952306L;
 
     @JsonProperty(value = "short_name", required = false)
     public String shortName = "";

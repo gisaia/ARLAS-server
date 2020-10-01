@@ -19,9 +19,12 @@
 
 package io.arlas.server.model.request;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Filter {
+public class Filter implements Serializable {
+    private static final long serialVersionUID = 4914602782094826840L;
+
     public List<MultiValueFilter<Expression>> f;
     public List<MultiValueFilter<String>> q;
     public String dateformat;

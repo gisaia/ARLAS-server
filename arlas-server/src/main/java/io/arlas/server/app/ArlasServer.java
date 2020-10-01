@@ -32,6 +32,7 @@ import io.arlas.server.exceptions.ConstraintViolationExceptionMapper;
 import io.arlas.server.exceptions.IllegalArgumentExceptionMapper;
 import io.arlas.server.exceptions.JsonProcessingExceptionMapper;
 import io.arlas.server.impl.elastic.exceptions.ElasticsearchExceptionMapper;
+import io.arlas.server.managers.CacheManager;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.CSWService;
@@ -69,7 +70,6 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import org.apache.http.client.methods.HttpHead;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
@@ -116,12 +116,18 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         configuration.check();
         LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
 
-        DatabaseToolsFactory dbToolFactory = (DatabaseToolsFactory) Class
-                .forName(configuration.arlasDatabaseFactoryClass)
+        CacheFactory cacheFactory = (CacheFactory) Class
+                .forName(configuration.arlasCacheFactoryClass)
                 .getConstructor(ArlasServerConfiguration.class)
                 .newInstance(configuration);
 
-        CollectionReferenceManager.getInstance().init(dbToolFactory.getCollectionReferenceDao());
+        DatabaseToolsFactory dbToolFactory = (DatabaseToolsFactory) Class
+                .forName(configuration.arlasDatabaseFactoryClass)
+                .getConstructor(ArlasServerConfiguration.class, CacheManager.class)
+                .newInstance(configuration, cacheFactory.getCacheManager());
+
+        CollectionReferenceManager.getInstance().init(dbToolFactory.getCollectionReferenceDao(),
+                cacheFactory.getCacheManager());
 
         if (configuration.zipkinConfiguration != null) {
             Optional<HttpTracing> tracing = configuration.zipkinConfiguration.build(environment);

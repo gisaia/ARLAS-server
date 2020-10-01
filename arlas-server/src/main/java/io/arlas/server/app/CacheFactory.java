@@ -17,17 +17,16 @@
  * under the License.
  */
 
-package io.arlas.server.model;
+package io.arlas.server.app;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.arlas.server.managers.CacheManager;
 
-import java.io.Serializable;
+public abstract class CacheFactory {
+    protected ArlasServerConfiguration configuration;
 
-public class InspireURI implements Serializable {
-    private static final long serialVersionUID = -8847905025047343314L;
+    public CacheFactory(ArlasServerConfiguration configuration) {
+        this.configuration = configuration;
+    }
 
-    @JsonProperty(value = "code", required = false)
-    public String code;
-    @JsonProperty(value = "namespace", required = false)
-    public String namespace;
+    public abstract CacheManager getCacheManager();
 }

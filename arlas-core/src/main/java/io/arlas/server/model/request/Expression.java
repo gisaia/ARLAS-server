@@ -21,7 +21,11 @@ package io.arlas.server.model.request;
 
 import io.arlas.server.model.enumerations.OperatorEnum;
 
-public class Expression {
+import java.io.Serializable;
+
+public class Expression implements Serializable {
+    private static final long serialVersionUID = 7652642461292991964L;
+
     public String field;
     public OperatorEnum op;
     public String value;

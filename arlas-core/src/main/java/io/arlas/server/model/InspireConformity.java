@@ -21,7 +21,10 @@ package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class InspireConformity {
+import java.io.Serializable;
+
+public class InspireConformity implements Serializable {
+    private static final long serialVersionUID = -7637619792288552192L;
     public static final String INSPIRE_NETWORK_SERVICES_CONFORMITY_TITLE = "Commission Regulation (EC) No 1088/2010 of 23 November 2010" +
             "amending Regulation (EC) No 976/2009 as regards download services and transformation services";
     public static final String INSPIRE_NETWORK_SERVICES_CONFORMITY_DATE = "2010-12-08";

@@ -25,10 +25,6 @@ import io.arlas.server.exceptions.ArlasConfigurationException;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
-import javax.ws.rs.HttpMethod;
-import java.util.Arrays;
-import java.util.List;
-
 public class ArlasBaseConfiguration extends Configuration {
 
     @JsonProperty("zipkin")
@@ -48,6 +44,9 @@ public class ArlasBaseConfiguration extends Configuration {
 
     @JsonProperty("arlas_database_factory_class")
     public String arlasDatabaseFactoryClass;
+
+    @JsonProperty("arlas_cache_factory_class")
+    public String arlasCacheFactoryClass;
 
     public static final String FLATTEN_CHAR = "_";
 
@@ -72,6 +71,9 @@ public class ArlasBaseConfiguration extends Configuration {
         }
         if (arlasDatabaseFactoryClass == null) {
             throw new ArlasConfigurationException("arlas_database_factory_class is missing");
+        }
+        if (arlasCacheFactoryClass == null) {
+            throw new ArlasConfigurationException("arlas_cache_factory_class is missing");
         }
     }
 }

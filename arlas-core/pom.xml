@@ -27,6 +27,20 @@
 
     <dependencies>
         <!-- ____________________________________________________ -->
+        <!-- CACHE -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>${hazelcast.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-kubernetes</artifactId>
+            <version>${hazelcast.k8s.version}</version>
+        </dependency>
+        <!-- ____________________________________________________ -->
         <!-- DROPWIZARD -->
         <!-- ____________________________________________________ -->
         <dependency>

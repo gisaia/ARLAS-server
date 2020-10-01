@@ -28,46 +28,43 @@ import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.model.response.ElasticType;
 import io.arlas.server.utils.MapExplorer;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class CollectionReferenceManager {
-    private Map<String, ElasticType> map;
+    private CacheManager cacheManager;
     private CollectionReferenceDao collectionReferenceDao;
 
-    private static CollectionReferenceManager collectionReferenceManager = new CollectionReferenceManager();
+    private final static CollectionReferenceManager collectionReferenceManager = new CollectionReferenceManager();
 
     public static CollectionReferenceManager getInstance() {
         return collectionReferenceManager;
     }
 
     private CollectionReferenceManager() {
-        map = new ConcurrentHashMap<>();
     }
 
-    public void init(CollectionReferenceDao collectionReferenceDao) {
+    public void init(CollectionReferenceDao collectionReferenceDao, CacheManager cacheManager) {
         this.collectionReferenceDao = collectionReferenceDao;
+        this.cacheManager = cacheManager;
     }
 
     public ElasticType getType(CollectionReference collectionReference, String field, boolean throwException) throws ArlasException {
-        ElasticType elasticType = map.get(collectionReference.collectionName + "-" + field);
+        ElasticType elasticType = cacheManager.getElasticType(collectionReference.collectionName, field);
         if (elasticType == null) {
             String[] props = field.split("\\.");
             CollectionReferenceDescriptionProperty esField = collectionReferenceDao.describeCollection(collectionReference).properties.get(props[0]);
             if (esField == null) {
-                return getUnknownType(field, esField, collectionReference.collectionName, throwException);
+                return getUnknownType(field, collectionReference.collectionName, throwException);
             }
             for (int i=1; i<props.length; i++) {
                 esField = esField.properties.get(props[i]);
                 if (esField == null) {
-                    return getUnknownType(field, esField, collectionReference.collectionName, throwException);
+                    return getUnknownType(field, collectionReference.collectionName, throwException);
                 }
             }
             if (esField != null) {
                 elasticType = esField.type;
-                map.put(collectionReference.collectionName + "-" + field, elasticType);
+                cacheManager.putElasticType(collectionReference.collectionName, field, elasticType);
             } else {
-                return getUnknownType(field, esField, collectionReference.collectionName, throwException);
+                return getUnknownType(field, collectionReference.collectionName, throwException);
             }
         }
         return elasticType;
@@ -105,7 +102,7 @@ public class CollectionReferenceManager {
         }
     }
 
-    private ElasticType getUnknownType(String parentField, CollectionReferenceDescriptionProperty pathField, String collectionName, boolean throwException) throws ArlasException{
+    private ElasticType getUnknownType(String parentField, String collectionName, boolean throwException) throws ArlasException{
         if (throwException) {
             throw new NotFoundException("Field '" + parentField + "' not found in collection " + collectionName);
         } else {

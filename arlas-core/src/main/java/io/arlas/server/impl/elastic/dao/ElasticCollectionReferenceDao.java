@@ -23,15 +23,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.impl.elastic.utils.ElasticTool;
+import io.arlas.server.managers.CacheManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferenceParameters;
 import io.arlas.server.model.response.CollectionReferenceDescription;
@@ -63,8 +61,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -73,7 +69,7 @@ import java.util.stream.Stream;
 public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
     private static Logger LOGGER = LoggerFactory.getLogger(ElasticCollectionReferenceDao.class);
 
-    private static LoadingCache<String, CollectionReference> collections = null;
+    private static CacheManager cacheManager;
     private static ObjectMapper mapper;
     private static ObjectReader reader;
     private static final String ARLAS_MAPPING_FILE_NAME = "arlas.mapping.json";
@@ -87,19 +83,11 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
     private ElasticClient client;
     private String arlasIndex;
 
-    public ElasticCollectionReferenceDao(ElasticClient client, String arlasIndex, int arlasCacheSize, int arlasCacheTimeout) {
+    public ElasticCollectionReferenceDao(ElasticClient client, String arlasIndex,  CacheManager cacheManager) {
         super();
         this.client = client;
         this.arlasIndex = arlasIndex;
-        collections = CacheBuilder.newBuilder()
-                .maximumSize(arlasCacheSize)
-                .expireAfterWrite(arlasCacheTimeout, TimeUnit.SECONDS)
-                .build(
-                        new CacheLoader<String, CollectionReference>() {
-                            public CollectionReference load(String ref) throws ArlasException, IOException {
-                                return ElasticTool.getCollectionReferenceFromES(client, arlasIndex, reader, ref);
-                            }
-                        });
+        this.cacheManager = cacheManager;
     }
 
     @Override
@@ -113,14 +101,15 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
 
     @Override
     public CollectionReference getCollectionReference(String ref) throws ArlasException {
-        try {
-            if(!client.getMappings(collections.get(ref).params.indexName).isEmpty()){
-                return collections.get(ref);
-            }else{
-                throw new ArlasException("Collection " + ref + " exists but can not be described. Check if index or template ".concat(collections.get(ref).params.indexName).concat(" exists"));
-            }
-        } catch (ExecutionException e) {
-            throw new NotFoundException("Collection " + ref + " not found.", e);
+        CollectionReference collectionReference = cacheManager.getCollectionReference(ref);
+        if (collectionReference == null) {
+            collectionReference = ElasticTool.getCollectionReferenceFromES(client, arlasIndex, reader, ref);
+            cacheManager.putCollectionReference(ref, collectionReference);
+        }
+        if (!client.getMappings(collectionReference.params.indexName).isEmpty()){
+            return collectionReference;
+        } else {
+            throw new ArlasException("Collection " + ref + " exists but can not be described. Check if index or template ".concat(collectionReference.params.indexName).concat(" exists"));
         }
     }
 
@@ -185,8 +174,7 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
             throw new InternalServerErrorException("Unable to delete collection : " + response.status().toString());
         } else {
             //explicit clean-up cache
-            collections.invalidate(ref);
-            collections.cleanUp();
+            cacheManager.removeCollectionReference(ref);
         }
     }
 
@@ -227,9 +215,7 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
             throw new InternalServerErrorException("Unable to index collection : " + response.status().toString());
         } else {
             //explicit clean-up cache
-            collections.invalidate(collectionReference.collectionName);
-            collections.cleanUp();
-
+            cacheManager.removeCollectionReference(collectionReference.collectionName);
             return collectionReference;
         }
     }
