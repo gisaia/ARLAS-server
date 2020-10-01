@@ -21,9 +21,12 @@ package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Inspire {
+public class Inspire implements Serializable {
+    private static final long serialVersionUID = 6148838306573157991L;
+
     @JsonProperty(value = "keywords", required = false)
     public List<Keyword> keywords;
     @JsonProperty(value = "topic_categories", required = false)

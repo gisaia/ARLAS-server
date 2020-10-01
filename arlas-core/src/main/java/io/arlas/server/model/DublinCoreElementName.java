@@ -26,12 +26,14 @@ import org.geojson.Polygon;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class DublinCoreElementName {
+public class DublinCoreElementName implements Serializable {
+    private static final long serialVersionUID = -3452567240629298463L;
 
     public DublinCoreElementName(){
     }
@@ -122,7 +124,9 @@ public class DublinCoreElementName {
         return coverageCentroid;
     }
 
-    public class Bbox {
+    public class Bbox implements Serializable {
+        private static final long serialVersionUID = 364766455618062216L;
+
         @JsonProperty(value = "north", required = true)
         public double north = 90.0;
 

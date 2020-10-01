@@ -52,6 +52,13 @@ arlas-base-uri: ${ARLAS_BASE_URI:-}
 # Configuration console and file LOGGING
 logging:
   level: ${ARLAS_LOGGING_LEVEL:-INFO}
+  loggers:
+    "org.apache.http": ${ARLAS_LOGGING_APACHE_HTTP_LEVEL:-INFO}
+    "org.eclipse.jetty": ${ARLAS_LOGGING_JETTY_LEVEL:-INFO}
+    "org.elasticsearch.client": ${ARLAS_LOGGING_ELASTICSEARCH_LEVEL:-DEBUG}
+    "org.reflections": ${ARLAS_LOGGING_REFLECTIONS_LEVEL:-INFO}
+    "io.dropwizard": ${ARLAS_LOGGING_DROPWIZARD_LEVEL:-INFO}
+    "io.swagger": ${ARLAS_LOGGING_SWAGGER_LEVEL:-INFO}
   appenders:
     - type: console
       threshold:  ${ARLAS_LOGGING_CONSOLE_LEVEL:-INFO}
@@ -79,7 +86,7 @@ elastic:
 ########################################################
 # Configuration of the cache
 arlas-cache-size: ${ARLAS_CACHE_SIZE:-1000}
-arlas-cache-timeout: ${ARLAS_CACHE_TIMEOUT:-60}
+arlas-cache-timeout: ${ARLAS_CACHE_TIMEOUT:-3600}
 arlas-rest-cache-timeout: ${ARLAS_REST_CACHE_TIMEOUT:-0}
 
 ########################################################
@@ -165,3 +172,4 @@ arlas_cors:
   exposed_headers: ${ARLAS_CORS_EXPOSED_HEADERS:-"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location,WWW-Authenticate"}
 
 arlas_database_factory_class: ${ARLAS_DATABASE_FACTORY_CLASS:-io.arlas.server.impl.ElasticDatabaseToolsFactory}
+arlas_cache_factory_class: ${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.server.impl.HazelcastCacheFactory}

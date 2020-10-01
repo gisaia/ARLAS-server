@@ -21,7 +21,10 @@ package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CollectionReference {
+import java.io.Serializable;
+
+public class CollectionReference implements Serializable {
+    private static final long serialVersionUID = 2270763501550669101L;
 
     public static final String COLLECTION_NAME = "collection_name";
     public static final String INDEX_NAME = "index_name";

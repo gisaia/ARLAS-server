@@ -21,7 +21,11 @@ package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class InspireSpatialResolution {
+import java.io.Serializable;
+
+public class InspireSpatialResolution implements Serializable {
+    private static final long serialVersionUID = 4191943247887408416L;
+
     @JsonProperty(value = "value", required = false)
     public Number value;
     @JsonProperty(value = "unit_of_measure", required = false)

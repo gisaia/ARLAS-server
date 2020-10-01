@@ -26,6 +26,7 @@ import io.arlas.server.health.ElasticsearchHealthCheck;
 import io.arlas.server.impl.elastic.dao.ElasticCollectionReferenceDao;
 import io.arlas.server.impl.elastic.services.ElasticExploreService;
 import io.arlas.server.impl.elastic.utils.ElasticClient;
+import io.arlas.server.managers.CacheManager;
 import io.arlas.server.ogc.common.dao.ElasticOGCCollectionReferenceDao;
 import io.arlas.server.ogc.common.dao.OGCCollectionReferenceDao;
 import io.arlas.server.ogc.common.model.Service;
@@ -44,10 +45,10 @@ public class ElasticDatabaseToolsFactory extends DatabaseToolsFactory {
     private OGCCollectionReferenceDao ogcDao;
     private WFSToolService wfsService;
 
-    public ElasticDatabaseToolsFactory(ArlasServerConfiguration configuration) {
+    public ElasticDatabaseToolsFactory(ArlasServerConfiguration configuration, CacheManager cacheManager) {
         super(configuration);
         this.elasticClient = new ElasticClient(configuration.elasticConfiguration);
-        this.collectionReferenceDao = new ElasticCollectionReferenceDao(elasticClient, configuration.arlasIndex, configuration.arlasCacheSize, configuration.arlasCacheTimeout);
+        this.collectionReferenceDao = new ElasticCollectionReferenceDao(elasticClient, configuration.arlasIndex, cacheManager);
         this.exploreService = new ElasticExploreService(elasticClient, collectionReferenceDao, configuration.arlasBaseUri, configuration.arlasRestCacheTimeout);
         if (configuration.arlasServiceCSWEnabled) {
             this.ogcDao = new ElasticOGCCollectionReferenceDao(elasticClient, collectionReferenceDao, configuration.arlasIndex, Service.CSW);

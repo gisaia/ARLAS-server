@@ -23,7 +23,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.server.model.enumerations.AccessConstraintEnum;
 import io.arlas.server.model.enumerations.InspireAccessClassificationEnum;
 
-public class InspireLimitationAccess {
+import java.io.Serializable;
+
+public class InspireLimitationAccess implements Serializable {
+    private static final long serialVersionUID = -692018464171267723L;
+
     @JsonProperty(value = "access_constraints", required = false, defaultValue = "otherRestrictions")
     public String accessConstraints = AccessConstraintEnum.otherRestrictions.name();
     @JsonProperty(value = "other_constraints", required = false, defaultValue = "no limitation")

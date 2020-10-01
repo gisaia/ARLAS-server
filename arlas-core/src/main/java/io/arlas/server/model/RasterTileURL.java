@@ -21,7 +21,11 @@ package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class RasterTileURL {
+import java.io.Serializable;
+
+public class RasterTileURL implements Serializable {
+    private static final long serialVersionUID = 4200618348514081233L;
+
     @JsonProperty(value = "url", required = true)
     public String url = null;
 

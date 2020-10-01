@@ -17,17 +17,17 @@
  * under the License.
  */
 
-package io.arlas.server.model;
+package io.arlas.server.managers;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.arlas.server.model.CollectionReference;
+import io.arlas.server.model.response.ElasticType;
 
-import java.io.Serializable;
+public interface CacheManager {
 
-public class InspireURI implements Serializable {
-    private static final long serialVersionUID = -8847905025047343314L;
+    CollectionReference getCollectionReference(String ref);
+    void putCollectionReference(String ref, CollectionReference col);
+    void removeCollectionReference(String ref);
 
-    @JsonProperty(value = "code", required = false)
-    public String code;
-    @JsonProperty(value = "namespace", required = false)
-    public String namespace;
+    ElasticType getElasticType(String ref, String name);
+    void putElasticType(String ref, String name, ElasticType type);
 }

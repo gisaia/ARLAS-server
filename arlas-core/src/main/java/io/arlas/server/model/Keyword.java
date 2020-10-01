@@ -21,7 +21,10 @@ package io.arlas.server.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Keyword {
+import java.io.Serializable;
+
+public class Keyword implements Serializable {
+    private static final long serialVersionUID = -7473798591233888072L;
     @JsonProperty(value = "value", required = false)
     public String value;
     @JsonProperty(value = "vocabulary", required = false)
