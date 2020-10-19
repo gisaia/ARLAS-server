@@ -1,7 +1,7 @@
 ###################
 # PACKAGING STAGE #
 ###################
-FROM openjdk:8-jre-alpine
+FROM gisaia/arlas-openjdk:8-jre-alpine
 
 # install script dependencies
 RUN apk add --update netcat-openbsd curl && rm -rf /var/cache/apk/*
