@@ -18,6 +18,7 @@
  */
 package io.arlas.server.auth;
 
+import co.elastic.apm.api.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,10 +85,11 @@ public class ArlasClaims {
         return false;
     }
 
-    public void injectHeaders(MultivaluedMap<String, String> requestHeaders) {
+    public void injectHeaders(MultivaluedMap<String, String> requestHeaders, Transaction transaction) {
         headers.forEach((k,v) -> {
             LOGGER.debug("Injecting header '" + k +"' with value '" + v + "'");
             requestHeaders.add(k, v);
+            transaction.addLabel(k, v);
         });
     }
 

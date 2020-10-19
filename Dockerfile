@@ -17,7 +17,7 @@ RUN mvn install \
 ###################
 # PACKAGING STAGE #
 ###################
-FROM openjdk:8-jre-alpine
+FROM gisaia/arlas-openjdk:8-jre-alpine
 WORKDIR /opt/app
 
 # install script dependencies

@@ -25,6 +25,7 @@ arlas-service-raster-tiles-enabled: ${ARLAS_SERVICE_RASTER_TILES_ENABLE:-true}
 server:
   requestLog:
     appenders:
+      - type: console
       - type: file
         currentLogFilename: ${ARLAS_ACCESS_LOG_FILE:-arlas-access.log}
         archivedLogFilenamePattern: ${ACCESS_LOG_FILE_ARCHIVE:-arlas-access-%d.log.gz}

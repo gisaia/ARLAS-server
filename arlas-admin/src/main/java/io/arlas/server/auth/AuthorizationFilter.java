@@ -18,6 +18,8 @@
  */
 package io.arlas.server.auth;
 
+import co.elastic.apm.api.ElasticApm;
+import co.elastic.apm.api.Transaction;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -59,6 +61,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext ctx) {
+        Transaction transaction = ElasticApm.currentTransaction();
 
         String header = ctx.getHeaderString(HttpHeaders.AUTHORIZATION);
         if (header == null || !header.toLowerCase().startsWith("bearer ")) {
@@ -78,6 +81,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 String userId = jwt.getSubject();
                 if (!StringUtil.isNullOrEmpty(userId)) {
                     ctx.getHeaders().putSingle(authConf.headerUser, userId);
+                    transaction.setUser(userId, "", "");
                 }
 
                 ctx.getHeaders().remove(authConf.headerGroup); // remove it in case it's been set manually
@@ -94,7 +98,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 if (!jwtClaimPermissions.isNull()) {
                     ArlasClaims arlasClaims = new ArlasClaims(jwtClaimPermissions.asList(String.class));
                     if (arlasClaims.isAllowed(ctx.getMethod(), ctx.getUriInfo().getPath())) {
-                        arlasClaims.injectHeaders(ctx.getHeaders());
+                        arlasClaims.injectHeaders(ctx.getHeaders(), transaction);
                         return;
                     }
                 }

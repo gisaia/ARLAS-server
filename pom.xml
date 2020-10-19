@@ -58,6 +58,7 @@
 
     <!-- ELASTICSEARCH-->
     <elastic.version>7.7.0</elastic.version>
+    <elastic-apm.version>1.18.1</elastic-apm.version>
 
     <!-- GEO-->
     <geotools.version>18.0</geotools.version>
