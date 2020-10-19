@@ -53,6 +53,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings({"rawtypes"})
 public class ElasticClient {
@@ -141,9 +142,22 @@ public class ElasticClient {
             client.indices().getMapping(request, RequestOptions.DEFAULT).mappings()
                     .forEach((k,v) -> res.put(k, (LinkedHashMap) v.sourceAsMap().get("properties")));
             if(res.isEmpty()){
-                GetIndexTemplatesRequest getIndexTemplatesRequest = new GetIndexTemplatesRequest(index);
+                GetIndexTemplatesRequest getIndexTemplatesRequest = new GetIndexTemplatesRequest();
                 client.indices().getIndexTemplate(getIndexTemplatesRequest,RequestOptions.DEFAULT)
-                        .getIndexTemplates().forEach(idx -> res.put(idx.name(), (LinkedHashMap) idx.mappings().sourceAsMap().get("properties")));
+                        .getIndexTemplates().forEach(tpl -> {
+                            // verify if template's patterns match given index
+                            // only support ending wildcard for pattern matching
+                            AtomicReference<Boolean> matchIndex = new AtomicReference<>(false);
+                            tpl.patterns().forEach(pattern -> {
+                                if(pattern.equals(index)
+                                    || (pattern.endsWith("*") && index.startsWith(pattern.substring(0,pattern.length()-2))))
+                                    matchIndex.set(true);
+                            });
+                            // if true, add associated template's mappings
+                            if(matchIndex.get()) {
+                                res.put(tpl.name(), (LinkedHashMap) tpl.mappings().sourceAsMap().get("properties"));
+                            }
+                        });
             }
             return res;
         } catch (IOException | ElasticsearchException e ) {
