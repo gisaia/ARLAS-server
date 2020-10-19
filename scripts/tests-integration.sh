@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-export ELASTIC_VERSION="7.6.0"
+export ELASTIC_VERSION="7.9.2"
 
 function clean_exit {
   ARG=$?

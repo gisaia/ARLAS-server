@@ -141,7 +141,7 @@ public class ElasticTool {
                                                   String... fields) throws ArlasException {
         GetFieldMappingsResponse response = client.getFieldMapping(index, fields);
         for (String field : fields) {
-            GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(index, field);
+            GetFieldMappingsResponse.FieldMappingMetadata data = response.fieldMappings(index, field);
             if (data == null || data.sourceAsMap().isEmpty()) {
                 throw new NotFoundException("Unable to find `" + field + "` field in `" + index + "` index.");
             }
@@ -196,7 +196,7 @@ public class ElasticTool {
         return response.mappings().keySet()
                 .stream()
                 .anyMatch(indexName -> {
-                    GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(indexName, field);
+                    GetFieldMappingsResponse.FieldMappingMetadata data = response.fieldMappings(indexName, field);
                     boolean isFieldMetadaAMap = (data != null && data.sourceAsMap().get(lastKey) instanceof Map);
                     if (isFieldMetadaAMap) {
                         return Optional.of(((Map)data.sourceAsMap().get(lastKey)))
