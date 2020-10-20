@@ -226,7 +226,7 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
 
         GetFieldMappingsResponse response = client.getFieldMapping(index, timestampField);
 
-        GetFieldMappingsResponse.FieldMappingMetaData data = response.fieldMappings(index, timestampField);
+        GetFieldMappingsResponse.FieldMappingMetadata data = response.fieldMappings(index, timestampField);
         if (data != null) {
             String[] fields = timestampField.split("\\.");
             String field = fields[fields.length - 1];
