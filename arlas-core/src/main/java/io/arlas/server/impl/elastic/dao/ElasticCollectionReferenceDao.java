@@ -319,7 +319,6 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
             if (!excludePath) {
                 if (source.get(key) instanceof Map) {
                     Map property = (Map) source.get(key);
-
                     CollectionReferenceDescriptionProperty collectionProperty = new CollectionReferenceDescriptionProperty();
                     if (property.containsKey("type")) {
                         collectionProperty.type = ElasticType.getType(property.get("type"));
@@ -327,7 +326,12 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
                         collectionProperty.type = ElasticType.OBJECT;
                     }
                     if (FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, collectionProperty.type == ElasticType.OBJECT)) {
-
+                        // check whether the field is declared in the mapping but not index
+                        if (property.containsKey("enabled")) {
+                            collectionProperty.indexed = (boolean)property.get("enabled");
+                        } else if (property.containsKey("index")) {
+                            collectionProperty.indexed = (boolean)property.get("index");
+                        }
                         if (property.containsKey("format")) {
                             String format = property.get("format").toString();
                             if (format == null && collectionProperty.type.equals(ElasticType.DATE)) {

@@ -3,61 +3,74 @@
     "properties": {
       "fullname": {
         "type": "TEXT",
-        "taggable": false
+        "taggable": false,
+        "indexed": true
       },
       "id": {
         "type": "KEYWORD",
-        "taggable": false
+        "taggable": false,
+        "indexed": true
       },
       "params": {
         "type": "OBJECT",
         "properties": {
           "country": {
             "type": "KEYWORD",
-            "taggable": false
+            "taggable": false,
+            "indexed": true
           },
           "weight": {
             "type": "INTEGER",
-            "taggable": false
+            "taggable": false,
+            "indexed": true
           },
           "job": {
             "type": "KEYWORD",
-            "taggable": false
+            "taggable": false,
+            "indexed": true
           },
           "startdate": {
             "type": "DATE",
             "format": "epoch_millis",
-            "taggable": false
+            "taggable": false,
+            "indexed": true
           },
           "stopdate": {
             "type": "DATE",
             "format": "epoch_millis",
-            "taggable": false
+            "taggable": false,
+            "indexed": true
           },
           "age": {
             "type": "INTEGER",
-            "taggable": false
+            "taggable": false,
+            "indexed": true
           },
           "tags": {
             "type": "KEYWORD",
-            "taggable": false
+            "taggable": false,
+            "indexed": true
           }
         },
-        "taggable": false
+        "taggable": false,
+        "indexed": true
       },
       "geo_params": {
         "type": "OBJECT",
         "properties": {
           "centroid": {
             "type": "GEO_POINT",
-            "taggable": false
+            "taggable": false,
+            "indexed": true
           },
           "geometry": {
             "type": "GEO_SHAPE",
-            "taggable": false
+            "taggable": false,
+            "indexed": true
           }
         },
-        "taggable": false
+        "taggable": false,
+        "indexed": true
       }
     },
     "collection_name": "geodata",

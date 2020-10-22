@@ -37,8 +37,16 @@
         "stopdate": {
           "type": "date",
           "format": "epoch_millis"
+        },
+        "not_indexed": {
+          "type": "keyword",
+          "index": false
         }
       }
+    },
+    "not_enabled": {
+      "type": "object",
+      "enabled": false
     },
     "geo_params": {
       "properties": {
