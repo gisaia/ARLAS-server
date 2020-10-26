@@ -27,10 +27,7 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.AggregationGeometryEnum;
 import io.arlas.server.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.model.enumerations.OperatorEnum;
-import io.arlas.server.model.request.AggregationsRequest;
-import io.arlas.server.model.request.Expression;
-import io.arlas.server.model.request.Filter;
-import io.arlas.server.model.request.MixedRequest;
+import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.AggregationResponse;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.rest.explore.ExploreRESTServices;
@@ -48,6 +45,8 @@ import org.geojson.GeoJsonObject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
 
@@ -221,17 +220,80 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         if (geohash.startsWith("#")) {
             geohash = geohash.substring(1);
         }
-        BoundingBox bbox = GeoTileUtil.getBoundingBox(geohash);
-        Expression pwithinBbox = new Expression(collectionReference.params.centroidPath, OperatorEnum.within,
-                bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth());
-
         if (agg == null || agg.size() == 0) {
             agg = Collections.singletonList("geohash:" + collectionReference.params.centroidPath + ":interval-" + geohash.length());
         }
 
-        return geoaggregate(collectionReference,
-                ParamsParser.getFilter(collectionReference, f, q, dateformat, bbox, pwithinBbox),
-                partitionFilter, columnFilter, flat, agg, maxagecache, Optional.of(geohash));
+        List<BoundingBox> bboxes = getBoundingBoxes(geohash, agg, collectionReference);
+        List<CompletableFuture<AggregationResponse>> futureList = new ArrayList<>();
+        AggregationTypeEnum aggType = null;
+        for (BoundingBox b : bboxes) {
+            Expression pwithinBbox = new Expression(collectionReference.params.centroidPath, OperatorEnum.within,
+                    b.getWest() + "," + b.getSouth() + "," + b.getEast() + "," + b.getNorth());
+            MixedRequest request = getGeoaggregateRequest(collectionReference,
+                    ParamsParser.getFilter(collectionReference, f, q, dateformat, b, pwithinBbox)
+                    , partitionFilter, columnFilter, agg);
+            aggType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
+
+            futureList.add(CompletableFuture.supplyAsync(() -> {
+                try {
+                    return exploreService.aggregate(request,collectionReference, true,
+                            ((AggregationsRequest) request.basicRequest).aggregations,0,
+                            System.nanoTime());
+                } catch (ArlasException e) {
+                    throw new RuntimeException(e);
+                }
+            }));
+
+        }
+
+        List<AggregationResponse> aggResponses = futureList.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+
+        return cache(Response.ok(toGeoJson(merge(aggResponses), aggType, Boolean.TRUE.equals(flat), Optional.of(geohash))), maxagecache);
+
+    }
+
+    private List<BoundingBox> getBoundingBoxes(String geohash, List<String> agg, CollectionReference collectionReference) throws ArlasException {
+        // we expect a 'geohash' aggregation model with an interval specified
+        int interval = 0;
+        List<Interval> intervals = ParamsParser.getAggregations(collectionReference, agg).stream()
+                .filter(a -> a.type.equals(AggregationTypeEnum.geohash))
+                .map(a -> a.interval)
+                .collect(Collectors.toList());
+        if (intervals.size() > 0) {
+            interval = intervals.get(0).value.intValue();
+        }
+        BoundingBox bbox = GeoTileUtil.getBoundingBox(geohash);
+        if (interval - geohash.length() > 2) {
+            LOGGER.debug("interval - geohash > 2");
+            // Split initial bbox in 4
+            double midLat = (bbox.getNorth() + bbox.getSouth()) / 2;
+            double midLon = (bbox.getWest() + bbox.getEast()) / 2;
+            return Arrays.asList(
+                    new BoundingBox(bbox.getNorth(), midLat, bbox.getWest(), midLon),
+                    new BoundingBox(bbox.getNorth(), midLat, midLon, bbox.getEast()),
+                    new BoundingBox(midLat, bbox.getSouth(), bbox.getWest(), midLon),
+                    new BoundingBox(midLat, bbox.getSouth(), midLon, bbox.getEast()));
+        } else {
+            LOGGER.debug("interval - geohash <= 2");
+            return Arrays.asList(bbox);
+        }
+    }
+    private AggregationResponse merge(List<AggregationResponse> aggResponses) {
+        AggregationResponse result = new AggregationResponse();
+        if (aggResponses.size() > 1) {
+            result.name = aggResponses.get(0).name;
+            result.totalnb = aggResponses.stream().mapToLong(r -> r.totalnb).sum();
+            result.elements = aggResponses.stream().map(r -> r.elements).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
+            result.metrics = aggResponses.stream().map(r -> r.metrics).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
+            result.hits = aggResponses.stream().map(r -> r.hits).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
+            result.geometries = aggResponses.stream().map(r -> r.geometries).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
+        } else {
+            return aggResponses.get(0);
+        }
+        return result;
     }
 
     @Timed
@@ -303,8 +365,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         return cache(Response.ok(fc), maxagecache);
     }
 
-    private Response geoaggregate(CollectionReference collectionReference, Filter filter, String partitionFilter, Optional<String> columnFilter,
-                                  Boolean flat, List<String> agg, Integer maxagecache, Optional<String> geohash) throws ArlasException {
+    private MixedRequest getGeoaggregateRequest(CollectionReference collectionReference, Filter filter,
+                                                String partitionFilter, Optional<String> columnFilter,
+                                                List<String> agg) throws ArlasException {
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
         aggregationsRequest.filter = filter;
         aggregationsRequest.aggregations = ParamsParser.getAggregations(collectionReference, agg);
@@ -318,6 +381,13 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        return request;
+    }
+
+    private Response geoaggregate(CollectionReference collectionReference, Filter filter, String partitionFilter, Optional<String> columnFilter,
+                                  Boolean flat, List<String> agg, Integer maxagecache, Optional<String> geohash) throws ArlasException {
+
+        MixedRequest request = getGeoaggregateRequest(collectionReference, filter, partitionFilter, columnFilter, agg);
         FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), geohash);
         return cache(Response.ok(fc), maxagecache);
     }

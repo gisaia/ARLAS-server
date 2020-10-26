@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import java.util.Arrays;
 
 @Provider
 public class ArlasExceptionMapper implements ExceptionMapper<ArlasException> {
@@ -32,7 +33,10 @@ public class ArlasExceptionMapper implements ExceptionMapper<ArlasException> {
 
     @Override
     public Response toResponse(ArlasException e) {
-        logger.error("Error occurred", e);
+        logger.error("Error occurred " + e.getClass().getName() + ": " + e.getMessage());
+        for (StackTraceElement s : Arrays.copyOf(e.getStackTrace(), 10)) {
+            logger.error("! " + s.toString());
+        }
         return e.getResponse();
     }
 }
