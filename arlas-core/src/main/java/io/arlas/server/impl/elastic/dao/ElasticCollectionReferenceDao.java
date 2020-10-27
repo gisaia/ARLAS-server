@@ -106,11 +106,20 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
             collectionReference = ElasticTool.getCollectionReferenceFromES(client, arlasIndex, reader, ref);
             cacheManager.putCollectionReference(ref, collectionReference);
         }
-        if (!client.getMappings(collectionReference.params.indexName).isEmpty()){
+        if (!getMapping(collectionReference.params.indexName).isEmpty()){
             return collectionReference;
         } else {
             throw new ArlasException("Collection " + ref + " exists but can not be described. Check if index or template ".concat(collectionReference.params.indexName).concat(" exists"));
         }
+    }
+
+    private Map<String, LinkedHashMap> getMapping(String indexName) throws ArlasException {
+        Map<String, LinkedHashMap> mapping = cacheManager.getMapping(indexName);
+        if (mapping == null) {
+            mapping = client.getMappings(indexName);
+            cacheManager.putMapping(indexName, mapping);
+        }
+         return mapping;
     }
 
     @Override
@@ -158,7 +167,7 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
         }
         return collections.stream().filter(c-> {
             try {
-                return !client.getMappings(c.params.indexName).isEmpty();
+                return !getMapping(c.params.indexName).isEmpty();
             } catch (ArlasException e) {
                 return false;
             }
@@ -216,6 +225,7 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
         } else {
             //explicit clean-up cache
             cacheManager.removeCollectionReference(collectionReference.collectionName);
+            cacheManager.removeMapping(collectionReference.params.indexName);
             return collectionReference;
         }
     }
@@ -259,7 +269,7 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
         collectionReferenceDescription.params = collectionReference.params;
         collectionReferenceDescription.collectionName = collectionReference.collectionName;
 
-        Map<String, LinkedHashMap> response = client.getMappings(collectionReferenceDescription.params.indexName);
+        Map<String, LinkedHashMap> response = getMapping(collectionReferenceDescription.params.indexName);
 
         Iterator<String> indices = response.keySet().iterator();
 
