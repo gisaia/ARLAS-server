@@ -343,7 +343,7 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
                             collectionProperty.properties = getFromSource(collectionReference, (Map) property.get("properties"), namespace, excludeFields, columnFilterPredicates);
                         }
                         if (collectionReference.params.taggableFields != null) {
-                            collectionProperty.taggable = Arrays.asList(collectionReference.params.taggableFields.split(",")).contains(path);
+                            collectionProperty.taggable = Arrays.asList(collectionReference.params.taggableFields.split(",")).stream().map(s -> s.trim()).collect(Collectors.toList()).contains(path);
                         }
                         ret.put(key.toString(), collectionProperty);
                     }
