@@ -23,7 +23,6 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
-import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.managers.CacheManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.ElasticType;
@@ -32,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,11 +40,11 @@ import java.util.concurrent.TimeUnit;
 public class HazelcastCacheManager implements CacheManager {
     Logger LOGGER = LoggerFactory.getLogger(HazelcastCacheManager.class);
     final private Config hzConfig;
-    final private ArlasServerConfiguration arlasConfig;
+    final private int cacheTimeout;
     private HazelcastInstance instance;
 
-    public HazelcastCacheManager(ArlasServerConfiguration configuration) {
-        this.arlasConfig = configuration;
+    public HazelcastCacheManager(int cacheTimeout) {
+        this.cacheTimeout = cacheTimeout;
         this.hzConfig = new Config();
         hzConfig.setProperty( "hazelcast.phone.home.enabled", "false" );
         // no need to expose the following env variable as a server configuration as it is set by Arlas Cloud if needed
@@ -90,10 +88,10 @@ public class HazelcastCacheManager implements CacheManager {
     public void putCollectionReference(String ref, CollectionReference col) {
         LOGGER.debug("Inserting collection reference '" + ref + "' in cache");
         try {
-            this.instance.getReplicatedMap("collections").put(ref, col, arlasConfig.arlasCacheTimeout, TimeUnit.SECONDS);
+            this.instance.getReplicatedMap("collections").put(ref, col, cacheTimeout, TimeUnit.SECONDS);
         } catch (HazelcastInstanceNotActiveException e) { // recover from unexpected shutdown
             init();
-            this.instance.getReplicatedMap("collections").put(ref, col, arlasConfig.arlasCacheTimeout, TimeUnit.SECONDS);
+            this.instance.getReplicatedMap("collections").put(ref, col, cacheTimeout, TimeUnit.SECONDS);
         }
         LOGGER.debug("Clearing elastic types of collection '" + ref + "' from cache");
         this.instance.getReplicatedMap(ref).clear();
@@ -129,10 +127,10 @@ public class HazelcastCacheManager implements CacheManager {
     public void putElasticType(String ref, String name, ElasticType type) {
         LOGGER.debug("Inserting elastic type '" + name + "' for collection '" + ref + "' in cache with value " + (type == null ? "null" : type.elasticType));
         try {
-            this.instance.getReplicatedMap(ref).put(name, type, arlasConfig.arlasCacheTimeout, TimeUnit.SECONDS);
+            this.instance.getReplicatedMap(ref).put(name, type, cacheTimeout, TimeUnit.SECONDS);
         } catch (HazelcastInstanceNotActiveException e) { // recover from unexpected shutdown
             init();
-            this.instance.getReplicatedMap(ref).put(name, type, arlasConfig.arlasCacheTimeout, TimeUnit.SECONDS);
+            this.instance.getReplicatedMap(ref).put(name, type, cacheTimeout, TimeUnit.SECONDS);
         }
     }
 

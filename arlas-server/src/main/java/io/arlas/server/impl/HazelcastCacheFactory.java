@@ -29,7 +29,7 @@ public class HazelcastCacheFactory extends CacheFactory {
 
     public HazelcastCacheFactory(ArlasServerConfiguration configuration) {
         super(configuration);
-        this.cacheManager = new HazelcastCacheManager(configuration);
+        this.cacheManager = new HazelcastCacheManager(configuration.arlasCacheTimeout);
     }
 
     @Override
