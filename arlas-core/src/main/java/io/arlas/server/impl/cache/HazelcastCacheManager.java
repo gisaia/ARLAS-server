@@ -30,6 +30,8 @@ import io.arlas.server.model.response.ElasticType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -131,6 +133,41 @@ public class HazelcastCacheManager implements CacheManager {
         } catch (HazelcastInstanceNotActiveException e) { // recover from unexpected shutdown
             init();
             this.instance.getReplicatedMap(ref).put(name, type, arlasConfig.arlasCacheTimeout, TimeUnit.SECONDS);
+        }
+    }
+
+    @Override
+    public void putMapping(String indexName, Map<String, LinkedHashMap> mapping) {
+        LOGGER.debug("Inserting mapping for index '" + indexName + "' in cache");
+        try {
+            this.instance.getReplicatedMap("mappings").put(indexName, mapping);
+        } catch (HazelcastInstanceNotActiveException e) { // recover from unexpected shutdown
+            init();
+            this.instance.getReplicatedMap("mappings").put(indexName, mapping);
+        }
+    }
+
+    @Override
+    public Map<String, LinkedHashMap> getMapping(String indexName) {
+        Map<String, LinkedHashMap> mapping;
+        try {
+            mapping = (Map<String, LinkedHashMap>) this.instance.getReplicatedMap("mappings").get(indexName);
+        } catch (HazelcastInstanceNotActiveException e) { // recover from unexpected shutdown
+            init();
+            mapping = (Map<String, LinkedHashMap>) this.instance.getReplicatedMap("mappings").get(indexName);
+        }
+        LOGGER.debug("Returning mapping for '" + indexName + "' from cache");
+        return mapping;
+    }
+
+    @Override
+    public void removeMapping(String indexName) {
+        LOGGER.debug("Clearing mapping '" + indexName + "' from cache");
+        try {
+            this.instance.getReplicatedMap("mappings").remove(indexName);
+        } catch (HazelcastInstanceNotActiveException e) { // recover from unexpected shutdown
+            init();
+            this.instance.getReplicatedMap("mappings").remove(indexName);
         }
     }
 }

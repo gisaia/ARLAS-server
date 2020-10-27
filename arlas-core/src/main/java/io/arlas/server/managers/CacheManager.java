@@ -22,6 +22,9 @@ package io.arlas.server.managers;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.ElasticType;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public interface CacheManager {
 
     CollectionReference getCollectionReference(String ref);
@@ -30,4 +33,8 @@ public interface CacheManager {
 
     ElasticType getElasticType(String ref, String name);
     void putElasticType(String ref, String name, ElasticType type);
+
+    void putMapping(String indexName, Map<String, LinkedHashMap> exists);
+    Map<String, LinkedHashMap> getMapping(String indexName);
+    void removeMapping(String indexName);
 }

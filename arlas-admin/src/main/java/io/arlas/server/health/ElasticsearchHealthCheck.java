@@ -31,26 +31,17 @@ public class ElasticsearchHealthCheck extends HealthCheck {
     }
 
     @Override
-    protected HealthCheck.Result check() throws ArlasException {
+    protected HealthCheck.Result check() {
         ResultBuilder resultBuilder = Result.builder();
-        if (checkElasticsearch()) {
+        try {
             if (client.isClusterHealthRed()) {
                 resultBuilder.unhealthy();
             } else {
                 resultBuilder.healthy();
             }
             return resultBuilder.build();
-        } else {
-            return Result.unhealthy("Cannot connect to elasticsearch cluster");
-        }
-    }
-
-    private boolean checkElasticsearch() {
-        try {
-            client.getMappings();
-            return true;
         } catch (Exception e) {
-            return false;
+            return Result.unhealthy("Cannot connect to elasticsearch cluster");
         }
     }
 }
