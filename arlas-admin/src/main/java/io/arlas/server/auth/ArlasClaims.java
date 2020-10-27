@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 public class ArlasClaims {
     private final Logger LOGGER = LoggerFactory.getLogger(ArlasClaims.class);
     private List<RuleClaim> rules;
-    private Map<String, String> headers;
+    private Map<String, List<String>> headers;
     private Map<String, String> variables;
 
     public ArlasClaims(List<String> claims) {
@@ -55,7 +55,13 @@ public class ArlasClaims {
                         break;
                     case "h":
                     case "header":
-                        headers.put(splitClaim[1], splitClaim[2]);
+                        List<String> v = headers.get(splitClaim[1]);
+                        if (v == null) {
+                            v = new ArrayList();
+                        }
+                        v.add(splitClaim[2]);
+                        headers.put(splitClaim[1], v);
+
                         break;
                     case "v":
                     case "var":
@@ -87,15 +93,18 @@ public class ArlasClaims {
 
     public void injectHeaders(MultivaluedMap<String, String> requestHeaders, Transaction transaction) {
         headers.forEach((k,v) -> {
-            LOGGER.debug("Injecting header '" + k +"' with value '" + v + "'");
-            requestHeaders.add(k, v);
-            transaction.addLabel(k, v);
+            LOGGER.debug("Injecting header '" + k +"' with value '" + String.join(",", v) + "'");
+            requestHeaders.addAll(k, v);
+            transaction.addLabel(k, String.join(",", v));
         });
     }
 
     private void injectVariable(String var, String val) {
         rules.replaceAll(rc -> rc.withResource(replaceVar(rc.resource, var, Matcher.quoteReplacement(Pattern.quote(val)))));
-        headers.replaceAll((header, value) -> replaceVar(value, var, val));
+        headers.replaceAll((header, value) -> {
+            value.replaceAll(hv -> replaceVar(hv, var, val));
+            return value;
+        });
     }
 
     private String replaceVar(String original, String var, String val) {
