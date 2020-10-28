@@ -41,12 +41,12 @@
         "not_indexed": {
           "type": "keyword",
           "index": false
+        },
+        "not_enabled": {
+          "type": "object",
+          "enabled": false
         }
       }
-    },
-    "not_enabled": {
-      "type": "object",
-      "enabled": false
     },
     "geo_params": {
       "properties": {

@@ -7,7 +7,8 @@
     },
     "id": {
       "type": "KEYWORD",
-      "taggable": false
+      "taggable": false,
+      "indexed": true
     },
     "params": {
       "type": "OBJECT",
@@ -17,10 +18,20 @@
           "taggable": false,
           "indexed": true
         },
+        "not_indexed": {
+          "type": "KEYWORD",
+          "taggable": false,
+          "indexed": false
+        },
         "weight": {
           "type": "INTEGER",
           "taggable": false,
           "indexed": true
+        },
+        "not_enabled": {
+          "type": "OBJECT",
+          "taggable": false,
+          "indexed": false
         },
         "job": {
           "type": "KEYWORD",
@@ -48,20 +59,10 @@
           "type": "KEYWORD",
           "taggable": false,
           "indexed": true
-        },
-        "not_indexed": {
-          "type": "KEYWORD",
-          "taggable": false,
-          "indexed": false
         }
       },
       "taggable": false,
       "indexed": true
-    },
-    "not_enabled": {
-      "type": "OBJECT",
-      "taggable": false,
-      "indexed": false
     },
     "geo_params": {
       "type": "OBJECT",

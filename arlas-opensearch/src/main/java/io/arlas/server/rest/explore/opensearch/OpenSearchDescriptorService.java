@@ -150,31 +150,34 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
                 addURLs(templatePrefix, urls, property.properties, namespace);
             } else {
                 String fieldPath = String.join(".", new ArrayList<>(namespace));
-                switch (property.type) {
-                    case DATE:
-                    case LONG:
-                        addNumberUrls(urls, templatePrefix, fieldPath, "long");
-                        break;
-                    case DOUBLE:
-                        addNumberUrls(urls, templatePrefix, fieldPath, "double");
-                        break;
-                    case FLOAT:
-                        addNumberUrls(urls, templatePrefix, fieldPath, "float");
-                        break;
-                    case SHORT:
-                        addNumberUrls(urls, templatePrefix, fieldPath, "short");
-                        break;
-                    case INTEGER:
-                        addNumberUrls(urls, templatePrefix, fieldPath, "integer");
-                        break;
-                    case TEXT:
-                        urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
-                        urls.add(url(templatePrefix + "?f=" + fieldPath + ":like:{text?}"));
-                        break;
-                    case KEYWORD:
-                        urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
-                        break;
+                if (property.indexed) {
+                    switch (property.type) {
+                        case DATE:
+                        case LONG:
+                            addNumberUrls(urls, templatePrefix, fieldPath, "long");
+                            break;
+                        case DOUBLE:
+                            addNumberUrls(urls, templatePrefix, fieldPath, "double");
+                            break;
+                        case FLOAT:
+                            addNumberUrls(urls, templatePrefix, fieldPath, "float");
+                            break;
+                        case SHORT:
+                            addNumberUrls(urls, templatePrefix, fieldPath, "short");
+                            break;
+                        case INTEGER:
+                            addNumberUrls(urls, templatePrefix, fieldPath, "integer");
+                            break;
+                        case TEXT:
+                            urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
+                            urls.add(url(templatePrefix + "?f=" + fieldPath + ":like:{text?}"));
+                            break;
+                        case KEYWORD:
+                            urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
+                            break;
+                    }
                 }
+
             }
             namespace.pop();
         }

@@ -309,6 +309,15 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
             Map source, Stack<String> namespace,
             ArrayList<Pattern> excludeFields,
             Optional<Set<String>> columnFilterPredicates) {
+        return getFromSource(collectionReference, source, namespace, excludeFields, columnFilterPredicates, true);
+    }
+
+    private Map<String, CollectionReferenceDescriptionProperty> getFromSource(
+            CollectionReference collectionReference,
+            Map source, Stack<String> namespace,
+            ArrayList<Pattern> excludeFields,
+            Optional<Set<String>> columnFilterPredicates,
+            boolean parentIsIndexed) {
 
         Map<String, CollectionReferenceDescriptionProperty> ret = new HashMap<>();
 
@@ -328,9 +337,11 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
                     if (FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, collectionProperty.type == ElasticType.OBJECT)) {
                         // check whether the field is declared in the mapping but not index
                         if (property.containsKey("enabled")) {
-                            collectionProperty.indexed = (boolean)property.get("enabled");
+                            collectionProperty.indexed = (boolean)property.get("enabled") && parentIsIndexed;
                         } else if (property.containsKey("index")) {
-                            collectionProperty.indexed = (boolean)property.get("index");
+                            collectionProperty.indexed = (boolean)property.get("index") && parentIsIndexed;
+                        } else {
+                            collectionProperty.indexed = parentIsIndexed;
                         }
                         if (property.containsKey("format")) {
                             String format = property.get("format").toString();
@@ -340,7 +351,7 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
                             collectionProperty.format = format;
                         }
                         if (property.containsKey("properties") && property.get("properties") instanceof Map) {
-                            collectionProperty.properties = getFromSource(collectionReference, (Map) property.get("properties"), namespace, excludeFields, columnFilterPredicates);
+                            collectionProperty.properties = getFromSource(collectionReference, (Map) property.get("properties"), namespace, excludeFields, columnFilterPredicates, collectionProperty.indexed);
                         }
                         if (collectionReference.params.taggableFields != null) {
                             collectionProperty.taggable = Arrays.asList(collectionReference.params.taggableFields.split(",")).stream().map(s -> s.trim()).collect(Collectors.toList()).contains(path);
@@ -404,7 +415,7 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
      */
     private Stream<String> getPropertiesFields(Map<String, CollectionReferenceDescriptionProperty> properties, String parentPath) {
         return properties.entrySet().stream().map(es -> {
-            if (es.getValue().type == ElasticType.OBJECT) {
+            if (es.getValue().type == ElasticType.OBJECT && es.getValue().properties != null) {
                 return getPropertiesFields(es.getValue().properties, parentPath + es.getKey() + ".");
             } else {
                 return Stream.of(parentPath + es.getKey());

@@ -46,6 +46,8 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
         AVAILABLE_COLUMNS.put("params.stopdate", 14);
         AVAILABLE_COLUMNS.put("params.age", 14);
         AVAILABLE_COLUMNS.put("params.tags", 2);
+        AVAILABLE_COLUMNS.put("params.not_indexed", 0);
+        AVAILABLE_COLUMNS.put("params.not_enabled", 0);
     }
     private static final List<String> MANDATORY_COLUMNS = Arrays.asList("id", "params.startdate");
     private static final List<String> ALIASED_COLUMNS = Arrays.asList("params.keywords");

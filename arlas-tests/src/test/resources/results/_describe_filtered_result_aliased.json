@@ -23,10 +23,20 @@
           "taggable": false,
           "indexed": true
         },
+        "not_indexed": {
+          "type": "KEYWORD",
+          "taggable": false,
+          "indexed": false
+        },
         "weight": {
           "type": "INTEGER",
           "taggable": false,
           "indexed": true
+        },
+        "not_enabled": {
+          "type": "OBJECT",
+          "taggable": false,
+          "indexed": false
         },
         "job": {
           "type": "KEYWORD",
@@ -47,7 +57,8 @@
         },
         "age": {
           "type": "INTEGER",
-          "taggable": false
+          "taggable": false,
+          "indexed": true
         },
         "tags": {
           "type": "KEYWORD",
