@@ -2,21 +2,21 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.arlas</groupId>
   <artifactId>arlas-tests</artifactId>
-  <version>14.7.0-rc.3-SNAPSHOT</version>
+  <version>14.7.0-rc.3</version>
   <packaging>jar</packaging>
   <name>ARLAS server tests</name>
 
   <parent>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-server-parent</artifactId>
-    <version>14.7.0-rc.3-SNAPSHOT</version>
+    <version>14.7.0-rc.3</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-server</artifactId>
-      <version>14.7.0-rc.3-SNAPSHOT</version>
+      <version>14.7.0-rc.3</version>
     </dependency>
 
     <!-- ____________________________________________________ -->

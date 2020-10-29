@@ -1,11 +1,16 @@
 # Change Log
 
+## [v14.7.0-rc.3](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-rc.3) (2020-10-28)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-rc.2...v14.7.0-rc.3)
+
 ## [v14.7.0-rc.2](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-rc.2) (2020-10-27)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-rc.1...v14.7.0-rc.2)
 
 **New stuff:**
 
+- Put mapping in cache [\#666](https://github.com/gisaia/ARLAS-server/issues/666)
 - Arlas Auth: support multiple for header permission [\#664](https://github.com/gisaia/ARLAS-server/issues/664)
 - Bump to elasticsearch 7.9.2 [\#662](https://github.com/gisaia/ARLAS-server/pull/662) ([sfalquier](https://github.com/sfalquier))
 
