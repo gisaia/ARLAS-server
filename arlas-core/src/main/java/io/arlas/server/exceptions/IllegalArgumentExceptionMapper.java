@@ -24,13 +24,17 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+import java.util.Arrays;
 
 public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentException> {
     Logger logger = LoggerFactory.getLogger(ArlasExceptionMapper.class);
 
     @Override
     public Response toResponse(IllegalArgumentException e) {
-        logger.error("Error occurred", e);
+        logger.error("Error occurred " + e.getClass().getName() + ": " + e.getMessage());
+        for (StackTraceElement s : Arrays.copyOf(e.getStackTrace(), 10)) {
+            logger.error("! " + s.toString());
+        }
         return ArlasException.getResponse(e, Response.Status.BAD_REQUEST, e.getMessage());
     }
 }
