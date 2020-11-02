@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
 
+    private static double GEOHASH_EPSILON = 0.00000001;
     public GeoAggregateRESTService(ExploreService exploreService) {
         super(exploreService);
     }
@@ -229,7 +230,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         AggregationTypeEnum aggType = null;
         for (BoundingBox b : bboxes) {
             Expression pwithinBbox = new Expression(collectionReference.params.centroidPath, OperatorEnum.within,
-                    b.getWest() + "," + b.getSouth() + "," + b.getEast() + "," + b.getNorth());
+                    b.getWest() + "," + b.getSouth() + "," + String.format("%.8f", b.getEast() - GEOHASH_EPSILON) + "," + String.format("%.8f", b.getNorth() - GEOHASH_EPSILON));
             MixedRequest request = getGeoaggregateRequest(collectionReference,
                     ParamsParser.getFilter(collectionReference, f, q, dateformat, b, pwithinBbox)
                     , partitionFilter, columnFilter, agg);
