@@ -49,10 +49,10 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
     public void testDescribeFeatureWithFullnameAndParamsInColumFilter() throws Exception {
         handleMatchingResponse(get(Optional.of("fullname,params,,geo_params.wktgeomet")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
         handleMatchingResponse(get(Optional.of("*fullname*,params.*,geo_params.metry")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("fullname,params.country,params.weight,params.job,params.age,params.tags,params.keywords,params.stopdate")),
+        handleMatchingResponse(get(Optional.of("fullname,params.country,params.not_indexed,params.not_enabled,params.weight,params.job,params.age,params.tags,params.keywords,params.stopdate")),
                 new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
         handleMatchingResponse(get(Optional.of("fullnam*,param*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("fullname,*.country,*arams.weight,param*.job,*age,*ags,params.*eywor*,*arams.stopdate*")),
+        handleMatchingResponse(get(Optional.of("fullname,*.country,*arams.weight,param*.job,*age,*ags,params.*eywor*,*arams.stopdate*,*enabled,*indexed")),
                 new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
         handleMatchingResponse(get(Optional.of("fullname,params.*ountry,params.weigh*,params.*o*,*aram*.age,params.tags,params.keywords*,params.stopdate")),
                 new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));

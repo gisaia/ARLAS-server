@@ -1355,7 +1355,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         for (String key : pathElements) {
             CollectionReferenceDescriptionProperty property = properties.get(key);
             if(property!=null){
-                if (property.type == ElasticType.OBJECT) {
+                if (property.type == ElasticType.OBJECT && property.properties != null) {
                     String[] newArray = Arrays.copyOfRange(pathElements, 1, pathElements.length);
                     return isPathDate(newArray, property.properties);
                 } else {

@@ -31,6 +31,7 @@ public class CollectionReferenceDescriptionProperty {
     public String format;
     public Map<String, CollectionReferenceDescriptionProperty> properties;
     public boolean taggable=false;
+    public boolean indexed=true;
 
     public CollectionReferenceDescriptionProperty() {
     }
