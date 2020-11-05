@@ -64,6 +64,14 @@ public class ColumnFilterUtil {
                                             CollectionReference collectionReference,
                                             Request basicRequest)
             throws InternalServerErrorException, ColumnUnavailableException, CollectionUnavailableException {
+        assertRequestAllowed(columnFilter, collectionReference, basicRequest, null);
+    }
+
+    public static void assertRequestAllowed(Optional<String> columnFilter,
+                                            CollectionReference collectionReference,
+                                            Request basicRequest,
+                                            RequestFieldsExtractor.IRequestFieldsExtractor requestExtractor)
+            throws InternalServerErrorException, ColumnUnavailableException, CollectionUnavailableException {
 
         Optional<String> cleanColumnFilter = cleanColumnFilter(columnFilter);
 
@@ -85,7 +93,7 @@ public class ColumnFilterUtil {
         assertQHasCol(basicRequest);
 
         //do not consider user columns with wildcards - they should be checked later against real fields, if necessary
-        Set<String> forbiddenFields = RequestFieldsExtractor.extract(basicRequest, REQUEST_FIELDS_EXTRACTOR_INCLUDE)
+        Set<String> forbiddenFields = RequestFieldsExtractor.extract(requestExtractor, basicRequest, REQUEST_FIELDS_EXTRACTOR_INCLUDE)
                 .filter(
                         f -> !f.contains("*") && !FilterMatcherUtil.matches(columnFilterPredicates, f))
                 .collect(Collectors.toSet());

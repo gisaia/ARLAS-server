@@ -46,11 +46,13 @@ public class RequestFieldsExtractor {
     public static final Set<String> INCLUDE_ALL  = new HashSet(Arrays.asList(INCLUDE_F, INCLUDE_Q, INCLUDE_SEARCH_SORT,INCLUDE_SEARCH_INCLUDE, INCLUDE_SEARCH_EXCLUDE, INCLUDE_SEARCH_RETURNED_GEOMETRIES,
             INCLUDE_AGG_FIELD, INCLUDE_AGG_RAW_GEOMETRIES, INCLUDE_AGG_FETCH_HITS, INCLUDE_AGG_METRICS, INCLUDE_RANGE_FIELD, INCLUDE_COMPUTATION_FIELD));
 
-    public static Stream<String> extract(Request request, Set<String> includeFields) throws InternalServerErrorException {
+    public static Stream<String> extract(IRequestFieldsExtractor extractor, Request request, Set<String> includeFields) throws InternalServerErrorException {
         IRequestFieldsExtractor requestExtractor;
 
         //comparing classes (and not with "instanceof") to be sure that no subclass with new fields has been added
-        if (Arrays.asList(Request.class, Count.class).contains(request.getClass())) {
+        if (extractor != null) {
+          requestExtractor = extractor;
+        } else if (Arrays.asList(Request.class, Count.class).contains(request.getClass())) {
             requestExtractor = new BasicRequestFieldsExtractor();
         } else if (request.getClass() == Search.class) {
             requestExtractor = new SearchRequestFieldsExtractor();
@@ -66,11 +68,11 @@ public class RequestFieldsExtractor {
         return colsStream.filter(StringUtils::isNotBlank);
     }
 
-    private interface IRequestFieldsExtractor<T extends Request> {
+    public interface IRequestFieldsExtractor<T extends Request> {
         Stream<String> getCols(T request, Set<String> includeFields);
     }
 
-    private static class BasicRequestFieldsExtractor<T extends Request> implements IRequestFieldsExtractor<T> {
+    public static class BasicRequestFieldsExtractor<T extends Request> implements IRequestFieldsExtractor<T> {
 
         public Stream<String> getCols(T request, Set<String> includeFields) {
             Stream<String> fCols = includeFields.contains(INCLUDE_F) ? getFCols(request) : Stream.of();
@@ -97,7 +99,7 @@ public class RequestFieldsExtractor {
         }
     }
 
-    private static class SearchRequestFieldsExtractor extends BasicRequestFieldsExtractor<Search> {
+    public static class SearchRequestFieldsExtractor extends BasicRequestFieldsExtractor<Search> {
 
         @Override
         public Stream<String> getCols(Search request, Set<String> includeFields) {
