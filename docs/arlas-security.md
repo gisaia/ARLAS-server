@@ -88,6 +88,10 @@ Variables are injected in rules and headers.
 - **A list of headers** to be injected to all the requests that require a restricted access 
 (such as the partition-filter), e.g. `header:${header}:${value}`
 
+!!! info "Tip"
+    Defining the same header name multiple times will result in its values to be comma-concatenated and injected in a single header of that name.
+
+
 - **A set of rules**, e.g. `rule:${resource}:${verbs}:${priority}`, composed of:
     * ${resource} is the resource path pattern, relative to /arlas/ (regular expressions can be used)
     * ${verbs} is the comma separated list of allowed verbs (GET, POST...) for accessing the resources matching the resource path pattern
