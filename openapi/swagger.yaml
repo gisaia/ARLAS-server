@@ -19,6 +19,35 @@ schemes:
 - "http"
 - "https"
 paths:
+  /collections:
+    get:
+      tags:
+      - "collections"
+      summary: "Get all collection references"
+      description: "Get all collection references in ARLAS"
+      operationId: "getAll"
+      consumes:
+      - "application/json;charset=utf-8"
+      produces:
+      - "application/json;charset=utf-8"
+      parameters:
+      - name: "pretty"
+        in: "query"
+        description: "Pretty print"
+        required: false
+        type: "boolean"
+        default: false
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/CollectionReference"
+        500:
+          description: "Arlas Server Error."
+          schema:
+            $ref: "#/definitions/Error"
   /collections/_export:
     get:
       tags:
@@ -63,35 +92,6 @@ paths:
           description: "Successful operation"
           schema:
             type: "string"
-        500:
-          description: "Arlas Server Error."
-          schema:
-            $ref: "#/definitions/Error"
-  /collections:
-    get:
-      tags:
-      - "collections"
-      summary: "Get all collection references"
-      description: "Get all collection references in ARLAS"
-      operationId: "getAll"
-      consumes:
-      - "application/json;charset=utf-8"
-      produces:
-      - "application/json;charset=utf-8"
-      parameters:
-      - name: "pretty"
-        in: "query"
-        description: "Pretty print"
-        required: false
-        type: "boolean"
-        default: false
-      responses:
-        200:
-          description: "Successful operation"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/CollectionReference"
         500:
           description: "Arlas Server Error."
           schema:
@@ -3106,4 +3106,6 @@ definitions:
         additionalProperties:
           $ref: "#/definitions/CollectionReferenceDescriptionProperty"
       taggable:
+        type: "boolean"
+      indexed:
         type: "boolean"

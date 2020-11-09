@@ -1,6 +1,31 @@
 # Change Log
 
-## [v14.7.0-rc.3](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-rc.3) (2020-10-28)
+## [v14.7.0](https://github.com/gisaia/ARLAS-server/tree/v14.7.0) (2020-11-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-rc.3...v14.7.0)
+
+**New stuff:**
+
+- Add an information about whether the field is actually indexed in ES when describing the collection [\#670](https://github.com/gisaia/ARLAS-server/issues/670)
+- Put mapping in cache [\#666](https://github.com/gisaia/ARLAS-server/issues/666)
+- Arlas Auth: support multiple for header permission [\#664](https://github.com/gisaia/ARLAS-server/issues/664)
+- allow a difference of 3 between '\_geoaggregate/{geohash}' precision and geohash aggregation precision [\#656](https://github.com/gisaia/ARLAS-server/issues/656)
+- Add env variable to set ALLOWED\_ORIGINS\_PARAM [\#560](https://github.com/gisaia/ARLAS-server/issues/560) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
+- ColumnFilter update to support external modules [\#676](https://github.com/gisaia/ARLAS-server/pull/676) ([alainbodiguel](https://github.com/alainbodiguel))
+- Allow a difference of 3 between '\_geoaggregate/{geohash}'  precision … [\#658](https://github.com/gisaia/ARLAS-server/pull/658) ([alainbodiguel](https://github.com/alainbodiguel))
+- Bump to elasticsearch 7.9.2 [\#662](https://github.com/gisaia/ARLAS-server/pull/662) ([sfalquier](https://github.com/sfalquier))
+
+**Fixed bugs:**
+
+- Tiled geoaggregations counts data on the border of geohashes twice [\#673](https://github.com/gisaia/ARLAS-server/issues/673)
+- Taggable fields are not returned correctly in \_describe [\#671](https://github.com/gisaia/ARLAS-server/issues/671)
+- Fix template matching for a given collection index pattern [\#661](https://github.com/gisaia/ARLAS-server/pull/661) ([sfalquier](https://github.com/sfalquier))
+
+**Miscellaneous:**
+
+- Add documentation about security of ARLAS-server [\#672](https://github.com/gisaia/ARLAS-server/issues/672) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
+## [v14.7.0-rc.3](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-rc.3) (2020-10-29)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-rc.2...v14.7.0-rc.3)
 
@@ -8,24 +33,13 @@
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-rc.1...v14.7.0-rc.2)
 
-**New stuff:**
-
-- Put mapping in cache [\#666](https://github.com/gisaia/ARLAS-server/issues/666)
-- Arlas Auth: support multiple for header permission [\#664](https://github.com/gisaia/ARLAS-server/issues/664)
-- Bump to elasticsearch 7.9.2 [\#662](https://github.com/gisaia/ARLAS-server/pull/662) ([sfalquier](https://github.com/sfalquier))
-
 **Fixed bugs:**
 
 - Invalidate the geo-fields types when the collection cache is invalidated [\#547](https://github.com/gisaia/ARLAS-server/issues/547)
-- Fix template matching for a given collection index pattern [\#661](https://github.com/gisaia/ARLAS-server/pull/661) ([sfalquier](https://github.com/sfalquier))
 
 ## [v14.7.0-rc.1](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-rc.1) (2020-09-29)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-beta.8...v14.7.0-rc.1)
-
-**New stuff:**
-
-- Add env variable to set ALLOWED\_ORIGINS\_PARAM [\#560](https://github.com/gisaia/ARLAS-server/issues/560) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
 
 ## [v14.7.0-beta.8](https://github.com/gisaia/ARLAS-server/tree/v14.7.0-beta.8) (2020-09-15)
 

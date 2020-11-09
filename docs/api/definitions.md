@@ -97,6 +97,7 @@
 |Name|Schema|
 |---|---|
 |**format**  <br>*optional*|string|
+|**indexed**  <br>*optional*|boolean|
 |**properties**  <br>*optional*|< string, [CollectionReferenceDescriptionProperty](#collectionreferencedescriptionproperty) > map|
 |**taggable**  <br>*optional*|boolean|
 |**type**  <br>*optional*|enum (TEXT, KEYWORD, LONG, INTEGER, SHORT, BYTE, DOUBLE, FLOAT, DATE, BOOLEAN, BINARY, INT_RANGE, FLOAT_RANGE, LONG_RANGE, DOUBLE_RANGE, DATE_RANGE, OBJECT, NESTED, GEO_POINT, GEO_SHAPE, IP, COMPLETION, TOKEN_COUNT, MAPPER_MURMUR3, UNKNOWN)|
