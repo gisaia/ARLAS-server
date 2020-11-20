@@ -93,9 +93,10 @@ public class ArlasClaims {
 
     public void injectHeaders(MultivaluedMap<String, String> requestHeaders, Transaction transaction) {
         headers.forEach((k,v) -> {
-            LOGGER.debug("Injecting header '" + k +"' with value '" + String.join(",", v) + "'");
-            requestHeaders.addAll(k, v);
-            transaction.addLabel(k, String.join(",", v));
+            String value = String.join(",", v);
+            LOGGER.debug("Injecting header '" + k +"' with value '" + value + "'");
+            requestHeaders.add(k, value);
+            transaction.addLabel(k, value);
         });
     }
 
