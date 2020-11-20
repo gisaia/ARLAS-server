@@ -64,6 +64,7 @@ public class ColumnFilterUtil {
                                             CollectionReference collectionReference,
                                             Request basicRequest)
             throws InternalServerErrorException, ColumnUnavailableException, CollectionUnavailableException {
+        LOGGER.debug("Column-Filter value: " + columnFilter.orElse("null"));
         assertRequestAllowed(columnFilter, collectionReference, basicRequest, null);
     }
 
