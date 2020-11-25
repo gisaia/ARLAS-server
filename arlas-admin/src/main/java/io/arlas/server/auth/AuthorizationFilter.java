@@ -44,6 +44,7 @@ import java.net.URL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Provider
@@ -87,16 +88,17 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 ctx.getHeaders().remove(authConf.headerGroup); // remove it in case it's been set manually
                 Claim jwtClaimRoles = jwt.getClaim(authConf.claimRoles);
                 if (!jwtClaimRoles.isNull()) {
-                    ctx.getHeaders().put(authConf.headerGroup,
-                            jwtClaimRoles.asList(String.class)
-                                    .stream()
-                                    .filter(r -> r.toLowerCase().startsWith("group"))
-                                    .collect(Collectors.toList())
-                    );
+                    List<String> groups = jwtClaimRoles.asList(String.class)
+                            .stream()
+                            .filter(r -> r.toLowerCase().startsWith("group"))
+                            .collect(Collectors.toList());
+                    ctx.setProperty("groups", groups);
+                    ctx.getHeaders().put(authConf.headerGroup, groups);
                 }
                 Claim jwtClaimPermissions = jwt.getClaim(authConf.claimPermissions);
                 if (!jwtClaimPermissions.isNull()) {
                     ArlasClaims arlasClaims = new ArlasClaims(jwtClaimPermissions.asList(String.class));
+                    ctx.setProperty("claims", arlasClaims);
                     if (arlasClaims.isAllowed(ctx.getMethod(), ctx.getUriInfo().getPath())) {
                         arlasClaims.injectHeaders(ctx.getHeaders(), transaction);
                         return;
