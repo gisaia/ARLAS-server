@@ -44,6 +44,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext) {
         String header = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+        requestContext.setProperty("public", authConf.publicUris);
         if (header == null || !header.toLowerCase().startsWith("bearer ")) {
             //If public end point and no authorize verb
             if ( !requestContext.getUriInfo().getPath().concat(":").concat(requestContext.getMethod()).matches(authConf.getPublicRegex())  && requestContext.getMethod() != "OPTIONS") {

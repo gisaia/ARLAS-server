@@ -113,4 +113,16 @@ public class ArlasClaims {
         LOGGER.debug("Injecting variable '" + var + "' in  '" + original +"' results in '" + result + "'");
         return result;
     }
+
+    public List<RuleClaim> getRules() {
+        return rules;
+    }
+
+    public Map<String, List<String>> getHeaders() {
+        return headers;
+    }
+
+    public Map<String, String> getVariables() {
+        return variables;
+    }
 }
