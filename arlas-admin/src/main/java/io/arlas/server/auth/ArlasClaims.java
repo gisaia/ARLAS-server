@@ -96,7 +96,7 @@ public class ArlasClaims {
             String value = String.join(",", v);
             LOGGER.debug("Injecting header '" + k +"' with value '" + value + "'");
             requestHeaders.add(k, value);
-            transaction.addLabel(k, value);
+            transaction.setLabel(k, value);
         });
     }
 
