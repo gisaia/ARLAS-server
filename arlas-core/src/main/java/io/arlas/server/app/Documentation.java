@@ -102,7 +102,7 @@ public class Documentation {
     public static final String AGGREGATION_OPERATION = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters";
     public static final String AGGREGATION_PARAM_AGG = "- The agg parameter should be given in the following formats:  " +
             "\n \n" +
-            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size} " +
+            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}:fetch_hits-{fetch_hits values} " +
             "\n \n" +
             "Where :" +
             "\n \n" +
@@ -213,7 +213,7 @@ public class Documentation {
     public static final String GEOHASH_GEOAGGREGATION_OPERATION = "Aggregate the elements in the collection(s) and localized in the given geohash as features, given the filters and the aggregation parameters.";
     public static final String GEOAGGREGATION_PARAM_AGG = "- The agg parameter should be given in the following formats:  " +
             "\n \n" +
-            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}:fetcbGeometry-{fetch_geometry values}" +
+            "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}:raw_geometries-{raw_geometries values}:aggregated_geometries-{aggregated_geometries values}:fetch_hits-{fetch_hits values}" +
             "\n \n" +
             "Where :" +
             "\n \n" +

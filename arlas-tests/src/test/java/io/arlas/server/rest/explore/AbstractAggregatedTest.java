@@ -390,6 +390,12 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingHistogramAggregateWithFetchedHits(post(aggregationRequest), 10, 3, "params.country", "params.startdate");
         handleMatchingHistogramAggregateWithFetchedHits(get("histogram:params.startdate:interval-60000:fetch_hits-3(params.country,params.startdate)"), 10, 3, "params.country", "params.startdate");
 
+
+        aggregationRequest.aggregations.get(0).interval = new Interval(60000, null); //"1minute";
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("geo_params.geometry"));
+        handleMatchingHistogramAggregateWithFetchedHits(post(aggregationRequest), 10, 3, "geo_params.geometry");
+        handleMatchingHistogramAggregateWithFetchedHits(get("histogram:params.startdate:interval-60000:fetch_hits-3(geo_params.geometry)"), 10, 3, "geo_params.geometry");
+
         aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("-params.startdate"));
         handleMatchingHistogramAggregateWithSortedFetchedDates(post(aggregationRequest), 10, 3, 763600, 1263600, "params.startdate");
         handleMatchingHistogramAggregateWithSortedFetchedDates(get("histogram:params.startdate:interval-60000:fetch_hits-3(-params.startdate)"), 10, 3, 763600, 1263600, "params.startdate");

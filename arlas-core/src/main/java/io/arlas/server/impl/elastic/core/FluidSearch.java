@@ -833,11 +833,18 @@ public class FluidSearch {
                     String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
                     ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
                     includes.add(unsignedField);
-                    if (field.startsWith("+") || !field.startsWith("-")) {
-                        topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
-                    } else {
-                        topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
+                    /** For geo-fields, we don't sort them. Sorting geo-fields need to be according a given point to calculate a geo-distance
+                     * which is not supported in the syntax of fetch_hits*/
+                    if (CollectionReferenceManager.getInstance().getType(collectionReference, unsignedField, false) != ElasticType.GEO_POINT && CollectionReferenceManager.getInstance().getType(collectionReference, unsignedField, false) != ElasticType.GEO_SHAPE) {
+                        if (field.startsWith("+") || !field.startsWith("-")) {
+                            topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
+                        } else {
+                            topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
+                        }
                     }
+
+
+
                 }
                 String[] hitsToInclude = includes.toArray(new String[includes.size()]);
                 topHitsAggregationBuilder.fetchSource(hitsToInclude, null);
