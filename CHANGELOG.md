@@ -1,6 +1,18 @@
 # Change Log
 
-## [v14.7.0](https://github.com/gisaia/ARLAS-server/tree/v14.7.0) (2020-11-07)
+## [v14.7.1-beta.0](https://github.com/gisaia/ARLAS-server/tree/v14.7.1-beta.0) (2020-12-17)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0...v14.7.1-beta.0)
+
+**Fixed bugs:**
+
+- Multiple header value fix [\#678](https://github.com/gisaia/ARLAS-server/pull/678) ([alainbodiguel](https://github.com/alainbodiguel))
+
+**Miscellaneous:**
+
+- Upgrade APM to 1.19.0 [\#682](https://github.com/gisaia/ARLAS-server/issues/682)
+
+## [v14.7.0](https://github.com/gisaia/ARLAS-server/tree/v14.7.0) (2020-11-09)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0-rc.3...v14.7.0)
 
