@@ -136,38 +136,43 @@ public class ElasticTool {
         }
     }
 
-    public static boolean checkIndexMappingFields(ElasticClient client,
-                                                  String index,
-                                                  String... fields) throws ArlasException {
-        GetFieldMappingsResponse response = client.getFieldMapping(index, fields);
-        for (String field : fields) {
-            GetFieldMappingsResponse.FieldMappingMetadata data = response.fieldMappings(index, field);
-            if (data == null || data.sourceAsMap().isEmpty()) {
-                throw new NotFoundException("Unable to find `" + field + "` field in `" + index + "` index.");
+    public static Map getFieldFromProperties(String field, LinkedHashMap properties) throws ArlasException {
+        if (properties == null) {
+            throw new NotFoundException("Unable to find properties in index");
+        }
+        Map<String, Object> res = properties;
+        String[] stringList = field.split("\\.");
+        int last = stringList.length - 1;
+        for (int i = 0; i <= last; i++) {
+            res = (Map) res.get(stringList[i]);
+            if (res == null) {
+                throw new NotFoundException("Field '" + field + "' not found in index mapping");
+            } else {
+                if (i != last) {
+                    res = (Map) res.get("properties");
+                }
             }
         }
-        return true;
+        return res;
     }
 
-    public static boolean checkAliasMappingFields(ElasticClient client,
-                                                  String alias,
-                                                  String... fields) throws ArlasException {
-        List<String> indices = ElasticTool.getIndicesName(client, alias);
-        for (String index : indices) { checkIndexMappingFields(client, index, fields); }
-        return true;
-    }
-
-    public static List<String> getIndicesName(ElasticClient client, String alias) throws ArlasException {
+    public static Map<String, LinkedHashMap> checkAliasMappingFields(ElasticClient client,
+                                                                     String alias,
+                                                                     String... fields) throws ArlasException {
         Map<String, LinkedHashMap> response = client.getMappings(alias);
+        return checkAliasMappingFields(response, fields);
+    }
 
-        List<String> indices = IteratorUtils.toList(response.keySet().iterator());
+    public static Map<String, LinkedHashMap> checkAliasMappingFields(Map<String, LinkedHashMap> mappings,
+                                                                     String... fields) throws ArlasException {
+        List<String> indices = IteratorUtils.toList(mappings.keySet().iterator());
         for (String index : indices) {
-            Object properties = response.get(index);
-            if (properties == null) {
-                throw new NotFoundException("Unable to find properties in " + index + ".");
+            LinkedHashMap properties = mappings.get(index);
+            for (String field : fields) {
+                getFieldFromProperties(field, properties);
             }
         }
-        return indices;
+        return mappings;
     }
 
     public static CollectionReference getCollectionReferenceFromES(ElasticClient client, String index, ObjectReader reader, String ref) throws ArlasException {

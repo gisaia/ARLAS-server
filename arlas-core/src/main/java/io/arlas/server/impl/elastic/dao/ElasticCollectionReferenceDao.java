@@ -46,7 +46,6 @@ import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
-import org.elasticsearch.client.indices.GetFieldMappingsResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -202,10 +201,9 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
             List<String> excludeField = Arrays.asList(collectionReference.params.excludeFields.split(","));
             CheckParams.checkExcludeField(excludeField, fields);
         }
-        ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, fields.toArray(new String[0]));
-        List<String> indices = ElasticTool.getIndicesName(client, collectionReference.params.indexName);
-        for (String index : indices) {
-            setTimestampFormatOfCollectionReference(index, collectionReference.params);
+        Map<String, LinkedHashMap> mappings = ElasticTool.checkAliasMappingFields(getMapping(collectionReference.params.indexName), fields.toArray(new String[0]));
+        for (String index : mappings.keySet()) {
+            setTimestampFormatOfCollectionReference(index, mappings.get(index), collectionReference.params);
         }
     }
 
@@ -231,22 +229,13 @@ public class ElasticCollectionReferenceDao implements CollectionReferenceDao {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private void setTimestampFormatOfCollectionReference(String index, CollectionReferenceParameters collectionRefParams) throws ArlasException {
-        String timestampField = collectionRefParams.timestampPath;
-
-        GetFieldMappingsResponse response = client.getFieldMapping(index, timestampField);
-
-        GetFieldMappingsResponse.FieldMappingMetadata data = response.fieldMappings(index, timestampField);
-        if (data != null) {
-            String[] fields = timestampField.split("\\.");
-            String field = fields[fields.length - 1];
-            LinkedHashMap<String, Object> timestampMD = (LinkedHashMap) data.sourceAsMap().get(field);
-            collectionRefParams.customParams = new HashMap<>();
-            if (timestampMD.containsKey("format")) {
-                collectionRefParams.customParams.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
-            } else {
-                collectionRefParams.customParams.put(CollectionReference.TIMESTAMP_FORMAT, CollectionReference.DEFAULT_TIMESTAMP_FORMAT);
-            }
+    private void setTimestampFormatOfCollectionReference(String index, LinkedHashMap properties, CollectionReferenceParameters collectionRefParams) throws ArlasException {
+        Map<String, Object> timestampMD = ElasticTool.getFieldFromProperties(collectionRefParams.timestampPath, properties);
+        collectionRefParams.customParams = new HashMap<>();
+        if (timestampMD.containsKey("format")) {
+            collectionRefParams.customParams.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
+        } else {
+            collectionRefParams.customParams.put(CollectionReference.TIMESTAMP_FORMAT, CollectionReference.DEFAULT_TIMESTAMP_FORMAT);
         }
     }
 
