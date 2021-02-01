@@ -35,4 +35,8 @@ public class MD {
     public GeoJsonObject centroid;
 
     public List<Geo> returnedGeometries;
+
+    public String toFlatString() {
+        return "id="+id+"-timestamp="+timestamp+"-centroid="+centroid.toString();
+    }
 }
