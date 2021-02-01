@@ -7,7 +7,7 @@ Explore the content of ARLAS collections
 
 
 ### Version information
-*Version* : 14.0.1
+*Version* : 14.0.2
 
 
 ### Contact information

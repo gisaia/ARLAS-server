@@ -1,5 +1,17 @@
 # Change Log
 
+## [v14.7.2](https://github.com/gisaia/ARLAS-server/tree/v14.7.2) (2021-02-01)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.1...v14.7.2)
+
+## [v14.7.1](https://github.com/gisaia/ARLAS-server/tree/v14.7.1) (2021-01-15)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.1-beta.0...v14.7.1)
+
+**Fixed bugs:**
+
+- Fix sort on geo-fields in 'fetch\_hits' parameter [\#688](https://github.com/gisaia/ARLAS-server/issues/688)
+
 ## [v14.7.1-beta.0](https://github.com/gisaia/ARLAS-server/tree/v14.7.1-beta.0) (2020-12-17)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.0...v14.7.1-beta.0)
