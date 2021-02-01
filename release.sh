@@ -118,7 +118,7 @@ if [ -z ${ARLAS_DEV+x} ]; then usage;          else    echo "Next development ve
 if [ "$SIMULATE" == "NO" -a "$SKIP_API" == "NO" ]; then
     if  [ -z "$PIP_LOGIN"  ] ; then echo "Please set PIP_LOGIN environment variable"; exit -1; fi
     if  [ -z "$PIP_PASSWORD"  ] ; then echo "Please set PIP_PASSWORD environment variable"; exit -1; fi
-
+    if  [ -z "$GITHUB_CHANGELOG_TOKEN"  ] ; then echo "Please set GITHUB_CHANGELOG_TOKEN environment variable"; exit -1; fi
     if  [ -z "$CLOUDSMITH_LOGIN"  ] ; then echo "Please set CLOUDSMITH_LOGIN environment variable"; exit -1; fi
     if  [ -z "$CLOUDSMITH_API_KEY"  ] ; then echo "Please set CLOUDSMITH_API_KEY environment variable"; exit -1; fi
 fi
@@ -311,7 +311,7 @@ if [ "$SIMULATE" == "NO" ]; then
     git push origin v${ARLAS_VERSION}
     #@see scripts/build-github-changelog-generator.sh if you need a fresher version of this tool
     docker run -it --rm -v "$(pwd)":/usr/local/src/your-app gisaia/github-changelog-generator:latest github_changelog_generator \
-        -u gisaia -p ARLAS-server --token 479b4f9b9390acca5c931dd34e3b7efb21cbf6d0 \
+        -u gisaia -p ARLAS-server --token ${GITHUB_CHANGELOG_TOKEN} \
         --no-pr-wo-labels --no-issues-wo-labels --no-unreleased --issue-line-labels API,OGC,conf,security,documentation \
         --exclude-labels type:duplicate,type:question,type:wontfix,type:invalid \
         --bug-labels type:bug \
