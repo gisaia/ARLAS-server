@@ -18,6 +18,7 @@
  */
 package io.arlas.server.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
@@ -26,6 +27,7 @@ import io.arlas.server.model.request.Aggregation;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Request;
 import io.arlas.server.model.response.*;
+import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
 import io.arlas.server.utils.ResponseCacheManager;
 import org.geojson.FeatureCollection;
@@ -90,6 +92,17 @@ public abstract class ExploreService {
         if (element.metrics != null) {
             element.metrics.forEach(metric -> addToFlat(flat, newKeyParts(newKeyParts(keyParts, metric.field), metric.type), "", metric.value));
         }
+        if (element.hits != null) {
+            int i = 0;
+            for (Object hit : element.hits) {
+                Map flatHit = MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>());
+                for (Object k: flatHit.keySet()) {
+                    addToFlat(flat, newKeyParts(newKeyParts(keyParts, "hits"), i + "" ), k.toString(), flatHit.get(k).toString());
+                }
+                i++;
+            }
+        }
+
         int idx = 0;
         if (element.elements != null) {
             for (AggregationResponse subElement : element.elements) {

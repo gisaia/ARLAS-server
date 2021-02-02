@@ -596,10 +596,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                        }
                        if (flat) {
                            exploreService.flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))).forEach(properties::put);
-                           properties.put("key", element.key.toString());
-                           if (element.hits != null) {
-                               properties.put("hits", element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>())));
-                           }
                        }else{
                            properties.put("elements", element.elements);
                            properties.put("metrics", element.metrics);
@@ -612,7 +608,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                        feature.setProperty(GEOMETRY_REFERENCE, g.reference);
                        String aggregationGeometryType = g.isRaw ? AggregationGeometryEnum.RAW.value() : AggregationGeometryEnum.AGGREGATED.value();
                        feature.setProperty(GEOMETRY_TYPE, aggregationGeometryType);
-                       feature.setProperty(GEOMETRY_SORT, g.sort);
+                       if (g.isRaw) {
+                           feature.setProperty(GEOMETRY_SORT, g.sort);
+                       }
                        GeoJsonObject geometry = g.geometry;
                        feature.setGeometry(geometry);
                        fc.add(feature);
