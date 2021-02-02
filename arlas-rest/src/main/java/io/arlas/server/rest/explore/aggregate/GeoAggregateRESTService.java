@@ -149,8 +149,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @GET
     @Produces(ZIPFILE)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "ShapeAggregate", produces = ZIPFILE, notes = Documentation.SHAPEAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
+    @ApiOperation(value = "ShapeAggregate", produces = ZIPFILE, notes = Documentation.SHAPEAGGREGATION_OPERATION, consumes = UTF8JSON)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
             @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
     public Response shapeaggregate(
@@ -451,8 +451,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @POST
     @Produces(ZIPFILE)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "ShapeAggregate", produces = ZIPFILE, notes = Documentation.SHAPEAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
+    @ApiOperation(value = "ShapeAggregate", produces = ZIPFILE, notes = Documentation.SHAPEAGGREGATION_OPERATION, consumes = UTF8JSON)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
             @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
     public Response shapeaggregatePost(
