@@ -82,7 +82,9 @@ public abstract class ExploreService {
 
     private void flat(Map<List<String>, Object> flat, AggregationResponse element, List<String> keyParts) {
         addToFlat(flat, keyParts, "count", element.count);
-        addToFlat(flat, keyParts, "key", element.key);
+        if (element.key !=  null) {
+            addToFlat(flat, keyParts, "key", element.key.toString());
+        }
         addToFlat(flat, keyParts, "key_as_string", element.keyAsString);
         addToFlat(flat, keyParts, "name", element.name);
         addToFlat(flat, keyParts, "query_time", element.queryTime);
