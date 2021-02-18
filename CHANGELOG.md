@@ -1,5 +1,22 @@
 # Change Log
 
+## [v15.7.0](https://github.com/gisaia/ARLAS-server/tree/v15.7.0) (2021-02-18)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v15.7.0-beta.1...v15.7.0)
+
+**New stuff:**
+
+- Support shapefile export [\#680](https://github.com/gisaia/ARLAS-server/issues/680) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Export Shapefiles [\#686](https://github.com/gisaia/ARLAS-server/pull/686) ([alainbodiguel](https://github.com/alainbodiguel))
+
+**Fixed bugs:**
+
+- The results of fetch\_hits parameter in an aggregation are not flattened when 'flat=true' [\#692](https://github.com/gisaia/ARLAS-server/issues/692)
+
+## [v15.7.0-beta.1](https://github.com/gisaia/ARLAS-server/tree/v15.7.0-beta.1) (2021-02-01)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.2...v15.7.0-beta.1)
+
 ## [v14.7.2](https://github.com/gisaia/ARLAS-server/tree/v14.7.2) (2021-02-01)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v14.7.1...v14.7.2)
