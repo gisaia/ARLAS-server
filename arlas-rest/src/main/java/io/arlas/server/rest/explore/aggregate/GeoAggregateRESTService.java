@@ -38,12 +38,15 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -137,7 +140,83 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
         return geoaggregate(collectionReference,
                 ParamsParser.getFilter(collectionReference, f, q, dateformat),
-                partitionFilter, columnFilter, flat, agg, maxagecache, Optional.empty());
+                partitionFilter, columnFilter, flat, agg, maxagecache, Optional.empty(), false);
+
+    }
+
+    @Timed
+    @Path("{collection}/_shapeaggregate")
+    @GET
+    @Produces(ZIPFILE)
+    @Consumes(UTF8JSON)
+    @ApiOperation(value = "ShapeAggregate", produces = ZIPFILE, notes = Documentation.SHAPEAGGREGATION_OPERATION, consumes = UTF8JSON)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
+            @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
+    public Response shapeaggregate(
+            // --------------------------------------------------------
+            // ----------------------- PATH -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "collection",
+                    value = "collection",
+                    required = true)
+            @PathParam(value = "collection") String collection,
+
+            // --------------------------------------------------------
+            // ----------------------- AGGREGATION -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "agg",
+                    value = Documentation.GEOAGGREGATION_PARAM_AGG,
+                    required = true)
+            @QueryParam(value = "agg") List<String> agg,
+
+            // --------------------------------------------------------
+            // ----------------------- FILTER -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "f",
+                    value = Documentation.FILTER_PARAM_F,
+                    allowMultiple = true)
+            @QueryParam(value = "f") List<String> f,
+
+            @ApiParam(name = "q",
+                    value = Documentation.FILTER_PARAM_Q,
+                    allowMultiple = true)
+            @QueryParam(value = "q") List<String> q,
+
+            @ApiParam(name = "dateformat",
+                    value = Documentation.FILTER_DATE_FORMAT)
+            @QueryParam(value = "dateformat") String dateformat,
+
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "partition-filter") String partitionFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
+            @QueryParam(value = "pretty") Boolean pretty,
+
+           // --------------------------------------------------------
+            // ----------------------- EXTRA -----------------------
+            // --------------------------------------------------------
+            @ApiParam(value = "max-age-cache")
+            @QueryParam(value = "max-age-cache") Integer maxagecache
+    ) throws NotFoundException, ArlasException {
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
+                .getCollectionReference(collection);
+        if (collectionReference == null) {
+            throw new NotFoundException(collection);
+        }
+
+        return geoaggregate(collectionReference,
+                ParamsParser.getFilter(collectionReference, f, q, dateformat),
+                partitionFilter, columnFilter, true, agg, maxagecache, Optional.empty(), true);
 
     }
 
@@ -366,6 +445,85 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         return cache(Response.ok(fc), maxagecache);
     }
 
+
+    @Timed
+    @Path("{collection}/_shapeaggregate")
+    @POST
+    @Produces(ZIPFILE)
+    @Consumes(UTF8JSON)
+    @ApiOperation(value = "ShapeAggregate", produces = ZIPFILE, notes = Documentation.SHAPEAGGREGATION_OPERATION, consumes = UTF8JSON)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
+            @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
+    public Response shapeaggregatePost(
+            // --------------------------------------------------------
+            // ----------------------- PATH -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "collection",
+                    value = "collection",
+                    required = true)
+            @PathParam(value = "collection") String collection,
+            // --------------------------------------------------------
+            // ----------------------- AGGREGATION -----------------------
+            // --------------------------------------------------------
+            AggregationsRequest aggregationRequest,
+
+            // --------------------------------------------------------
+            // -----------------------  FILTER  -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "partition-filter") String partitionFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
+            @QueryParam(value = "pretty") Boolean pretty,
+
+            // --------------------------------------------------------
+            // ----------------------- EXTRA -----------------------
+            // --------------------------------------------------------
+            @ApiParam(value = "max-age-cache")
+            @QueryParam(value = "max-age-cache") Integer maxagecache
+    ) throws NotFoundException, ArlasException {
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
+                .getCollectionReference(collection);
+        if (collectionReference == null) {
+            throw new NotFoundException(collection);
+        }
+
+        AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
+        aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        MixedRequest request = new MixedRequest();
+        exploreService.setValidGeoFilters(collectionReference, aggregationRequest);
+        exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationRequest);
+
+        request.basicRequest = aggregationRequest;
+        request.headerRequest = aggregationsRequestHeader;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+
+        FeatureCollection fc = getFeatureCollection(request, collectionReference, true, Optional.empty());
+        File result = toShapefile(fc);
+        try {
+            return Response.ok(result)
+                    .header("Content-Disposition",
+                            "attachment; filename=" + result.getName()).build();
+        } finally {
+            try {
+                FileUtils.forceDeleteOnExit(result);
+            } catch (IOException e) {
+            }
+        }
+    }
+
     private MixedRequest getGeoaggregateRequest(CollectionReference collectionReference, Filter filter,
                                                 String partitionFilter, Optional<String> columnFilter,
                                                 List<String> agg) throws ArlasException {
@@ -386,11 +544,25 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     }
 
     private Response geoaggregate(CollectionReference collectionReference, Filter filter, String partitionFilter, Optional<String> columnFilter,
-                                  Boolean flat, List<String> agg, Integer maxagecache, Optional<String> geohash) throws ArlasException {
+                                  Boolean flat, List<String> agg, Integer maxagecache, Optional<String> geohash, boolean asShapeFile) throws ArlasException {
 
         MixedRequest request = getGeoaggregateRequest(collectionReference, filter, partitionFilter, columnFilter, agg);
         FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), geohash);
-        return cache(Response.ok(fc), maxagecache);
+        if (asShapeFile) {
+            File result = toShapefile(fc);
+            try {
+                return Response.ok(result)
+                        .header("Content-Disposition",
+                                "attachment; filename=" + result.getName()).build();
+            } finally {
+                try {
+                    FileUtils.forceDeleteOnExit(result);
+                } catch (IOException e) {
+                }
+            }
+        } else {
+            return cache(Response.ok(fc), maxagecache);
+        }
     }
 
     private FeatureCollection getFeatureCollection(MixedRequest request, CollectionReference collectionReference, boolean flat, Optional<String> geohash) throws ArlasException {
@@ -424,10 +596,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                        }
                        if (flat) {
                            exploreService.flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))).forEach(properties::put);
-
-                           if (element.hits != null) {
-                               properties.put("hits", element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>())));
-                           }
                        }else{
                            properties.put("elements", element.elements);
                            properties.put("metrics", element.metrics);
@@ -440,7 +608,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                        feature.setProperty(GEOMETRY_REFERENCE, g.reference);
                        String aggregationGeometryType = g.isRaw ? AggregationGeometryEnum.RAW.value() : AggregationGeometryEnum.AGGREGATED.value();
                        feature.setProperty(GEOMETRY_TYPE, aggregationGeometryType);
-                       feature.setProperty(GEOMETRY_SORT, g.sort);
+                       if (g.isRaw) {
+                           feature.setProperty(GEOMETRY_SORT, g.sort);
+                       }
                        GeoJsonObject geometry = g.geometry;
                        feature.setGeometry(geometry);
                        fc.add(feature);

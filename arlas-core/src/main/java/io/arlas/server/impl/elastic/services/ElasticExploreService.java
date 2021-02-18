@@ -332,7 +332,11 @@ public class ElasticExploreService extends ExploreService {
         md.id = arlasHit.md.id;
         md.timestamp = arlasHit.md.timestamp;
         md.centroid = arlasHit.md.centroid;
-        feature.setProperty(MD.class.getSimpleName().toLowerCase(), md);
+        if (!arlasHit.isFlat()) {
+            feature.setProperty(MD.class.getSimpleName().toLowerCase(), md);
+        } else {
+            feature.setProperty(MD.class.getSimpleName().toLowerCase(), md.toFlatString());
+        }
 
         // Setting the feature type of the geojson
         feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);

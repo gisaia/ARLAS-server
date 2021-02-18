@@ -22,6 +22,7 @@ package io.arlas.server.app;
 public class Documentation {
 
     public static final String GEOSEARCH_OPERATION = "Search and return the elements found in the collection(s) as features, given the filters"; // TODO: different?
+    public static final String SHAPESEARCH_OPERATION = "Search and return the elements found in the collection(s) as features, given the filters, exported as a Shapefile"; // TODO: different?
     public static final String TILED_GEOSEARCH_OPERATION = "Search and return the elements found in the collection(s) and localized in the given tile(x,y,z) as features, given the filters";
     public static final String SEARCH_OPERATION = "Search and return the elements found in the collection, given the filters";
     public static final String OPENSEARCH_OPERATION = "Access to the OpenSearch Description document for the given collection";
@@ -210,6 +211,7 @@ public class Documentation {
             "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md.";
 
     public static final String GEOAGGREGATION_OPERATION = "Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters.";
+    public static final String SHAPEAGGREGATION_OPERATION = "Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters, and returns a shapefile of it.";
     public static final String GEOHASH_GEOAGGREGATION_OPERATION = "Aggregate the elements in the collection(s) and localized in the given geohash as features, given the filters and the aggregation parameters.";
     public static final String GEOAGGREGATION_PARAM_AGG = "- The agg parameter should be given in the following formats:  " +
             "\n \n" +

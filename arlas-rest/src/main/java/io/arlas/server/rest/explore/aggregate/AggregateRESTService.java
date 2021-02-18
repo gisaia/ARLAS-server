@@ -242,9 +242,6 @@ public class AggregateRESTService extends ExploreRESTServices {
                         .forEach((key, value) -> element.flattenedElements.put(key,value));
                 element.elements = null;
                 element.metrics = null;
-                if (element.hits != null) {
-                    element.hits = element.hits.stream().map(hit -> MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>())).collect(Collectors.toList());
-                }
             }
         }
         return aggregationResponse;

@@ -38,10 +38,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.io.FileUtils;
 import org.geojson.FeatureCollection;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -170,7 +173,124 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
         return geosearch(collectionReference,
                 ParamsParser.getFilter(collectionReference, f, q, dateformat), partitionFilter, columnFilter,
-                flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries);
+                flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries, false);
+    }
+
+    @Timed
+    @Path("{collection}/_shapesearch")
+    @GET
+    @Produces(ZIPFILE)
+    @Consumes(UTF8JSON)
+    @ApiOperation(value = "ShapeSearch", produces = ZIPFILE, notes = Documentation.SHAPESEARCH_OPERATION, consumes = UTF8JSON)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
+    public Response shapesearch(
+            // --------------------------------------------------------
+            // ----------------------- PATH -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "collection",
+                    value = "collection",
+                    required = true)
+            @PathParam(value = "collection") String collection,
+            // --------------------------------------------------------
+            // -----------------------  FILTER  -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "f",
+                    value = Documentation.FILTER_PARAM_F,
+                    allowMultiple = true)
+            @QueryParam(value = "f") List<String> f,
+
+            @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
+                    allowMultiple = true)
+            @QueryParam(value = "q") List<String> q,
+
+            @ApiParam(name = "dateformat",
+                    value = Documentation.FILTER_DATE_FORMAT)
+            @QueryParam(value = "dateformat") String dateformat,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "partition-filter") String partitionFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
+            // --------------------------------------------------------
+            // -----------------------  FORM    -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
+            @QueryParam(value = "pretty") Boolean pretty,
+
+            // --------------------------------------------------------
+            // -----------------------  PROJECTION   -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(name = "include",
+                    value = Documentation.PROJECTION_PARAM_INCLUDE,
+                    allowMultiple = true,
+                    defaultValue = "*")
+            @QueryParam(value = "include") String include,
+
+            @ApiParam(name = "exclude",
+                    value = Documentation.PROJECTION_PARAM_EXCLUDE,
+                    allowMultiple = true,
+                    defaultValue = "")
+            @QueryParam(value = "exclude") String exclude,
+
+            @ApiParam(name = "returned_geometries",
+                    value = Documentation.PROJECTION_PARAM_RETURNED_GEOMETRIES,
+                    defaultValue = "")
+            @QueryParam(value = "returned_geometries") String returned_geometries,
+
+            // --------------------------------------------------------
+            // -----------------------  PAGE   -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(name = "size",
+                    value = Documentation.PAGE_PARAM_SIZE,
+                    defaultValue = "10",
+                    allowableValues = "range[1, infinity]",
+                    type = "integer")
+            @DefaultValue("10")
+            @QueryParam(value = "size") IntParam size,
+
+            @ApiParam(name = "from", value = Documentation.PAGE_PARAM_FROM,
+                    defaultValue = "0",
+                    allowableValues = "range[0, infinity]",
+                    type = "integer")
+            @DefaultValue("0")
+            @QueryParam(value = "from") IntParam from,
+
+            @ApiParam(name = "sort",
+                    value = Documentation.PAGE_PARAM_SORT,
+                    allowMultiple = true)
+            @QueryParam(value = "sort") String sort,
+
+            @ApiParam(name = "after",
+                    value = Documentation.PAGE_PARAM_AFTER)
+            @QueryParam(value = "after") String after,
+
+            @ApiParam(name = "before",
+                    value = Documentation.PAGE_PARAM_BEFORE)
+            @QueryParam(value = "before") String before,
+
+            // --------------------------------------------------------
+            // -----------------------  EXTRA   -----------------------
+            // --------------------------------------------------------
+            @ApiParam(value = "max-age-cache")
+            @QueryParam(value = "max-age-cache") Integer maxagecache
+    ) throws NotFoundException, ArlasException {
+
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
+                .getCollectionReference(collection);
+        if (collectionReference == null) {
+            throw new NotFoundException(collection);
+        }
+
+        return geosearch(collectionReference,
+                ParamsParser.getFilter(collectionReference, f, q, dateformat), partitionFilter, columnFilter,
+                true, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries, true);
     }
 
     @Timed
@@ -310,7 +430,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
         return geosearch(collectionReference,
                 ParamsParser.getFilter(collectionReference, f, q, dateformat, bbox, pwithinBbox),
-                partitionFilter, columnFilter, flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries);
+                partitionFilter, columnFilter, flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries, false);
     }
 
 
@@ -388,9 +508,93 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         return cache(Response.ok(fc), maxagecache);
     }
 
+    @Timed
+    @Path("{collection}/_shapesearch")
+    @POST
+    @Produces(ZIPFILE)
+    @Consumes(UTF8JSON)
+    @ApiOperation(value = "ShapeSearch", produces = ZIPFILE, notes = Documentation.SHAPESEARCH_OPERATION, consumes = UTF8JSON)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
+    public Response shapesearchPost(
+            // --------------------------------------------------------
+            // ----------------------- PATH -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "collection",
+                    value = "collection",
+                    required = true)
+            @PathParam(value = "collection") String collection,
+
+            // --------------------------------------------------------
+            // -----------------------  Search   -----------------------
+            // --------------------------------------------------------
+            Search search,
+
+            // --------------------------------------------------------
+            // -----------------------  FILTER  -----------------------
+            // --------------------------------------------------------
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "partition-filter") String partitionFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
+            @QueryParam(value = "pretty") Boolean pretty,
+            // --------------------------------------------------------
+            // -----------------------  EXTRA   -----------------------
+            // --------------------------------------------------------
+            @ApiParam(value = "max-age-cache")
+            @QueryParam(value = "max-age-cache") Integer maxagecache
+    ) throws NotFoundException, ArlasException {
+        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
+                .getCollectionReference(collection);
+        if (collectionReference == null) {
+            throw new NotFoundException(collection);
+        }
+
+        String includes = search.projection != null ? search.projection.includes : null;
+        String excludes = search.projection != null ? search.projection.excludes : null;
+        CheckParams.checkReturnedGeometries(collectionReference, includes, excludes, search.returned_geometries);
+
+        Search searchHeader = new Search();
+        searchHeader.filter = ParamsParser.getFilter(partitionFilter);
+
+        exploreService.setValidGeoFilters(collectionReference, search);
+        exploreService.setValidGeoFilters(collectionReference, searchHeader);
+
+        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+
+        search.projection = ParamsParser.enrichIncludes(search.projection, search.returned_geometries);
+
+        MixedRequest request = new MixedRequest();
+        request.basicRequest = search;
+        request.headerRequest = searchHeader;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+
+        FeatureCollection fc = exploreService.getFeatures(request, collectionReference, true);
+        File result = toShapefile(fc);
+        try {
+            return Response.ok(result)
+                    .header("Content-Disposition",
+                            "attachment; filename=" + result.getName()).build();
+        } finally {
+            try {
+                FileUtils.forceDeleteOnExit(result);
+            } catch (IOException e) {
+            }
+        }
+    }
+
     private Response geosearch(CollectionReference collectionReference, Filter filter, String partitionFilter,
                                Optional<String> columnFilter, Boolean flat, String include, String exclude, IntParam size, IntParam from,
-                               String sort, String after, String before, Integer maxagecache, String returned_geometries) throws ArlasException {
+                               String sort, String after, String before, Integer maxagecache, String returned_geometries, boolean asShapeFile) throws ArlasException {
 
         CheckParams.checkReturnedGeometries(collectionReference, include, exclude, returned_geometries);
 
@@ -413,7 +617,21 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.headerRequest = searchHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
         FeatureCollection fc = exploreService.getFeatures(request, collectionReference, (flat != null && flat));
-        return cache(Response.ok(fc), maxagecache);
+        if (asShapeFile) {
+            File result = toShapefile(fc);
+            try {
+                return Response.ok(result)
+                        .header("Content-Disposition",
+                                "attachment; filename=" + result.getName()).build();
+            } finally {
+                try {
+                    FileUtils.forceDeleteOnExit(result);
+                } catch (IOException e) {
+                }
+            }
+        } else {
+            return cache(Response.ok(fc), maxagecache);
+        }
     }
 
 }

@@ -18,6 +18,7 @@
  */
 package io.arlas.server.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
@@ -26,6 +27,7 @@ import io.arlas.server.model.request.Aggregation;
 import io.arlas.server.model.request.MixedRequest;
 import io.arlas.server.model.request.Request;
 import io.arlas.server.model.response.*;
+import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
 import io.arlas.server.utils.ResponseCacheManager;
 import org.geojson.FeatureCollection;
@@ -80,7 +82,9 @@ public abstract class ExploreService {
 
     private void flat(Map<List<String>, Object> flat, AggregationResponse element, List<String> keyParts) {
         addToFlat(flat, keyParts, "count", element.count);
-        addToFlat(flat, keyParts, "key", element.key);
+        if (element.key !=  null) {
+            addToFlat(flat, keyParts, "key", element.key.toString());
+        }
         addToFlat(flat, keyParts, "key_as_string", element.keyAsString);
         addToFlat(flat, keyParts, "name", element.name);
         addToFlat(flat, keyParts, "query_time", element.queryTime);
@@ -90,6 +94,17 @@ public abstract class ExploreService {
         if (element.metrics != null) {
             element.metrics.forEach(metric -> addToFlat(flat, newKeyParts(newKeyParts(keyParts, metric.field), metric.type), "", metric.value));
         }
+        if (element.hits != null) {
+            int i = 0;
+            for (Object hit : element.hits) {
+                Map flatHit = MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>());
+                for (Object k: flatHit.keySet()) {
+                    addToFlat(flat, newKeyParts(newKeyParts(keyParts, "hits"), i + "" ), k.toString(), flatHit.get(k).toString());
+                }
+                i++;
+            }
+        }
+
         int idx = 0;
         if (element.elements != null) {
             for (AggregationResponse subElement : element.elements) {
