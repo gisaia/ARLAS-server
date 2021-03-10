@@ -47,6 +47,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static io.arlas.server.utils.CheckParams.GEO_AGGREGATION_TYPE_ENUMS;
+
 public class ParamsParser {
     private static ObjectMapper objectMapper = new ObjectMapper();
     private static final String AGG_INTERVAL_PARAM = "interval-";
@@ -97,7 +99,7 @@ public class ParamsParser {
             if (parameter.contains(AGG_INTERVAL_PARAM)) {
                 if (aggregationModel.type.equals(AggregationTypeEnum.datehistogram)) {
                     aggregationModel.interval = getDatehistogramAggregationInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));
-                } else if (aggregationModel.type.equals(AggregationTypeEnum.geohash)) {
+                } else if (GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type)) {
                     aggregationModel.interval = getGeohashAggregationInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));
                 } else if (aggregationModel.type.equals(AggregationTypeEnum.histogram)) {
                     aggregationModel.interval = getHistogramAggregationInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));

@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum AggregatedGeometryEnum {
-    BBOX("bbox"), CENTROID("centroid"), GEOHASH("geohash"), GEOHASHCENTER("geohash_center");
+    BBOX("bbox"), CENTROID("centroid"), TILE("tile"), TILECENTER("tile_center");
 
     private final String value;
     private static final String INVALID_AGGREGATED_GEOMETRY = "Invalid aggregated geometry `";

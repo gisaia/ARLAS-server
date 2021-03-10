@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.arlas.server.utils.CheckParams.GEO_AGGREGATION_TYPE_ENUMS;
 import static io.restassured.RestAssured.given;
 
 public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
@@ -67,12 +68,12 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingGeohashAggregateCenter(post(aggregationRequest), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
         handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1"), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
 
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.GEOHASHCENTER);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILECENTER);
         handleMatchingGeohashAggregate(post(aggregationRequest), 32, 16, 25);
-        handleMatchingGeohashAggregate(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-geohash_center"), 32, 16, 25);
+        handleMatchingGeohashAggregate(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-tile_center"), 32, 16, 25);
 
         handleMatchingGeohashAggregateCenter(post(aggregationRequest), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
-        handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-geohash_center"), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
+        handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-tile_center"), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
 
         aggregationRequest.aggregations.get(0).aggregatedGeometries = null;
         aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry"));
@@ -167,10 +168,10 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingGeohashAggregateWithGeocentroidBucket(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-centroid"),
                 32, 16, 25, 0, -155.00000031664968F, -65.00000014901161F, 154.99999981373549F, 64.99999981373549F);
 
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.GEOHASH);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILE);
         handleMatchingAggregateWithGeometry(post(aggregationRequest),
                 32, 16, 25, -180F, -90F, 180F, 90F);
-        handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-geohash"),
+        handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-tile"),
                 32, 16, 25, -180F, -90F, 180F, 90F);
 
         aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.BBOX);
@@ -192,6 +193,151 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
                 32, 16, 25, 1, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
         handleMatchingGeohashAggregateWithGeoBboxBucket(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-bbox:collect_fct-geocentroid:collect_field-geo_params.centroid"),
                 32, 16, 25, 1, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+
+
+    }
+
+    @Test
+    public void testGeotileAggregate() throws Exception {
+        //GEOTILE
+        aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.geotile;
+        aggregationRequest.aggregations.get(0).field = "geo_params.centroid";
+        aggregationRequest.aggregations.get(0).interval = new Interval(6, null); //"6";
+        handleMatchingGeohashAggregate(post(aggregationRequest), 595, 1, 1);
+        handleMatchingGeohashAggregate(get("geotile:geo_params.centroid:interval-6"), 595, 1, 1);
+
+        aggregationRequest.aggregations.get(0).interval = new Interval(1, null); //"1";
+        handleMatchingGeohashAggregate(post(aggregationRequest), 4, 136, 162);
+        handleMatchingGeohashAggregate(get("geotile:geo_params.centroid:interval-1"), 4, 136, 162);
+
+        handleMatchingGeohashAggregateCenter(post(aggregationRequest), 4, 136, 162, -90F, -42.525566F, 90F, 42.525565F);
+        handleMatchingGeohashAggregateCenter(get("geotile:geo_params.centroid:interval-1"), 4, 136, 162, -90F, -42.525566F, 90F, 42.525565F);
+
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILECENTER);
+        handleMatchingGeohashAggregate(post(aggregationRequest), 4, 136, 162);
+        handleMatchingGeohashAggregate(get("geotile:geo_params.centroid:interval-1:aggregated_geometries-tile_center"), 4, 136, 162);
+
+        handleMatchingGeohashAggregateCenter(post(aggregationRequest), 4, 136, 162, -90F, -42.525566F, 90F, 42.525565F);
+        handleMatchingGeohashAggregateCenter(get("geotile:geo_params.centroid:interval-1:aggregated_geometries-tile_center"), 4, 136, 162, -90F, -42.525566F, 90F, 42.525565F);
+
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = null;
+        aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry"));
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 4, 136, 162, -171F, -81F, 141F, 51F);
+        handleMatchingAggregateWithGeometry(get("geotile:geo_params.centroid:interval-1:raw_geometries-geo_params.geometry"), 4, 136, 162, -171F, -81F, 141F, 51F);
+
+        aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry", "-params.startdate"));
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 4, 136, 162, -141F, -51F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("geotile:geo_params.centroid:interval-1:raw_geometries-geo_params.geometry(-params.startdate)"), 4, 136, 162, -141F, -51F, 171F, 81F);
+
+        aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry", "params.age"));
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 4, 136, 162, -161F, -99F, 161F, 71F);
+        handleMatchingAggregateWithGeometry(get("geotile:geo_params.centroid:interval-1:raw_geometries-geo_params.geometry(params.age)"), 4, 136, 162, -161F, -99F, 161F, 71F);
+
+        aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry", "-params.age"));
+        handleMatchingAggregateWithGeometry(post(aggregationRequest), 4, 136, 162, -171F, -81F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("geotile:geo_params.centroid:interval-1:raw_geometries-geo_params.geometry(-params.age)"), 4, 136, 162, -171F, -81F, 171F, 81F);
+
+        aggregationRequest.aggregations.get(0).rawGeometries = null;
+
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("params.country", "params.startdate"));
+        handleMatchingAggregateWithFetchedHits(post(aggregationRequest), 4, 3, "params.country", "params.startdate");
+        handleMatchingAggregateWithFetchedHits(get("geotile:geo_params.centroid:interval-1:fetch_hits-3(params.country,params.startdate)"), 4, 3, "params.country", "params.startdate");
+
+        aggregationRequest.aggregations.get(0).fetchHits = new HitsFetcher(3, Arrays.asList("-params.startdate"));
+        handleMatchingAggregateWithSortedFetchedDates(post(aggregationRequest), 4, 3, 980000, 1263600, "params.startdate");
+        handleMatchingAggregateWithSortedFetchedDates(get("geotile:geo_params.centroid:interval-1:fetch_hits-3(-params.startdate)"), 4, 3, 980000, 1263600, "params.startdate");
+        aggregationRequest.aggregations.get(0).fetchHits = null;
+
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.AVG));
+        handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"avg", 873600F, 1133825F);
+        handleMatchingGeohashAggregateWithCollect(get("geotile:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-avg"),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"avg", 873600F, 1133825F);
+
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.CARDINALITY));
+        handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"cardinality", 116, 162F);
+        handleMatchingGeohashAggregateWithCollect(get("geotile:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-cardinality"),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"cardinality", 116, 162F);
+
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.MAX));
+        handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, "max", 990000F, 1263600F);
+        handleMatchingGeohashAggregateWithCollect(get("geotile:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-max"),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"max", 990000F, 1263600F);
+
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.MIN));
+        handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"min", 763600F, 1010000F);
+        handleMatchingGeohashAggregateWithCollect(get("geotile:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-min"),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"min", 763600F, 1010000F);
+
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.SUM));
+        handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"sum", 129329200F, 168739200F);
+        handleMatchingGeohashAggregateWithCollect(get("geotile:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-sum"),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"sum", 129329200F, 168739200F);
+
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.SUM));
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.age", CollectionFunction.MAX));
+        handleMatchingGeohashAggregateWithMultiCollect(post(aggregationRequest),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, aggregationRequest.aggregations.get(0).metrics.get(1).collectField, "sum", "max", 129329200F, 168739200F, 13600F,13600F);
+        handleMatchingGeohashAggregateWithMultiCollect(get("geotile:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-sum:collect_field-params.age:collect_fct-max"),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, aggregationRequest.aggregations.get(0).metrics.get(1).collectField,"sum", "max", 129329200F, 168739200F, 13600F,13600F);
+
+
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("geo_params.centroid", CollectionFunction.GEOCENTROID));
+        handleMatchingGeohashAggregateWithGeocentroidCollect(post(aggregationRequest),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, "geocentroid", -90.00000003944425F, -40.00000001862645F, 84.9999999627471F, 44.99999997904524F);
+        handleMatchingGeohashAggregateWithGeocentroidCollect(get("geotile:geo_params.centroid:interval-1:collect_fct-geocentroid:collect_field-geo_params.centroid"),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, "geocentroid", -90.00000003944425F, -40.00000001862645F, 84.9999999627471F, 44.99999997904524F);
+
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("geo_params.centroid", CollectionFunction.GEOBBOX));
+        handleMatchingGeohashAggregateWithGeoBboxCollect(post(aggregationRequest),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField, "geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        handleMatchingGeohashAggregateWithGeoBboxCollect(get("geotile:geo_params.centroid:interval-1:collect_fct-geobbox:collect_field-geo_params.centroid"),
+                4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"geobbox", -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.CENTROID);
+        handleMatchingGeohashAggregateWithGeocentroidBucket(post(aggregationRequest),
+                4, 136, 162, 0, -90.00000003944425F, -40.00000001862645F, 84.9999999627471F, 44.99999997904524F);
+        handleMatchingGeohashAggregateWithGeocentroidBucket(get("geotile:geo_params.centroid:interval-1:aggregated_geometries-centroid"),
+                4, 136, 162, 0, -90.00000003944425F, -40.00000001862645F, 84.9999999627471F, 44.99999997904524F);
+
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILE);
+        handleMatchingAggregateWithGeometry(post(aggregationRequest),
+                4, 136, 162, -180F, -90F, 180F, 90F);
+        handleMatchingAggregateWithGeometry(get("geotile:geo_params.centroid:interval-1:aggregated_geometries-tile"),
+                4, 136, 162, -180F, -90F, 180F, 90F);
+
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.BBOX);
+        handleMatchingGeohashAggregateWithGeoBboxBucket(post(aggregationRequest),
+                4, 136, 162, 0, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        handleMatchingGeohashAggregateWithGeoBboxBucket(get("geotile:geo_params.centroid:interval-1:aggregated_geometries-bbox"),
+                4, 136, 162, 0, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("geo_params.centroid", CollectionFunction.GEOBBOX));
+        handleMatchingGeohashAggregateWithGeoBboxBucket(post(aggregationRequest),
+                4, 136, 162, 0, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        handleMatchingGeohashAggregateWithGeoBboxBucket(get("geotile:geo_params.centroid:interval-1:aggregated_geometries-bbox:collect_fct-geobbox:collect_field-geo_params.centroid"),
+                4, 136, 162, 0, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+
+        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("geo_params.centroid", CollectionFunction.GEOCENTROID));
+        handleMatchingGeohashAggregateWithGeoBboxBucket(post(aggregationRequest),
+                4, 136, 162, 1, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
+        handleMatchingGeohashAggregateWithGeoBboxBucket(get("geotile:geo_params.centroid:interval-1:aggregated_geometries-bbox:collect_fct-geocentroid:collect_field-geo_params.centroid"),
+                4, 136, 162, 1, -170.00000000931323F, -80.00000000931323F, 169.9999999254942F, 79.99999996740371F);
 
 
     }
@@ -767,88 +913,101 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(post(invalidAggregationRequest));
 
         //INVALID GEOHASH
-        aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.geohash;
-        handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("geohash"));
+        for (AggregationTypeEnum geoAggTypeEnum : GEO_AGGREGATION_TYPE_ENUMS) {
+            String geoAggType = geoAggTypeEnum.name();
+            aggregationRequest.aggregations.get(0).type = geoAggTypeEnum;
+            handleInvalidParameters(post(aggregationRequest));
+            handleInvalidParameters(get(geoAggType));
 
-        aggregationRequest.aggregations.get(0).field = "params.job";
-        handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("geohash:params.job"));
+            aggregationRequest.aggregations.get(0).field = "params.job";
+            handleInvalidParameters(post(aggregationRequest));
+            handleInvalidParameters(get(geoAggType+":params.job"));
 
-        aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
-        handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("geohash:params.job:interval-1"));
+            aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
+            handleInvalidParameters(post(aggregationRequest));
+            handleInvalidParameters(get(geoAggType+":params.job:interval-1"));
 
-        aggregationRequest.aggregations.get(0).field = "geo_centroid";
-        aggregationRequest.aggregations.get(0).interval = new Interval(0, null);
-        handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid:interval-0"));
+            aggregationRequest.aggregations.get(0).field = "geo_centroid";
+            switch(geoAggTypeEnum) {
+                case geohash:
+                    aggregationRequest.aggregations.get(0).interval = new Interval(0, null);
+                    handleInvalidParameters(post(aggregationRequest));
+                    handleInvalidParameters(get(geoAggType+":geo_params.centroid:interval-0"));
 
-        aggregationRequest.aggregations.get(0).interval = new Interval(13, null);
-        handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid:interval-13"));
-        aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
+                    aggregationRequest.aggregations.get(0).interval = new Interval(13, null);
+                    handleInvalidParameters(post(aggregationRequest));
+                    handleInvalidParameters(get(geoAggType+":geo_params.centroid:interval-13"));
+                    break;
+                case geotile:
+                    aggregationRequest.aggregations.get(0).interval = new Interval(30, null);
+                    handleInvalidParameters(post(aggregationRequest));
+                    handleInvalidParameters(get(geoAggType+":geo_params.centroid:interval-30"));
+                    break;
+            }
 
-        aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("toto.geometry"));
-        handleNotFoundField(post(aggregationRequest));
-        handleNotFoundField(get("geohash:geo_params.centroid:interval-1:raw_geometries-toto.geometry"));
-        aggregationRequest.aggregations.get(0).rawGeometries = null;
+            aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
 
-        aggregationRequest.aggregations.get(0).order = Order.asc;
-        aggregationRequest.aggregations.get(0).on = OrderOn.count;
-        handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:order-asc:on-count"));
+            aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("toto.geometry"));
+            handleNotFoundField(post(aggregationRequest));
+            handleNotFoundField(get(geoAggType+":geo_params.centroid:interval-1:raw_geometries-toto.geometry"));
+            aggregationRequest.aggregations.get(0).rawGeometries = null;
 
-        aggregationRequest.aggregations.get(0).on = OrderOn.field;
-        handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:order-asc:on-field"));
+            aggregationRequest.aggregations.get(0).order = Order.asc;
+            aggregationRequest.aggregations.get(0).on = OrderOn.count;
+            handleInvalidParameters(post(aggregationRequest));
+            handleInvalidParameters(get(geoAggType+":geo_params.centroid:interval-1:order-asc:on-count"));
 
-        aggregationRequest.aggregations.get(0).order = Order.desc;
-        aggregationRequest.aggregations.get(0).on = OrderOn.result;
-        handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:order-desc:on-result"));
+            aggregationRequest.aggregations.get(0).on = OrderOn.field;
+            handleInvalidParameters(post(aggregationRequest));
+            handleInvalidParameters(get(geoAggType+":geo_params.centroid:interval-1:order-asc:on-field"));
 
-        aggregationRequest.aggregations.get(0).order = Order.asc;
-        aggregationRequest.aggregations.get(0).on = OrderOn.result;
-        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
-        aggregationRequest.aggregations.get(0).metrics.add(new Metric("geo_params.centroid", CollectionFunction.GEOCENTROID));
-        handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:order-asc:on-result:collect_fct-geocentroid:collect_field-geo_params.centroid"));
+            aggregationRequest.aggregations.get(0).order = Order.desc;
+            aggregationRequest.aggregations.get(0).on = OrderOn.result;
+            handleInvalidParameters(post(aggregationRequest));
+            handleInvalidParameters(get(geoAggType+":geo_params.centroid:interval-1:order-desc:on-result"));
 
-        aggregationRequest.aggregations.get(0).order = null;
-        aggregationRequest.aggregations.get(0).on = null;
-        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
-        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.job", CollectionFunction.GEOCENTROID));
-        handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-params.job:collect_fct-geocentroid"));
+            aggregationRequest.aggregations.get(0).order = Order.asc;
+            aggregationRequest.aggregations.get(0).on = OrderOn.result;
+            aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+            aggregationRequest.aggregations.get(0).metrics.add(new Metric("geo_params.centroid", CollectionFunction.GEOCENTROID));
+            handleInvalidParameters(post(aggregationRequest));
+            handleInvalidParameters(get(geoAggType+":geo_params.centroid:interval-1:order-asc:on-result:collect_fct-geocentroid:collect_field-geo_params.centroid"));
 
-        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
-        aggregationRequest.aggregations.get(0).metrics.add(new Metric("foo", null));
-        handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-foo"));
+            aggregationRequest.aggregations.get(0).order = null;
+            aggregationRequest.aggregations.get(0).on = null;
+            aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+            aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.job", CollectionFunction.GEOCENTROID));
+            handleInvalidParameters(post(aggregationRequest));
+            handleInvalidParameters(get(geoAggType+":geo_params.centroid:interval-1:collect_field-params.job:collect_fct-geocentroid"));
 
-        aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
-        aggregationRequest.aggregations.get(0).include = "foo";
-        handleInvalidParameters(post(invalidAggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:include-foo"));
+            aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+            aggregationRequest.aggregations.get(0).metrics.add(new Metric("foo", null));
+            handleInvalidParameters(post(aggregationRequest));
+            handleInvalidParameters(get(geoAggType+":geo_params.centroid:interval-1:collect_field-foo"));
 
-        invalidAggregationRequest.invalidAggregations.get(0).type = "geohash";
-        invalidAggregationRequest.invalidAggregations.get(0).field = "geo_params.centroid";
-        invalidAggregationRequest.invalidAggregations.get(0).interval = new Interval(1, null);
-        invalidAggregationRequest.invalidAggregations.get(0).metrics = new ArrayList<>();
-        invalidAggregationRequest.invalidAggregations.get(0).metrics.add(new InvalidMetric("foo", "bar"));
-        handleInvalidParameters(post(invalidAggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:collect_field-foo:collect_fct-bar"));
-        invalidAggregationRequest.invalidAggregations.get(0).metrics = null;
+            aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
+            aggregationRequest.aggregations.get(0).include = "foo";
+            handleInvalidParameters(post(invalidAggregationRequest));
+            handleInvalidParameters(get(geoAggType+":geo_params.centroid:interval-1:include-foo"));
 
-        invalidAggregationRequest.invalidAggregations.get(0).aggregatedGeometries = Arrays.asList("boo");
-        handleInvalidParameters(post(invalidAggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-boo"));
+            invalidAggregationRequest.invalidAggregations.get(0).type = geoAggType;
+            invalidAggregationRequest.invalidAggregations.get(0).field = "geo_params.centroid";
+            invalidAggregationRequest.invalidAggregations.get(0).interval = new Interval(1, null);
+            invalidAggregationRequest.invalidAggregations.get(0).metrics = new ArrayList<>();
+            invalidAggregationRequest.invalidAggregations.get(0).metrics.add(new InvalidMetric("foo", "bar"));
+            handleInvalidParameters(post(invalidAggregationRequest));
+            handleInvalidParameters(get(geoAggType+":geo_params.centroid:interval-1:collect_field-foo:collect_fct-bar"));
+            invalidAggregationRequest.invalidAggregations.get(0).metrics = null;
 
-        aggregationRequest.aggregations.get(0).include = null;
-        aggregationRequest.aggregations.get(0).interval = null;
-        handleInvalidParameters(post(invalidAggregationRequest));
-        handleInvalidParameters(get("geohash:geo_params.centroid"));
+            invalidAggregationRequest.invalidAggregations.get(0).aggregatedGeometries = Arrays.asList("boo");
+            handleInvalidParameters(post(invalidAggregationRequest));
+            handleInvalidParameters(get(geoAggType+":geo_params.centroid:interval-1:aggregated_geometries-boo"));
+
+            aggregationRequest.aggregations.get(0).include = null;
+            aggregationRequest.aggregations.get(0).interval = null;
+            handleInvalidParameters(post(invalidAggregationRequest));
+            handleInvalidParameters(get(geoAggType+":geo_params.centroid"));
+        }
 
         // INVALID DATE HISTOGRAM
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.datehistogram;
@@ -879,9 +1038,9 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(get("datehistogram:params.startdate:interval-day"));
 
         aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.day); // "1day";
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.GEOHASH);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILE);
         handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("datehistogram:params.startdate:interval-1day:aggregated_geometries-geohash"));
+        handleInvalidParameters(get("datehistogram:params.startdate:interval-1day:aggregated_geometries-tile"));
         aggregationRequest.aggregations.get(0).aggregatedGeometries = null;
 
         // INVALID HISTOGRAM
@@ -904,9 +1063,9 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(get("histogram:params.job"));
 
         aggregationRequest.aggregations.get(0).interval = new Interval(100000, null); // "1day";
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.GEOHASH);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILE);
         handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("histogram:params.startdate:interval-100000:aggregated_geometries-geohash"));
+        handleInvalidParameters(get("histogram:params.startdate:interval-100000:aggregated_geometries-tile"));
         aggregationRequest.aggregations.get(0).aggregatedGeometries = null;
         aggregationRequest.aggregations.get(0).interval = null;
 
@@ -919,9 +1078,9 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         // INVALID AGGERAGATED_GEOMETY
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
         aggregationRequest.aggregations.get(0).interval = null;
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.GEOHASH);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILE);
         handleInvalidParameters(post(aggregationRequest));
-        handleInvalidParameters(get("term:params.job:aggregated_geometries-geohash"));
+        handleInvalidParameters(get("term:params.job:aggregated_geometries-tile"));
 
         invalidAggregationRequest.invalidAggregations.get(0).type = "term";
         invalidAggregationRequest.invalidAggregations.get(0).field = "params.job";
@@ -988,12 +1147,14 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
     @Test
     public void testNotImplementedAggregateParameters() throws Exception {
         //NOT IMPLEMENTED PARAMETER
-        aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.geohash;
-        aggregationRequest.aggregations.get(0).field = "geo_centroid";
-        aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
-        aggregationRequest.aggregations.get(0).size = "1";
-        handleNotImplementedParameters(post(aggregationRequest));
-        handleNotImplementedParameters(get("geohash:geo_params.centroid:interval-1:size-1"));
+        for (AggregationTypeEnum geoAggTypeEnum : GEO_AGGREGATION_TYPE_ENUMS) {
+            aggregationRequest.aggregations.get(0).type = geoAggTypeEnum;
+            aggregationRequest.aggregations.get(0).field = "geo_centroid";
+            aggregationRequest.aggregations.get(0).interval = new Interval(1, null);
+            aggregationRequest.aggregations.get(0).size = "1";
+            handleNotImplementedParameters(post(aggregationRequest));
+            handleNotImplementedParameters(get(geoAggTypeEnum.name()+":geo_params.centroid:interval-1:size-1"));
+        }
     }
 
     //----------------------------------------------------------------

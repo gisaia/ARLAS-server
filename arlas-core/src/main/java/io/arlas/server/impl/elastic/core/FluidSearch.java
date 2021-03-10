@@ -62,6 +62,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 
+import static io.arlas.server.utils.CheckParams.GEO_AGGREGATION_TYPE_ENUMS;
+
 public class FluidSearch {
 
     public static final String INVALID_FILTER = "Invalid filter parameter.";
@@ -80,6 +82,7 @@ public class FluidSearch {
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
     public static final String GEOHASH_AGG = "Geohash aggregation";
+    public static final String GEOTILE_AGG = "Geotile aggregation";
     public static final String FETCH_HITS_AGG = "fetched_hits";
     public static final String GEO_DISTANCE = "geodistance";
     public static final String NO_INCLUDE_TO_SPECIFY = "'include-' should not be specified for this aggregation";
@@ -93,7 +96,7 @@ public class FluidSearch {
     public static final String ORDER_PARAM_NOT_ALLOWED = "Order is not allowed for geohash aggregation.";
     public static final String ORDER_ON_RESULT_NOT_ALLOWED = "'on-result' sorts 'collect_field' and 'collect_fct' results. Please specify 'collect_field' and 'collect_fct'.";
     public static final String ORDER_ON_GEO_RESULT_NOT_ALLOWED = "Ordering on 'result' is not allowed for geo-box neither geo-centroid metric aggregation. ";
-    public static final String SIZE_NOT_IMPLEMENTED = "Size is not implemented for geohash.";
+    public static final String SIZE_NOT_IMPLEMENTED = "Size is not implemented for geohash/geotile.";
 
     public static final String FIELD_MIN_VALUE = "field_min_value";
     public static final String FIELD_MAX_VALUE = "field_max_value";
@@ -519,7 +522,9 @@ public class FluidSearch {
         //check the agg syntax is correct
         Aggregation aggregationModel = aggregations.get(0);
         if (isGeoAggregate && counter == 0) {
-            if (aggregationModel.type != AggregationTypeEnum.geohash && aggregationModel.rawGeometries == null && aggregationModel.aggregatedGeometries == null) {
+            if (!GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type)
+                    && aggregationModel.rawGeometries == null
+                    && aggregationModel.aggregatedGeometries == null) {
                 throw new NotAllowedException("'" + aggregationModel.type.name() +"' aggregation type is not allowed in _geoaggregate service if at least `aggregated_geometries` or `raw_geometries` parameters are not specified");
             }
         }
@@ -529,6 +534,9 @@ public class FluidSearch {
                 break;
             case geohash:
                 aggregationBuilder = buildGeohashAggregation(aggregationModel);
+                break;
+            case geotile:
+                aggregationBuilder = buildGeotileAggregation(aggregationModel);
                 break;
             case histogram:
                 aggregationBuilder = buildHistogramAggregation(aggregationModel);
@@ -664,6 +672,20 @@ public class FluidSearch {
         return geoHashAggregationBuilder;
     }
 
+    // construct and returns the geohash aggregationModel builder
+    private GeoGridAggregationBuilder buildGeotileAggregation(Aggregation aggregationModel) throws ArlasException {
+        GeoGridAggregationBuilder geoTileAggregationBuilder = AggregationBuilders.geotileGrid(GEOTILE_AGG);
+        //get the precision
+        Integer precision = (Integer)aggregationModel.interval.value;
+        geoTileAggregationBuilder = geoTileAggregationBuilder.precision(precision);
+        //get the field, format, collect_field, collect_fct, order, on
+        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoTileAggregationBuilder);
+        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setAggregatedGeometries(aggregationModel, geoTileAggregationBuilder);
+        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setRawGeometries(aggregationModel, geoTileAggregationBuilder);
+        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setHitsToFetch(aggregationModel, geoTileAggregationBuilder);
+        return geoTileAggregationBuilder;
+    }
+
     // construct and returns the histogram aggregationModel builder
     private HistogramAggregationBuilder buildHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
         HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram(HISTOGRAM_AGG);
@@ -777,7 +799,7 @@ public class FluidSearch {
 
     private ValuesSourceAggregationBuilder setAggregatedGeometries(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
         if (aggregationModel.aggregatedGeometries != null) {
-            String aggregationGeoField = (aggregationModel.type.equals(AggregationTypeEnum.geohash) ? aggregationModel.field : collectionReference.params.centroidPath);
+            String aggregationGeoField = GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type) ? aggregationModel.field : collectionReference.params.centroidPath;
             aggregationModel.aggregatedGeometries.forEach(ag -> {
                 ValuesSourceAggregationBuilder metricAggregation;
                 switch (ag) {
