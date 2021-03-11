@@ -61,10 +61,10 @@ public abstract class AbstractGeohashTiledTest extends AbstractAggregatedTest {
     @Test
     public void testGeotile() throws Exception {
         //GEOTILE
-        // precision = geohashLength  ==> we should have one feature maximum
+        // precision =  '{z}'  ==> we should have one feature maximum
         handleGeotileGreaterThanPrecision(tileGet("geotile:geo_params.centroid:interval-5", "5/4/3"), 1, "5/4/3");
 
-        // precision > geohashLength  ==> we could have more than one feature
+        // precision > '{z}'  ==> we could have more than one feature
         handleGeotileLessThanPrecision(tileGet("geotile:geo_params.centroid:interval-6", "4/3/3"), 2, "4/3/3");
 
         //GEOTILE 3/1/1 [west=-135.0, south=66.51326044311186, east=-90.0, north=79.17133464081945 ]

@@ -672,7 +672,7 @@ public class FluidSearch {
         return geoHashAggregationBuilder;
     }
 
-    // construct and returns the geohash aggregationModel builder
+    // construct and returns the geotile aggregationModel builder
     private GeoGridAggregationBuilder buildGeotileAggregation(Aggregation aggregationModel) throws ArlasException {
         GeoGridAggregationBuilder geoTileAggregationBuilder = AggregationBuilders.geotileGrid(GEOTILE_AGG);
         //get the precision
