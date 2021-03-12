@@ -18,18 +18,18 @@
  */
 package io.arlas.server.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.request.Aggregation;
-import io.arlas.server.model.request.MixedRequest;
-import io.arlas.server.model.request.Request;
-import io.arlas.server.model.response.*;
-import io.arlas.server.utils.MapExplorer;
-import io.arlas.server.utils.ParamsParser;
-import io.arlas.server.utils.ResponseCacheManager;
+import io.arlas.server.model.enumerations.ComputationEnum;
+import io.arlas.server.model.enumerations.OperatorEnum;
+import io.arlas.server.model.request.*;
+import io.arlas.server.model.response.AggregationResponse;
+import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.model.response.ComputationResponse;
+import io.arlas.server.model.response.Hits;
+import io.arlas.server.utils.*;
 import org.geojson.FeatureCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,15 +47,16 @@ public abstract class ExploreService {
     public static final Integer SEARCH_DEFAULT_PAGE_FROM = 0;
 
     private String baseUri;
-    protected CollectionReferenceDao daoCollectionReference;
+    protected CollectionReferenceService collectionReferenceService;
     protected ResponseCacheManager responseCacheManager;
 
     public ExploreService() {
     }
 
-    public ExploreService(String baseUri, int arlasRestCacheTimeout) {
+    public ExploreService(String baseUri, int arlasRestCacheTimeout, CollectionReferenceService collectionReferenceService) {
         this.baseUri = baseUri;
         this.responseCacheManager = new ResponseCacheManager(arlasRestCacheTimeout);
+        this.collectionReferenceService = collectionReferenceService;
     }
 
     public ResponseCacheManager getResponseCacheManager() {
@@ -125,28 +126,144 @@ public abstract class ExploreService {
         return newOne;
     }
 
+    public void applyFilter(Filter filter, FluidSearchService fluidSearch) throws ArlasException {
+        if (filter != null) {
+            CheckParams.checkFilter(filter);
+            if (filter.f != null && !filter.f.isEmpty()) {
+                CollectionReference collectionReference = fluidSearch.getCollectionReference();
+                if (!filterFHasDateQuery(filter, collectionReference) && !StringUtil.isNullOrEmpty(filter.dateformat)) {
+                    throw new BadRequestException("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
+                }
+                for (MultiValueFilter<Expression> f : filter.f) {
+                    fluidSearch = fluidSearch.filter(f, filter.dateformat);
+                }
+            }
+            if (filter.q != null && !filter.q.isEmpty()) {
+                for (MultiValueFilter<String> q : filter.q) {
+                    fluidSearch = fluidSearch.filterQ(q);
+                }
+            }
+        }
+    }
+
+    /**
+     * This method checks whether in all the expressions of the filter `f`, a date field has been queried using `lte`, `gte`, `lt`, `gt` or `range` operations
+     * **/
+    private boolean filterFHasDateQuery(Filter filter, CollectionReference collectionReference) {
+        return filter.f.stream()
+                .anyMatch(expressions -> expressions
+                        .stream()
+                        .filter(expression -> expression.op == OperatorEnum.gt
+                                || expression.op == OperatorEnum.lt
+                                || expression.op == OperatorEnum.gte
+                                || expression.op == OperatorEnum.lte
+                                || expression.op == OperatorEnum.range)
+                        .anyMatch(expression -> {
+                            try {
+                                return collectionReferenceService.isDateField(
+                                        ParamsParser.getFieldFromFieldAliases(expression.field, collectionReference),
+                                        collectionReference.params.indexName);
+                            } catch (ArlasException e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                );
+    }
+
+    protected void sortPage(Page page, FluidSearchService fluidSearch) throws ArlasException {
+        if (page != null && page.sort != null) {
+            fluidSearch.sort(page.sort);
+        }
+    }
+
+    protected void applyProjection(Projection projection, FluidSearchService fluidSearch, Optional<String> columnFilter, CollectionReference collectionReference) throws ArlasException {
+        if (ColumnFilterUtil.isValidColumnFilterPresent(columnFilter)) {
+            String filteredIncludes = ColumnFilterUtil.getFilteredIncludes(columnFilter, projection, collectionReferenceService.getCollectionFields(collectionReference, columnFilter))
+                    .orElse(
+                            // if filteredIncludes were to be null or an empty string, FluidSearch would then build a bad request
+                            String.join(",", ColumnFilterUtil.getCollectionMandatoryPaths(collectionReference)));
+            fluidSearch = fluidSearch.include(filteredIncludes);
+
+        } else if (projection != null && !StringUtil.isNullOrEmpty(projection.includes)) {
+            fluidSearch = fluidSearch.include(projection.includes);
+        }
+
+        if (projection != null && !StringUtil.isNullOrEmpty(projection.excludes)) {
+            fluidSearch = fluidSearch.exclude(projection.excludes);
+        }
+    }
+
+    public CollectionReferenceService getCollectionReferenceService() { return collectionReferenceService; }
+
+    public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
+                                                                       Optional<String> columnFilter) throws ArlasException {
+        return collectionReferenceService.describeAllCollections(collectionReferenceList, columnFilter);
+    }
+
+    public CollectionReferenceDescription describeCollection(CollectionReference collectionReference,
+                                                             Optional<String> columnFilter) throws ArlasException {
+        return collectionReferenceService.describeCollection(collectionReference, columnFilter);
+    }
+
+    public AggregationResponse aggregate(MixedRequest request,
+                                         CollectionReference collectionReference,
+                                         Boolean isGeoAggregation,
+                                         List<Aggregation> aggregationsRequests,
+                                         int aggTreeDepth,
+                                         Long startQuery) throws ArlasException {
+        CheckParams.checkAggregationRequest(request.basicRequest, collectionReference);
+        FluidSearchService fluidSearch = getFluidSearch();
+        fluidSearch.setCollectionReference(collectionReference);
+        applyFilter(collectionReference.params.filter, fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch);
+        applyFilter(request.headerRequest.filter, fluidSearch);
+        List<Aggregation> aggregations = ((AggregationsRequest) request.basicRequest).aggregations;
+        if (aggregations != null && !aggregations.isEmpty()) {
+            fluidSearch.aggregate(aggregations, isGeoAggregation);
+        }
+        return aggregate(collectionReference, aggregationsRequests, aggTreeDepth, startQuery, fluidSearch);
+    }
+
+    public ComputationResponse compute(MixedRequest request,
+                                       CollectionReference collectionReference) throws ArlasException {
+        CheckParams.checkComputationRequest(request.basicRequest, collectionReference);
+        FluidSearchService fluidSearch = getFluidSearch();
+        fluidSearch.setCollectionReference(collectionReference);
+        applyFilter(collectionReference.params.filter, fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch);
+        applyFilter(request.headerRequest.filter, fluidSearch);
+        String field = ((ComputationRequest)request.basicRequest).field;
+        ComputationEnum metric = ((ComputationRequest)request.basicRequest).metric;
+        fluidSearch = fluidSearch.compute(field, metric);
+        return compute(collectionReference, fluidSearch, field, metric);
+    }
+
+    public Hits count(MixedRequest request,
+                      CollectionReference collectionReference) throws ArlasException {
+        FluidSearchService fluidSearch = getFluidSearch();
+        fluidSearch.setCollectionReference(collectionReference);
+        applyFilter(collectionReference.params.filter, fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch);
+        applyFilter(request.headerRequest.filter, fluidSearch);
+        return count(collectionReference, fluidSearch);
+    }
+
     // -----------------
 
-    public abstract CollectionReferenceDao getDaoCollectionReference();
+    protected abstract AggregationResponse aggregate(CollectionReference collectionReference,
+                                                     List<Aggregation> aggregationsRequests,
+                                                     int aggTreeDepth,
+                                                     Long startQuery,
+                                                     FluidSearchService fluidSearch) throws ArlasException;
 
-    public abstract AggregationResponse aggregate(MixedRequest request,
-                                                  CollectionReference collectionReference,
-                                                  Boolean isGeoAggregation,
-                                                  List<Aggregation> aggregationsRequests,
-                                                  int aggTreeDepth,
-                                                  Long startQuery) throws ArlasException;
+    public abstract Hits count(CollectionReference collectionReference,
+                               FluidSearchService fluidSearch) throws ArlasException;
 
-    public abstract ComputationResponse compute(MixedRequest request,
-                                                CollectionReference collectionReference) throws ArlasException;
+    public abstract FluidSearchService getFluidSearch();
 
-    public abstract Hits count(MixedRequest request,
-                               CollectionReference collectionReference) throws ArlasException;
-
-    public abstract List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
-                                                                                Optional<String> columnFilter) throws ArlasException;
-
-    public abstract CollectionReferenceDescription describeCollection(CollectionReference collectionReference,
-                                                             Optional<String> columnFilter) throws ArlasException;
+    public abstract ComputationResponse compute(CollectionReference collectionReference,
+                                                FluidSearchService fluidSearch,
+                                                String field, ComputationEnum metric) throws ArlasException;
 
     public abstract FeatureCollection getFeatures(MixedRequest request,
                                                   CollectionReference collectionReference,

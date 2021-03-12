@@ -21,9 +21,11 @@ package io.arlas.server.impl;
 import com.codahale.metrics.health.HealthCheck;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.DatabaseToolsFactory;
-import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.services.CollectionReferenceService;
+import io.arlas.server.exceptions.ArlasConfigurationException;
 import io.arlas.server.health.ElasticsearchHealthCheck;
-import io.arlas.server.impl.elastic.dao.ElasticCollectionReferenceDao;
+import io.arlas.server.impl.elastic.services.ElasticCollectionReferenceService;
+import io.arlas.server.impl.elastic.exceptions.ElasticsearchExceptionMapper;
 import io.arlas.server.impl.elastic.services.ElasticExploreService;
 import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.managers.CacheManager;
@@ -33,6 +35,7 @@ import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.services.ElasticWFSToolService;
 import io.arlas.server.ogc.wfs.services.WFSToolService;
 import io.arlas.server.services.ExploreService;
+import io.dropwizard.setup.Environment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,17 +44,20 @@ import java.util.Map;
 public class ElasticDatabaseToolsFactory extends DatabaseToolsFactory {
     private final ElasticClient elasticClient;
     private final ExploreService exploreService;
-    private final CollectionReferenceDao collectionReferenceDao;
+    private final CollectionReferenceService collectionReferenceService;
     private OGCCollectionReferenceDao ogcDao;
     private WFSToolService wfsService;
 
-    public ElasticDatabaseToolsFactory(ArlasServerConfiguration configuration, CacheManager cacheManager) {
+    public ElasticDatabaseToolsFactory(Environment environment, ArlasServerConfiguration configuration, CacheManager cacheManager) throws ArlasConfigurationException {
         super(configuration);
+        configuration.elasticConfiguration.check();
+        environment.jersey().register(new ElasticsearchExceptionMapper());
+
         this.elasticClient = new ElasticClient(configuration.elasticConfiguration);
-        this.collectionReferenceDao = new ElasticCollectionReferenceDao(elasticClient, configuration.arlasIndex, cacheManager);
-        this.exploreService = new ElasticExploreService(elasticClient, collectionReferenceDao, configuration.arlasBaseUri, configuration.arlasRestCacheTimeout);
+        this.collectionReferenceService = new ElasticCollectionReferenceService(elasticClient, configuration.arlasIndex, cacheManager);
+        this.exploreService = new ElasticExploreService(elasticClient, collectionReferenceService, configuration.arlasBaseUri, configuration.arlasRestCacheTimeout);
         if (configuration.arlasServiceCSWEnabled) {
-            this.ogcDao = new ElasticOGCCollectionReferenceDao(elasticClient, collectionReferenceDao, configuration.arlasIndex, Service.CSW);
+            this.ogcDao = new ElasticOGCCollectionReferenceDao(elasticClient, collectionReferenceService, configuration.arlasIndex, Service.CSW);
         }
         if (configuration.arlasServiceWFSEnabled) {
             this.wfsService = new ElasticWFSToolService((ElasticExploreService) exploreService);
@@ -64,8 +70,8 @@ public class ElasticDatabaseToolsFactory extends DatabaseToolsFactory {
     }
 
     @Override
-    public CollectionReferenceDao getCollectionReferenceDao() {
-        return this.collectionReferenceDao;
+    public CollectionReferenceService getCollectionReferenceService() {
+        return this.collectionReferenceService;
     }
 
     @Override

@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.Documentation;
-import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.services.CollectionReferenceService;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.CollectionUnavailableException;
 import io.arlas.server.exceptions.InvalidParameterException;
@@ -54,15 +54,15 @@ import java.util.*;
 
 public class CollectionService extends CollectionRESTServices {
 
-    protected CollectionReferenceDao dao;
+    protected CollectionReferenceService collectionReferenceService;
     protected boolean inspireConfigurationEnabled;
     private static final String META_COLLECTION_NAME = "metacollection";
 
-    public CollectionService(ArlasServerConfiguration configuration, CollectionReferenceDao dao) throws ArlasException {
+    public CollectionService(ArlasServerConfiguration configuration, CollectionReferenceService collectionReferenceService) throws ArlasException {
         super();
-        this.dao = dao;
+        this.collectionReferenceService = collectionReferenceService;
         this.inspireConfigurationEnabled = configuration.inspireConfiguration.enabled;
-        dao.initCollectionDatabase();
+        collectionReferenceService.initCollectionDatabase();
     }
 
     @Timed
@@ -90,7 +90,7 @@ public class CollectionService extends CollectionRESTServices {
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
-        List<CollectionReference> collections = dao.getAllCollectionReferences(columnFilter);
+        List<CollectionReference> collections = collectionReferenceService.getAllCollectionReferences(columnFilter);
         return ResponseFormatter.getResultResponse(collections);
     }
 
@@ -112,7 +112,7 @@ public class CollectionService extends CollectionRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = "Column-Filter") Optional<String> columnFilter
             ) throws ArlasException {
-        List<CollectionReference> collections = dao.getAllCollectionReferences(columnFilter);
+        List<CollectionReference> collections = collectionReferenceService.getAllCollectionReferences(columnFilter);
         String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
         String fileName = "arlas-collections-export_" + date + ".json";
         removeMetacollection(collections);
@@ -201,7 +201,7 @@ public class CollectionService extends CollectionRESTServices {
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
-        CollectionReference cr = dao.getCollectionReference(collection);
+        CollectionReference cr = collectionReferenceService.getCollectionReference(collection);
         return ResponseFormatter.getResultResponse(cr);
     }
 
@@ -254,7 +254,7 @@ public class CollectionService extends CollectionRESTServices {
             CheckParams.checkInvalidDublinCoreElementsForInspire(collectionReference);
         }
         CheckParams.checkInvalidInspireParameters(collectionReference);
-        return dao.putCollectionReference(collectionReference);
+        return collectionReferenceService.putCollectionReference(collectionReference);
     }
 
     @Timed
@@ -289,7 +289,7 @@ public class CollectionService extends CollectionRESTServices {
         if (collection != null && collection.equals(META_COLLECTION_NAME)) {
             throw new NotAllowedException("Forbidden operation on '" + META_COLLECTION_NAME + "'");
         }
-        dao.deleteCollectionReference(collection);
+        collectionReferenceService.deleteCollectionReference(collection);
         return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
     }
 

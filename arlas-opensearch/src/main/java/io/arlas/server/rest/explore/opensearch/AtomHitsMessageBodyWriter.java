@@ -95,7 +95,7 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
 
             CollectionReference cr;
             try {
-                cr = exploreService.getDaoCollectionReference().getCollectionReference(hits.collection);
+                cr = exploreService.getCollectionReferenceService().getCollectionReference(hits.collection);
             } catch (ArlasException e) {
                 throw new WebApplicationException("Can not access collection metadata", e);
             }
@@ -168,7 +168,7 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
         for (String key : properties.keySet()) {
             CollectionReferenceDescriptionProperty property = properties.get(key);
             namespace.push(key);
-            if (property.type == ElasticType.OBJECT) {
+            if (property.type == FieldType.OBJECT) {
                 writer.writeStartElement(xmlNamespace, key);
                 writeFields(writer, property.properties, xmlNamespace, namespace, data);
                 writer.writeEndElement();

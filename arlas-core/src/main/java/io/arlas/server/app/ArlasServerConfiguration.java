@@ -81,8 +81,6 @@ public class ArlasServerConfiguration extends ArlasBaseConfiguration {
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 
-    public static final String FLATTEN_CHAR = "_";
-
     public void check() throws ArlasConfigurationException {
         super.check();
 

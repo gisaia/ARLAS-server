@@ -27,7 +27,7 @@ import java.util.Map;
 @JsonSnakeCase
 public class CollectionReferenceDescriptionProperty {
 
-    public ElasticType type;
+    public FieldType type;
     public String format;
     public Map<String, CollectionReferenceDescriptionProperty> properties;
     public boolean taggable=false;

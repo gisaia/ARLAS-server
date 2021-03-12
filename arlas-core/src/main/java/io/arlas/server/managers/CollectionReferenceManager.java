@@ -19,18 +19,18 @@
 
 package io.arlas.server.managers;
 
-import io.arlas.server.dao.CollectionReferenceDao;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.impl.elastic.utils.GeoTypeMapper;
+import io.arlas.server.services.CollectionReferenceService;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
-import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.model.response.FieldType;
 import io.arlas.server.utils.MapExplorer;
 
 public class CollectionReferenceManager {
     private CacheManager cacheManager;
-    private CollectionReferenceDao collectionReferenceDao;
+    public CollectionReferenceService collectionReferenceService;
 
     private final static CollectionReferenceManager collectionReferenceManager = new CollectionReferenceManager();
 
@@ -41,16 +41,20 @@ public class CollectionReferenceManager {
     private CollectionReferenceManager() {
     }
 
-    public void init(CollectionReferenceDao collectionReferenceDao, CacheManager cacheManager) {
-        this.collectionReferenceDao = collectionReferenceDao;
+    public CollectionReferenceService getCollectionReferenceService() {
+        return collectionReferenceService;
+    }
+
+    public void init(CollectionReferenceService collectionReferenceService, CacheManager cacheManager) {
+        this.collectionReferenceService = collectionReferenceService;
         this.cacheManager = cacheManager;
     }
 
-    public ElasticType getType(CollectionReference collectionReference, String field, boolean throwException) throws ArlasException {
-        ElasticType elasticType = cacheManager.getElasticType(collectionReference.collectionName, field);
-        if (elasticType == null) {
+    public FieldType getType(CollectionReference collectionReference, String field, boolean throwException) throws ArlasException {
+        FieldType fieldType = cacheManager.getFieldType(collectionReference.collectionName, field);
+        if (fieldType == null) {
             String[] props = field.split("\\.");
-            CollectionReferenceDescriptionProperty esField = collectionReferenceDao.describeCollection(collectionReference).properties.get(props[0]);
+            CollectionReferenceDescriptionProperty esField = collectionReferenceService.describeCollection(collectionReference).properties.get(props[0]);
             if (esField == null) {
                 return getUnknownType(field, collectionReference.collectionName, throwException);
             }
@@ -61,13 +65,13 @@ public class CollectionReferenceManager {
                 }
             }
             if (esField != null) {
-                elasticType = esField.type;
-                cacheManager.putElasticType(collectionReference.collectionName, field, elasticType);
+                fieldType = esField.type;
+                cacheManager.putFieldType(collectionReference.collectionName, field, fieldType);
             } else {
                 return getUnknownType(field, collectionReference.collectionName, throwException);
             }
         }
-        return elasticType;
+        return fieldType;
     }
 
     public static void setCollectionGeometriesType(Object source, CollectionReference collectionReference) throws ArlasException {
@@ -102,11 +106,11 @@ public class CollectionReferenceManager {
         }
     }
 
-    private ElasticType getUnknownType(String parentField, String collectionName, boolean throwException) throws ArlasException{
+    private FieldType getUnknownType(String parentField, String collectionName, boolean throwException) throws ArlasException{
         if (throwException) {
             throw new NotFoundException("Field '" + parentField + "' not found in collection " + collectionName);
         } else {
-            return ElasticType.UNKNOWN;
+            return FieldType.UNKNOWN;
         }
     }
 }

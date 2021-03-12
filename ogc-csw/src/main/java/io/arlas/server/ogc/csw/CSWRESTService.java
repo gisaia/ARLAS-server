@@ -26,7 +26,6 @@ import io.arlas.server.app.Documentation;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
-import io.arlas.server.impl.elastic.core.FluidSearch;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.CollectionReferences;
 import io.arlas.server.model.response.Error;
@@ -43,6 +42,7 @@ import io.arlas.server.ogc.csw.utils.CSWCheckParam;
 import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
+import io.arlas.server.services.FluidSearchService;
 import io.arlas.server.utils.BoundingBox;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.swagger.annotations.*;
@@ -50,13 +50,11 @@ import net.opengis.cat.csw._3.AbstractRecordType;
 import net.opengis.cat.csw._3.CapabilitiesType;
 import net.opengis.cat.csw._3.GetRecordsResponseType;
 import org.apache.commons.collections.CollectionUtils;
-import org.xml.sax.SAXException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -303,7 +301,7 @@ public class CSWRESTService extends OGCRESTService {
             // west, south, east, north CSW spec
             double[] bboxList = GeoFormat.toDoubles(bbox, Service.CSW);
             if (!(isBboxLatLonInCorrectRanges(bboxList) && bboxList[3] > bboxList[1]) && bboxList[0] != bboxList[2]) {
-                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "bbox", Service.CSW);
+                throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, FluidSearchService.INVALID_BBOX, "bbox", Service.CSW);
             }
             boundingBox = new BoundingBox(bboxList[3], bboxList[1], bboxList[0], bboxList[2]);
         }
@@ -337,7 +335,7 @@ public class CSWRESTService extends OGCRESTService {
                 String serviceUrl = serverBaseUri + "ogc/csw/?";
                 getCapabilitiesHandler.setCapabilitiesType(responseSections, serviceUrl, serverBaseUri + "ogc/csw/opensearch");
                 if (cswHandler.inspireConfiguration.enabled) {
-                    collections = dao.getAllCollectionReferences(columnFilter);
+                    collections = collectionReferenceService.getAllCollectionReferences(columnFilter);
 
                     collections.removeIf(collectionReference -> collectionReference.collectionName.equals(getMetacollectionName()));
                     filterCollectionsByColumnFilter(columnFilter, collections);
@@ -411,7 +409,7 @@ public class CSWRESTService extends OGCRESTService {
 
     private CollectionReferences getCollectionReferencesForGetRecords(String[] elements, String[]
             excludes, int maxRecords, int startPosition, String[] ids, String q, String constraint, BoundingBox boundingBox) throws IOException, ArlasException {
-        CollectionReference metacollection = dao.getCollectionReference(getMetacollectionName());
+        CollectionReference metacollection = collectionReferenceService.getCollectionReference(getMetacollectionName());
 
         // First we check if there is only "metacollection" that is returned. If this is the case, it means that the queried param is a config param. Thus all collections should be returned
         CollectionReferences collectionReferences = ogcDao.getCollectionReferences(elements, null, 2, startPosition - 1, ids, q, constraint, boundingBox);

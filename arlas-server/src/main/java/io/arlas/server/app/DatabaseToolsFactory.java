@@ -20,7 +20,7 @@
 package io.arlas.server.app;
 
 import com.codahale.metrics.health.HealthCheck;
-import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.services.CollectionReferenceService;
 import io.arlas.server.ogc.common.dao.OGCCollectionReferenceDao;
 import io.arlas.server.ogc.wfs.services.WFSToolService;
 import io.arlas.server.services.ExploreService;
@@ -36,7 +36,7 @@ public abstract class DatabaseToolsFactory {
 
     public abstract ExploreService getExploreService();
 
-    public abstract CollectionReferenceDao getCollectionReferenceDao();
+    public abstract CollectionReferenceService getCollectionReferenceService();
 
     public abstract OGCCollectionReferenceDao getOGCCollectionReferenceDao();
 

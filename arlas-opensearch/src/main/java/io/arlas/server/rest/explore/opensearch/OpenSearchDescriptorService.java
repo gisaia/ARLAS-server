@@ -26,7 +26,7 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.OpenSearch;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
-import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.model.response.FieldType;
 import io.arlas.server.model.response.Error;
 import io.arlas.server.ns.ATOM;
 import io.arlas.server.rest.explore.ExploreRESTServices;
@@ -89,7 +89,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws IOException, NotFoundException, ArlasException {
-        CollectionReference cr = exploreService.getDaoCollectionReference()
+        CollectionReference cr = exploreService.getCollectionReferenceService()
                 .getCollectionReference(collection);
         if (cr == null) {
             throw new NotFoundException(collection);
@@ -146,7 +146,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
         for (String key : properties.keySet()) {
             CollectionReferenceDescriptionProperty property = properties.get(key);
             namespace.push(key);
-            if (property.type == ElasticType.OBJECT) {
+            if (property.type == FieldType.OBJECT) {
                 addURLs(templatePrefix, urls, property.properties, namespace);
             } else {
                 String fieldPath = String.join(".", new ArrayList<>(namespace));

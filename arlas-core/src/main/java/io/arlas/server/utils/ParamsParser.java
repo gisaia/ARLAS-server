@@ -23,12 +23,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.impl.elastic.core.FluidSearch;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
-import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.model.response.FieldType;
 import io.dropwizard.jersey.params.IntParam;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.common.geo.GeoPoint;
@@ -46,6 +45,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static io.arlas.server.services.FluidSearchService.*;
 
 public class ParamsParser {
     private static ObjectMapper objectMapper = new ObjectMapper();
@@ -246,7 +247,7 @@ public class ParamsParser {
             try {
                 return objectMapper.readValue(serializedFilter, Filter.class);
             } catch (IOException e) {
-                throw new InvalidParameterException(FluidSearch.INVALID_FILTER + ": '" + serializedFilter + "'");
+                throw new InvalidParameterException(INVALID_FILTER + ": '" + serializedFilter + "'");
             }
         } else {
             return null;
@@ -280,7 +281,7 @@ public class ParamsParser {
                 if (!StringUtil.isNullOrEmpty(f)) {
                     String[] operands = f.split(":");
                     if (operands.length < 3) {
-                        throw new InvalidParameterException(FluidSearch.INVALID_PARAMETER_F + ": '" + f + "'");
+                        throw new InvalidParameterException(INVALID_PARAMETER_F + ": '" + f + "'");
                     }
                     // merge again last elements in case value contained a ':'
                     String value = String.join(":", Arrays.copyOfRange(operands, 2, operands.length));
@@ -317,7 +318,7 @@ public class ParamsParser {
 
     private static boolean isPwithin(CollectionReference collectionReference, String field, String op) throws ArlasException {
         if (GEO_OP_WITHIN.contains(OperatorEnum.valueOf(op))) {
-            return CollectionReferenceManager.getInstance().getType(collectionReference, field, true) ==  ElasticType.GEO_POINT;
+            return CollectionReferenceManager.getInstance().getType(collectionReference, field, true) ==  FieldType.GEO_POINT;
         }
         return false;
     }
@@ -336,7 +337,7 @@ public class ParamsParser {
     }
 
     private static boolean isGeoPoint(CollectionReference collectionReference, String field) throws ArlasException {
-        return CollectionReferenceManager.getInstance().getType(collectionReference, field, true) ==  ElasticType.GEO_POINT;
+        return CollectionReferenceManager.getInstance().getType(collectionReference, field, true) ==  FieldType.GEO_POINT;
     }
 
     public static Filter getFilterWithValidGeos(CollectionReference collectionReference, Filter filter) throws ArlasException {
@@ -379,7 +380,7 @@ public class ParamsParser {
                         // By convention the passed queryGeometry must be interpreted as CW.
                         // If the orientation is CCW, we try to build the WKT that goes the other side of the planet.
                         // If the topology of the resulted geometry is not valid, an exception is thrown
-                        Polygon tmpGeometry = subWkt.copy();
+                        Polygon tmpGeometry = (Polygon) subWkt.copy();
                         Envelope tmpEnvelope = tmpGeometry.getEnvelopeInternal();
                         // east is the minX and west is the maxX
                         double east = tmpEnvelope.getMinX();
@@ -425,6 +426,7 @@ public class ParamsParser {
     }
 
     public static Geometry getValidWKT(String wktString) throws InvalidParameterException {
+        System.out.println("Trying to getValidWKT from: " + wktString);
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Envelope affectedBounds = new Envelope(-360, 360, -180, 180);
         WKTReader wkt = new WKTReader(geometryFactory);
@@ -449,6 +451,10 @@ public class ParamsParser {
     }
 
     public static String parseDate(String dateValue, String dateFormat) throws ArlasException {
+        return parseDate(dateValue, dateFormat, true);
+    }
+
+    public static String parseDate(String dateValue, String dateFormat, boolean convertToMillis) throws ArlasException {
         String dateToParse = dateValue;
         String parsedDate = dateToParse;
         if (!StringUtil.isNullOrEmpty(dateFormat)) {
@@ -466,7 +472,9 @@ public class ParamsParser {
                     dateToParse = splitDate.get(0);
                 }
                 try {
-                    parsedDate = String.valueOf(DateTimeFormat.forPattern(dateFormat).withZoneUTC().parseDateTime(dateToParse).getMillis());
+                    if (convertToMillis) {
+                        parsedDate = String.valueOf(DateTimeFormat.forPattern(dateFormat).withZoneUTC().parseDateTime(dateToParse).getMillis());
+                    }
                 } catch (DateTimeParseException | IllegalArgumentException e) {
                     throw new InvalidParameterException(dateValue + " doesn't match the date format '" + dateFormat + "'. Reason : " + e.getMessage());
                 }
@@ -517,11 +525,11 @@ public class ParamsParser {
         if (geoSortList.size() > 1) {
             geoDistance = geoSortList.get(0);
             latLon = geoSortList.get(1);
-            if (!geoDistance.toLowerCase().equals(FluidSearch.GEO_DISTANCE)) {
-                throw new InvalidParameterException(FluidSearch.INVALID_GEOSORT_LABEL);
+            if (!geoDistance.equalsIgnoreCase(GEO_DISTANCE)) {
+                throw new InvalidParameterException(INVALID_GEOSORT_LABEL);
             }
         } else {
-            throw new InvalidParameterException(FluidSearch.INVALID_GEOSORT_LABEL);
+            throw new InvalidParameterException(INVALID_GEOSORT_LABEL);
         }
         String[] geoSortLatLon = latLon.split(" ");
         if (geoSortLatLon.length > 1) {
@@ -530,10 +538,10 @@ public class ParamsParser {
             if (lat != null && lon != null) {
                 return new GeoPoint(lat, lon);
             } else {
-                throw new InvalidParameterException(FluidSearch.INVALID_GEOSORT_LAT_LON);
+                throw new InvalidParameterException(INVALID_GEOSORT_LAT_LON);
             }
         } else {
-            throw new InvalidParameterException(FluidSearch.INVALID_GEOSORT_LAT_LON);
+            throw new InvalidParameterException(INVALID_GEOSORT_LAT_LON);
         }
     }
 
@@ -567,7 +575,7 @@ public class ParamsParser {
         Integer s = tryParseInteger(size);
         if (s != null) {
             return s;
-        } else throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
+        } else throw new InvalidParameterException(INVALID_SIZE);
     }
 
     public static Integer tryParseInteger(String text) {

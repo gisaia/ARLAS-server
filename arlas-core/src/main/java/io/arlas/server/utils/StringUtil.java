@@ -19,9 +19,17 @@
 
 package io.arlas.server.utils;
 
+import java.util.Arrays;
+
 public class StringUtil {
 
     public static boolean isNullOrEmpty (String s) {
         return s == null || s.isEmpty();
+    }
+
+    public static String concat(String... s) {
+        StringBuilder sb = new StringBuilder();
+        Arrays.stream(s).forEach(e -> sb.append(e));
+        return sb.toString();
     }
 }

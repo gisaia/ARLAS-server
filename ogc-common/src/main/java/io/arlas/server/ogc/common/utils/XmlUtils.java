@@ -24,10 +24,9 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
-import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.model.response.FieldType;
 import io.arlas.server.utils.FilterMatcherUtil;
 import io.arlas.server.utils.MapExplorer;
-import io.arlas.server.utils.StringUtil;
 import io.arlas.server.utils.TimestampTypeMapper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -63,9 +62,9 @@ public class XmlUtils {
             namespace.push(key);
             String path = String.join(".", new ArrayList<>(namespace));
             boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
-            boolean isAllowed = FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, property.type == ElasticType.OBJECT);
+            boolean isAllowed = FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, property.type == FieldType.OBJECT);
             if (!excludePath && isAllowed && property.indexed) {
-                if (property.type == ElasticType.OBJECT && property.properties != null) {
+                if (property.type == FieldType.OBJECT && property.properties != null) {
                     parsePropertiesXsd(property.properties, writer, namespace, excludeFields, columnFilterPredicates);
                 } else {
                     writeElementForType(writer, String.join(".", new ArrayList<>(namespace)), property);
@@ -83,14 +82,14 @@ public class XmlUtils {
                    String path = String.join(".", new ArrayList<>(namespace));
                    boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
                    if (!excludePath && property.indexed) {
-                       if (property.type == ElasticType.OBJECT) {
+                       if (property.type == FieldType.OBJECT) {
                            parsePropertiesXml(property.properties, writer, namespace, uri, source, prefix, excludeFields);
                        } else {
                            Object valueObject = MapExplorer.getObjectFromPath(String.join(".", new ArrayList<>(namespace)), source);
-                           if (valueObject != null && property.type != ElasticType.DATE && property.type != ElasticType.GEO_POINT && property.type != ElasticType.GEO_SHAPE) {
+                           if (valueObject != null && property.type != FieldType.DATE && property.type != FieldType.GEO_POINT && property.type != FieldType.GEO_SHAPE) {
                                String value = valueObject.toString();
                                writeElement(writer, String.join(".", new ArrayList<>(namespace)), value, uri, prefix);
-                           }else if(valueObject != null && property.type == ElasticType.DATE ){
+                           }else if(valueObject != null && property.type == FieldType.DATE ){
                                SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
                                f.setTimeZone(TimeZone.getTimeZone("UTC"));
                                if (property.format == null) {

@@ -19,14 +19,14 @@
 
 package io.arlas.server.ogc.wfs;
 
-import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.services.CollectionReferenceService;
 import io.arlas.server.ogc.wfs.services.WFSToolService;
 
 public class WFSService extends WFSRESTService {
 
-    public WFSService(CollectionReferenceDao dao, WFSToolService wfsToolService, WFSHandler wfsHandler) {
+    public WFSService(CollectionReferenceService collectionReferenceService, WFSToolService wfsToolService, WFSHandler wfsHandler) {
         super(wfsHandler);
-        this.dao = dao;
+        this.collectionReferenceService = collectionReferenceService;
         this.wfsToolService = wfsToolService;
     }
 }

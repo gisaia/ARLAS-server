@@ -31,7 +31,6 @@ import io.arlas.server.exceptions.ArlasExceptionMapper;
 import io.arlas.server.exceptions.ConstraintViolationExceptionMapper;
 import io.arlas.server.exceptions.IllegalArgumentExceptionMapper;
 import io.arlas.server.exceptions.JsonProcessingExceptionMapper;
-import io.arlas.server.impl.elastic.exceptions.ElasticsearchExceptionMapper;
 import io.arlas.server.managers.CacheManager;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.ogc.csw.CSWHandler;
@@ -65,6 +64,7 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
+//import io.dropwizard.jdbi3.bundles.JdbiExceptionsBundle;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -108,6 +108,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             }
         });
         bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
+//        bootstrap.addBundle(new JdbiExceptionsBundle());
     }
 
     @Override
@@ -123,10 +124,10 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         DatabaseToolsFactory dbToolFactory = (DatabaseToolsFactory) Class
                 .forName(configuration.arlasDatabaseFactoryClass)
-                .getConstructor(ArlasServerConfiguration.class, CacheManager.class)
-                .newInstance(configuration, cacheFactory.getCacheManager());
+                .getConstructor(Environment.class, ArlasServerConfiguration.class, CacheManager.class)
+                .newInstance(environment, configuration, cacheFactory.getCacheManager());
 
-        CollectionReferenceManager.getInstance().init(dbToolFactory.getCollectionReferenceDao(),
+        CollectionReferenceManager.getInstance().init(dbToolFactory.getCollectionReferenceService(),
                 cacheFactory.getCacheManager());
 
         if (configuration.zipkinConfiguration != null) {
@@ -141,7 +142,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new IllegalArgumentExceptionMapper());
         environment.jersey().register(new JsonProcessingExceptionMapper());
         environment.jersey().register(new ConstraintViolationExceptionMapper());
-        environment.jersey().register(new ElasticsearchExceptionMapper());
         environment.jersey().register(new AtomHitsMessageBodyWriter(exploration));
         environment.jersey().register(new AtomGetRecordsMessageBodyWriter(configuration));
         environment.jersey().register(new XmlGetRecordsMessageBodyWriter());
@@ -173,7 +173,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         if(configuration.arlasServiceCollectionsEnabled) {
             LOGGER.info("Collection API enabled");
-            environment.jersey().register(new CollectionService(configuration, dbToolFactory.getCollectionReferenceDao()));
+            environment.jersey().register(new CollectionService(configuration, dbToolFactory.getCollectionReferenceService()));
         } else {
             LOGGER.info("Collection API disabled");
         }
@@ -181,7 +181,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         if(configuration.arlasServiceWFSEnabled){
             LOGGER.info("WFS Service enabled");
             WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration, configuration.ogcConfiguration, configuration.inspireConfiguration, configuration.arlasBaseUri);
-            environment.jersey().register(new WFSService(dbToolFactory.getCollectionReferenceDao(), dbToolFactory.getWFSToolService(), wfsHandler));
+            environment.jersey().register(new WFSService(dbToolFactory.getCollectionReferenceService(), dbToolFactory.getWFSToolService(), wfsHandler));
         } else {
             LOGGER.info("WFS Service disabled");
         }
@@ -197,7 +197,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         if (configuration.arlasServiceCSWEnabled) {
             LOGGER.info("CSW Service enabled");
             CSWHandler cswHandler = new CSWHandler(configuration.ogcConfiguration, configuration.cswConfiguration, configuration.inspireConfiguration, configuration.arlasBaseUri);
-            environment.jersey().register(new CSWService(dbToolFactory.getCollectionReferenceDao(), dbToolFactory.getOGCCollectionReferenceDao(), cswHandler, configuration));
+            environment.jersey().register(new CSWService(dbToolFactory.getCollectionReferenceService(), dbToolFactory.getOGCCollectionReferenceDao(), cswHandler, configuration));
         } else {
             LOGGER.info("CSW Service disabled");
         }
@@ -214,13 +214,13 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(InsensitiveCaseFilter.class);
 
         //tasks
-        environment.admin().addTask(new CollectionAutoDiscover(dbToolFactory.getCollectionReferenceDao(), configuration));
+        environment.admin().addTask(new CollectionAutoDiscover(dbToolFactory.getCollectionReferenceService(), configuration));
         int scheduleAutoDiscover = configuration.collectionAutoDiscoverConfiguration.schedule;
         if (scheduleAutoDiscover > 0) {
             String nameFormat = "collection-auto-discover-%d";
             ScheduledExecutorServiceBuilder sesBuilder = environment.lifecycle().scheduledExecutorService(nameFormat);
             ScheduledExecutorService ses = sesBuilder.build();
-            Runnable autoDiscoverTask = new CollectionAutoDiscover(dbToolFactory.getCollectionReferenceDao(), configuration);
+            Runnable autoDiscoverTask = new CollectionAutoDiscover(dbToolFactory.getCollectionReferenceService(), configuration);
             ses.scheduleWithFixedDelay(autoDiscoverTask, 10, scheduleAutoDiscover, TimeUnit.SECONDS);
         }
 
