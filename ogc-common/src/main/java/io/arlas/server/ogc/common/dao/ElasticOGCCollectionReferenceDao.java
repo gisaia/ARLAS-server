@@ -22,7 +22,7 @@ package io.arlas.server.ogc.common.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.services.CollectionReferenceService;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.impl.elastic.utils.ElasticClient;
@@ -51,7 +51,7 @@ public class ElasticOGCCollectionReferenceDao implements OGCCollectionReferenceD
     private final ElasticClient client;
     private final String arlasIndex;
     private final Service service;
-    private final CollectionReferenceDao collectionReferenceDao;
+    private final CollectionReferenceService collectionReferenceService;
 
     private static ObjectMapper mapper;
     private static ObjectReader reader;
@@ -62,9 +62,9 @@ public class ElasticOGCCollectionReferenceDao implements OGCCollectionReferenceD
         reader = mapper.readerFor(CollectionReferenceParameters.class);
     }
 
-    public ElasticOGCCollectionReferenceDao(ElasticClient client, CollectionReferenceDao collectionReferenceDao, String index, Service service) {
+    public ElasticOGCCollectionReferenceDao(ElasticClient client, CollectionReferenceService collectionReferenceService, String index, Service service) {
         this.client = client;
-        this.collectionReferenceDao = collectionReferenceDao;
+        this.collectionReferenceService = collectionReferenceService;
         this.arlasIndex = index;
         this.service = service;
     }
@@ -143,6 +143,6 @@ public class ElasticOGCCollectionReferenceDao implements OGCCollectionReferenceD
 
     private CollectionReferenceDescription getMetacollectionDescription() throws ArlasException, IOException {
         CollectionReference metaCollection = ElasticTool.getCollectionReferenceFromES(client, arlasIndex, reader, "metacollection");
-        return collectionReferenceDao.describeCollection(metaCollection);
+        return collectionReferenceService.describeCollection(metaCollection);
     }
 }

@@ -165,7 +165,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
 
-        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -282,7 +282,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
 
-        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -416,7 +416,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -479,7 +479,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -553,7 +553,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);

@@ -22,7 +22,7 @@ package io.arlas.server.task;
 import com.google.common.collect.ImmutableMultimap;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.CollectionAutoDiscoverConfiguration;
-import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.services.CollectionReferenceService;
 import io.arlas.server.exceptions.ArlasConfigurationException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
@@ -40,24 +40,24 @@ import java.util.Optional;
 
 public class CollectionAutoDiscover extends Task implements Runnable {
 
-    private CollectionReferenceDao collectionDao;
+    private CollectionReferenceService collectionReferenceService;
     private CollectionAutoDiscoverConfiguration configuration;
 
     Logger LOGGER = LoggerFactory.getLogger(CollectionAutoDiscover.class);
 
-    public CollectionAutoDiscover(CollectionReferenceDao collectionDao, ArlasServerConfiguration configuration) {
+    public CollectionAutoDiscover(CollectionReferenceService collectionReferenceService, ArlasServerConfiguration configuration) {
         super("collection-auto-discover");
         this.configuration = configuration.collectionAutoDiscoverConfiguration;
-        this.collectionDao = collectionDao;
+        this.collectionReferenceService = collectionReferenceService;
     }
 
     @Override
     public void execute(ImmutableMultimap<String, String> arg0, PrintWriter arg1) throws Exception {
         try {
-            List<CollectionReferenceDescription> discoveredCollections = collectionDao.getAllIndicesAsCollections();
+            List<CollectionReferenceDescription> discoveredCollections = collectionReferenceService.getAllIndicesAsCollections();
             List<CollectionReferenceDescription> existingCollections;
             try {
-                existingCollections = collectionDao.describeAllCollections(collectionDao.getAllCollectionReferences(Optional.empty()), Optional.empty());
+                existingCollections = collectionReferenceService.describeAllCollections(collectionReferenceService.getAllCollectionReferences(Optional.empty()), Optional.empty());
             } catch (Exception e) {
                 existingCollections = new ArrayList<>();
             }
@@ -65,7 +65,7 @@ public class CollectionAutoDiscover extends Task implements Runnable {
                 if (!existingCollections.contains(collection)) {
                     CollectionReferenceDescription collectionToAdd = checkCollectionValidity(collection);
                     if (collectionToAdd != null) {
-                        collectionDao.putCollectionReference(collectionToAdd);
+                        collectionReferenceService.putCollectionReference(collectionToAdd);
                     }
                 }
             }

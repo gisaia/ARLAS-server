@@ -54,7 +54,7 @@ public class CollectionReferenceParameters implements Serializable {
     public String excludeFields = null;
 
     @JsonProperty(value = "update_max_hits", required = false)
-    public int update_max_hits = Integer.MAX_VALUE;
+    public int updateMaxHits = Integer.MAX_VALUE;
 
     @JsonProperty(value = "taggable_fields", required = false)
     public String taggableFields = null;

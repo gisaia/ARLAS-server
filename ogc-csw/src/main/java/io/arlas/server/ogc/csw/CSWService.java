@@ -22,7 +22,7 @@ package io.arlas.server.ogc.csw;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.InspireConfiguration;
 import io.arlas.server.app.OGCConfiguration;
-import io.arlas.server.dao.CollectionReferenceDao;
+import io.arlas.server.services.CollectionReferenceService;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.MetaCollectionReferenceParameters;
@@ -39,21 +39,21 @@ public class CSWService extends CSWRESTService {
     private static final String META_COLLECTION_CENTROID_PATH = "dublin_core_element_name.coverage_centroid";
     private static final String META_COLLECTION_TIMESTAMP_PATH = "dublin_core_element_name.date";
 
-    public CSWService(CollectionReferenceDao collectionDao, OGCCollectionReferenceDao ogcDao, CSWHandler cswHandler, ArlasServerConfiguration configuration) throws ArlasException {
+    public CSWService(CollectionReferenceService collectionReferenceService, OGCCollectionReferenceDao ogcDao, CSWHandler cswHandler, ArlasServerConfiguration configuration) throws ArlasException {
         super(cswHandler);
-        this.dao = collectionDao;
+        this.collectionReferenceService = collectionReferenceService;
         initMetaCollection(configuration.arlasIndex, configuration.ogcConfiguration, configuration.inspireConfiguration);
         this.ogcDao = ogcDao;
     }
 
     private void initMetaCollection(String index, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws ArlasException {
-        List<CollectionReference> collectionReferences =  dao.getAllCollectionReferences(Optional.empty());
+        List<CollectionReference> collectionReferences =  collectionReferenceService.getAllCollectionReferences(Optional.empty());
         long count = collectionReferences.stream().filter(collectionReference -> collectionReference.collectionName.equals(getMetacollectionName())).count();
         if (count > 0) {
-            dao.deleteCollectionReference(getMetacollectionName());
+            collectionReferenceService.deleteCollectionReference(getMetacollectionName());
         }
         CollectionReference metacolletion = createMetaCollection(index, ogcConfiguration, inspireConfiguration);
-        dao.putCollectionReference(metacolletion);
+        collectionReferenceService.putCollectionReference(metacolletion);
     }
 
     private CollectionReference createMetaCollection(String index, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) {

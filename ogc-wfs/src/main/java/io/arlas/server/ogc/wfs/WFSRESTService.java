@@ -45,20 +45,18 @@ import io.swagger.annotations.*;
 import net.opengis.wfs._2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 @Path("/ogc/wfs")
 @Api(value = "/ogc/wfs")
@@ -202,7 +200,7 @@ public class WFSRESTService extends OGCRESTService {
         startindex = Optional.ofNullable(startindex).orElse(0);
         count = Optional.ofNullable(count).orElse(ogcConfiguration.queryMaxFeature.intValue());
 
-        CollectionReference collectionReference = dao.getCollectionReference(collection);
+        CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collection);
         if (collectionReference == null) {
             throw new OGCException(OGCExceptionCode.NOT_FOUND, "Collection not found " + collection, Service.WFS);
         }

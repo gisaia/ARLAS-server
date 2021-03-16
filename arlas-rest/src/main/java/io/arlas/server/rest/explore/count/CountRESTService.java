@@ -100,7 +100,7 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreService.getDaoCollectionReference().getCollectionReference(collection);
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService().getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
@@ -164,7 +164,7 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             Count count
     ) throws NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreService.getDaoCollectionReference().getCollectionReference(collection);
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService().getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }

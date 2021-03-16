@@ -28,12 +28,11 @@ import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
-import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.model.response.FieldType;
 import io.arlas.server.model.response.TimestampType;
-import io.arlas.server.utils.CheckParams;
-import io.arlas.server.utils.GeoUtil;
-import io.arlas.server.utils.ParamsParser;
-import io.arlas.server.utils.StringUtil;
+import io.arlas.server.services.FluidSearchService;
+import io.arlas.server.utils.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.Strings;
@@ -62,70 +61,29 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 
-public class FluidSearch {
-
-    public static final String INVALID_FILTER = "Invalid filter parameter.";
-    public static final String INVALID_PARAMETER_F = "Parameter f does not respect operation expression. ";
-    public static final String INVALID_OPERATOR = "Operand does not equal one of the following values : 'eq', gte', 'gt', 'lte', 'lt', 'like' or 'ne'. ";
-    public static final String INVALID_Q_FILTER = "Invalid parameter. Please specify the text to search directly or '{fieldname}:{text to search}'. ";
-    public static final String INVALID_BBOX = "Invalid BBOX";
-    public static final String INVALID_SIZE = "Invalid size parameter. It should be a strictly positive integer";
-    public static final String INVALID_FROM = "Invalid from parameter: should be a positive integer.";
-    public static final String INVALID_DATE_UNIT = "Invalid date unit.";
-    public static final String INVALID_GEOSORT_LAT_LON = "'lat lon' must be numeric values separated by a space";
-    public static final String INVALID_GEOSORT_LABEL = "To sort by geo_distance, please specifiy the point, from which the distances are calculated, as following 'geodistance:lat lon'";
-    public static final String INVALID_TIMESTAMP_RANGE = "Timestamp range values must be a timestamp in millisecond or a date expression. Otherwise, please set the `dateformat` parameter if your date value has a custom format";
-
-    public static final String DATEHISTOGRAM_AGG = "Datehistogram aggregation";
-    public static final String HISTOGRAM_AGG = "Histogram aggregation";
-    public static final String TERM_AGG = "Term aggregation";
-    public static final String GEOHASH_AGG = "Geohash aggregation";
-    public static final String FETCH_HITS_AGG = "fetched_hits";
-    public static final String GEO_DISTANCE = "geodistance";
-    public static final String NO_INCLUDE_TO_SPECIFY = "'include-' should not be specified for this aggregation";
-    public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
-    public static final String NO_SIZE_TO_SPECIFY = "'size-' should not be specified for this aggregation.";
-    public static final String NO_ORDER_ON_TO_SPECIFY = "'order-' and 'on-' should not be specified for this aggregation.";
-    public static final String COLLECT_FCT_NOT_SPECIFIED = "The aggregation function 'collect_fct' is not specified.";
-    public static final String COLLECT_FIELD_NOT_SPECIFIED = "The aggregation field 'collect_field' is not specified.";
-    public static final String ORDER_NOT_SPECIFIED = "'order-' is not specified.";
-    public static final String ON_NOT_SPECIFIED = "'on-' is not specified.";
-    public static final String ORDER_PARAM_NOT_ALLOWED = "Order is not allowed for geohash aggregation.";
-    public static final String ORDER_ON_RESULT_NOT_ALLOWED = "'on-result' sorts 'collect_field' and 'collect_fct' results. Please specify 'collect_field' and 'collect_fct'.";
-    public static final String ORDER_ON_GEO_RESULT_NOT_ALLOWED = "Ordering on 'result' is not allowed for geo-box neither geo-centroid metric aggregation. ";
-    public static final String SIZE_NOT_IMPLEMENTED = "Size is not implemented for geohash.";
-
-    public static final String FIELD_MIN_VALUE = "field_min_value";
-    public static final String FIELD_MAX_VALUE = "field_max_value";
-    public static final String FIELD_AVG_VALUE = "field_avg_value";
-    public static final String FIELD_SUM_VALUE = "field_sum_value";
-    public static final String FIELD_CARDINALITY_VALUE = "field_cardinality_value";
-    public static final String FIELD_GEOBBOX_VALUE = "field_bbox_value";
-    public static final String FIELD_GEOCENTROID_VALUE = "field_centroid_value";
-
-    public static final String AGGREGATED_GEOMETRY_SUFFIX = "_aggregated_geometry";
-    public static final String RAW_GEOMETRY_SUFFIX = "_raw_geometry";
-
-    private static Logger LOGGER = LoggerFactory.getLogger(FluidSearch.class);
+public class ElasticFluidSearch extends FluidSearchService {
+    private static Logger LOGGER = LoggerFactory.getLogger(ElasticFluidSearch.class);
 
     private ElasticClient client;
-    SearchRequest request;
+    private SearchRequest request;
     private SearchSourceBuilder searchSourceBuilder;
     private BoolQueryBuilder boolQueryBuilder;
-    private CollectionReference collectionReference;
-    private CollectionReferenceManager collectionReferenceManager;
 
-    private List<String> include = new ArrayList<>();
-    private List<String> exclude = new ArrayList<>();
-
-    public FluidSearch(ElasticClient client) {
-        this.client = client;
-        this.collectionReferenceManager = CollectionReferenceManager.getInstance();
+    public ElasticFluidSearch() {
+        super();
         boolQueryBuilder = QueryBuilders.boolQuery();
         searchSourceBuilder = new SearchSourceBuilder();
     }
 
-    protected ElasticClient getClient() { return client; }
+    public ElasticFluidSearch setClient(ElasticClient client) {
+        this.client = client;
+        return this;
+    }
+    @Override
+    public void setCollectionReference(CollectionReference collectionReference) {
+        super.setCollectionReference(collectionReference);
+        request = new SearchRequest(collectionReference.params.indexName);
+    }
 
     public BoolQueryBuilder getBoolQueryBuilder() {
         return boolQueryBuilder;
@@ -135,42 +93,8 @@ public class FluidSearch {
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.trackTotalHits(true);
 
-        if (collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
-            if (exclude.isEmpty()) {
-                exclude(collectionReference.params.excludeFields);
-            } else {
-                Set<String> excludeSet = new HashSet<>();
-                excludeSet.addAll(exclude);
-                excludeSet.addAll(Arrays.asList(collectionReference.params.excludeFields.split(",")));
-                exclude = new ArrayList<>(excludeSet);
-            }
-        }
-        List<String> includeFieldList = new ArrayList<>();
-        if (!include.isEmpty()) {
-            for (String includeField : include) {
-                includeFieldList.add(includeField);
-            }
-            for (String path : getCollectionPaths()) {
-                boolean alreadyIncluded = false;
-                for (String includeField : include) {
-                    if (includeField.equals("*") || path.startsWith(includeField)) {
-                        alreadyIncluded = true;
-                    }
-                }
-                if (!alreadyIncluded) {
-                    includeFieldList.add(path);
-                }
-            }
-        }
-        String[] includeFields = includeFieldList.toArray(new String[includeFieldList.size()]);
-        if (includeFields.length == 0) {
-            includeFields = new String[]{"*"};
-        }
-        String[] excludeFields = exclude.toArray(new String[exclude.size()]);
-        if (excludeFields.length == 0) {
-            excludeFields = null;
-        }
-        searchSourceBuilder = searchSourceBuilder.fetchSource(includeFields, excludeFields);
+        Pair<String[], String[]> includeExclude = computeIncludeExclude();
+        searchSourceBuilder = searchSourceBuilder.fetchSource(includeExclude.getLeft(), includeExclude.getRight());
 
         //Get Elasticsearch response
         LOGGER.debug("QUERY : " + searchSourceBuilder.toString());
@@ -180,7 +104,7 @@ public class FluidSearch {
         return result;
     }
 
-    public FluidSearch filter(MultiValueFilter<Expression> f, String dateFormat) throws ArlasException {
+    public ElasticFluidSearch filter(MultiValueFilter<Expression> f, String dateFormat) throws ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (Expression fFilter : f) {
             orBoolQueryBuilder = orBoolQueryBuilder
@@ -270,7 +194,7 @@ public class FluidSearch {
                 }
                 break;
             case within:
-                ElasticType wType = collectionReferenceManager.getType(collectionReference, field, true);
+                FieldType wType = collectionReferenceManager.getType(collectionReference, field, true);
                 BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
                 switch (wType) {
                     case GEO_POINT:
@@ -288,7 +212,7 @@ public class FluidSearch {
                 ret = ret.filter(orBoolQueryBuilder);
                 break;
             case notwithin:
-                ElasticType type = collectionReferenceManager.getType(collectionReference, field, true);
+                FieldType type = collectionReferenceManager.getType(collectionReference, field, true);
                 BoolQueryBuilder orBoolQueryBuilder2 = QueryBuilders.boolQuery();
                 switch (type) {
                     case GEO_POINT:
@@ -357,7 +281,7 @@ public class FluidSearch {
 
     }
 
-    public FluidSearch filterQ(MultiValueFilter<String> q) throws ArlasException {
+    public ElasticFluidSearch filterQ(MultiValueFilter<String> q) throws ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (String qFilter : q) {
             String operands[] = qFilter.split(":",2);
@@ -453,39 +377,20 @@ public class FluidSearch {
         }
     }
 
-    public FluidSearch include(String include) {
-        if (include != null) {
-            String includeFieldArray[] = include.split(",");
-            for (String field : includeFieldArray) {
-                this.include.add(field);
-            }
-        }
-        return this;
-    }
-
-    public FluidSearch exclude(String exclude) {
-        if (exclude != null) {
-            String excludeFieldArray[] = exclude.split(",");
-            for (String field : excludeFieldArray) {
-                this.exclude.add(field);
-            }
-        }
-        return this;
-    }
-
-    public FluidSearch filterSize(Integer size, Integer from) {
+    public ElasticFluidSearch filterSize(Integer size, Integer from) {
         searchSourceBuilder = searchSourceBuilder.size(size).from(from);
         return this;
     }
 
 
-    public FluidSearch searchAfter(String after) {
+    public ElasticFluidSearch searchAfter(String after) {
         searchSourceBuilder = searchSourceBuilder.searchAfter(after.split(","));
         return this;
     }
 
 
-    public FluidSearch sort(String sort) throws ArlasException {
+    @Override
+    public FluidSearchService sort(String sort) throws ArlasException {
         List<String> fieldList = Arrays.asList(sort.split(","));
         String field;
         SortOrder sortOrder;
@@ -545,14 +450,14 @@ public class FluidSearch {
         return aggregationBuilder.subAggregation(aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate, counter));
     }
 
-    public FluidSearch aggregate(List<Aggregation> aggregations, Boolean isGeoAggregate) throws ArlasException {
-        AggregationBuilder aggregationBuilder = null;
-        aggregationBuilder = aggregateRecursive(new ArrayList<>(aggregations), aggregationBuilder, isGeoAggregate, 0);
+    @Override
+    public FluidSearchService aggregate(List<Aggregation> aggregations, Boolean isGeoAggregate) throws ArlasException {
+        AggregationBuilder aggregationBuilder = aggregateRecursive(new ArrayList<>(aggregations), null, isGeoAggregate, 0);
         searchSourceBuilder = searchSourceBuilder.size(0).aggregation(aggregationBuilder);
         return this;
     }
 
-    public FluidSearch getFieldRange(String field) {
+    public ElasticFluidSearch getFieldRange(String field) {
         boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.existsQuery(field));
         MinAggregationBuilder minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
         MaxAggregationBuilder maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
@@ -560,7 +465,7 @@ public class FluidSearch {
         return this;
     }
 
-    public FluidSearch compute(String field, ComputationEnum metric) {
+    public ElasticFluidSearch compute(String field, ComputationEnum metric) {
         boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.existsQuery(field));
         switch (metric) {
             case AVG:
@@ -698,8 +603,7 @@ public class FluidSearch {
     }
 
     private ValuesSourceAggregationBuilder setAggregationParameters(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
-        String aggField = aggregationModel.field;
-        aggregationBuilder = aggregationBuilder.field(aggField);
+        aggregationBuilder = aggregationBuilder.field(aggregationModel.field);
         //Get the format
         String format = ParamsParser.getValidAggregationFormat(aggregationModel.format);
         if (aggregationBuilder instanceof DateHistogramAggregationBuilder) {
@@ -709,7 +613,6 @@ public class FluidSearch {
         }
         // firstMetricAggregationBuilder is the aggregation builder on which the order aggregation will be applied
         ValuesSourceAggregationBuilder firstMetricAggregationBuilder = null;
-        // collect_field must be a centroid for geocentroid and geobbox, so it's set automatically to collectionReference.params.centroidPath
         if (aggregationModel.metrics != null) {
             for (Metric m: aggregationModel.metrics) {
                 ValuesSourceAggregationBuilder metricAggregationBuilder = null;
@@ -822,6 +725,7 @@ public class FluidSearch {
         }
         return aggregationBuilder;
     }
+
     private ValuesSourceAggregationBuilder setHitsToFetch(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
         if (aggregationModel.fetchHits != null) {
             TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(FETCH_HITS_AGG);
@@ -835,7 +739,7 @@ public class FluidSearch {
                     includes.add(unsignedField);
                     /** For geo-fields, we don't sort them. Sorting geo-fields need to be according a given point to calculate a geo-distance
                      * which is not supported in the syntax of fetch_hits*/
-                    if (CollectionReferenceManager.getInstance().getType(collectionReference, unsignedField, false) != ElasticType.GEO_POINT && CollectionReferenceManager.getInstance().getType(collectionReference, unsignedField, false) != ElasticType.GEO_SHAPE) {
+                    if (CollectionReferenceManager.getInstance().getType(collectionReference, unsignedField, false) != FieldType.GEO_POINT && CollectionReferenceManager.getInstance().getType(collectionReference, unsignedField, false) != FieldType.GEO_SHAPE) {
                         if (field.startsWith("+") || !field.startsWith("-")) {
                             topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
                         } else {
@@ -855,8 +759,8 @@ public class FluidSearch {
     }
 
     private void setGeoMetricAggregationCollectField(Metric metric) throws ArlasException {
-        ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, metric.collectField, true);
-        if (fieldType != ElasticType.GEO_POINT) {
+        FieldType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, metric.collectField, true);
+        if (fieldType != FieldType.GEO_POINT) {
             throw new InvalidParameterException("collect_field: `" + metric.collectField + "` is not a geo-point field. " + "`" + metric.collectFct.name() + "` is applied to geo-points only.");
         }
     }
@@ -866,12 +770,8 @@ public class FluidSearch {
         OrderOn on = aggregationModel.on;
         if (order != null && on != null) {
             if (!(aggregationBuilder instanceof GeoGridAggregationBuilder)) {
-                Boolean asc = true;
+                Boolean asc = order.equals(Order.asc);
                 BucketOrder bucketOrder = null;
-                if (order.equals(Order.asc))
-                    asc = true;
-                else if (order.equals(Order.desc))
-                    asc = false;
                 if (on.equals(OrderOn.field)) {
                     bucketOrder = BucketOrder.key(asc);
                 } else if (on.equals(OrderOn.count)) {
@@ -997,25 +897,5 @@ public class FluidSearch {
             }
             throw new InvalidParameterException("The given geometry is invalid.");
         }
-    }
-
-    public boolean isDateField(String field) throws ArlasException {
-        return ElasticTool.isDateField(field, client, collectionReference.params.indexName);
-    }
-
-    public void setCollectionReference(CollectionReference collectionReference) {
-        this.collectionReference = collectionReference;
-        request = new SearchRequest(collectionReference.params.indexName);
-    }
-
-    public CollectionReference getCollectionReference() {
-        return collectionReference;
-    }
-
-    public List<String> getCollectionPaths() {
-        return Arrays.asList(collectionReference.params.idPath,
-                collectionReference.params.geometryPath,
-                collectionReference.params.centroidPath,
-                collectionReference.params.timestampPath);
     }
 }

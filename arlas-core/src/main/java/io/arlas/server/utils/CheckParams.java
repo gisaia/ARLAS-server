@@ -24,14 +24,13 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.BadRequestException;
 import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.exceptions.NotAllowedException;
-import io.arlas.server.impl.elastic.core.FluidSearch;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.Inspire;
 import io.arlas.server.model.Keyword;
 import io.arlas.server.model.enumerations.*;
 import io.arlas.server.model.request.*;
-import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.model.response.FieldType;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.geom.Geometry;
@@ -45,6 +44,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static io.arlas.server.services.FluidSearchService.*;
 
 public class CheckParams {
 
@@ -125,14 +126,14 @@ public class CheckParams {
                 throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + INVALID_COMPUTE_METRIC);
             }
             if (computationRequest.metric.equals(ComputationEnum.GEOBBOX) || computationRequest.metric.equals(ComputationEnum.GEOCENTROID)) {
-                ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, computationRequest.field, false);
-                if (!ElasticType.GEO_POINT.equals(fieldType) && !ElasticType.UNKNOWN.equals(fieldType)) {
+                FieldType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, computationRequest.field, false);
+                if (!FieldType.GEO_POINT.equals(fieldType) && !FieldType.UNKNOWN.equals(fieldType)) {
                     throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + "`" + computationRequest.metric + "` must be applied on a geo-point field");
                 }
             } else if (!computationRequest.metric.equals(ComputationEnum.CARDINALITY)) {
                 // Except for CARDINALITY, GEOBBOX and GEOCENTROID, the field on which the metric is computed should be numeric or date
-                ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, computationRequest.field, false);
-                if (!ElasticType.getComputableTypes().contains(fieldType)) {
+                FieldType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, computationRequest.field, false);
+                if (!FieldType.getComputableTypes().contains(fieldType)) {
                     throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + "`" + computationRequest.metric + "` must be applied on a numeric or date field");
                 }
             }
@@ -185,7 +186,7 @@ public class CheckParams {
         double[] tlbr = CheckParams.toDoubles(bbox);
         // west, south, east, north
         if (!(tlbr.length == 4 && isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
-            throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            throw new InvalidParameterException(INVALID_BBOX);
         }
     }
 
@@ -195,7 +196,7 @@ public class CheckParams {
 
     public static void checkAggregationIncludeParameter(Aggregation aggregationModel) throws ArlasException {
         if (aggregationModel.include != null && aggregationModel.type != AggregationTypeEnum.term) {
-            throw new BadRequestException(FluidSearch.NO_INCLUDE_TO_SPECIFY);
+            throw new BadRequestException(NO_INCLUDE_TO_SPECIFY);
         }
     }
 
@@ -205,8 +206,8 @@ public class CheckParams {
                 if (StringUtils.isBlank(rg.geometry)) {
                     throw new BadRequestException(RAW_GEOMETRIES_NULL_OR_EMPTY);
                 } else {
-                    ElasticType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, rg.geometry, true); // will throw ArlasException if not existing
-                    if (fieldType != ElasticType.GEO_POINT && fieldType != ElasticType.GEO_SHAPE) {
+                    FieldType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, rg.geometry, true); // will throw ArlasException if not existing
+                    if (fieldType != FieldType.GEO_POINT && fieldType != FieldType.GEO_SHAPE) {
                         throw new InvalidParameterException("`" + rg.geometry + "` is not a geo-point or a geo-shape field");
                     }
                     if (StringUtils.isBlank(rg.sort)) {
@@ -291,7 +292,7 @@ public class CheckParams {
     public static void checkPageSize(Page page) throws ArlasException {
         if (page != null) {
             if (page.size == null || page.size <= 0){
-                throw new InvalidParameterException(FluidSearch.INVALID_SIZE);
+                throw new InvalidParameterException(INVALID_SIZE);
             }
         }
     }
@@ -299,7 +300,7 @@ public class CheckParams {
     public static void checkPageFrom(Page page) throws ArlasException {
         if (page != null) {
             if (page.from == null || page.from < 0) {
-                throw new InvalidParameterException(FluidSearch.INVALID_FROM);
+                throw new InvalidParameterException(INVALID_FROM);
             }
         }
     }
@@ -351,7 +352,7 @@ public class CheckParams {
         if ((range.isEmpty() || !(range.startsWith("[") || range.startsWith("]")) ||
                 !(range.endsWith("[") || range.endsWith("]")) ||
                 !(range.contains("<")))) {
-            throw new java.security.InvalidParameterException(FluidSearch.INVALID_PARAMETER_F);
+            throw new java.security.InvalidParameterException(INVALID_PARAMETER_F);
         }
     }
 
@@ -370,7 +371,7 @@ public class CheckParams {
                     if (timestamp.contains("||")) {
                         String[] operands = timestamp.split("\\|\\|");
                         if (ParamsParser.tryParseLong(operands[0]) == null) {
-                            throw new InvalidParameterException(FluidSearch.INVALID_TIMESTAMP_RANGE);
+                            throw new InvalidParameterException(INVALID_TIMESTAMP_RANGE);
                         } else {
                             if (operands.length == 1) {
                                 throw new InvalidParameterException(INVALID_DATE_MATH_EXPRESSION);
@@ -379,11 +380,11 @@ public class CheckParams {
                             }
                         }
                     } else {
-                        throw new InvalidParameterException(FluidSearch.INVALID_TIMESTAMP_RANGE);
+                        throw new InvalidParameterException(INVALID_TIMESTAMP_RANGE);
                     }
                 }
             } else {
-                throw new InvalidParameterException(FluidSearch.INVALID_TIMESTAMP_RANGE);
+                throw new InvalidParameterException(INVALID_TIMESTAMP_RANGE);
             }
         }
     }
@@ -605,7 +606,7 @@ public class CheckParams {
         try {
             return Arrays.stream(doubles.split(",")).mapToDouble(Double::parseDouble).toArray();
         } catch (Exception e) {
-            throw new InvalidParameterException(FluidSearch.INVALID_BBOX);
+            throw new InvalidParameterException(INVALID_BBOX);
         }
     }
 

@@ -41,7 +41,7 @@ import io.arlas.server.inspire.common.utils.InspireCheckParam;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.response.CollectionReferenceDescription;
 import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
-import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.model.response.FieldType;
 import io.arlas.server.model.response.TimestampType;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.OGCCheckParam;
@@ -1340,7 +1340,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         for (String key : pathElements) {
             CollectionReferenceDescriptionProperty property = properties.get(key);
             if(property!=null){
-                if (property.type == ElasticType.OBJECT) {
+                if (property.type == FieldType.OBJECT) {
                 String[] newArray = Arrays.copyOfRange(pathElements, 1, pathElements.length);
                 return getFormatFromPath(newArray, property.properties);
                 } else {
@@ -1355,11 +1355,11 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         for (String key : pathElements) {
             CollectionReferenceDescriptionProperty property = properties.get(key);
             if(property!=null){
-                if (property.type == ElasticType.OBJECT && property.properties != null) {
+                if (property.type == FieldType.OBJECT && property.properties != null) {
                     String[] newArray = Arrays.copyOfRange(pathElements, 1, pathElements.length);
                     return isPathDate(newArray, property.properties);
                 } else {
-                    return  property.type == ElasticType.DATE ;
+                    return  property.type == FieldType.DATE ;
                 }
             }
         }

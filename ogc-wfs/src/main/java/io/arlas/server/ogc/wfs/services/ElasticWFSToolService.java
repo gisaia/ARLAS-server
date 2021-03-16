@@ -21,7 +21,7 @@ package io.arlas.server.ogc.wfs.services;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
-import io.arlas.server.impl.elastic.core.FluidSearch;
+import io.arlas.server.impl.elastic.core.ElasticFluidSearch;
 import io.arlas.server.impl.elastic.services.ElasticExploreService;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Filter;
@@ -31,6 +31,7 @@ import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
+import io.arlas.server.services.FluidSearchService;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
@@ -59,7 +60,7 @@ public class ElasticWFSToolService implements WFSToolService {
 
     @Override
     public CollectionReferenceDescription getCollectionReferenceDescription(CollectionReference collectionReference) throws ArlasException {
-        return exploreServices.getDaoCollectionReference().describeCollection(collectionReference);
+        return exploreServices.getCollectionReferenceService().describeCollection(collectionReference);
     }
 
     @Override
@@ -108,7 +109,7 @@ public class ElasticWFSToolService implements WFSToolService {
         // Can't use lambdas because of the need to throw the exception of getCollectionFields()
         Optional<String> cf = ColumnFilterUtil.cleanColumnFilter(columnFilter);
         if (cf.isPresent()) {
-            Set<String> fields = exploreServices.getDaoCollectionReference().getCollectionFields(collectionReference, cf);
+            Set<String> fields = exploreServices.getCollectionReferenceService().getCollectionFields(collectionReference, cf);
             return fields.toArray(new String[0]);
         }
         return null;
@@ -144,7 +145,7 @@ public class ElasticWFSToolService implements WFSToolService {
                                CollectionReference collectionReference, Optional<String> columnFilter) throws ArlasException, IOException{
 
         wfsQuery = QueryBuilders.boolQuery();
-        FluidSearch fluidSearch = new FluidSearch(exploreServices.getClient());
+        ElasticFluidSearch fluidSearch = (ElasticFluidSearch) exploreServices.getFluidSearch();
         fluidSearch.setCollectionReference(getCollectionReferenceDescription(collectionReference));
         addCollectionFilter(fluidSearch, collectionReference);
         if (constraint != null) {
@@ -164,7 +165,7 @@ public class ElasticWFSToolService implements WFSToolService {
     private void buildBboxQuery(String bbox, CollectionReference collectionReference) throws OGCException {
         double[] tlbr = GeoFormat.toDoubles(bbox,Service.WFS);
         if (!(isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
-            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, FluidSearch.INVALID_BBOX, "bbox", Service.WFS);
+            throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, ElasticFluidSearch.INVALID_BBOX, "bbox", Service.WFS);
         }
         wfsQuery.filter(getBBoxBoolQueryBuilder(bbox, collectionReference.params.centroidPath));
     }
@@ -194,13 +195,13 @@ public class ElasticWFSToolService implements WFSToolService {
         }
     }
 
-    private void addPartitionFilter(FluidSearch fluidSearch, String partitionFilter) throws ArlasException {
+    private void addPartitionFilter(ElasticFluidSearch fluidSearch, String partitionFilter) throws ArlasException {
         Filter headerFilter = ParamsParser.getFilter(partitionFilter);
         exploreServices.applyFilter(headerFilter, fluidSearch);
         wfsQuery.filter(fluidSearch.getBoolQueryBuilder());
     }
 
-    private void addCollectionFilter(FluidSearch fluidSearch, CollectionReference collectionReference) throws ArlasException {
+    private void addCollectionFilter(ElasticFluidSearch fluidSearch, CollectionReference collectionReference) throws ArlasException {
         Filter collectionFilter = collectionReference.params.filter;
         exploreServices.applyFilter(collectionFilter, fluidSearch);
         wfsQuery.filter(fluidSearch.getBoolQueryBuilder());

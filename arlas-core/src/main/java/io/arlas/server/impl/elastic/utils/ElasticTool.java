@@ -25,8 +25,8 @@ import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.InternalServerErrorException;
 import io.arlas.server.exceptions.NotFoundException;
 import io.arlas.server.model.CollectionReference;
+import io.arlas.server.utils.CollectionUtil;
 import io.arlas.server.utils.StringUtil;
-import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.http.HttpHost;
@@ -53,7 +53,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -136,43 +135,11 @@ public class ElasticTool {
         }
     }
 
-    public static Map getFieldFromProperties(String field, LinkedHashMap properties) throws ArlasException {
-        if (properties == null) {
-            throw new NotFoundException("Unable to find properties in index");
-        }
-        Map<String, Object> res = properties;
-        String[] stringList = field.split("\\.");
-        int last = stringList.length - 1;
-        for (int i = 0; i <= last; i++) {
-            res = (Map) res.get(stringList[i]);
-            if (res == null) {
-                throw new NotFoundException("Field '" + field + "' not found in index mapping");
-            } else {
-                if (i != last) {
-                    res = (Map) res.get("properties");
-                }
-            }
-        }
-        return res;
-    }
-
     public static Map<String, LinkedHashMap> checkAliasMappingFields(ElasticClient client,
                                                                      String alias,
                                                                      String... fields) throws ArlasException {
         Map<String, LinkedHashMap> response = client.getMappings(alias);
-        return checkAliasMappingFields(response, fields);
-    }
-
-    public static Map<String, LinkedHashMap> checkAliasMappingFields(Map<String, LinkedHashMap> mappings,
-                                                                     String... fields) throws ArlasException {
-        List<String> indices = IteratorUtils.toList(mappings.keySet().iterator());
-        for (String index : indices) {
-            LinkedHashMap properties = mappings.get(index);
-            for (String field : fields) {
-                getFieldFromProperties(field, properties);
-            }
-        }
-        return mappings;
+        return CollectionUtil.checkAliasMappingFields(response, fields);
     }
 
     public static CollectionReference getCollectionReferenceFromES(ElasticClient client, String index, ObjectReader reader, String ref) throws ArlasException {

@@ -42,11 +42,9 @@ import org.apache.commons.lang.BooleanUtils;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class AggregateRESTService extends ExploreRESTServices {
 
@@ -121,7 +119,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws ArlasException {
         long startArlasTime = System.nanoTime();
-        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService()
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
@@ -194,7 +192,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         long startArlasTime = System.nanoTime();
-        CollectionReference collectionReference = exploreService.getDaoCollectionReference()
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService()
                 .getCollectionReference(collection);
 
         if (collectionReference == null) {

@@ -19,6 +19,7 @@
 
 package io.arlas.server.model.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.arlas.server.model.enumerations.AggregatedGeometryEnum;
@@ -42,6 +43,8 @@ public class Aggregation {
     public List<RawGeometry> rawGeometries;
     public List<AggregatedGeometryEnum> aggregatedGeometries;
     public HitsFetcher fetchHits;
+    @JsonIgnore
+    public int index; // index of the agg in the list of aggregations
 
     public Aggregation() {
     }

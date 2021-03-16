@@ -25,7 +25,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import io.arlas.server.managers.CacheManager;
 import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.response.ElasticType;
+import io.arlas.server.model.response.FieldType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +93,7 @@ public class HazelcastCacheManager implements CacheManager {
             init();
             this.instance.getReplicatedMap("collections").put(ref, col, cacheTimeout, TimeUnit.SECONDS);
         }
-        LOGGER.debug("Clearing elastic types of collection '" + ref + "' from cache");
+        LOGGER.debug("Clearing field types of collection '" + ref + "' from cache");
         this.instance.getReplicatedMap(ref).clear();
     }
 
@@ -106,26 +106,26 @@ public class HazelcastCacheManager implements CacheManager {
             init();
             this.instance.getReplicatedMap("collections").remove(ref);
         }
-        LOGGER.debug("Clearing elastic types of collection '" + ref + "' from cache");
+        LOGGER.debug("Clearing field types of collection '" + ref + "' from cache");
         this.instance.getReplicatedMap(ref).clear();
     }
 
     @Override
-    public ElasticType getElasticType(String ref, String name) {
-        ElasticType t;
+    public FieldType getFieldType(String ref, String name) {
+        FieldType t;
         try {
-            t = (ElasticType) this.instance.getReplicatedMap(ref).get(name);
+            t = (FieldType) this.instance.getReplicatedMap(ref).get(name);
         } catch (HazelcastInstanceNotActiveException e) { // recover from unexpected shutdown
             init();
-            t = (ElasticType) this.instance.getReplicatedMap(ref).get(name);
+            t = (FieldType) this.instance.getReplicatedMap(ref).get(name);
         }
-        LOGGER.debug("Returning elastic type '" + name + "' for collection '" + ref + "' from cache with value " + (t == null ? "null" : t.elasticType));
+        LOGGER.debug("Returning field type '" + name + "' for collection '" + ref + "' from cache with value " + (t == null ? "null" : t.fieldType));
         return t;
     }
 
     @Override
-    public void putElasticType(String ref, String name, ElasticType type) {
-        LOGGER.debug("Inserting elastic type '" + name + "' for collection '" + ref + "' in cache with value " + (type == null ? "null" : type.elasticType));
+    public void putFieldType(String ref, String name, FieldType type) {
+        LOGGER.debug("Inserting field type '" + name + "' for collection '" + ref + "' in cache with value " + (type == null ? "null" : type.fieldType));
         try {
             this.instance.getReplicatedMap(ref).put(name, type, cacheTimeout, TimeUnit.SECONDS);
         } catch (HazelcastInstanceNotActiveException e) { // recover from unexpected shutdown
