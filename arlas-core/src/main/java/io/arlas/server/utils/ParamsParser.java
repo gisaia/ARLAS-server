@@ -426,7 +426,6 @@ public class ParamsParser {
     }
 
     public static Geometry getValidWKT(String wktString) throws InvalidParameterException {
-        System.out.println("Trying to getValidWKT from: " + wktString);
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Envelope affectedBounds = new Envelope(-360, 360, -180, 180);
         WKTReader wkt = new WKTReader(geometryFactory);
