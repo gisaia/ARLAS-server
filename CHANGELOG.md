@@ -1,5 +1,9 @@
 # Change Log
 
+## [v16.7.0](https://github.com/gisaia/ARLAS-server/tree/v16.7.0) (2021-03-16)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v15.7.0...v16.7.0)
+
 ## [v15.7.0](https://github.com/gisaia/ARLAS-server/tree/v15.7.0) (2021-02-18)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v15.7.0-beta.1...v15.7.0)
@@ -12,6 +16,7 @@
 **Fixed bugs:**
 
 - The results of fetch\_hits parameter in an aggregation are not flattened when 'flat=true' [\#692](https://github.com/gisaia/ARLAS-server/issues/692)
+- Unable to create a collection with index template and without index created [\#674](https://github.com/gisaia/ARLAS-server/issues/674)
 
 ## [v15.7.0-beta.1](https://github.com/gisaia/ARLAS-server/tree/v15.7.0-beta.1) (2021-02-01)
 
