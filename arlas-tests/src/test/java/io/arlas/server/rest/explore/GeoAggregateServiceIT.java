@@ -22,6 +22,7 @@ package io.arlas.server.rest.explore;
 import io.arlas.server.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.model.enumerations.CollectionFunction;
 import io.arlas.server.model.request.*;
+import io.arlas.server.utils.GeoTileUtil;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
@@ -41,8 +42,8 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
-    protected String getGeohashUrlPath(String collection, String geohash) {
-        return getUrlPath(collection) + "/" + geohash;
+    protected String getTileUrlPath(String collection, String tile) {
+        return getUrlPath(collection) + "/" + tile;
     }
 
     @Override
@@ -394,6 +395,21 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
+    protected void handleGeotileGreaterThanPrecision(ValidatableResponse then, int count, String tile) throws Exception {
+        then.statusCode(200)
+                .body("features.size()", equalTo(1))
+                .body("features[0].properties.count", equalTo(count))
+                .body("features[0].properties.tile", lessThanOrEqualTo(tile));
+    }
+
+    @Override
+    protected void handleGeotileLessThanPrecision(ValidatableResponse then, int featuresSize, String tile) throws Exception {
+        then.statusCode(200)
+                .body("features.size()", equalTo(featuresSize))
+                .body("features.properties.tile", everyItem(greaterThanOrEqualTo(tile)));
+    }
+
+    @Override
     protected void handleGeohashTileDisjointFromPwithin(ValidatableResponse then) throws Exception {
         then.statusCode(200)
                 .body("features", equalTo(null));
@@ -442,6 +458,4 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
                     .body("features.properties", hasItem(hasKey(flattenedItem)));
         });
     }
-
-
 }

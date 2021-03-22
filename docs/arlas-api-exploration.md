@@ -18,6 +18,7 @@ The table below lists the URL endpoints and their optional "parts". A part is co
 | /arlas/explore/`{collections}`/**_aggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s), given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_geoaggregate**?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_geoaggregate**/`{geohash}`?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) and localized in the given `{geohash}` as features, given the filters and the aggregation parameters |
+| /arlas/explore/`{collections}`/**_geoaggregate**/`{z}`/`{x}`/`{y}`?`aggregation` &`filter` & `form` | Aggregate the elements in the collection(s) and localized in the given `zxy` tile as features, given the filters and the aggregation parameters |
 | /arlas/explore/`{collections}`/**_suggest**?`filter` & `form` & `size` & `suggest` | Suggest the the n (n=`size`) most relevant terms given the filters |
 
 When multiple collections are permitted ({collections}), the comma is used for separating the collection names.
@@ -52,11 +53,11 @@ The other parts must be specified or not depending on the aggregation type. All 
 
 | Parameter                 | Aggregation type                    | Description                                      |
 | ---------                 | -------------                       | ------------------------------------------------ |
-| **interval**              | `datehistogram, histogram, geohash` | mandatory                                        |
+| **interval**              | `datehistogram, histogram, geohash, geotile` | mandatory                                        |
 | **format**                | `datehistogram`                     | optional (default value : `yyyy-MM-dd-HH:mm:ss`) |
 | (**collect_field**,**collect_fct**) | All types                 | optional and multiple                            |
 | (**order**,**on**)        | `term, histogram, datehistogram`    | optional                                         |
-| **size**                  | `term, geohash`                     | optional                                         |
+| **size**                  | `term, geohash, geotile`             | optional                                         |
 | **include**               | `term`                              | optional                                         |
 | **aggregated_geometries** | All types                           | optional                                         |
 | **raw_geometries**        | All types                           | optional                                         |
@@ -68,7 +69,7 @@ The sub-parameters possible values are:
 
 | Parameter         | Values                                          | Description                              |
 | ----------------- | ----------------------------------------------  | ---------------------------------------- |
-| **{type}**        | `datehistogram`, `histogram`, `geohash`, `term` | Type of aggregation |
+| **{type}**        | `datehistogram`, `histogram`, `geohash`, `geotile`, `term` | Type of aggregation |
 | **{field}**       | {field}                                         | Aggregates on {field} |
 | **interval**      | {interval}                                      | Size of the intervals.(1)                   |
 | **format**        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.         |
@@ -78,7 +79,7 @@ The sub-parameters possible values are:
 | **on**            | `field,count,result` (3) (3')                       | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
 | **size**          | {size}                                          | Defines how many buckets should be returned. |
 | **include**       | Comma separated strings (4)                     | Specifies the values for which buckets will be created. |
-| **aggregated_geometries** | Comma separated strings : `bbox`, `centroid`, `geohash_center`, `geohash` |  Allows to specify a list of aggregated forms of geometries that represent the bucket (5)(6)|
+| **aggregated_geometries** | Comma separated strings : `bbox`, `centroid`, `tile_center`, `tile` |  Allows to specify a list of aggregated forms of geometries that represent the bucket (5)(6)|
 | **raw_geometries** | `{geo_field1}(+{field1}, ...);{geo_field2}(-{field2}, ...)` |  Allows to specify a list of raw geometries provided by hits that represent the bucket and that are elected by a sort (7)(8)|
 | **fetch_hits**     | `{optionalNumberOfHist}(+{field1}, {field2}, -{field3}, ...)`    | Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits. The hits can be sorted according 0-* fields by preceding the field name by `+` for ascending sort, `-` for descending sort or nothing if no sort is desired on a field.(9)|
 
@@ -104,8 +105,8 @@ The `order` is applied on the first collect_fct `avg` (that is different from `g
 
  - `bbox`: returns the data extent (bbox) inside the bucket.
  - `centroid`: returns the centroid of data inside the bucket.
- - `geohash`: returns the 'geohash' extent that represents the bucket. This form is supported for **geohash** aggregation type only.
- - `geohash_center`: returns the 'center' of the geohash extent that represents the bucket. This form is supported for **geohash** aggregation type only.
+ - `tile`: returns the tile extent (zxy or geohash) of each bucket. This form is supported for **geohash** and **geotile** aggregation type only.
+ - `tile_center`: returns the 'center' of the tile extent that represents the bucket. This form is supported for **geohash** and **geotile** aggregation type only.
 
 (6) The response:
 
@@ -139,6 +140,7 @@ The `order` is applied on the first collect_fct `avg` (that is different from `g
 | ------------------- | ------------------- | ---------------------------------------- | ---------------------------------------- |
 | ***_aggregate***    | ***datehistogram*** | `{size}(year,quarter,month,week,day,hour,minute,second)` | Size of a time interval with the given unit (no space between number and unit). Size must be equal to 1 for year, quarter, month and week |
 | ***_geoaggregate*** | ***geohash***       | `{length}`                               | The geohash length: lower the length, greater is the surface of aggregation. See table below. |
+| ***_geoaggregate*** | ***geotile***       | `{zoom}`                                 | The tile zoom: lower the zoom, greater is the surface of aggregation. |
 | ***_aggregate***    | ***histogram***     | `{size}`                                 | The interval size of the numeric aggregation |
 | ***_aggregate***    | ***term***          | None                                     | None                                     |
 
@@ -161,7 +163,7 @@ The table below shows the metric dimensions for cells covered by various string 
 
 **agg** parameter is multiple. Every agg parameter specified is a subaggregation of the previous one : the order matters.
 
-For **_geoaggregate** service, the first (main) aggregation must be geohash.
+For **_geoaggregate** service, the first (main) aggregation must be geohash,or geotile.
 
 ---
 ### Part: `filter`
@@ -314,6 +316,7 @@ The following endpoints use this header:
 | /arlas/explore/`{collections}`/**_tile**/`{z}`/`{x}`/`{y}`.png | Return a 403 if one of the filter, projection or page fields is not in the column filter. Return a 403 if target collection is not available. |
 | /arlas/explore/`{collections}`/**_geoaggregate** | Return a 403 if one of the aggregation or filter fields is not in the column filter. Return a 403 if target collection is not available. |
 | /arlas/explore/`{collections}`/**_geoaggregate**/`{geohash}` | Return a 403 if one of the aggregation or filter fields is not in the column filter. Return a 403 if target collection is not available. |
+| /arlas/explore/`{collections}`/**_geoaggregate**/`{z}`/`{x}`/`{y}` | Return a 403 if one of the aggregation or filter fields is not in the column filter. Return a 403 if target collection is not available. |
 | /arlas/explore/ogc/**opensearch**/{collection} | Only fields matching this filter will be returned. Return a 403 if target collection is not available. |
 
 On top of that, a query ("q" parameter) filter MUST target a specific field:

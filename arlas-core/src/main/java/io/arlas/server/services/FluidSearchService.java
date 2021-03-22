@@ -50,6 +50,7 @@ public abstract class FluidSearchService {
     public static final String HISTOGRAM_AGG = "Histogram aggregation";
     public static final String TERM_AGG = "Term aggregation";
     public static final String GEOHASH_AGG = "Geohash aggregation";
+    public static final String GEOTILE_AGG = "Geotile aggregation";
     public static final String FETCH_HITS_AGG = "fetched_hits";
     public static final String GEO_DISTANCE = "geodistance";
     public static final String NO_INCLUDE_TO_SPECIFY = "'include-' should not be specified for this aggregation";
@@ -63,7 +64,7 @@ public abstract class FluidSearchService {
     public static final String ORDER_PARAM_NOT_ALLOWED = "Order is not allowed for geohash aggregation.";
     public static final String ORDER_ON_RESULT_NOT_ALLOWED = "'on-result' sorts 'collect_field' and 'collect_fct' results. Please specify 'collect_field' and 'collect_fct'.";
     public static final String ORDER_ON_GEO_RESULT_NOT_ALLOWED = "Ordering on 'result' is not allowed for geo-box neither geo-centroid metric aggregation. ";
-    public static final String SIZE_NOT_IMPLEMENTED = "Size is not implemented for geohash.";
+    public static final String SIZE_NOT_IMPLEMENTED = "Size is not implemented for geohash/geotile.";
 
     public static final String FIELD_MIN_VALUE = "field_min_value";
     public static final String FIELD_MAX_VALUE = "field_max_value";

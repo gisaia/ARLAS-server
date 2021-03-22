@@ -67,14 +67,16 @@ public class CheckParams {
     private static final String INVALID_ON_VALUE = "Invalid 'on-' value : ";
     private static final String BAD_COLLECT_FCT_COLLECT_FIELD_NUMBERS = "'collect_field' and 'collect_fct' occurrences should be even.";
     private static final String DATE_NOW = "now";
-    private static final String AGGREGATED_GEOMETRY_NOT_SUPPORTED = "'geohash' & 'geohash_center' are only supported for geohash aggregation type.";
+    private static final String AGGREGATED_GEOMETRY_NOT_SUPPORTED = "'tile' & 'tile_center' are only supported for geohash and geotile aggregation type.";
 
     public static final String INTERVAL_NOT_SPECIFIED = "Interval parameter is not specified.";
     public static final String INTERVAL_VALUE_NOT_SPECIFIED = "Interval value is missing.";
     public static final String INTERVAL_UNIT_NOT_SPECIFIED = "Interval unit is missing.";
-    public static final String NO_INTERVAL_UNIT_FOR_GEOHASH_NOR_HISTOGRAM = "Interval unit must not be specified for geohash nor histogram aggregations.";
+    public static final String NO_INTERVAL_UNIT_FOR_GEOHASH_NOR_HISTOGRAM = "Interval unit must not be specified for geohash/geotile nor histogram aggregations.";
     public static final String NO_TERM_INTERVAL = "'Interval' should not be specified for term aggregation.";
     public static final String RAW_GEOMETRIES_NULL_OR_EMPTY = "'geometries' should not be null nor empty";
+
+    public static final List<AggregationTypeEnum> GEO_AGGREGATION_TYPE_ENUMS = Arrays.asList(AggregationTypeEnum.geohash, AggregationTypeEnum.geotile);
 
     public CheckParams() {
     }
@@ -220,18 +222,18 @@ public class CheckParams {
     public static void checkAggregatedGeometryParameter(Aggregation aggregationModel) throws ArlasException {
         if (aggregationModel.aggregatedGeometries != null) {
             List<AggregatedGeometryEnum> geometries = aggregationModel.aggregatedGeometries;
-            if (!geometries.isEmpty()) {
-                if ((geometries.contains(AggregatedGeometryEnum.GEOHASH) || geometries.contains(AggregatedGeometryEnum.GEOHASHCENTER)) && aggregationModel.type != AggregationTypeEnum.geohash) {
-                    throw new NotAllowedException(AGGREGATED_GEOMETRY_NOT_SUPPORTED);
-                }
-                if (aggregationModel.type == AggregationTypeEnum.geohash && aggregationModel.aggregatedGeometries.isEmpty() && aggregationModel.rawGeometries == null) {
-                    aggregationModel.aggregatedGeometries = new ArrayList<>();
-                    aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.GEOHASHCENTER);
-                }
+            if ((geometries.contains(AggregatedGeometryEnum.TILE) || geometries.contains(AggregatedGeometryEnum.TILECENTER))
+                    && !GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type)) {
+                throw new NotAllowedException(AGGREGATED_GEOMETRY_NOT_SUPPORTED);
             }
-        } else if (aggregationModel.type == AggregationTypeEnum.geohash && aggregationModel.rawGeometries == null) {
+            if (GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type)
+                    && geometries.isEmpty() && aggregationModel.rawGeometries == null) {
+                aggregationModel.aggregatedGeometries = new ArrayList<>();
+                aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.TILECENTER);
+            }
+        } else if (GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type) && aggregationModel.rawGeometries == null) {
             aggregationModel.aggregatedGeometries = new ArrayList<>();
-            aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.GEOHASHCENTER);
+            aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.TILECENTER);
         }
     }
 
@@ -254,9 +256,8 @@ public class CheckParams {
                     Number intervalValue = 0;
                     switch (aggregationModel.type) {
                         case datehistogram:
-                            intervalValue = ParamsParser.tryParseInteger(interval.value.toString());
-                            break;
                         case geohash:
+                        case geotile:
                             intervalValue = ParamsParser.tryParseInteger(interval.value.toString());
                             break;
                         case histogram:
@@ -267,6 +268,10 @@ public class CheckParams {
                         switch (aggregationModel.type) {
                             case datehistogram:
                                 throw new InvalidParameterException("The datehistogram interval must be a positive integer.");
+                            case geotile:
+                                if (intervalValue.doubleValue() < 0) {
+                                    throw new InvalidParameterException("The geotile precision is not valid. It must be a positive integer.");
+                                }
                             case geohash:
                                 throw new InvalidParameterException("The geohash precision is not valid. It must be an integer between 1 and 12.");
                             case histogram:
@@ -275,6 +280,8 @@ public class CheckParams {
                     }
                     if (intervalValue != null && aggregationModel.type == AggregationTypeEnum.geohash && ParamsParser.tryParseInteger(interval.value.toString()) >= 13) {
                         throw new InvalidParameterException("The geohash precision is not valid. It must be an integer between 1 and 12.");
+                    } if (intervalValue != null && aggregationModel.type == AggregationTypeEnum.geotile && ParamsParser.tryParseInteger(interval.value.toString()) > 29) {
+                        throw new InvalidParameterException("The geotile precision is not valid. It must be an integer between 0 and 29.");
                     } else if (intervalValue != null) {
                         aggregationModel.interval.value = intervalValue;
                     }

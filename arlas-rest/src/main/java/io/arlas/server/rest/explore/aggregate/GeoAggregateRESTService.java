@@ -23,6 +23,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.app.Documentation;
 import io.arlas.server.exceptions.ArlasException;
+import io.arlas.server.exceptions.InvalidParameterException;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.AggregationGeometryEnum;
 import io.arlas.server.model.enumerations.AggregationTypeEnum;
@@ -309,7 +310,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         AggregationTypeEnum aggType = null;
         for (BoundingBox b : bboxes) {
             Expression pwithinBbox = new Expression(collectionReference.params.centroidPath, OperatorEnum.within,
-                    b.getWest() + "," + b.getSouth() + "," + String.format("%.8f", b.getEast() - GEOHASH_EPSILON) + "," + String.format("%.8f", b.getNorth() - GEOHASH_EPSILON));
+                    b.getWest() + "," + b.getSouth() + ","
+                            + String.format(Locale.ROOT, "%.8f", b.getEast() - GEOHASH_EPSILON) + ","
+                            + String.format(Locale.ROOT,"%.8f", b.getNorth() - GEOHASH_EPSILON));
             MixedRequest request = getGeoaggregateRequest(collectionReference,
                     ParamsParser.getFilter(collectionReference, f, q, dateformat, b, pwithinBbox)
                     , partitionFilter, columnFilter, agg);
@@ -332,6 +335,128 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 .collect(Collectors.toList());
 
         return cache(Response.ok(toGeoJson(merge(aggResponses), aggType, Boolean.TRUE.equals(flat), Optional.of(geohash))), maxagecache);
+
+    }
+
+    @Timed
+    @Path("{collection}/_geoaggregate/{z}/{x}/{y}")
+    @GET
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(value = "GeoAggregate on a geotile", produces = UTF8JSON, notes = Documentation.GEOTILE_GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
+            @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
+    public Response geotilegeoaggregate(
+            // --------------------------------------------------------
+            // ----------------------- PATH ---------------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "collection",
+                    value = "collection",
+                    required = true)
+            @PathParam(value = "collection") String collection,
+
+            @ApiParam(name = "z",
+                    value = "z",
+                    required = true)
+            @PathParam(value = "z") Integer z,
+            @ApiParam(name = "x",
+                    value = "x",
+                    required = true)
+            @PathParam(value = "x") Integer x,
+            @ApiParam(name = "y",
+                    value = "y",
+                    required = true)
+            @PathParam(value = "y") Integer y,
+
+            // --------------------------------------------------------
+            // ----------------------- AGGREGATION --------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "agg",
+                    value = Documentation.GEOAGGREGATION_PARAM_AGG)
+            @QueryParam(value = "agg") List<String> agg,
+
+            // --------------------------------------------------------
+            // ----------------------- FILTER -------------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "f",
+                    value = Documentation.FILTER_PARAM_F,
+                    allowMultiple = true)
+            @QueryParam(value = "f") List<String> f,
+
+            @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
+                    allowMultiple = true)
+            @QueryParam(value = "q") List<String> q,
+
+            @ApiParam(name = "dateformat",
+                    value = Documentation.FILTER_DATE_FORMAT)
+            @QueryParam(value = "dateformat") String dateformat,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "partition-filter") String partitionFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+
+            // --------------------------------------------------------
+            // ----------------------- FORM ---------------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
+            @QueryParam(value = "pretty") Boolean pretty,
+
+            @ApiParam(name = "flat",
+                    value = Documentation.FORM_FLAT,
+                    defaultValue = "false")
+            @QueryParam(value = "flat") Boolean flat,
+
+            // --------------------------------------------------------
+            // ----------------------- EXTRA --------------------------
+            // --------------------------------------------------------
+            @ApiParam(value = "max-age-cache")
+            @QueryParam(value = "max-age-cache") Integer maxagecache
+    ) throws NotFoundException, ArlasException {
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService()
+                .getCollectionReference(collection);
+        if (collectionReference == null) {
+            throw new NotFoundException(collection);
+        }
+
+        if (agg == null || agg.size() == 0) {
+            agg = Collections.singletonList("geotile:" + collectionReference.params.centroidPath + ":interval-" + (z+3));
+        }
+
+        List<BoundingBox> bboxes = getBoundingBoxes(z, x, y, agg, collectionReference);
+        List<CompletableFuture<AggregationResponse>> futureList = new ArrayList<>();
+        AggregationTypeEnum aggType = null;
+        for (BoundingBox b : bboxes) {
+            Expression pwithinBbox = new Expression(collectionReference.params.centroidPath, OperatorEnum.within,
+                    b.getWest() + "," + b.getSouth() + ","
+                            + String.format(Locale.ROOT, "%.8f", b.getEast() - GEOHASH_EPSILON) + ","
+                            + String.format(Locale.ROOT, "%.8f", b.getNorth() - GEOHASH_EPSILON));
+            MixedRequest request = getGeoaggregateRequest(collectionReference,
+                    ParamsParser.getFilter(collectionReference, f, q, dateformat, b, pwithinBbox)
+                    , partitionFilter, columnFilter, agg);
+            aggType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
+
+            futureList.add(CompletableFuture.supplyAsync(() -> {
+                try {
+                    return exploreService.aggregate(request,collectionReference, true,
+                            ((AggregationsRequest) request.basicRequest).aggregations,0,
+                            System.nanoTime());
+                } catch (ArlasException e) {
+                    throw new RuntimeException(e);
+                }
+            }));
+
+        }
+
+        List<AggregationResponse> aggResponses = futureList.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+
+        return cache(Response.ok(toGeoJson(merge(aggResponses), aggType, Boolean.TRUE.equals(flat), Optional.of(z + "/" + x + "/" + y))), maxagecache);
 
     }
 
@@ -361,6 +486,38 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             return Arrays.asList(bbox);
         }
     }
+
+    private List<BoundingBox> getBoundingBoxes(Integer z, Integer x, Integer y, List<String> agg, CollectionReference collectionReference) throws ArlasException {
+        // we expect a 'geotile' aggregation model with an interval specified
+        int interval = 0;
+        List<Interval> intervals = ParamsParser.getAggregations(collectionReference, agg).stream()
+                .filter(a -> a.type.equals(AggregationTypeEnum.geotile))
+                .map(a -> a.interval)
+                .collect(Collectors.toList());
+        if (intervals.size() > 0) {
+            interval = intervals.get(0).value.intValue();
+        }
+        if (interval - z > 7 || interval - z < 0) {
+            throw new InvalidParameterException("(interval - z) must be > 0 and <= 7");
+        }
+
+        BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x, y, z));
+        if (interval - z  == 7) {
+            LOGGER.debug("interval - z == 7");
+            // Split initial bbox in 4
+            double midLat = (bbox.getNorth() + bbox.getSouth()) / 2;
+            double midLon = (bbox.getWest() + bbox.getEast()) / 2;
+            return Arrays.asList(
+                    new BoundingBox(bbox.getNorth(), midLat, bbox.getWest(), midLon),
+                    new BoundingBox(bbox.getNorth(), midLat, midLon, bbox.getEast()),
+                    new BoundingBox(midLat, bbox.getSouth(), bbox.getWest(), midLon),
+                    new BoundingBox(midLat, bbox.getSouth(), midLon, bbox.getEast()));
+        } else {
+            LOGGER.debug("interval - z < 7");
+            return Arrays.asList(bbox);
+        }
+    }
+
     private AggregationResponse merge(List<AggregationResponse> aggResponses) {
         AggregationResponse result = new AggregationResponse();
         if (aggResponses.size() > 1) {
@@ -578,7 +735,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         return fc;
     }
 
-    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat, Optional<String> geohash) {
+    private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat, Optional<String> tile) {
         FeatureCollection fc = new FeatureCollection();
         List<AggregationResponse> elements = aggregationResponse.elements;
         if (!CollectionUtils.isEmpty(elements)) {
@@ -590,7 +747,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                        properties.put("count", element.count);
                        if (mainAggregationType == AggregationTypeEnum.geohash) {
                            properties.put("geohash", element.keyAsString);
-                           geohash.ifPresent(s -> properties.put("parent_geohash", s));
+                           tile.ifPresent(s -> properties.put("parent_geohash", s));
+                       } else if (mainAggregationType == AggregationTypeEnum.geotile) {
+                           properties.put("tile", element.keyAsString);
+                           tile.ifPresent(s -> properties.put("parent_tile", s));
                        } else {
                            properties.put("key", element.keyAsString);
                        }

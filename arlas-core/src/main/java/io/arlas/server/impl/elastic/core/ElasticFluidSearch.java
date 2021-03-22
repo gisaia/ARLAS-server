@@ -27,11 +27,17 @@ import io.arlas.server.impl.elastic.utils.ElasticTool;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
-import io.arlas.server.model.request.*;
+import io.arlas.server.model.request.Aggregation;
+import io.arlas.server.model.request.Expression;
+import io.arlas.server.model.request.Metric;
+import io.arlas.server.model.request.MultiValueFilter;
 import io.arlas.server.model.response.FieldType;
 import io.arlas.server.model.response.TimestampType;
 import io.arlas.server.services.FluidSearchService;
-import io.arlas.server.utils.*;
+import io.arlas.server.utils.CheckParams;
+import io.arlas.server.utils.GeoUtil;
+import io.arlas.server.utils.ParamsParser;
+import io.arlas.server.utils.StringUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -60,6 +66,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
+
+import static io.arlas.server.utils.CheckParams.GEO_AGGREGATION_TYPE_ENUMS;
 
 public class ElasticFluidSearch extends FluidSearchService {
     private static Logger LOGGER = LoggerFactory.getLogger(ElasticFluidSearch.class);
@@ -424,7 +432,9 @@ public class ElasticFluidSearch extends FluidSearchService {
         //check the agg syntax is correct
         Aggregation aggregationModel = aggregations.get(0);
         if (isGeoAggregate && counter == 0) {
-            if (aggregationModel.type != AggregationTypeEnum.geohash && aggregationModel.rawGeometries == null && aggregationModel.aggregatedGeometries == null) {
+            if (!GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type)
+                    && aggregationModel.rawGeometries == null
+                    && aggregationModel.aggregatedGeometries == null) {
                 throw new NotAllowedException("'" + aggregationModel.type.name() +"' aggregation type is not allowed in _geoaggregate service if at least `aggregated_geometries` or `raw_geometries` parameters are not specified");
             }
         }
@@ -434,6 +444,9 @@ public class ElasticFluidSearch extends FluidSearchService {
                 break;
             case geohash:
                 aggregationBuilder = buildGeohashAggregation(aggregationModel);
+                break;
+            case geotile:
+                aggregationBuilder = buildGeotileAggregation(aggregationModel);
                 break;
             case histogram:
                 aggregationBuilder = buildHistogramAggregation(aggregationModel);
@@ -569,6 +582,20 @@ public class ElasticFluidSearch extends FluidSearchService {
         return geoHashAggregationBuilder;
     }
 
+    // construct and returns the geotile aggregationModel builder
+    private GeoGridAggregationBuilder buildGeotileAggregation(Aggregation aggregationModel) throws ArlasException {
+        GeoGridAggregationBuilder geoTileAggregationBuilder = AggregationBuilders.geotileGrid(GEOTILE_AGG);
+        //get the precision
+        Integer precision = (Integer)aggregationModel.interval.value;
+        geoTileAggregationBuilder = geoTileAggregationBuilder.precision(precision);
+        //get the field, format, collect_field, collect_fct, order, on
+        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoTileAggregationBuilder);
+        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setAggregatedGeometries(aggregationModel, geoTileAggregationBuilder);
+        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setRawGeometries(aggregationModel, geoTileAggregationBuilder);
+        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setHitsToFetch(aggregationModel, geoTileAggregationBuilder);
+        return geoTileAggregationBuilder;
+    }
+
     // construct and returns the histogram aggregationModel builder
     private HistogramAggregationBuilder buildHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
         HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram(HISTOGRAM_AGG);
@@ -680,7 +707,7 @@ public class ElasticFluidSearch extends FluidSearchService {
 
     private ValuesSourceAggregationBuilder setAggregatedGeometries(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
         if (aggregationModel.aggregatedGeometries != null) {
-            String aggregationGeoField = (aggregationModel.type.equals(AggregationTypeEnum.geohash) ? aggregationModel.field : collectionReference.params.centroidPath);
+            String aggregationGeoField = GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type) ? aggregationModel.field : collectionReference.params.centroidPath;
             aggregationModel.aggregatedGeometries.forEach(ag -> {
                 ValuesSourceAggregationBuilder metricAggregation;
                 switch (ag) {

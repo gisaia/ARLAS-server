@@ -109,7 +109,7 @@ public class Documentation {
             "\n \n" +
             "   - **{type}:{field}** part is mandatory. " +
             "\n \n" +
-            "   - **interval** must be specified only when aggregation type is datehistogram, histogram and geohash." +
+            "   - **interval** must be specified only when aggregation type is datehistogram, histogram, geotile and geohash." +
             "\n \n" +
             "   - **format** is optional for datehistogram, and must not be specified for the other types." +
             "\n \n" +
@@ -121,13 +121,13 @@ public class Documentation {
             "\n \n" +
             "   - (**order**,**on**) couple is optional for all aggregation types." +
             "\n \n" +
-            "   - **size** is optional for term and geohash, and must not be specified for the other types." +
+            "   - **size** is optional for term and geohash/geotile, and must not be specified for the other types." +
             "\n \n" +
             "   - **include** is optional for term, and must not be specified for the other types." +
             "\n \n" +
             "- {type} possible values are : " +
             "\n \n" +
-            "       datehistogram, histogram, geohash and term. " +
+            "       datehistogram, histogram, geohash, geotile and term. " +
             "\n \n" +
             "- {interval} possible values depends on {type}. " +
             "\n \n" +
@@ -136,6 +136,8 @@ public class Documentation {
             "       If {type} = histogram, then {interval} = {size}. " +
             "\n \n" +
             "       If {type} = geohash, then {interval} = {size}. It's an integer between 1 and 12. Lower the length, greater is the surface of aggregation. " +
+            "\n \n" +
+            "       If {type} = geotile, then {interval} = {size}. It's an integer corresponding to zoom level of the aggregation, that should be larger than or equal to {z} in the path param, and no bigger than {z}+6. " +
             "\n \n" +
             "       If {type} = term, then interval-{interval} is not needed. " +
             "\n \n" +
@@ -164,19 +166,19 @@ public class Documentation {
             "\n \n" +
             "    > __**Syntax**__: `aggregated_geometries-{COMMA_SEPARATED_AGGREGATED_GEOMETRIES}`." +
             "\n \n" +
-            "    > __**Available aggregated geometries**__: `centroid, bbox, geohash, geohash_center`." +
+            "    > __**Available aggregated geometries**__: `centroid, bbox, tile, tile_center`." +
             "\n \n" +
             "       - **centroid**: returns the centroid of data inside the bucket." +
             "\n \n" +
             "       - **bbox**: returns the data extent (bbox) in each bucket." +
             "\n \n" +
-            "       - **geohash**: returns the 'geohash' extent of each bucket. This form is supported for **geohash** aggregation type only." +
+            "       - **tile**: returns the tile extent (zxy or geohash) of each bucket. This form is supported for **geohash** and **geotile** aggregation type only." +
             "\n \n" +
-            "       - **geohash_center**: returns the geohash center of each bucket. This form is supported for **geohash** aggregation type only." +
+            "       - **tile_center**: returns the tile center of each bucket. This form is supported for **geohash** and **geotile** aggregation type only." +
             "\n \n" +
             "    > __**Response**__: the aggregated geometries are returned in `geometries` list in the json response. Each object inside this list has : the reference to the aggregated form, the geojson geometry and an attribute `is_raw` set to false" +
             "\n \n" +
-            "    > __**Example**__: `aggregated_geometries-bbox,geohash`" +
+            "    > __**Example**__: `aggregated_geometries-bbox,tile`" +
             "\n \n" +
             "- **raw_geometries**" +
             "\n \n" +
@@ -213,6 +215,7 @@ public class Documentation {
     public static final String GEOAGGREGATION_OPERATION = "Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters.";
     public static final String SHAPEAGGREGATION_OPERATION = "Aggregate the elements in the collection(s) as features, given the filters and the aggregation parameters, and returns a shapefile of it.";
     public static final String GEOHASH_GEOAGGREGATION_OPERATION = "Aggregate the elements in the collection(s) and localized in the given geohash as features, given the filters and the aggregation parameters.";
+    public static final String GEOTILE_GEOAGGREGATION_OPERATION = "Aggregate the elements in the collection(s) and localized in the given tile as features, given the filters and the aggregation parameters.";
     public static final String GEOAGGREGATION_PARAM_AGG = "- The agg parameter should be given in the following formats:  " +
             "\n \n" +
             "       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}:raw_geometries-{raw_geometries values}:aggregated_geometries-{aggregated_geometries values}:fetch_hits-{fetch_hits values}" +
@@ -221,7 +224,7 @@ public class Documentation {
             "\n \n" +
             "   - **{type}:{field}** part is mandatory. " +
             "\n \n" +
-            "   - **interval** must be specified only when aggregation type is datehistogram, histogram and geohash." +
+            "   - **interval** must be specified only when aggregation type is datehistogram, histogram, geotile and geohash." +
             "\n \n" +
             "   - **format** is optional for datehistogram, and must not be specified for the other types." +
             "\n \n" +
@@ -229,13 +232,13 @@ public class Documentation {
             "\n \n" +
             "   - (**order**,**on**) couple is optional for all aggregation types." +
             "\n \n" +
-            "   - **size** is optional for term and geohash, and must not be specified for the other types." +
+            "   - **size** is optional for term and geohash/geotile, and must not be specified for the other types." +
             "\n \n" +
             "   - **include** is optional for term, and must not be specified for the other types." +
             "\n \n" +
             "- {type} possible values are : " +
             "\n \n" +
-            "       geohash, datehistogram, histogram and term. geohash must be the main aggregation." +
+            "       geohash, geotile, datehistogram, histogram and term. geohash or geotile must be the main aggregation." +
             "\n \n" +
             "- {interval} possible values depends on {type}. " +
             "\n \n" +
@@ -244,6 +247,8 @@ public class Documentation {
             "       If {type} = histogram, then {interval} = {size}. " +
             "\n \n" +
             "       If {type} = geohash, then {interval} = {size}. It's an integer between 1 and 12. Lower the length, greater is the surface of aggregation. " +
+            "\n \n" +
+            "       If {type} = geotile, then {interval} = {size}. It's an integer corresponding to zoom level of the aggregation, that should be larger than or equal to {z} in the path param, and no bigger than {z}+6 (max 29). " +
             "\n \n" +
             "       If {type} = term, then interval-{interval} is not needed. " +
             "\n \n" +
@@ -274,15 +279,15 @@ public class Documentation {
             "\n \n" +
             "    > __**Syntax**__: `aggregated_geometries-{COMMA_SEPARATED_AGGREGATED_GEOMETRIES}`." +
             "\n \n" +
-            "    > __**Available aggregated geometries**__: `centroid, bbox, geohash, geohash_center`." +
+            "    > __**Available aggregated geometries**__: `centroid, bbox, tile, tile_center`." +
             "\n \n" +
             "       - **centroid**: returns the centroid of data inside the bucket." +
             "\n \n" +
             "       - **bbox**: returns the data extent (bbox) in each bucket." +
             "\n \n" +
-            "       - **geohash**: returns the 'geohash' extent of each bucket. This form is supported for **geohash** aggregation type only." +
+            "       - **tile**: returns the tile (zxy or geohash) extent of each bucket. This form is supported for **geohash** and **geotile** aggregation type only." +
             "\n \n" +
-            "       - **geohash_center**: returns the geohash center of each bucket. This form is supported for **geohash** aggregation type only." +
+            "       - **tile_center**: returns the tile center of each bucket. This form is supported for **geohash** and **geotile** aggregation type only." +
             "\n \n" +
             "    > __**Response**__: Each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified aggregated geometries. The properties of each feature has :" +
             "\n \n" +
@@ -326,7 +331,7 @@ public class Documentation {
             "\n \n" +
             "    > __**Example**__: `fetch_hits-3(-timestamp, geometry)`. Fetches the 3 last positions for each bucket." +
             "\n \n" +
-            "**agg** parameter is multiple. The first (main) aggregation must be geohash. Every agg parameter specified is a subaggregation of the previous one : order matters. " +
+            "**agg** parameter is multiple. The first (main) aggregation must be geohash or geotile. Every agg parameter specified is a subaggregation of the previous one : order matters. " +
             "\n \n" +
             "For more details, check https://github.com/gisaia/ARLAS-server/blob/master/docs/arlas-api-exploration.md ";
 

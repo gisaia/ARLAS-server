@@ -36,9 +36,7 @@ import io.arlas.server.model.response.*;
 import io.arlas.server.services.CollectionReferenceService;
 import io.arlas.server.services.ExploreService;
 import io.arlas.server.services.FluidSearchService;
-import io.arlas.server.utils.CheckParams;
-import io.arlas.server.utils.MapExplorer;
-import io.arlas.server.utils.UriInfoWrapper;
+import io.arlas.server.utils.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.geo.GeoPoint;
@@ -58,6 +56,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.arlas.server.services.FluidSearchService.*;
 
@@ -397,21 +396,49 @@ public class ElasticExploreService extends ExploreService {
                 GeoPoint geoPoint = getGeohashCentre(element.keyAsString.toString());
                 element.key = geoPoint;
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
-                    aggregatedGeometries.stream().filter(g -> g == AggregatedGeometryEnum.GEOHASHCENTER || g == AggregatedGeometryEnum.GEOHASH).forEach(g -> {
-                        ReturnedGeometry returnedGeometry = new ReturnedGeometry();
-                        returnedGeometry.reference = g.value();
-                        returnedGeometry.isRaw = false;
-                        if (g == AggregatedGeometryEnum.GEOHASH) {
-                            returnedGeometry.geometry = createPolygonFromRectangle(GeohashUtils.decodeBoundary(element.keyAsString.toString(), SpatialContext.GEO));
-                        } else {
-                            returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
-                        }
-                        if (element.geometries == null) {
-                            element.geometries = new ArrayList<>();
-                        }
-                        element.geometries.add(returnedGeometry);
+                    aggregatedGeometries.stream()
+                            .filter(g -> g == AggregatedGeometryEnum.TILECENTER || g == AggregatedGeometryEnum.TILE)
+                            .forEach(g -> {
+                                ReturnedGeometry returnedGeometry = new ReturnedGeometry();
+                                returnedGeometry.reference = g.value();
+                                returnedGeometry.isRaw = false;
+                                if (g == AggregatedGeometryEnum.TILE) {
+                                    returnedGeometry.geometry = createPolygonFromRectangle(GeohashUtils.decodeBoundary(element.keyAsString.toString(), SpatialContext.GEO));
+                                } else {
+                                    returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
+                                }
+                                if (element.geometries == null) {
+                                    element.geometries = new ArrayList<>();
+                                }
+                                element.geometries.add(returnedGeometry);
 
-                    });
+                            });
+                }
+            } else if (aggregationResponse.name.equals(GEOTILE_AGG)) {
+                List<Integer> zxy = Stream.of(element.keyAsString.toString().split("/"))
+                        .map (elem -> Integer.valueOf(elem))
+                        .collect(Collectors.toList());
+                BoundingBox tile = GeoTileUtil.getBoundingBox(zxy.get(1), zxy.get(2), zxy.get(0));
+                GeoPoint geoPoint = getTileCentre(tile);
+                element.key = geoPoint;
+                if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
+                    aggregatedGeometries.stream()
+                            .filter(g -> g == AggregatedGeometryEnum.TILECENTER || g == AggregatedGeometryEnum.TILE)
+                            .forEach(g -> {
+                                ReturnedGeometry returnedGeometry = new ReturnedGeometry();
+                                returnedGeometry.reference = g.value();
+                                returnedGeometry.isRaw = false;
+                                if (g == AggregatedGeometryEnum.TILE) {
+                                    returnedGeometry.geometry = createBox(tile);
+                                } else {
+                                    returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
+                                }
+                                if (element.geometries == null) {
+                                    element.geometries = new ArrayList<>();
+                                }
+                                element.geometries.add(returnedGeometry);
+
+                            });
                 }
             } else if(aggregationResponse.name.startsWith(DATEHISTOGRAM_AGG)){
                 element.key = ((ZonedDateTime)bucket.getKey()).withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
@@ -435,7 +462,7 @@ public class ElasticExploreService extends ExploreService {
                                 .map(Arrays::asList)
                                 .map(hitsList -> hitsList.stream().map(SearchHit::getSourceAsMap).collect(Collectors.toList()))
                                 .orElse(new ArrayList());
-                    } else if (Arrays.asList(DATEHISTOGRAM_AGG, HISTOGRAM_AGG, TERM_AGG, GEOHASH_AGG).contains(subAggregation.getName())) {
+                    } else if (Arrays.asList(DATEHISTOGRAM_AGG, HISTOGRAM_AGG, TERM_AGG, GEOHASH_AGG, GEOTILE_AGG).contains(subAggregation.getName())) {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
                     } else if (isAggregatedGeometry(subAggregation.getName(), aggregatedGeometries)) {
                         subAggregationResponse = null;
@@ -563,6 +590,25 @@ public class ElasticExploreService extends ExploreService {
         double lat = (maxLat + minLat) / 2;
 
         return new GeoPoint(lat, lon);
+    }
+
+    private GeoPoint getTileCentre(BoundingBox bbox) {
+        double lon = (bbox.getEast() + bbox.getWest()) / 2;
+        double lat = (bbox.getNorth() + bbox.getSouth()) / 2;
+
+        return new GeoPoint(lat, lon);
+    }
+
+    private Polygon createBox(BoundingBox bbox) {
+        Polygon box = new Polygon();
+        List<LngLatAlt> bounds = new ArrayList<>();
+        bounds.add(new LngLatAlt(bbox.getWest(), bbox.getNorth()));
+        bounds.add(new LngLatAlt(bbox.getEast(), bbox.getNorth()));
+        bounds.add(new LngLatAlt(bbox.getEast(), bbox.getSouth()));
+        bounds.add(new LngLatAlt(bbox.getWest(), bbox.getSouth()));
+        box.add(bounds);
+
+        return box;
     }
 
     private Polygon createBox(GeoBounds subAggregation) {
