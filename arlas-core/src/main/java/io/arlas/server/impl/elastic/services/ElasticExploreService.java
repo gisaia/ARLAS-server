@@ -397,12 +397,12 @@ public class ElasticExploreService extends ExploreService {
                 element.key = geoPoint;
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
-                            .filter(g -> g == AggregatedGeometryEnum.TILECENTER || g == AggregatedGeometryEnum.TILE)
+                            .filter(g -> g.isCellOrCellCenterAgg())
                             .forEach(g -> {
                                 ReturnedGeometry returnedGeometry = new ReturnedGeometry();
                                 returnedGeometry.reference = g.value();
                                 returnedGeometry.isRaw = false;
-                                if (g == AggregatedGeometryEnum.TILE) {
+                                if (g.isCellAgg()) {
                                     returnedGeometry.geometry = createPolygonFromRectangle(GeohashUtils.decodeBoundary(element.keyAsString.toString(), SpatialContext.GEO));
                                 } else {
                                     returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
@@ -423,12 +423,12 @@ public class ElasticExploreService extends ExploreService {
                 element.key = geoPoint;
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
-                            .filter(g -> g == AggregatedGeometryEnum.TILECENTER || g == AggregatedGeometryEnum.TILE)
+                            .filter(g -> g.isCellOrCellCenterAgg())
                             .forEach(g -> {
                                 ReturnedGeometry returnedGeometry = new ReturnedGeometry();
                                 returnedGeometry.reference = g.value();
                                 returnedGeometry.isRaw = false;
-                                if (g == AggregatedGeometryEnum.TILE) {
+                                if (g.isCellAgg()) {
                                     returnedGeometry.geometry = createBox(tile);
                                 } else {
                                     returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
