@@ -222,18 +222,19 @@ public class CheckParams {
     public static void checkAggregatedGeometryParameter(Aggregation aggregationModel) throws ArlasException {
         if (aggregationModel.aggregatedGeometries != null) {
             List<AggregatedGeometryEnum> geometries = aggregationModel.aggregatedGeometries;
-            if ((geometries.contains(AggregatedGeometryEnum.TILE) || geometries.contains(AggregatedGeometryEnum.TILECENTER))
+            if ((geometries.contains(AggregatedGeometryEnum.CELL) || geometries.contains(AggregatedGeometryEnum.CELLCENTER) ||
+                    geometries.contains(AggregatedGeometryEnum.GEOHASH) || geometries.contains(AggregatedGeometryEnum.GEOHASH_CENTER))
                     && !GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type)) {
                 throw new NotAllowedException(AGGREGATED_GEOMETRY_NOT_SUPPORTED);
             }
             if (GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type)
                     && geometries.isEmpty() && aggregationModel.rawGeometries == null) {
                 aggregationModel.aggregatedGeometries = new ArrayList<>();
-                aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.TILECENTER);
+                aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.CELLCENTER);
             }
         } else if (GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type) && aggregationModel.rawGeometries == null) {
             aggregationModel.aggregatedGeometries = new ArrayList<>();
-            aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.TILECENTER);
+            aggregationModel.aggregatedGeometries.add(AggregatedGeometryEnum.CELLCENTER);
         }
     }
 

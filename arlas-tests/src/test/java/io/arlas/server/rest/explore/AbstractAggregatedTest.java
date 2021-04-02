@@ -68,7 +68,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingGeohashAggregateCenter(post(aggregationRequest), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
         handleMatchingGeohashAggregateCenter(get("geohash:geo_params.centroid:interval-1"), 32, 16, 25, -169.453125F, -79.453125F, 169.453125F, 79.453125F);
 
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILECENTER);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.CELLCENTER);
         handleMatchingGeohashAggregate(post(aggregationRequest), 32, 16, 25);
         handleMatchingGeohashAggregate(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-tile_center"), 32, 16, 25);
 
@@ -168,7 +168,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingGeohashAggregateWithGeocentroidBucket(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-centroid"),
                 32, 16, 25, 0, -155.00000031664968F, -65.00000014901161F, 154.99999981373549F, 64.99999981373549F);
 
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILE);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.CELL);
         handleMatchingAggregateWithGeometry(post(aggregationRequest),
                 32, 16, 25, -180F, -90F, 180F, 90F);
         handleMatchingAggregateWithGeometry(get("geohash:geo_params.centroid:interval-1:aggregated_geometries-tile"),
@@ -213,7 +213,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingGeohashAggregateCenter(post(aggregationRequest), 4, 136, 162, -90F, -42.525566F, 90F, 42.525565F);
         handleMatchingGeohashAggregateCenter(get("geotile:geo_params.centroid:interval-1"), 4, 136, 162, -90F, -42.525566F, 90F, 42.525565F);
 
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILECENTER);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.CELLCENTER);
         handleMatchingGeohashAggregate(post(aggregationRequest), 4, 136, 162);
         handleMatchingGeohashAggregate(get("geotile:geo_params.centroid:interval-1:aggregated_geometries-tile_center"), 4, 136, 162);
 
@@ -313,7 +313,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingGeohashAggregateWithGeocentroidBucket(get("geotile:geo_params.centroid:interval-1:aggregated_geometries-centroid"),
                 4, 136, 162, 0, -90.00000003944425F, -40.00000001862645F, 84.9999999627471F, 44.99999997904524F);
 
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILE);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.CELL);
         handleMatchingAggregateWithGeometry(post(aggregationRequest),
                 4, 136, 162, -180F, -90F, 180F, 90F);
         handleMatchingAggregateWithGeometry(get("geotile:geo_params.centroid:interval-1:aggregated_geometries-tile"),
@@ -1038,7 +1038,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(get("datehistogram:params.startdate:interval-day"));
 
         aggregationRequest.aggregations.get(0).interval = new Interval(1, UnitEnum.day); // "1day";
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILE);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.CELL);
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("datehistogram:params.startdate:interval-1day:aggregated_geometries-tile"));
         aggregationRequest.aggregations.get(0).aggregatedGeometries = null;
@@ -1063,7 +1063,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(get("histogram:params.job"));
 
         aggregationRequest.aggregations.get(0).interval = new Interval(100000, null); // "1day";
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILE);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.CELL);
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("histogram:params.startdate:interval-100000:aggregated_geometries-tile"));
         aggregationRequest.aggregations.get(0).aggregatedGeometries = null;
@@ -1078,7 +1078,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         // INVALID AGGERAGATED_GEOMETY
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.term;
         aggregationRequest.aggregations.get(0).interval = null;
-        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.TILE);
+        aggregationRequest.aggregations.get(0).aggregatedGeometries = Arrays.asList(AggregatedGeometryEnum.CELL);
         handleInvalidParameters(post(aggregationRequest));
         handleInvalidParameters(get("term:params.job:aggregated_geometries-tile"));
 

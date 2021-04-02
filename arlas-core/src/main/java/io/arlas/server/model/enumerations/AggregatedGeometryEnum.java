@@ -26,7 +26,8 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum AggregatedGeometryEnum {
-    BBOX("bbox"), CENTROID("centroid"), TILE("tile"), TILECENTER("tile_center");
+    BBOX("bbox"), CENTROID("centroid"), CELL("cell"), CELLCENTER("cell_center"),
+    @Deprecated GEOHASH("geohash"), @Deprecated GEOHASH_CENTER("geohash_center");
 
     private final String value;
     private static final String INVALID_AGGREGATED_GEOMETRY = "Invalid aggregated geometry `";
@@ -45,5 +46,12 @@ public enum AggregatedGeometryEnum {
             }
         }
         throw new InvalidParameterException(INVALID_AGGREGATED_GEOMETRY + v + "`. Must be one of " + Arrays.stream(AggregatedGeometryEnum.values()).map(c -> c.value()).collect(Collectors.joining(",")));
+    }
+
+    public boolean isCellOrCellCenterAgg() {
+        return this == CELL || this == CELLCENTER || this == GEOHASH || this == GEOHASH_CENTER;
+    }
+    public boolean isCellAgg() {
+        return this == CELL || this == GEOHASH;
     }
 }
