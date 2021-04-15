@@ -166,19 +166,19 @@ public class Documentation {
             "\n \n" +
             "    > __**Syntax**__: `aggregated_geometries-{COMMA_SEPARATED_AGGREGATED_GEOMETRIES}`." +
             "\n \n" +
-            "    > __**Available aggregated geometries**__: `centroid, bbox, tile, tile_center`." +
+            "    > __**Available aggregated geometries**__: `centroid, bbox, cell, cell_center`." +
             "\n \n" +
             "       - **centroid**: returns the centroid of data inside the bucket." +
             "\n \n" +
             "       - **bbox**: returns the data extent (bbox) in each bucket." +
             "\n \n" +
-            "       - **tile**: returns the tile extent (zxy or geohash) of each bucket. This form is supported for **geohash** and **geotile** aggregation type only." +
+            "       - **cell**: returns the cell extent (zxy or geohash) of each bucket. This form is supported for **geohash** and **geotile** aggregation type only." +
             "\n \n" +
-            "       - **tile_center**: returns the tile center of each bucket. This form is supported for **geohash** and **geotile** aggregation type only." +
+            "       - **cell_center**: returns the cell center of each bucket. This form is supported for **geohash** and **geotile** aggregation type only." +
             "\n \n" +
             "    > __**Response**__: the aggregated geometries are returned in `geometries` list in the json response. Each object inside this list has : the reference to the aggregated form, the geojson geometry and an attribute `is_raw` set to false" +
             "\n \n" +
-            "    > __**Example**__: `aggregated_geometries-bbox,tile`" +
+            "    > __**Example**__: `aggregated_geometries-bbox,cell`" +
             "\n \n" +
             "- **raw_geometries**" +
             "\n \n" +
@@ -279,15 +279,15 @@ public class Documentation {
             "\n \n" +
             "    > __**Syntax**__: `aggregated_geometries-{COMMA_SEPARATED_AGGREGATED_GEOMETRIES}`." +
             "\n \n" +
-            "    > __**Available aggregated geometries**__: `centroid, bbox, tile, tile_center`." +
+            "    > __**Available aggregated geometries**__: `centroid, bbox, cell, cell_center`." +
             "\n \n" +
             "       - **centroid**: returns the centroid of data inside the bucket." +
             "\n \n" +
             "       - **bbox**: returns the data extent (bbox) in each bucket." +
             "\n \n" +
-            "       - **tile**: returns the tile (zxy or geohash) extent of each bucket. This form is supported for **geohash** and **geotile** aggregation type only." +
+            "       - **cell**: returns the cell (zxy or geohash) extent of each bucket. This form is supported for **geohash** and **geotile** aggregation type only." +
             "\n \n" +
-            "       - **tile_center**: returns the tile center of each bucket. This form is supported for **geohash** and **geotile** aggregation type only." +
+            "       - **cell_center**: returns the cell center of each bucket. This form is supported for **geohash** and **geotile** aggregation type only." +
             "\n \n" +
             "    > __**Response**__: Each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified aggregated geometries. The properties of each feature has :" +
             "\n \n" +
