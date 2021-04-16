@@ -67,7 +67,7 @@ public class CheckParams {
     private static final String INVALID_ON_VALUE = "Invalid 'on-' value : ";
     private static final String BAD_COLLECT_FCT_COLLECT_FIELD_NUMBERS = "'collect_field' and 'collect_fct' occurrences should be even.";
     private static final String DATE_NOW = "now";
-    private static final String AGGREGATED_GEOMETRY_NOT_SUPPORTED = "'tile' & 'tile_center' are only supported for geohash and geotile aggregation type.";
+    private static final String AGGREGATED_GEOMETRY_NOT_SUPPORTED = "'cell' & 'cell_center' are only supported for geohash and geotile aggregation type.";
 
     public static final String INTERVAL_NOT_SPECIFIED = "Interval parameter is not specified.";
     public static final String INTERVAL_VALUE_NOT_SPECIFIED = "Interval value is missing.";
