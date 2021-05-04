@@ -273,6 +273,7 @@ public class CheckParams {
                                 if (intervalValue.doubleValue() < 0) {
                                     throw new InvalidParameterException("The geotile precision is not valid. It must be a positive integer.");
                                 }
+                                break;
                             case geohash:
                                 throw new InvalidParameterException("The geohash precision is not valid. It must be an integer between 1 and 12.");
                             case histogram:
