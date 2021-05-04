@@ -23,9 +23,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.exceptions.ArlasConfigurationException;
 import io.dropwizard.Configuration;
+import io.dropwizard.db.DataSourceFactory;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
+import javax.validation.Valid;
+
 public class ArlasBaseConfiguration extends Configuration {
+    @Valid
+    @JsonProperty("database")
+    public DataSourceFactory database = new DataSourceFactory();
 
     @JsonProperty("zipkin")
     public ZipkinFactory zipkinConfiguration;
@@ -51,9 +57,7 @@ public class ArlasBaseConfiguration extends Configuration {
     public static final String FLATTEN_CHAR = "_";
 
     public void check() throws ArlasConfigurationException {
-        elasticConfiguration.check();
-
-        if (zipkinConfiguration == null) {
+       if (zipkinConfiguration == null) {
             throw new ArlasConfigurationException("Zipkin configuration missing in config file.");
         }
         if (swaggerBundleConfiguration == null) {
@@ -65,7 +69,7 @@ public class ArlasBaseConfiguration extends Configuration {
         } else {
             arlasAuthConfiguration.check();
         }
-        if(arlarsCorsConfiguration == null) {
+        if (arlarsCorsConfiguration == null) {
             arlarsCorsConfiguration = new ArlasCorsConfiguration();
             arlarsCorsConfiguration.enabled = false;
         }

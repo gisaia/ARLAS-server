@@ -21,7 +21,6 @@ package io.arlas.server.impl.elastic.services;
 
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.impl.elastic.core.ElasticDocument;
-import io.arlas.server.impl.elastic.core.ElasticFluidSearch;
 import io.arlas.server.impl.elastic.utils.ElasticClient;
 import io.arlas.server.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.managers.CollectionReferenceManager;
@@ -36,7 +35,10 @@ import io.arlas.server.model.response.*;
 import io.arlas.server.services.CollectionReferenceService;
 import io.arlas.server.services.ExploreService;
 import io.arlas.server.services.FluidSearchService;
-import io.arlas.server.utils.*;
+import io.arlas.server.utils.BoundingBox;
+import io.arlas.server.utils.GeoTileUtil;
+import io.arlas.server.utils.MapExplorer;
+import io.arlas.server.utils.UriInfoWrapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.geo.GeoPoint;
@@ -62,10 +64,6 @@ import static io.arlas.server.services.FluidSearchService.*;
 
 public class ElasticExploreService extends ExploreService {
 
-    private static final String FEATURE_TYPE_KEY = "feature_type";
-    private static final String FEATURE_TYPE_VALUE = "hit";
-    private static final String FEATURE_GEOMETRY_PATH = "geometry_path";
-
     protected ElasticClient client;
 
     public ElasticExploreService(ElasticClient client, CollectionReferenceService collectionReferenceService, String baseUri, int arlasRestCacheTimeout) {
@@ -78,8 +76,8 @@ public class ElasticExploreService extends ExploreService {
     }
 
     @Override
-    public FluidSearchService getFluidSearch() {
-        return new ElasticFluidSearch().setClient(client);
+    public FluidSearchService getFluidSearch(CollectionReference collectionReference) {
+        return new ElasticFluidSearch(collectionReference).setClient(client);
     }
 
     @Override
@@ -250,8 +248,7 @@ public class ElasticExploreService extends ExploreService {
     }
 
     private SearchHits getSearchHits(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
-        ElasticFluidSearch fluidSearch = (ElasticFluidSearch) getFluidSearch();
-        fluidSearch.setCollectionReference(collectionReference);
+        ElasticFluidSearch fluidSearch = (ElasticFluidSearch) getFluidSearch(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
@@ -261,8 +258,9 @@ public class ElasticExploreService extends ExploreService {
     }
 
     @Override
-    public FeatureCollection getFeatures(MixedRequest request, CollectionReference collectionReference, boolean flat) throws ArlasException {
-        SearchHits searchHits = getSearchHits(request, collectionReference);
+    public FeatureCollection getFeatures(MixedRequest request, CollectionReference collectionReference,
+                                         FluidSearchService fluidSearch, boolean flat) throws ArlasException {
+        SearchHits searchHits = ((ElasticFluidSearch) fluidSearch).exec().getHits();
         Search searchRequest = (Search) request.basicRequest;
         FeatureCollection fc = new FeatureCollection();
         List<SearchHit> results = Arrays.asList(searchHits.getHits());
@@ -291,76 +289,11 @@ public class ElasticExploreService extends ExploreService {
         return fc;
     }
 
-    private Feature getFeatureFromHit(Hit arlasHit, String path, GeoJsonObject geometry) {
-        Feature feature = new Feature();
-
-        // Setting geometry of geojson
-        feature.setGeometry(geometry);
-
-        // setting the properties of the geojson
-        feature.setProperties(new HashMap<>(arlasHit.getDataAsMap()));
-
-        // Setting the Metadata (md) in properties of geojson. Only id, timestamp and centroid are set in the MD. The geometry is already returned in the geojson.
-        MD md = new MD();
-        md.id = arlasHit.md.id;
-        md.timestamp = arlasHit.md.timestamp;
-        md.centroid = arlasHit.md.centroid;
-        if (!arlasHit.isFlat()) {
-            feature.setProperty(MD.class.getSimpleName().toLowerCase(), md);
-        } else {
-            feature.setProperty(MD.class.getSimpleName().toLowerCase(), md.toFlatString());
-        }
-
-        // Setting the feature type of the geojson
-        feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
-        feature.setProperty(FEATURE_GEOMETRY_PATH, path);
-        return feature;
-    }
-
     @Override
     public Map<String, Object> getRawDoc(CollectionReference collectionReference, String identifier, String[] includes) throws ArlasException {
         return new ElasticDocument(client).getSource(collectionReference, identifier, includes);
     }
 
-    private void paginate(Page page, CollectionReference collectionReference, ElasticFluidSearch fluidSearch) throws ArlasException {
-        setPageSizeAndFrom(page, fluidSearch);
-        searchAfterPage(page, collectionReference.params.idPath, fluidSearch);
-        if (page != null) {
-            if (page.before != null) {
-                Page newPage = page;
-                newPage.sort = Arrays.stream(page.sort.split(","))
-                        .map(field -> field.startsWith("-") ? field.substring(1) : "-".concat(field)).collect(Collectors.joining(","));
-                sortPage(newPage, fluidSearch);
-            } else {
-                sortPage(page, fluidSearch);
-            }
-        }
-    }
-
-    protected void setPageSizeAndFrom(Page page, ElasticFluidSearch fluidSearch) throws ArlasException {
-        if (page != null) {
-            if (page.size == null) {
-                page.size = SEARCH_DEFAULT_PAGE_SIZE;
-            }
-            if (page.from == null) {
-                page.from = SEARCH_DEFAULT_PAGE_FROM;
-            }
-            CheckParams.checkPageSize(page);
-            CheckParams.checkPageFrom(page);
-            fluidSearch.filterSize(page.size, page.from);
-        }
-    }
-
-    protected void searchAfterPage(Page page, String idCollectionField, ElasticFluidSearch fluidSearch) throws ArlasException {
-        if (page != null && page.after != null) {
-            CheckParams.checkPageAfter(page, idCollectionField);
-            fluidSearch = fluidSearch.searchAfter(page.after);
-        }
-        if (page != null && page.before != null) {
-            CheckParams.checkPageAfter(page, idCollectionField);
-            fluidSearch.searchAfter(page.before);
-        }
-    }
 
     @Override
     public AggregationResponse aggregate(CollectionReference collectionReference,
@@ -403,7 +336,7 @@ public class ElasticExploreService extends ExploreService {
                                 returnedGeometry.reference = g.value();
                                 returnedGeometry.isRaw = false;
                                 if (g.isCellAgg()) {
-                                    returnedGeometry.geometry = createPolygonFromRectangle(GeohashUtils.decodeBoundary(element.keyAsString.toString(), SpatialContext.GEO));
+                                    returnedGeometry.geometry = createPolygonFromGeohash(element.keyAsString.toString());
                                 } else {
                                     returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
                                 }
@@ -599,18 +532,6 @@ public class ElasticExploreService extends ExploreService {
         return new GeoPoint(lat, lon);
     }
 
-    private Polygon createBox(BoundingBox bbox) {
-        Polygon box = new Polygon();
-        List<LngLatAlt> bounds = new ArrayList<>();
-        bounds.add(new LngLatAlt(bbox.getWest(), bbox.getNorth()));
-        bounds.add(new LngLatAlt(bbox.getEast(), bbox.getNorth()));
-        bounds.add(new LngLatAlt(bbox.getEast(), bbox.getSouth()));
-        bounds.add(new LngLatAlt(bbox.getWest(), bbox.getSouth()));
-        box.add(bounds);
-
-        return box;
-    }
-
     private Polygon createBox(GeoBounds subAggregation) {
         Polygon box = new Polygon();
         GeoPoint topLeft = subAggregation.topLeft();
@@ -623,16 +544,5 @@ public class ElasticExploreService extends ExploreService {
         box.add(bounds);
 
         return box;
-    }
-
-    private Polygon createPolygonFromRectangle(Rectangle rectangle) {
-        Polygon polygon = new Polygon();
-        List<LngLatAlt> bounds = new ArrayList<>();
-        bounds.add(new LngLatAlt(rectangle.getMinX(), rectangle.getMaxY()));
-        bounds.add(new LngLatAlt(rectangle.getMaxX(), rectangle.getMaxY()));
-        bounds.add(new LngLatAlt(rectangle.getMaxX(), rectangle.getMinY()));
-        bounds.add(new LngLatAlt(rectangle.getMinX(), rectangle.getMinY()));
-        polygon.add(bounds);
-        return polygon;
     }
 }

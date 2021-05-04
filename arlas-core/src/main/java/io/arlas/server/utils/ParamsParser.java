@@ -30,6 +30,7 @@ import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.FieldType;
 import io.dropwizard.jersey.params.IntParam;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.algorithm.Orientation;
@@ -39,6 +40,7 @@ import org.locationtech.jts.operation.valid.IsValidOp;
 import org.locationtech.jts.operation.valid.TopologyValidationError;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -236,7 +238,7 @@ public class ParamsParser {
     }
 
     public static String getValidAggregationFormat(String aggFormat) {
-        //TODO: check if format is in DateTimeFormat (joda)
+        // TODO: check if format is in DateTimeFormat (joda)
         if (aggFormat != null) {
             return aggFormat;
         } else {
@@ -520,6 +522,12 @@ public class ParamsParser {
     }
 
     public static GeoPoint getGeoSortParams(String geoSort) throws ArlasException {
+        Pair<Double, Double> latLon = getGeoSortParamsAsLatLon(geoSort);
+        return new GeoPoint(latLon.getLeft(), latLon.getRight());
+    }
+
+    // returns Pair(lat, lon)
+    public static Pair<Double, Double> getGeoSortParamsAsLatLon(String geoSort) throws ArlasException {
         List<String> geoSortList = Arrays.asList(geoSort.split(":"));
         String geoDistance;
         String latLon;
@@ -537,7 +545,7 @@ public class ParamsParser {
             Double lat = tryParseDouble(geoSortLatLon[0]);
             Double lon = tryParseDouble(geoSortLatLon[1]);
             if (lat != null && lon != null) {
-                return new GeoPoint(lat, lon);
+                return Pair.of(lat, lon);
             } else {
                 throw new InvalidParameterException(INVALID_GEOSORT_LAT_LON);
             }
@@ -602,5 +610,4 @@ public class ParamsParser {
             return null;
         }
     }
-
 }

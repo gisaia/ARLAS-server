@@ -522,7 +522,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         AggregationResponse result = new AggregationResponse();
         if (aggResponses.size() > 1) {
             result.name = aggResponses.get(0).name;
-            result.totalnb = aggResponses.stream().mapToLong(r -> r.totalnb).sum();
+            result.totalnb = aggResponses.stream().filter(r -> r.totalnb != null).mapToLong(r -> r.totalnb).sum();
             result.elements = aggResponses.stream().map(r -> r.elements).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
             result.metrics = aggResponses.stream().map(r -> r.metrics).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
             result.hits = aggResponses.stream().map(r -> r.hits).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
