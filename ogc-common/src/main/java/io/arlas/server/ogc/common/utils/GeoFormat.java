@@ -48,7 +48,7 @@ public class GeoFormat {
             writer.writeAttribute("srsName", srsName);
             if (g.getCoordinates() != null) {
                 writer.writeStartElement(GML.XML_NS, "pos");
-                writer.writeCharacters(g.getCoordinates().getLongitude() + " " + g.getCoordinates().getLatitude());
+                writer.writeCharacters(g.getCoordinates().getLatitude() + " " + g.getCoordinates().getLongitude());
                 writer.writeEndElement();
             }
             writer.writeEndElement();
@@ -68,7 +68,7 @@ public class GeoFormat {
                 writer.writeAttribute("srsName", srsName);
                 if (lngLatAlt != null) {
                     writer.writeStartElement(GML.XML_NS, "pos");
-                    writer.writeCharacters(lngLatAlt.getLongitude() + " " + lngLatAlt.getLatitude());
+                    writer.writeCharacters(lngLatAlt.getLatitude() + " " + lngLatAlt.getLongitude());
                     writer.writeEndElement();
                 }
                 writer.writeEndElement();
