@@ -38,6 +38,13 @@ public class GeoUtil {
     public static final String INVALID_WKT_RANGE = "Invalid geometry. Coordinates must be contained in the Envelope -360, 360, -180, 180";
     public static final String INVALID_WKT = "Invalid geometry ";
     public static final String POLYGON_EMPTY = "POLYGON EMPTY";
+
+    private static final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+
+    public static Point getPoint(Double lon, Double lat) {
+        return geometryFactory.createPoint(new Coordinate(lon, lat));
+    }
+
     /**
      *
      * @param bbox 'west,south,east,north'
@@ -132,7 +139,6 @@ public class GeoUtil {
      * @throws ArlasException
      */
     public static Geometry readWKT(String geometry) throws ArlasException {
-        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         WKTReader wkt = new WKTReader(geometryFactory);
         Geometry geom = null;
         try {
@@ -145,7 +151,6 @@ public class GeoUtil {
     }
 
     public static void checkWKT(String wktString) throws InvalidParameterException {
-        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Envelope affectedBounds = new Envelope(-360, 360, -180, 180);
         WKTReader wkt = new WKTReader(geometryFactory);
         Geometry geom = null;
@@ -178,7 +183,6 @@ public class GeoUtil {
         List<Polygon> geometries = new ArrayList<>();
         double envelopeEast = envelope.getMaxX();
         double envelopeWest = envelope.getMinX();
-        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Geometry middleWest = geometryFactory.toGeometry(new Envelope(-180, 0, -90, 90));
         Geometry middleEast = geometryFactory.toGeometry(new Envelope(0, 180, -90, 90));
         if (envelopeEast <= 180 && envelopeWest >= -180) {

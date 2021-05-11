@@ -64,7 +64,7 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
-//import io.dropwizard.jdbi3.bundles.JdbiExceptionsBundle;
+import io.dropwizard.jdbi3.bundles.JdbiExceptionsBundle;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -108,7 +108,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             }
         });
         bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
-//        bootstrap.addBundle(new JdbiExceptionsBundle());
+        bootstrap.addBundle(new JdbiExceptionsBundle());
     }
 
     @Override

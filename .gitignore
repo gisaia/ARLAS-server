@@ -9,6 +9,7 @@ save*
 .DS_Store
 dependency-reduced-pom.xml
 *.log
+*.log.gz
 *.versionsBackup
 *.bak
 tmp/

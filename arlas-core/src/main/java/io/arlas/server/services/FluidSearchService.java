@@ -26,6 +26,7 @@ import io.arlas.server.model.enumerations.ComputationEnum;
 import io.arlas.server.model.request.Aggregation;
 import io.arlas.server.model.request.Expression;
 import io.arlas.server.model.request.MultiValueFilter;
+import io.arlas.server.model.request.Page;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,11 +83,8 @@ public abstract class FluidSearchService {
     protected List<String> include = new ArrayList<>();
     protected List<String> exclude = new ArrayList<>();
 
-    public FluidSearchService() {
+    public FluidSearchService(CollectionReference collectionReference) {
         this.collectionReferenceManager = CollectionReferenceManager.getInstance();
-    }
-
-    public void setCollectionReference(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
     }
 
@@ -103,7 +101,7 @@ public abstract class FluidSearchService {
 
     // -------
 
-    public Pair<String[], String[]> computeIncludeExclude() {
+    public Pair<String[], String[]> computeIncludeExclude(boolean expand) throws ArlasException {
         if (collectionReference.params.excludeFields != null && !collectionReference.params.excludeFields.isEmpty()) {
             if (exclude.isEmpty()) {
                 exclude(collectionReference.params.excludeFields);
@@ -116,14 +114,13 @@ public abstract class FluidSearchService {
         }
         List<String> includeFieldList = new ArrayList<>();
         if (!include.isEmpty()) {
-            for (String includeField : include) {
-                includeFieldList.add(includeField);
-            }
+            includeFieldList.addAll(include);
             for (String path : getCollectionPaths()) {
                 boolean alreadyIncluded = false;
                 for (String includeField : include) {
                     if (includeField.equals("*") || path.startsWith(includeField)) {
                         alreadyIncluded = true;
+                        break;
                     }
                 }
                 if (!alreadyIncluded) {
@@ -131,9 +128,12 @@ public abstract class FluidSearchService {
                 }
             }
         }
-        String[] includeFields = includeFieldList.toArray(new String[includeFieldList.size()]);
+        String[] includeFields = new HashSet<>(includeFieldList).toArray(new String[0]);
         if (includeFields.length == 0) {
-            includeFields = new String[]{"*"};
+            includeFields = expand ? collectionReferenceManager
+                    .collectionReferenceService
+                    .getCollectionFields(collectionReference, Optional.empty())
+                    .toArray(new String[0]): new String[]{"*"};
         }
         String[] excludeFields = exclude.toArray(new String[exclude.size()]);
         if (excludeFields.length == 0) {
@@ -156,12 +156,18 @@ public abstract class FluidSearchService {
         return collectionReferenceManager.getCollectionReferenceService().isDateField(field, collectionReference.params.indexName);
     }
 
+    public boolean isGeoField(String field) throws ArlasException {
+        return collectionReferenceManager.getCollectionReferenceService().isGeoField(field, collectionReference.params.indexName);
+    }
+
     public static String getAggregationName(String aggName) {
         switch (AggregationTypeEnum.valueOf(aggName)) {
             case datehistogram:
                 return DATEHISTOGRAM_AGG;
             case geohash:
                 return GEOHASH_AGG;
+            case geotile:
+                return GEOTILE_AGG;
             case histogram:
                 return HISTOGRAM_AGG;
             case term:
@@ -183,5 +189,8 @@ public abstract class FluidSearchService {
     abstract public FluidSearchService filterQ(MultiValueFilter<String> q) throws ArlasException;
 
     abstract public FluidSearchService sort(String sort) throws ArlasException;
-}
 
+    abstract public FluidSearchService filterSize(Integer size, Integer from);
+
+    abstract public FluidSearchService searchAfter(Page page, String after);
+}
