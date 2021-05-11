@@ -25,12 +25,12 @@ import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.ComputationEnum;
 import io.arlas.server.model.enumerations.OperatorEnum;
 import io.arlas.server.model.request.*;
-import io.arlas.server.model.response.AggregationResponse;
-import io.arlas.server.model.response.CollectionReferenceDescription;
-import io.arlas.server.model.response.ComputationResponse;
-import io.arlas.server.model.response.Hits;
+import io.arlas.server.model.response.*;
 import io.arlas.server.utils.*;
-import org.geojson.FeatureCollection;
+import org.geojson.*;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.io.GeohashUtils;
+import org.locationtech.spatial4j.shape.Rectangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +45,10 @@ public abstract class ExploreService {
 
     public static final Integer SEARCH_DEFAULT_PAGE_SIZE = 10;
     public static final Integer SEARCH_DEFAULT_PAGE_FROM = 0;
+    private static final String FEATURE_TYPE_KEY = "feature_type";
+    private static final String FEATURE_TYPE_VALUE = "hit";
+    private static final String FEATURE_GEOMETRY_PATH = "geometry_path";
+
 
     private String baseUri;
     protected CollectionReferenceService collectionReferenceService;
@@ -170,6 +174,32 @@ public abstract class ExploreService {
                 );
     }
 
+    protected Feature getFeatureFromHit(Hit arlasHit, String path, GeoJsonObject geometry) {
+        Feature feature = new Feature();
+
+        // Setting geometry of geojson
+        feature.setGeometry(geometry);
+
+        // setting the properties of the geojson
+        feature.setProperties(new HashMap<>(arlasHit.getDataAsMap()));
+
+        // Setting the Metadata (md) in properties of geojson. Only id, timestamp and centroid are set in the MD. The geometry is already returned in the geojson.
+        MD md = new MD();
+        md.id = arlasHit.md.id;
+        md.timestamp = arlasHit.md.timestamp;
+        md.centroid = arlasHit.md.centroid;
+        if (!arlasHit.isFlat()) {
+            feature.setProperty(MD.class.getSimpleName().toLowerCase(), md);
+        } else {
+            feature.setProperty(MD.class.getSimpleName().toLowerCase(), md.toFlatString());
+        }
+
+        // Setting the feature type of the geojson
+        feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
+        feature.setProperty(FEATURE_GEOMETRY_PATH, path);
+        return feature;
+    }
+
     protected void sortPage(Page page, FluidSearchService fluidSearch) throws ArlasException {
         if (page != null && page.sort != null) {
             fluidSearch.sort(page.sort);
@@ -193,6 +223,72 @@ public abstract class ExploreService {
         }
     }
 
+    protected void paginate(Page page, CollectionReference collectionReference, FluidSearchService fluidSearch) throws ArlasException {
+        setPageSizeAndFrom(page, fluidSearch);
+        if (page != null) {
+            if (page.before != null) {
+                Page newPage = page;
+                newPage.sort = Arrays.stream(page.sort.split(","))
+                        .map(field -> field.startsWith("-") ? field.substring(1) : "-".concat(field)).collect(Collectors.joining(","));
+                sortPage(newPage, fluidSearch);
+                searchAfterPage(newPage, collectionReference.params.idPath, fluidSearch);
+            } else {
+                sortPage(page, fluidSearch);
+                searchAfterPage(page, collectionReference.params.idPath, fluidSearch);
+            }
+        }
+    }
+
+    protected void setPageSizeAndFrom(Page page, FluidSearchService fluidSearch) throws ArlasException {
+        if (page != null) {
+            if (page.size == null) {
+                page.size = SEARCH_DEFAULT_PAGE_SIZE;
+            }
+            if (page.from == null) {
+                page.from = SEARCH_DEFAULT_PAGE_FROM;
+            }
+            CheckParams.checkPageSize(page);
+            CheckParams.checkPageFrom(page);
+            fluidSearch.filterSize(page.size, page.from);
+        }
+    }
+
+    protected void searchAfterPage(Page page, String idCollectionField, FluidSearchService fluidSearch) throws ArlasException {
+        if (page != null && page.after != null) {
+            CheckParams.checkPageAfter(page, idCollectionField);
+            fluidSearch = fluidSearch.searchAfter(page, page.after);
+        }
+        if (page != null && page.before != null) {
+            CheckParams.checkPageAfter(page, idCollectionField);
+            fluidSearch.searchAfter(page, page.before);
+        }
+    }
+
+    protected Polygon createPolygonFromGeohash(String geohash) {
+        Rectangle rectangle = GeohashUtils.decodeBoundary(geohash, SpatialContext.GEO);
+        Polygon polygon = new Polygon();
+        List<LngLatAlt> bounds = new ArrayList<>();
+        bounds.add(new LngLatAlt(rectangle.getMinX(), rectangle.getMaxY()));
+        bounds.add(new LngLatAlt(rectangle.getMaxX(), rectangle.getMaxY()));
+        bounds.add(new LngLatAlt(rectangle.getMaxX(), rectangle.getMinY()));
+        bounds.add(new LngLatAlt(rectangle.getMinX(), rectangle.getMinY()));
+        polygon.add(bounds);
+        return polygon;
+    }
+
+    protected Polygon createBox(BoundingBox bbox) {
+        Polygon box = new Polygon();
+        List<LngLatAlt> bounds = new ArrayList<>();
+        bounds.add(new LngLatAlt(bbox.getWest(), bbox.getNorth()));
+        bounds.add(new LngLatAlt(bbox.getEast(), bbox.getNorth()));
+        bounds.add(new LngLatAlt(bbox.getEast(), bbox.getSouth()));
+        bounds.add(new LngLatAlt(bbox.getWest(), bbox.getSouth()));
+        box.add(bounds);
+
+        return box;
+    }
+
+
     public CollectionReferenceService getCollectionReferenceService() { return collectionReferenceService; }
 
     public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
@@ -212,8 +308,7 @@ public abstract class ExploreService {
                                          int aggTreeDepth,
                                          Long startQuery) throws ArlasException {
         CheckParams.checkAggregationRequest(request.basicRequest, collectionReference);
-        FluidSearchService fluidSearch = getFluidSearch();
-        fluidSearch.setCollectionReference(collectionReference);
+        FluidSearchService fluidSearch = getFluidSearch(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
@@ -227,8 +322,7 @@ public abstract class ExploreService {
     public ComputationResponse compute(MixedRequest request,
                                        CollectionReference collectionReference) throws ArlasException {
         CheckParams.checkComputationRequest(request.basicRequest, collectionReference);
-        FluidSearchService fluidSearch = getFluidSearch();
-        fluidSearch.setCollectionReference(collectionReference);
+        FluidSearchService fluidSearch = getFluidSearch(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
@@ -240,12 +334,29 @@ public abstract class ExploreService {
 
     public Hits count(MixedRequest request,
                       CollectionReference collectionReference) throws ArlasException {
-        FluidSearchService fluidSearch = getFluidSearch();
-        fluidSearch.setCollectionReference(collectionReference);
+        FluidSearchService fluidSearch = getFluidSearch(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
         applyFilter(request.headerRequest.filter, fluidSearch);
         return count(collectionReference, fluidSearch);
+    }
+
+    public FeatureCollection getFeatures(MixedRequest request,
+                                         CollectionReference collectionReference,
+                                         boolean flat) throws ArlasException {
+        FluidSearchService fluidSearch = getSearchRequest(request, collectionReference);
+        return getFeatures(request, collectionReference, fluidSearch, flat);
+    }
+
+
+    private FluidSearchService getSearchRequest(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
+        FluidSearchService fluidSearch = getFluidSearch(collectionReference);
+        applyFilter(collectionReference.params.filter, fluidSearch);
+        applyFilter(request.basicRequest.filter, fluidSearch);
+        applyFilter(request.headerRequest.filter, fluidSearch);
+        paginate(((Search) request.basicRequest).page, collectionReference, fluidSearch);
+        applyProjection(((Search) request.basicRequest).projection, fluidSearch, request.columnFilter, collectionReference);
+        return fluidSearch;
     }
 
     // -----------------
@@ -259,7 +370,7 @@ public abstract class ExploreService {
     public abstract Hits count(CollectionReference collectionReference,
                                FluidSearchService fluidSearch) throws ArlasException;
 
-    public abstract FluidSearchService getFluidSearch();
+    public abstract FluidSearchService getFluidSearch(CollectionReference collectionReference) throws ArlasException;
 
     public abstract ComputationResponse compute(CollectionReference collectionReference,
                                                 FluidSearchService fluidSearch,
@@ -267,6 +378,7 @@ public abstract class ExploreService {
 
     public abstract FeatureCollection getFeatures(MixedRequest request,
                                                   CollectionReference collectionReference,
+                                                  FluidSearchService fluidSearch,
                                                   boolean flat) throws ArlasException;
 
     public abstract Hits search(MixedRequest request,

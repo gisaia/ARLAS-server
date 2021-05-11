@@ -17,8 +17,7 @@
  * under the License.
  */
 
-package io.arlas.server.impl.elastic.core;
-
+package io.arlas.server.impl.elastic.services;
 
 import io.arlas.server.app.ArlasServerConfiguration;
 import io.arlas.server.exceptions.*;
@@ -27,10 +26,7 @@ import io.arlas.server.impl.elastic.utils.ElasticTool;
 import io.arlas.server.managers.CollectionReferenceManager;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.enumerations.*;
-import io.arlas.server.model.request.Aggregation;
-import io.arlas.server.model.request.Expression;
-import io.arlas.server.model.request.Metric;
-import io.arlas.server.model.request.MultiValueFilter;
+import io.arlas.server.model.request.*;
 import io.arlas.server.model.response.FieldType;
 import io.arlas.server.model.response.TimestampType;
 import io.arlas.server.services.FluidSearchService;
@@ -77,20 +73,20 @@ public class ElasticFluidSearch extends FluidSearchService {
     private SearchSourceBuilder searchSourceBuilder;
     private BoolQueryBuilder boolQueryBuilder;
 
-    public ElasticFluidSearch() {
-        super();
+    public ElasticFluidSearch(CollectionReference collectionReference) {
+        super(collectionReference);
+        request = new SearchRequest(collectionReference.params.indexName);
         boolQueryBuilder = QueryBuilders.boolQuery();
         searchSourceBuilder = new SearchSourceBuilder();
+    }
+
+    public ElasticClient getClient() {
+        return client;
     }
 
     public ElasticFluidSearch setClient(ElasticClient client) {
         this.client = client;
         return this;
-    }
-    @Override
-    public void setCollectionReference(CollectionReference collectionReference) {
-        super.setCollectionReference(collectionReference);
-        request = new SearchRequest(collectionReference.params.indexName);
     }
 
     public BoolQueryBuilder getBoolQueryBuilder() {
@@ -101,7 +97,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         searchSourceBuilder.query(boolQueryBuilder);
         searchSourceBuilder.trackTotalHits(true);
 
-        Pair<String[], String[]> includeExclude = computeIncludeExclude();
+        Pair<String[], String[]> includeExclude = computeIncludeExclude(false);
         searchSourceBuilder = searchSourceBuilder.fetchSource(includeExclude.getLeft(), includeExclude.getRight());
 
         //Get Elasticsearch response
@@ -112,7 +108,8 @@ public class ElasticFluidSearch extends FluidSearchService {
         return result;
     }
 
-    public ElasticFluidSearch filter(MultiValueFilter<Expression> f, String dateFormat) throws ArlasException {
+    @Override
+    public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat) throws ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (Expression fFilter : f) {
             orBoolQueryBuilder = orBoolQueryBuilder
@@ -177,7 +174,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                 ret = ret.filter(ltRangeQuery);
                 break;
             case like:
-                //TODO: if field type is fullText, use matchPhraseQuery instead of regexQuery
+                // TODO: if field type is fullText, use matchPhraseQuery instead of regexQuery
                 ret = ret
                         .filter(QueryBuilders.regexpQuery(field, ".*" + value + ".*"));
                 break;
@@ -289,7 +286,8 @@ public class ElasticFluidSearch extends FluidSearchService {
 
     }
 
-    public ElasticFluidSearch filterQ(MultiValueFilter<String> q) throws ArlasException {
+    @Override
+    public FluidSearchService filterQ(MultiValueFilter<String> q) throws ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (String qFilter : q) {
             String operands[] = qFilter.split(":",2);
@@ -385,13 +383,14 @@ public class ElasticFluidSearch extends FluidSearchService {
         }
     }
 
-    public ElasticFluidSearch filterSize(Integer size, Integer from) {
+    @Override
+    public FluidSearchService filterSize(Integer size, Integer from) {
         searchSourceBuilder = searchSourceBuilder.size(size).from(from);
         return this;
     }
 
-
-    public ElasticFluidSearch searchAfter(String after) {
+    @Override
+    public FluidSearchService searchAfter(Page page, String after) {
         searchSourceBuilder = searchSourceBuilder.searchAfter(after.split(","));
         return this;
     }
@@ -470,7 +469,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         return this;
     }
 
-    public ElasticFluidSearch getFieldRange(String field) {
+    public FluidSearchService getFieldRange(String field) {
         boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.existsQuery(field));
         MinAggregationBuilder minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
         MaxAggregationBuilder maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
@@ -478,7 +477,8 @@ public class ElasticFluidSearch extends FluidSearchService {
         return this;
     }
 
-    public ElasticFluidSearch compute(String field, ComputationEnum metric) {
+    @Override
+    public FluidSearchService compute(String field, ComputationEnum metric) {
         boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.existsQuery(field));
         switch (metric) {
             case AVG:

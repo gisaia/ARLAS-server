@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,8 +57,6 @@ public abstract class CollectionReferenceService {
     abstract protected Map<String, LinkedHashMap> getAllMappingsFromDao(String arlasIndex) throws ArlasException;
 
     abstract protected void putCollectionReferenceWithDao(CollectionReference collectionReference) throws ArlasException;
-
-    abstract public boolean isDateField(String field, String index) throws ArlasException;
 
     abstract public void initCollectionDatabase() throws ArlasException;
 
@@ -312,6 +311,25 @@ public abstract class CollectionReferenceService {
         } else {
             return FieldType.UNKNOWN;
         }
+    }
+
+    public boolean isDateField(String field, String index) throws ArlasException {
+        return getFieldType(field, index).isDateField();
+    }
+
+    public boolean isGeoField(String field, String index) throws ArlasException {
+        return getFieldType(field, index).isGeoField();
+    }
+
+    private FieldType getFieldType(String field, String index) throws ArlasException  {
+        AtomicReference<FieldType> ret = new AtomicReference<>(FieldType.UNKNOWN);
+        Optional.ofNullable(getMapping(index).get(index))
+                .ifPresent(e -> Optional.ofNullable(e.get(field))
+                        .ifPresent(f -> Optional.ofNullable(((Map)f).get("type"))
+                                .ifPresent(t -> ret.set(FieldType.getType(t)))
+                        )
+                );
+        return ret.get();
     }
 
 }

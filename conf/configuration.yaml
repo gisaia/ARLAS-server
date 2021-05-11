@@ -58,8 +58,11 @@ logging:
     "org.eclipse.jetty": ${ARLAS_LOGGING_JETTY_LEVEL:-INFO}
     "org.elasticsearch.client": ${ARLAS_LOGGING_ELASTICSEARCH_LEVEL:-DEBUG}
     "org.reflections": ${ARLAS_LOGGING_REFLECTIONS_LEVEL:-INFO}
+    "org.glassfish": ${ARLAS_LOGGING_GLASSFISH_LEVEL:-INFO}
     "io.dropwizard": ${ARLAS_LOGGING_DROPWIZARD_LEVEL:-INFO}
     "io.swagger": ${ARLAS_LOGGING_SWAGGER_LEVEL:-INFO}
+    "javax.management.mbeanserver": ${ARLAS_LOGGING_MBEAN_LEVEL:-INFO}
+    "com.hazelcast": ${ARLAS_LOGGING_HAZELCAST_LEVEL:-INFO}
   appenders:
     - type: console
       threshold:  ${ARLAS_LOGGING_CONSOLE_LEVEL:-INFO}
@@ -173,4 +176,29 @@ arlas_cors:
   exposed_headers: ${ARLAS_CORS_EXPOSED_HEADERS:-"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location,WWW-Authenticate"}
 
 arlas_database_factory_class: ${ARLAS_DATABASE_FACTORY_CLASS:-io.arlas.server.impl.ElasticDatabaseToolsFactory}
+#arlas_database_factory_class: ${ARLAS_DATABASE_FACTORY_CLASS:-io.arlas.server.impl.PostgisDatabaseToolsFactory}
 arlas_cache_factory_class: ${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.server.impl.HazelcastCacheFactory}
+
+# In case of JDBI implementation used in `arlas_database_factory_class`, update the following section accordingly
+database:
+  driverClass: do.not.set
+  user: ${ARLAS_JDBC_USER:-postgres}
+  password: ${ARLAS_JDBC_PASSWORD:-postgres}
+  url: ${ARLAS_JDBC_URL:-localhost:5432/arlas}
+  # any properties specific to your JDBC driver:
+  properties:
+    charSet: UTF-8
+  # the maximum amount of time to wait on an empty pool before throwing an exception
+  maxWaitForConnection: 1s
+  # the SQL query to run when validating a connection's liveness
+  validationQuery: "/* MyApplication Health Check */ SELECT 1"
+  # the minimum number of connections to keep open
+  minSize: 8
+  # the maximum number of connections to keep open
+  maxSize: 32
+  # whether or not idle connections should be validated
+  checkConnectionWhileIdle: false
+  # the amount of time to sleep between runs of the idle connection validation, abandoned cleaner and idle pool resizing
+  evictionInterval: 10s
+  # the minimum amount of time an connection must sit idle in the pool before it is eligible for eviction
+  minIdleTime: 1 minute

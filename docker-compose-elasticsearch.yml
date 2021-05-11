@@ -17,4 +17,4 @@ services:
 #      - /var/lib/elasticsearch:/usr/share/elasticsearch/data
       - ${ELASTIC_DATADIR}:/usr/share/elasticsearch/data
     ports:
-      - 19200:9200
+      - 9200:9200

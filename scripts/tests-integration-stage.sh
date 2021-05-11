@@ -98,7 +98,7 @@ function test_rest() {
         -e WKT_GEOMETRIES=${WKT_GEOMETRIES} \
         --net arlas_default \
         maven:3.5.0-jdk-8 \
-        mvn "-Dit.test=*,!AuthServiceIT,!CollectionTool,!CSWServiceIT,!WFSService*IT" verify -DskipTests=false -DfailIfNoTests=false -B
+        mvn "-Dit.test=*,!AuthServiceIT,!CollectionTool,!CollectionInjector,!CSWServiceIT,!WFSService*IT" verify -DskipTests=false -DfailIfNoTests=false -B
 }
 
 function test_auth() {

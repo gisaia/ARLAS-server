@@ -21,7 +21,7 @@ package io.arlas.server.ogc.wfs.services;
 import io.arlas.server.exceptions.ArlasException;
 import io.arlas.server.exceptions.OGC.OGCException;
 import io.arlas.server.exceptions.OGC.OGCExceptionCode;
-import io.arlas.server.impl.elastic.core.ElasticFluidSearch;
+import io.arlas.server.impl.elastic.services.ElasticFluidSearch;
 import io.arlas.server.impl.elastic.services.ElasticExploreService;
 import io.arlas.server.model.CollectionReference;
 import io.arlas.server.model.request.Filter;
@@ -31,7 +31,6 @@ import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
-import io.arlas.server.services.FluidSearchService;
 import io.arlas.server.utils.ColumnFilterUtil;
 import io.arlas.server.utils.MapExplorer;
 import io.arlas.server.utils.ParamsParser;
@@ -145,8 +144,7 @@ public class ElasticWFSToolService implements WFSToolService {
                                CollectionReference collectionReference, Optional<String> columnFilter) throws ArlasException, IOException{
 
         wfsQuery = QueryBuilders.boolQuery();
-        ElasticFluidSearch fluidSearch = (ElasticFluidSearch) exploreServices.getFluidSearch();
-        fluidSearch.setCollectionReference(getCollectionReferenceDescription(collectionReference));
+        ElasticFluidSearch fluidSearch = (ElasticFluidSearch) exploreServices.getFluidSearch(getCollectionReferenceDescription(collectionReference));
         addCollectionFilter(fluidSearch, collectionReference);
         if (constraint != null) {
             wfsQuery.filter(ElasticFilter.filter(constraint, getCollectionReferenceDescription(collectionReference), Service.WFS, columnFilter));
