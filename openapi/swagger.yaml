@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   description: "Explore the content of ARLAS collections"
-  version: "17.0.0"
+  version: "17.0.1-SNAPSHOT"
   title: "ARLAS Exploration API"
   contact:
     name: "Gisaia"
