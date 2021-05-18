@@ -7,7 +7,7 @@
 
 |Name|Schema|
 |---|---|
-|**aggregated_geometries**  <br>*optional*|< enum (BBOX, CENTROID, GEOHASH, GEOHASHCENTER) > array|
+|**aggregated_geometries**  <br>*optional*|< enum (BBOX, CENTROID, CELL, CELLCENTER, GEOHASH, GEOHASH_CENTER) > array|
 |**fetch_hits**  <br>*optional*|[HitsFetcher](#hitsfetcher)|
 |**field**  <br>*optional*|string|
 |**format**  <br>*optional*|string|
@@ -18,7 +18,7 @@
 |**order**  <br>*optional*|enum (asc, desc)|
 |**raw_geometries**  <br>*optional*|< [RawGeometry](#rawgeometry) > array|
 |**size**  <br>*optional*|string|
-|**type**  <br>*optional*|enum (datehistogram, geohash, histogram, term)|
+|**type**  <br>*optional*|enum (datehistogram, geohash, geotile, histogram, term)|
 
 
 <a name="aggregationmetric"></a>

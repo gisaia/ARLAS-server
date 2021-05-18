@@ -1,6 +1,21 @@
 # Change Log
 
-## [v16.7.0](https://github.com/gisaia/ARLAS-server/tree/v16.7.0) (2021-03-16)
+## [v17.7.0](https://github.com/gisaia/ARLAS-server/tree/v17.7.0) (2021-05-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v16.7.0...v17.7.0)
+
+**New stuff:**
+
+- \_\(geo\)aggregate :  Add geotile aggregation type [\#449](https://github.com/gisaia/ARLAS-server/issues/449) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- GeoTile Aggregation [\#694](https://github.com/gisaia/ARLAS-server/pull/694) ([alainbodiguel](https://github.com/alainbodiguel))
+
+**Fixed bugs:**
+
+- \[WFS\] wrong lat/long order in geometry point [\#703](https://github.com/gisaia/ARLAS-server/issues/703) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
+- Fix check params for Geotile intervalValue [\#702](https://github.com/gisaia/ARLAS-server/pull/702) ([alainbodiguel](https://github.com/alainbodiguel))
+- Supporting again GEOHASH and GEOHASH\_CENTER Aggregated geometries values [\#697](https://github.com/gisaia/ARLAS-server/pull/697) ([alainbodiguel](https://github.com/alainbodiguel))
+
+## [v16.7.0](https://github.com/gisaia/ARLAS-server/tree/v16.7.0) (2021-03-18)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v15.7.0...v16.7.0)
 
