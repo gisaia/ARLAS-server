@@ -487,6 +487,8 @@ public class ElasticExploreService extends ExploreService {
                                             geometryGeoJson = geometry != null ?
                                                     GeoTypeMapper.getGeoJsonObject(geometry, geometryType) : null;
                                             if (geometryGeoJson != null) {
+                                                // "old-style crs member is not recommended" so we remove it
+                                                geometryGeoJson.setCrs(null);
                                                 returnedGeometry.geometry = geometryGeoJson;
                                                 returnedGeometry.isRaw = true;
                                                 returnedGeometry.sort = sort;
