@@ -22,18 +22,18 @@ package io.arlas.server.rest.collections;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.app.Documentation;
-import io.arlas.server.services.CollectionReferenceService;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.CollectionUnavailableException;
-import io.arlas.server.exceptions.InvalidParameterException;
-import io.arlas.server.model.*;
-import io.arlas.server.model.response.Error;
-import io.arlas.server.model.response.Success;
-import io.arlas.server.utils.CheckParams;
-import io.arlas.server.utils.ColumnFilterUtil;
-import io.arlas.server.utils.ResponseFormatter;
+import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.app.Documentation;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
+import io.arlas.server.core.exceptions.InvalidParameterException;
+import io.arlas.server.core.model.*;
+import io.arlas.server.core.model.response.Error;
+import io.arlas.server.core.model.response.Success;
+import io.arlas.server.core.services.CollectionReferenceService;
+import io.arlas.server.core.utils.CheckParams;
+import io.arlas.server.core.utils.ColumnFilterUtil;
+import io.arlas.server.core.utils.ResponseFormatter;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -149,7 +149,7 @@ public class CollectionService extends CollectionRESTServices {
                     try {
                         savedCollections.add(save(collection.collectionName, collection.params));
                     } catch (Exception e) {
-                            throw new io.arlas.server.exceptions.ArlasException(e.getMessage());
+                            throw new ArlasException(e.getMessage());
                     }
                 } else {
                     throw new CollectionUnavailableException("Collection '" + collection.collectionName + "' not authorized by column filter");

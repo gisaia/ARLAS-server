@@ -19,14 +19,14 @@
 
 package io.arlas.server.ogc.csw;
 
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.app.InspireConfiguration;
-import io.arlas.server.app.OGCConfiguration;
-import io.arlas.server.services.CollectionReferenceService;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.MetaCollectionReferenceParameters;
-import io.arlas.server.model.OgcInspireConfigurationParameters;
+import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.app.InspireConfiguration;
+import io.arlas.server.core.app.OGCConfiguration;
+import io.arlas.server.core.services.CollectionReferenceService;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.MetaCollectionReferenceParameters;
+import io.arlas.server.core.model.OgcInspireConfigurationParameters;
 import io.arlas.server.ogc.common.dao.OGCCollectionReferenceDao;
 
 import java.util.List;

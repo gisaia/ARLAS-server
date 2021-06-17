@@ -19,11 +19,11 @@
 
 package io.arlas.server.impl;
 
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.exceptions.ArlasConfigurationException;
-import io.arlas.server.impl.jdbi.model.RequestFactory;
-import io.arlas.server.impl.jdbi.postgis.PostgisRequestFactory;
-import io.arlas.server.managers.CacheManager;
+import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.exceptions.ArlasConfigurationException;
+import io.arlas.server.core.impl.jdbi.model.RequestFactory;
+import io.arlas.server.core.impl.jdbi.postgis.PostgisRequestFactory;
+import io.arlas.server.core.managers.CacheManager;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
 

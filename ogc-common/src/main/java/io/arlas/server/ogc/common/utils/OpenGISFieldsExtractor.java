@@ -19,8 +19,8 @@
 
 package io.arlas.server.ogc.common.utils;
 
-import io.arlas.server.exceptions.InternalServerErrorException;
-import io.arlas.server.exceptions.InvalidParameterException;
+import io.arlas.server.core.exceptions.InternalServerErrorException;
+import io.arlas.server.core.exceptions.InvalidParameterException;
 import org.geotools.filter.BinaryLogicAbstract;
 import org.geotools.filter.MultiCompareFilterImpl;
 import org.opengis.filter.*;

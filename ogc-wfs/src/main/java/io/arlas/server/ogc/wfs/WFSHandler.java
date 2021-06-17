@@ -19,17 +19,17 @@
 
 package io.arlas.server.ogc.wfs;
 
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.app.InspireConfiguration;
-import io.arlas.server.app.OGCConfiguration;
-import io.arlas.server.app.WFSConfiguration;
+import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.app.InspireConfiguration;
+import io.arlas.server.core.app.OGCConfiguration;
+import io.arlas.server.core.app.WFSConfiguration;
 import io.arlas.server.ogc.wfs.operation.describefeaturetype.DescribeFeatureTypeHandler;
 import io.arlas.server.ogc.wfs.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.ogc.wfs.operation.getfeature.GetFeatureHandler;
 import io.arlas.server.ogc.wfs.operation.storedquery.ListStoredQueriesHandler;
 import io.arlas.server.ogc.wfs.operation.storedquery.StoredQueryManager;
 import io.arlas.server.ogc.common.utils.XmlUtils;
-import io.arlas.server.utils.StringUtil;
+import io.arlas.server.core.utils.StringUtil;
 import net.opengis.wfs._2.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

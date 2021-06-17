@@ -21,23 +21,23 @@ package io.arlas.server.ogc.csw.operation.getcapabilities;
 
 import eu.europa.ec.inspire.schemas.common._1.*;
 import eu.europa.ec.inspire.schemas.inspire_dls._1.ExtendedCapabilitiesType;
-import io.arlas.server.app.OGCConfiguration;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.INSPIRE.INSPIREException;
-import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
-import io.arlas.server.inspire.common.constants.InspireConstants;
-import io.arlas.server.inspire.common.enums.AdditionalQueryables;
-import io.arlas.server.inspire.common.enums.SupportedISOQueryables;
-import io.arlas.server.inspire.common.utils.InspireCheckParam;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.InspireConformity;
-import io.arlas.server.ns.GML;
+import io.arlas.server.core.app.OGCConfiguration;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.ogc.common.exceptions.INSPIRE.INSPIREException;
+import io.arlas.server.ogc.common.exceptions.INSPIRE.INSPIREExceptionCode;
+import io.arlas.server.ogc.common.inspire.common.constants.InspireConstants;
+import io.arlas.server.ogc.common.inspire.common.enums.AdditionalQueryables;
+import io.arlas.server.ogc.common.inspire.common.enums.SupportedISOQueryables;
+import io.arlas.server.ogc.common.inspire.common.utils.InspireCheckParam;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.InspireConformity;
+import io.arlas.server.core.ns.GML;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.CSWParamsParser;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
-import io.arlas.server.utils.StringUtil;
+import io.arlas.server.core.utils.StringUtil;
 import net.opengis.cat.csw._3.CapabilitiesType;
 import net.opengis.fes._2.*;
 import net.opengis.ows._2.*;
@@ -153,7 +153,7 @@ public class GetCapabilitiesHandler {
         ClassificationOfSpatialDataService classificationOfSpatialDataService = new ClassificationOfSpatialDataService();
         classificationOfSpatialDataService.setKeywordValue(InspireConstants.CSW_MANDATORY_KEYWORD);
         inspireExtendedCapabilitiesType.getMandatoryKeyword().add(classificationOfSpatialDataService);
-        List<io.arlas.server.model.Keyword> keywords = new ArrayList<>();
+        List<io.arlas.server.core.model.Keyword> keywords = new ArrayList<>();
         if (collections != null) {
             collections.forEach(collectionReference -> {
                 keywords.addAll(Optional.ofNullable(collectionReference.params.inspire).map(inspire -> inspire.keywords).orElse(new ArrayList<>()));

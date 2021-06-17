@@ -19,15 +19,15 @@
 
 package io.arlas.server.ogc.common.utils;
 
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InternalServerErrorException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.response.CollectionReferenceDescriptionProperty;
-import io.arlas.server.model.response.FieldType;
-import io.arlas.server.utils.FilterMatcherUtil;
-import io.arlas.server.utils.MapExplorer;
-import io.arlas.server.utils.TimestampTypeMapper;
+import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.exceptions.InternalServerErrorException;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
+import io.arlas.server.core.model.response.FieldType;
+import io.arlas.server.core.utils.FilterMatcherUtil;
+import io.arlas.server.core.utils.MapExplorer;
+import io.arlas.server.core.utils.TimestampTypeMapper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

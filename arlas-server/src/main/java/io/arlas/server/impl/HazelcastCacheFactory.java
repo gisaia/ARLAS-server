@@ -19,10 +19,10 @@
 
 package io.arlas.server.impl;
 
-import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.app.CacheFactory;
-import io.arlas.server.impl.cache.HazelcastCacheManager;
-import io.arlas.server.managers.CacheManager;
+import io.arlas.server.core.impl.cache.HazelcastCacheManager;
+import io.arlas.server.core.managers.CacheManager;
 
 public class HazelcastCacheFactory extends CacheFactory {
     private final CacheManager cacheManager;

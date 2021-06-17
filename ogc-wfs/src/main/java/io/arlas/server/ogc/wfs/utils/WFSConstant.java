@@ -19,7 +19,7 @@
 
 package io.arlas.server.ogc.wfs.utils;
 
-import io.arlas.server.ns.GML;
+import io.arlas.server.core.ns.GML;
 
 public class WFSConstant {
 

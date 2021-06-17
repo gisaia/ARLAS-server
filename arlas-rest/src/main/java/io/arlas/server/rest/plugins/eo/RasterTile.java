@@ -19,8 +19,8 @@
 
 package io.arlas.server.rest.plugins.eo;
 
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.utils.Tile;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.utils.Tile;
 import java.awt.image.BufferedImage;
 
 public class RasterTile extends Tile {

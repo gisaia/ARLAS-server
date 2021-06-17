@@ -19,7 +19,7 @@
 
 package io.arlas.server.ogc.wfs;
 
-import io.arlas.server.services.CollectionReferenceService;
+import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.ogc.wfs.services.WFSToolService;
 
 public class WFSService extends WFSRESTService {

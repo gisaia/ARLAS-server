@@ -20,11 +20,11 @@
 package io.arlas.server.ogc.csw.writer.getrecords;
 
 import com.a9.opensearch.QueryType;
-import io.arlas.server.app.ArlasServerConfiguration;
-import io.arlas.server.ns.ATOM;
+import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.ns.ATOM;
 import io.arlas.server.ogc.csw.CSWRESTService;
 import io.arlas.server.ogc.csw.utils.AtomBuilder;
-import io.arlas.server.utils.StringUtil;
+import io.arlas.server.core.utils.StringUtil;
 import net.opengis.cat.csw._3.GetRecordsResponseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

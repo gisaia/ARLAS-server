@@ -19,9 +19,9 @@
 
 package io.arlas.server.ogc.common.utils;
 
-import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.exceptions.OGC.OGCExceptionCode;
-import io.arlas.server.ns.GML;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
+import io.arlas.server.core.ns.GML;
 import io.arlas.server.ogc.common.model.Service;
 import org.geojson.*;
 

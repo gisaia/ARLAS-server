@@ -19,7 +19,8 @@
 
 package io.arlas.server.app;
 
-import io.arlas.server.managers.CacheManager;
+import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.managers.CacheManager;
 
 public abstract class CacheFactory {
     protected ArlasServerConfiguration configuration;
