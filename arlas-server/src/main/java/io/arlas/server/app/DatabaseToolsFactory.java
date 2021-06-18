@@ -20,10 +20,11 @@
 package io.arlas.server.app;
 
 import com.codahale.metrics.health.HealthCheck;
-import io.arlas.server.services.CollectionReferenceService;
+import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.ogc.common.dao.OGCCollectionReferenceDao;
 import io.arlas.server.ogc.wfs.services.WFSToolService;
-import io.arlas.server.services.ExploreService;
+import io.arlas.server.core.services.ExploreService;
 
 import java.util.Map;
 

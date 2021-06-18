@@ -19,14 +19,14 @@
 
 package io.arlas.server.ogc.csw;
 
-import io.arlas.server.app.CSWConfiguration;
-import io.arlas.server.app.InspireConfiguration;
-import io.arlas.server.app.OGCConfiguration;
+import io.arlas.server.core.app.CSWConfiguration;
+import io.arlas.server.core.app.InspireConfiguration;
+import io.arlas.server.core.app.OGCConfiguration;
 import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.ogc.csw.operation.getrecordbyid.GetRecordsByIdHandler;
 import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
 import io.arlas.server.ogc.csw.operation.opensearch.OpenSearchHandler;
-import io.arlas.server.utils.StringUtil;
+import io.arlas.server.core.utils.StringUtil;
 import net.opengis.cat.csw._3.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

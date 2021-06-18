@@ -20,10 +20,10 @@
 package io.arlas.server.rest.plugins.eo;
 
 import cyclops.control.Try;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.InternalServerErrorException;
-import io.arlas.server.model.RasterTileURL;
-import io.arlas.server.utils.Tile;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.exceptions.InternalServerErrorException;
+import io.arlas.server.core.model.RasterTileURL;
+import io.arlas.server.core.utils.Tile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;

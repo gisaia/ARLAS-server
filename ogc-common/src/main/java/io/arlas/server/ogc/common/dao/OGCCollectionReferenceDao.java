@@ -19,10 +19,10 @@
 
 package io.arlas.server.ogc.common.dao;
 
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.CollectionReferences;
-import io.arlas.server.utils.BoundingBox;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.CollectionReferences;
+import io.arlas.server.core.utils.BoundingBox;
 
 import java.io.IOException;
 

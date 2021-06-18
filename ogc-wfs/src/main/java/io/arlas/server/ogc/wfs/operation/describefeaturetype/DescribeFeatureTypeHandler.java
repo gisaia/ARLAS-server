@@ -19,15 +19,13 @@
 
 package io.arlas.server.ogc.wfs.operation.describefeaturetype;
 
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.response.CollectionReferenceDescription;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.common.utils.XmlUtils;
-import io.arlas.server.utils.ColumnFilterUtil;
-import io.arlas.server.utils.FilterMatcherUtil;
+import io.arlas.server.core.utils.ColumnFilterUtil;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;

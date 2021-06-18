@@ -19,22 +19,22 @@
 package io.arlas.server.impl;
 
 import com.codahale.metrics.health.HealthCheck;
-import io.arlas.server.app.ArlasServerConfiguration;
+import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.app.DatabaseToolsFactory;
-import io.arlas.server.services.CollectionReferenceService;
-import io.arlas.server.exceptions.ArlasConfigurationException;
-import io.arlas.server.health.ElasticsearchHealthCheck;
-import io.arlas.server.impl.elastic.services.ElasticCollectionReferenceService;
-import io.arlas.server.impl.elastic.exceptions.ElasticsearchExceptionMapper;
-import io.arlas.server.impl.elastic.services.ElasticExploreService;
-import io.arlas.server.impl.elastic.utils.ElasticClient;
-import io.arlas.server.managers.CacheManager;
+import io.arlas.server.core.services.CollectionReferenceService;
+import io.arlas.server.core.exceptions.ArlasConfigurationException;
+import io.arlas.server.admin.health.ElasticsearchHealthCheck;
+import io.arlas.server.core.impl.elastic.services.ElasticCollectionReferenceService;
+import io.arlas.server.core.impl.elastic.exceptions.ElasticsearchExceptionMapper;
+import io.arlas.server.core.impl.elastic.services.ElasticExploreService;
+import io.arlas.server.core.impl.elastic.utils.ElasticClient;
+import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.ogc.common.dao.ElasticOGCCollectionReferenceDao;
 import io.arlas.server.ogc.common.dao.OGCCollectionReferenceDao;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.services.ElasticWFSToolService;
 import io.arlas.server.ogc.wfs.services.WFSToolService;
-import io.arlas.server.services.ExploreService;
+import io.arlas.server.core.services.ExploreService;
 import io.dropwizard.setup.Environment;
 
 import java.util.HashMap;

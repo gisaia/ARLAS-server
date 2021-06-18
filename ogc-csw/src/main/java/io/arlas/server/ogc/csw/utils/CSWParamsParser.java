@@ -19,9 +19,9 @@
 
 package io.arlas.server.ogc.csw.utils;
 
-import io.arlas.server.exceptions.INSPIRE.INSPIREException;
-import io.arlas.server.exceptions.INSPIRE.INSPIREExceptionCode;
-import io.arlas.server.inspire.common.constants.InspireConstants;
+import io.arlas.server.ogc.common.exceptions.INSPIRE.INSPIREException;
+import io.arlas.server.ogc.common.exceptions.INSPIRE.INSPIREExceptionCode;
+import io.arlas.server.ogc.common.inspire.common.constants.InspireConstants;
 import io.arlas.server.ogc.common.model.Service;
 
 import java.text.ParseException;

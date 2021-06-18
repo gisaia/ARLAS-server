@@ -21,15 +21,15 @@ package io.arlas.server.ogc.csw;
 
 import com.a9.opensearch.OpenSearchDescription;
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.OGCRESTService;
-import io.arlas.server.app.Documentation;
-import io.arlas.server.exceptions.ArlasException;
-import io.arlas.server.exceptions.OGC.OGCException;
-import io.arlas.server.exceptions.OGC.OGCExceptionCode;
-import io.arlas.server.model.CollectionReference;
-import io.arlas.server.model.CollectionReferences;
-import io.arlas.server.model.response.Error;
-import io.arlas.server.ns.ATOM;
+import io.arlas.server.ogc.common.OGCRESTService;
+import io.arlas.server.core.app.Documentation;
+import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.CollectionReferences;
+import io.arlas.server.core.model.response.Error;
+import io.arlas.server.core.ns.ATOM;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.common.utils.RequestUtils;
@@ -42,9 +42,9 @@ import io.arlas.server.ogc.csw.utils.CSWCheckParam;
 import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
-import io.arlas.server.services.FluidSearchService;
-import io.arlas.server.utils.BoundingBox;
-import io.arlas.server.utils.ColumnFilterUtil;
+import io.arlas.server.core.services.FluidSearchService;
+import io.arlas.server.core.utils.BoundingBox;
+import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.swagger.annotations.*;
 import net.opengis.cat.csw._3.AbstractRecordType;
 import net.opengis.cat.csw._3.CapabilitiesType;
@@ -61,7 +61,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static io.arlas.server.utils.CheckParams.isBboxLatLonInCorrectRanges;
+import static io.arlas.server.core.utils.CheckParams.isBboxLatLonInCorrectRanges;
 
 @Path("/ogc")
 @Api(value = "/ogc")
