@@ -263,39 +263,6 @@ List the collections configured in ARLAS.
 * `application/json;charset=utf-8`
 
 
-<a name="opensearch"></a>
-#### OpenSearch Description Document
-```
-GET /explore/ogc/opensearch/{collection}
-```
-
-
-##### Description
-Access to the OpenSearch Description document for the given collection
-
-
-##### Parameters
-
-|Type|Name|Description|Schema|
-|---|---|---|---|
-|**Path**|**collection**  <br>*required*|collection|string|
-|**Query**|**max-age-cache**  <br>*optional*|max-age-cache|integer (int32)|
-
-
-##### Responses
-
-|HTTP Code|Description|Schema|
-|---|---|---|
-|**200**|Successful operation|No Content|
-|**400**|Bad request.|[Error](#error)|
-|**500**|Arlas Server Error.|[Error](#error)|
-
-
-##### Produces
-
-* `application/xml`
-
-
 <a name="suggest"></a>
 #### Suggest
 ```
