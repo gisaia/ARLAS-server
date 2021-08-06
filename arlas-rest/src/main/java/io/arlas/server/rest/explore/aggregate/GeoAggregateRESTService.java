@@ -496,9 +496,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 .collect(Collectors.toList());
         if (intervals.size() > 0) {
             interval = intervals.get(0).value.intValue();
-        }
-        if (interval - z > 7 || interval - z < 0) {
-            throw new InvalidParameterException("(interval - z) must be > 0 and <= 7");
+            if (interval - z > 7 || interval - z < 0) {
+                throw new InvalidParameterException("(interval - z) must be > 0 and <= 7");
+            }
         }
 
         BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x, y, z));
@@ -748,6 +748,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                        if (mainAggregationType == AggregationTypeEnum.geohash) {
                            properties.put("geohash", element.keyAsString);
                            tile.ifPresent(s -> properties.put("parent_geohash", s));
+                       } else if (mainAggregationType == AggregationTypeEnum.h3) {
+                           properties.put("h3", element.keyAsString);
+                           tile.ifPresent(s -> properties.put("parent_cell", s));
                        } else if (mainAggregationType == AggregationTypeEnum.geotile) {
                            properties.put("tile", element.keyAsString);
                            tile.ifPresent(s -> properties.put("parent_tile", s));

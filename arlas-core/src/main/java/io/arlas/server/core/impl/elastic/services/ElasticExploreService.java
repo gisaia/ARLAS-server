@@ -35,11 +35,9 @@ import io.arlas.server.core.model.response.*;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.services.FluidSearchService;
-import io.arlas.server.core.utils.BoundingBox;
-import io.arlas.server.core.utils.GeoTileUtil;
-import io.arlas.server.core.utils.MapExplorer;
-import io.arlas.server.core.utils.UriInfoWrapper;
+import io.arlas.server.core.utils.*;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.search.SearchHit;
@@ -373,7 +371,29 @@ public class ElasticExploreService extends ExploreService {
 
                             });
                 }
-            } else if(aggregationResponse.name.startsWith(DATEHISTOGRAM_AGG)){
+            } else if (aggregationResponse.name.equals(H3_AGG)){
+                GeoPoint geoPoint = getH3Centre(element.keyAsString.toString());
+                element.key = geoPoint;
+                if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
+                    aggregatedGeometries.stream()
+                            .filter(g -> g.isCellOrCellCenterAgg())
+                            .forEach(g -> {
+                                ReturnedGeometry returnedGeometry = new ReturnedGeometry();
+                                returnedGeometry.reference = g.value();
+                                returnedGeometry.isRaw = false;
+                                if (g.isCellAgg()) {
+                                    returnedGeometry.geometry = createPolygonFromH3(element.keyAsString.toString());
+                                } else {
+                                    returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
+                                }
+                                if (element.geometries == null) {
+                                    element.geometries = new ArrayList<>();
+                                }
+                                element.geometries.add(returnedGeometry);
+
+                            });
+                }
+            } else if (aggregationResponse.name.startsWith(DATEHISTOGRAM_AGG)){
                 element.key = ((ZonedDateTime)bucket.getKey()).withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
             } else {
                 element.key = bucket.getKey();
@@ -395,7 +415,7 @@ public class ElasticExploreService extends ExploreService {
                                 .map(Arrays::asList)
                                 .map(hitsList -> hitsList.stream().map(SearchHit::getSourceAsMap).collect(Collectors.toList()))
                                 .orElse(new ArrayList());
-                    } else if (Arrays.asList(DATEHISTOGRAM_AGG, HISTOGRAM_AGG, TERM_AGG, GEOHASH_AGG, GEOTILE_AGG).contains(subAggregation.getName())) {
+                    } else if (Arrays.asList(DATEHISTOGRAM_AGG, HISTOGRAM_AGG, TERM_AGG, GEOHASH_AGG, GEOTILE_AGG, H3_AGG).contains(subAggregation.getName())) {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
                     } else if (isAggregatedGeometry(subAggregation.getName(), aggregatedGeometries)) {
                         subAggregationResponse = null;
@@ -525,6 +545,11 @@ public class ElasticExploreService extends ExploreService {
         double lat = (maxLat + minLat) / 2;
 
         return new GeoPoint(lat, lon);
+    }
+
+    private GeoPoint getH3Centre(String h3) {
+        Pair<Double, Double> latLon = H3Util.getInstance().getCellCenterAsLatLon(h3);
+        return new GeoPoint(latLon.getLeft(), latLon.getRight());
     }
 
     private GeoPoint getTileCentre(BoundingBox bbox) {
