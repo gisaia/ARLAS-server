@@ -105,6 +105,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         SearchResponse result = null;
         request.source(searchSourceBuilder);
         result = client.search(request);
+        LOGGER.debug("RESULT : " + result.toString());
         return result;
     }
 
@@ -432,6 +433,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         Aggregation aggregationModel = aggregations.get(0);
         if (isGeoAggregate && counter == 0) {
             if (!GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type)
+                    && !aggregationModel.type.equals(AggregationTypeEnum.h3)
                     && aggregationModel.rawGeometries == null
                     && aggregationModel.aggregatedGeometries == null) {
                 throw new NotAllowedException("'" + aggregationModel.type.name() +"' aggregation type is not allowed in _geoaggregate service if at least `aggregated_geometries` or `raw_geometries` parameters are not specified");
@@ -452,6 +454,9 @@ public class ElasticFluidSearch extends FluidSearchService {
                 break;
             case term:
                 aggregationBuilder = buildTermsAggregation(aggregationModel);
+                break;
+            case h3:
+                aggregationBuilder = buildH3Aggregation(aggregationModel);
                 break;
         }
         aggregations.remove(0);
@@ -594,6 +599,31 @@ public class ElasticFluidSearch extends FluidSearchService {
         geoTileAggregationBuilder = (GeoGridAggregationBuilder) setRawGeometries(aggregationModel, geoTileAggregationBuilder);
         geoTileAggregationBuilder = (GeoGridAggregationBuilder) setHitsToFetch(aggregationModel, geoTileAggregationBuilder);
         return geoTileAggregationBuilder;
+    }
+
+    // construct and returns the h3 aggregationModel builder
+    private TermsAggregationBuilder buildH3Aggregation(Aggregation aggregationModel) throws ArlasException {
+        TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(H3_AGG);
+        aggregationModel.field = aggregationModel.field + "." + aggregationModel.interval.value;
+        if (aggregationModel.size == null) {
+            aggregationModel.size = "10000"; // by default
+        }
+        //get the field, format, collect_field, collect_fct, order, on
+        termsAggregationBuilder = (TermsAggregationBuilder) setAggregationParameters(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregationBuilder) setAggregatedGeometries(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregationBuilder) setRawGeometries(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregationBuilder) setHitsToFetch(aggregationModel, termsAggregationBuilder);
+        if (aggregationModel.include != null && !aggregationModel.include.isEmpty()) {
+            String[] includeList = aggregationModel.include.split(",");
+            IncludeExclude includeExclude;
+            if (includeList.length > 1) {
+                includeExclude = new IncludeExclude(includeList, null);
+            } else {
+                includeExclude = new IncludeExclude(includeList[0], null);
+            }
+            termsAggregationBuilder = termsAggregationBuilder.includeExclude(includeExclude);
+        }
+        return termsAggregationBuilder;
     }
 
     // construct and returns the histogram aggregationModel builder
