@@ -91,6 +91,93 @@
           "type": "GEO_SHAPE",
           "taggable": false,
           "indexed": true
+        },
+        "h3": {
+          "type": "OBJECT",
+          "properties": {
+            "0": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "1": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "2": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "3": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "4": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "5": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "6": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "7": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "8": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "9": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "10": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "11": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "12": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "13": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "14": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            },
+            "15": {
+              "type": "KEYWORD",
+              "taggable": false,
+              "indexed": true
+            }
+          },
+          "taggable": false,
+          "indexed": true
         }
       },
       "taggable": false,
@@ -104,6 +191,7 @@
     "id_path": "id",
     "geometry_path": "geo_params.geometry",
     "centroid_path": "geo_params.centroid",
+    "h3_path": "geo_params.h3",
     "timestamp_path": "params.startdate",
     "exclude_fields": "params.ci*",
     "update_max_hits": 2147483647,

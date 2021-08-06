@@ -367,20 +367,20 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
     public void handleDescribeFeature(ValidatableResponse then) throws Exception {
         if(!DataSetTool.ALIASED_COLLECTION) {
             then.statusCode(200)
-                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(9));
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(25));
         } else {
             then.statusCode(200)
-                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(10));
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(26));
         }
     }
 
     public void handleDescribeFeatureColumnFilter(ValidatableResponse then) throws Exception {
         if(!DataSetTool.ALIASED_COLLECTION) {
             then.statusCode(200)
-                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(8));
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(24));
         } else {
             then.statusCode(200)
-                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(9));
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(25));
         }
     }
 

@@ -266,6 +266,9 @@ public class JdbiFluidSearch extends FluidSearchService {
                 case term:
                     buildTermsAggregation(aggName, aggregationModel);
                     break;
+                case h3:
+                    buildH3Aggregation(aggName, aggregationModel);
+                    break;
             }
         }
 
@@ -342,6 +345,21 @@ public class JdbiFluidSearch extends FluidSearchService {
         setAggregatedGeometries(aggName, aggregationModel, sp);
         setRawGeometries(aggName, aggregationModel, sp);
         setHitsToFetch(aggName, aggregationModel, sp);
+    }
+
+    private void buildH3Aggregation(String aggName, Aggregation aggregationModel) throws ArlasException {
+        aggregationModel.field += "." + aggregationModel.interval.value;
+        TermAggregationSelectClause sp = new TermAggregationSelectClause(aggregationModel.field, aggName);
+
+        if (aggregationModel.include != null && !aggregationModel.include.isEmpty()) {
+            req.addOrWhereClauses(Collections.singletonList(req.formatInCondition(aggregationModel.field, aggregationModel.include.split(COMMA))));
+        }
+        req.addSelectClause(sp);
+        //get the field, format, collect_field, collect_fct, order, on
+        setAggregationParameters(aggName, aggregationModel, sp);
+        setHitsToFetch(aggName, aggregationModel, sp);
+        setAggregatedGeometries(aggName, aggregationModel, sp);
+        setRawGeometries(aggName, aggregationModel, sp);
     }
 
     private void buildHistogramAggregation(String aggName, Aggregation aggregationModel) throws ArlasException {

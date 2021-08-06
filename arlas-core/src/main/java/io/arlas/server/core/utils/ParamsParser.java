@@ -101,7 +101,7 @@ public class ParamsParser {
             if (parameter.contains(AGG_INTERVAL_PARAM)) {
                 if (aggregationModel.type.equals(AggregationTypeEnum.datehistogram)) {
                     aggregationModel.interval = getDatehistogramAggregationInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));
-                } else if (GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type)) {
+                } else if (GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type) || aggregationModel.type.equals(AggregationTypeEnum.h3)) {
                     aggregationModel.interval = getGeohashAggregationInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));
                 } else if (aggregationModel.type.equals(AggregationTypeEnum.histogram)) {
                     aggregationModel.interval = getHistogramAggregationInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));

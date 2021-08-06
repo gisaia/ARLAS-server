@@ -27,6 +27,7 @@ import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.*;
 import io.arlas.server.core.model.response.*;
 import io.arlas.server.core.utils.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.*;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.io.GeohashUtils;
@@ -264,6 +265,21 @@ public abstract class ExploreService {
         }
     }
 
+    protected Polygon createPolygonFromH3(String h3) {
+        List<Pair<Double, Double>> latLonList = H3Util.getInstance().getCellBoundaryAsLatLonList(h3);
+        if (latLonList.size() > 7) {
+            LOGGER.debug(h3);
+            LOGGER.debug(latLonList.toString());
+        }
+        Polygon box = new Polygon();
+        List<LngLatAlt> bounds = new ArrayList<>();
+        latLonList.stream().forEach(g -> bounds.add(new LngLatAlt(g.getRight(), g.getLeft())));
+        // add first point in order to close the polygon
+        bounds.add(new LngLatAlt(latLonList.get(0).getRight(), latLonList.get(0).getLeft()));
+        box.add(bounds);
+
+        return box;
+    }
     protected Polygon createPolygonFromGeohash(String geohash) {
         Rectangle rectangle = GeohashUtils.decodeBoundary(geohash, SpatialContext.GEO);
         Polygon polygon = new Polygon();

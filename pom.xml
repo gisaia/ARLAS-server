@@ -72,6 +72,7 @@
     <geojson.jackson.version>1.8.1</geojson.jackson.version>
     <spatial4j.version>0.7</spatial4j.version>
     <jts.version>1.18.1</jts.version>
+    <h3.version>3.7.0</h3.version>
 
     <!-- AUTH -->
     <java-jwt.version>3.8.2</java-jwt.version>

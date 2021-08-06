@@ -30,7 +30,7 @@ import static io.restassured.RestAssured.given;
 
 public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
 
-    private static final String PARAMS_FIELD_EXCEPT_DUBLIN_CORE = "['index_name', 'type_name', 'id_path', 'geometry_path', 'centroid_path', 'timestamp_path', 'exclude_fields', 'update_max_hits', 'taggable_fields', " +
+    private static final String PARAMS_FIELD_EXCEPT_DUBLIN_CORE = "['index_name', 'type_name', 'id_path', 'geometry_path', 'centroid_path','h3_path', 'timestamp_path', 'exclude_fields', 'update_max_hits', 'taggable_fields', " +
             "'exclude_wfs_fields', 'custom_params', 'inspire', 'raster_tile_url', 'raster_tile_width', 'raster_tile_height', 'filter']";
     private static final String DUBLIN_CORE_FIELDS_EXCEPT_DATE = "['title', 'creator', 'subject', 'description', 'publisher', 'contributor', 'type', 'format', 'identifier', 'source', 'language', 'bbox', 'coverage', " +
             "'coverage_centroid']";

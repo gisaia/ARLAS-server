@@ -21,6 +21,9 @@ package io.arlas.server.tests;
 
 import org.geojson.Polygon;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Data {
     public String id;
     public String fullname;
@@ -41,6 +44,7 @@ public class Data {
         public Polygon geometry;
         public String wktgeometry;
         public String centroid;
+        public Map<String, String> h3 = new HashMap<>();
         public Polygon second_geometry;
         public String other_geopoint;
     }

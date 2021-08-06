@@ -151,6 +151,7 @@ public class CollectionInjector extends AbstractTestContext {
                     params.idPath = AbstractDataInjector.DATASET_ID_PATH;
                     params.geometryPath = AbstractDataInjector.DATASET_GEOMETRY_PATH;
                     params.centroidPath = AbstractDataInjector.DATASET_CENTROID_PATH;
+                    params.h3Path = AbstractDataInjector.DATASET_H3_PATH;
                     params.timestampPath = AbstractDataInjector.DATASET_TIMESTAMP_PATH;
                     params.excludeFields = AbstractDataInjector.DATASET_EXCLUDE_FIELDS;
                     params.excludeWfsFields = AbstractDataInjector.DATASET_EXCLUDE_WFS_FIELDS;
