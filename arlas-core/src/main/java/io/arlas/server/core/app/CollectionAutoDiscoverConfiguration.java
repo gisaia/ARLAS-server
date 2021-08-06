@@ -40,6 +40,9 @@ public class CollectionAutoDiscoverConfiguration {
     @JsonProperty("preferred-geometry-field-name")
     public String preferredGeometryFieldName;
 
+    @JsonProperty("preferred-h3-field-name")
+    public String preferredH3FieldName;
+
     @JsonProperty("schedule")
     public int schedule;
 
@@ -64,6 +67,10 @@ public class CollectionAutoDiscoverConfiguration {
 
     public List<String> getPreferredGeometryFieldNames() throws ArlasConfigurationException {
         return getFields(preferredGeometryFieldName);
+    }
+
+    public List<String> getPreferredH3FieldNames() throws ArlasConfigurationException {
+        return getFields(preferredH3FieldName);
     }
 
     @Override

@@ -47,6 +47,9 @@ public class CollectionReferenceParameters implements Serializable {
     @JsonProperty(value = "centroid_path", required = true)
     public String centroidPath;
 
+    @JsonProperty(value = "h3_path", required = false)
+    public String h3Path;
+
     @JsonProperty(value = "timestamp_path", required = true)
     public String timestampPath;
 

@@ -96,6 +96,7 @@ public abstract class FluidSearchService {
         return Arrays.asList(collectionReference.params.idPath,
                 collectionReference.params.geometryPath,
                 collectionReference.params.centroidPath,
+                collectionReference.params.h3Path,
                 collectionReference.params.timestampPath);
     }
 

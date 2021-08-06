@@ -79,6 +79,7 @@ public class CollectionAutoDiscover extends Task implements Runnable {
         List<String> timestampPaths = configuration.getPreferredTimestampFieldNames();
         List<String> centroidPaths = configuration.getPreferredCentroidFieldNames();
         List<String> geometryPaths = configuration.getPreferredGeometryFieldNames();
+        List<String> h3Paths = configuration.getPreferredH3FieldNames();
         for (String path : idPaths) {
             Object field = MapExplorer.getObjectFromPath(path, collection.properties);
             if (field instanceof CollectionReferenceDescriptionProperty) {
@@ -108,6 +109,13 @@ public class CollectionAutoDiscover extends Task implements Runnable {
             Object field = MapExplorer.getObjectFromPath(path, collection.properties);
             if (field instanceof CollectionReferenceDescriptionProperty) {
                 collection.params.geometryPath = path;
+                break;
+            }
+        }
+        for (String path : h3Paths) {
+            Object field = MapExplorer.getObjectFromPath(path, collection.properties);
+            if (field instanceof CollectionReferenceDescriptionProperty) {
+                collection.params.h3Path = path;
                 break;
             }
         }

@@ -231,6 +231,11 @@
             <version>${jts.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.uber</groupId>
+            <artifactId>h3</artifactId>
+            <version>${h3.version}</version>
+        </dependency>
 
         <!-- ____________________________________________________ -->
         <!-- LANGUAGE -->

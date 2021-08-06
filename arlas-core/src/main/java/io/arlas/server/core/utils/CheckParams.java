@@ -687,6 +687,8 @@ public class CheckParams {
                 fields.add(collectionReference.params.geometryPath);
             if (collectionReference.params.centroidPath != null)
                 fields.add(collectionReference.params.centroidPath);
+            if (collectionReference.params.h3Path != null)
+                fields.add(collectionReference.params.h3Path);
             if (collectionReference.params.timestampPath != null)
                 fields.add(collectionReference.params.timestampPath);
             List<String> excludeField = Arrays.asList(exclude.split(","));
