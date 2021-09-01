@@ -64,13 +64,13 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext ctx) {
         Transaction transaction = ElasticApm.currentTransaction();
 
-        String header = ctx.getHeaderString(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.toLowerCase().startsWith("bearer ")) {
-            // Check if endpoint is public and if the verb is authorize
+        // Check if endpoint is public and if the verb is authorized
             if (ctx.getUriInfo().getPath().concat(":").concat(ctx.getMethod()).matches(authConf.getPublicRegex()) || ctx.getMethod() == "OPTIONS") {
                 return;
             }
-        } else {
+
+        String header = ctx.getHeaderString(HttpHeaders.AUTHORIZATION);
+        if (header != null && header.toLowerCase().startsWith("bearer ")) {
             // if a token is provided
             // if method !== options
             // verify token and pass it
