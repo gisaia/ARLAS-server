@@ -138,10 +138,10 @@ public class HazelcastCacheManager implements CacheManager {
     public void putMapping(String indexName, Map<String, LinkedHashMap> mapping) {
         LOGGER.debug("Inserting mapping for index '" + indexName + "' in cache");
         try {
-            this.instance.getReplicatedMap("mappings").put(indexName, mapping);
+            this.instance.getReplicatedMap("mappings").put(indexName, mapping, cacheTimeout, TimeUnit.SECONDS);
         } catch (HazelcastInstanceNotActiveException e) { // recover from unexpected shutdown
             init();
-            this.instance.getReplicatedMap("mappings").put(indexName, mapping);
+            this.instance.getReplicatedMap("mappings").put(indexName, mapping, cacheTimeout, TimeUnit.SECONDS);
         }
     }
 

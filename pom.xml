@@ -53,8 +53,8 @@
     <jackson.version>2.9.8</jackson.version>
 
     <!-- CACHE-->
-    <hazelcast.version>4.0.3</hazelcast.version>
-    <hazelcast.k8s.version>2.1</hazelcast.k8s.version>
+    <hazelcast.version>4.2.2</hazelcast.version>
+    <hazelcast.k8s.version>2.2.3</hazelcast.k8s.version>
 
     <!-- ELASTICSEARCH-->
     <elastic.version>7.9.2</elastic.version>
