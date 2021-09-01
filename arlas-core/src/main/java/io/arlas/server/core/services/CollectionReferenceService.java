@@ -20,6 +20,7 @@
 package io.arlas.server.core.services;
 
 import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.server.core.exceptions.InvalidParameterException;
 import io.arlas.server.core.exceptions.NotFoundException;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.model.CollectionReference;
@@ -257,16 +258,28 @@ public abstract class CollectionReferenceService {
     protected void checkCollectionReferenceParameters(CollectionReference collectionReference) throws ArlasException {
         //get fields
         List<String> fields = new ArrayList<>();
-        if (collectionReference.params.idPath != null)
+        if (collectionReference.params.idPath != null) {
             fields.add(collectionReference.params.idPath);
-        if (collectionReference.params.geometryPath != null)
+        } else {
+            throw new InvalidParameterException("'id_path' is missing from collection definition");
+        }
+        if (collectionReference.params.geometryPath != null) {
             fields.add(collectionReference.params.geometryPath);
-        if (collectionReference.params.centroidPath != null)
+        } else {
+            throw new InvalidParameterException("'geometry_path' is missing from collection definition");
+        }
+        if (collectionReference.params.centroidPath != null) {
             fields.add(collectionReference.params.centroidPath);
+        } else {
+            throw new InvalidParameterException("'centroid_path' is missing from collection definition");
+        }
         if (collectionReference.params.h3Path != null)
             fields.add(collectionReference.params.h3Path);
-        if (collectionReference.params.timestampPath != null)
+        if (collectionReference.params.timestampPath != null) {
             fields.add(collectionReference.params.timestampPath);
+        } else {
+            throw new InvalidParameterException("'timestamp_path' is missing from collection definition");
+        }
         if(!StringUtil.isNullOrEmpty(collectionReference.params.excludeFields)){
             List<String> excludeField = Arrays.asList(collectionReference.params.excludeFields.split(","));
             CheckParams.checkExcludeField(excludeField, fields);
