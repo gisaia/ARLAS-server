@@ -27,15 +27,17 @@ import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.server.admin.auth.AuthenticationFilter;
 import io.arlas.server.admin.auth.AuthorizationFilter;
+import io.arlas.server.admin.task.CollectionAutoDiscover;
 import io.arlas.server.core.app.ArlasCorsConfiguration;
 import io.arlas.server.core.app.ArlasServerConfiguration;
-import io.arlas.server.core.app.OpensearchConfiguration;
 import io.arlas.server.core.exceptions.ArlasExceptionMapper;
 import io.arlas.server.core.exceptions.ConstraintViolationExceptionMapper;
 import io.arlas.server.core.exceptions.IllegalArgumentExceptionMapper;
 import io.arlas.server.core.exceptions.JsonProcessingExceptionMapper;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.managers.CollectionReferenceManager;
+import io.arlas.server.core.services.ExploreService;
+import io.arlas.server.core.utils.PrettyPrintFilter;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.CSWService;
 import io.arlas.server.ogc.csw.writer.getrecords.AtomGetRecordsMessageBodyWriter;
@@ -45,6 +47,8 @@ import io.arlas.server.ogc.csw.writer.record.XmlMDMetadataMessageBodyWriter;
 import io.arlas.server.ogc.csw.writer.record.XmlRecordMessageBodyBuilder;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.WFSService;
+import io.arlas.server.opensearch.rest.explore.AtomHitsMessageBodyWriter;
+import io.arlas.server.opensearch.rest.explore.OpenSearchDescriptorService;
 import io.arlas.server.rest.collections.CollectionService;
 import io.arlas.server.rest.explore.aggregate.AggregateRESTService;
 import io.arlas.server.rest.explore.aggregate.GeoAggregateRESTService;
@@ -52,16 +56,11 @@ import io.arlas.server.rest.explore.compute.ComputeRESTService;
 import io.arlas.server.rest.explore.count.CountRESTService;
 import io.arlas.server.rest.explore.describe.DescribeCollectionRESTService;
 import io.arlas.server.rest.explore.describe.DescribeRESTService;
-import io.arlas.server.opensearch.rest.explore.AtomHitsMessageBodyWriter;
-import io.arlas.server.opensearch.rest.explore.OpenSearchDescriptorService;
 import io.arlas.server.rest.explore.raw.RawRESTService;
 import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
 import io.arlas.server.rest.plugins.eo.TileRESTService;
-import io.arlas.server.core.services.ExploreService;
-import io.arlas.server.admin.task.CollectionAutoDiscover;
-import io.arlas.server.core.utils.PrettyPrintFilter;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -191,8 +190,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         if(configuration.arlasServiceOPENSEARCHEnabled){
             LOGGER.info("OPENSEARCH Service enabled");
-            OpensearchConfiguration opensearchConfiguration = configuration.opensearchConfiguration;
-            environment.jersey().register(new OpenSearchDescriptorService(exploration, opensearchConfiguration));
+            environment.jersey().register(new OpenSearchDescriptorService(exploration));
         } else {
             LOGGER.info("OPENSEARCH Service disabled");
         }

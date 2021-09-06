@@ -21,21 +21,20 @@ package io.arlas.server.opensearch.rest.explore;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.core.app.Documentation;
-import io.arlas.server.core.app.OpensearchConfiguration;
 import io.arlas.server.core.exceptions.ArlasException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.OpenSearch;
 import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
-import io.arlas.server.core.model.response.FieldType;
 import io.arlas.server.core.model.response.Error;
+import io.arlas.server.core.model.response.FieldType;
 import io.arlas.server.core.ns.ATOM;
-import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.arlas.server.opensearch.rest.explore.model.Image;
-import io.arlas.server.opensearch.rest.explore.model.OpenSearchDescription;
-import io.arlas.server.opensearch.rest.explore.model.Url;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.core.utils.StringUtil;
+import io.arlas.server.opensearch.rest.explore.model.Image;
+import io.arlas.server.opensearch.rest.explore.model.OpenSearchDescription;
+import io.arlas.server.opensearch.rest.explore.model.Url;
+import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -49,14 +48,12 @@ import java.io.IOException;
 import java.util.*;
 
 public class OpenSearchDescriptorService extends ExploreRESTServices {
-    OpensearchConfiguration opensearchConfiguration;
 
     @Context
     UriInfo uri;
 
-    public OpenSearchDescriptorService(ExploreService exploreService, OpensearchConfiguration opensearchConfiguration) {
+    public OpenSearchDescriptorService(ExploreService exploreService) {
         super(exploreService);
-        this.opensearchConfiguration = opensearchConfiguration;
     }
 
     public static final String MIME_TYPE_XML = "application/xml";
@@ -101,14 +98,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
         //[scheme:][//authority][path][?query][#fragment]
         if (cr.params.openSearch != null) {
             OpenSearch os = cr.params.openSearch;
-            String baseUri = exploreService.getBaseUri();
-            if (!StringUtil.isNullOrEmpty(baseUri)) {
-                prefix = exploreService.getBaseUri() + this.getExplorePathUri() + collection + "/_search";
-            } else  if (opensearchConfiguration != null && opensearchConfiguration.urlTemplatePrefix != null) {
-                prefix = opensearchConfiguration.urlTemplatePrefix;
-                prefix = prefix.replace(OpensearchConfiguration.COLLECTION_PLACEMARK, collection);
-                LOGGER.warn("[opensearch.url-template-prefix] is deprecated. Use [arlas-base-uri] instead.");
-            }
+            prefix = exploreService.getBaseUri() + this.getExplorePathUri() + collection + "/_search";
             description.adultContent = os.adultContent;
             description.attribution = os.attribution;
             description.contact = os.contact;

@@ -185,18 +185,6 @@ docker run -ti -d \
 | ARLAS_INSPIRE_ACCESS_AND_USE_CONDITIONS | arlas-inspire.access_and_use_conditions | no conditons apply | Conditions applied to access and use CSW and WFS services. If no conditions apply to the access and use of the resource, `no conditions apply` shall be used. If conditions are unknown, `conditions unknown` shall be used. This element shall also provide information on any fees necessary to access and use the resource, if applicable, or refer to a uniform resource locator (URL) where information on fees is available.|
 | ARLAS_INSPIRE_PUBLIC_ACCESS_LIMITATIONS | arlas-inspire.public_access_limitations | no limitations apply | Limitations applied to access CSW. When Member States limit public access to CSW under Article 13 of Directive 2007/2/EC, this metadata element shall provide information on the limitations and the reasons for them. |
 
-### OPENSEARCH
-
-| Environment variable | ARLAS Server configuration variable | Default |
-| --- | --- | --- |
-| ARLAS_OPENSEARCH_URL_TEMPLATE | opensearch.url-template-prefix | http://localhost:9999/arlas/explore/COLLECTION/_search |
-
-!!! note "Note"
-    If the placemark `COLLECTION` is specified in the url template, then it will be replaced by the collection name by ARLAS server.
-    
-!!! info "Important"
-    `ARLAS_OPENSEARCH_URL_TEMPLATE` is deprecated starting from v10.6.1. It's recommended to use `ARLAS_BASE_URI` instead. `ARLAS_OPENSEARCH_URL_TEMPLATE` is taken into account only if `ARLAS_BASE_URI` is not specified.
-
 ### Logging
 
 | Environment variable | ARLAS Server configuration variable | Default |

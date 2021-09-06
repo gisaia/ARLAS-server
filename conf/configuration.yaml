@@ -45,7 +45,7 @@ server:
 ########################################################
 ############ URL Masking                 ###############
 ########################################################
-arlas-base-uri: ${ARLAS_BASE_URI:-}
+arlas-base-uri: ${ARLAS_BASE_URI:-http://localhost:9999/arlas/}
 
 ########################################################
 ############ LOGGING                     ###############
@@ -146,11 +146,6 @@ arlas-inspire:
   services_date_of_creation: ${ARLAS_INSPIRE_SERVICES_DATE_OF_CREATION:-2018-11-05} # YYYY-MM-DD
   access_and_use_conditions: ${ARLAS_INSPIRE_ACCESS_AND_USE_CONDITIONS:-no conditions apply} # Free text or specify a URL to a link that describes eventual conditions
   public_access_limitations: ${ARLAS_INSPIRE_PUBLIC_ACCESS_LIMITATIONS:-no limitations apply} # Free text or specify a URL to a link that describes eventual limitations
-########################################################
-############ OPENSEARCH                  ###############
-########################################################
-opensearch:
-  url-template-prefix: ${ARLAS_OPENSEARCH_URL_TEMPLATE:-http://localhost:9999/arlas/explore/COLLECTION/_search} # If the placemark COLLECTION is specified in the url template, it will be replaced by the collection name in ARLAS server.
 
 ########################################################
 ############ AUTHENTICATION              ###############
