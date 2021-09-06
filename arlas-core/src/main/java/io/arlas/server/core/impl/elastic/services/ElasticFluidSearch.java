@@ -564,7 +564,11 @@ public class ElasticFluidSearch extends FluidSearchService {
             default:
                 throw new InvalidParameterException(INVALID_DATE_UNIT);
         }
-        dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.dateHistogramInterval(intervalUnit);
+        if ((Integer)aggregationModel.interval.value > 1) {
+            dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.fixedInterval(intervalUnit);
+        } else {
+            dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.calendarInterval(intervalUnit);
+        }
         //get the field, format, collect_field, collect_fct, order, on
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setHitsToFetch(aggregationModel, dateHistogramAggregationBuilder);
