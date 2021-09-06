@@ -23,9 +23,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class OGCConfiguration {
 
-    @JsonProperty("serverUri")
-    public String serverUri;
-
     @JsonProperty("serviceProviderName")
     public String serviceProviderName;
 
@@ -52,10 +49,6 @@ public class OGCConfiguration {
 
     @JsonProperty("queryMaxFeature")
     public Number queryMaxFeature;
-
-    public String getServerUri() {
-        return serverUri;
-    }
 
     public String getServiceProviderName() {
         return serviceProviderName;

@@ -150,7 +150,6 @@ docker run -ti -d \
 
 | Environment variable | ARLAS OGC Server configuration variable | Default | Description |
 | --- | --- | --- | --- |
-| ARLAS_OGC_SERVER_URI | arlas-ogc.serverUri | http://localhost:9999/arlas/ | Base URI to ARLAS Server |
 | ARLAS_OGC_SERVICE_PROVIDER_NAME | arlas-ogc.serviceProviderName | OrganisationName | Name of the organization responsible for the establishment, management, maintenance and distribution of the WFS & CSW services |
 | ARLAS_OGC_SERVICE_PROVIDER_SITE | arlas-ogc.serviceProviderSite | OrganisationWebSite | A link to the site of the WFS & CSW service provider |
 | ARLAS_OGC_SERVICE_PROVIDER_ROLE | arlas-ogc.serviceProviderRole | pointOfContact | Function performed by the party responsible for the WFS & CSW services |
@@ -160,9 +159,6 @@ docker run -ti -d \
 | ARLAS_OGC_SERVICE_CONTACT_CODE | arlas-ogc.serviceContactAdressPostalCode | 31000 | Postal code of the organization responsible for WFS & CSW services |
 | ARLAS_OGC_SERVICE_CONTACT_COUNTRY | arlas-ogc.serviceContactAdressCountry | France | Country of the organization responsible for WFS & CSW services |
 | ARLAS_OGC_QUERYMAXFEATURE | arlas-ogc.queryMaxFeature | 1000 | Maximum number of features returned by OGC queries |
-
-!!! info "Important"
-    `ARLAS_OGC_SERVER_URI` is deprecated starting from v10.6.1. It's recommended to use `ARLAS_BASE_URI` instead. `ARLAS_OGC_SERVER_URI` is taken into account only if `ARLAS_BASE_URI` is not specified. 
 
 ### WFS
 

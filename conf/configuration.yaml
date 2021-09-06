@@ -124,7 +124,6 @@ arlas-wfs:
   featureNamespace: ${ARLAS_WFS_FEATURE_NAMESPACE:-arlas}
 
 arlas-ogc:
-  serverUri: ${ARLAS_OGC_SERVER_URI:-http://localhost:9999/arlas/}
   serviceProviderName: ${ARLAS_OGC_SERVICE_PROVIDER_NAME:-ARLAS}
   serviceProviderSite: ${ARLAS_OGC_SERVICE_PROVIDER_SITE:-www.gisaia.com}
   serviceProviderRole: ${ARLAS_OGC_SERVICE_PROVIDER_ROLE:-Developer}
