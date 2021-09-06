@@ -42,9 +42,6 @@ public class ArlasServerConfiguration extends ArlasBaseConfiguration {
     @JsonProperty("arlas-csw")
     public CSWConfiguration cswConfiguration;
 
-    @JsonProperty("opensearch")
-    public OpensearchConfiguration opensearchConfiguration;
-
     @JsonProperty("arlas-index")
     public String arlasIndex;
 
@@ -89,13 +86,6 @@ public class ArlasServerConfiguration extends ArlasBaseConfiguration {
                 new URI(arlasBaseUri);
             } catch (URISyntaxException e) {
                 throw new ArlasConfigurationException("The arlas-base-uri is invalid.");
-            }
-        }
-        if (opensearchConfiguration != null && opensearchConfiguration.urlTemplatePrefix != null) {
-            try {
-                new URI(opensearchConfiguration.urlTemplatePrefix);
-            } catch (URISyntaxException e) {
-                throw new ArlasConfigurationException("The url-template-prefix of Opensearch is invalid.");
             }
         }
         if (StringUtil.isNullOrEmpty(arlasIndex)) {
