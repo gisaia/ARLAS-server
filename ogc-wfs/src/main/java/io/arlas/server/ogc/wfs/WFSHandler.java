@@ -23,13 +23,12 @@ import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.app.InspireConfiguration;
 import io.arlas.server.core.app.OGCConfiguration;
 import io.arlas.server.core.app.WFSConfiguration;
+import io.arlas.server.ogc.common.utils.XmlUtils;
 import io.arlas.server.ogc.wfs.operation.describefeaturetype.DescribeFeatureTypeHandler;
 import io.arlas.server.ogc.wfs.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.ogc.wfs.operation.getfeature.GetFeatureHandler;
 import io.arlas.server.ogc.wfs.operation.storedquery.ListStoredQueriesHandler;
 import io.arlas.server.ogc.wfs.operation.storedquery.StoredQueryManager;
-import io.arlas.server.ogc.common.utils.XmlUtils;
-import io.arlas.server.core.utils.StringUtil;
 import net.opengis.wfs._2.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,12 +57,7 @@ public class WFSHandler {
         this.wfsConfiguration = wfsconfiguration;
         this.ogcConfiguration = ogcConfiguration;
         this.inspireConfiguration = inspireConfiguration;
-        if (StringUtil.isNullOrEmpty(baseUri)) {
-            this.baseUri = ogcConfiguration.serverUri;
-            LOGGER.warn("[arlas-ogc.serverUri] is deprecated. Use [arlas-base-uri] instead.");
-        } else {
-            this.baseUri = baseUri;
-        }
+        this.baseUri = baseUri;
         getCapabilitiesHandler = new GetCapabilitiesHandler(this);
         describeFeatureTypeHandler = new DescribeFeatureTypeHandler(this);
         listStoredQueriesHandler = new ListStoredQueriesHandler(this);

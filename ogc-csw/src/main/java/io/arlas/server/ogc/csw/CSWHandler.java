@@ -26,7 +26,6 @@ import io.arlas.server.ogc.csw.operation.getcapabilities.GetCapabilitiesHandler;
 import io.arlas.server.ogc.csw.operation.getrecordbyid.GetRecordsByIdHandler;
 import io.arlas.server.ogc.csw.operation.getrecords.GetRecordsHandler;
 import io.arlas.server.ogc.csw.operation.opensearch.OpenSearchHandler;
-import io.arlas.server.core.utils.StringUtil;
 import net.opengis.cat.csw._3.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +54,7 @@ public class CSWHandler {
         this.ogcConfiguration = ogcConfiguration;
         this.cswConfiguration = cswConfiguration;
         this.inspireConfiguration = inspireConfiguration;
-        if (StringUtil.isNullOrEmpty(baseUri)) {
-            this.baseUri = ogcConfiguration.serverUri;
-            LOGGER.warn("[arlas-ogc.serverUri] is deprecated. Use [arlas-base-uri] instead.");
-        } else {
-            this.baseUri = baseUri;
-        }
+        this.baseUri = baseUri;
         getCapabilitiesHandler = new GetCapabilitiesHandler(this);
         getRecordsHandler = new GetRecordsHandler(this);
         getRecordsByIdHandler = new GetRecordsByIdHandler(this);
