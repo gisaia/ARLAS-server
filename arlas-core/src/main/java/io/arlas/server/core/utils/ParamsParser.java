@@ -37,6 +37,7 @@ import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.operation.valid.IsValidOp;
+import org.locationtech.jts.operation.valid.RepeatedPointTester;
 import org.locationtech.jts.operation.valid.TopologyValidationError;
 
 import java.io.IOException;
@@ -439,11 +440,15 @@ public class ParamsParser {
             if(filteredCoord.size() != geom.getCoordinates().length){
                 throw new InvalidParameterException("Coordinates must be contained in the Envelope -360, 360, -180, 180");
             }
+            RepeatedPointTester tester = new RepeatedPointTester();
             for(int i = 0; i< geom.getNumGeometries(); i++) {
                 IsValidOp validOp = new IsValidOp(geom.getGeometryN(i));
                 TopologyValidationError err = validOp.getValidationError();
                 if (err != null) {
                     throw new InvalidParameterException(GeoUtil.INVALID_WKT + ": " + err.getMessage());
+                }
+                if (tester.hasRepeatedPoint(geom.getGeometryN(i))) {
+                    throw new InvalidParameterException(GeoUtil.INVALID_WKT + ": duplicate consecutive points detected in " + geom.getGeometryN(i).toText());
                 }
             }
         } catch (org.locationtech.jts.io.ParseException ex) {
