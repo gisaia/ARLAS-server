@@ -57,7 +57,7 @@ cd ${SCRIPT_PATH}/..
 
 # CHECK ALV2 DISCLAIMER
 if [ $(find ./*/src -name "*.java" -exec grep -L Licensed {} \; | wc -l) -gt 0 ]; then
-    echo "ALv2 disclaimer is missing in the following files :"
+    echo "[ERROR] ALv2 disclaimer is missing in the following files :"
     find ./*/src -name "*.java" -exec grep -L Licensed {} \;
     exit -1
 fi
