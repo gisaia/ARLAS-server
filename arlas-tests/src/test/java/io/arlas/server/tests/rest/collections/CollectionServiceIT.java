@@ -40,7 +40,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
     @Test
     public void test00NotFoundCollectionParameters() throws Exception {
-        Map<String, Object> jsonAsMap = new HashMap<>();
+        Map<String, Object> jsonAsMap = getJsonAsMap();
         jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());

@@ -37,6 +37,6 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
             logger.error("! " + s.toString());
         }
         return ArlasException.getResponse(e, Response.Status.BAD_REQUEST,
-                "Invalid JSON parameter. Field `indexName` is mandatory.");
+                "Invalid JSON parameter. One required field is missing, either: `index_name`, `id_path`, `geometry_path`, `centroid_path` or `timestamp_path`.");
     }
 }
