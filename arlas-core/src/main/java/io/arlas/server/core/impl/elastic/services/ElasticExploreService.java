@@ -272,6 +272,7 @@ public class ElasticExploreService extends ExploreService {
                 for (String path : searchRequest.returned_geometries.split(",")) {
                     GeoJsonObject g = arlasHit.getGeometry(path);
                     if (g != null) {
+                        g.setCrs(null);
                         fc.add(getFeatureFromHit(arlasHit, path, g));
                     }
                 }
