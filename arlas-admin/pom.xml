@@ -2,14 +2,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.arlas</groupId>
   <artifactId>arlas-admin</artifactId>
-  <version>18.7.0</version>
+  <version>18.7.1</version>
   <packaging>jar</packaging>
   <name>ARLAS server admin</name>
 
   <parent>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-server-parent</artifactId>
-    <version>18.7.0</version>
+    <version>18.7.1</version>
   </parent>
 
   <distributionManagement>
@@ -27,7 +27,7 @@
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-core</artifactId>
-      <version>18.7.0</version>
+      <version>18.7.1</version>
     </dependency>
     <dependency>
       <groupId>com.auth0</groupId>
