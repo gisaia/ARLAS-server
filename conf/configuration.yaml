@@ -3,7 +3,7 @@
 ########################################################
 #
 swagger: # Configuration of SWAGGER for generating documentation and APIs
-  resourcePackage: io.arlas.server.rest # The java package to process for extracting the APIs
+  resourcePackage: io.arlas.server.rest,io.arlas.server.stac # The java package to process for extracting the APIs
 
 
 
@@ -146,6 +146,26 @@ arlas-inspire:
   services_date_of_creation: ${ARLAS_INSPIRE_SERVICES_DATE_OF_CREATION:-2018-11-05} # YYYY-MM-DD
   access_and_use_conditions: ${ARLAS_INSPIRE_ACCESS_AND_USE_CONDITIONS:-no conditions apply} # Free text or specify a URL to a link that describes eventual conditions
   public_access_limitations: ${ARLAS_INSPIRE_PUBLIC_ACCESS_LIMITATIONS:-no limitations apply} # Free text or specify a URL to a link that describes eventual limitations
+
+arlas_service_stac_enabled: ${ARLAS_SERVICE_STAC_ENABLE:-true}
+arlas_stac:
+  stac_version: ${ARLAS_STAC_VERSION:-1.0.0}
+  type: ${ARLAS_STAC_TYPE:-Catalog}
+  id: ${ARLAS_STAC_ID:-arlas}
+  title: ${ARLAS_STAC_TITLE:-Arlas Exploration}
+  description: ${ARLAS_STAC_DESCRIPTION:-Catalog for Arlas Exploration items}
+  conforms_to:
+    - https://api.stacspec.org/v1.0.0/core
+    - https://api.stacspec.org/v1.0.0/item-search
+    - https://api.stacspec.org/v1.0.0/ogcapi-features
+    - https://api.stacspec.org/v1.0.0/collections
+    - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core
+    - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30
+#   - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson
+    - https://api.stacspec.org/v1.0.0/item-search#sort
+    - https://api.stacspec.org/v1.0.0/item-search#context
+#   - https://api.stacspec.org/v1.0.0/item-search#fields
+#   - https://api.stacspec.org/v1.0.0/item-search#filter
 
 ########################################################
 ############ AUTHENTICATION              ###############

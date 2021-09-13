@@ -29,6 +29,7 @@ import io.arlas.server.core.impl.jdbi.model.JdbiAggregationResult;
 import io.arlas.server.core.impl.jdbi.model.RequestFactory;
 import io.arlas.server.core.impl.jdbi.model.SelectRequest;
 import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.Link;
 import io.arlas.server.core.model.enumerations.AggregatedGeometryEnum;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
 import io.arlas.server.core.model.request.Aggregation;
@@ -152,7 +153,9 @@ public class JdbiExploreService extends ExploreService {
     }
 
     @Override
-    public FeatureCollection getFeatures(MixedRequest request, CollectionReference collectionReference, FluidSearchService fluidSearch, boolean flat) throws ArlasException {
+    public FeatureCollection getFeatures(MixedRequest request, CollectionReference collectionReference,
+                                         FluidSearchService fluidSearch, boolean flat, UriInfo uriInfo,
+                                         String method, HashMap<String, Object> context) throws ArlasException {
         SelectRequest req = ((JdbiFluidSearch) fluidSearch).getRequest(true);
         Search searchRequest = (Search) request.basicRequest;
         FeatureCollection fc = new FeatureCollection();

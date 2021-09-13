@@ -78,7 +78,7 @@ public class TimestampTypeMapper {
         return Optional.ofNullable(dtf);
     }
 
-    public static void formatDate(Object timestamp, String elasticsearchDateFormat) {
+    public static Object formatDate(Object timestamp, String elasticsearchDateFormat) {
         List<String> formatList = Arrays.asList(elasticsearchDateFormat.split("\\|\\|"));
         DateTime timestampDate = new DateTime((Long) timestamp);
         DateTimeFormatter dtf = null;
@@ -93,14 +93,15 @@ public class TimestampTypeMapper {
                     dtf = type.dateTimeFormatter;
                 }
                 if (dtf != null) {
-                    timestamp = timestampDate.toString(dtf);
+                    return timestampDate.toString(dtf);
                 }
             } else {
                 if (type.name().equals(TimestampType.epoch_second.name())) {
-                    timestamp = (Long) timestamp / 1000;
+                    return (Long) timestamp / 1000;
                 }
             }
         }
+        return timestamp;
         // if formatList.size() != 1 then the format value is ES default value ==> timestamp is in millisecond
         // ==> no formatting needed
     }

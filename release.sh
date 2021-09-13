@@ -206,7 +206,7 @@ else
         --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
         --mount dst=/input/config.json,src="$PROJECT_ROOT_DIRECTORY/conf/swagger/java-config.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/java-api",type=bind \
-        gisaia/swagger-codegen-2.3.1 \
+        gisaia/swagger-codegen-2.4.14 \
             -l java --type-mappings GeoJsonObject=Object
 
     mkdir -p target/tmp/typescript-fetch
@@ -215,7 +215,7 @@ else
         -e USER_ID="$(id -u)" \
         --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
-        gisaia/swagger-codegen-2.3.1 \
+        gisaia/swagger-codegen-2.4.14 \
             -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
 
     mkdir -p target/tmp/python-api
@@ -225,7 +225,7 @@ else
         --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
         --mount dst=/input/config.json,src="$PROJECT_ROOT_DIRECTORY/conf/swagger/python-config.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/python-api",type=bind \
-        gisaia/swagger-codegen-2.2.3 \
+        gisaia/swagger-codegen-2.4.14 \
             -l python --type-mappings GeoJsonObject=object
 
     echo "=> Build Typescript API "${FULL_API_VERSION}

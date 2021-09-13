@@ -148,40 +148,45 @@ public class ElasticExploreService extends ExploreService {
 
     @Override
     public Hits search(MixedRequest request, CollectionReference collectionReference, Boolean flat, UriInfo uriInfo, String method) throws ArlasException {
-        UriInfoWrapper uriInfoUtil = new UriInfoWrapper(uriInfo, getBaseUri());
         SearchHits searchHits = getSearchHits(request, collectionReference);
         Search searchRequest  = (Search)request.basicRequest;
         Hits hits = new Hits(collectionReference.collectionName);
         hits.totalnb = searchHits.getTotalHits().value;
         hits.nbhits = searchHits.getHits().length;
-        HashMap<String, Link> links = new HashMap<>();
         hits.hits = new ArrayList<>((int) hits.nbhits);
-        List<SearchHit>searchHitList= Arrays.asList(searchHits.getHits());
+        List<SearchHit> searchHitList = Arrays.asList(searchHits.getHits());
         if(searchRequest.page != null && searchRequest.page.before != null ){
             Collections.reverse(searchHitList);
         }
         for (SearchHit hit : searchHitList) {
             hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), searchRequest.returned_geometries, flat, false));
         }
+        hits.links = getLinks(searchRequest, collectionReference, hits.nbhits, searchHitList, uriInfo, method);
+        return hits;
+    }
+
+    private HashMap<String, Link> getLinks(Search searchRequest, CollectionReference collectionReference, long nbhits, List<SearchHit> searchHitList, UriInfo uriInfo, String method) {
+        HashMap<String, Link> links = new HashMap<>();
+        UriInfoWrapper uriInfoUtil = new UriInfoWrapper(uriInfo, getBaseUri());
         Link self = new Link();
         self.href = uriInfoUtil.getRequestUri();
         self.method = method;
         Link next = null;
         Link previous = null;
-        int lastIndex = (int) hits.nbhits -1;
+        int lastIndex = (int) nbhits -1;
         String sortParam = searchRequest.page != null ? searchRequest.page.sort : null;
         String afterParam = searchRequest.page != null ? searchRequest.page.after : null;
         String beforeParam = searchRequest.page != null ? searchRequest.page.before : null;
         Integer sizeParam = searchRequest.page != null ? searchRequest.page.size : SEARCH_DEFAULT_PAGE_SIZE;
         String lastHitAfter = "";
         String firstHitAfter = "";
-        if (lastIndex >= 0 && sizeParam == hits.nbhits && sortParam != null && (afterParam != null || sortParam.contains(collectionReference.params.idPath))) {
+        if (lastIndex >= 0 && sizeParam == nbhits && sortParam != null && (afterParam != null || sortParam.contains(collectionReference.params.idPath))) {
             next = new Link();
             next.method = method;
             // Use sorted value of last element return by ES to build after param of next & previous link
             lastHitAfter = Arrays.stream(searchHitList.get(lastIndex).getSortValues()).map(Object::toString).collect(Collectors.joining(","));
         }
-        if (searchHitList.size()>0 && sortParam != null && (beforeParam != null || sortParam.contains(collectionReference.params.idPath))) {
+        if (searchHitList.size() > 0 && sortParam != null && (beforeParam != null || sortParam.contains(collectionReference.params.idPath))) {
             previous = new Link();
             previous.method = method;
             firstHitAfter = Arrays.stream(searchHitList.get(0).getSortValues()).map(Object::toString).collect(Collectors.joining(","));
@@ -207,11 +212,11 @@ public class ElasticExploreService extends ExploreService {
                     Search search = new Search();
                     search.filter = searchRequest.filter;
                     search.form = searchRequest.form;
-                    search.projection =searchRequest.projection;
+                    search.projection = searchRequest.projection;
                     search.returned_geometries = searchRequest.returned_geometries;
-                    nextPage.sort=searchRequest.page.sort;
-                    nextPage.size=searchRequest.page.size;
-                    nextPage.from =searchRequest.page.from;
+                    nextPage.sort= searchRequest.page.sort;
+                    nextPage.size= searchRequest.page.size;
+                    nextPage.from = searchRequest.page.from;
                     nextPage.after = lastHitAfter;
                     search.page = nextPage;
                     next.href = self.href;
@@ -223,11 +228,11 @@ public class ElasticExploreService extends ExploreService {
                     Search search = new Search();
                     search.filter = searchRequest.filter;
                     search.form = searchRequest.form;
-                    search.projection =searchRequest.projection;
+                    search.projection = searchRequest.projection;
                     search.returned_geometries = searchRequest.returned_geometries;
-                    previousPage.sort=searchRequest.page.sort;
-                    previousPage.size=searchRequest.page.size;
-                    previousPage.from =searchRequest.page.from;
+                    previousPage.sort = searchRequest.page.sort;
+                    previousPage.size = searchRequest.page.size;
+                    previousPage.from = searchRequest.page.from;
                     previousPage.before = firstHitAfter;
                     search.page = previousPage;
                     previous.href = self.href;
@@ -236,8 +241,7 @@ public class ElasticExploreService extends ExploreService {
                 }
                 break;
         }
-        hits.links = links;
-        return hits;
+        return links;
     }
 
     @Override
@@ -246,22 +250,23 @@ public class ElasticExploreService extends ExploreService {
     }
 
     private SearchHits getSearchHits(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
-        ElasticFluidSearch fluidSearch = (ElasticFluidSearch) getFluidSearch(collectionReference);
-        applyFilter(collectionReference.params.filter, fluidSearch);
-        applyFilter(request.basicRequest.filter, fluidSearch);
-        applyFilter(request.headerRequest.filter, fluidSearch);
-        paginate(((Search) request.basicRequest).page, collectionReference, fluidSearch);
-        applyProjection(((Search) request.basicRequest).projection, fluidSearch, request.columnFilter, collectionReference);
+        ElasticFluidSearch fluidSearch = (ElasticFluidSearch) getSearchRequest(request, collectionReference);
         return fluidSearch.exec().getHits();
     }
 
     @Override
     public FeatureCollection getFeatures(MixedRequest request, CollectionReference collectionReference,
-                                         FluidSearchService fluidSearch, boolean flat) throws ArlasException {
-        SearchHits searchHits = ((ElasticFluidSearch) fluidSearch).exec().getHits();
+                                         FluidSearchService fluidSearch, boolean flat, UriInfo uriInfo, String method,
+                                         HashMap<String, Object> context) throws ArlasException {
+        SearchHits searchHits = getSearchHits(request, collectionReference);
+        long totalnb = searchHits.getTotalHits().value;
         Search searchRequest = (Search) request.basicRequest;
         FeatureCollection fc = new FeatureCollection();
         List<SearchHit> results = Arrays.asList(searchHits.getHits());
+        if (context != null) {
+            context.putAll(getLinks(searchRequest, collectionReference, searchHits.getHits().length, results, uriInfo, method));
+            context.put("matched", new Long(totalnb));
+        }
         if (searchRequest.page != null && searchRequest.page.before != null) {
             Collections.reverse(results);
         }

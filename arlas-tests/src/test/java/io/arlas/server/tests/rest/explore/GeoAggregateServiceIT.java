@@ -49,7 +49,7 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     protected void handleNotMatchingRequest(ValidatableResponse then) {
         then.statusCode(200)
                 .body("type", equalTo("FeatureCollection"))
-                .body("$", not(hasKey("features")));
+                .body("features.size()", equalTo(0));
     }
 
     //----------------------------------------------------------------
@@ -411,7 +411,7 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     @Override
     protected void handleGeohashTileDisjointFromPwithin(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-                .body("features", equalTo(null));
+                .body("features.size()", equalTo(0));
     }
 
     //----------------------------------------------------------------

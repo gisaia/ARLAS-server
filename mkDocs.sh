@@ -51,7 +51,7 @@ echo "=> Generate API"
 docker run --rm \
     --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
     --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
-	gisaia/swagger-codegen-2.3.1 \
+	gisaia/swagger-codegen-2.4.14 \
         -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
 
 echo "=> Generate Typescript client documentation"
@@ -67,7 +67,7 @@ docker run --rm \
     --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
     --mount dst=/input/config.json,src="$PWD/conf/swagger/python-config.json",type=bind,ro \
     --mount dst=/output,src="$PWD/target/tmp/python-api",type=bind \
-	gisaia/swagger-codegen-2.2.3 \
+	gisaia/swagger-codegen-2.4.14 \
         -l python --type-mappings GeoJsonObject=object
 
 BASEDIR=$PWD

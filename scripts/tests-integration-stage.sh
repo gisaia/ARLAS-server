@@ -190,6 +190,92 @@ function test_wfs() {
         mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="delete" -pl arlas-tests -B
 }
 
+function test_stac_ogc_features() {
+    export ARLAS_PREFIX="/arlastest"
+    export ARLAS_APP_PATH="/pathtest"
+    export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"
+    export ARLAS_AUTH_ENABLED=false
+    export ARLAS_SERVICE_STAC_ENABLE=true
+    export ARLAS_INSPIRE_ENABLED=true
+    start_stack
+    docker run --rm \
+        -w /opt/maven \
+        -v $PWD:/opt/maven \
+        -v $HOME/.m2:/root/.m2 \
+        -e ARLAS_HOST="arlas-server" \
+        -e ARLAS_PORT="9999" \
+        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED} \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+        --net arlas_default \
+        maven:3.5.0-jdk-8 \
+        mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="load" -pl arlas-tests -B
+
+    docker run --rm \
+         --net arlas_default \
+         --env STAC_URL="${ARLAS_BASE_URI}stac/" \
+         gisaia/ets-ogcapi-features10:latest
+
+    docker run --rm \
+        -w /opt/maven \
+        -v $PWD:/opt/maven \
+        -v $HOME/.m2:/root/.m2 \
+        -e ARLAS_HOST="arlas-server" \
+        -e ARLAS_PORT="9999" \
+        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+        --net arlas_default \
+        maven:3.5.0-jdk-8 \
+        mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="delete" -pl arlas-tests -B
+}
+
+function test_stac_api() {
+    export ARLAS_PREFIX="/arlastest"
+    export ARLAS_APP_PATH="/pathtest"
+    export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"
+    export ARLAS_AUTH_ENABLED=false
+    export ARLAS_SERVICE_STAC_ENABLE=true
+    export ARLAS_INSPIRE_ENABLED=true
+    start_stack
+    docker run --rm \
+        -w /opt/maven \
+        -v $PWD:/opt/maven \
+        -v $HOME/.m2:/root/.m2 \
+        -e ARLAS_HOST="arlas-server" \
+        -e ARLAS_PORT="9999" \
+        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED} \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+        --net arlas_default \
+        maven:3.5.0-jdk-8 \
+        mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="load" -pl arlas-tests -B
+
+    docker run --rm \
+         --net arlas_default \
+         --env STAC_URL="${ARLAS_BASE_URI}stac" \
+         gisaia/stac-api-validator:latest
+
+    docker run --rm \
+        -w /opt/maven \
+        -v $PWD:/opt/maven \
+        -v $HOME/.m2:/root/.m2 \
+        -e ARLAS_HOST="arlas-server" \
+        -e ARLAS_PORT="9999" \
+        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+        --net arlas_default \
+        maven:3.5.0-jdk-8 \
+        mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="delete" -pl arlas-tests -B
+}
+
 
 function test_csw() {
     export ARLAS_AUTH_ENABLED=false
@@ -258,6 +344,10 @@ export ALIASED_COLLECTION="false"
 if [ "$STAGE" == "REST" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_rest; fi
 if [ "$STAGE" == "WFS" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_wfs; fi
 if [ "$STAGE" == "CSW" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_csw; fi
+if [ "$STAGE" == "STAC_OGC" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_stac_ogc_features; fi
+if [ "$STAGE" == "STAC_API" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_stac_api; fi
+if [ "$STAGE" == "STAC_OGC_ALIASED" ]; then export ALIASED_COLLECTION="true"; export WKT_GEOMETRIES="false"; test_stac_ogc_features; fi
+if [ "$STAGE" == "STAC_API_ALIASED" ]; then export ALIASED_COLLECTION="true"; export WKT_GEOMETRIES="false"; test_stac_api; fi
 if [ "$STAGE" == "REST_WKT_GEOMETRIES" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="true"; test_rest; fi
 if [ "$STAGE" == "REST_ALIASED" ]; then export ALIASED_COLLECTION="true"; export WKT_GEOMETRIES="false"; test_rest; fi
 if [ "$STAGE" == "WFS_ALIASED" ]; then export ALIASED_COLLECTION="true"; export WKT_GEOMETRIES="false"; test_wfs; fi

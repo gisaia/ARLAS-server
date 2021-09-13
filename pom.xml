@@ -29,6 +29,7 @@
     <module>ogc-wfs</module>
     <module>arlas-server</module>
     <module>arlas-tests</module>
+    <module>stac-api</module>
   </modules>
 
   <properties>
@@ -51,6 +52,7 @@
     <dropwizard.swagger.version>1.3.9-1</dropwizard.swagger.version>
     <zipkin.dropwizard.version>1.3.9-1</zipkin.dropwizard.version>
     <jackson.version>2.9.8</jackson.version>
+    <swaggerv3.version>2.0.10</swaggerv3.version>
 
     <!-- CACHE-->
     <hazelcast.version>4.2.2</hazelcast.version>

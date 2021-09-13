@@ -19,12 +19,19 @@
 
 package io.arlas.server.core.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import cyclops.data.tuple.Tuple2;
 import io.arlas.server.core.exceptions.ArlasException;
 import io.arlas.server.core.exceptions.InvalidParameterException;
+import org.geojson.GeoJsonObject;
+import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.locationtech.jts.operation.valid.IsValidOp;
 import org.locationtech.jts.operation.valid.TopologyValidationError;
 
@@ -40,6 +47,10 @@ public class GeoUtil {
     public static final String POLYGON_EMPTY = "POLYGON EMPTY";
 
     private static final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final ObjectWriter writer = objectMapper.writer();
+    public static final ObjectReader geojsonReader = objectMapper.readerFor(GeoJsonObject.class);
+    public static final GeoJsonReader reader = new GeoJsonReader();
 
     public static Point getPoint(Double lon, Double lat) {
         return geometryFactory.createPoint(new Coordinate(lon, lat));
@@ -218,5 +229,77 @@ public class GeoUtil {
 
     public static boolean isPolygonEmpty(Geometry geometry) {
        return POLYGON_EMPTY.equals(geometry.toString());
+    }
+
+    public static double[] getBbox(GeoJsonObject geoJsonObject) {
+        try {
+            Geometry geometry = reader.read(writer.writeValueAsString(geoJsonObject)).getEnvelope();
+
+            double minX = 200;
+            double maxX = 200;
+            double minY = 200;
+            double maxY = 200;
+            for (Coordinate c : geometry.getCoordinates()) {
+                minX = minX == 200 ? c.x : Math.min(minX, c.x);
+                maxX = maxX == 200 ? c.x : Math.max(maxX, c.x);
+                minY = minY == 200 ? c.y : Math.min(minY, c.y);
+                maxY = maxY == 200 ? c.y : Math.max(maxY, c.y);
+            }
+            return new double[] { minX, minY, maxX, maxY};
+        } catch (JsonProcessingException | ParseException e) {
+        }
+        return null;
+    }
+
+    public static Geometry toClockwise(final GeoJsonObject geojson) throws JsonProcessingException, ParseException {
+        Geometry geometry = reader.read(writer.writeValueAsString(geojson));
+        final GeometryFactory factory = geometry.getFactory();
+        if (geometry instanceof MultiPolygon || geometry instanceof Polygon) {
+            boolean isMultiPolygon = geometry instanceof MultiPolygon;
+            int nbPolygon = geometry.getNumGeometries();
+
+            final Polygon[] ps = new Polygon[nbPolygon];
+            for (int i = 0; i < nbPolygon; i++) {
+                final Polygon p = isMultiPolygon ? (Polygon) geometry.getGeometryN(i) : (Polygon) geometry;
+                final LinearRing[] holes = new LinearRing[p.getNumInteriorRing()];
+                LinearRing outer = p.getExteriorRing();
+                if (Orientation.isCCW(outer.getCoordinateSequence())) {
+                    outer = reverse(factory, p.getExteriorRing());
+                }
+
+                for (int t = 0, tt = p.getNumInteriorRing(); t < tt; t++) {
+                    holes[t] = p.getInteriorRingN(t);
+                    if (!Orientation.isCCW(holes[t].getCoordinateSequence())) {
+                        holes[t] = reverse(factory, holes[t]);
+                    }
+                }
+                ps[i] = factory.createPolygon(outer, holes);
+            }
+
+            Geometry reversed = isMultiPolygon ? factory.createMultiPolygon(ps) : ps[0];
+            reversed.setSRID(geometry.getSRID());
+            reversed.setUserData(geometry.getUserData());
+            return reversed;
+
+        } else if (geometry instanceof LinearRing) {
+            LinearRing lr = (LinearRing) geometry;
+            if (Orientation.isCCW(lr.getCoordinateSequence())) {
+                lr = reverse(factory, lr);
+            }
+            return lr;
+
+        } else {
+            return geometry;
+        }
+    }
+
+    private static LinearRing reverse(final GeometryFactory factory, final LinearRing ring) {
+        final CoordinateSequence cs = ring.getCoordinateSequence().copy();
+        CoordinateSequences.reverse(cs);
+
+        final LinearRing res = factory.createLinearRing(cs);
+        res.setSRID(res.getSRID());
+        res.setUserData(ring.getUserData());
+        return res;
     }
 }

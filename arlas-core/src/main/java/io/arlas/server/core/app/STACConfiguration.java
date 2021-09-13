@@ -17,17 +17,30 @@
  * under the License.
  */
 
-package io.arlas.server.core.model;
+package io.arlas.server.core.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.arlas.server.core.model.request.Search;
 
-public class Link {
-    @JsonProperty(value = "href", required = true)
-    public String href;
-    @JsonProperty(value = "method", required = true)
-    public String method;
-    @JsonProperty(value = "body")
-    public Object body;
+import java.util.List;
+
+public class STACConfiguration {
+
+    @JsonProperty("stac_version")
+    public String stacVersion;
+
+    @JsonProperty("type")
+    public String type;
+
+    @JsonProperty("id")
+    public String id;
+
+    @JsonProperty("title")
+    public String title;
+
+    @JsonProperty("description")
+    public String description;
+
+    @JsonProperty("conforms_to")
+    public List<String> conformsTo;
 
 }

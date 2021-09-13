@@ -22,6 +22,7 @@ import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.exceptions.ArlasException;
 import io.arlas.server.core.exceptions.BadRequestException;
 import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.Link;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
 import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.*;
@@ -273,7 +274,7 @@ public abstract class ExploreService {
         }
         Polygon box = new Polygon();
         List<LngLatAlt> bounds = new ArrayList<>();
-        latLonList.stream().forEach(g -> bounds.add(new LngLatAlt(g.getRight(), g.getLeft())));
+        latLonList.forEach(g -> bounds.add(new LngLatAlt(g.getRight(), g.getLeft())));
         // add first point in order to close the polygon
         bounds.add(new LngLatAlt(latLonList.get(0).getRight(), latLonList.get(0).getLeft()));
         box.add(bounds);
@@ -360,12 +361,20 @@ public abstract class ExploreService {
     public FeatureCollection getFeatures(MixedRequest request,
                                          CollectionReference collectionReference,
                                          boolean flat) throws ArlasException {
-        FluidSearchService fluidSearch = getSearchRequest(request, collectionReference);
-        return getFeatures(request, collectionReference, fluidSearch, flat);
+        return getFeatures(request, collectionReference, flat, null, null, null);
     }
 
+    public FeatureCollection getFeatures(MixedRequest request,
+                                         CollectionReference collectionReference,
+                                         boolean flat,
+                                         UriInfo uriInfo,
+                                         String method,
+                                         HashMap<String, Object> context) throws ArlasException {
+        FluidSearchService fluidSearch = getSearchRequest(request, collectionReference);
+        return getFeatures(request, collectionReference, fluidSearch, flat, uriInfo, method, context);
+    }
 
-    private FluidSearchService getSearchRequest(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
+    protected FluidSearchService getSearchRequest(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         FluidSearchService fluidSearch = getFluidSearch(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
@@ -395,7 +404,10 @@ public abstract class ExploreService {
     public abstract FeatureCollection getFeatures(MixedRequest request,
                                                   CollectionReference collectionReference,
                                                   FluidSearchService fluidSearch,
-                                                  boolean flat) throws ArlasException;
+                                                  boolean flat,
+                                                  UriInfo uriInfo,
+                                                  String method,
+                                                  HashMap<String, Object> context) throws ArlasException;
 
     public abstract Hits search(MixedRequest request,
                                 CollectionReference collectionReference,

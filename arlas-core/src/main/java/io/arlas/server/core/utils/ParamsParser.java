@@ -62,7 +62,7 @@ public class ParamsParser {
     private static final String AGG_ON_PARAM = "on-";
     private static final String AGG_SIZE_PARAM = "size-";
     private static final String AGG_INCLUDE_PARAM = "include-";
-    private static final String AGG_RAW_GEOMETRIES_PARAM = "raw_geometries-";
+    public static final String AGG_RAW_GEOMETRIES_PARAM = "raw_geometries-";
     private static final String AGG_AGGREGATED_GEOMETRIES_PARAM = "aggregated_geometries-";
     private static final String INVALID_DATE_MATH_EXPRESSION = "Invalid date math expression";
     private static final String AGG_FETCHHITS_PARAM = "fetch_hits-";

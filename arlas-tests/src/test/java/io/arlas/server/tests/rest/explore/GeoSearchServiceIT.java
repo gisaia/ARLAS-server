@@ -51,8 +51,7 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     protected void handleNotMatchingRequest(ValidatableResponse then) {
         then.statusCode(200)
                 .body("type", equalTo("FeatureCollection"))
-
-                .body("$", not(hasKey("features")));
+                .body("features.size()", equalTo(0));
     }
 
 
@@ -183,7 +182,7 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
                     .body("features.size()", equalTo(size));
         } else {
             then.statusCode(200)
-                    .body("$", not(hasKey("features")));
+                    .body("features.size()", equalTo(0));
         }
     }
 
@@ -271,7 +270,7 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     @Override
     protected void handleXYZDisjointFromPwithin(ValidatableResponse then) throws Exception {
         then.statusCode(200)
-                .body("features", equalTo(null));
+                .body("features.size()", equalTo(0));
     }
 
     @Override
