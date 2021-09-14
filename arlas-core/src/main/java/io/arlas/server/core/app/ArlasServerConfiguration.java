@@ -75,6 +75,12 @@ public class ArlasServerConfiguration extends ArlasBaseConfiguration {
     @JsonProperty("arlas-service-raster-tiles-enabled")
     public Boolean arlasServiceRasterTileEnabled;
 
+    @JsonProperty("arlas_service_stac_enabled")
+    public Boolean arlasServiceSTACEnabled;
+
+    @JsonProperty("arlas_stac")
+    public STACConfiguration stacConfiguration;
+
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 

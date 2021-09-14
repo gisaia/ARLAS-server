@@ -61,6 +61,10 @@ import io.arlas.server.rest.explore.search.GeoSearchRESTService;
 import io.arlas.server.rest.explore.search.SearchRESTService;
 import io.arlas.server.rest.explore.suggest.SuggestRESTService;
 import io.arlas.server.rest.plugins.eo.TileRESTService;
+import io.arlas.server.stac.api.StacCollectionsRESTService;
+import io.arlas.server.stac.api.StacConformanceRESTService;
+import io.arlas.server.stac.api.StacCoreRESTService;
+import io.arlas.server.stac.api.StacSearchRESTService;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -72,6 +76,11 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
@@ -80,10 +89,14 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import javax.ws.rs.core.HttpHeaders;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ArlasServer extends Application<ArlasServerConfiguration> {
     Logger LOGGER = LoggerFactory.getLogger(ArlasServer.class);
@@ -138,7 +151,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         ExploreService exploration = dbToolFactory.getExploreService();
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
-        environment.getObjectMapper().configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         environment.jersey().register(MultiPartFeature.class);
         environment.jersey().register(new ArlasExceptionMapper());
         environment.jersey().register(new IllegalArgumentExceptionMapper());
@@ -208,6 +220,36 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             environment.jersey().register(new TileRESTService(exploration));
         }else{
             LOGGER.info("Raster Tile Service disabled");
+        }
+
+        if(configuration.arlasServiceSTACEnabled) {
+            LOGGER.info("STAC Service enabled");
+
+            // Add OpenAPI v3 endpoint
+            String baseUri = configuration.arlasBaseUri;
+            if (baseUri.endsWith("/")) {
+                baseUri = baseUri.substring(0, baseUri.length()-1);
+            }
+            Info info = new Info().title("ARLAS STAC API").version("1.0.0");
+            SwaggerConfiguration oasConfig = new SwaggerConfiguration()
+                    .openAPI(new OpenAPI().info(info).servers(Collections.singletonList(new Server().url(baseUri))))
+                    .prettyPrint(true)
+                    .ignoredRoutes(Arrays.asList("/ogc", "/explore", "/collections", "/swagger", "/swagger.{type}"))
+                    .resourcePackages(Stream.of("io.arlas.server.stac.api")
+                            .collect(Collectors.toSet()));
+            environment.jersey().register(new OpenApiResource().openApiConfiguration(oasConfig));
+            //
+
+            environment.jersey().register(new StacCoreRESTService(configuration.stacConfiguration, configuration.arlasRestCacheTimeout,
+                    dbToolFactory.getCollectionReferenceService(), dbToolFactory.getExploreService()));
+            environment.jersey().register(new StacCollectionsRESTService(configuration.stacConfiguration, configuration.arlasRestCacheTimeout,
+                    dbToolFactory.getCollectionReferenceService(), dbToolFactory.getExploreService()));
+            environment.jersey().register(new StacConformanceRESTService(configuration.stacConfiguration, configuration.arlasRestCacheTimeout,
+                    dbToolFactory.getCollectionReferenceService(), dbToolFactory.getExploreService()));
+            environment.jersey().register(new StacSearchRESTService(configuration.stacConfiguration, configuration.arlasRestCacheTimeout,
+                    dbToolFactory.getCollectionReferenceService(), dbToolFactory.getExploreService()));
+        } else {
+            LOGGER.info("STAC Service disabled");
         }
 
         //filters
