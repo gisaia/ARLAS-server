@@ -18,7 +18,7 @@
 |**order**  <br>*optional*|enum (asc, desc)|
 |**raw_geometries**  <br>*optional*|< [RawGeometry](#rawgeometry) > array|
 |**size**  <br>*optional*|string|
-|**type**  <br>*optional*|enum (datehistogram, geohash, geotile, histogram, term)|
+|**type**  <br>*optional*|enum (datehistogram, geohash, geotile, histogram, term, h3)|
 
 
 <a name="aggregationmetric"></a>
@@ -72,6 +72,36 @@
 |**west**  <br>*required*|number (double)|
 
 
+<a name="collection"></a>
+### Collection
+
+|Name|Description|Schema|
+|---|---|---|
+|**assets**  <br>*optional*|This provides an optional mechanism to expose assets that don't make sense at the Item level.|< string, object > map|
+|**crs**  <br>*optional*|List of crs describing the collection.|< string > array|
+|**description**  <br>*required*|Detailed multi-line description to fully explain the catalog or collection. [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.|string|
+|**extent**  <br>*required*||[Extent](#extent)|
+|**id**  <br>*required*|identifier of the collection used, for example, in URIs|string|
+|**keywords**  <br>*optional*|List of keywords describing the collection.|< string > array|
+|**license**  <br>*required*||string|
+|**links**  <br>*required*||< [StacLink](#staclink) > array|
+|**providers**  <br>*optional*||< [Provider](#provider) > array|
+|**stac_extensions**  <br>*optional*||< string > array|
+|**stac_version**  <br>*required*||string|
+|**summaries**  <br>*optional*|Summaries are either a unique set of all available values *or* statistics. Statistics by default only specify the range (minimum and maximum values), but can optionally be accompanied by additional statistical values. The range can specify the potential range of values, but it is recommended to be as precise as possible. The set of values must contain at least one element and it is strongly recommended to list all values. It is recommended to list as many properties as reasonable so that consumers get a full overview of the Collection. Properties that are covered by the Collection specification (e.g. `providers` and `license`) may not be repeated in the summaries.|< string, object > map|
+|**title**  <br>*optional*|human readable title of the collection|string|
+|**type**  <br>*required*||string|
+
+
+<a name="collectionlist"></a>
+### CollectionList
+
+|Name|Schema|
+|---|---|
+|**collections**  <br>*required*|< [Collection](#collection) > array|
+|**links**  <br>*required*|< [StacLink](#staclink) > array|
+
+
 <a name="collectionreference"></a>
 ### CollectionReference
 
@@ -116,6 +146,7 @@
 |**exclude_wfs_fields**  <br>*optional*|string|
 |**filter**  <br>*optional*|[Filter](#filter)|
 |**geometry_path**  <br>*required*|string|
+|**h3_path**  <br>*optional*|string|
 |**id_path**  <br>*required*|string|
 |**index_name**  <br>*required*|string|
 |**inspire**  <br>*optional*|[Inspire](#inspire)|
@@ -151,6 +182,14 @@
 |**total_time**  <br>*optional*|integer (int64)|
 |**totalnb**  <br>*optional*|integer (int64)|
 |**value**  <br>*optional*|number (double)|
+
+
+<a name="conformanceclasses"></a>
+### ConformanceClasses
+
+|Name|Description|Schema|
+|---|---|---|
+|**conformsTo**  <br>*required*|A list of all conformance classes implemented by the server. In addition to the STAC-specific conformance classes, all OGC-related conformance classes listed at `GET /conformances` must be listed here. This entry should mirror what `GET /conformances` returns, if implemented.|< string > array|
 
 
 <a name="count"></a>
@@ -213,8 +252,38 @@
 |**value**  <br>*optional*|string|
 
 
+<a name="extent"></a>
+### Extent
+
+|Name|Schema|
+|---|---|
+|**spatial**  <br>*required*|[ExtentSpatial](#extentspatial)|
+|**temporal**  <br>*required*|[ExtentTemporal](#extenttemporal)|
+
+
+<a name="extentspatial"></a>
+### ExtentSpatial
+
+|Name|Description|Schema|
+|---|---|---|
+|**bbox**  <br>*required*|One or more bounding boxes that describe the spatial extent of the dataset.  The first bounding box describes the overall spatial extent of the data. All subsequent bounding boxes describe  more precise bounding boxes, e.g., to identify clusters of data. Clients only interested in the overall spatial extent will only need to access the first item in each array.|< < number (double) > array > array|
+|**crs**  <br>*optional*|Coordinate reference system of the coordinates in the spatial extent (property `bbox`). The default reference system is WGS 84 longitude/latitude. In the Core this is the only supported coordinate reference system. Extensions may support additional coordinate reference systems and add additional enum values.|enum (HTTP_WWW_OPENGIS_NET_DEF_CRS_OGC_1_3_CRS84)|
+
+
+<a name="extenttemporal"></a>
+### ExtentTemporal
+
+|Name|Description|Schema|
+|---|---|---|
+|**interval**  <br>*required*|One or more time intervals that describe the temporal extent of the dataset.  The first time interval describes the overall temporal extent of the data. All subsequent time intervals describe  more precise time intervals, e.g., to identify clusters of data. Clients only interested in the overall extent will only need to access the first item in each array.|< < string > array > array|
+|**trs**  <br>*optional*|Coordinate reference system of the coordinates in the temporal extent (property `interval`). The default reference system is the Gregorian calendar. In the Core this is the only supported temporal reference system. Extensions may support additional temporal reference systems and add additional enum values.|enum (HTTP_WWW_OPENGIS_NET_DEF_UOM_ISO_8601_0_GREGORIAN)|
+
+
 <a name="feature"></a>
 ### Feature
+*Polymorphism* : Inheritance  
+*Discriminator* : type
+
 
 |Name|Schema|
 |---|---|
@@ -227,6 +296,9 @@
 
 <a name="featurecollection"></a>
 ### FeatureCollection
+*Polymorphism* : Inheritance  
+*Discriminator* : type
+
 
 |Name|Schema|
 |---|---|
@@ -391,6 +463,24 @@
 |**value**  <br>*optional*|[Number](#number)|
 
 
+<a name="item"></a>
+### Item
+
+|Name|Schema|
+|---|---|
+|**assets**  <br>*required*|< string, object > map|
+|**bbox**  <br>*optional*|< number (double) > array|
+|**collection**  <br>*optional*|string|
+|**crs**  <br>*optional*|[Crs](#crs)|
+|**geometry**  <br>*optional*|[GeoJsonObject](#geojsonobject)|
+|**id**  <br>*optional*|string|
+|**links**  <br>*required*|< [StacLink](#staclink) > array|
+|**properties**  <br>*optional*|< string, object > map|
+|**stac_extensions**  <br>*optional*|< string > array|
+|**stac_version**  <br>*required*|string|
+|**type**  <br>*required*|string|
+
+
 <a name="keyword"></a>
 ### Keyword
 
@@ -399,6 +489,21 @@
 |**date_of_publication**  <br>*optional*|string|
 |**value**  <br>*optional*|string|
 |**vocabulary**  <br>*optional*|string|
+
+
+<a name="landingpage"></a>
+### LandingPage
+
+|Name|Description|Schema|
+|---|---|---|
+|**conformsTo**  <br>*required*|A list of all conformance classes implemented by the server. In addition to the STAC-specific conformance classes, all OGC-related conformance classes listed at `GET /conformances` must be listed here. This entry should mirror what `GET /conformances` returns, if implemented.|< string > array|
+|**description**  <br>*required*||string|
+|**id**  <br>*required*||string|
+|**links**  <br>*required*||< [StacLink](#staclink) > array|
+|**stac_extensions**  <br>*optional*||< string > array|
+|**stac_version**  <br>*required*||string|
+|**title**  <br>*optional*||string|
+|**type**  <br>*required*||string|
 
 
 <a name="linestring"></a>
@@ -419,7 +524,7 @@
 
 |Name|Schema|
 |---|---|
-|**body**  <br>*optional*|[Search](#search)|
+|**body**  <br>*optional*|object|
 |**href**  <br>*required*|string|
 |**method**  <br>*required*|string|
 
@@ -574,6 +679,17 @@
 |**includes**  <br>*optional*|string|
 
 
+<a name="provider"></a>
+### Provider
+
+|Name|Description|Schema|
+|---|---|---|
+|**description**  <br>*optional*|Multi-line description to add further provider information such as processing details for processors and producers, hosting details for hosts or basic contact information.  [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.|string|
+|**name**  <br>*required*|The name of the organization or the individual.|string|
+|**roles**  <br>*optional*|Roles of the provider.  The provider's role(s) can be one or more of the following elements:  * licensor: The organization that is licensing the dataset under   the license specified in the collection's license field. * producer: The producer of the data is the provider that   initially captured and processed the source data, e.g. ESA for   Sentinel-2 data. * processor: A processor is any provider who processed data to a   derived product. * host: The host is the actual provider offering the data on their   storage. There should be no more than one host, specified as last   element of the list.|< enum (PRODUCER, LICENSOR, PROCESSOR, HOST) > array|
+|**url**  <br>*optional*|Homepage on which the provider describes the dataset and publishes contact information.|string|
+
+
 <a name="rastertileurl"></a>
 ### RasterTileURL
 
@@ -616,6 +732,54 @@
 |**page**  <br>*optional*|[Page](#page)|
 |**projection**  <br>*optional*|[Projection](#projection)|
 |**returned_geometries**  <br>*optional*|string|
+
+
+<a name="searchbody"></a>
+### SearchBody
+
+|Name|Schema|
+|---|---|
+|**after**  <br>*optional*|string|
+|**bbox**  <br>*optional*|< number (double) > array|
+|**before**  <br>*optional*|string|
+|**collections**  <br>*optional*|< string > array|
+|**datetime**  <br>*optional*|string|
+|**from**  <br>*optional*|integer (int32)|
+|**ids**  <br>*optional*|< string > array|
+|**intersects**  <br>*optional*|[GeoJsonObject](#geojsonobject)|
+|**limit**  <br>*optional*|integer (int32)|
+|**sortby**  <br>*optional*|string|
+
+
+<a name="stacfeaturecollection"></a>
+### StacFeatureCollection
+
+|Name|Description|Schema|
+|---|---|---|
+|**context**  <br>*optional*|Augments lists of resources with the number of returned and matches resource and the given limit for the request.|< string, object > map|
+|**features**  <br>*required*||< [Item](#item) > array|
+|**links**  <br>*optional*||< [StacLink](#staclink) > array|
+|**numberMatched**  <br>*optional*||integer (int32)|
+|**numberReturned**  <br>*optional*||integer (int32)|
+|**stac_extensions**  <br>*optional*||< string > array|
+|**stac_version**  <br>*required*||string|
+|**timeStamp**  <br>*optional*||string|
+|**type**  <br>*required*||string|
+
+
+<a name="staclink"></a>
+### StacLink
+
+|Name|Schema|
+|---|---|
+|**body**  <br>*optional*|object|
+|**headers**  <br>*optional*|< string, object > map|
+|**href**  <br>*required*|string|
+|**merge**  <br>*optional*|boolean|
+|**method**  <br>*required*|string|
+|**rel**  <br>*required*|string|
+|**title**  <br>*optional*|string|
+|**type**  <br>*optional*|string|
 
 
 <a name="success"></a>

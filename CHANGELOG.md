@@ -1,6 +1,61 @@
 # Change Log
 
-## [v17.7.0](https://github.com/gisaia/ARLAS-server/tree/v17.7.0) (2021-05-11)
+## [v19.7.0](https://github.com/gisaia/ARLAS-server/tree/v19.7.0) (2021-09-14)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v18.7.1...v19.7.0)
+
+## [v18.7.1](https://github.com/gisaia/ARLAS-server/tree/v18.7.1) (2021-09-10)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v18.7.0...v18.7.1)
+
+**Breaking changes:**
+
+- Remove ARLAS\_OPENSEARCH\_URL\_TEMPLATE env variable [\#581](https://github.com/gisaia/ARLAS-server/issues/581) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
+- Remove ARLAS\_OGC\_SERVER\_URI env variable [\#580](https://github.com/gisaia/ARLAS-server/issues/580) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
+
+**New stuff:**
+
+- Collections Cache should be updated regularly in order to follow changes on indices [\#696](https://github.com/gisaia/ARLAS-server/issues/696)
+- Incorrect error message on badly formatted `ARLAS\_ELASTIC\_NODES` [\#594](https://github.com/gisaia/ARLAS-server/issues/594) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)]
+- H3 aggregation [\#713](https://github.com/gisaia/ARLAS-server/pull/713) ([alainbodiguel](https://github.com/alainbodiguel))
+- H3 aggregation [\#711](https://github.com/gisaia/ARLAS-server/pull/711) ([alainbodiguel](https://github.com/alainbodiguel))
+
+**Fixed bugs:**
+
+- Applying a filter with Polygons that have multiple points on a node throw Exception [\#712](https://github.com/gisaia/ARLAS-server/issues/712)
+- Public uri sends 403 if we provide an invalid token [\#710](https://github.com/gisaia/ARLAS-server/issues/710) [[security](https://github.com/gisaia/ARLAS-server/labels/security)]
+- Creation of a collection with typo in geometry\_path properties key does not raise errors [\#681](https://github.com/gisaia/ARLAS-server/issues/681)
+- OGC Spatial Filters \(within, BBOX, ...\) throws Invalid parameter exception for valid geomtry fields [\#582](https://github.com/gisaia/ARLAS-server/issues/582) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
+- Problem with "size" param support in geohash aggregation [\#42](https://github.com/gisaia/ARLAS-server/issues/42)
+
+**Miscellaneous:**
+
+- SWAGGER Documentation is not up to date [\#684](https://github.com/gisaia/ARLAS-server/issues/684) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- \[Elasticsearch Java API\] cobined datehistogram interval is deprecated [\#545](https://github.com/gisaia/ARLAS-server/issues/545) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- testGwithinFilter tests fails when bumping Elasticsearch to 6.6.1  [\#411](https://github.com/gisaia/ARLAS-server/issues/411)
+- CI : Add an \[ERROR\] tag in CI when Disclaimer is missing [\#306](https://github.com/gisaia/ARLAS-server/issues/306)
+
+## [v18.7.0](https://github.com/gisaia/ARLAS-server/tree/v18.7.0) (2021-07-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v16.7.1...v18.7.0)
+
+## [v16.7.1](https://github.com/gisaia/ARLAS-server/tree/v16.7.1) (2021-05-27)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v17.7.1...v16.7.1)
+
+**Fixed bugs:**
+
+- \_shapeaggregate return code 500 [\#708](https://github.com/gisaia/ARLAS-server/issues/708)
+
+## [v17.7.1](https://github.com/gisaia/ARLAS-server/tree/v17.7.1) (2021-05-27)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v12.7.5.2...v17.7.1)
+
+## [v12.7.5.2](https://github.com/gisaia/ARLAS-server/tree/v12.7.5.2) (2021-05-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v17.7.0...v12.7.5.2)
+
+## [v17.7.0](https://github.com/gisaia/ARLAS-server/tree/v17.7.0) (2021-05-18)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v16.7.0...v17.7.0)
 
@@ -174,13 +229,13 @@
 
 **Breaking changes:**
 
-- Add parameter in aggregate endpoint that allows to return multiple geometries [\#604](https://github.com/gisaia/ARLAS-server/issues/604) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
 - Remove \_range endpoint [\#464](https://github.com/gisaia/ARLAS-server/issues/464) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
 
 **New stuff:**
 
 - \[Authentication\] Public URIs as regex [\#628](https://github.com/gisaia/ARLAS-server/issues/628)
 - Extend applying geobbox and geocentroid metrics to any geo-point field [\#606](https://github.com/gisaia/ARLAS-server/issues/606)
+- Add parameter in aggregate endpoint that allows to return multiple geometries [\#604](https://github.com/gisaia/ARLAS-server/issues/604) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
 
 ## [v12.7.8](https://github.com/gisaia/ARLAS-server/tree/v12.7.8) (2020-04-17)
 
@@ -663,13 +718,10 @@
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v4.6.0...v5.6.0)
 
-**Breaking changes:**
-
-- Add Dublin Core element name to a collection [\#251](https://github.com/gisaia/ARLAS-server/issues/251)
-
 **New stuff:**
 
 - Add cardinality aggregation to ARLAS server [\#148](https://github.com/gisaia/ARLAS-server/issues/148) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Add Dublin Core element name to a collection [\#251](https://github.com/gisaia/ARLAS-server/issues/251)
 - Add Csw GetCapabilities Operation [\#232](https://github.com/gisaia/ARLAS-server/issues/232) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
 - Enable ogc bbox for geo filter [\#225](https://github.com/gisaia/ARLAS-server/issues/225) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
 - Geo OPENSEARCH: allow bbox search [\#208](https://github.com/gisaia/ARLAS-server/issues/208) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
@@ -739,7 +791,7 @@
 **Miscellaneous:**
 
 - Avoid "." in xml element name of a WFS response [\#194](https://github.com/gisaia/ARLAS-server/issues/194) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
-- Implement header partition filter for WFS [\#189](https://github.com/gisaia/ARLAS-server/issues/189) [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)] [[security](https://github.com/gisaia/ARLAS-server/labels/security)]
+- Implement header partition filter for WFS [\#189](https://github.com/gisaia/ARLAS-server/issues/189) [[security](https://github.com/gisaia/ARLAS-server/labels/security)] [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)]
 - Refactor ElasticCollectionReferenceDaoImpl with jackson serialize/marshall [\#178](https://github.com/gisaia/ARLAS-server/issues/178)
 
 ## [v2.5.7](https://github.com/gisaia/ARLAS-server/tree/v2.5.7) (2018-03-07)

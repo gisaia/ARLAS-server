@@ -2,7 +2,7 @@
   "swagger" : "2.0",
   "info" : {
     "description" : "Explore the content of ARLAS collections",
-    "version" : "18.0.1-SNAPSHOT",
+    "version" : "19.0.0",
     "title" : "ARLAS Exploration API",
     "contact" : {
       "name" : "Gisaia",
@@ -19,6 +19,8 @@
     "name" : "collections"
   }, {
     "name" : "explore"
+  }, {
+    "name" : "stac"
   } ],
   "schemes" : [ "http", "https" ],
   "paths" : {
@@ -407,6 +409,233 @@
         }
       }
     },
+    "/explore/{collection}/_geoaggregate/{geohash}" : {
+      "get" : {
+        "tags" : [ "explore" ],
+        "summary" : "GeoAggregate on a geohash",
+        "description" : "Aggregate the elements in the collection(s) and localized in the given geohash as features, given the filters and the aggregation parameters.",
+        "operationId" : "geohashgeoaggregate",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "geohash",
+          "in" : "path",
+          "description" : "geohash",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "agg",
+          "in" : "query",
+          "description" : "- The agg parameter should be given in the following formats:  \n \n       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}:raw_geometries-{raw_geometries values}:aggregated_geometries-{aggregated_geometries values}:fetch_hits-{fetch_hits values}\n \nWhere :\n \n   - **{type}:{field}** part is mandatory. \n \n   - **interval** must be specified only when aggregation type is datehistogram, histogram, geotile and geohash.\n \n   - **format** is optional for datehistogram, and must not be specified for the other types.\n \n   - (**collect_field**,**collect_fct**) couple is optional for all aggregation types.\n \n   - (**order**,**on**) couple is optional for all aggregation types.\n \n   - **size** is optional for term and geohash/geotile, and must not be specified for the other types.\n \n   - **include** is optional for term, and must not be specified for the other types.\n \n- {type} possible values are : \n \n       geohash, geotile, datehistogram, histogram and term. geohash or geotile must be the main aggregation.\n \n- {interval} possible values depends on {type}. \n \n       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). Size value must be equal to 1 for year,quarter,month and week unities. \n \n       If {type} = histogram, then {interval} = {size}. \n \n       If {type} = geohash, then {interval} = {size}. It's an integer between 1 and 12. Lower the length, greater is the surface of aggregation. \n \n       If {type} = geotile, then {interval} = {size}. It's an integer corresponding to zoom level of the aggregation, that should be larger than or equal to {z} in the path param, and no bigger than {z}+6 (max 29). \n \n       If {type} = term, then interval-{interval} is not needed. \n \n- format-{format} is the date format for key aggregation. The default value is yyyy-MM-dd-hh:mm:ss.\n \n- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. \n \n  {collect_fct} possible values are : \n \n       avg,cardinality,max,min,sum,geobbox,geocentroid\n \n- (collect_field,collect_fct) should both be specified, except when collect_fct = `geobbox` or `geocentroid`, it could be specified alone. The metrics `geobbox` and `geocentroid` are returned as features collections.\n \n- {order} is set to sort the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation. Its values are 'asc' or 'desc'. \n \n- {on} is set to specify whether the {order} is on the field name, on the count of the aggregation or on the result of a metric sub-aggregation. Its values are 'field', 'count' or 'result'. \n \n- When {on} = `result`, then (collect_field,collect_fct) should be specified. Except when {collect_fct} = `geobbox` or `geocentroid`, then {on}=`result` is prohibited\n \n- {size} Defines how many buckets should be returned. \n \n- {include} Specifies the values for which buckets will be created. This values are comma separated. If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created.\n \n- **aggregated_geometries**\n \n    > **What it does**: Allows to specify a list of aggregated forms of geometries that represent the bucket.\n \n    > __**Syntax**__: `aggregated_geometries-{COMMA_SEPARATED_AGGREGATED_GEOMETRIES}`.\n \n    > __**Available aggregated geometries**__: `centroid, bbox, cell, cell_center`.\n \n       - **centroid**: returns the centroid of data inside the bucket.\n \n       - **bbox**: returns the data extent (bbox) in each bucket.\n \n       - **cell**: returns the cell (zxy or geohash) extent of each bucket. This form is supported for **geohash** and **geotile** aggregation type only.\n \n       - **cell_center**: returns the cell center of each bucket. This form is supported for **geohash** and **geotile** aggregation type only.\n \n    > __**Response**__: Each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified aggregated geometries. The properties of each feature has :\n \n       - **geometry_ref** attribute that informs which aggregated form is returned \n \n       - **geometry_type** attribute set to *aggregated*\n \n    > __**Example**__: `aggregated_geometries-bbox,geohash`\n \n- **raw_geometries**\n \n    > **What it does**: Allows to specify a list of raw geometries provided by hits that represent the bucket and thata are elected by a sort\n \n    > __**Syntax**__: `raw_geometries-{GEOMETRY_FIELD}({COMMA_SEPERATED_SORT_FIELDS});{GEOMETRY_FIELD2}({COMMA_SEPERATED_SORT_FIELDS2})`.\n \n    > __**Available raw geometries**__: any field of the collection whose type is **geo-point** or **geo-shape**.\n \n       - sort fields are optional. If no sort is specified, an ascending sort on `collection.params.timestamp_path` is applied\n \n       - a sort field can be preceded by '-' for descending sort. Otherwise the sort is ascending\n \n    > __**Response**__: each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified raw geometries. The properties of each feature has :\n \n       - **geometry_ref** attribute that informs which geometry path is returned \n \n       - **geometry_type** attribute set to *raw*\n \n       - **geometry_sort** attribute that informs how the geometry path is fetched (with what sort)\n \n    > __**Example**__: `raw_geometries-geo_field1,geo_field2  ||  raw_geometries-geo_field(-field1,field2)` || raw_geometries-geo_field1(field1);geo_field2(field2,field3)\n \n- **fetch_hits** \n \n    > **What it does**: Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits.\n \n    > __**Syntax**__: `fetch_hits-{sizeOfHitsToFetch}(+{field1}, {field2}, -{field3}, ...)`.\n \n    > **Note 1**: `{sizeOfHitsToFetch}` is optional, if not specified, 1 is considered as default.\n \n    > **Note 2**: `{field}` can be preceded by **+** or **-** for **ascending** or **descending** sort of the hits. Order matters.\n \n    > __**Example**__: `fetch_hits-3(-timestamp, geometry)`. Fetches the 3 last positions for each bucket.\n \n**agg** parameter is multiple. The first (main) aggregation must be geohash or geotile. Every agg parameter specified is a subaggregation of the previous one : order matters. \n \nFor more details, check https://github.com/gisaia/ARLAS-server/blob/master/docs/arlas-api-exploration.md ",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "f",
+          "in" : "query",
+          "description" : "- A triplet for filtering the result. Multiple filter can be provided in distinct parameters (AND operator is applied) or in the same parameter separated by semi-colons (OR operator is applied). The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :range:  | {fieldName} is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, then min & max should be timestamps in millisecond or a Date expression\n \n       :within: | {GeofieldName}` is within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :notwithin:| {GeofieldName} is not within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :intersects:| {GeofieldName} intersects the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :notintersects:| {GeofieldName} does not intersect the `{given WKT string or the given }` | a WKT string or the BBOX string : `\"west, south, east, north\"` ",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "dateformat",
+          "in" : "query",
+          "description" : "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "flat",
+          "in" : "query",
+          "description" : "Flats the property map: only key/value on one level",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "max-age-cache",
+          "in" : "query",
+          "description" : "max-age-cache",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/FeatureCollection"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "501" : {
+            "description" : "Not implemented functionality.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/explore/{collection}/_geoaggregate/{z}/{x}/{y}" : {
+      "get" : {
+        "tags" : [ "explore" ],
+        "summary" : "GeoAggregate on a geotile",
+        "description" : "Aggregate the elements in the collection(s) and localized in the given tile as features, given the filters and the aggregation parameters.",
+        "operationId" : "geotilegeoaggregate",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "z",
+          "in" : "path",
+          "description" : "z",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "x",
+          "in" : "path",
+          "description" : "x",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "y",
+          "in" : "path",
+          "description" : "y",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "agg",
+          "in" : "query",
+          "description" : "- The agg parameter should be given in the following formats:  \n \n       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}:raw_geometries-{raw_geometries values}:aggregated_geometries-{aggregated_geometries values}:fetch_hits-{fetch_hits values}\n \nWhere :\n \n   - **{type}:{field}** part is mandatory. \n \n   - **interval** must be specified only when aggregation type is datehistogram, histogram, geotile and geohash.\n \n   - **format** is optional for datehistogram, and must not be specified for the other types.\n \n   - (**collect_field**,**collect_fct**) couple is optional for all aggregation types.\n \n   - (**order**,**on**) couple is optional for all aggregation types.\n \n   - **size** is optional for term and geohash/geotile, and must not be specified for the other types.\n \n   - **include** is optional for term, and must not be specified for the other types.\n \n- {type} possible values are : \n \n       geohash, geotile, datehistogram, histogram and term. geohash or geotile must be the main aggregation.\n \n- {interval} possible values depends on {type}. \n \n       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). Size value must be equal to 1 for year,quarter,month and week unities. \n \n       If {type} = histogram, then {interval} = {size}. \n \n       If {type} = geohash, then {interval} = {size}. It's an integer between 1 and 12. Lower the length, greater is the surface of aggregation. \n \n       If {type} = geotile, then {interval} = {size}. It's an integer corresponding to zoom level of the aggregation, that should be larger than or equal to {z} in the path param, and no bigger than {z}+6 (max 29). \n \n       If {type} = term, then interval-{interval} is not needed. \n \n- format-{format} is the date format for key aggregation. The default value is yyyy-MM-dd-hh:mm:ss.\n \n- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. \n \n  {collect_fct} possible values are : \n \n       avg,cardinality,max,min,sum,geobbox,geocentroid\n \n- (collect_field,collect_fct) should both be specified, except when collect_fct = `geobbox` or `geocentroid`, it could be specified alone. The metrics `geobbox` and `geocentroid` are returned as features collections.\n \n- {order} is set to sort the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation. Its values are 'asc' or 'desc'. \n \n- {on} is set to specify whether the {order} is on the field name, on the count of the aggregation or on the result of a metric sub-aggregation. Its values are 'field', 'count' or 'result'. \n \n- When {on} = `result`, then (collect_field,collect_fct) should be specified. Except when {collect_fct} = `geobbox` or `geocentroid`, then {on}=`result` is prohibited\n \n- {size} Defines how many buckets should be returned. \n \n- {include} Specifies the values for which buckets will be created. This values are comma separated. If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created.\n \n- **aggregated_geometries**\n \n    > **What it does**: Allows to specify a list of aggregated forms of geometries that represent the bucket.\n \n    > __**Syntax**__: `aggregated_geometries-{COMMA_SEPARATED_AGGREGATED_GEOMETRIES}`.\n \n    > __**Available aggregated geometries**__: `centroid, bbox, cell, cell_center`.\n \n       - **centroid**: returns the centroid of data inside the bucket.\n \n       - **bbox**: returns the data extent (bbox) in each bucket.\n \n       - **cell**: returns the cell (zxy or geohash) extent of each bucket. This form is supported for **geohash** and **geotile** aggregation type only.\n \n       - **cell_center**: returns the cell center of each bucket. This form is supported for **geohash** and **geotile** aggregation type only.\n \n    > __**Response**__: Each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified aggregated geometries. The properties of each feature has :\n \n       - **geometry_ref** attribute that informs which aggregated form is returned \n \n       - **geometry_type** attribute set to *aggregated*\n \n    > __**Example**__: `aggregated_geometries-bbox,geohash`\n \n- **raw_geometries**\n \n    > **What it does**: Allows to specify a list of raw geometries provided by hits that represent the bucket and thata are elected by a sort\n \n    > __**Syntax**__: `raw_geometries-{GEOMETRY_FIELD}({COMMA_SEPERATED_SORT_FIELDS});{GEOMETRY_FIELD2}({COMMA_SEPERATED_SORT_FIELDS2})`.\n \n    > __**Available raw geometries**__: any field of the collection whose type is **geo-point** or **geo-shape**.\n \n       - sort fields are optional. If no sort is specified, an ascending sort on `collection.params.timestamp_path` is applied\n \n       - a sort field can be preceded by '-' for descending sort. Otherwise the sort is ascending\n \n    > __**Response**__: each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified raw geometries. The properties of each feature has :\n \n       - **geometry_ref** attribute that informs which geometry path is returned \n \n       - **geometry_type** attribute set to *raw*\n \n       - **geometry_sort** attribute that informs how the geometry path is fetched (with what sort)\n \n    > __**Example**__: `raw_geometries-geo_field1,geo_field2  ||  raw_geometries-geo_field(-field1,field2)` || raw_geometries-geo_field1(field1);geo_field2(field2,field3)\n \n- **fetch_hits** \n \n    > **What it does**: Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits.\n \n    > __**Syntax**__: `fetch_hits-{sizeOfHitsToFetch}(+{field1}, {field2}, -{field3}, ...)`.\n \n    > **Note 1**: `{sizeOfHitsToFetch}` is optional, if not specified, 1 is considered as default.\n \n    > **Note 2**: `{field}` can be preceded by **+** or **-** for **ascending** or **descending** sort of the hits. Order matters.\n \n    > __**Example**__: `fetch_hits-3(-timestamp, geometry)`. Fetches the 3 last positions for each bucket.\n \n**agg** parameter is multiple. The first (main) aggregation must be geohash or geotile. Every agg parameter specified is a subaggregation of the previous one : order matters. \n \nFor more details, check https://github.com/gisaia/ARLAS-server/blob/master/docs/arlas-api-exploration.md ",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "f",
+          "in" : "query",
+          "description" : "- A triplet for filtering the result. Multiple filter can be provided in distinct parameters (AND operator is applied) or in the same parameter separated by semi-colons (OR operator is applied). The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :range:  | {fieldName} is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, then min & max should be timestamps in millisecond or a Date expression\n \n       :within: | {GeofieldName}` is within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :notwithin:| {GeofieldName} is not within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :intersects:| {GeofieldName} intersects the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :notintersects:| {GeofieldName} does not intersect the `{given WKT string or the given }` | a WKT string or the BBOX string : `\"west, south, east, north\"` ",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "dateformat",
+          "in" : "query",
+          "description" : "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "flat",
+          "in" : "query",
+          "description" : "Flats the property map: only key/value on one level",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "max-age-cache",
+          "in" : "query",
+          "description" : "max-age-cache",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/FeatureCollection"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "501" : {
+            "description" : "Not implemented functionality.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/explore/{collection}/_geoaggregate" : {
       "get" : {
         "tags" : [ "explore" ],
@@ -696,233 +925,6 @@
         "responses" : {
           "200" : {
             "description" : "Successful operation"
-          },
-          "500" : {
-            "description" : "Arlas Server Error.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          },
-          "400" : {
-            "description" : "Bad request.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          },
-          "501" : {
-            "description" : "Not implemented functionality.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/explore/{collection}/_geoaggregate/{geohash}" : {
-      "get" : {
-        "tags" : [ "explore" ],
-        "summary" : "GeoAggregate on a geohash",
-        "description" : "Aggregate the elements in the collection(s) and localized in the given geohash as features, given the filters and the aggregation parameters.",
-        "operationId" : "geohashgeoaggregate",
-        "consumes" : [ "application/json;charset=utf-8" ],
-        "produces" : [ "application/json;charset=utf-8" ],
-        "parameters" : [ {
-          "name" : "collection",
-          "in" : "path",
-          "description" : "collection",
-          "required" : true,
-          "type" : "string"
-        }, {
-          "name" : "geohash",
-          "in" : "path",
-          "description" : "geohash",
-          "required" : true,
-          "type" : "string"
-        }, {
-          "name" : "agg",
-          "in" : "query",
-          "description" : "- The agg parameter should be given in the following formats:  \n \n       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}:raw_geometries-{raw_geometries values}:aggregated_geometries-{aggregated_geometries values}:fetch_hits-{fetch_hits values}\n \nWhere :\n \n   - **{type}:{field}** part is mandatory. \n \n   - **interval** must be specified only when aggregation type is datehistogram, histogram, geotile and geohash.\n \n   - **format** is optional for datehistogram, and must not be specified for the other types.\n \n   - (**collect_field**,**collect_fct**) couple is optional for all aggregation types.\n \n   - (**order**,**on**) couple is optional for all aggregation types.\n \n   - **size** is optional for term and geohash/geotile, and must not be specified for the other types.\n \n   - **include** is optional for term, and must not be specified for the other types.\n \n- {type} possible values are : \n \n       geohash, geotile, datehistogram, histogram and term. geohash or geotile must be the main aggregation.\n \n- {interval} possible values depends on {type}. \n \n       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). Size value must be equal to 1 for year,quarter,month and week unities. \n \n       If {type} = histogram, then {interval} = {size}. \n \n       If {type} = geohash, then {interval} = {size}. It's an integer between 1 and 12. Lower the length, greater is the surface of aggregation. \n \n       If {type} = geotile, then {interval} = {size}. It's an integer corresponding to zoom level of the aggregation, that should be larger than or equal to {z} in the path param, and no bigger than {z}+6 (max 29). \n \n       If {type} = term, then interval-{interval} is not needed. \n \n- format-{format} is the date format for key aggregation. The default value is yyyy-MM-dd-hh:mm:ss.\n \n- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. \n \n  {collect_fct} possible values are : \n \n       avg,cardinality,max,min,sum,geobbox,geocentroid\n \n- (collect_field,collect_fct) should both be specified, except when collect_fct = `geobbox` or `geocentroid`, it could be specified alone. The metrics `geobbox` and `geocentroid` are returned as features collections.\n \n- {order} is set to sort the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation. Its values are 'asc' or 'desc'. \n \n- {on} is set to specify whether the {order} is on the field name, on the count of the aggregation or on the result of a metric sub-aggregation. Its values are 'field', 'count' or 'result'. \n \n- When {on} = `result`, then (collect_field,collect_fct) should be specified. Except when {collect_fct} = `geobbox` or `geocentroid`, then {on}=`result` is prohibited\n \n- {size} Defines how many buckets should be returned. \n \n- {include} Specifies the values for which buckets will be created. This values are comma separated. If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created.\n \n- **aggregated_geometries**\n \n    > **What it does**: Allows to specify a list of aggregated forms of geometries that represent the bucket.\n \n    > __**Syntax**__: `aggregated_geometries-{COMMA_SEPARATED_AGGREGATED_GEOMETRIES}`.\n \n    > __**Available aggregated geometries**__: `centroid, bbox, cell, cell_center`.\n \n       - **centroid**: returns the centroid of data inside the bucket.\n \n       - **bbox**: returns the data extent (bbox) in each bucket.\n \n       - **cell**: returns the cell (zxy or geohash) extent of each bucket. This form is supported for **geohash** and **geotile** aggregation type only.\n \n       - **cell_center**: returns the cell center of each bucket. This form is supported for **geohash** and **geotile** aggregation type only.\n \n    > __**Response**__: Each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified aggregated geometries. The properties of each feature has :\n \n       - **geometry_ref** attribute that informs which aggregated form is returned \n \n       - **geometry_type** attribute set to *aggregated*\n \n    > __**Example**__: `aggregated_geometries-bbox,geohash`\n \n- **raw_geometries**\n \n    > **What it does**: Allows to specify a list of raw geometries provided by hits that represent the bucket and thata are elected by a sort\n \n    > __**Syntax**__: `raw_geometries-{GEOMETRY_FIELD}({COMMA_SEPERATED_SORT_FIELDS});{GEOMETRY_FIELD2}({COMMA_SEPERATED_SORT_FIELDS2})`.\n \n    > __**Available raw geometries**__: any field of the collection whose type is **geo-point** or **geo-shape**.\n \n       - sort fields are optional. If no sort is specified, an ascending sort on `collection.params.timestamp_path` is applied\n \n       - a sort field can be preceded by '-' for descending sort. Otherwise the sort is ascending\n \n    > __**Response**__: each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified raw geometries. The properties of each feature has :\n \n       - **geometry_ref** attribute that informs which geometry path is returned \n \n       - **geometry_type** attribute set to *raw*\n \n       - **geometry_sort** attribute that informs how the geometry path is fetched (with what sort)\n \n    > __**Example**__: `raw_geometries-geo_field1,geo_field2  ||  raw_geometries-geo_field(-field1,field2)` || raw_geometries-geo_field1(field1);geo_field2(field2,field3)\n \n- **fetch_hits** \n \n    > **What it does**: Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits.\n \n    > __**Syntax**__: `fetch_hits-{sizeOfHitsToFetch}(+{field1}, {field2}, -{field3}, ...)`.\n \n    > **Note 1**: `{sizeOfHitsToFetch}` is optional, if not specified, 1 is considered as default.\n \n    > **Note 2**: `{field}` can be preceded by **+** or **-** for **ascending** or **descending** sort of the hits. Order matters.\n \n    > __**Example**__: `fetch_hits-3(-timestamp, geometry)`. Fetches the 3 last positions for each bucket.\n \n**agg** parameter is multiple. The first (main) aggregation must be geohash or geotile. Every agg parameter specified is a subaggregation of the previous one : order matters. \n \nFor more details, check https://github.com/gisaia/ARLAS-server/blob/master/docs/arlas-api-exploration.md ",
-          "required" : false,
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          },
-          "collectionFormat" : "multi"
-        }, {
-          "name" : "f",
-          "in" : "query",
-          "description" : "- A triplet for filtering the result. Multiple filter can be provided in distinct parameters (AND operator is applied) or in the same parameter separated by semi-colons (OR operator is applied). The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :range:  | {fieldName} is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, then min & max should be timestamps in millisecond or a Date expression\n \n       :within: | {GeofieldName}` is within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :notwithin:| {GeofieldName} is not within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :intersects:| {GeofieldName} intersects the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :notintersects:| {GeofieldName} does not intersect the `{given WKT string or the given }` | a WKT string or the BBOX string : `\"west, south, east, north\"` ",
-          "required" : false,
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          },
-          "collectionFormat" : "multi"
-        }, {
-          "name" : "q",
-          "in" : "query",
-          "description" : "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}",
-          "required" : false,
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          },
-          "collectionFormat" : "multi"
-        }, {
-          "name" : "dateformat",
-          "in" : "query",
-          "description" : "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations",
-          "required" : false,
-          "type" : "string"
-        }, {
-          "name" : "pretty",
-          "in" : "query",
-          "description" : "Pretty print",
-          "required" : false,
-          "type" : "boolean",
-          "default" : false
-        }, {
-          "name" : "flat",
-          "in" : "query",
-          "description" : "Flats the property map: only key/value on one level",
-          "required" : false,
-          "type" : "boolean",
-          "default" : false
-        }, {
-          "name" : "max-age-cache",
-          "in" : "query",
-          "description" : "max-age-cache",
-          "required" : false,
-          "type" : "integer",
-          "format" : "int32"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/FeatureCollection"
-            }
-          },
-          "500" : {
-            "description" : "Arlas Server Error.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          },
-          "400" : {
-            "description" : "Bad request.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          },
-          "501" : {
-            "description" : "Not implemented functionality.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/explore/{collection}/_geoaggregate/{z}/{x}/{y}" : {
-      "get" : {
-        "tags" : [ "explore" ],
-        "summary" : "GeoAggregate on a geotile",
-        "description" : "Aggregate the elements in the collection(s) and localized in the given tile as features, given the filters and the aggregation parameters.",
-        "operationId" : "geotilegeoaggregate",
-        "consumes" : [ "application/json;charset=utf-8" ],
-        "produces" : [ "application/json;charset=utf-8" ],
-        "parameters" : [ {
-          "name" : "collection",
-          "in" : "path",
-          "description" : "collection",
-          "required" : true,
-          "type" : "string"
-        }, {
-          "name" : "z",
-          "in" : "path",
-          "description" : "z",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        }, {
-          "name" : "x",
-          "in" : "path",
-          "description" : "x",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        }, {
-          "name" : "y",
-          "in" : "path",
-          "description" : "y",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        }, {
-          "name" : "agg",
-          "in" : "query",
-          "description" : "- The agg parameter should be given in the following formats:  \n \n       {type}:{field}:interval-{interval}:format-{format}:collect_field-{collect_field}:collect_fct-{function}:order-{order}:on-{on}:size-{size}:raw_geometries-{raw_geometries values}:aggregated_geometries-{aggregated_geometries values}:fetch_hits-{fetch_hits values}\n \nWhere :\n \n   - **{type}:{field}** part is mandatory. \n \n   - **interval** must be specified only when aggregation type is datehistogram, histogram, geotile and geohash.\n \n   - **format** is optional for datehistogram, and must not be specified for the other types.\n \n   - (**collect_field**,**collect_fct**) couple is optional for all aggregation types.\n \n   - (**order**,**on**) couple is optional for all aggregation types.\n \n   - **size** is optional for term and geohash/geotile, and must not be specified for the other types.\n \n   - **include** is optional for term, and must not be specified for the other types.\n \n- {type} possible values are : \n \n       geohash, geotile, datehistogram, histogram and term. geohash or geotile must be the main aggregation.\n \n- {interval} possible values depends on {type}. \n \n       If {type} = datehistogram, then {interval} = {size}(year,quarter,month,week,day,hour,minute,second). Size value must be equal to 1 for year,quarter,month and week unities. \n \n       If {type} = histogram, then {interval} = {size}. \n \n       If {type} = geohash, then {interval} = {size}. It's an integer between 1 and 12. Lower the length, greater is the surface of aggregation. \n \n       If {type} = geotile, then {interval} = {size}. It's an integer corresponding to zoom level of the aggregation, that should be larger than or equal to {z} in the path param, and no bigger than {z}+6 (max 29). \n \n       If {type} = term, then interval-{interval} is not needed. \n \n- format-{format} is the date format for key aggregation. The default value is yyyy-MM-dd-hh:mm:ss.\n \n- {collect_fct} is the aggregation function to apply to collections on the specified {collect_field}. \n \n  {collect_fct} possible values are : \n \n       avg,cardinality,max,min,sum,geobbox,geocentroid\n \n- (collect_field,collect_fct) should both be specified, except when collect_fct = `geobbox` or `geocentroid`, it could be specified alone. The metrics `geobbox` and `geocentroid` are returned as features collections.\n \n- {order} is set to sort the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation. Its values are 'asc' or 'desc'. \n \n- {on} is set to specify whether the {order} is on the field name, on the count of the aggregation or on the result of a metric sub-aggregation. Its values are 'field', 'count' or 'result'. \n \n- When {on} = `result`, then (collect_field,collect_fct) should be specified. Except when {collect_fct} = `geobbox` or `geocentroid`, then {on}=`result` is prohibited\n \n- {size} Defines how many buckets should be returned. \n \n- {include} Specifies the values for which buckets will be created. This values are comma separated. If one value is specified then regular expressions can be used (only in this case) and buckets matching them will be created. If more than one value are specified then only buckets matching the exact values will be created.\n \n- **aggregated_geometries**\n \n    > **What it does**: Allows to specify a list of aggregated forms of geometries that represent the bucket.\n \n    > __**Syntax**__: `aggregated_geometries-{COMMA_SEPARATED_AGGREGATED_GEOMETRIES}`.\n \n    > __**Available aggregated geometries**__: `centroid, bbox, cell, cell_center`.\n \n       - **centroid**: returns the centroid of data inside the bucket.\n \n       - **bbox**: returns the data extent (bbox) in each bucket.\n \n       - **cell**: returns the cell (zxy or geohash) extent of each bucket. This form is supported for **geohash** and **geotile** aggregation type only.\n \n       - **cell_center**: returns the cell center of each bucket. This form is supported for **geohash** and **geotile** aggregation type only.\n \n    > __**Response**__: Each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified aggregated geometries. The properties of each feature has :\n \n       - **geometry_ref** attribute that informs which aggregated form is returned \n \n       - **geometry_type** attribute set to *aggregated*\n \n    > __**Example**__: `aggregated_geometries-bbox,geohash`\n \n- **raw_geometries**\n \n    > **What it does**: Allows to specify a list of raw geometries provided by hits that represent the bucket and thata are elected by a sort\n \n    > __**Syntax**__: `raw_geometries-{GEOMETRY_FIELD}({COMMA_SEPERATED_SORT_FIELDS});{GEOMETRY_FIELD2}({COMMA_SEPERATED_SORT_FIELDS2})`.\n \n    > __**Available raw geometries**__: any field of the collection whose type is **geo-point** or **geo-shape**.\n \n       - sort fields are optional. If no sort is specified, an ascending sort on `collection.params.timestamp_path` is applied\n \n       - a sort field can be preceded by '-' for descending sort. Otherwise the sort is ascending\n \n    > __**Response**__: each bucket of the aggregation will be represented with as many features (in a feature collection) as there are specified raw geometries. The properties of each feature has :\n \n       - **geometry_ref** attribute that informs which geometry path is returned \n \n       - **geometry_type** attribute set to *raw*\n \n       - **geometry_sort** attribute that informs how the geometry path is fetched (with what sort)\n \n    > __**Example**__: `raw_geometries-geo_field1,geo_field2  ||  raw_geometries-geo_field(-field1,field2)` || raw_geometries-geo_field1(field1);geo_field2(field2,field3)\n \n- **fetch_hits** \n \n    > **What it does**: Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits.\n \n    > __**Syntax**__: `fetch_hits-{sizeOfHitsToFetch}(+{field1}, {field2}, -{field3}, ...)`.\n \n    > **Note 1**: `{sizeOfHitsToFetch}` is optional, if not specified, 1 is considered as default.\n \n    > **Note 2**: `{field}` can be preceded by **+** or **-** for **ascending** or **descending** sort of the hits. Order matters.\n \n    > __**Example**__: `fetch_hits-3(-timestamp, geometry)`. Fetches the 3 last positions for each bucket.\n \n**agg** parameter is multiple. The first (main) aggregation must be geohash or geotile. Every agg parameter specified is a subaggregation of the previous one : order matters. \n \nFor more details, check https://github.com/gisaia/ARLAS-server/blob/master/docs/arlas-api-exploration.md ",
-          "required" : false,
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          },
-          "collectionFormat" : "multi"
-        }, {
-          "name" : "f",
-          "in" : "query",
-          "description" : "- A triplet for filtering the result. Multiple filter can be provided in distinct parameters (AND operator is applied) or in the same parameter separated by semi-colons (OR operator is applied). The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :range:  | {fieldName} is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, then min & max should be timestamps in millisecond or a Date expression\n \n       :within: | {GeofieldName}` is within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :notwithin:| {GeofieldName} is not within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :intersects:| {GeofieldName} intersects the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :notintersects:| {GeofieldName} does not intersect the `{given WKT string or the given }` | a WKT string or the BBOX string : `\"west, south, east, north\"` ",
-          "required" : false,
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          },
-          "collectionFormat" : "multi"
-        }, {
-          "name" : "q",
-          "in" : "query",
-          "description" : "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}",
-          "required" : false,
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          },
-          "collectionFormat" : "multi"
-        }, {
-          "name" : "dateformat",
-          "in" : "query",
-          "description" : "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations",
-          "required" : false,
-          "type" : "string"
-        }, {
-          "name" : "pretty",
-          "in" : "query",
-          "description" : "Pretty print",
-          "required" : false,
-          "type" : "boolean",
-          "default" : false
-        }, {
-          "name" : "flat",
-          "in" : "query",
-          "description" : "Flats the property map: only key/value on one level",
-          "required" : false,
-          "type" : "boolean",
-          "default" : false
-        }, {
-          "name" : "max-age-cache",
-          "in" : "query",
-          "description" : "max-age-cache",
-          "required" : false,
-          "type" : "integer",
-          "format" : "int32"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/FeatureCollection"
-            }
           },
           "500" : {
             "description" : "Arlas Server Error.",
@@ -1385,176 +1387,6 @@
         }
       }
     },
-    "/explore/{collection}/_geosearch/{z}/{x}/{y}" : {
-      "get" : {
-        "tags" : [ "explore" ],
-        "summary" : "Tiled GeoSearch",
-        "description" : "Search and return the elements found in the collection(s) and localized in the given tile(x,y,z) as features, given the filters",
-        "operationId" : "tiledgeosearch",
-        "consumes" : [ "application/json;charset=utf-8" ],
-        "produces" : [ "application/json;charset=utf-8" ],
-        "parameters" : [ {
-          "name" : "collection",
-          "in" : "path",
-          "description" : "collection",
-          "required" : true,
-          "type" : "string"
-        }, {
-          "name" : "x",
-          "in" : "path",
-          "description" : "x",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        }, {
-          "name" : "y",
-          "in" : "path",
-          "description" : "y",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        }, {
-          "name" : "z",
-          "in" : "path",
-          "description" : "z",
-          "required" : true,
-          "type" : "integer",
-          "format" : "int32"
-        }, {
-          "name" : "f",
-          "in" : "query",
-          "description" : "- A triplet for filtering the result. Multiple filter can be provided in distinct parameters (AND operator is applied) or in the same parameter separated by semi-colons (OR operator is applied). The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :range:  | {fieldName} is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, then min & max should be timestamps in millisecond or a Date expression\n \n       :within: | {GeofieldName}` is within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :notwithin:| {GeofieldName} is not within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :intersects:| {GeofieldName} intersects the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :notintersects:| {GeofieldName} does not intersect the `{given WKT string or the given }` | a WKT string or the BBOX string : `\"west, south, east, north\"` ",
-          "required" : false,
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          },
-          "collectionFormat" : "multi"
-        }, {
-          "name" : "q",
-          "in" : "query",
-          "description" : "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}",
-          "required" : false,
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          },
-          "collectionFormat" : "multi"
-        }, {
-          "name" : "dateformat",
-          "in" : "query",
-          "description" : "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations",
-          "required" : false,
-          "type" : "string"
-        }, {
-          "name" : "pretty",
-          "in" : "query",
-          "description" : "Pretty print",
-          "required" : false,
-          "type" : "boolean",
-          "default" : false
-        }, {
-          "name" : "flat",
-          "in" : "query",
-          "description" : "Flats the property map: only key/value on one level",
-          "required" : false,
-          "type" : "boolean",
-          "default" : false
-        }, {
-          "name" : "include",
-          "in" : "query",
-          "description" : "List the name patterns of the field to be included in the result. Separate patterns with a comma.",
-          "required" : false,
-          "type" : "array",
-          "items" : {
-            "type" : "string",
-            "default" : "*"
-          },
-          "collectionFormat" : "multi"
-        }, {
-          "name" : "exclude",
-          "in" : "query",
-          "description" : "List the name patterns of the field to be excluded in the result. Separate patterns with a comma.",
-          "required" : false,
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          },
-          "collectionFormat" : "multi"
-        }, {
-          "name" : "returned_geometries",
-          "in" : "query",
-          "description" : "Comma separated geometry field_paths to be included in the result. If not specified, only geometry_path is returned. If geometry_path is null, then centroid_path is returned",
-          "required" : false,
-          "type" : "string"
-        }, {
-          "name" : "size",
-          "in" : "query",
-          "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
-          "required" : false,
-          "type" : "integer",
-          "default" : 10,
-          "minimum" : 1
-        }, {
-          "name" : "from",
-          "in" : "query",
-          "description" : "From index to start the search from. Defaults to 0.",
-          "required" : false,
-          "type" : "integer",
-          "default" : 0,
-          "minimum" : 0
-        }, {
-          "name" : "sort",
-          "in" : "query",
-          "description" : "Sorts the resulted hits on the given fields and/or by distance to a given point:\n \n> __**Syntax**__: `{field1},{field2},-{field3},geodistance:{lat} {lon},{field4}  ...`.\n \n> **Note 1**: `{field}` can be preceded by **'-'**  for **descending** sort. By default, sort is ascending.\n \n> **Note 2**: The order of fields matters.\n \n> **Note 3** ***geodistance sort***: Sorts the hits centroids by distance to the given **{lat} {lon}** (ascending distance sort). It can be specified at most 1 time.\n \n> __**Example 1**__: sort=`age,-timestamp`. Resulted hits are sorted by age. For same age hits, they are decreasingly sorted in time.\n \n> __**Example 2**__: sort=`age,geodistance:89 179`. Resulted hits are sorted by age. For same age hits, they are sorted by closest distance to the point(89°,179°)\n \n",
-          "required" : false,
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          },
-          "collectionFormat" : "multi"
-        }, {
-          "name" : "after",
-          "in" : "query",
-          "description" : "List of values of fields present in sort param that are used to search after. \n \n> **What it does**: Retrieve the data placed after the pointed element, given the provided order (sort).\n \n> __**Restriction 1**__: **after** param works only combined with **sort** param.\n \n> __**Syntax**__: `after={value1},{value2},...,{valueN} & sort={field1},{field2},...,{fieldN}`.\n \n> **Note 1**: *{value1}` and `{value2}` are the values of `{field1}` and `{field2}` in the last hit returned in the previous search\n \n> **Note 2**: The order of fields and values matters. *{value1},{value2}* must be in the same order of *{field1},{field2}* in **sort** param\n \n> **Note 3**:  The last field `{fieldN}` must be the id field specified in the collection **collection.params.idPath** (returned as **md.id**) and `{valueN}` its corresponding value.\n \n> __**Example**__: *sort=`-date,id` & **after**=`01/02/2019,abcd1234`*. Gets the following hits of the previous search that stopped at date *01/02/2019* and id *abcd1234*.\n \n> __**Restriction 2**__: **from** param must be set to 0 or kept unset\n \n",
-          "required" : false,
-          "type" : "string"
-        }, {
-          "name" : "before",
-          "in" : "query",
-          "description" : "Same idea that after param, but to retrieve the data placed before the pointed element, given the provided order (sort).",
-          "required" : false,
-          "type" : "string"
-        }, {
-          "name" : "max-age-cache",
-          "in" : "query",
-          "description" : "max-age-cache",
-          "required" : false,
-          "type" : "integer",
-          "format" : "int32"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/FeatureCollection"
-            }
-          },
-          "500" : {
-            "description" : "Arlas Server Error.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          },
-          "400" : {
-            "description" : "Bad request.",
-            "schema" : {
-              "$ref" : "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/explore/{collection}/_geosearch" : {
       "get" : {
         "tags" : [ "explore" ],
@@ -1936,6 +1768,176 @@
         "responses" : {
           "200" : {
             "description" : "Successful operation"
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "400" : {
+            "description" : "Bad request.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/explore/{collection}/_geosearch/{z}/{x}/{y}" : {
+      "get" : {
+        "tags" : [ "explore" ],
+        "summary" : "Tiled GeoSearch",
+        "description" : "Search and return the elements found in the collection(s) and localized in the given tile(x,y,z) as features, given the filters",
+        "operationId" : "tiledgeosearch",
+        "consumes" : [ "application/json;charset=utf-8" ],
+        "produces" : [ "application/json;charset=utf-8" ],
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "x",
+          "in" : "path",
+          "description" : "x",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "y",
+          "in" : "path",
+          "description" : "y",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "z",
+          "in" : "path",
+          "description" : "z",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "f",
+          "in" : "query",
+          "description" : "- A triplet for filtering the result. Multiple filter can be provided in distinct parameters (AND operator is applied) or in the same parameter separated by semi-colons (OR operator is applied). The order does not matter. \n \n- A triplet is composed of a field name, a comparison operator and a value. \n \n  The possible values of the comparison operator are : \n \n       Operator |                   Description                    | value type\n \n       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings \n \n       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings \n \n       :like:   | {fieldName}  is like {value}                     | numeric or strings \n \n       :gte:    | {fieldName} is greater than or equal to  {value} | numeric \n \n       :gt:     | {fieldName} is greater than {value}              | numeric \n \n       :lte:    | {fieldName} is less than or equal to {value}     | numeric \n \n       :lt:     | {fieldName}  is less than {value}                | numeric \n \n       :range:  | {fieldName} is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, then min & max should be timestamps in millisecond or a Date expression\n \n       :within: | {GeofieldName}` is within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :notwithin:| {GeofieldName} is not within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :intersects:| {GeofieldName} intersects the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` \n \n       :notintersects:| {GeofieldName} does not intersect the `{given WKT string or the given }` | a WKT string or the BBOX string : `\"west, south, east, north\"` ",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "dateformat",
+          "in" : "query",
+          "description" : "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "flat",
+          "in" : "query",
+          "description" : "Flats the property map: only key/value on one level",
+          "required" : false,
+          "type" : "boolean",
+          "default" : false
+        }, {
+          "name" : "include",
+          "in" : "query",
+          "description" : "List the name patterns of the field to be included in the result. Separate patterns with a comma.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "default" : "*"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "exclude",
+          "in" : "query",
+          "description" : "List the name patterns of the field to be excluded in the result. Separate patterns with a comma.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "returned_geometries",
+          "in" : "query",
+          "description" : "Comma separated geometry field_paths to be included in the result. If not specified, only geometry_path is returned. If geometry_path is null, then centroid_path is returned",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The maximum number of entries or sub-entries to be returned. The default value is 10",
+          "required" : false,
+          "type" : "integer",
+          "default" : 10,
+          "minimum" : 1
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "From index to start the search from. Defaults to 0.",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "minimum" : 0
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorts the resulted hits on the given fields and/or by distance to a given point:\n \n> __**Syntax**__: `{field1},{field2},-{field3},geodistance:{lat} {lon},{field4}  ...`.\n \n> **Note 1**: `{field}` can be preceded by **'-'**  for **descending** sort. By default, sort is ascending.\n \n> **Note 2**: The order of fields matters.\n \n> **Note 3** ***geodistance sort***: Sorts the hits centroids by distance to the given **{lat} {lon}** (ascending distance sort). It can be specified at most 1 time.\n \n> __**Example 1**__: sort=`age,-timestamp`. Resulted hits are sorted by age. For same age hits, they are decreasingly sorted in time.\n \n> __**Example 2**__: sort=`age,geodistance:89 179`. Resulted hits are sorted by age. For same age hits, they are sorted by closest distance to the point(89°,179°)\n \n",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "after",
+          "in" : "query",
+          "description" : "List of values of fields present in sort param that are used to search after. \n \n> **What it does**: Retrieve the data placed after the pointed element, given the provided order (sort).\n \n> __**Restriction 1**__: **after** param works only combined with **sort** param.\n \n> __**Syntax**__: `after={value1},{value2},...,{valueN} & sort={field1},{field2},...,{fieldN}`.\n \n> **Note 1**: *{value1}` and `{value2}` are the values of `{field1}` and `{field2}` in the last hit returned in the previous search\n \n> **Note 2**: The order of fields and values matters. *{value1},{value2}* must be in the same order of *{field1},{field2}* in **sort** param\n \n> **Note 3**:  The last field `{fieldN}` must be the id field specified in the collection **collection.params.idPath** (returned as **md.id**) and `{valueN}` its corresponding value.\n \n> __**Example**__: *sort=`-date,id` & **after**=`01/02/2019,abcd1234`*. Gets the following hits of the previous search that stopped at date *01/02/2019* and id *abcd1234*.\n \n> __**Restriction 2**__: **from** param must be set to 0 or kept unset\n \n",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "before",
+          "in" : "query",
+          "description" : "Same idea that after param, but to retrieve the data placed before the pointed element, given the provided order (sort).",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "max-age-cache",
+          "in" : "query",
+          "description" : "max-age-cache",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/FeatureCollection"
+            }
           },
           "500" : {
             "description" : "Arlas Server Error.",
@@ -2371,6 +2373,402 @@
           }
         }
       }
+    },
+    "/stac/collections/{collectionId}/items/{featureId}" : {
+      "get" : {
+        "tags" : [ "stac" ],
+        "summary" : "Fetch a single feature",
+        "description" : "Fetch the feature with id `featureId` in the feature collection with id `collectionId`.",
+        "operationId" : "getFeature",
+        "produces" : [ "application/geo+json", "application/json" ],
+        "parameters" : [ {
+          "name" : "collectionId",
+          "in" : "path",
+          "description" : "Local identifier of a collection",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "featureId",
+          "in" : "path",
+          "description" : "Local identifier of a feature",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Fetch the feature with id `featureId` in the feature collection with id `collectionId`.",
+            "schema" : {
+              "$ref" : "#/definitions/Item"
+            }
+          },
+          "404" : {
+            "description" : "The requested URI was not found.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/stac/collections/{collectionId}/items" : {
+      "get" : {
+        "tags" : [ "stac" ],
+        "summary" : "Fetch features",
+        "description" : "Fetch features of the feature collection with id `collectionId`.\nEvery feature in a dataset belongs to a collection. A dataset may consist of multiple feature collections.\nA feature collection is often a collection of features of a similar type, based on a common schema.",
+        "operationId" : "getFeatures",
+        "produces" : [ "application/geo+json", "application/json" ],
+        "parameters" : [ {
+          "name" : "collectionId",
+          "in" : "path",
+          "description" : "Local identifier of a collection",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "The optional limit parameter limits the number of items that are presented in the response document.\nOnly items are counted that are on the first level of the collection in the response document.\nNested objects contained within the explicitly requested items shall not be counted.\nMinimum &#x3D; 1. Maximum &#x3D; 10000. Default &#x3D; 10.",
+          "required" : false,
+          "type" : "string",
+          "default" : "10",
+          "maximum" : 10000,
+          "minimum" : 1
+        }, {
+          "name" : "bbox",
+          "in" : "query",
+          "description" : "Only features that have a geometry that intersects the bounding box are selected. The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth):\n  * Lower left corner, coordinate axis 1\n  * Lower left corner, coordinate axis 2\n  * Minimum value, coordinate axis 3 (optional)\n  * Upper right corner, coordinate axis 1\n  * Upper right corner, coordinate axis 2\n  * Maximum value, coordinate axis 3 (optional)\n\nThe coordinate reference system of the values is WGS 84 longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84).\nFor WGS 84 longitude/latitude the values are in most cases the sequence of minimum longitude, minimum latitude, maximum longitude and maximum latitude.\nHowever, in cases where the box spans the antimeridian the first value (west-most box edge) is larger than the third value (east-most box edge).\nIf the vertical axis is included, the third and the sixth number are the bottom and the top of the 3-dimensional bounding box.\nIf a feature has multiple spatial geometry properties, it is the decision of the server whether only a single spatial geometry property is used to determine the extent or all relevant geometries.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "datetime",
+          "in" : "query",
+          "description" : "Either a date-time or an interval, open or closed. Date and time expressions adhere to RFC 3339. Open intervals are expressed using double-dots.  Examples:\n  * A date-time: \"2018-02-12T23:20:50Z\"\n  * A closed interval: \"2018-02-12T00:00:00Z/2018-03-18T12:31:12Z\"\n  * Open intervals: \"2018-02-12T00:00:00Z/..\" or \"../2018-03-18T12:31:12Z\"\n\nOnly features that have a temporal property that intersects the value of &#x60;datetime&#x60; are selected.\nIf a feature has multiple temporal properties, it is the decision of the server whether only a single temporal property is used to determine the extent or all relevant temporal properties.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "sortby",
+          "in" : "query",
+          "description" : "**Optional Extension:** Sort  An array of property names, prefixed by either \"+\" for ascending or \"-\" for descending. If no prefix is provided, \"+\" is assumed.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "From index to start the search from. Defaults to 0.",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "minimum" : 0
+        }, {
+          "name" : "after",
+          "in" : "query",
+          "description" : "List of values of fields present in sort param that are used to search after. \n \n> **What it does**: Retrieve the data placed after the pointed element, given the provided order (sort).\n \n> __**Restriction 1**__: **after** param works only combined with **sort** param.\n \n> __**Syntax**__: `after={value1},{value2},...,{valueN} & sort={field1},{field2},...,{fieldN}`.\n \n> **Note 1**: *{value1}` and `{value2}` are the values of `{field1}` and `{field2}` in the last hit returned in the previous search\n \n> **Note 2**: The order of fields and values matters. *{value1},{value2}* must be in the same order of *{field1},{field2}* in **sort** param\n \n> **Note 3**:  The last field `{fieldN}` must be the id field specified in the collection **collection.params.idPath** (returned as **md.id**) and `{valueN}` its corresponding value.\n \n> __**Example**__: *sort=`-date,id` & **after**=`01/02/2019,abcd1234`*. Gets the following hits of the previous search that stopped at date *01/02/2019* and id *abcd1234*.\n \n> __**Restriction 2**__: **from** param must be set to 0 or kept unset\n \n",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "before",
+          "in" : "query",
+          "description" : "Same idea that after param, but to retrieve the data placed before the pointed element, given the provided order (sort).",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The response is a document consisting of features in the collection.\nThe features included in the response are determined by the server based on the query parameters of the request.\nTo support access to larger collections without overloading the client, the API supports paged access with links to the next page, if more features are selected than the page size.\nThe `bbox` and `datetime` parameter can be used to select only a subset of the features in the collection (the features that are in the bounding box or time interval).\nThe `bbox` parameter matches all features in the collection that are not associated with a location, too.\nThe `datetime` parameter matches all features in the collection that are not associated with a time stamp or interval, too.\nThe `limit` parameter may be used to control the subset of the selected features that should be returned in the response, the page size.\nEach page may include information about the number of selected and returned features (`numberMatched` and `numberReturned`) as well as links to support paging (link relation `next`).",
+            "schema" : {
+              "$ref" : "#/definitions/StacFeatureCollection"
+            }
+          },
+          "400" : {
+            "description" : "A query parameter has an invalid value.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "404" : {
+            "description" : "The requested URI was not found.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/stac/collections/{collectionId}" : {
+      "get" : {
+        "tags" : [ "stac" ],
+        "summary" : "Describe the feature collection with id `collectionId`",
+        "description" : "A single Feature Collection for the given id `collectionId`. Request this endpoint to get a full list of metadata for the Feature Collection.",
+        "operationId" : "describeCollection",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "collectionId",
+          "in" : "path",
+          "description" : "Local identifier of a collection",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Information about the feature collection with id `collectionId`.\nThe response contains a link to the items in the collection (path `/collections/{collectionId}/items`, link relation `items`) as well as key information about the collection.\nThis information includes:\n  * A local identifier for the collection that is unique for the dataset;\n  * A list of coordinate reference systems (CRS) in which geometries may be returned by the server. The first CRS is the default coordinate reference system (the default is always WGS 84 with axis order longitude/latitude);\n  * An optional title and description for the collection;\n  * An optional extent that can be used to provide an indication of the spatial and temporal extent of the collection - typically derived from the data;\n  * An optional indicator about the type of the items in the collection (the default value, if the indicator is not provided, is 'feature').",
+            "schema" : {
+              "$ref" : "#/definitions/Collection"
+            }
+          },
+          "404" : {
+            "description" : "The requested URI was not found.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/stac/collections" : {
+      "get" : {
+        "tags" : [ "stac" ],
+        "summary" : "The feature collections in the dataset",
+        "description" : "A body of Feature Collections that belong or are used together with additional links.\nRequest may not return the full set of metadata per Feature Collection.",
+        "operationId" : "getCollections",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "The feature collections shared by this API.\nThe dataset is organized as one or more feature collections.\nThis resource provides information about and access to the collections.\nThe response contains the list of collections.\nFor each collection, a link to the items in the collection (path `/collections/{collectionId}/items`, link relation `items`) as well as key information about the collection.\nThis information includes:\n  * A local identifier for the collection that is unique for the dataset;\n  * A list of coordinate reference systems (CRS) in which geometries may be returned by the server. The first CRS is the default coordinate reference system (the default is always WGS 84 with axis order longitude/latitude);\n  * An optional title and description for the collection;\n  * An optional extent that can be used to provide an indication of the spatial and temporal extent of the collection - typically derived from the data;\n  * An optional indicator about the type of the items in the collection (the default value, if the indicator is not provided, is 'feature').",
+            "schema" : {
+              "$ref" : "#/definitions/CollectionList"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/stac/conformance" : {
+      "get" : {
+        "tags" : [ "stac" ],
+        "summary" : "Conformance",
+        "description" : "The URIs of all conformance classes supported by the server.\nTo support \"generic\" clients that want to access multiple OGC API Features implementations - and not \"just\" a specific API / server, the server declares the conformance classes it implements and conforms to.",
+        "operationId" : "getConformanceDeclaration",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/ConformanceClasses"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/stac/api" : {
+      "get" : {
+        "tags" : [ "stac" ],
+        "summary" : "OpenAPI",
+        "description" : "",
+        "operationId" : "getApi",
+        "produces" : [ "application/vnd.oai.openapi+json;version=3.0" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "OpenAPI specification",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        }
+      }
+    },
+    "/stac" : {
+      "get" : {
+        "tags" : [ "stac" ],
+        "summary" : "Landing page",
+        "description" : "Returns the root STAC Catalog or STAC Collection that is the entry point for users to browse with STAC Browser or for search engines to crawl.\nThis can either return a single STAC Collection or more commonly a STAC catalog.\nThe landing page provides links to the API definition (link relations `service-desc` and `service-doc`) and the STAC records such as collections/catalogs (link relation `child`) or items (link relation `item`).\nExtensions may add additional links with new relation types.",
+        "operationId" : "getLandingPage",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "The landing page provides links to the API definition (link relations `service-desc` and `service-doc`) and the Feature Collection (path `/collections`, link relation `data`).",
+            "schema" : {
+              "$ref" : "#/definitions/LandingPage"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/stac/search" : {
+      "get" : {
+        "tags" : [ "stac" ],
+        "summary" : "Search STAC items with simple filtering.",
+        "description" : "Retrieve Items matching filters. Intended as a shorthand API for simple queries.",
+        "operationId" : "getItemSearch",
+        "produces" : [ "application/geo+json", "text/html", "application/json" ],
+        "parameters" : [ {
+          "name" : "bbox",
+          "in" : "query",
+          "description" : "Only features that have a geometry that intersects the bounding box are selected.\nThe bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth):\n  * Lower left corner, coordinate axis 1\n  * Lower left corner, coordinate axis 2\n  * Minimum value, coordinate axis 3 (optional)\n  * Upper right corner, coordinate axis 1\n  * Upper right corner, coordinate axis 2\n  * Maximum value, coordinate axis 3 (optional)\n\nThe coordinate reference system of the values is WGS 84 longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84).\nFor WGS 84 longitude/latitude the values are in most cases the sequence of minimum longitude, minimum latitude, maximum longitude and maximum latitude.\nHowever, in cases where the box spans the antimeridian the first value (west-most box edge) is larger than the third value (east-most box edge).\nIf the vertical axis is included, the third and the sixth number are the bottom and the top of the 3-dimensional bounding box.\nIf a feature has multiple spatial geometry properties, it is the decision of the server whether only a single spatial geometry property is used to determine the extent or all relevant geometries.\n\nExample: The bounding box of the New Zealand Exclusive Economic Zone in WGS 84 (from 160.6°E to 170°W and from 55.95°S to 25.89°S) would be represented in JSON as &#x60;[160.6, -55.95, -170, -25.89]&#x60; and in a query as &#x60;bbox&#x3D;160.6,-55.95,-170,-25.89&#x60;.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "intersects",
+          "in" : "query",
+          "description" : "The optional intersects parameter filters the result Items in the same way as bbox, only with a GeoJSON Geometry rather than a bbox.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "datetime",
+          "in" : "query",
+          "description" : "Either a date-time or an interval, open or closed. Date and time expressions adhere to RFC 3339.\nOpen intervals are expressed using double-dots.  Examples:\n  * A date-time: \"2018-02-12T23:20:50Z\"\n  * A closed interval: \"2018-02-12T00:00:00Z/2018-03-18T12:31:12Z\"\n  * Open intervals: \"2018-02-12T00:00:00Z/..\" or \"../2018-03-18T12:31:12Z\"\n\nOnly features that have a temporal property that intersects the value of &#x60;datetime&#x60; are selected.\nIf a feature has multiple temporal properties, it is the decision of the server whether only a single temporal property is used to determine the extent or all relevant temporal properties.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "The optional limit parameter limits the number of items that are presented in the response document.\nOnly items are counted that are on the first level of the collection in the response document.\nNested objects contained within the explicitly requested items shall not be counted. \nMinimum &#x3D; 1. Maximum &#x3D; 10000. Default &#x3D; 10.",
+          "required" : false,
+          "type" : "string",
+          "default" : "10",
+          "maximum" : 10000,
+          "minimum" : 1
+        }, {
+          "name" : "ids",
+          "in" : "query",
+          "description" : "Array of Item ids to return.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "collections",
+          "in" : "query",
+          "description" : "Array of Collection IDs to include in the search for items. Only Item objects in one of the provided collections will be searched ",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "sortby",
+          "in" : "query",
+          "description" : "**Optional Extension:** Sort  An array of property names, prefixed by either \"+\" for ascending or \"-\" for descending. If no prefix is provided, \"+\" is assumed.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "From index to start the search from. Defaults to 0.",
+          "required" : false,
+          "type" : "integer",
+          "default" : 0,
+          "minimum" : 0
+        }, {
+          "name" : "after",
+          "in" : "query",
+          "description" : "List of values of fields present in sort param that are used to search after. \n \n> **What it does**: Retrieve the data placed after the pointed element, given the provided order (sort).\n \n> __**Restriction 1**__: **after** param works only combined with **sort** param.\n \n> __**Syntax**__: `after={value1},{value2},...,{valueN} & sort={field1},{field2},...,{fieldN}`.\n \n> **Note 1**: *{value1}` and `{value2}` are the values of `{field1}` and `{field2}` in the last hit returned in the previous search\n \n> **Note 2**: The order of fields and values matters. *{value1},{value2}* must be in the same order of *{field1},{field2}* in **sort** param\n \n> **Note 3**:  The last field `{fieldN}` must be the id field specified in the collection **collection.params.idPath** (returned as **md.id**) and `{valueN}` its corresponding value.\n \n> __**Example**__: *sort=`-date,id` & **after**=`01/02/2019,abcd1234`*. Gets the following hits of the previous search that stopped at date *01/02/2019* and id *abcd1234*.\n \n> __**Restriction 2**__: **from** param must be set to 0 or kept unset\n \n",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "before",
+          "in" : "query",
+          "description" : "Same idea that after param, but to retrieve the data placed before the pointed element, given the provided order (sort).",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "A feature collection.",
+            "schema" : {
+              "$ref" : "#/definitions/StacFeatureCollection"
+            }
+          },
+          "400" : {
+            "description" : "Invalid query parameter.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "stac" ],
+        "summary" : "Search STAC items with full-featured filtering.",
+        "description" : "Retrieve items matching filters. Intended as the standard, full-featured query API.",
+        "operationId" : "postItemSearch",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/geo+json", "text/html", "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/SearchBody"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "A feature collection.",
+            "schema" : {
+              "$ref" : "#/definitions/StacFeatureCollection"
+            }
+          },
+          "400" : {
+            "description" : "Invalid query parameter.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions" : {
@@ -2422,6 +2820,9 @@
           "type" : "string"
         },
         "centroid_path" : {
+          "type" : "string"
+        },
+        "h3_path" : {
           "type" : "string"
         },
         "timestamp_path" : {
@@ -2910,52 +3311,40 @@
       }
     },
     "Feature" : {
-      "type" : "object",
-      "properties" : {
-        "crs" : {
-          "$ref" : "#/definitions/Crs"
-        },
-        "bbox" : {
-          "type" : "array",
-          "items" : {
-            "type" : "number",
-            "format" : "double"
-          }
-        },
+      "allOf" : [ {
+        "$ref" : "#/definitions/GeoJsonObject"
+      }, {
+        "type" : "object",
         "properties" : {
-          "type" : "object",
-          "additionalProperties" : {
-            "type" : "object"
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          },
+          "geometry" : {
+            "$ref" : "#/definitions/GeoJsonObject"
+          },
+          "id" : {
+            "type" : "string"
           }
-        },
-        "geometry" : {
-          "$ref" : "#/definitions/GeoJsonObject"
-        },
-        "id" : {
-          "type" : "string"
         }
-      }
+      } ]
     },
     "FeatureCollection" : {
-      "type" : "object",
-      "properties" : {
-        "crs" : {
-          "$ref" : "#/definitions/Crs"
-        },
-        "bbox" : {
-          "type" : "array",
-          "items" : {
-            "type" : "number",
-            "format" : "double"
-          }
-        },
-        "features" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/Feature"
+      "allOf" : [ {
+        "$ref" : "#/definitions/GeoJsonObject"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "features" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/Feature"
+            }
           }
         }
-      }
+      } ]
     },
     "GeoJsonObject" : {
       "type" : "object",
@@ -3112,7 +3501,7 @@
       "properties" : {
         "type" : {
           "type" : "string",
-          "enum" : [ "datehistogram", "geohash", "geotile", "histogram", "term" ]
+          "enum" : [ "datehistogram", "geohash", "geotile", "histogram", "term", "h3" ]
         },
         "field" : {
           "type" : "string"
@@ -3349,7 +3738,7 @@
           "type" : "string"
         },
         "body" : {
-          "$ref" : "#/definitions/Search"
+          "type" : "object"
         }
       }
     },
@@ -3374,6 +3763,59 @@
           "items" : {
             "$ref" : "#/definitions/Geo"
           }
+        }
+      }
+    },
+    "Count" : {
+      "type" : "object",
+      "properties" : {
+        "filter" : {
+          "$ref" : "#/definitions/Filter"
+        },
+        "form" : {
+          "$ref" : "#/definitions/Form"
+        }
+      }
+    },
+    "CollectionReferenceDescription" : {
+      "type" : "object",
+      "required" : [ "collection_name", "params" ],
+      "properties" : {
+        "properties" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "$ref" : "#/definitions/CollectionReferenceDescriptionProperty"
+          }
+        },
+        "collection_name" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/CollectionReferenceParameters"
+        }
+      }
+    },
+    "CollectionReferenceDescriptionProperty" : {
+      "type" : "object",
+      "properties" : {
+        "type" : {
+          "type" : "string",
+          "enum" : [ "TEXT", "KEYWORD", "LONG", "INTEGER", "SHORT", "BYTE", "DOUBLE", "FLOAT", "DATE", "BOOLEAN", "BINARY", "INT_RANGE", "FLOAT_RANGE", "LONG_RANGE", "DOUBLE_RANGE", "DATE_RANGE", "OBJECT", "NESTED", "GEO_POINT", "GEO_SHAPE", "IP", "COMPLETION", "TOKEN_COUNT", "MAPPER_MURMUR3", "UNKNOWN", "VARCHAR", "CHAR", "CHARACTER", "BIT", "TINYINT", "SMALLINT", "INT", "BIGINT", "DECIMAL", "NUMERIC", "REAL", "DOUBLEPRECISION", "TIMESTAMP", "TIME", "INTERVAL", "GEOMETRY", "GEOGRAPHY", "POINT", "LINESTRING", "POLYGON", "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRYCOLLECTION" ]
+        },
+        "format" : {
+          "type" : "string"
+        },
+        "properties" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "$ref" : "#/definitions/CollectionReferenceDescriptionProperty"
+          }
+        },
+        "taggable" : {
+          "type" : "boolean"
+        },
+        "indexed" : {
+          "type" : "boolean"
         }
       }
     },
@@ -3430,56 +3872,418 @@
         }
       }
     },
-    "Count" : {
+    "Item" : {
       "type" : "object",
+      "required" : [ "assets", "links", "stac_version", "type" ],
       "properties" : {
-        "filter" : {
-          "$ref" : "#/definitions/Filter"
+        "crs" : {
+          "$ref" : "#/definitions/Crs"
         },
-        "form" : {
-          "$ref" : "#/definitions/Form"
-        }
-      }
-    },
-    "CollectionReferenceDescription" : {
-      "type" : "object",
-      "required" : [ "collection_name", "params" ],
-      "properties" : {
+        "bbox" : {
+          "type" : "array",
+          "items" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
         "properties" : {
           "type" : "object",
           "additionalProperties" : {
-            "$ref" : "#/definitions/CollectionReferenceDescriptionProperty"
+            "type" : "object"
           }
         },
-        "collection_name" : {
+        "geometry" : {
+          "$ref" : "#/definitions/GeoJsonObject"
+        },
+        "id" : {
           "type" : "string"
         },
-        "params" : {
-          "$ref" : "#/definitions/CollectionReferenceParameters"
-        }
-      }
-    },
-    "CollectionReferenceDescriptionProperty" : {
-      "type" : "object",
-      "properties" : {
+        "stac_version" : {
+          "type" : "string"
+        },
+        "stac_extensions" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
         "type" : {
-          "type" : "string",
-          "enum" : [ "TEXT", "KEYWORD", "LONG", "INTEGER", "SHORT", "BYTE", "DOUBLE", "FLOAT", "DATE", "BOOLEAN", "BINARY", "INT_RANGE", "FLOAT_RANGE", "LONG_RANGE", "DOUBLE_RANGE", "DATE_RANGE", "OBJECT", "NESTED", "GEO_POINT", "GEO_SHAPE", "IP", "COMPLETION", "TOKEN_COUNT", "MAPPER_MURMUR3", "UNKNOWN", "VARCHAR", "CHAR", "CHARACTER", "BIT", "TINYINT", "SMALLINT", "INT", "BIGINT", "DECIMAL", "NUMERIC", "REAL", "DOUBLEPRECISION", "TIMESTAMP", "TIME", "INTERVAL", "GEOMETRY", "GEOGRAPHY", "POINT", "LINESTRING", "POLYGON", "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRYCOLLECTION" ]
-        },
-        "format" : {
           "type" : "string"
         },
-        "properties" : {
-          "type" : "object",
-          "additionalProperties" : {
-            "$ref" : "#/definitions/CollectionReferenceDescriptionProperty"
+        "links" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/StacLink"
           }
         },
-        "taggable" : {
-          "type" : "boolean"
+        "collection" : {
+          "type" : "string"
         },
-        "indexed" : {
+        "assets" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "object"
+          }
+        }
+      }
+    },
+    "StacLink" : {
+      "type" : "object",
+      "required" : [ "href", "method", "rel" ],
+      "properties" : {
+        "href" : {
+          "type" : "string"
+        },
+        "method" : {
+          "type" : "string"
+        },
+        "body" : {
+          "type" : "object"
+        },
+        "rel" : {
+          "type" : "string"
+        },
+        "type" : {
+          "type" : "string"
+        },
+        "title" : {
+          "type" : "string"
+        },
+        "headers" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "object"
+          }
+        },
+        "merge" : {
           "type" : "boolean"
+        }
+      }
+    },
+    "StacFeatureCollection" : {
+      "type" : "object",
+      "required" : [ "features", "stac_version", "type" ],
+      "properties" : {
+        "stac_version" : {
+          "type" : "string"
+        },
+        "stac_extensions" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "type" : {
+          "type" : "string"
+        },
+        "features" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Item"
+          }
+        },
+        "links" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/StacLink"
+          }
+        },
+        "timeStamp" : {
+          "type" : "string"
+        },
+        "numberMatched" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "numberReturned" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "context" : {
+          "type" : "object",
+          "description" : "Augments lists of resources with the number of returned and matches resource and the given limit for the request.",
+          "additionalProperties" : {
+            "type" : "object"
+          }
+        }
+      }
+    },
+    "Collection" : {
+      "type" : "object",
+      "required" : [ "description", "extent", "id", "license", "links", "stac_version", "type" ],
+      "properties" : {
+        "stac_version" : {
+          "type" : "string"
+        },
+        "stac_extensions" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "type" : {
+          "type" : "string"
+        },
+        "id" : {
+          "type" : "string",
+          "description" : "identifier of the collection used, for example, in URIs"
+        },
+        "title" : {
+          "type" : "string",
+          "description" : "human readable title of the collection"
+        },
+        "description" : {
+          "type" : "string",
+          "description" : "Detailed multi-line description to fully explain the catalog or collection. [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation."
+        },
+        "links" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/StacLink"
+          }
+        },
+        "keywords" : {
+          "type" : "array",
+          "description" : "List of keywords describing the collection.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "crs" : {
+          "type" : "array",
+          "description" : "List of crs describing the collection.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "license" : {
+          "type" : "string"
+        },
+        "extent" : {
+          "$ref" : "#/definitions/Extent"
+        },
+        "providers" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Provider"
+          }
+        },
+        "summaries" : {
+          "type" : "object",
+          "description" : "Summaries are either a unique set of all available values *or* statistics. Statistics by default only specify the range (minimum and maximum values), but can optionally be accompanied by additional statistical values. The range can specify the potential range of values, but it is recommended to be as precise as possible. The set of values must contain at least one element and it is strongly recommended to list all values. It is recommended to list as many properties as reasonable so that consumers get a full overview of the Collection. Properties that are covered by the Collection specification (e.g. `providers` and `license`) may not be repeated in the summaries.",
+          "additionalProperties" : {
+            "type" : "object"
+          }
+        },
+        "assets" : {
+          "type" : "object",
+          "description" : "This provides an optional mechanism to expose assets that don't make sense at the Item level.",
+          "additionalProperties" : {
+            "type" : "object"
+          }
+        }
+      }
+    },
+    "Extent" : {
+      "type" : "object",
+      "required" : [ "spatial", "temporal" ],
+      "properties" : {
+        "spatial" : {
+          "$ref" : "#/definitions/ExtentSpatial"
+        },
+        "temporal" : {
+          "$ref" : "#/definitions/ExtentTemporal"
+        }
+      }
+    },
+    "ExtentSpatial" : {
+      "type" : "object",
+      "required" : [ "bbox" ],
+      "properties" : {
+        "bbox" : {
+          "type" : "array",
+          "description" : "One or more bounding boxes that describe the spatial extent of the dataset.  The first bounding box describes the overall spatial extent of the data. All subsequent bounding boxes describe  more precise bounding boxes, e.g., to identify clusters of data. Clients only interested in the overall spatial extent will only need to access the first item in each array.",
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          },
+          "maxItems" : 2147483647,
+          "minItems" : 1
+        },
+        "crs" : {
+          "type" : "string",
+          "description" : "Coordinate reference system of the coordinates in the spatial extent (property `bbox`). The default reference system is WGS 84 longitude/latitude. In the Core this is the only supported coordinate reference system. Extensions may support additional coordinate reference systems and add additional enum values.",
+          "enum" : [ "HTTP_WWW_OPENGIS_NET_DEF_CRS_OGC_1_3_CRS84" ]
+        }
+      }
+    },
+    "ExtentTemporal" : {
+      "type" : "object",
+      "required" : [ "interval" ],
+      "properties" : {
+        "interval" : {
+          "type" : "array",
+          "description" : "One or more time intervals that describe the temporal extent of the dataset.  The first time interval describes the overall temporal extent of the data. All subsequent time intervals describe  more precise time intervals, e.g., to identify clusters of data. Clients only interested in the overall extent will only need to access the first item in each array.",
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "maxItems" : 2147483647,
+          "minItems" : 1
+        },
+        "trs" : {
+          "type" : "string",
+          "description" : "Coordinate reference system of the coordinates in the temporal extent (property `interval`). The default reference system is the Gregorian calendar. In the Core this is the only supported temporal reference system. Extensions may support additional temporal reference systems and add additional enum values.",
+          "enum" : [ "HTTP_WWW_OPENGIS_NET_DEF_UOM_ISO_8601_0_GREGORIAN" ]
+        }
+      }
+    },
+    "Provider" : {
+      "type" : "object",
+      "required" : [ "name" ],
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "description" : "The name of the organization or the individual."
+        },
+        "description" : {
+          "type" : "string",
+          "description" : "Multi-line description to add further provider information such as processing details for processors and producers, hosting details for hosts or basic contact information.  [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation."
+        },
+        "roles" : {
+          "type" : "array",
+          "description" : "Roles of the provider.  The provider's role(s) can be one or more of the following elements:  * licensor: The organization that is licensing the dataset under   the license specified in the collection's license field. * producer: The producer of the data is the provider that   initially captured and processed the source data, e.g. ESA for   Sentinel-2 data. * processor: A processor is any provider who processed data to a   derived product. * host: The host is the actual provider offering the data on their   storage. There should be no more than one host, specified as last   element of the list.",
+          "items" : {
+            "type" : "string",
+            "enum" : [ "PRODUCER", "LICENSOR", "PROCESSOR", "HOST" ]
+          }
+        },
+        "url" : {
+          "type" : "string",
+          "description" : "Homepage on which the provider describes the dataset and publishes contact information."
+        }
+      }
+    },
+    "CollectionList" : {
+      "type" : "object",
+      "required" : [ "collections", "links" ],
+      "properties" : {
+        "links" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/StacLink"
+          }
+        },
+        "collections" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Collection"
+          }
+        }
+      }
+    },
+    "ConformanceClasses" : {
+      "type" : "object",
+      "required" : [ "conformsTo" ],
+      "properties" : {
+        "conformsTo" : {
+          "type" : "array",
+          "description" : "A list of all conformance classes implemented by the server. In addition to the STAC-specific conformance classes, all OGC-related conformance classes listed at `GET /conformances` must be listed here. This entry should mirror what `GET /conformances` returns, if implemented.",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "LandingPage" : {
+      "type" : "object",
+      "required" : [ "conformsTo", "description", "id", "links", "stac_version", "type" ],
+      "properties" : {
+        "stac_version" : {
+          "type" : "string"
+        },
+        "stac_extensions" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "type" : {
+          "type" : "string"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "title" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "links" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/StacLink"
+          }
+        },
+        "conformsTo" : {
+          "type" : "array",
+          "description" : "A list of all conformance classes implemented by the server. In addition to the STAC-specific conformance classes, all OGC-related conformance classes listed at `GET /conformances` must be listed here. This entry should mirror what `GET /conformances` returns, if implemented.",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "SearchBody" : {
+      "type" : "object",
+      "properties" : {
+        "bbox" : {
+          "type" : "array",
+          "items" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "datetime" : {
+          "type" : "string"
+        },
+        "intersects" : {
+          "$ref" : "#/definitions/GeoJsonObject"
+        },
+        "collections" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "ids" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "limit" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "from" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "sortby" : {
+          "type" : "string"
+        },
+        "after" : {
+          "type" : "string"
+        },
+        "before" : {
+          "type" : "string"
         }
       }
     }
