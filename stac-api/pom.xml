@@ -2,21 +2,21 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.arlas</groupId>
     <artifactId>stac-api</artifactId>
-    <version>19.7.0</version>
+    <version>19.7.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>ARLAS STAC API</name>
 
     <parent>
         <groupId>io.arlas</groupId>
         <artifactId>arlas-server-parent</artifactId>
-        <version>19.7.0</version>
+        <version>19.7.1-SNAPSHOT</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>io.arlas</groupId>
             <artifactId>arlas-core</artifactId>
-            <version>19.7.0</version>
+            <version>19.7.1-SNAPSHOT</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.ethlo.time/itu -->
         <dependency>
