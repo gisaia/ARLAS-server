@@ -27,6 +27,7 @@ import io.arlas.server.core.model.request.Aggregation;
 import io.arlas.server.core.model.request.Expression;
 import io.arlas.server.core.model.request.MultiValueFilter;
 import io.arlas.server.core.model.request.Page;
+import io.arlas.server.core.utils.StringUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +121,7 @@ public abstract class FluidSearchService {
             for (String path : getCollectionPaths()) {
                 boolean alreadyIncluded = false;
                 for (String includeField : include) {
-                    if (includeField.equals("*") || path.startsWith(includeField)) {
+                    if (includeField.equals("*") || (!StringUtil.isNullOrEmpty(path) && path.startsWith(includeField))) {
                         alreadyIncluded = true;
                         break;
                     }
