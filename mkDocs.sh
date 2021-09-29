@@ -59,7 +59,7 @@ docker run --rm \
     -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	busybox \
-        sh -c '(cp /opt/maven/conf/npm/package-build.json /opt/maven/target/tmp/typescript-fetch/package.json) \
+        sh -c '(cp /opt/maven/conf/npm/package-doc.json /opt/maven/target/tmp/typescript-fetch/package.json) \
         && (cp /opt/maven/conf/npm/tsconfig-build.json /opt/maven/target/tmp/typescript-fetch/tsconfig.json)'
 
 echo "=> Generate Python API and its documentation"
