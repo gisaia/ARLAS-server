@@ -1,6 +1,16 @@
 # Change Log
 
-## [v19.7.0](https://github.com/gisaia/ARLAS-server/tree/v19.7.0) (2021-09-14)
+## [v19.7.1](https://github.com/gisaia/ARLAS-server/tree/v19.7.1) (2021-09-29)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v19.7.0...v19.7.1)
+
+**Fixed bugs:**
+
+- Adding "distribution Management to java-client pom" command is not mac compatible  [\#730](https://github.com/gisaia/ARLAS-server/issues/730)
+- Building typescript client of api doesn't work [\#729](https://github.com/gisaia/ARLAS-server/issues/729)
+- Check if collection path is not null [\#728](https://github.com/gisaia/ARLAS-server/issues/728)
+
+## [v19.7.0](https://github.com/gisaia/ARLAS-server/tree/v19.7.0) (2021-09-27)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v18.7.1...v19.7.0)
 
