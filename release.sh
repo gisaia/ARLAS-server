@@ -296,7 +296,7 @@ if [ "$SIMULATE" == "NO" ]; then
     if [[ "$SKIP_API" == "NO" ]]; then
         cd ${BASEDIR}/target/tmp/java-api
         mvn versions:set -DnewVersion=${ARLAS_VERSION}
-        sed '$e cat '"${BASEDIR}"'/conf/maven/distribution-arlas-client.xml' pom.xml >> ${BASEDIR}/target/tmp/java-api/pom_with_distribution.xml
+        sed 'r /<\/modelVersion>/  "${BASEDIR}"/conf/maven/distribution-arlas-client.xml' pom.xml >> ${BASEDIR}/target/tmp/java-api/pom_with_distribution.xml
         mv ${BASEDIR}/target/tmp/java-api/pom_with_distribution.xml ${BASEDIR}/target/tmp/java-api/pom.xml
         mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
     else
