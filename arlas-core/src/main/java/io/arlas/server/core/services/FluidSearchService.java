@@ -126,7 +126,7 @@ public abstract class FluidSearchService {
                         break;
                     }
                 }
-                if (!alreadyIncluded) {
+                if (!alreadyIncluded && !StringUtil.isNullOrEmpty(path) ) {
                     includeFieldList.add(path);
                 }
             }
