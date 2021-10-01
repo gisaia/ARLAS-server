@@ -3,7 +3,7 @@
 ########################################################
 #
 swagger: # Configuration of SWAGGER for generating documentation and APIs
-  resourcePackage: io.arlas.server.rest,io.arlas.server.stac # The java package to process for extracting the APIs
+  resourcePackage: io.arlas.server.rest # The java package to process for extracting the APIs
 
 
 
