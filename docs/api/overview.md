@@ -7,7 +7,7 @@ Explore the content of ARLAS collections
 
 
 ### Version information
-*Version* : 19.0.1
+*Version* : 19.0.4
 
 
 ### Contact information
@@ -30,7 +30,6 @@ Explore the content of ARLAS collections
 
 * collections
 * explore
-* stac
 
 
 
