@@ -219,23 +219,6 @@ public class ColumnFilterUtil {
                 collectionReference.params.idPath,
                 collectionReference.params.geometryPath,
                 collectionReference.params.centroidPath,
-                collectionReference.params.h3Path,
-                collectionReference.params.h3Path +".0",
-                collectionReference.params.h3Path +".1",
-                collectionReference.params.h3Path +".2",
-                collectionReference.params.h3Path +".3",
-                collectionReference.params.h3Path +".4",
-                collectionReference.params.h3Path +".5",
-                collectionReference.params.h3Path +".6",
-                collectionReference.params.h3Path +".7",
-                collectionReference.params.h3Path +".8",
-                collectionReference.params.h3Path +".9",
-                collectionReference.params.h3Path +".10",
-                collectionReference.params.h3Path +".11",
-                collectionReference.params.h3Path +".12",
-                collectionReference.params.h3Path +".13",
-                collectionReference.params.h3Path +".14",
-                collectionReference.params.h3Path +".15",
                 collectionReference.params.timestampPath);
     }
 

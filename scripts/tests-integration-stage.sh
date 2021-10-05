@@ -303,6 +303,7 @@ function test_doc() {
 
 echo "===> run integration tests"
 export ALIASED_COLLECTION="false"
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 if [ "$STAGE" == "REST" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_rest; fi
 if [ "$STAGE" == "WFS" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_wfs; fi
 if [ "$STAGE" == "CSW" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_csw; fi
