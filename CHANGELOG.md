@@ -1,5 +1,17 @@
 # Change Log
 
+## [v19.7.5](https://github.com/gisaia/ARLAS-server/tree/v19.7.5) (2021-10-05)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v19.7.4...v19.7.5)
+
+## [v19.7.4](https://github.com/gisaia/ARLAS-server/tree/v19.7.4) (2021-10-04)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v19.7.3...v19.7.4)
+
+## [v19.7.3](https://github.com/gisaia/ARLAS-server/tree/v19.7.3) (2021-10-01)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v19.7.1...v19.7.3)
+
 ## [v19.7.1](https://github.com/gisaia/ARLAS-server/tree/v19.7.1) (2021-09-29)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v19.7.0...v19.7.1)
