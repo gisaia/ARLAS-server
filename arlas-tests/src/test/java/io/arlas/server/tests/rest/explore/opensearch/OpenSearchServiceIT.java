@@ -50,7 +50,7 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
         AVAILABLE_COLUMNS.put("params.not_enabled", 0);
         AVAILABLE_COLUMNS.put("geo_params.h3", 32);
     }
-    private static final List<String> MANDATORY_COLUMNS = Arrays.asList("id", "params.startdate", "geo_params.h3");
+    private static final List<String> MANDATORY_COLUMNS = Arrays.asList("id", "params.startdate");
     private static final List<String> ALIASED_COLUMNS = Arrays.asList("params.keywords");
 
     /**
@@ -80,7 +80,7 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
     @Test
     public void testOpenSearchFeatureWithAvailableColumns() throws Exception {
         handleOpenSearchFeature(get(""));
-        handleOpenSearchFeature(get("fullname,params"));
+        handleOpenSearchFeature(get("fullname,params,geo_params.h3"));
     }
 
     @Test

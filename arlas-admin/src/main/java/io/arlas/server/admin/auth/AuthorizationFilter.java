@@ -63,52 +63,57 @@ public class AuthorizationFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext ctx) {
         Transaction transaction = ElasticApm.currentTransaction();
-
-        // Check if endpoint is public and if the verb is authorized
-            if (ctx.getUriInfo().getPath().concat(":").concat(ctx.getMethod()).matches(authConf.getPublicRegex()) || ctx.getMethod() == "OPTIONS") {
-                return;
-            }
-
+        boolean isPublic = ctx.getUriInfo().getPath().concat(":").concat(ctx.getMethod()).matches(authConf.getPublicRegex());
         String header = ctx.getHeaderString(HttpHeaders.AUTHORIZATION);
-        if (header != null && header.toLowerCase().startsWith("bearer ")) {
-            // if a token is provided
-            // if method !== options
-            // verify token and pass it
-            try {
-                // header presence and format already checked before in AuthenticationFilter
-                DecodedJWT jwt = jwtVerifier.verify(header.substring(7));
-
-                ctx.getHeaders().remove(authConf.headerUser); // remove it in case it's been set manually
-                String userId = jwt.getSubject();
-                if (!StringUtil.isNullOrEmpty(userId)) {
-                    ctx.getHeaders().putSingle(authConf.headerUser, userId);
-                    transaction.setUser(userId, "", "");
-                }
-
-                ctx.getHeaders().remove(authConf.headerGroup); // remove it in case it's been set manually
-                Claim jwtClaimRoles = jwt.getClaim(authConf.claimRoles);
-                if (!jwtClaimRoles.isNull()) {
-                    List<String> groups = jwtClaimRoles.asList(String.class)
-                            .stream()
-                            .filter(r -> r.toLowerCase().startsWith("group"))
-                            .collect(Collectors.toList());
-                    ctx.setProperty("groups", groups);
-                    ctx.getHeaders().put(authConf.headerGroup, groups);
-                }
-                Claim jwtClaimPermissions = jwt.getClaim(authConf.claimPermissions);
-                if (!jwtClaimPermissions.isNull()) {
-                    ArlasClaims arlasClaims = new ArlasClaims(jwtClaimPermissions.asList(String.class));
-                    ctx.setProperty("claims", arlasClaims);
-                    if (arlasClaims.isAllowed(ctx.getMethod(), ctx.getUriInfo().getPath())) {
-                        arlasClaims.injectHeaders(ctx.getHeaders(), transaction);
-                        return;
-                    }
-                }
-            } catch (JWTVerificationException e) {
-                LOGGER.warn("JWT verification failed.", e);
-                ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+        if (header == null || (header != null && !header.toLowerCase().startsWith("bearer "))) {
+            if (isPublic || ctx.getMethod() == "OPTIONS") {
                 return;
+            } else {
+                ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
             }
+        }
+
+        try {
+            // header presence and format already checked before in AuthenticationFilter
+            DecodedJWT jwt = jwtVerifier.verify(header.substring(7));
+
+            ctx.getHeaders().remove(authConf.headerUser); // remove it in case it's been set manually
+            String userId = jwt.getSubject();
+            if (!StringUtil.isNullOrEmpty(userId)) {
+                ctx.getHeaders().putSingle(authConf.headerUser, userId);
+                transaction.setUser(userId, "", "");
+            }
+
+            ctx.getHeaders().remove(authConf.headerGroup); // remove it in case it's been set manually
+            Claim jwtClaimRoles = jwt.getClaim(authConf.claimRoles);
+            if (!jwtClaimRoles.isNull()) {
+                List<String> groups = jwtClaimRoles.asList(String.class)
+                        .stream()
+                        .filter(r -> r.toLowerCase().startsWith("group"))
+                        .collect(Collectors.toList());
+                ctx.setProperty("groups", groups);
+                ctx.getHeaders().put(authConf.headerGroup, groups);
+            }
+            Claim jwtClaimPermissions = jwt.getClaim(authConf.claimPermissions);
+            if (!jwtClaimPermissions.isNull()) {
+                ArlasClaims arlasClaims = new ArlasClaims(jwtClaimPermissions.asList(String.class));
+                ctx.setProperty("claims", arlasClaims);
+                if (arlasClaims.isAllowed(ctx.getMethod(), ctx.getUriInfo().getPath())) {
+                    arlasClaims.injectHeaders(ctx.getHeaders(), transaction);
+                    return;
+                }
+            }
+            if (isPublic) {
+                return;
+            } else {
+                ctx.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+            }
+        } catch (JWTVerificationException e) {
+            LOGGER.warn("JWT verification failed.", e);
+            if (!isPublic) {
+                ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+            }
+            return;
         }
         ctx.abortWith(Response.status(Response.Status.FORBIDDEN).build());
     }
