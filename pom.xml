@@ -59,7 +59,7 @@
     <hazelcast.k8s.version>2.2.3</hazelcast.k8s.version>
 
     <!-- ELASTICSEARCH-->
-    <elastic.version>7.9.2</elastic.version>
+    <elastic.version>7.14.2</elastic.version>
     <elastic-apm.version>1.20.0</elastic-apm.version>
 
     <postgresql.version>42.2.19</postgresql.version>

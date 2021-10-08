@@ -40,6 +40,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.common.geo.GeoPoint;
+import org.elasticsearch.common.geo.Orientation;
 import org.elasticsearch.common.geo.builders.*;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -883,7 +884,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
         List<Coordinate> coordinates = Arrays.asList(polygon.getCoordinates());
         coordinatesBuilder.coordinates(coordinates);
-        return new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.LEFT);
+        return new PolygonBuilder(coordinatesBuilder, Orientation.LEFT);
     }
 
     private PolygonBuilder createPolygonBuilder(double[] bbox) {
@@ -910,12 +911,12 @@ public class ElasticFluidSearch extends FluidSearchService {
         coordinatesBuilder.coordinate(west, south);
         coordinatesBuilder.coordinate(east, south);
         // NB : In ES api LEFT is clockwise and RIGHT anticlockwise
-        return new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.RIGHT);
+        return new PolygonBuilder(coordinatesBuilder, Orientation.RIGHT);
 
     }
 
     private MultiPolygonBuilder createMultiPolygonBuilder(MultiPolygon multiPolygon) {
-        MultiPolygonBuilder multiPolygonBuilder = new MultiPolygonBuilder(ShapeBuilder.Orientation.LEFT);
+        MultiPolygonBuilder multiPolygonBuilder = new MultiPolygonBuilder(Orientation.LEFT);
         for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
             multiPolygonBuilder.polygon(createPolygonBuilder((Polygon) multiPolygon.getGeometryN(i)));
         }
