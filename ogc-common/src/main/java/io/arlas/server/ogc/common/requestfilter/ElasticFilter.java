@@ -27,9 +27,9 @@ import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.OpenGISFieldsExtractor;
 import io.arlas.server.core.utils.BoundingBox;
 import io.arlas.server.core.utils.ColumnFilterUtil;
+import org.elasticsearch.common.geo.Orientation;
 import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
 import org.elasticsearch.common.geo.builders.PolygonBuilder;
-import org.elasticsearch.common.geo.builders.ShapeBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -70,7 +70,7 @@ public class ElasticFilter {
             coordinatesBuilder.coordinate(boundingBox.getWest(), boundingBox.getNorth());
             coordinatesBuilder.coordinate(boundingBox.getWest(), boundingBox.getSouth());
             coordinatesBuilder.coordinate(boundingBox.getEast(), boundingBox.getSouth());
-            PolygonBuilder polygonBuilder = new PolygonBuilder(coordinatesBuilder, ShapeBuilder.Orientation.LEFT);
+            PolygonBuilder polygonBuilder = new PolygonBuilder(coordinatesBuilder, Orientation.LEFT);
             orBoolQueryBuilder = orBoolQueryBuilder
                     .should(QueryBuilders.geoIntersectionQuery(geometryField, polygonBuilder));
             minimumShouldMatch = minimumShouldMatch + 1;
