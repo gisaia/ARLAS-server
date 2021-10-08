@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   description: "Explore the content of ARLAS collections"
-  version: "19.0.6-SNAPSHOT"
+  version: "19.0.6"
   title: "ARLAS Exploration API"
   contact:
     name: "Gisaia"
