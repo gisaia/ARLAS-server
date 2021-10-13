@@ -289,6 +289,8 @@ public abstract class ExploreService {
         bounds.add(new LngLatAlt(rectangle.getMaxX(), rectangle.getMaxY()));
         bounds.add(new LngLatAlt(rectangle.getMaxX(), rectangle.getMinY()));
         bounds.add(new LngLatAlt(rectangle.getMinX(), rectangle.getMinY()));
+        // closing polygon
+        bounds.add(new LngLatAlt(rectangle.getMinX(), rectangle.getMaxY()));
         polygon.add(bounds);
         return polygon;
     }
