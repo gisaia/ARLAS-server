@@ -1,8 +1,20 @@
 # Change Log
 
+## [v19.7.7](https://github.com/gisaia/ARLAS-server/tree/v19.7.7) (2021-10-20)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v19.7.6...v19.7.7)
+
+**Fixed bugs:**
+
+- Export Shapefile on geohash aggregation fails [\#736](https://github.com/gisaia/ARLAS-server/issues/736)
+
 ## [v19.7.6](https://github.com/gisaia/ARLAS-server/tree/v19.7.6) (2021-10-08)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v19.7.5...v19.7.6)
+
+**Miscellaneous:**
+
+- Update Elasticsearch to 7.14 [\#735](https://github.com/gisaia/ARLAS-server/issues/735)
 
 ## [v19.7.5](https://github.com/gisaia/ARLAS-server/tree/v19.7.5) (2021-10-05)
 
