@@ -1,14 +1,13 @@
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "arlas-server.deployment.name" . }}
+  name: {{ include "arlas-server.fullname" . }}
 {{ include "arlas-server.namespace" . | indent 2 }}
   labels:
     app: {{ template "arlas-server.name" . }}
     chart: {{ template "arlas-server.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-    {{- include "arlas-server.deployment.labels" . | indent 4 }}
 spec:
   replicas: {{ int .Values.replicaCount }}
 {{- include "arlas-server.revisionHistoryLimit" . | indent 2 }}
@@ -35,10 +34,20 @@ spec:
             httpGet:
               path: "{{ .Values.adminPath }}/healthcheck"
               port: http
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
           readinessProbe:
             httpGet:
               path: "{{ .Values.adminPath }}/healthcheck"
               port: http
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
           env:

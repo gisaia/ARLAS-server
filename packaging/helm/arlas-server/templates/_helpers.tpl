@@ -31,25 +31,6 @@ Create chart name and version as used by the chart label.
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-
-{{- define "arlas-server.deployment.labels" -}}
-    {{- with .Values.deployment.labels -}}
-        {{- range $key,$value := . }}
-{{ $key }}: {{ $value | quote }}
-        {{- end -}}
-    {{- end -}}
-{{- end -}}
-
-
-{{- define "arlas-server.deployment.name" -}}
-    {{- with .Values.deployment.name -}}
-{{ . | quote }}
-    {{- else -}}
-{{ template "arlas-server.fullname" $ }}
-    {{- end -}}
-{{- end -}}
-
-
 {{- define "arlas-server.environmentVariables" -}}
     {{- range $key,$value := .Values.environmentVariables }}
 - name: {{ $key | quote }}

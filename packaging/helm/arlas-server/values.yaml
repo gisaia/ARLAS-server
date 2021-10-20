@@ -11,11 +11,6 @@ affinity: {}
 # Port on which the arlas-server application will listen inside its container
 containerPort: 9999
 
-# deployment:
-#   name: my-custom-name
-#   labels:
-#     my-custom-label: my-custom-value
-
 # # Any environment variables can be passed here.
 # # Full list of environment variables supported by arlas-server: http://arlas.io/arlas-tech/current/arlas-server-configuration/
 # environmentVariables:
@@ -52,3 +47,16 @@ service:
   #   my-custom-label: my-custom-value
 
 tolerations: []
+
+livenessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 1
+  successThreshold: 1
+  failureThreshold: 3
+readinessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 1
+  successThreshold: 1
+  failureThreshold: 3
