@@ -272,13 +272,15 @@ public abstract class CollectionReferenceService {
             CheckParams.checkExcludeField(excludeField, fields);
         }
         Map<String, LinkedHashMap> mappings = CollectionUtil.checkAliasMappingFields(getMapping(collectionReference.params.indexName), fields.toArray(new String[0]));
-        for (String index : mappings.keySet()) {
-            Map<String, Object> timestampMD = CollectionUtil.getFieldFromProperties(collectionReference.params.timestampPath, mappings.get(index));
-            collectionReference.params.customParams = new HashMap<>();
-            if (timestampMD.containsKey("format")) {
-                collectionReference.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
-            } else {
-                collectionReference.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT, CollectionReference.DEFAULT_TIMESTAMP_FORMAT);
+        if (collectionReference.params.timestampPath != null) {
+            for (String index : mappings.keySet()) {
+                Map<String, Object> timestampMD = CollectionUtil.getFieldFromProperties(collectionReference.params.timestampPath, mappings.get(index));
+                collectionReference.params.customParams = new HashMap<>();
+                if (timestampMD.containsKey("format")) {
+                    collectionReference.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
+                } else {
+                    collectionReference.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT, CollectionReference.DEFAULT_TIMESTAMP_FORMAT);
+                }
             }
         }
     }

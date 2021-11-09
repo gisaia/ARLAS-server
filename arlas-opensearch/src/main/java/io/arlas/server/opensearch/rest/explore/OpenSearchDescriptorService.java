@@ -122,8 +122,12 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
         addURLs(prefix, description.url, exploreService.describeCollection(cr, columnFilter).properties, new Stack<>());
         List<Url> urls = new ArrayList<>();
         description.url.forEach(url -> {
-            urls.add(url(url.template + "&f="+cr.params.geometryPath+":intersect:{geo:box?}"));
-            urls.add(url(url.template + "&f="+cr.params.geometryPath+":intersect:{geo:geometry?}"));
+            if (cr.params.geometryPath != null) {
+                urls.add(url(url.template + "&f=" + cr.params.geometryPath + ":intersect:{geo:box?}"));
+                urls.add(url(url.template + "&f=" + cr.params.geometryPath + ":intersect:{geo:geometry?}"));
+            } else {
+                urls.add(url(url.template));
+            }
         });
         description.url = urls;
         return cache(Response.ok(description), maxagecache);

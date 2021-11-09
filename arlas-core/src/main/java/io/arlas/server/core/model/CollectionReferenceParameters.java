@@ -42,58 +42,55 @@ public class CollectionReferenceParameters implements Serializable {
     @JsonProperty(value = "id_path", required = true)
     public String idPath;
 
-    @NotEmpty
-    @JsonProperty(value = "geometry_path", required = true)
+    @JsonProperty(value = "geometry_path")
     public String geometryPath;
 
-    @NotEmpty
-    @JsonProperty(value = "centroid_path", required = true)
+    @JsonProperty(value = "centroid_path")
     public String centroidPath;
 
-    @JsonProperty(value = "h3_path", required = false)
+    @JsonProperty(value = "h3_path")
     public String h3Path;
 
-    @NotEmpty
-    @JsonProperty(value = "timestamp_path", required = true)
+    @JsonProperty(value = "timestamp_path")
     public String timestampPath;
 
-    @JsonProperty(value = "exclude_fields", required = false)
+    @JsonProperty(value = "exclude_fields")
     public String excludeFields = null;
 
-    @JsonProperty(value = "update_max_hits", required = false)
+    @JsonProperty(value = "update_max_hits")
     public int updateMaxHits = Integer.MAX_VALUE;
 
-    @JsonProperty(value = "taggable_fields", required = false)
+    @JsonProperty(value = "taggable_fields")
     public String taggableFields = null;
 
-    @JsonProperty(value = "exclude_wfs_fields", required = false)
+    @JsonProperty(value = "exclude_wfs_fields")
     public String excludeWfsFields = null;
 
-    @JsonProperty(value = "custom_params", required = false)
+    @JsonProperty(value = "custom_params")
     public Map<String, String> customParams = null;
 
-    @JsonProperty(value = "atom_feed", required = false)
+    @JsonProperty(value = "atom_feed")
     public Feed atomFeed = null;
 
-    @JsonProperty(value = "open_search", required = false)
+    @JsonProperty(value = "open_search")
     public OpenSearch openSearch = null;
 
-    @JsonProperty(value = "inspire", required = false)
+    @JsonProperty(value = "inspire")
     public Inspire inspire = new Inspire();
 
-    @JsonProperty(value = "dublin_core_element_name", required = false)
+    @JsonProperty(value = "dublin_core_element_name")
     public DublinCoreElementName dublinCoreElementName = new DublinCoreElementName();
 
-    @JsonProperty(value = "raster_tile_url", required = false)
+    @JsonProperty(value = "raster_tile_url")
     public RasterTileURL rasterTileURL = null;
 
-    @JsonProperty(value = "raster_tile_width", required = false)
+    @JsonProperty(value = "raster_tile_width")
     public int rasterTileWidth = -1;
 
-    @JsonProperty(value = "raster_tile_height", required = false)
+    @JsonProperty(value = "raster_tile_height")
     public int rasterTileHeight = -1;
 
-    @JsonProperty(value = "filter", required = false)
+    @JsonProperty(value = "filter")
     public Filter filter = null;
 
     @JsonIgnore
@@ -107,7 +104,7 @@ public class CollectionReferenceParameters implements Serializable {
     }
 
     public GeoTypeEnum getGeometryType(String path) {
-        return this.geoTypes.get(path);
+        return path == null ? null : this.geoTypes.get(path);
     }
 
 }

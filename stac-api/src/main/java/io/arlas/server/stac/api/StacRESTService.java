@@ -271,7 +271,7 @@ public abstract class StacRESTService {
             response.setTimeStamp(ITU.formatUtc(OffsetDateTime.now()));
         } else {
             Map<String, Object> ctx = new HashMap<>();
-            ctx.put("returned", new Long(items.size()));
+            ctx.put("returned", Long.valueOf(items.size()));
             ctx.put("limit", body.getLimit());
             ctx.put("matched", (Long)context.get("matched"));
             response.setContext(ctx);
@@ -341,6 +341,9 @@ public abstract class StacRESTService {
     }
 
     protected String getGeoFilter(GeoJsonObject geojson, CollectionReference collectionReference) throws ArlasException {
+        if (collectionReference.params.centroidPath == null) {
+            throw new ArlasException("No default centroid path defined for the collection");
+        }
         if (geojson != null) {
             try {
                 Geometry geometry = GeoUtil.toClockwise(geojson);
@@ -399,6 +402,9 @@ public abstract class StacRESTService {
     }
 
     protected ExtentSpatial getSpatialExtent(CollectionReference collectionReference) throws ArlasException {
+        if (collectionReference.params.centroidPath == null) {
+            throw new ArlasException("No default centroid path defined for the collection");
+        }
         ComputationRequest computationRequest = new ComputationRequest();
         computationRequest.field = collectionReference.params.centroidPath;
         computationRequest.metric = ComputationEnum.GEOBBOX;
@@ -419,6 +425,9 @@ public abstract class StacRESTService {
     }
 
     protected ExtentTemporal getTemporalExtent(CollectionReference collectionReference) throws ArlasException {
+        if (collectionReference.params.timestampPath == null) {
+            throw new ArlasException("No default timestamp defined for the collection");
+        }
         ComputationRequest computationRequest = new ComputationRequest();
         computationRequest.field = collectionReference.params.timestampPath;
         computationRequest.metric = ComputationEnum.MIN;

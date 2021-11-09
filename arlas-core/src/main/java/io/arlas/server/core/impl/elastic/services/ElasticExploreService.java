@@ -265,7 +265,7 @@ public class ElasticExploreService extends ExploreService {
         List<SearchHit> results = Arrays.asList(searchHits.getHits());
         if (context != null) {
             context.putAll(getLinks(searchRequest, collectionReference, searchHits.getHits().length, results, uriInfo, method));
-            context.put("matched", new Long(totalnb));
+            context.put("matched", Long.valueOf(totalnb));
         }
         if (searchRequest.page != null && searchRequest.page.before != null) {
             Collections.reverse(results);

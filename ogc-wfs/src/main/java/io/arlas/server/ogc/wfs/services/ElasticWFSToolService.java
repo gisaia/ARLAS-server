@@ -165,6 +165,9 @@ public class ElasticWFSToolService implements WFSToolService {
         if (!(isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
             throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, ElasticFluidSearch.INVALID_BBOX, "bbox", Service.WFS);
         }
+        if (collectionReference.params.centroidPath == null) {
+            throw new OGCException("No default centroid path defined for the collection", Service.WFS);
+        }
         wfsQuery.filter(getBBoxBoolQueryBuilder(bbox, collectionReference.params.centroidPath));
     }
 
