@@ -170,7 +170,6 @@ public class GetFeatureHandler {
         String collectionName = collectionReference.collectionName;
         String idPath = collectionReference.params.idPath;
         String geometryPath = collectionReference.params.geometryPath;
-        String timestampPath = collectionReference.params.timestampPath;
 
         GeoJsonObject geometry = null;
         CollectionReferenceManager.setCollectionGeometriesType(source, collectionReference);

@@ -297,6 +297,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
+        if (collectionReference.params.centroidPath == null) {
+            throw new BadRequestException("You cannot request a geohash aggregation on a collection which has no centroid path defined.");
+        }
 
         if (geohash.startsWith("#")) {
             geohash = geohash.substring(1);
@@ -421,6 +424,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 .getCollectionReference(collection);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
+        }
+        if (collectionReference.params.centroidPath == null) {
+            throw new BadRequestException("You cannot request a geotilegeoaggregate on a collection which has no centroid path defined.");
         }
 
         if (agg == null || agg.size() == 0) {

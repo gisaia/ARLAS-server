@@ -299,7 +299,7 @@ public class Documentation {
             "\n \n" +
             "- **raw_geometries**" +
             "\n \n" +
-            "    > **What it does**: Allows to specify a list of raw geometries provided by hits that represent the bucket and thata are elected by a sort" +
+            "    > **What it does**: Allows to specify a list of raw geometries provided by hits that represent the bucket and that are elected by a sort" +
             "\n \n" +
             "    > __**Syntax**__: `raw_geometries-{GEOMETRY_FIELD}({COMMA_SEPERATED_SORT_FIELDS});{GEOMETRY_FIELD2}({COMMA_SEPERATED_SORT_FIELDS2})`." +
             "\n \n" +

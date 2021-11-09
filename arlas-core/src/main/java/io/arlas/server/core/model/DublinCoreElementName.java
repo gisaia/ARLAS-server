@@ -20,6 +20,7 @@
 package io.arlas.server.core.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
@@ -32,47 +33,48 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DublinCoreElementName implements Serializable {
     private static final long serialVersionUID = -3452567240629298463L;
 
     public DublinCoreElementName(){
     }
 
-    @JsonProperty(value = "title", required = false)
+    @JsonProperty(value = "title")
     public String title = "";
 
-    @JsonProperty(value = "creator", required = false)
+    @JsonProperty(value = "creator")
     public String creator = "";
 
-    @JsonProperty(value = "subject", required = false)
+    @JsonProperty(value = "subject")
     public String subject = "";
 
-    @JsonProperty(value = "description", required = false)
+    @JsonProperty(value = "description")
     public String description = "";
 
-    @JsonProperty(value = "publisher", required = false)
+    @JsonProperty(value = "publisher")
     public String publisher = "";
 
-    @JsonProperty(value = "contributor", required = false)
+    @JsonProperty(value = "contributor")
     public String contributor = "";
 
-    @JsonProperty(value = "type", required = false)
+    @JsonProperty(value = "type")
     public String type = "";
 
-    @JsonProperty(value = "format", required = false)
+    @JsonProperty(value = "format")
     public String format = "";
 
-    @JsonProperty(value = "identifier", required = false)
+    @JsonProperty(value = "identifier")
     public String identifier = String.valueOf(java.util.UUID.randomUUID());
 
-    @JsonProperty(value = "source", required = false)
+    @JsonProperty(value = "source")
     public String source = "";
 
-    @JsonProperty(value = "language", required = false)
+    @JsonProperty(value = "language")
     public String language = "";
 
-    @JsonProperty(value = "bbox", required = false)
-    public Bbox bbox = new Bbox();
+    @JsonProperty(value = "bbox")
+    public Bbox bbox;
 
     private Date date = new Date();
     @JsonGetter(value = "date")
@@ -85,27 +87,29 @@ public class DublinCoreElementName implements Serializable {
 
     private JSONObject coverage;
     @JsonGetter(value = "coverage")
-    public JSONObject getCoverage(){
-        coverageGeometry = new org.geojson.Polygon();
-        List<LngLatAlt> exteriorRing = new ArrayList<>();
-        exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
-        exteriorRing.add(new LngLatAlt(bbox.east, bbox.south));
-        exteriorRing.add(new LngLatAlt(bbox.east, bbox.north));
-        exteriorRing.add(new LngLatAlt(bbox.west, bbox.north));
-        exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
-        coverageGeometry.setExteriorRing(exteriorRing);
-        coverage = new JSONObject();
-        JSONArray jsonArayExt = new JSONArray();
-        coverageGeometry.getExteriorRing().forEach(lngLatAlt -> {
-            JSONArray jsonArayLngLat = new JSONArray();
-            jsonArayLngLat.add(0, lngLatAlt.getLongitude());
-            jsonArayLngLat.add(1, lngLatAlt.getLatitude());
-            jsonArayExt.add(jsonArayLngLat);
-        });
-        JSONArray jsonAray = new JSONArray();
-        jsonAray.add(jsonArayExt);
-        coverage.put("type", "Polygon");
-        coverage.put("coordinates", jsonAray);
+    public JSONObject getCoverage() {
+        if (bbox != null) {
+            coverageGeometry = new org.geojson.Polygon();
+            List<LngLatAlt> exteriorRing = new ArrayList<>();
+            exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
+            exteriorRing.add(new LngLatAlt(bbox.east, bbox.south));
+            exteriorRing.add(new LngLatAlt(bbox.east, bbox.north));
+            exteriorRing.add(new LngLatAlt(bbox.west, bbox.north));
+            exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
+            coverageGeometry.setExteriorRing(exteriorRing);
+            coverage = new JSONObject();
+            JSONArray jsonArayExt = new JSONArray();
+            coverageGeometry.getExteriorRing().forEach(lngLatAlt -> {
+                JSONArray jsonArayLngLat = new JSONArray();
+                jsonArayLngLat.add(0, lngLatAlt.getLongitude());
+                jsonArayLngLat.add(1, lngLatAlt.getLatitude());
+                jsonArayExt.add(jsonArayLngLat);
+            });
+            JSONArray jsonAray = new JSONArray();
+            jsonAray.add(jsonArayExt);
+            coverage.put("type", "Polygon");
+            coverage.put("coordinates", jsonAray);
+        }
         return coverage;
     }
 
@@ -118,8 +122,6 @@ public class DublinCoreElementName implements Serializable {
             double centroidLat = (bottomLeft.getLatitude() + topRight.getLatitude()) / 2;
             double centroidLng = (bottomLeft.getLongitude() + topRight.getLongitude()) / 2;
             coverageCentroid = centroidLat + "," + centroidLng;
-        } else {
-            coverageCentroid = "0,0";
         }
         return coverageCentroid;
     }
