@@ -91,25 +91,25 @@ public class FilterMatcherUtil {
     public static Optional<Stream<String>> filterToPredicatesAsStream(Optional<String> filter) {
         return filter
                 .filter(StringUtils::isNotBlank)
-                .map(cf -> {
-                    String[] cfString = cf.split(":");
-                    // input: collection*:param* => avoid replacing collection* with collection.*. Only param* should be replaced with param.*
-                    if (Arrays.asList(cfString).size() == 2) {
-                        return cfString[0] + ':' + EMPTY_PATTERN.splitAsStream(cfString[1])
-                                .map(c -> PREDICATE_REPLACE_CHAR.containsKey(c) ? PREDICATE_REPLACE_CHAR.get(c) : c)
-                                .collect(Collectors.joining());
-                    }
-                    return EMPTY_PATTERN.splitAsStream(cf)
-                            .map(c -> PREDICATE_REPLACE_CHAR.containsKey(c) ? PREDICATE_REPLACE_CHAR.get(c) : c)
-                            .collect(Collectors.joining());
-                })
-                .map(cf ->
-                        Arrays.stream(
-                                cf.split(","))
-                                //filters not ending with ".*" are duplicated to same filter postfixed with ".*"
-                                //eg. the param "params" allows the fields "params.weight", "params.age" aso.
-                                .map(c -> c.endsWith(".*") ? Arrays.asList(c) : Arrays.asList(c, c + "\\..*"))
-                                .flatMap(Collection::stream)
+                .map(cf -> Arrays.stream(cf.split(","))
+                        .map(c -> {
+                            String[] cString = c.split(":");
+                            if (Arrays.asList(cString).size() == 2) {
+                                // input: collection*:param* => avoid replacing collection* with collection.*.
+                                // Only param* should be replaced with param.*
+                                return cString[0] + ':' + EMPTY_PATTERN.splitAsStream(cString[1])
+                                        .map(cs -> PREDICATE_REPLACE_CHAR.containsKey(cs) ? PREDICATE_REPLACE_CHAR.get(cs) : cs)
+                                        .collect(Collectors.joining());
+                            }
+                            return EMPTY_PATTERN.splitAsStream(c)
+                                    .map(cs -> PREDICATE_REPLACE_CHAR.containsKey(cs) ? PREDICATE_REPLACE_CHAR.get(cs) : cs)
+                                    .collect(Collectors.joining());
+
+                        })
+                        //filters not ending with ".*" are duplicated to same filter postfixed with ".*"
+                        //eg. the param "params" allows the fields "params.weight", "params.age" aso.
+                        .map(c2 -> c2.endsWith(".*") ? Arrays.asList(c2) : Arrays.asList(c2, c2 + "\\..*"))
+                        .flatMap(Collection::stream)
                 );
     }
 
