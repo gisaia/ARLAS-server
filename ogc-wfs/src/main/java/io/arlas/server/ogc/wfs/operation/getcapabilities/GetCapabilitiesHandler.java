@@ -538,19 +538,17 @@ public class GetCapabilitiesHandler {
     }
 
     private void setInspireFeatureTypeBoundingBox(CollectionReference collectionReference) {
+        FeatureTypeListType featureTypeListType = getCapabilitiesType.getFeatureTypeList();
         DublinCoreElementName.Bbox bbox = collectionReference.params.dublinCoreElementName.bbox;
-        if (bbox != null) {
-            FeatureTypeListType featureTypeListType = getCapabilitiesType.getFeatureTypeList();
-            featureTypeListType.getFeatureType().forEach(featureTypeType -> {
-                featureTypeType.getWGS84BoundingBox().clear();
-                WGS84BoundingBoxType wgs84BoundingBoxType = new WGS84BoundingBoxType();
-                wgs84BoundingBoxType.getLowerCorner().add(bbox.west);
-                wgs84BoundingBoxType.getLowerCorner().add(bbox.south);
-                wgs84BoundingBoxType.getUpperCorner().add(bbox.east);
-                wgs84BoundingBoxType.getUpperCorner().add(bbox.north);
-                featureTypeType.getWGS84BoundingBox().add(wgs84BoundingBoxType);
-            });
-            getCapabilitiesType.setFeatureTypeList(featureTypeListType);
-        }
+        featureTypeListType.getFeatureType().forEach( featureTypeType -> {
+            featureTypeType.getWGS84BoundingBox().clear();
+            WGS84BoundingBoxType wgs84BoundingBoxType = new WGS84BoundingBoxType();
+            wgs84BoundingBoxType.getLowerCorner().add(bbox.west);
+            wgs84BoundingBoxType.getLowerCorner().add(bbox.south);
+            wgs84BoundingBoxType.getUpperCorner().add(bbox.east);
+            wgs84BoundingBoxType.getUpperCorner().add(bbox.north);
+            featureTypeType.getWGS84BoundingBox().add(wgs84BoundingBoxType);
+        });
+        getCapabilitiesType.setFeatureTypeList(featureTypeListType);
     }
 }

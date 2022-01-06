@@ -27,7 +27,6 @@ import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.utils.MapExplorer;
-import io.arlas.server.core.utils.StringUtil;
 import io.dropwizard.servlets.tasks.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,8 +115,12 @@ public class CollectionAutoDiscover extends Task implements Runnable {
                 break;
             }
         }
-        return StringUtil.isNullOrEmpty(collection.params.idPath) ? null : collection;
-    }
+        if (collection.params.idPath == null || collection.params.idPath.isEmpty()
+                || collection.params.centroidPath == null || collection.params.centroidPath.isEmpty()
+                || collection.params.geometryPath == null || collection.params.geometryPath.isEmpty()
+                || collection.params.timestampPath == null || collection.params.timestampPath.isEmpty())
+            return null;
+        return collection;    }
 
     @Override
     public void run() {

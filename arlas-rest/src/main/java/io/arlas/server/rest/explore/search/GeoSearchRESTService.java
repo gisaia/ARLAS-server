@@ -421,9 +421,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        if (collectionReference.params.centroidPath == null) {
-            throw new BadRequestException("You cannot request a tiledgeosearch on a collection which has no centroid path defined.");
-        }
 
         BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x, y, z));
         // west, south, east, north
