@@ -66,7 +66,6 @@ public class CollectionService extends CollectionRESTServices {
     }
 
     @Timed
-    @Path("/")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)

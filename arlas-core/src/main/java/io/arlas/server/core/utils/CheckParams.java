@@ -31,7 +31,7 @@ import io.arlas.server.core.model.Keyword;
 import io.arlas.server.core.model.enumerations.*;
 import io.arlas.server.core.model.request.*;
 import io.arlas.server.core.model.response.FieldType;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;

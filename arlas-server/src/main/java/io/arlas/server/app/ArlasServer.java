@@ -21,6 +21,7 @@ package io.arlas.server.app;
 
 import brave.http.HttpTracing;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
@@ -108,6 +109,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
     @Override
     public void initialize(Bootstrap<ArlasServerConfiguration> bootstrap) {
         bootstrap.registerMetrics();
+        bootstrap.getObjectMapper().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         bootstrap.setConfigurationSourceProvider(new SubstitutingSourceProvider(
                 bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
         bootstrap.addBundle(new SwaggerBundle<ArlasServerConfiguration>() {
@@ -234,8 +236,10 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             SwaggerConfiguration oasConfig = new SwaggerConfiguration()
                     .openAPI(new OpenAPI().info(info).servers(Collections.singletonList(new Server().url(baseUri))))
                     .prettyPrint(true)
-                    .ignoredRoutes(Arrays.asList("/ogc", "/explore", "/collections", "/swagger", "/swagger.{type}"))
-                    .resourcePackages(Stream.of("io.arlas.server.stac.api")
+                    .resourceClasses(Stream.of("io.arlas.server.stac.api.StacCoreRESTService",
+                                    "io.arlas.server.stac.api.StacCollectionsRESTService",
+                                    "io.arlas.server.stac.api.StacConformanceRESTService",
+                                    "io.arlas.server.stac.api.StacSearchRESTService")
                             .collect(Collectors.toSet()));
             environment.jersey().register(new OpenApiResource().openApiConfiguration(oasConfig));
             //

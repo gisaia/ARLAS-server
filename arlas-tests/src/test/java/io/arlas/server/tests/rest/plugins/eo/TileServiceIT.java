@@ -80,7 +80,7 @@ public class TileServiceIT extends AbstractTestContext {
 
         data.geo_params.geometry = new Polygon(coords);
         data.geo_params.wktgeometry = wktGeometry;
-        String indexName=DataSetTool.ALIASED_COLLECTION?DataSetTool.DATASET_INDEX_NAME+"_original":DataSetTool.DATASET_INDEX_NAME;
+        String indexName = DataSetTool.ALIASED_COLLECTION ? DataSetTool.DATASET_INDEX_NAME+"_original" : DataSetTool.DATASET_INDEX_NAME;
         DataSetTool.client.index(indexName, "ES_ID_TEST" + data.id, mapper.writer().writeValueAsString(data));
 
         data.id = String.valueOf("ID_" + i + "_" + j + "DI_top").replace("-", "_");

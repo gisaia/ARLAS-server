@@ -21,12 +21,12 @@ package io.arlas.server.ogc.common.requestfilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
-import io.arlas.server.ogc.common.model.Service;
-import io.arlas.server.ogc.common.utils.OpenGISFieldsExtractor;
 import io.arlas.server.core.utils.BoundingBox;
 import io.arlas.server.core.utils.ColumnFilterUtil;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
+import io.arlas.server.ogc.common.model.Service;
+import io.arlas.server.ogc.common.utils.OpenGISFieldsExtractor;
 import org.elasticsearch.common.geo.Orientation;
 import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
 import org.elasticsearch.common.geo.builders.PolygonBuilder;
@@ -34,10 +34,11 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.geotools.filter.v2_0.FESConfiguration;
-import org.geotools.xml.Parser;
+import org.geotools.xsd.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

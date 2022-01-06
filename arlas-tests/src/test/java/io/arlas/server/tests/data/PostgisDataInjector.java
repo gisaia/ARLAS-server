@@ -23,6 +23,9 @@ import com.codahale.metrics.MetricRegistry;
 import io.arlas.server.tests.Data;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.db.ManagedDataSource;
+import net.postgis.jdbc.PGgeometry;
+import net.postgis.jdbc.geometry.LinearRing;
+import net.postgis.jdbc.geometry.Point;
 import org.geojson.Polygon;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.guava.GuavaPlugin;
@@ -33,9 +36,6 @@ import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.postgis.LinearRing;
-import org.postgis.PGgeometry;
-import org.postgis.Point;
 
 import java.time.Instant;
 
@@ -146,7 +146,7 @@ public class PostgisDataInjector extends AbstractDataInjector {
 
         private PGgeometry getPGgeometry(Polygon polygon) {
             Point[] coords = polygon.getExteriorRing().stream().map(coord -> new Point(coord.getLongitude(), coord.getLatitude())).toArray(Point[]::new);
-            org.postgis.Polygon geo = new org.postgis.Polygon(new LinearRing[] {new LinearRing(coords)});
+            net.postgis.jdbc.geometry.Polygon geo = new net.postgis.jdbc.geometry.Polygon(new LinearRing[] {new LinearRing(coords)});
             return new PGgeometry(geo);
         }
 

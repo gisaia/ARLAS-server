@@ -26,6 +26,39 @@
     </distributionManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- ____________________________________________________ -->
+        <!-- DEV -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>com.oath.cyclops</groupId>
+            <artifactId>cyclops</artifactId>
+            <version>${cyclops.version}</version>
+        </dependency>
+        <!-- ____________________________________________________ -->
+        <!-- Tests -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- ____________________________________________________ -->
+        <!-- LOGS -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
         <!-- ____________________________________________________ -->
         <!-- CACHE -->
         <!-- ____________________________________________________ -->
@@ -35,11 +68,6 @@
             <version>${hazelcast.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-kubernetes</artifactId>
-            <version>${hazelcast.k8s.version}</version>
-        </dependency>
         <!-- ____________________________________________________ -->
         <!-- DROPWIZARD -->
         <!-- ____________________________________________________ -->
@@ -56,6 +84,12 @@
             <groupId>com.smoketurner.dropwizard</groupId>
             <artifactId>zipkin-core</artifactId>
             <version>${zipkin.dropwizard.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.dropwizard</groupId>
+                    <artifactId>dropwizard-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- ____________________________________________________ -->
@@ -66,16 +100,38 @@
             <artifactId>dropwizard-swagger</artifactId>
             <version>${dropwizard.swagger.version}</version>
             <exclusions>
-                <exclusion><groupId>org.glassfish.jersey.containers</groupId><artifactId>jersey-container-servlet-core</artifactId></exclusion>
-                <exclusion><groupId>org.reflections</groupId><artifactId>reflections</artifactId></exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.9.10</version>
-            <exclusions>
-                <exclusion><groupId>com.google.guava</groupId><artifactId>guava</artifactId></exclusion>
+                <exclusion>
+                    <artifactId>caffeine</artifactId>
+                    <groupId>com.github.ben-manes.caffeine</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.dropwizard</groupId>
+                    <artifactId>dropwizard-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.dropwizard</groupId>
+                    <artifactId>dropwizard-jackson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.dropwizard</groupId>
+                    <artifactId>dropwizard-jersey</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.dropwizard</groupId>
+                    <artifactId>dropwizard-jetty</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.dropwizard</groupId>
+                    <artifactId>dropwizard-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.dropwizard</groupId>
+                    <artifactId>dropwizard-servlets</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.dropwizard</groupId>
+                    <artifactId>dropwizard-util</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -109,54 +165,18 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-jdbi3</artifactId>
             <version>${dropwizard.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jdbi3-core</artifactId>
-                    <groupId>org.jdbi</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jdbi3-guava</artifactId>
-                    <groupId>org.jdbi</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jdbi3-jodatime2</artifactId>
-                    <groupId>org.jdbi</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jdbi3-sqlobject</artifactId>
-                    <groupId>org.jdbi</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
-            <version>${jdbi3.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-guava</artifactId>
-            <version>${jdbi3.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-jodatime2</artifactId>
-            <version>${jdbi3.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
-            <version>${jdbi3.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-jackson2</artifactId>
             <version>${jdbi3.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -171,12 +191,6 @@
             <version>${postgis-jdbc.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
-        </dependency>
-
         <!-- ____________________________________________________ -->
         <!-- GEO -->
         <!-- ____________________________________________________ -->
@@ -184,11 +198,27 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-main</artifactId>
             <version>${geotools.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-text</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-geojson</artifactId>
             <version>${geotools.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
@@ -204,11 +234,6 @@
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.opengis</groupId>
-            <artifactId>geoapi</artifactId>
-            <version>${geoapi.version}</version>
         </dependency>
         <dependency>
             <groupId>de.grundid.opendatalab</groupId>
@@ -243,7 +268,28 @@
         <dependency>
             <groupId>com.neovisionaries</groupId>
             <artifactId>nv-i18n</artifactId>
-            <version>1.4</version>
+            <version>${nv-i18n.version}</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-jaxb -->
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-jaxb</artifactId>
+            <version>${jersey-media-jaxb.version}</version>
+        </dependency>
+
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

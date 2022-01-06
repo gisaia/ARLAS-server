@@ -1,39 +1,53 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>io.arlas</groupId>
-  <artifactId>arlas-admin</artifactId>
-  <version>19.7.9-SNAPSHOT</version>
-  <packaging>jar</packaging>
-  <name>ARLAS server admin</name>
-
-  <parent>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <groupId>io.arlas</groupId>
-    <artifactId>arlas-server-parent</artifactId>
+    <artifactId>arlas-admin</artifactId>
     <version>19.7.9-SNAPSHOT</version>
-  </parent>
+    <packaging>jar</packaging>
+    <name>ARLAS server admin</name>
 
-  <distributionManagement>
-    <snapshotRepository>
-      <id>io.arlas.server.admin</id>
-      <url>https://maven.cloudsmith.io/gisaia/public/</url>
-    </snapshotRepository>
-    <repository>
-      <id>io.arlas.server.admin</id>
-      <url>https://maven.cloudsmith.io/gisaia/public/</url>
-    </repository>
-  </distributionManagement>
+    <parent>
+        <groupId>io.arlas</groupId>
+        <artifactId>arlas-server-parent</artifactId>
+        <version>19.7.9-SNAPSHOT</version>
+    </parent>
 
-  <dependencies>
-    <dependency>
-      <groupId>io.arlas</groupId>
-      <artifactId>arlas-core</artifactId>
-      <version>19.7.9-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.auth0</groupId>
-      <artifactId>java-jwt</artifactId>
-      <version>${java-jwt.version}</version>
-    </dependency>
-  </dependencies>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>io.arlas.server.admin</id>
+            <url>https://maven.cloudsmith.io/gisaia/public/</url>
+        </snapshotRepository>
+        <repository>
+            <id>io.arlas.server.admin</id>
+            <url>https://maven.cloudsmith.io/gisaia/public/</url>
+        </repository>
+    </distributionManagement>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.arlas</groupId>
+            <artifactId>arlas-core</artifactId>
+            <version>19.7.9-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>${java-jwt.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

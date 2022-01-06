@@ -188,6 +188,9 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
     private void writeElement(XMLStreamWriter writer, String namespace, String tag, String value) {
         if (!StringUtil.isNullOrEmpty(value)) {
             try {
+                if (Character.isDigit(tag.charAt(0))) {
+                    tag = "_" + tag; // QNname cannot start with a digit
+                }
                 writer.writeStartElement(namespace, tag);
                 writer.writeCharacters(value);
                 writer.writeEndElement();

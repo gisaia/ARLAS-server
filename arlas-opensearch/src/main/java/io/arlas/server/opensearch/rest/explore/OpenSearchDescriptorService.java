@@ -49,9 +49,6 @@ import java.util.*;
 
 public class OpenSearchDescriptorService extends ExploreRESTServices {
 
-    @Context
-    UriInfo uri;
-
     public OpenSearchDescriptorService(ExploreService exploreService) {
         super(exploreService);
     }
@@ -65,7 +62,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
     @ApiOperation(value = "OpenSearch Description Document", produces = MIME_TYPE_XML, notes = Documentation.OPENSEARCH_OPERATION)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
-    public Response opensearch(
+    public Response opensearch(@Context UriInfo uri,
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
@@ -93,7 +90,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
         }
         ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Collections.singletonList(cr));
         OpenSearchDescription description = new OpenSearchDescription();
-        String prefix = uri.getBaseUri().toURL().toString() + uri.getPath() + "/../_search";
+        String prefix = uri.getBaseUri().toURL() + uri.getPath() + "/../_search";
 
         //[scheme:][//authority][path][?query][#fragment]
         if (cr.params.openSearch != null) {
@@ -146,29 +143,16 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
                 String fieldPath = String.join(".", new ArrayList<>(namespace));
                 if (property.indexed) {
                     switch (property.type) {
-                        case DATE:
-                        case LONG:
-                            addNumberUrls(urls, templatePrefix, fieldPath, "long");
-                            break;
-                        case DOUBLE:
-                            addNumberUrls(urls, templatePrefix, fieldPath, "double");
-                            break;
-                        case FLOAT:
-                            addNumberUrls(urls, templatePrefix, fieldPath, "float");
-                            break;
-                        case SHORT:
-                            addNumberUrls(urls, templatePrefix, fieldPath, "short");
-                            break;
-                        case INTEGER:
-                            addNumberUrls(urls, templatePrefix, fieldPath, "integer");
-                            break;
-                        case TEXT:
+                        case DATE, LONG -> addNumberUrls(urls, templatePrefix, fieldPath, "long");
+                        case DOUBLE -> addNumberUrls(urls, templatePrefix, fieldPath, "double");
+                        case FLOAT -> addNumberUrls(urls, templatePrefix, fieldPath, "float");
+                        case SHORT -> addNumberUrls(urls, templatePrefix, fieldPath, "short");
+                        case INTEGER -> addNumberUrls(urls, templatePrefix, fieldPath, "integer");
+                        case TEXT -> {
                             urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
                             urls.add(url(templatePrefix + "?f=" + fieldPath + ":like:{text?}"));
-                            break;
-                        case KEYWORD:
-                            urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
-                            break;
+                        }
+                        case KEYWORD -> urls.add(url(templatePrefix + "?f=" + fieldPath + ":eq:{text?}"));
                     }
                 }
 

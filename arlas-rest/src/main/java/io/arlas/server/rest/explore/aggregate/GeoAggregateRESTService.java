@@ -38,7 +38,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
 
-    private static double GEOHASH_EPSILON = 0.00000001;
+    private static final double GEOHASH_EPSILON = 0.00000001;
     public GeoAggregateRESTService(ExploreService exploreService) {
         super(exploreService);
     }
@@ -489,7 +489,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     new BoundingBox(midLat, bbox.getSouth(), midLon, bbox.getEast()));
         } else {
             LOGGER.debug("interval - geohash <= 2");
-            return Arrays.asList(bbox);
+            return List.of(bbox);
         }
     }
 
@@ -520,7 +520,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     new BoundingBox(midLat, bbox.getSouth(), midLon, bbox.getEast()));
         } else {
             LOGGER.debug("interval - z < 7");
-            return Arrays.asList(bbox);
+            return List.of(bbox);
         }
     }
 
@@ -546,7 +546,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @Consumes(UTF8JSON)
     @ApiOperation(value = "GeoAggregate", produces = UTF8JSON, notes = Documentation.GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class),
+            @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
             @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
     public Response geoaggregatePost(
             // --------------------------------------------------------
@@ -682,7 +683,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         } finally {
             try {
                 FileUtils.forceDeleteOnExit(result);
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
     }
@@ -720,7 +721,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             } finally {
                 try {
                     FileUtils.forceDeleteOnExit(result);
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 }
             }
         } else {
@@ -764,7 +765,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                            properties.put("key", element.keyAsString);
                        }
                        if (flat) {
-                           exploreService.flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))).forEach(properties::put);
+                           properties.putAll(exploreService.flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))));
                        }else{
                            properties.put("elements", element.elements);
                            properties.put("metrics", element.metrics);

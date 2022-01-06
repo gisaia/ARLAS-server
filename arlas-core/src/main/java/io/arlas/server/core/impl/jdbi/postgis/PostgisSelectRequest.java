@@ -27,8 +27,8 @@ import io.arlas.server.core.impl.jdbi.model.ClauseParam;
 import io.arlas.server.core.impl.jdbi.model.SelectRequest;
 import io.arlas.server.core.model.enumerations.AggregatedGeometryEnum;
 import io.arlas.server.core.services.FluidSearchService;
+import net.postgis.jdbc.PGgeometry;
 import org.locationtech.jts.geom.Geometry;
-import org.postgis.PGgeometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

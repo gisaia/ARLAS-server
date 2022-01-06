@@ -39,7 +39,7 @@ docker run --rm \
     -w /opt/maven \
 	-v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
-	maven:3.5.0-jdk-8 \
+	maven:3.8.2-openjdk-17 \
 	mvn clean install -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
 echo "arlas-server:${ARLAS_VERSION}"
 

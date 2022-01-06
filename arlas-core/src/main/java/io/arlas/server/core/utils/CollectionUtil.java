@@ -20,7 +20,7 @@ package io.arlas.server.core.utils;
 
 import io.arlas.server.core.exceptions.ArlasException;
 import io.arlas.server.core.exceptions.NotFoundException;
-import org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.collections4.IteratorUtils;
 
 import java.util.LinkedHashMap;
 import java.util.List;

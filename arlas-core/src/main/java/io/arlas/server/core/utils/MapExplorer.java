@@ -19,7 +19,6 @@
 
 package io.arlas.server.core.utils;
 
-import com.google.common.collect.Streams;
 import cyclops.data.tuple.Tuple2;
 import cyclops.reactive.ReactiveSeq;
 import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
@@ -61,30 +60,29 @@ public class MapExplorer {
     }
 
     private static void flat(List<String> keyParts, Object source, Map<List<String>, Object> flatted, Set<String> exclude) {
-        if(source==null){
-            flatted.put(keyParts,source);
-        }else if(exclude.stream().anyMatch(donotstartwith->String.join(".",keyParts).startsWith(donotstartwith))){
+        if (source == null) {
+            flatted.put(keyParts, source);
+        } else if (exclude.stream().anyMatch(donotstartwith->String.join(".",keyParts).startsWith(donotstartwith))) {
             // Nothing to do: should not be exported in the map
-        }else if (source instanceof Map) {
+        } else if (source instanceof Map) {
             ((Map) source).forEach((key,value)->{
                 List<String> extendedParts=new ArrayList<>(keyParts);
                 extendedParts.add((String)key);
                 flat(extendedParts,value, flatted, exclude);
             });
-        }else if(source instanceof Collection || source.getClass().isArray()) {
-            Collection collection = source instanceof Collection?(Collection)source:Arrays.asList(source);
-            Streams.mapWithIndex(collection.stream(),(value, i) -> {
+        } else if (source instanceof Collection || source.getClass().isArray()) {
+            Collection<Object> collection = source instanceof Collection?(Collection)source:Arrays.asList(source);
+            ReactiveSeq.fromStream(collection.stream()).zipWithIndex().forEach((tuple) -> {
                 List<String> extendedParts=new ArrayList<>(keyParts);
-                extendedParts.add(""+i);
-                flat(extendedParts,value, flatted, exclude);
-                return value;
-            }).count();
-        }else{
+                extendedParts.add("" + tuple._2());
+                flat(extendedParts,tuple._1(), flatted, exclude);
+            });
+        } else {
             flatted.put(keyParts,source);
         }
     }
 
-    public static class ReduceArrayOnKey implements Function<Map<List<String>, Object>,Map<String, Object>>{
+    public static class ReduceArrayOnKey implements Function<Map<List<String>, Object>,Map<String, Object>> {
         private String separator="/";
         public ReduceArrayOnKey(){}
         public ReduceArrayOnKey(String separator){this.separator = separator;}
