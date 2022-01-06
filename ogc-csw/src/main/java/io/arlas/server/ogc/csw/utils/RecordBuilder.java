@@ -56,9 +56,7 @@ public class RecordBuilder {
             } else {
                 addType(briefRecord, dublinCoreElementName.type);
             }
-            if (dublinCoreElementName.bbox != null) {
-                addBbox(briefRecord, dublinCoreElementName.bbox);
-            }
+            addBbox(briefRecord, dublinCoreElementName.bbox);
         } else {
             for (String element : Arrays.asList(elements)) {
                 switch (element.toLowerCase()) {
@@ -72,9 +70,7 @@ public class RecordBuilder {
                             addType(briefRecord, dublinCoreElementName.type);
                         }                         break;
                     case CSWConstant.DC_FIELD_BBOX:
-                        if (dublinCoreElementName.bbox != null) {
-                            addBbox(briefRecord, dublinCoreElementName.bbox);
-                        }
+                        addBbox(briefRecord, dublinCoreElementName.bbox);
                         break;
                 }
             }
@@ -104,9 +100,7 @@ public class RecordBuilder {
             } else {
                 addType(summaryRecord, dublinCoreElementName.type);
             }
-            if (dublinCoreElementName.bbox != null) {
-                addBbox(summaryRecord, dublinCoreElementName.bbox);
-            }
+            addBbox(summaryRecord, dublinCoreElementName.bbox);
             addModified(summaryRecord, dublinCoreElementName.getDate());
             addFormat(summaryRecord, dublinCoreElementName.format);
             addAbstract(summaryRecord, dublinCoreElementName.description);
@@ -124,9 +118,7 @@ public class RecordBuilder {
                             addType(summaryRecord, dublinCoreElementName.type);
                         }                        break;
                     case CSWConstant.DC_FIELD_BBOX:
-                        if (dublinCoreElementName.bbox != null) {
-                            addBbox(summaryRecord, dublinCoreElementName.bbox);
-                        }
+                        addBbox(summaryRecord, dublinCoreElementName.bbox);
                         break;
                     case CSWConstant.DC_FIELD_SUBJECT:
                         if (inspire.keywords != null) {
@@ -174,9 +166,7 @@ public class RecordBuilder {
             } else {
                 addType(record, dublinCoreElementName.type);
             }
-            if (dublinCoreElementName.bbox != null) {
-                addBbox(record, dublinCoreElementName.bbox);
-            }
+            addBbox(record, dublinCoreElementName.bbox);
             addModified(record, dublinCoreElementName.getDate());
             addFormat(record, dublinCoreElementName.format);
             addAbstract(record, dublinCoreElementName.description);
@@ -194,9 +184,7 @@ public class RecordBuilder {
                             addType(record, dublinCoreElementName.type);
                         }                        break;
                     case CSWConstant.DC_FIELD_BBOX:
-                        if (dublinCoreElementName.bbox != null) {
-                            addBbox(record, dublinCoreElementName.bbox);
-                        }
+                        addBbox(record, dublinCoreElementName.bbox);
                         break;
                     case CSWConstant.DC_FIELD_SUBJECT:
                         if (inspire.keywords != null) {

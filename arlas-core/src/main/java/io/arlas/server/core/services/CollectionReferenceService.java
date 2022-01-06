@@ -89,7 +89,11 @@ public abstract class CollectionReferenceService {
     }
 
     public CollectionReference putCollectionReference(CollectionReference collectionReference) throws ArlasException {
-        checkCollectionReferenceParameters(collectionReference);
+        return putCollectionReference(collectionReference, true);
+    }
+
+    public CollectionReference putCollectionReference(CollectionReference collectionReference, boolean checkGeo) throws ArlasException {
+        checkCollectionReferenceParameters(collectionReference, checkGeo);
         putCollectionReferenceWithDao(collectionReference);
         //explicit clean-up cache
         cacheManager.removeCollectionReference(collectionReference.collectionName);
@@ -254,16 +258,16 @@ public abstract class CollectionReferenceService {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    protected void checkCollectionReferenceParameters(CollectionReference collectionReference) throws ArlasException {
+    protected void checkCollectionReferenceParameters(CollectionReference collectionReference, boolean checkGeo) throws ArlasException {
         //get fields
         List<String> fields = new ArrayList<>();
         if (collectionReference.params.idPath != null)
             fields.add(collectionReference.params.idPath);
-        if (collectionReference.params.geometryPath != null)
+        if (collectionReference.params.geometryPath != null && checkGeo)
             fields.add(collectionReference.params.geometryPath);
-        if (collectionReference.params.centroidPath != null)
+        if (collectionReference.params.centroidPath != null && checkGeo)
             fields.add(collectionReference.params.centroidPath);
-        if (collectionReference.params.h3Path != null)
+        if (collectionReference.params.h3Path != null && checkGeo)
             fields.add(collectionReference.params.h3Path);
         if (collectionReference.params.timestampPath != null)
             fields.add(collectionReference.params.timestampPath);
@@ -272,15 +276,13 @@ public abstract class CollectionReferenceService {
             CheckParams.checkExcludeField(excludeField, fields);
         }
         Map<String, LinkedHashMap> mappings = CollectionUtil.checkAliasMappingFields(getMapping(collectionReference.params.indexName), fields.toArray(new String[0]));
-        if (collectionReference.params.timestampPath != null) {
-            for (String index : mappings.keySet()) {
-                Map<String, Object> timestampMD = CollectionUtil.getFieldFromProperties(collectionReference.params.timestampPath, mappings.get(index));
-                collectionReference.params.customParams = new HashMap<>();
-                if (timestampMD.containsKey("format")) {
-                    collectionReference.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
-                } else {
-                    collectionReference.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT, CollectionReference.DEFAULT_TIMESTAMP_FORMAT);
-                }
+        for (String index : mappings.keySet()) {
+            Map<String, Object> timestampMD = CollectionUtil.getFieldFromProperties(collectionReference.params.timestampPath, mappings.get(index));
+            collectionReference.params.customParams = new HashMap<>();
+            if (timestampMD.containsKey("format")) {
+                collectionReference.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
+            } else {
+                collectionReference.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT, CollectionReference.DEFAULT_TIMESTAMP_FORMAT);
             }
         }
     }

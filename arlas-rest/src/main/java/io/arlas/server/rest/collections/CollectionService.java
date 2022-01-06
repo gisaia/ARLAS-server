@@ -146,7 +146,7 @@ public class CollectionService extends CollectionRESTServices {
                 if ((c.endsWith("*") && collection.collectionName.startsWith(c.substring(0, c.indexOf("*"))))
                         || collection.collectionName.equals(c)){
                     try {
-                        savedCollections.add(save(collection.collectionName, collection.params));
+                        savedCollections.add(save(collection.collectionName, collection.params, true));
                     } catch (Exception e) {
                             throw new ArlasException(e.getMessage());
                     }
@@ -236,16 +236,19 @@ public class CollectionService extends CollectionRESTServices {
             @ApiParam(name = "pretty",
                     value = Documentation.FORM_PRETTY,
                     defaultValue = "false")
-            @QueryParam(value = "pretty") Boolean pretty
+            @QueryParam(value = "pretty") Boolean pretty,
+
+            @ApiParam(name = "checkGeo", defaultValue = "true")
+            @QueryParam(value = "checkGeo") Boolean checkGeo
 
     ) throws ArlasException {
         if (collection != null && collection.equals(META_COLLECTION_NAME)) {
             throw new NotAllowedException("'" + META_COLLECTION_NAME + "' is not allowed as a name for collections");
         }
-        return ResponseFormatter.getResultResponse(save(collection, collectionReferenceParameters));
+        return ResponseFormatter.getResultResponse(save(collection, collectionReferenceParameters, checkGeo == null ? Boolean.TRUE : checkGeo));
     }
 
-    public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters) throws ArlasException {
+    public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters, Boolean checkGeo) throws ArlasException {
         CollectionReference collectionReference = new CollectionReference(collection, collectionReferenceParameters);
         setDefaultInspireParameters(collectionReference);
         if (inspireConfigurationEnabled) {
@@ -253,7 +256,7 @@ public class CollectionService extends CollectionRESTServices {
             CheckParams.checkInvalidDublinCoreElementsForInspire(collectionReference);
         }
         CheckParams.checkInvalidInspireParameters(collectionReference);
-        return collectionReferenceService.putCollectionReference(collectionReference);
+        return collectionReferenceService.putCollectionReference(collectionReference, checkGeo);
     }
 
     @Timed

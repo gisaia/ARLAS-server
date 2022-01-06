@@ -20,7 +20,6 @@
 package io.arlas.server.core.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
@@ -33,113 +32,110 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DublinCoreElementName implements Serializable {
     private static final long serialVersionUID = -3452567240629298463L;
 
-    public DublinCoreElementName(){
+    public DublinCoreElementName() {
     }
 
-    @JsonProperty(value = "title")
+    @JsonProperty(value = "title", required = false)
     public String title = "";
 
-    @JsonProperty(value = "creator")
+    @JsonProperty(value = "creator", required = false)
     public String creator = "";
 
-    @JsonProperty(value = "subject")
+    @JsonProperty(value = "subject", required = false)
     public String subject = "";
 
-    @JsonProperty(value = "description")
+    @JsonProperty(value = "description", required = false)
     public String description = "";
 
-    @JsonProperty(value = "publisher")
+    @JsonProperty(value = "publisher", required = false)
     public String publisher = "";
 
-    @JsonProperty(value = "contributor")
+    @JsonProperty(value = "contributor", required = false)
     public String contributor = "";
 
-    @JsonProperty(value = "type")
+    @JsonProperty(value = "type", required = false)
     public String type = "";
 
-    @JsonProperty(value = "format")
+    @JsonProperty(value = "format", required = false)
     public String format = "";
 
-    @JsonProperty(value = "identifier")
+    @JsonProperty(value = "identifier", required = false)
     public String identifier = String.valueOf(java.util.UUID.randomUUID());
 
-    @JsonProperty(value = "source")
+    @JsonProperty(value = "source", required = false)
     public String source = "";
 
-    @JsonProperty(value = "language")
+    @JsonProperty(value = "language", required = false)
     public String language = "";
 
-    @JsonProperty(value = "bbox")
-    public Bbox bbox;
+    @JsonProperty(value = "bbox", required = false)
+    public Bbox bbox = new Bbox();
 
     private Date date = new Date();
+
     @JsonGetter(value = "date")
-    public String getDate(){
+    public String getDate() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-       return simpleDateFormat.format(date);
+        return simpleDateFormat.format(date);
     }
 
     private Polygon coverageGeometry;
 
     private JSONObject coverage;
+
     @JsonGetter(value = "coverage")
     public JSONObject getCoverage() {
-        if (bbox != null) {
-            coverageGeometry = new org.geojson.Polygon();
-            List<LngLatAlt> exteriorRing = new ArrayList<>();
-            exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
-            exteriorRing.add(new LngLatAlt(bbox.east, bbox.south));
-            exteriorRing.add(new LngLatAlt(bbox.east, bbox.north));
-            exteriorRing.add(new LngLatAlt(bbox.west, bbox.north));
-            exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
-            coverageGeometry.setExteriorRing(exteriorRing);
-            coverage = new JSONObject();
-            JSONArray jsonArayExt = new JSONArray();
-            coverageGeometry.getExteriorRing().forEach(lngLatAlt -> {
-                JSONArray jsonArayLngLat = new JSONArray();
-                jsonArayLngLat.add(0, lngLatAlt.getLongitude());
-                jsonArayLngLat.add(1, lngLatAlt.getLatitude());
-                jsonArayExt.add(jsonArayLngLat);
-            });
-            JSONArray jsonAray = new JSONArray();
-            jsonAray.add(jsonArayExt);
-            coverage.put("type", "Polygon");
-            coverage.put("coordinates", jsonAray);
-        }
+        coverageGeometry = new org.geojson.Polygon();
+        List<LngLatAlt> exteriorRing = new ArrayList<>();
+        exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
+        exteriorRing.add(new LngLatAlt(bbox.east, bbox.south));
+        exteriorRing.add(new LngLatAlt(bbox.east, bbox.north));
+        exteriorRing.add(new LngLatAlt(bbox.west, bbox.north));
+        exteriorRing.add(new LngLatAlt(bbox.west, bbox.south));
+        coverageGeometry.setExteriorRing(exteriorRing);
+        coverage = new JSONObject();
+        JSONArray jsonArayExt = new JSONArray();
+        coverageGeometry.getExteriorRing().forEach(lngLatAlt -> {
+            JSONArray jsonArayLngLat = new JSONArray();
+            jsonArayLngLat.add(0, lngLatAlt.getLongitude());
+            jsonArayLngLat.add(1, lngLatAlt.getLatitude());
+            jsonArayExt.add(jsonArayLngLat);
+        });
+        JSONArray jsonAray = new JSONArray();
+        jsonAray.add(jsonArayExt);
+        coverage.put("type", "Polygon");
+        coverage.put("coordinates", jsonAray);
         return coverage;
     }
 
     private String coverageCentroid;
+
     @JsonGetter(value = "coverage_centroid")
-    public String getCoverageCentroid(){
+    public String getCoverageCentroid() {
         if (coverageGeometry != null) {
             LngLatAlt bottomLeft = coverageGeometry.getExteriorRing().get(0);
             LngLatAlt topRight = coverageGeometry.getExteriorRing().get(2);
             double centroidLat = (bottomLeft.getLatitude() + topRight.getLatitude()) / 2;
             double centroidLng = (bottomLeft.getLongitude() + topRight.getLongitude()) / 2;
             coverageCentroid = centroidLat + "," + centroidLng;
+        } else {
+            coverageCentroid = "0,0";
         }
         return coverageCentroid;
     }
 
     public class Bbox implements Serializable {
         private static final long serialVersionUID = 364766455618062216L;
-
         @JsonProperty(value = "north", required = true)
         public double north = 90.0;
-
         @JsonProperty(value = "south", required = true)
         public double south = -90.0;
-
         @JsonProperty(value = "east", required = true)
         public double east = 180.0;
-
         @JsonProperty(value = "west", required = true)
         public double west = -180.0;
     }
-
 }

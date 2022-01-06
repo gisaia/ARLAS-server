@@ -294,9 +294,7 @@ public class MDMetadataBuilder {
                 .map(inspireURI -> inspireURI.code)
                 .orElse(collectionReference.params.dublinCoreElementName.identifier);
         addCICitation(mdDataIdentificationType, collectionReference.params.dublinCoreElementName.title, null, null, uniqueResourceIdentifier);
-        if (collectionReference.params.dublinCoreElementName.bbox != null) {
-            addExtent(mdDataIdentificationType, collectionReference.params.dublinCoreElementName.bbox);
-        }
+        addExtent(mdDataIdentificationType, collectionReference.params.dublinCoreElementName.bbox);
         mdIdentificationPropertyType.setAbstractMDIdentification(gmdObjectFactory.createMDDataIdentification(mdDataIdentificationType));
         mdMetadataType.getIdentificationInfo().add(mdIdentificationPropertyType);
     }
@@ -326,9 +324,7 @@ public class MDMetadataBuilder {
         }
         addIdentificationLanguage(mdDataIdentificationType, collectionReference.params.dublinCoreElementName.language);
         addSpatialRepresentationType(mdDataIdentificationType);
-        if (collectionReference.params.dublinCoreElementName.bbox != null) {
-            addExtent(mdDataIdentificationType, collectionReference.params.dublinCoreElementName.bbox);
-        }
+        addExtent(mdDataIdentificationType, collectionReference.params.dublinCoreElementName.bbox);
         mdIdentificationPropertyType.setAbstractMDIdentification(gmdObjectFactory.createMDDataIdentification(mdDataIdentificationType));
         mdMetadataType.getIdentificationInfo().add(mdIdentificationPropertyType);
     }

@@ -167,9 +167,6 @@ public class TileRESTService extends ExploreRESTServices {
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
-        if (collectionReference.params.geometryPath == null) {
-            throw new BadRequestException("You cannot request a tiledgeosearch on a collection which has no geometry path defined.");
-        }
         if (collectionReference.params.rasterTileURL == null) {
             throw new NotFoundException(collectionReference.collectionName+" has no URL defined for fetching the tiles.");
         }

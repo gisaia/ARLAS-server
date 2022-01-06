@@ -42,16 +42,19 @@ public class CollectionReferenceParameters implements Serializable {
     @JsonProperty(value = "id_path", required = true)
     public String idPath;
 
-    @JsonProperty(value = "geometry_path")
+    @NotEmpty
+    @JsonProperty(value = "geometry_path", required = true)
     public String geometryPath;
 
-    @JsonProperty(value = "centroid_path")
+    @NotEmpty
+    @JsonProperty(value = "centroid_path", required = true)
     public String centroidPath;
 
     @JsonProperty(value = "h3_path")
     public String h3Path;
 
-    @JsonProperty(value = "timestamp_path")
+    @NotEmpty
+    @JsonProperty(value = "timestamp_path", required = true)
     public String timestampPath;
 
     @JsonProperty(value = "exclude_fields")
@@ -104,7 +107,7 @@ public class CollectionReferenceParameters implements Serializable {
     }
 
     public GeoTypeEnum getGeometryType(String path) {
-        return path == null ? null : this.geoTypes.get(path);
+        return this.geoTypes.get(path);
     }
 
 }
