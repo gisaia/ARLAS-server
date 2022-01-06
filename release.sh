@@ -1,6 +1,5 @@
 #!/bin/bash
 set -o errexit -o pipefail
-
 SCRIPT_DIRECTORY="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 PROJECT_ROOT_DIRECTORY="$SCRIPT_DIRECTORY"
 
@@ -93,7 +92,21 @@ case $i in
 esac
 done
 
-ELASTIC_VERSIONS_7=("7.0.1","7.1.0","7.2.1","7.3.2","7.4.2","7.5.2","7.6.2","7.7.1","7.8.1","7.9.2","7.12.1","7.14.2")
+ELASTIC_VERSIONS_7=(
+  7.2.1
+  7.3.2
+  7.4.2
+  7.5.2
+  7.6.2
+  7.7.1
+  7.8.1
+  7.9.2
+  7.12.1
+  7.14.2
+  7.15.2
+  7.16.0
+)
+
 case $ELASTIC_RANGE in
     "7")
         ELASTIC_VERSIONS=( "${ELASTIC_VERSIONS_7[@]}" )
@@ -156,7 +169,7 @@ else
         --mount dst=/mnt/.m2,src="$HOME/.m2/",type=bind \
         --mount dst=/opt/maven,src="$PWD",type=bind \
         --rm \
-        gisaia/maven-3.5-jdk8-alpine \
+        maven:3.8.2-openjdk-17 \
             clean install
 fi
 
@@ -186,7 +199,7 @@ docker-compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --proje
 
 itests() {
 	echo "=> Run integration tests with several elasticsearch versions (${ELASTIC_VERSIONS[*]})"
-	for i in "${ELASTIC_RANGE[@]}"
+	for i in "${ELASTIC_VERSIONS[@]}"
     do
 	    ./scripts/tests-integration.sh --es=$i
     done

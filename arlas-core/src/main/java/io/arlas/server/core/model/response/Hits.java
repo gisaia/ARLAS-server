@@ -31,13 +31,13 @@ public class Hits {
     public List<Hit> hits;
     public long nbhits;
     public long totalnb;
-    public HashMap<String,Link> links;
+    public HashMap<String, Link> links;
 
     public Hits(String collection) {
         this.collection = collection;
     }
 
-    public Hits(String collection, List<Hit> hits, long totalnb, HashMap<String,Link> links) {
+    public Hits(String collection, List<Hit> hits, long totalnb, HashMap<String, Link> links) {
         this.collection = collection;
         this.hits = hits;
         this.nbhits = hits.size();

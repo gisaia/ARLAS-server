@@ -29,7 +29,7 @@ import io.arlas.server.core.model.enumerations.*;
 import io.arlas.server.core.model.request.*;
 import io.arlas.server.core.model.response.FieldType;
 import io.dropwizard.jersey.params.IntParam;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.joda.time.format.DateTimeFormat;
@@ -49,7 +49,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.arlas.server.core.services.FluidSearchService.*;
-
 import static io.arlas.server.core.utils.CheckParams.GEO_AGGREGATION_TYPE_ENUMS;
 
 public class ParamsParser {

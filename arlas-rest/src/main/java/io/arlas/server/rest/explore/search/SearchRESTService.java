@@ -38,7 +38,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.lang3.BooleanUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -193,7 +192,7 @@ public class SearchRESTService extends ExploreRESTServices {
         request.headerRequest = searchHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        Hits hits = exploreService.search(request, collectionReference, BooleanUtils.isTrue(flat), uriInfo,"GET");
+        Hits hits = exploreService.search(request, collectionReference, Boolean.TRUE.equals(flat), uriInfo,"GET");
         return cache(Response.ok(hits), maxagecache);
     }
 
@@ -268,7 +267,7 @@ public class SearchRESTService extends ExploreRESTServices {
         request.headerRequest = searchHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        Hits hits = exploreService.search(request, collectionReference, (search.form != null && BooleanUtils.isTrue(search.form.flat)),uriInfo,"POST");
+        Hits hits = exploreService.search(request, collectionReference, (search.form != null && Boolean.TRUE.equals(search.form.flat)),uriInfo,"POST");
         return cache(Response.ok(hits), maxagecache);
     }
 }

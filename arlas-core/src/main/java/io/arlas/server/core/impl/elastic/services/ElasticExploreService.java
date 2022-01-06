@@ -36,7 +36,7 @@ import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.services.FluidSearchService;
 import io.arlas.server.core.utils.*;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.geo.GeoPoint;

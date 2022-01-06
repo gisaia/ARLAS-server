@@ -27,7 +27,6 @@ import io.arlas.server.core.exceptions.NotFoundException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.utils.CollectionUtil;
 import io.arlas.server.core.utils.StringUtil;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -184,10 +183,10 @@ public class ElasticTool {
     }
 
     public static Joda.EpochTimeParser getElasticEpochTimeParser(boolean isMilliSecond) {
-        return new Joda.EpochTimeParser(BooleanUtils.isTrue(isMilliSecond));
+        return new Joda.EpochTimeParser(Boolean.TRUE.equals(isMilliSecond));
     }
 
     public static Joda.EpochTimePrinter getElasticEpochTimePrinter(boolean isMilliSecond) {
-        return new Joda.EpochTimePrinter(BooleanUtils.isTrue(isMilliSecond));
+        return new Joda.EpochTimePrinter(Boolean.TRUE.equals(isMilliSecond));
     }
 }

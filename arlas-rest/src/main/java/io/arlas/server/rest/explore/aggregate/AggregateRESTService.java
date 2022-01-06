@@ -37,7 +37,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.lang3.BooleanUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -139,7 +138,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         request.headerRequest = aggregationsRequestHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, BooleanUtils.isTrue(flat));
+        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, Boolean.TRUE.equals(flat));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
         return cache(Response.ok(aggregationResponse), maxagecache);
     }
@@ -211,7 +210,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         request.headerRequest = aggregationsRequestHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
-        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, (aggregationsRequest.form != null && BooleanUtils.isTrue(aggregationsRequest.form.flat)));
+        AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, (aggregationsRequest.form != null && Boolean.TRUE.equals(aggregationsRequest.form.flat)));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
 
         return cache(Response.ok(aggregationResponse), maxagecache);

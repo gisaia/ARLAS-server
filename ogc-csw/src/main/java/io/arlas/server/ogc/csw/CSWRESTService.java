@@ -49,7 +49,7 @@ import io.swagger.annotations.*;
 import net.opengis.cat.csw._3.AbstractRecordType;
 import net.opengis.cat.csw._3.CapabilitiesType;
 import net.opengis.cat.csw._3.GetRecordsResponseType;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -77,9 +77,6 @@ public class CSWRESTService extends OGCRESTService {
         this.cswHandler = cswHandler;
         this.serverBaseUri = cswHandler.baseUri;
     }
-
-    @Context
-    UriInfo uri;
 
     @Timed
     @Path("/csw")

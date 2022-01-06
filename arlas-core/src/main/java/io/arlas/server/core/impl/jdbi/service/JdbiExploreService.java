@@ -44,7 +44,7 @@ import io.arlas.server.core.utils.BoundingBox;
 import io.arlas.server.core.utils.GeoTileUtil;
 import io.arlas.server.core.utils.GeoUtil;
 import io.arlas.server.core.utils.ParamsParser;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.geojson.*;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.result.ResultIterable;

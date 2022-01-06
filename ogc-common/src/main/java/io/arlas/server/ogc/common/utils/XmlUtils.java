@@ -28,7 +28,7 @@ import io.arlas.server.core.model.response.FieldType;
 import io.arlas.server.core.utils.FilterMatcherUtil;
 import io.arlas.server.core.utils.MapExplorer;
 import io.arlas.server.core.utils.TimestampTypeMapper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

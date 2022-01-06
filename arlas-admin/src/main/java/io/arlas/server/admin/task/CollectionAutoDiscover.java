@@ -19,14 +19,13 @@
 
 package io.arlas.server.admin.task;
 
-import com.google.common.collect.ImmutableMultimap;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.app.CollectionAutoDiscoverConfiguration;
-import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.exceptions.ArlasConfigurationException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
+import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.utils.MapExplorer;
 import io.arlas.server.core.utils.StringUtil;
 import io.dropwizard.servlets.tasks.Task;
@@ -34,15 +33,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class CollectionAutoDiscover extends Task implements Runnable {
 
-    private CollectionReferenceService collectionReferenceService;
-    private CollectionAutoDiscoverConfiguration configuration;
+    private final CollectionReferenceService collectionReferenceService;
+    private final CollectionAutoDiscoverConfiguration configuration;
 
     Logger LOGGER = LoggerFactory.getLogger(CollectionAutoDiscover.class);
 
@@ -53,7 +49,7 @@ public class CollectionAutoDiscover extends Task implements Runnable {
     }
 
     @Override
-    public void execute(ImmutableMultimap<String, String> arg0, PrintWriter arg1) throws Exception {
+    public void execute(Map<String,List<String>> arg0, PrintWriter arg1) throws Exception {
         try {
             List<CollectionReferenceDescription> discoveredCollections = collectionReferenceService.getAllIndicesAsCollections();
             List<CollectionReferenceDescription> existingCollections;

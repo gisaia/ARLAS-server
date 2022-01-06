@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/bash
 set -e
 
 script_name="$(basename "$(readlink -f "$0")")"

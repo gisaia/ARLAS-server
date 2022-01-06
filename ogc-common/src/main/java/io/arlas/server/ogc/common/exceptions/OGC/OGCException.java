@@ -23,7 +23,7 @@ package io.arlas.server.ogc.common.exceptions.OGC;
 import io.arlas.server.core.exceptions.ArlasException;
 import io.arlas.server.ogc.common.model.response.OGCError;
 import io.arlas.server.ogc.common.model.Service;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
