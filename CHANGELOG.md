@@ -1,6 +1,24 @@
 # Change Log
 
-## [v19.7.8](https://github.com/gisaia/ARLAS-server/tree/v19.7.8) (2021-11-09)
+## [v20.7.0](https://github.com/gisaia/ARLAS-server/tree/v20.7.0) (2022-01-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v19.7.8...v20.7.0)
+
+**New stuff:**
+
+- Add a new parameter in `putCollection` that makes validation of geometrical-fields optional [\#748](https://github.com/gisaia/ARLAS-server/issues/748)
+- Make referencing centroid\_path and geometry\_path mandatory again [\#747](https://github.com/gisaia/ARLAS-server/issues/747)
+
+**Fixed bugs:**
+
+- Column filter with multiple predicates is faulty [\#742](https://github.com/gisaia/ARLAS-server/issues/742)
+- Tests fail [\#392](https://github.com/gisaia/ARLAS-server/issues/392)
+
+**Miscellaneous:**
+
+- Migrate to java 17 [\#707](https://github.com/gisaia/ARLAS-server/issues/707)
+
+## [v19.7.8](https://github.com/gisaia/ARLAS-server/tree/v19.7.8) (2021-12-02)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v19.7.7...v19.7.8)
 

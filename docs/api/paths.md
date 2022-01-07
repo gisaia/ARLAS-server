@@ -160,6 +160,7 @@ Add a collection reference in ARLAS
 |Type|Name|Description|Schema|Default|
 |---|---|---|---|---|
 |**Path**|**collection**  <br>*required*|collection|string||
+|**Query**|**checkFields**  <br>*optional*||boolean|`"true"`|
 |**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
 |**Body**|**collectionParams**  <br>*required*|collectionParams|[CollectionReferenceParameters](#collectionreferenceparameters)||
 

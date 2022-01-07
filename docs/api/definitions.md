@@ -109,13 +109,13 @@
 |Name|Schema|
 |---|---|
 |**atom_feed**  <br>*optional*|[Feed](#feed)|
-|**centroid_path**  <br>*optional*|string|
+|**centroid_path**  <br>*required*|string|
 |**custom_params**  <br>*optional*|< string, string > map|
 |**dublin_core_element_name**  <br>*optional*|[DublinCoreElementName](#dublincoreelementname)|
 |**exclude_fields**  <br>*optional*|string|
 |**exclude_wfs_fields**  <br>*optional*|string|
 |**filter**  <br>*optional*|[Filter](#filter)|
-|**geometry_path**  <br>*optional*|string|
+|**geometry_path**  <br>*required*|string|
 |**h3_path**  <br>*optional*|string|
 |**id_path**  <br>*required*|string|
 |**index_name**  <br>*required*|string|
@@ -125,7 +125,7 @@
 |**raster_tile_url**  <br>*optional*|[RasterTileURL](#rastertileurl)|
 |**raster_tile_width**  <br>*optional*|integer (int32)|
 |**taggable_fields**  <br>*optional*|string|
-|**timestamp_path**  <br>*optional*|string|
+|**timestamp_path**  <br>*required*|string|
 |**update_max_hits**  <br>*optional*|integer (int32)|
 
 
@@ -427,7 +427,13 @@
 
 <a name="lnglatalt"></a>
 ### LngLatAlt
-*Type* : object
+
+|Name|Schema|
+|---|---|
+|**additionalElements**  <br>*optional*|< number (double) > array|
+|**altitude**  <br>*optional*|number (double)|
+|**latitude**  <br>*optional*|number (double)|
+|**longitude**  <br>*optional*|number (double)|
 
 
 <a name="md"></a>
