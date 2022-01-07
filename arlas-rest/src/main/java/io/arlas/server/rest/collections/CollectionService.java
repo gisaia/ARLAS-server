@@ -238,17 +238,17 @@ public class CollectionService extends CollectionRESTServices {
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
-            @ApiParam(name = "checkGeo", defaultValue = "true")
-            @QueryParam(value = "checkGeo") Boolean checkGeo
+            @ApiParam(name = "checkFields", defaultValue = "true")
+            @QueryParam(value = "checkFields") Boolean checkFields
 
     ) throws ArlasException {
         if (collection != null && collection.equals(META_COLLECTION_NAME)) {
             throw new NotAllowedException("'" + META_COLLECTION_NAME + "' is not allowed as a name for collections");
         }
-        return ResponseFormatter.getResultResponse(save(collection, collectionReferenceParameters, checkGeo == null ? Boolean.TRUE : checkGeo));
+        return ResponseFormatter.getResultResponse(save(collection, collectionReferenceParameters, checkFields == null ? Boolean.TRUE : checkFields));
     }
 
-    public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters, Boolean checkGeo) throws ArlasException {
+    public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters, Boolean checkFields) throws ArlasException {
         CollectionReference collectionReference = new CollectionReference(collection, collectionReferenceParameters);
         setDefaultInspireParameters(collectionReference);
         if (inspireConfigurationEnabled) {
@@ -256,7 +256,7 @@ public class CollectionService extends CollectionRESTServices {
             CheckParams.checkInvalidDublinCoreElementsForInspire(collectionReference);
         }
         CheckParams.checkInvalidInspireParameters(collectionReference);
-        return collectionReferenceService.putCollectionReference(collectionReference, checkGeo);
+        return collectionReferenceService.putCollectionReference(collectionReference, checkFields);
     }
 
     @Timed

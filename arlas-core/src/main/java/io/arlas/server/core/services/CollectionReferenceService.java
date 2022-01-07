@@ -92,8 +92,8 @@ public abstract class CollectionReferenceService {
         return putCollectionReference(collectionReference, true);
     }
 
-    public CollectionReference putCollectionReference(CollectionReference collectionReference, boolean checkGeo) throws ArlasException {
-        checkCollectionReferenceParameters(collectionReference, checkGeo);
+    public CollectionReference putCollectionReference(CollectionReference collectionReference, boolean checkFields) throws ArlasException {
+        checkCollectionReferenceParameters(collectionReference, checkFields);
         putCollectionReferenceWithDao(collectionReference);
         //explicit clean-up cache
         cacheManager.removeCollectionReference(collectionReference.collectionName);
@@ -258,22 +258,24 @@ public abstract class CollectionReferenceService {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    protected void checkCollectionReferenceParameters(CollectionReference collectionReference, boolean checkGeo) throws ArlasException {
+    protected void checkCollectionReferenceParameters(CollectionReference collectionReference, boolean checkFields) throws ArlasException {
         //get fields
         List<String> fields = new ArrayList<>();
-        if (collectionReference.params.idPath != null)
-            fields.add(collectionReference.params.idPath);
-        if (collectionReference.params.geometryPath != null && checkGeo)
-            fields.add(collectionReference.params.geometryPath);
-        if (collectionReference.params.centroidPath != null && checkGeo)
-            fields.add(collectionReference.params.centroidPath);
-        if (collectionReference.params.h3Path != null && checkGeo)
-            fields.add(collectionReference.params.h3Path);
-        if (collectionReference.params.timestampPath != null)
-            fields.add(collectionReference.params.timestampPath);
-        if(!StringUtil.isNullOrEmpty(collectionReference.params.excludeFields)){
-            List<String> excludeField = Arrays.asList(collectionReference.params.excludeFields.split(","));
-            CheckParams.checkExcludeField(excludeField, fields);
+        if (checkFields) {
+            if (collectionReference.params.idPath != null)
+                fields.add(collectionReference.params.idPath);
+            if (collectionReference.params.geometryPath != null)
+                fields.add(collectionReference.params.geometryPath);
+            if (collectionReference.params.centroidPath != null)
+                fields.add(collectionReference.params.centroidPath);
+            if (collectionReference.params.h3Path != null)
+                fields.add(collectionReference.params.h3Path);
+            if (collectionReference.params.timestampPath != null)
+                fields.add(collectionReference.params.timestampPath);
+            if (!StringUtil.isNullOrEmpty(collectionReference.params.excludeFields)) {
+                List<String> excludeField = Arrays.asList(collectionReference.params.excludeFields.split(","));
+                CheckParams.checkExcludeField(excludeField, fields);
+            }
         }
         Map<String, LinkedHashMap> mappings = CollectionUtil.checkAliasMappingFields(getMapping(collectionReference.params.indexName), fields.toArray(new String[0]));
         for (String index : mappings.keySet()) {
