@@ -366,16 +366,6 @@ public abstract class ExploreService {
         return getFeatures(request, collectionReference, flat, null, null, null);
     }
 
-    public FeatureCollection getFeatures(MixedRequest request,
-                                         CollectionReference collectionReference,
-                                         boolean flat,
-                                         UriInfo uriInfo,
-                                         String method,
-                                         HashMap<String, Object> context) throws ArlasException {
-        FluidSearchService fluidSearch = getSearchRequest(request, collectionReference);
-        return getFeatures(request, collectionReference, fluidSearch, flat, uriInfo, method, context);
-    }
-
     protected FluidSearchService getSearchRequest(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         FluidSearchService fluidSearch = getFluidSearch(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
@@ -405,7 +395,6 @@ public abstract class ExploreService {
 
     public abstract FeatureCollection getFeatures(MixedRequest request,
                                                   CollectionReference collectionReference,
-                                                  FluidSearchService fluidSearch,
                                                   boolean flat,
                                                   UriInfo uriInfo,
                                                   String method,

@@ -154,8 +154,9 @@ public class JdbiExploreService extends ExploreService {
 
     @Override
     public FeatureCollection getFeatures(MixedRequest request, CollectionReference collectionReference,
-                                         FluidSearchService fluidSearch, boolean flat, UriInfo uriInfo,
+                                         boolean flat, UriInfo uriInfo,
                                          String method, HashMap<String, Object> context) throws ArlasException {
+        FluidSearchService fluidSearch = getSearchRequest(request, collectionReference);
         SelectRequest req = ((JdbiFluidSearch) fluidSearch).getRequest(true);
         Search searchRequest = (Search) request.basicRequest;
         FeatureCollection fc = new FeatureCollection();

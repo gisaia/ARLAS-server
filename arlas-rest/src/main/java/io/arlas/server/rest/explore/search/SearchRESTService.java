@@ -175,7 +175,7 @@ public class SearchRESTService extends ExploreRESTServices {
 
         Search search = new Search();
         search.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
-        search.page = ParamsParser.getPage(size, from, sort,after,before);
+        search.page = ParamsParser.getPage(size, from, sort, after, before);
         search.projection = ParamsParser.getProjection(include, exclude);
         search.returned_geometries = returned_geometries;
         exploreService.setValidGeoFilters(collectionReference, search);
