@@ -72,31 +72,31 @@ public class Documentation {
             "\n \n" +
             "  The possible values of the comparison operator are : " +
             "\n \n" +
-            "       Operator |                   Description                    | value type" +
+            "       Operator        --                   Description                    -- value type" +
             "\n \n" +
-            "       :eq:     | {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values | numeric or strings " +
+            "       :eq:            -- {fieldName} equals {comma separated values}. **OR** operation is applied for the specified values -- numeric or strings " +
             "\n \n" +
-            "       :ne:     | {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values | numeric or strings " +
+            "       :ne:            -- {fieldName} must not equal {comma separated values }. **AND** operation is applied for the specified values -- numeric or strings " +
             "\n \n" +
-            "       :like:   | {fieldName}  is like {value}                     | numeric or strings " +
+            "       :like:          -- {fieldName}  is like {value}                     -- numeric or strings " +
             "\n \n" +
-            "       :gte:    | {fieldName} is greater than or equal to  {value} | numeric " +
+            "       :gte:           -- {fieldName} is greater than or equal to  {value} -- numeric " +
             "\n \n" +
-            "       :gt:     | {fieldName} is greater than {value}              | numeric " +
+            "       :gt:            -- {fieldName} is greater than {value}              -- numeric " +
             "\n \n" +
-            "       :lte:    | {fieldName} is less than or equal to {value}     | numeric " +
+            "       :lte:           -- {fieldName} is less than or equal to {value}     -- numeric " +
             "\n \n" +
-            "       :lt:     | {fieldName}  is less than {value}                | numeric " +
+            "       :lt:            -- {fieldName}  is less than {value}                -- numeric " +
             "\n \n" +
-            "       :range:  | {fieldName} is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges | numeric or strings. If the field's type is date, then min & max should be timestamps in millisecond or a Date expression" +
+            "       :range:         -- {fieldName} is between `{comma separated [min<max] values}`. **OR** operation is applied for the specified ranges -- numeric or strings. If the field's type is date, then min & max should be timestamps in millisecond or a Date expression" +
             "\n \n" +
-            "       :within: | {GeofieldName}` is within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` " +
+            "       :within:        -- {GeofieldName}` is within the `{given WKT string or the given BBOX }` -- a WKT string or the BBOX string : `\"west, south, east, north\"` " +
             "\n \n" +
-            "       :notwithin:| {GeofieldName} is not within the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` " +
+            "       :notwithin:     -- {GeofieldName} is not within the `{given WKT string or the given BBOX }` -- a WKT string or the BBOX string : `\"west, south, east, north\"` " +
             "\n \n" +
-            "       :intersects:| {GeofieldName} intersects the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` " +
+            "       :intersects:    -- {GeofieldName} intersects the `{given WKT string or the given BBOX }` | a WKT string or the BBOX string : `\"west, south, east, north\"` " +
             "\n \n" +
-            "       :notintersects:| {GeofieldName} does not intersect the `{given WKT string or the given }` | a WKT string or the BBOX string : `\"west, south, east, north\"` ";
+            "       :notintersects: -- {GeofieldName} does not intersect the `{given WKT string or the given }` -- a WKT string or the BBOX string : `\"west, south, east, north\"` ";
 
     public static final String FILTER_PARAM_Q = "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}";
     public static final String FILTER_DATE_FORMAT = "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations";
