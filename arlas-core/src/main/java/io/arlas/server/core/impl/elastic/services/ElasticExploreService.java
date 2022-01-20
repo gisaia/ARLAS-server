@@ -256,7 +256,7 @@ public class ElasticExploreService extends ExploreService {
 
     @Override
     public FeatureCollection getFeatures(MixedRequest request, CollectionReference collectionReference,
-                                         FluidSearchService fluidSearch, boolean flat, UriInfo uriInfo, String method,
+                                         boolean flat, UriInfo uriInfo, String method,
                                          HashMap<String, Object> context) throws ArlasException {
         SearchHits searchHits = getSearchHits(request, collectionReference);
         long totalnb = searchHits.getTotalHits().value;
