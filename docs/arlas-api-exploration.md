@@ -186,7 +186,7 @@ The `filter` url part allows the following parameters to be specified:
     - `south` and `north` must be between -90 and 90 inclusive and `south`<`north`
 
 !!! info "Important"
-    For parameters that accept WKT, in case of a **Polygon** or **MultiPolygon**, the orientation should be clock-wise (right). Otherwise, ARLAS-server will attempt to parse it as the "Complementary" Polygon on the other facet of the planet.
+    For parameters that accept WKT, in case of a **Polygon** or **MultiPolygon**, the orientation should be clock-wise (left-hand rule). Otherwise, ARLAS-server will attempt to parse it as the "Complementary" Polygon on the other facet of the planet.
     For instance the polygon `POLYGON  ((-170 -10, -175 10, 175 10, 170 -10, -170 -10))` is counter clock-wise. If it's passed as a parameter, ARLAS-server will interpret it as the Polygon that crosses the dateline `POLYGON  ((-170 -10, -175 10, 185 10, 180 -10, -170 -10))` which is clock-wise.
 
 !!! info "Important"
