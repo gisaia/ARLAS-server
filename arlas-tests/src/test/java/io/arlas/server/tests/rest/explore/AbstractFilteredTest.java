@@ -36,7 +36,10 @@ import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import static org.hamcrest.Matchers.*;
 
 public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
@@ -943,6 +946,62 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .param("f", (new Expression("params.job", OperatorEnum.eq, "Architect")).toString())
                         .when().get(getUrlPath("geodata"))
                         .then());
+        handleNotMatchingRequest(
+                givenFilterableRequestBody().body(request)
+                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
+                        .header("column-filter", "")//an empty column filter is not considered
+                        .when().post(getUrlPath("geodata"))
+                        .then());
+        request.filter = new Filter();
+    }
+
+    @Test
+    public void testMixedFilterMultiCollectionFormat() throws Exception {
+        // valid bbox from WFS OGC SPEC = lower longitude , lower latitude , upper longitude  , upper latitude
+        // valid bbox for ARLAS classic bbox = lat top,  long left,  lat bottom,  long right
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, "Architect")),//"job:eq:Architect"
+                new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1009799<2000000]")),
+                new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "-50,-50,50,50")),
+                new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.within, "-30,-30,30,30")),
+                new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.intersects, "POLYGON((-20 20, 20 20, 20 -20, -20 -20, -20 20))")));
+
+        Map<String, Filter> filterHeader = new HashMap<String, Filter>();
+
+        Filter filter = new Filter();
+        filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[0<1009801]")),
+                new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "20,-50,60,50")),
+                new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.notwithin, "POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))")),
+                new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.notintersects, "POLYGON((-30 -10,30 10, 30 -30, -30 -30,-30 -10))")));
+        filterHeader.put("geodata", filter);
+        handleComplexFilter(
+                givenFilterableRequestParams()
+                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
+                        .header("column-filter", "params.job,params.city,params.country")
+                        .param("f", new Expression("params.job", OperatorEnum.eq, "Architect").toString())
+                        .param("f", new Expression("params.startdate", OperatorEnum.range, "[1009799<2000000]").toString())
+                        .param("f", request.filter.f.get(2).get(0).toString())
+                        .param("f", request.filter.f.get(3).get(0).toString())
+                        .param("f", request.filter.f.get(4).get(0).toString())
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+
+        handleComplexFilter(
+                post(
+                        request,
+                        "partition-filter",
+                        objectMapper.writeValueAsString(filterHeader),
+                        "column-filter",
+                        "params.job,params.city,params.country"));
+
+        filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, "Actor")));
+        handleNotMatchingRequest(
+                givenFilterableRequestParams()
+                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
+                        .header("column-filter", "") //an empty column filter is not considered
+                        .param("f", (new Expression("params.job", OperatorEnum.eq, "Architect")).toString())
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+        filterHeader.put("geodata", filter);
         handleNotMatchingRequest(
                 givenFilterableRequestBody().body(request)
                         .header("partition-filter", objectMapper.writeValueAsString(filterHeader))

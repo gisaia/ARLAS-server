@@ -490,7 +490,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         CheckParams.checkReturnedGeometries(collectionReference, includes, excludes, search.returned_geometries);
 
         Search searchHeader = new Search();
-        searchHeader.filter = ParamsParser.getFilter(partitionFilter);
+        searchHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
 
         exploreService.setValidGeoFilters(collectionReference, search);
         exploreService.setValidGeoFilters(collectionReference, searchHeader);
@@ -564,7 +564,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         CheckParams.checkReturnedGeometries(collectionReference, includes, excludes, search.returned_geometries);
 
         Search searchHeader = new Search();
-        searchHeader.filter = ParamsParser.getFilter(partitionFilter);
+        searchHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
 
         exploreService.setValidGeoFilters(collectionReference, search);
         exploreService.setValidGeoFilters(collectionReference, searchHeader);
@@ -610,7 +610,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         search.projection = ParamsParser.enrichIncludes(search.projection, returned_geometries);
 
         Search searchHeader = new Search();
-        searchHeader.filter = ParamsParser.getFilter(partitionFilter);
+        searchHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         exploreService.setValidGeoFilters(collectionReference, searchHeader);

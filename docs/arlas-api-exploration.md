@@ -276,7 +276,10 @@ In the case of `lt`, `gt`, `lte`, `gte`, `range` operations that are applied on 
 
 `filter` part can also be passed in request header `partition-filter` as a serialized json for partitioning concerns.
 
-> Example: `curl --header "partition-filter: {f":[[{"field":"city","op":"eq","value":"Bordeaux"}]]}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
+> Example: `curl --header "partition-filter: {"f":[[{"field":"city","op":"eq","value":"Bordeaux"}]]}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
+
+When dealing with multi collections, filter can also be specified in a JSON map <collection name, filter>, e.g.:
+> Example: `curl --header "partition-filter: {"mycollection1": {"f":[[{"field":"city","op":"eq","value":"Bordeaux"}]]}}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
 
 #### Column filtering
 

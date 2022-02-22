@@ -587,7 +587,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
 
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
-        aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        aggregationsRequestHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
         MixedRequest request = new MixedRequest();
         exploreService.setValidGeoFilters(collectionReference, aggregationRequest);
         exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
@@ -657,7 +657,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
 
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
-        aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        aggregationsRequestHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
         MixedRequest request = new MixedRequest();
         exploreService.setValidGeoFilters(collectionReference, aggregationRequest);
         exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
@@ -692,7 +692,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
 
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
-        aggregationsRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        aggregationsRequestHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = aggregationsRequest;
         exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);

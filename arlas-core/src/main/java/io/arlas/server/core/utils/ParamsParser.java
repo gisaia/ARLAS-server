@@ -19,6 +19,8 @@
 
 package io.arlas.server.core.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.core.exceptions.ArlasException;
 import io.arlas.server.core.exceptions.BadRequestException;
@@ -245,11 +247,16 @@ public class ParamsParser {
         }
     }
 
-    public static Filter getFilter(String serializedFilter) throws InvalidParameterException {
+    public static Filter getFilter(CollectionReference collectionReference, String serializedFilter) throws InvalidParameterException {
         if (serializedFilter != null) {
             try {
-                return objectMapper.readValue(serializedFilter, Filter.class);
+                Map<String, Filter> pf = objectMapper.readValue(serializedFilter, new TypeReference<Map<String, Filter>>() {});
+                return pf.get(collectionReference.collectionName);
             } catch (IOException e) {
+                try {
+                    return objectMapper.readValue(serializedFilter, Filter.class);
+                } catch (JsonProcessingException ex) {
+                }
                 throw new InvalidParameterException(INVALID_FILTER + ": '" + serializedFilter + "'");
             }
         } else {

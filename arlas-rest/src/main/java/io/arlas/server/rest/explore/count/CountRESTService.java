@@ -114,7 +114,7 @@ public class CountRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = count;
         Count countHeader = new Count();
-        countHeader.filter = ParamsParser.getFilter(partitionfilter);
+        countHeader.filter = ParamsParser.getFilter(collectionReference, partitionfilter);
         exploreService.setValidGeoFilters(collectionReference, countHeader);
         request.headerRequest = countHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
@@ -176,7 +176,7 @@ public class CountRESTService extends ExploreRESTServices {
 
         request.basicRequest = count;
         Count countHeader = new Count();
-        countHeader.filter = ParamsParser.getFilter(partitionfilter);
+        countHeader.filter = ParamsParser.getFilter(collectionReference, partitionfilter);
         exploreService.setValidGeoFilters(collectionReference, countHeader);
         request.headerRequest = countHeader;
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
