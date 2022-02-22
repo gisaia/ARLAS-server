@@ -232,7 +232,7 @@ public abstract class StacRESTService {
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
 
         Search searchHeader = new Search();
-        searchHeader.filter = ParamsParser.getFilter(partitionFilter);
+        searchHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;

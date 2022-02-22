@@ -127,7 +127,7 @@ public class ComputeRESTService extends ExploreRESTServices {
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, computationRequest);
 
         ComputationRequest computationRequestHeader = new ComputationRequest();
-        computationRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        computationRequestHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
         exploreService.setValidGeoFilters(collectionReference, computationRequestHeader);
         MixedRequest request = new MixedRequest();
         request.basicRequest = computationRequest;
@@ -191,7 +191,7 @@ public class ComputeRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         ComputationRequest computationRequestHeader = new ComputationRequest();
-        computationRequestHeader.filter = ParamsParser.getFilter(partitionFilter);
+        computationRequestHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
         MixedRequest request = new MixedRequest();
         exploreService.setValidGeoFilters(collectionReference, computationRequest);
         exploreService.setValidGeoFilters(collectionReference, computationRequestHeader);

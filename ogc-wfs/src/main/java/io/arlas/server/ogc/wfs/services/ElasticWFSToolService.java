@@ -156,7 +156,7 @@ public class ElasticWFSToolService implements WFSToolService {
             buildStoredQueryIdQuery(id, storedquery_id, requestType, collectionReference);
         }
         if (partitionFilter != null) {
-            addPartitionFilter(fluidSearch, partitionFilter);
+            addPartitionFilter(collectionReference, fluidSearch, partitionFilter);
         }
     }
 
@@ -193,8 +193,8 @@ public class ElasticWFSToolService implements WFSToolService {
         }
     }
 
-    private void addPartitionFilter(ElasticFluidSearch fluidSearch, String partitionFilter) throws ArlasException {
-        Filter headerFilter = ParamsParser.getFilter(partitionFilter);
+    private void addPartitionFilter(CollectionReference collectionReference, ElasticFluidSearch fluidSearch, String partitionFilter) throws ArlasException {
+        Filter headerFilter = ParamsParser.getFilter(collectionReference, partitionFilter);
         exploreServices.applyFilter(headerFilter, fluidSearch);
         wfsQuery.filter(fluidSearch.getBoolQueryBuilder());
     }
