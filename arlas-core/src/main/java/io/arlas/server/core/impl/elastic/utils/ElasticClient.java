@@ -22,9 +22,11 @@ package io.arlas.server.core.impl.elastic.utils;
 import io.arlas.server.core.app.ElasticConfiguration;
 import io.arlas.server.core.exceptions.ArlasException;
 import io.arlas.server.core.exceptions.InternalServerErrorException;
+import io.arlas.server.core.exceptions.InvalidParameterException;
 import io.arlas.server.core.exceptions.NotFoundException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
@@ -38,6 +40,7 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.*;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.*;
@@ -208,6 +211,12 @@ public class ElasticClient {
         } catch (IOException e) {
             processException(e, Arrays.toString(request.indices()));
             return null;
+        } catch (ElasticsearchStatusException e) {
+            if (e.getMessage().contains("search_phase_execution_exception")) {
+                throw new InvalidParameterException("Cannot search on non indexed field.");
+            } else {
+                throw e;
+            }
         }
     }
 
