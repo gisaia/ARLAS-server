@@ -20,10 +20,7 @@
 package io.arlas.server.core.impl.elastic.utils;
 
 import io.arlas.server.core.app.ElasticConfiguration;
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.InternalServerErrorException;
-import io.arlas.server.core.exceptions.InvalidParameterException;
-import io.arlas.server.core.exceptions.NotFoundException;
+import io.arlas.server.core.exceptions.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchStatusException;
@@ -212,11 +209,12 @@ public class ElasticClient {
             processException(e, Arrays.toString(request.indices()));
             return null;
         } catch (ElasticsearchStatusException e) {
-            if (e.getMessage().contains("search_phase_execution_exception")) {
-                throw new InvalidParameterException("Cannot search on non indexed field.");
-            } else {
-                throw e;
+            String msg = e.getMessage();
+            Throwable[] suppressed = e.getSuppressed();
+            if (suppressed.length > 0 && suppressed[0] instanceof ResponseException) {
+                msg = suppressed[0].getMessage();
             }
+            throw new BadRequestException(msg);
         }
     }
 
