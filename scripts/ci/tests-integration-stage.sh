@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -o errexit -o pipefail
 
 export ARLAS_CORS_ENABLED=true
 export ARLAS_CORS_ALLOWED_ORIGINS="http://example.com"
@@ -53,7 +53,7 @@ done
 
 # GO TO PROJECT PATH
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
-cd ${SCRIPT_PATH}/..
+cd ${SCRIPT_PATH}/../..
 
 # CHECK ALV2 DISCLAIMER
 if [ $(find ./*/src -name "*.java" -exec grep -L Licensed {} \; | wc -l) -gt 0 ]; then

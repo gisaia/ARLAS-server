@@ -34,7 +34,7 @@ export ELASTIC_VERSION=${ELASTIC_VERSION}
 
 # GO TO PROJECT PATH
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
-cd ${SCRIPT_PATH}/..
+cd ${SCRIPT_PATH}/../..
 
 # TESTS SUITE
 ./scripts/tests-integration-stage.sh --stage=REST
