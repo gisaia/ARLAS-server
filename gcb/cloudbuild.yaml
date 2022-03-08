@@ -1,0 +1,295 @@
+steps:
+# 0. Get credentials from Secret Manager
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      gcloud secrets versions access latest --secret=dockerhub > /root/dockerhub.txt
+      gcloud secrets versions access latest --secret=github > /root/.ssh/id_github
+      gcloud secrets versions access latest --secret=pip > /root/pip.txt
+      gcloud secrets versions access latest --secret=npm > /root/.npmrc
+
+# 1. Set up git with key and domain
+- name: 'gcr.io/cloud-builders/git'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      chmod 600 /root/.ssh/id_github
+      cat <<EOF >/root/.ssh/config
+      Hostname github.com
+      IdentityFile /root/.ssh/id_github
+      EOF
+      ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
+      git clone --recurse-submodules --branch ${_BRANCH} git@github.com:gisaia/ARLAS-server
+      mv ./ARLAS-server/* .
+      mv ./ARLAS-server/.* .
+      sed -i.bak 's/\"API_VERSION\"/\"'${_FULL_API_VERSION}'\"/' arlas-rest/src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
+      sed -i.bak 's/^appVersion: .*$/appVersion: '${_ARLAS_VERSION}'/' packaging/helm/arlas-server/Chart.yaml
+      sed -i.bak 's/^version: .*$/version: '${_ARLAS_VERSION}'/' packaging/helm/arlas-server/Chart.yaml
+
+# 2. Retrieve the cached .m2 directory from GCS
+- name: 'gcr.io/cloud-builders/gsutil'
+  args:  ['-m', '-q', 'rsync', '-r', 'gs://arlas-build_m2/cache/.m2/', '/root/.m2/repository']
+
+# 3. Compile
+- name: 'maven:3.8.4-openjdk-17'
+  entrypoint: 'mvn'
+  args: ['versions:set', '-DnewVersion=${_ARLAS_VERSION}', 'install']
+
+# 4. Start arlas-server stack
+- name: 'gcr.io/$PROJECT_ID/docker-compose'
+  env:
+    - ARLAS_SERVICE_RASTER_TILES_ENABLE=true
+    - ELASTIC_DATADIR=/tmp
+    - DOCKERFILE=Dockerfile-package-only
+    - ARLAS_VERSION=${_ARLAS_VERSION}
+  args: ['-f','docker-compose.yml','-f','docker-compose-elasticsearch.yml','-f','docker-compose-network.yml','--project-name','arlas','up','-d','--build']
+
+# 5. Get swagger documentation
+- name: 'launcher.gcr.io/google/ubuntu1604'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      apt-get -y install netcat
+      echo "=> Wait for arlas-server up and running"
+      i=1; until nc -w 2 arlas-server 9999; do if [ $i -lt 60 ]; then echo $i; sleep 1; else break; fi; i=$(($i + 1)); done
+      echo "=> Get swagger documentation"
+      mkdir -p target/tmp || echo "target/tmp exists"
+      i=1; until curl -XGET http://arlas-server:9999/arlas/swagger.json -o target/tmp/swagger.json; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
+      i=1; until curl -XGET http://arlas-server:9999/arlas/swagger.yaml -o target/tmp/swagger.yaml; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
+      mkdir -p openapi
+      cp target/tmp/swagger.yaml openapi
+      cp target/tmp/swagger.json openapi
+      mkdir -p target/tmp/java-api
+      mkdir -p target/tmp/typescript-fetch
+      mkdir -p target/tmp/python-api
+
+# 6. Generate API documentation
+- name: 'maven:3.8.4-openjdk-17'
+  entrypoint: 'mvn'
+  args: ['"-Dswagger.output=docs/api"', 'swagger2markup:convertSwagger2markup']
+
+# 7. Stop arlas-server stack
+- name: 'gcr.io/$PROJECT_ID/docker-compose'
+  env:
+    - ARLAS_SERVICE_RASTER_TILES_ENABLE=true
+    - ELASTIC_DATADIR=/tmp
+    - DOCKERFILE=Dockerfile-package-only
+  args: ['-f','docker-compose.yml','-f','docker-compose-elasticsearch.yml','-f','docker-compose-network.yml','--project-name','arlas','down','-v']
+
+# 8. Java API generation
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    - 'run'
+    - '--rm'
+    - '--mount'
+    - 'dst=/input/api.json,src=/workspace/target/tmp/swagger.json,type=bind,ro'
+    - '--mount'
+    - 'dst=/input/config.json,src=/workspace/conf/swagger/java-config.json,type=bind,ro'
+    - '--mount'
+    - 'dst=/output,src=/workspace/target/tmp/java-api,type=bind'
+    - 'gisaia/swagger-codegen-2.4.14'
+    - '-l'
+    - 'java'
+    - '--type-mappings'
+    - 'GeoJsonObject=Object'
+
+# 9. Typescript API generation
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    - 'run'
+    - '--rm'
+    - '--mount'
+    - 'dst=/input/api.json,src=/workspace/target/tmp/swagger.json,type=bind,ro'
+    - '--mount'
+    - 'dst=/output,src=/workspace/target/tmp/typescript-fetch,type=bind'
+    - 'gisaia/swagger-codegen-2.4.14'
+    - '-l'
+    - 'typescript-fetch'
+    - '--additional-properties'
+    - 'modelPropertyNaming=snake_case'
+
+# 10. Python API generation
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    - 'run'
+    - '--rm'
+    - '--mount'
+    - 'dst=/input/api.json,src=/workspace/target/tmp/swagger.json,type=bind,ro'
+    - '--mount'
+    - 'dst=/input/config.json,src=/workspace/conf/swagger/python-config.json,type=bind,ro'
+    - '--mount'
+    - 'dst=/output,src=/workspace/target/tmp/python-api,type=bind'
+    - 'gisaia/swagger-codegen-2.4.14'
+    - '-l'
+    - 'python'
+    - '--type-mappings'
+    - 'GeoJsonObject=object'
+
+# 11. Build Typescript API
+- name: 'node:12.18.3'
+  env:
+    - HOME=/root/
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      echo "=> Build Typescript API "${_FULL_API_VERSION}
+      cd /workspace/target/tmp/typescript-fetch/
+      cp /workspace/conf/npm/package-build.json package.json
+      cp /workspace/conf/npm/tsconfig-build.json .
+      npm version --no-git-tag-version ${_FULL_API_VERSION}
+      npm install
+      npm run build-release
+      npm run postbuild
+      cd /workspace
+      echo "=> Publish Typescript API"
+      cp /workspace/conf/npm/package-publish.json /workspace/target/tmp/typescript-fetch/dist/package.json
+      cd /workspace/target/tmp/typescript-fetch/dist
+      npm version --no-git-tag-version ${_FULL_API_VERSION}
+      #npm publish --tag=donotuse || echo "Publishing on npm failed ... continue ..."
+      npm publish || echo "Publishing on npm failed ... continue ..."
+
+# 12. Build Python API
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    echo "=> Build Python API "${_FULL_API_VERSION}
+    cd /workspace/target/tmp/python-api/
+    cp /workspace/conf/python/setup.py setup.py
+    sed -i.bak 's/\"api_version\"/\"'${_FULL_API_VERSION}'\"/' setup.py
+    cat setup.py
+    docker run \
+          --mount dst=/opt/python,src=/workspace/target/tmp/python-api/,type=bind \
+          --rm gisaia/python-3-alpine setup.py sdist bdist_wheel
+    echo "=> Publish Python API "
+    PIP_PASSWORD=$(</root/pip.txt)
+    docker run --rm -w /opt/python -v /workspace/target/tmp/python-api/:/opt/python \
+        python:3 /bin/bash -c  "pip install twine ; twine upload dist/* -u ${_PIP_LOGIN} -p $${PIP_PASSWORD}"
+
+# 13. Docker push
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      docker build -f Dockerfile-package-only -t gisaia/arlas-server .
+      docker login --username=${_DOCKERHUB_LOGIN} --password-stdin < /root/dockerhub.txt
+      echo "=> Tag arlas-server docker image"
+      docker tag gisaia/arlas-server:${_ARLAS_VERSION} gisaia/arlas-server:latest
+      echo "=> Push arlas-server docker image"
+      docker push gisaia/arlas-server:${_ARLAS_VERSION}
+      docker push gisaia/arlas-server:latest
+
+# 14. Publish jar in Cloudsmith
+- name: 'maven:3.8.2-openjdk-17'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      apk add sed
+      export CLOUDSMITH_LOGIN=${_CLOUDSMITH_LOGIN}
+      export CLOUDSMITH_API_KEY=${_CLOUDSMITH_API_KEY}
+      echo "=> Publish jars in Maven cloudsmith repo"
+      # publish the parent jar
+      mvn -N -s /workspace/conf/maven/settings.xml deploy
+      # publish arlas-core jar
+      cd /workspace/arlas-core
+      mvn -s /workspace/conf/maven/settings.xml deploy
+      # publish arlas-admin jar
+      cd /workspace/arlas-admin
+      mvn -s /workspace/conf/maven/settings.xml deploy
+      # publish arlas-server-client jar
+      cd /workspace/target/tmp/java-api
+      mvn versions:set -DnewVersion=${_ARLAS_VERSION}
+      sed '$e cat /workspace/conf/maven/distribution-arlas-client.xml' pom.xml >> /workspace/target/tmp/java-api/pom_with_distribution.xml
+      mv /workspace/target/tmp/java-api/pom_with_distribution.xml /workspace/target/tmp/java-api/pom.xml
+      mvn -s /workspace/conf/maven/settings.xml deploy
+      cd /workspace
+      # clean local repo in order not to rsync it to Google Storage
+      rm -rf /root/.m2/repository/io/arlas
+
+# 15. Update cached .m2 directory on GCS with any additional dependencies downloaded during the build.
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['-m', '-q', 'rsync', '-r', '/root/.m2/repository', 'gs://arlas-build_m2/cache/.m2/']
+
+# 16. Generate Changelog
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      git config --global user.email "${_GITHUB_LOGIN}"
+      git config --global user.name "${_GITHUB_USERNAME}"
+      echo "=> Generate CHANGELOG.md"
+      git tag v${_ARLAS_VERSION}
+      git push origin v${_ARLAS_VERSION}
+      #@see scripts/build-github-changelog-generator.sh if you need a fresher version of this tool
+      docker run -i --rm -v /workspace:/usr/local/src/your-app gisaia/github-changelog-generator:latest github_changelog_generator \
+          -u gisaia -p ARLAS-server --token ${_GITHUB_CHANGELOG} \
+          --no-pr-wo-labels --no-issues-wo-labels --no-unreleased --issue-line-labels API,OGC,conf,security,documentation \
+          --exclude-labels type:duplicate,type:question,type:wontfix,type:invalid \
+          --bug-labels type:bug \
+          --enhancement-labels  type:enhancement \
+          --breaking-labels type:breaking \
+          --enhancement-label "**New stuff:**" --issues-label "**Miscellaneous:**" --since-tag v2.5.3
+      git tag -d v${_ARLAS_VERSION}
+      git push origin :v${_ARLAS_VERSION}
+      echo "=> Commit release version"
+      git add openapi/swagger.json
+      git add openapi/swagger.yaml
+      git add docs/api
+      git commit -a -m "release version ${_ARLAS_VERSION}"
+      git tag v${_ARLAS_VERSION}
+      git push origin v${_ARLAS_VERSION}
+      git push origin develop
+      echo "=> Merge develop into master"
+      git checkout master
+      git pull origin master
+      git merge origin/develop
+      git push origin master
+      echo "=> Rebase develop"
+      git checkout develop
+      git pull origin develop
+      git rebase origin/master
+
+# 17. Update develop
+- name: 'maven:3.8.4-openjdk-17'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      apk add git openssh-client
+      echo "=> Update project version for develop"
+      mvn versions:set -DnewVersion=${_ARLAS_DEV_VERSION}-SNAPSHOT
+      echo "=> Update REST API version in JAVA source code"
+      sed -i.bak 's/\"'${_FULL_API_VERSION}'\"/\"API_VERSION\"/' arlas-rest/src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
+      sed -i.bak 's/\"'${_FULL_API_VERSION}'\"/\"'${_API_DEV_VERSION}-SNAPSHOT'\"/' openapi/swagger.yaml
+      sed -i.bak 's/\"'${_FULL_API_VERSION}'\"/\"'${_API_DEV_VERSION}-SNAPSHOT'\"/' openapi/swagger.json
+      git config --global user.email "${_GITHUB_LOGIN}"
+      git config --global user.name "${_GITHUB_USERNAME}"
+      git add openapi/swagger.json
+      git add openapi/swagger.yaml
+      git commit -a -m "development version ${_ARLAS_DEV_VERSION}-SNAPSHOT"
+      git push origin develop
+
+timeout: 1800s
+substitutions:
+    _BRANCH: develop
+    _PIP_LOGIN: gisaia-team
+    _DOCKERHUB_LOGIN: techgisaia
+options:
+#  machineType: 'N1_HIGHCPU_8'
+  logging: GCS_ONLY
+  volumes:
+    - name: 'home'
+      path: /root/
+    - name: 'ssh'
+      path: /root/.ssh
+    - name: 'm2_cache'
+      path: /root/.m2/repository
