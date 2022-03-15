@@ -204,6 +204,9 @@ steps:
       # publish arlas-admin jar
       cd /workspace/arlas-admin
       mvn -s /workspace/conf/maven/settings.xml deploy
+      # publish arlas-commons jar
+      cd /workspace/arlas-commons
+      mvn -s /workspace/conf/maven/settings.xml deploy
       # publish arlas-server-client jar
       cd /workspace/target/tmp/java-api
       mvn versions:set -DnewVersion=${_ARLAS_VERSION}
