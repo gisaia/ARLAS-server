@@ -28,4 +28,5 @@ public class Filter implements Serializable {
     public List<MultiValueFilter<Expression>> f;
     public List<MultiValueFilter<String>> q;
     public String dateformat;
+    public Boolean righthand;
 }

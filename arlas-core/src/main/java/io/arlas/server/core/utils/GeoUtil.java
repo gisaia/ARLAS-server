@@ -253,6 +253,10 @@ public class GeoUtil {
 
     public static Geometry toClockwise(final GeoJsonObject geojson) throws JsonProcessingException, ParseException {
         Geometry geometry = reader.read(writer.writeValueAsString(geojson));
+        return toClockwise(geometry);
+    }
+
+    public static Geometry toClockwise(final Geometry geometry) {
         final GeometryFactory factory = geometry.getFactory();
         if (geometry instanceof MultiPolygon || geometry instanceof Polygon) {
             boolean isMultiPolygon = geometry instanceof MultiPolygon;
@@ -284,6 +288,47 @@ public class GeoUtil {
         } else if (geometry instanceof LinearRing) {
             LinearRing lr = (LinearRing) geometry;
             if (Orientation.isCCW(lr.getCoordinateSequence())) {
+                lr = reverse(factory, lr);
+            }
+            return lr;
+
+        } else {
+            return geometry;
+        }
+    }
+
+    public static Geometry toCounterClockwise(final Geometry geometry) {
+        final GeometryFactory factory = geometry.getFactory();
+        if (geometry instanceof MultiPolygon || geometry instanceof Polygon) {
+            boolean isMultiPolygon = geometry instanceof MultiPolygon;
+            int nbPolygon = geometry.getNumGeometries();
+
+            final Polygon[] ps = new Polygon[nbPolygon];
+            for (int i = 0; i < nbPolygon; i++) {
+                final Polygon p = isMultiPolygon ? (Polygon) geometry.getGeometryN(i) : (Polygon) geometry;
+                final LinearRing[] holes = new LinearRing[p.getNumInteriorRing()];
+                LinearRing outer = p.getExteriorRing();
+                if (!Orientation.isCCW(outer.getCoordinateSequence())) {
+                    outer = reverse(factory, p.getExteriorRing());
+                }
+
+                for (int t = 0, tt = p.getNumInteriorRing(); t < tt; t++) {
+                    holes[t] = p.getInteriorRingN(t);
+                    if (Orientation.isCCW(holes[t].getCoordinateSequence())) {
+                        holes[t] = reverse(factory, holes[t]);
+                    }
+                }
+                ps[i] = factory.createPolygon(outer, holes);
+            }
+
+            Geometry reversed = isMultiPolygon ? factory.createMultiPolygon(ps) : ps[0];
+            reversed.setSRID(geometry.getSRID());
+            reversed.setUserData(geometry.getUserData());
+            return reversed;
+
+        } else if (geometry instanceof LinearRing) {
+            LinearRing lr = (LinearRing) geometry;
+            if (!Orientation.isCCW(lr.getCoordinateSequence())) {
                 lr = reverse(factory, lr);
             }
             return lr;

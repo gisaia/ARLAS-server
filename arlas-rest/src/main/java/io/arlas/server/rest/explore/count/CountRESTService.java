@@ -80,6 +80,10 @@ public class CountRESTService extends ExploreRESTServices {
                     value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
+            @ApiParam(name = "righthand",
+                    value = Documentation.FILTER_RIGHT_HAND)
+            @QueryParam(value = "righthand") Boolean righthand,
+
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionfilter,
 
@@ -106,7 +110,7 @@ public class CountRESTService extends ExploreRESTServices {
         }
 
         Count count = new Count();
-        count.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
+        count.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand);
         exploreService.setValidGeoFilters(collectionReference, count);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, count);

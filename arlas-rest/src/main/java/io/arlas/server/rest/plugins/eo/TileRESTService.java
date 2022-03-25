@@ -105,6 +105,10 @@ public class TileRESTService extends ExploreRESTServices {
                     value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
+            @ApiParam(name = "righthand",
+                    value = Documentation.FILTER_RIGHT_HAND)
+            @QueryParam(value = "righthand") Boolean righthand,
+
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
@@ -180,7 +184,7 @@ public class TileRESTService extends ExploreRESTServices {
 
         BoundingBox bbox = GeoTileUtil.getBoundingBox(new Tile(x, y, z));
         Search search = new Search();
-        search.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
+        search.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand);
         search.page = ParamsParser.getPage(size, from, sort, after,before);
         search.projection = ParamsParser.getProjection(collectionReference.params.rasterTileURL.idPath+","+collectionReference.params.geometryPath, null);
 

@@ -230,33 +230,33 @@ public abstract class SelectRequest {
                 AND, field, incMax ? LTE : LT, mapWhereParam(new ClauseParam(field, max)), RP);
     }
 
-    public String formatGeoCondition(String field, OperatorEnum op, Geometry jtsGeo) throws ArlasException {
+    public String formatGeoCondition(String field, OperatorEnum op, Geometry jtsGeo, Boolean righthand) throws ArlasException {
         switch (op) {
             case notintersects:
-                return formatGeoIntersectCondition(field, jtsGeo, true);
+                return formatGeoIntersectCondition(field, jtsGeo, true, righthand);
             case notwithin:
-                return formatGeoWithinCondition(field, jtsGeo, true);
+                return formatGeoWithinCondition(field, jtsGeo, true, righthand);
             case intersects:
-                return formatGeoIntersectCondition(field, jtsGeo, false);
+                return formatGeoIntersectCondition(field, jtsGeo, false, righthand);
             case within:
-                return formatGeoWithinCondition(field, jtsGeo, false);
+                return formatGeoWithinCondition(field, jtsGeo, false, righthand);
             default:
                 throw new ArlasException(op + " op on geo field '" + field + " is not supported");
         }
     }
 
-    public String formatGeoWithinCondition(String field, Geometry jtsGeo, boolean not) throws ArlasException {
+    public String formatGeoWithinCondition(String field, Geometry jtsGeo, boolean not, Boolean righthand) throws ArlasException {
         // ST_COVERS includes the borders while ST_WITHIN excludes them
-        return concat(not ? NOT : "", ST_COVERS, LP, mapWhereParam(new ClauseParam(field, jtsToDBgeo(jtsGeo))), COMMA, field, RP);
+        return concat(not ? NOT : "", ST_COVERS, LP, mapWhereParam(new ClauseParam(field, jtsToDBgeo(jtsGeo, righthand))), COMMA, field, RP);
     }
 
-    public String formatGeoIntersectCondition(String field, Geometry jtsGeo, boolean not) throws ArlasException {
-        return concat(not ? NOT : "", ST_INTERSECTS, LP, mapWhereParam(new ClauseParam(field, jtsToDBgeo(jtsGeo))), COMMA, field, RP);
+    public String formatGeoIntersectCondition(String field, Geometry jtsGeo, boolean not, Boolean righthand) throws ArlasException {
+        return concat(not ? NOT : "", ST_INTERSECTS, LP, mapWhereParam(new ClauseParam(field, jtsToDBgeo(jtsGeo, righthand))), COMMA, field, RP);
     }
 
     public String formatGeoDistance(String field, Geometry jtsGeo) throws ArlasException {
-        return concat(ST_DISTANCE, LP, field, mapWhereParam(new ClauseParam(field, jtsToDBgeo(jtsGeo))), RP);
+        return concat(ST_DISTANCE, LP, field, mapWhereParam(new ClauseParam(field, jtsToDBgeo(jtsGeo, null))), RP);
     }
 
-    protected abstract Object jtsToDBgeo(Geometry jtsGeo) throws ArlasException;
+    protected abstract Object jtsToDBgeo(Geometry jtsGeo, Boolean righthand) throws ArlasException;
 }

@@ -37,6 +37,7 @@ import org.elasticsearch.common.geo.GeoPoint;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.*;
+import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.operation.valid.IsValidOp;
 import org.locationtech.jts.operation.valid.RepeatedPointTester;
@@ -265,8 +266,8 @@ public class ParamsParser {
     }
 
     public static Filter getFilter(CollectionReference collectionReference,
-                                   List<String> filters, List<String> q, String dateFormat) throws ArlasException {
-        return getFilter(collectionReference, filters, q, dateFormat, null, null);
+                                   List<String> filters, List<String> q, String dateFormat, Boolean righthand) throws ArlasException {
+        return getFilter(collectionReference, filters, q, dateFormat, righthand, null, null);
     }
 
     /**
@@ -281,7 +282,7 @@ public class ParamsParser {
      * @throws ArlasException
      */
     public static Filter getFilter(CollectionReference collectionReference,
-                                   List<String> filters, List<String> q, String dateFormat,
+                                   List<String> filters, List<String> q, String dateFormat, Boolean righthand,
                                    BoundingBox tileBbox, Expression pwithinBbox) throws ArlasException {
         Filter filter = new Filter();
         filter.f = new ArrayList<>();
@@ -297,7 +298,6 @@ public class ParamsParser {
                     String value = String.join(":", Arrays.copyOfRange(operands, 2, operands.length));
 
                     if (GEO_OP.contains(OperatorEnum.valueOf(operands[1]))) {
-                        value = getValidGeometry(value);
                         if(tileBbox != null && collectionReference != null) {
                             boolean isPwithin = isPwithin(collectionReference, operands[0], operands[1]);
                             if (isPwithin){
@@ -323,6 +323,7 @@ public class ParamsParser {
         }
         filter.q = getStringMultiFilter(q);
         filter.dateformat = dateFormat;
+        filter.righthand = righthand;
         return filter;
     }
 
@@ -354,12 +355,13 @@ public class ParamsParser {
         Filter newFilter = new Filter();
         newFilter.q = filter.q;
         newFilter.dateformat = filter.dateformat;
+        newFilter.righthand = filter.righthand;
         if (filter.f != null) {
             newFilter.f = new ArrayList<>();
             for (MultiValueFilter<Expression> orFiltersList : filter.f) {
                 MultiValueFilter<Expression> newOrFiltersList = new MultiValueFilter<>();
                 for (Expression orCond : orFiltersList) {
-                    newOrFiltersList.add(getValidGeoFilter(collectionReference, orCond));
+                    newOrFiltersList.add(getValidGeoFilter(collectionReference, orCond, newFilter.righthand ));
                 }
                 newFilter.f.add(newOrFiltersList);
             }
@@ -367,15 +369,15 @@ public class ParamsParser {
         return newFilter;
     }
 
-    public static Expression getValidGeoFilter(CollectionReference collectionReference, Expression expression) throws ArlasException {
+    public static Expression getValidGeoFilter(CollectionReference collectionReference, Expression expression, Boolean righthand) throws ArlasException {
         intersectsToWithin(collectionReference, expression);
         if (GEO_OP.contains(expression.op)) {
-            expression.value = getValidGeometry(expression.value);
+            expression.value = getValidGeometry(expression.value, righthand);
         }
         return expression;
     }
 
-    public static String getValidGeometry(String geo) throws ArlasException{
+    public static String getValidGeometry(String geo, Boolean righthand) throws ArlasException {
         if (CheckParams.isBboxMatch(geo)) {
             CheckParams.checkBbox(geo);
             return geo;
@@ -387,37 +389,23 @@ public class ParamsParser {
                 for (int i = 0; i < wkt.getNumGeometries(); i++) {
                     Polygon subWkt = (Polygon) wkt.getGeometryN(i);
                     if (Orientation.isCCW(subWkt.getCoordinates())) {
-                        // By convention the passed queryGeometry must be interpreted as CW.
-                        // If the orientation is CCW, we try to build the WKT that goes the other side of the planet.
-                        // If the topology of the resulted geometry is not valid, an exception is thrown
-                        Polygon tmpGeometry = (Polygon) subWkt.copy();
-                        Envelope tmpEnvelope = tmpGeometry.getEnvelopeInternal();
-                        // east is the minX and west is the maxX
-                        double east = tmpEnvelope.getMinX();
-                        double west = tmpEnvelope.getMaxX();
-                        if (west > east && ((east < -180 && west >= -180) || (west > 180 && east <= 180))) {
-                            // It means west > 180 or east < -180
-                            if (west >= 180) {
-                                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, false, 180);
-                            } else if (east <= -180) {
-                                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, true, -180);
-                            }
+                        if (righthand != Boolean.TRUE) {
+                            polygonList.addAll(getClockwisePolygons(subWkt));
                         } else {
-                            if (west >= 0) {
-                                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, false, east);
-                            } else {
-                                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, true, west);
-                            }
+                            polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1());
                         }
-                        IsValidOp validOp = new IsValidOp(tmpGeometry);
-                        TopologyValidationError err = validOp.getValidationError();
-                        if (err != null) {
-                            throw new InvalidParameterException("A Polygon of the given WKT is right oriented. Unable to reverse the orientation of the polygon : " + err);
-                        }
-                        polygonList.addAll(GeoUtil.splitPolygon((Polygon) GeoUtil.readWKT(tmpGeometry.toString()))._1());
+
                     } else {
-                        polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1());
+                        // the wkt is CW
+                        if (righthand == Boolean.TRUE) {
+                            Polygon ccwWKT = (Polygon)GeoUtil.toCounterClockwise((Polygon)subWkt.copy());
+                            polygonList.addAll(getClockwisePolygons(ccwWKT).stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
+                        } else {
+                            polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1());
+                        }
                     }
+
+
                 }
                 if (polygonList.size() == 1) {
                     return polygonList.get(0).toString();
@@ -428,6 +416,38 @@ public class ParamsParser {
                 return geo;
             }
         }
+    }
+
+    /** returns a list of CW WKT Polygons were longitudes are between -180 and 180*/
+    private static List<Polygon> getClockwisePolygons(Polygon ccwWKT) throws ArlasException {
+        // the passed queryGeometry must be interpreted as CCW (righthand = true).
+        // If the orientation is CW, we try to build the WKT that goes the other side of the planet.
+        // If the topology of the resulted geometry is not valid, an exception is thrown
+        Polygon tmpGeometry = (Polygon) ccwWKT.copy();
+        Envelope tmpEnvelope = tmpGeometry.getEnvelopeInternal();
+        // east is the minX and west is the maxX
+        double east = tmpEnvelope.getMinX();
+        double west = tmpEnvelope.getMaxX();
+        if (west > east && ((east < -180 && west >= -180) || (west > 180 && east <= 180))) {
+            // It means west > 180 or east < -180
+            if (west >= 180) {
+                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, false, 180);
+            } else if (east <= -180) {
+                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, true, -180);
+            }
+        } else {
+            if (west >= 0) {
+                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, false, east);
+            } else {
+                GeoUtil.translateLongitudesWithCondition(tmpGeometry, 360, true, west);
+            }
+        }
+        IsValidOp validOp = new IsValidOp(tmpGeometry);
+        TopologyValidationError err = validOp.getValidationError();
+        if (err != null) {
+            throw new InvalidParameterException("A Polygon of the given WKT is right oriented. Unable to reverse the orientation of the polygon : " + err);
+        }
+        return GeoUtil.splitPolygon((Polygon) GeoUtil.readWKT(tmpGeometry.toString()))._1();
     }
 
     public static List<String> toSemiColonsSeparatedStringList(List<MultiValueFilter<String>> multiValueFilters) {

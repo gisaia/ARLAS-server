@@ -100,6 +100,7 @@ public class Documentation {
 
     public static final String FILTER_PARAM_Q = "A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}";
     public static final String FILTER_DATE_FORMAT = "The format of dates. This parameter should be set only if a date field is queried in `f` param; when using `gt`, `lt`, `gte`, `lte` and `range` operations";
+    public static final String FILTER_RIGHT_HAND = "If righthand = true, the passed WKT should be counter clock-wise; otherwise, ARLAS-server will attempt to parse it as the \"Complementary\" Polygon on the other facet of the planet. \n Inversely, If righthand = false, the passed WKT should be clock-wise; otherwise, ARLAS-server will attempt to parse it as the \"Complementary\" Polygon on the other facet of the planet. ";
     public static final String AGGREGATION_OPERATION = "Aggregate the elements in the collection(s), given the filters and the aggregation parameters";
     public static final String AGGREGATION_PARAM_AGG = "- The agg parameter should be given in the following formats:  " +
             "\n \n" +

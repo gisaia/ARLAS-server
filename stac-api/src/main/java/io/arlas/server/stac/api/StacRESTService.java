@@ -21,6 +21,8 @@ package io.arlas.server.stac.api;
 
 import com.ethlo.time.ITU;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.server.core.exceptions.ArlasException;
 import io.arlas.server.core.exceptions.InvalidParameterException;
@@ -45,6 +47,7 @@ import org.geojson.GeoJsonObject;
 import org.geojson.Polygon;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
@@ -70,6 +73,9 @@ public abstract class StacRESTService {
     protected CollectionReferenceService collectionReferenceService;
     protected STACConfiguration configuration;
     protected ResponseCacheManager responseCacheManager;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final GeoJsonReader reader = new GeoJsonReader();
+    public static final ObjectWriter writer = objectMapper.writer();
 
     public StacRESTService(STACConfiguration configuration,
                            int arlasRestCacheTimeout,
@@ -220,7 +226,7 @@ public abstract class StacRESTService {
                                                              String method,
                                                              boolean isOgc) throws ArlasException {
         Search search = new Search();
-        search.filter = ParamsParser.getFilter(collectionReference, filter, null, null);
+        search.filter = ParamsParser.getFilter(collectionReference, filter, null, null, true);
         if (body != null) {
             search.page = ParamsParser.getPage(new IntParam(body.getLimit().toString()),
                     new IntParam(body.getFrom().toString()),
@@ -343,7 +349,8 @@ public abstract class StacRESTService {
     protected String getGeoFilter(GeoJsonObject geojson, CollectionReference collectionReference) throws ArlasException {
         if (geojson != null) {
             try {
-                Geometry geometry = GeoUtil.toClockwise(geojson);
+                /** righthand parameter is forced for STAC; therefore, passed righthand WKTs will be used correctly; **/
+                Geometry geometry = reader.read(writer.writeValueAsString(geojson));
                 return StringUtil.concat(collectionReference.params.centroidPath, ":", OperatorEnum.intersects.name(), ":",
                         geometry.toText());
             } catch (ParseException | JsonProcessingException e) {

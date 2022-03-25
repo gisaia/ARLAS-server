@@ -93,6 +93,10 @@ public class ComputeRESTService extends ExploreRESTServices {
                     value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
+            @ApiParam(name = "righthand",
+                    value = Documentation.FILTER_RIGHT_HAND)
+            @QueryParam(value = "righthand") Boolean righthand,
+
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
@@ -119,7 +123,7 @@ public class ComputeRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         ComputationRequest computationRequest = new ComputationRequest();
-        computationRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
+        computationRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand);
         computationRequest.field = field;
         computationRequest.metric = ComputationEnum.fromValue(metric);
         exploreService.setValidGeoFilters(collectionReference, computationRequest);
