@@ -19,7 +19,6 @@
 
 package io.arlas.server.tests;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uber.h3core.H3Core;
 import io.arlas.server.core.app.ElasticConfiguration;
@@ -49,12 +48,16 @@ public class DataSetTool {
 
     public final static String DATASET_INDEX_NAME="dataset";
     public final static String DATASET_ID_PATH="id";
+    public final static String DATASET_ID_DESC = "object identifier";
     public final static String DATASET_GEO_PARAMS="geo_params";
     public final static String DATASET_GEOMETRY_PATH="geo_params.geometry";
+    public final static String DATASET_GEOMETRY_DESC = "object geometry";
     public final static String DATASET_WKT_GEOMETRY_PATH="geo_params.wktgeometry";
     public final static String DATASET_CENTROID_PATH="geo_params.centroid";
+    public final static String DATASET_CENTROID_DESC = "object centroid";
     public final static String DATASET_H3_PATH="geo_params.h3";
     public final static String DATASET_TIMESTAMP_PATH="params.startdate";
+    public final static String DATASET_TIMESTAMP_DESC = "record timestamp";
     public final static String DATASET_EXCLUDE_FIELDS = "params.ci*";
     public final static String DATASET_EXCLUDE_WFS_FIELDS="params.country";
     public final static String DATASET_TIMESTAMP_FORMAT = "epoch_millis";
