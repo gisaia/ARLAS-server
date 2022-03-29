@@ -281,6 +281,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         when().get(arlasPath + "collections/foo_described")
                 .then().statusCode(200)
                 .body("collection_name", equalTo("foo_described"))
+                .body("params.collection_description.display_name", equalTo(DataSetTool.DATASET_COLLECTION_DISPLAY_NAME))
                 .body("params.collection_description.field_descriptions['"+DataSetTool.DATASET_ID_PATH+"']", equalTo(DataSetTool.DATASET_ID_DESC))
                 .body("params.collection_description.field_descriptions['"+DataSetTool.DATASET_CENTROID_PATH+"']", equalTo(DataSetTool.DATASET_CENTROID_DESC))
                 .body("params.collection_description.field_descriptions['"+DataSetTool.DATASET_GEOMETRY_PATH+"']", equalTo(DataSetTool.DATASET_GEOMETRY_DESC))
@@ -375,6 +376,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
     private Object getCollectionDescriptionJsonAsMap() {
         Map<String, Object> jsonAsMap = new HashMap<>();
+        jsonAsMap.put(CollectionReference.COLLECTION_DISPLAY_NAME, DataSetTool.DATASET_COLLECTION_DISPLAY_NAME);
         jsonAsMap.put(CollectionReference.FIELD_DESCRIPTIONS, getFieldDescriptionsJsonAsMap());
         return jsonAsMap;
     }
