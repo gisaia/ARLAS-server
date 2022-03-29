@@ -19,9 +19,9 @@
 
 package io.arlas.server.tests.rest.collections;
 
+import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.tests.AbstractTestWithCollection;
 import io.arlas.server.tests.DataSetTool;
-import io.arlas.server.core.model.CollectionReference;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.junit.FixMethodOrder;
@@ -265,6 +265,31 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         handleInvalidCollectionParameters(put(jsonAsMap));
     }
 
+    @Test
+    public void test07CollectionWithDescription() throws Exception {
+        Map<String, Object> jsonAsMap = getJsonAsMap();
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
+        jsonAsMap.put(CollectionReference.COLLECTION_DESCRIPTION, getCollectionDescriptionJsonAsMap());
+
+        // PUT new collection
+        given().contentType("application/json").body(jsonAsMap)
+                .when().put(arlasPath + "collections/foo_described")
+                .then().statusCode(200);
+
+        // GET collection
+        when().get(arlasPath + "collections/foo_described")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("foo_described"))
+                .body("params.collection_description.field_descriptions['"+DataSetTool.DATASET_ID_PATH+"']", equalTo(DataSetTool.DATASET_ID_DESC))
+                .body("params.collection_description.field_descriptions['"+DataSetTool.DATASET_CENTROID_PATH+"']", equalTo(DataSetTool.DATASET_CENTROID_DESC))
+                .body("params.collection_description.field_descriptions['"+DataSetTool.DATASET_GEOMETRY_PATH+"']", equalTo(DataSetTool.DATASET_GEOMETRY_DESC))
+                .body("params.collection_description.field_descriptions['"+DataSetTool.DATASET_TIMESTAMP_PATH+"']", equalTo(DataSetTool.DATASET_TIMESTAMP_DESC));
+
+        // DELETE collection
+        when().delete(arlasPath + "collections/foo_described")
+                .then().statusCode(200);
+    }
 
     @Test
     public void test08WithCollectionFilter() throws Exception {
@@ -345,6 +370,21 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         jsonAsMap.put(CollectionReference.TIMESTAMP_PATH, DataSetTool.DATASET_TIMESTAMP_PATH);
         jsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_EXCLUDE_FIELDS);
         jsonAsMap.put(CollectionReference.EXCLUDE_WFS_FIELDS, DataSetTool.DATASET_EXCLUDE_WFS_FIELDS);
+        return jsonAsMap;
+    }
+
+    private Object getCollectionDescriptionJsonAsMap() {
+        Map<String, Object> jsonAsMap = new HashMap<>();
+        jsonAsMap.put(CollectionReference.FIELD_DESCRIPTIONS, getFieldDescriptionsJsonAsMap());
+        return jsonAsMap;
+    }
+
+    private Object getFieldDescriptionsJsonAsMap() {
+        Map<String, Object> jsonAsMap = new HashMap<>();
+        jsonAsMap.put(DataSetTool.DATASET_ID_PATH, DataSetTool.DATASET_ID_DESC);
+        jsonAsMap.put(DataSetTool.DATASET_CENTROID_PATH, DataSetTool.DATASET_CENTROID_DESC);
+        jsonAsMap.put(DataSetTool.DATASET_GEOMETRY_PATH, DataSetTool.DATASET_GEOMETRY_DESC);
+        jsonAsMap.put(DataSetTool.DATASET_TIMESTAMP_PATH, DataSetTool.DATASET_TIMESTAMP_DESC);
         return jsonAsMap;
     }
 

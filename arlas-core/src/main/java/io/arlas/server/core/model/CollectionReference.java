@@ -37,6 +37,8 @@ public class CollectionReference implements Serializable {
     public static final String DEFAULT_TIMESTAMP_FORMAT = "strict_date_optional_time||epoch_millis";
     public static final String EXCLUDE_FIELDS = "exclude_fields";
     public static final String EXCLUDE_WFS_FIELDS = "exclude_wfs_fields";
+    public static final String COLLECTION_DESCRIPTION = "collection_description";
+    public static final String FIELD_DESCRIPTIONS = "field_descriptions";
     public static final String INSPIRE_PATH = "inspire";
     public static final String DUBLIN_CORE_PATH = "dublin_core_element_name";
     public static final String INSPIRE_LINEAGE = "lineage";
