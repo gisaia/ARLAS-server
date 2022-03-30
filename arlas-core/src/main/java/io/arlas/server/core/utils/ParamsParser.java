@@ -298,6 +298,7 @@ public class ParamsParser {
                     String value = String.join(":", Arrays.copyOfRange(operands, 2, operands.length));
 
                     if (GEO_OP.contains(OperatorEnum.valueOf(operands[1]))) {
+                        value = getValidGeometry(value, righthand);
                         if(tileBbox != null && collectionReference != null) {
                             boolean isPwithin = isPwithin(collectionReference, operands[0], operands[1]);
                             if (isPwithin){
@@ -392,14 +393,13 @@ public class ParamsParser {
                         if (righthand != Boolean.TRUE) {
                             polygonList.addAll(getClockwisePolygons(subWkt));
                         } else {
-                            polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1());
+                            polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1().stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
                         }
 
                     } else {
                         // the wkt is CW
                         if (righthand == Boolean.TRUE) {
-                            Polygon ccwWKT = (Polygon)GeoUtil.toCounterClockwise((Polygon)subWkt.copy());
-                            polygonList.addAll(getClockwisePolygons(ccwWKT).stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
+                            polygonList.addAll(getClockwisePolygons(subWkt).stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
                         } else {
                             polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1());
                         }
@@ -419,11 +419,11 @@ public class ParamsParser {
     }
 
     /** returns a list of CW WKT Polygons were longitudes are between -180 and 180*/
-    private static List<Polygon> getClockwisePolygons(Polygon ccwWKT) throws ArlasException {
+    private static List<Polygon> getClockwisePolygons(Polygon wkt) throws ArlasException {
         // the passed queryGeometry must be interpreted as CCW (righthand = true).
         // If the orientation is CW, we try to build the WKT that goes the other side of the planet.
         // If the topology of the resulted geometry is not valid, an exception is thrown
-        Polygon tmpGeometry = (Polygon) ccwWKT.copy();
+        Polygon tmpGeometry = (Polygon) wkt.copy();
         Envelope tmpEnvelope = tmpGeometry.getEnvelopeInternal();
         // east is the minX and west is the maxX
         double east = tmpEnvelope.getMinX();
