@@ -32,4 +32,7 @@ public class CollectionDescription implements Serializable {
 
     @JsonProperty(value = "field_descriptions", required = false)
     public Map<String, String> fieldDescriptions = null;
+
+    @JsonProperty(value = "shape_column_names", required = false)
+    public Map<String, String> shapeColumnNames = null;
 }

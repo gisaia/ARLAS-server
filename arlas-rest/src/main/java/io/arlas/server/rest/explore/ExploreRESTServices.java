@@ -52,6 +52,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipOutputStream;
 
@@ -93,7 +94,7 @@ public abstract class ExploreRESTServices {
         return "explore/";
     }
 
-    public File toShapefile(FeatureCollection geojson) throws ArlasException {
+    public File toShapefile(FeatureCollection geojson, Map<String, String> shapeColumnNames) throws ArlasException {
         try {
             java.nio.file.Path tempDir = Files.createTempDirectory("shpdir");
             try (InputStream in = new ByteArrayInputStream(mapper.writeValueAsBytes(geojson))) {
@@ -116,7 +117,9 @@ public abstract class ExploreRESTServices {
                             // the geometry column name of schema for saving into a shapefile must be "the_geom"
                             builder.add("the_geom", adesc.getType().getBinding(), CRS_WGS84);
                         } else {
-                            builder.add(getShortColumnName(adesc.getLocalName(), colNum.get()),
+                            String columnName = shapeColumnNames!=null && shapeColumnNames.containsKey(adesc.getLocalName()) ?
+                                    shapeColumnNames.get(adesc.getLocalName()) : adesc.getLocalName();
+                            builder.add(getShortColumnName(columnName, colNum.get()),
                                     adesc.getType().getBinding() == Object.class ? String.class : adesc.getType().getBinding());
                         }
                         colNum.getAndIncrement();
