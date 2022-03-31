@@ -252,10 +252,18 @@ public class ParamsParser {
         if (serializedFilter != null) {
             try {
                 Map<String, Filter> pf = objectMapper.readValue(serializedFilter, new TypeReference<Map<String, Filter>>() {});
-                return pf.get(collectionReference.collectionName);
+                Filter f = pf.get(collectionReference.collectionName);
+                if (f.righthand == null) {
+                    f.righthand = Boolean.TRUE;
+                }
+                return f;
             } catch (IOException e) {
                 try {
-                    return objectMapper.readValue(serializedFilter, Filter.class);
+                    Filter f = objectMapper.readValue(serializedFilter, Filter.class);
+                    if (f.righthand == null) {
+                        f.righthand = Boolean.TRUE;
+                    }
+                    return f;
                 } catch (JsonProcessingException ex) {
                 }
                 throw new InvalidParameterException(INVALID_FILTER + ": '" + serializedFilter + "'");
@@ -267,6 +275,9 @@ public class ParamsParser {
 
     public static Filter getFilter(CollectionReference collectionReference,
                                    List<String> filters, List<String> q, String dateFormat, Boolean righthand) throws ArlasException {
+        if (righthand == null) {
+            righthand = Boolean.TRUE;
+        }
         return getFilter(collectionReference, filters, q, dateFormat, righthand, null, null);
     }
 
@@ -366,6 +377,9 @@ public class ParamsParser {
                 }
                 newFilter.f.add(newOrFiltersList);
             }
+        }
+        if (newFilter.righthand == null) {
+            newFilter.righthand = Boolean.TRUE;
         }
         return newFilter;
     }

@@ -37,6 +37,7 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
     public void setUpSearch() {
         search.page = new Page();
         search.filter = new Filter();
+        search.filter.righthand = false;
         search.projection = new Projection();
     }
 

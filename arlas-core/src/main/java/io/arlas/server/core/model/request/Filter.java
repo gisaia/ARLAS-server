@@ -29,4 +29,8 @@ public class Filter implements Serializable {
     public List<MultiValueFilter<String>> q;
     public String dateformat;
     public Boolean righthand;
+
+    public Filter() {
+        this.righthand = true;
+    }
 }

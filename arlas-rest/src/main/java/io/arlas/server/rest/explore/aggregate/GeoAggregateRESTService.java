@@ -109,6 +109,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(name = "righthand",
+                    defaultValue = "true",
                     value = Documentation.FILTER_RIGHT_HAND)
             @QueryParam(value = "righthand") Boolean righthand,
 
@@ -192,7 +193,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(name = "righthand",
-                    value = Documentation.FILTER_RIGHT_HAND)
+                    value = Documentation.FILTER_RIGHT_HAND,
+                    defaultValue = "true")
             @QueryParam(value = "righthand") Boolean righthand,
 
 
@@ -275,6 +277,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(name = "righthand",
+                    defaultValue = "true",
                     value = Documentation.FILTER_RIGHT_HAND)
             @QueryParam(value = "righthand") Boolean righthand,
 
@@ -404,6 +407,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(name = "righthand",
+                    defaultValue = "true",
                     value = Documentation.FILTER_RIGHT_HAND)
             @QueryParam(value = "righthand") Boolean righthand,
 

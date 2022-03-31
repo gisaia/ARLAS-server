@@ -81,6 +81,7 @@ public class CountRESTService extends ExploreRESTServices {
             @QueryParam(value = "dateformat") String dateformat,
 
             @ApiParam(name = "righthand",
+                    defaultValue = "true",
                     value = Documentation.FILTER_RIGHT_HAND)
             @QueryParam(value = "righthand") Boolean righthand,
 

@@ -33,9 +33,9 @@ public abstract class AbstractXYZTiledTest extends AbstractProjectedTest {
     @Before
     public void setUpSearch() {
         search.filter = new Filter();
+        search.filter.righthand = false;
         search.page = new Page();
         search.projection = new Projection();
-        search.filter = new Filter();
     }
 
     @Test

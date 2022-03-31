@@ -49,6 +49,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     public void setUpFilter() {
         request = new Request();
         request.filter = new Filter();
+        request.filter.righthand = false;
     }
 
     //----------------------------------------------------------------
@@ -960,6 +961,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 this.getExtraParamsRequest()
                         .param("f", request.filter.f.get(0).get(0).toString())
                         .param("f", request.filter.f.get(1).get(0).toString())
+                        .param("righthand", request.filter.righthand)
                         .when().get(getUrlPath("geodata"))
                         .then(), 8, hasItems("10,0", "10,-10", "10,10", "10,10", "10,0", "10,-10", "0,10", "0,-10"));
         handleMatchingGeometryFilter(header(request.filter), 8, hasItems("10,0", "10,-10", "10,10", "10,10", "10,0", "10,-10", "0,10", "0,-10"));
@@ -1449,6 +1451,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 givenFilterableRequestParams()
                         .param("f", request.filter.f.get(0).get(0).toString())
                         .param("f", request.filter.f.get(1).get(0).toString())
+                        .param("righthand", request.filter.righthand)
                         .when().get(getUrlPath("geodata"))
                         .then(), 3, hasItems("10,-10", "0,-10", "-10,-10"));
         handleMatchingGeometryFilter(header(request.filter), 3, hasItems("10,-10", "0,-10", "-10,-10"));
@@ -1546,7 +1549,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .when().get(getUrlPath("geodata")).then(), 0, 772000, 2);
         handleMatchingTimestampRangeFilter(header(request.filter), 0, 772000, 2);
         request.filter.dateformat = null;
-
+        request.filter.righthand = false;
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),//"job:eq:Architect"
                 new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1009799<1009801]")),
                 new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "-50,-50,50,50")),
@@ -1565,6 +1568,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .param("f", request.filter.f.get(5).get(0).toString())
                         .param("f", request.filter.f.get(6).get(0).toString())
                         .param("f", request.filter.f.get(7).get(0).toString())
+                        .param("righthand", request.filter.righthand)
                         .when().get(getUrlPath("geodata"))
                         .then());
         handleComplexFilter(header(request.filter));
@@ -1594,8 +1598,9 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .when().get(getUrlPath("geodata"))
                         .then());
         handleComplexFilter(header(request.filter));
-        request.filter.righthand = false;
         request.filter = new Filter();
+        request.filter.righthand = false;
+
     }
 
 
@@ -1618,6 +1623,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .then()
         );
         request.filter = new Filter();
+        request.filter.righthand = false;
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0])));//("job:eq:" + DataSetTool.jobs[0]);
         req = givenFilterableRequestBody();
 
@@ -1640,6 +1646,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .then(),59,"Actor"
         );
         request.filter = new Filter();
+        request.filter.righthand = false;
     }
 
     @Test
@@ -1651,12 +1658,13 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "-50,-50,50,50")),
                 new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.within, "-30,-30,30,30")),
                 new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.intersects, "POLYGON((-20 20, 20 20, 20 -20, -20 -20, -20 20))")));
-
+        request.filter.righthand = false;
         Filter filterHeader = new Filter();
         filterHeader.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[0<1009801]")),
                 new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "20,-50,60,50")),
                 new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.notwithin, "POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))")),
                 new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.notintersects, "POLYGON((-30 -10,30 10, 30 -30, -30 -30,-30 -10))")));
+        filterHeader.righthand = false;
         handleComplexFilter(
                 givenFilterableRequestParams()
                         .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
@@ -1666,6 +1674,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .param("f", request.filter.f.get(2).get(0).toString())
                         .param("f", request.filter.f.get(3).get(0).toString())
                         .param("f", request.filter.f.get(4).get(0).toString())
+                        .param("righthand", request.filter.righthand)
                         .when().get(getUrlPath("geodata"))
                         .then());
 
@@ -1692,12 +1701,14 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .when().post(getUrlPath("geodata"))
                         .then());
         request.filter = new Filter();
+        request.filter.righthand = false;
     }
 
     @Test
     public void testMixedFilterMultiCollectionFormat() throws Exception {
         // valid bbox from WFS OGC SPEC = lower longitude , lower latitude , upper longitude  , upper latitude
         // valid bbox for ARLAS classic bbox = lat top,  long left,  lat bottom,  long right
+        request.filter.righthand = false;
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, "Architect")),//"job:eq:Architect"
                 new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1009799<2000000]")),
                 new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "-50,-50,50,50")),
@@ -1707,11 +1718,14 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         Map<String, Filter> filterHeader = new HashMap<String, Filter>();
 
         Filter filter = new Filter();
+        filter.righthand = false;
         filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[0<1009801]")),
                 new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "20,-50,60,50")),
                 new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.notwithin, "POLYGON((-50 50,-20 50, -20 -50, -50 -50,-50 50))")),
                 new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.notintersects, "POLYGON((-30 -10,30 10, 30 -30, -30 -30,-30 -10))")));
+
         filterHeader.put("geodata", filter);
+
         handleComplexFilter(
                 givenFilterableRequestParams()
                         .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
@@ -1721,6 +1735,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .param("f", request.filter.f.get(2).get(0).toString())
                         .param("f", request.filter.f.get(3).get(0).toString())
                         .param("f", request.filter.f.get(4).get(0).toString())
+                        .param("righthand", request.filter.righthand)
                         .when().get(getUrlPath("geodata"))
                         .then());
 
@@ -1748,13 +1763,14 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                         .when().post(getUrlPath("geodata"))
                         .then());
         request.filter = new Filter();
+        request.filter.righthand = false;
     }
 
     @Test
     public void testFieldFilterWithUnavailableColumns() throws Exception {
         request.filter = new Filter();
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, "Architect")));
-
+        request.filter.righthand = false;
         handleUnavailableColumn(
                 givenFilterableRequestParams()
                         .header("column-filter", "params.city")
@@ -1774,6 +1790,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleUnavailableColumn(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "fullname"));
 
         request.filter = new Filter();
+        request.filter.righthand = false;
     }
 
     @Test
@@ -1793,11 +1810,13 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleUnavailableCollection(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "notExisting:params.job"));
 
         request.filter = new Filter();
+        request.filter.righthand = false;
     }
 
     @Test
     public void testQueryFilterWithUnavailableColumns() throws Exception {
         request.filter = new Filter();
+        request.filter.righthand = false;
         request.filter.q = Arrays.asList(new MultiValueFilter<>("My name is"));
         handleUnavailableColumn(post(request, "column-filter", "params.city"));
         handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "params.city"));
@@ -1816,11 +1835,13 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "fullname.anything"));
 
         request.filter = new Filter();
+        request.filter.righthand = false;
     }
 
     @Test
     public void testQueryFilterWithCollectionBasedColumnFiltering() throws Exception {
         request.filter = new Filter();
+        request.filter.righthand = false;
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name is"));
 
         handleMatchingQueryFilter(post(request, "column-filter", "fullname*"), 595);
@@ -2193,6 +2214,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     private ValidatableResponse get(String param, Object paramValue) {
         RequestSpecification req = getExtraParamsRequest();
         return req.param(param, paramValue)
+                .param("righthand", false)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
@@ -2200,6 +2222,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     private ValidatableResponse get(String param, Object paramValue, String headerkey, String headerValue) {
         RequestSpecification req = getExtraParamsRequest();
         return req.param(param, paramValue)
+                .param("righthand", false)
                 .header(headerkey, headerValue)
                 .when().get(getUrlPath("geodata"))
                 .then();
@@ -2210,7 +2233,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         for (Pair<String, Object> param : params) {
             req = req.param(param.getKey(), param.getValue());
         }
-        return req
+        return req.param("righthand", false)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
