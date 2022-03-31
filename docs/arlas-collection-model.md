@@ -26,7 +26,9 @@ A Collection has the following structure :
     "exclude_fields": "string",
     "custom_params": {},
     "collection_description": {
-      "field_description": {}
+      "display_name" : "string",
+      "field_descriptions": {},
+      "shape_column_names": {}
     },
     "atom_feed": {
       ...
