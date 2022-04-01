@@ -19,7 +19,7 @@ ARLAS-server is a Dropwizard project. You need JDK 8 and Maven 3 to be installed
 
 ### Running
 
-You need a Java Runtime (JRE) 8 and an ElasticSearch server running. ARLAS is compliant with the following versions:
+You need a Java Runtime (JRE) 17 and an ElasticSearch server running. ARLAS is compliant with the following versions:
 
 | ElasticSearch Version |
 |  ---  |
@@ -114,17 +114,13 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## Versioning :
 
-We use our own versioning schema which looks like ```11.7.0``` where :
+We use our own versioning schema which looks like ```21.0.0``` where :
 
-- `11` : represents ARLAS-server API version
-- `7` : represents Elasticsearch compliance (see above for value correspondence)
-- `0` : represents ARLAS-server incremental version
+- `21` : represents ARLAS-server API major version
+- `0` : represents ARLAS-server API minor version
+- `0` : represents ARLAS-server API patch version
 
-For Elasticsearch compliance, values currently supported are :
-
-- `7` : indicates that this version is compliant with Elasticsearch 7.x
-
-For the versions available, see the [releases](https://github.com/gisaia/ARLAS-server/releases) on this repository.
+For the available versions, see the [releases](https://github.com/gisaia/ARLAS-server/releases) on this repository.
 
 ## Authors :
 
