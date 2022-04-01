@@ -270,7 +270,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         Map<String, Object> jsonAsMap = getJsonAsMap();
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
-        jsonAsMap.put(CollectionReference.COLLECTION_DESCRIPTION, getCollectionDescriptionJsonAsMap());
+        jsonAsMap.put(CollectionReference.DISPLAY_NAMES, getCollectionDescriptionJsonAsMap());
 
         // PUT new collection
         given().contentType("application/json").body(jsonAsMap)
@@ -377,7 +377,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     private Object getCollectionDescriptionJsonAsMap() {
         Map<String, Object> jsonAsMap = new HashMap<>();
         jsonAsMap.put(CollectionReference.COLLECTION_DISPLAY_NAME, DataSetTool.DATASET_COLLECTION_DISPLAY_NAME);
-        jsonAsMap.put(CollectionReference.FIELD_DESCRIPTIONS, getFieldDescriptionsJsonAsMap());
+        jsonAsMap.put(CollectionReference.FIELD_DISPLAY_NAME, getFieldDescriptionsJsonAsMap());
         return jsonAsMap;
     }
 
