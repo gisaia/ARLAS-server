@@ -24,15 +24,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Map;
 
-public class CollectionDescription implements Serializable {
+public class CollectionDisplayNames implements Serializable {
     private static final long serialVersionUID = 7438255714694047836L;
 
-    @JsonProperty(value = "display_name", required = false)
-    public String displayName = null;
+    @JsonProperty(value = "collection", required = false)
+    public String collection = null;
 
-    @JsonProperty(value = "field_descriptions", required = false)
-    public Map<String, String> fieldDescriptions = null;
+    @JsonProperty(value = "fields", required = false)
+    public Map<String, String> fields = null;
 
-    @JsonProperty(value = "shape_column_names", required = false)
-    public Map<String, String> shapeColumnNames = null;
+    @JsonProperty(value = "shape_columns", required = false)
+    public Map<String, String> shapeColumns = null;
 }

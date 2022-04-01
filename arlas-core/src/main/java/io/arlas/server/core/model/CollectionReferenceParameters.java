@@ -72,8 +72,8 @@ public class CollectionReferenceParameters implements Serializable {
     @JsonProperty(value = "custom_params")
     public Map<String, String> customParams = null;
 
-    @JsonProperty(value = "collection_description")
-    public CollectionDescription collectionDescription = null;
+    @JsonProperty(value = "display_names")
+    public CollectionDisplayNames collectionDisplayNames = null;
 
     @JsonProperty(value = "atom_feed")
     public Feed atomFeed = null;
