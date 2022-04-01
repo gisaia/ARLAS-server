@@ -38,6 +38,7 @@ public abstract class AbstractTestWithCollection extends AbstractTestContext {
 
     static {
         request.filter = new Filter();
+        request.filter.righthand = false;
     }
 
     @BeforeClass

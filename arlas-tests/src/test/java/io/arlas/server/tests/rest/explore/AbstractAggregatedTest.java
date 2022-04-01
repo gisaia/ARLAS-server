@@ -43,6 +43,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
     public void setUpAggregationRequest() {
         aggregationRequest = new AggregationsRequest();
         aggregationRequest.filter = new Filter();
+        aggregationRequest.filter.righthand = false;
         aggregationRequest.aggregations = new ArrayList<>();
         aggregationModel = new Aggregation();
         aggregationRequest.aggregations.add(aggregationModel);
@@ -1051,6 +1052,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleInvalidParameters(get("foobar:params.job"));
         InvalidAggregationsRequest invalidAggregationRequest = new InvalidAggregationsRequest();
         invalidAggregationRequest.filter = new Filter();
+        invalidAggregationRequest.filter.righthand = false;
         invalidAggregationRequest.invalidAggregations = new ArrayList<>();
         invalidAggregationRequest.invalidAggregations.add(new InvalidAggregation());
         invalidAggregationRequest.invalidAggregations.get(0).type = "foobar";

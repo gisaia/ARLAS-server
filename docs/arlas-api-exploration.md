@@ -172,24 +172,26 @@ For **_geoaggregate** service, the first (main) aggregation must be geohash,or g
 
 The `filter` url part allows the following parameters to be specified:
 
-| Parameter         | Default value | Values                         | Description                              | Multiple |
-| ----------------- | ------------- | ------------------------------ | ---------------------------------------- | -------- |
-| **f**             | None          | `{fieldName}{operator}{value}` | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **`:eq:`** and **`:range:`** filters, values can be comma separated (field`:eq:`v1,v2) which stands for an **OR**. For the **`:ne:`**  filter, values can be comma separated (field`:ne:`v1,v2) which stands for an **AND** | true     |
-| **q**             | None          | `{text}` or `{fieldname}:{text}` | A full text search. Optionally, it's possible to search the text on a specific field                       | false    |
-| **dateformat**    | None          | [Joda time pattern](https://www.joda.org/joda-time/apidocs/org/joda/time/format/DateTimeFormat.html)                       | A date format pattern that respects the Joda-time syntax | false    |
+| Parameter      | Default value | Values                                                                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Multiple |
+|----------------|---------------|------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| -------- |
+| **f**          | None          | `{fieldName}{operator}{value}`                                                                       | A triplet for filtering the result. Multiple filter can be provided. The order does not matter. A triplet is composed of a field name, a comparison operator and a value. The **AND** operator is applied between filters. For the **`:eq:`** and **`:range:`** filters, values can be comma separated (field`:eq:`v1,v2) which stands for an **OR**. For the **`:ne:`**  filter, values can be comma separated (field`:ne:`v1,v2) which stands for an **AND** | true     |
+| **q**          | None          | `{text}` or `{fieldname}:{text}`                                                                     | A full text search. Optionally, it's possible to search the text on a specific field                                                                                                                                                                                                                                                                                                                                                                           | false    |
+| **dateformat** | None          | [Joda time pattern](https://www.joda.org/joda-time/apidocs/org/joda/time/format/DateTimeFormat.html) | A date format pattern that respects the Joda-time syntax                                                                                                                                                                                                                                                                                                                                                                                                       | false    |
+| **righthand**  | false         | Boolean                                                                                              | A parameter that indicates how to consider the given WKT orientation. (Check **Important 2**)                                                                                                                                                                                                                                                                                                                                                                  | false    |
 
-!!! info "Important"
+!!! info "Important 1"
     The given BBOX must respect the following rules :
     - `west` and `east` must be between -180 and 180 inclusive
     - `west` must be different from `east` (west=east is invalid)
     - You can specify `west`>`east` which means the bbox crosses the dateline
     - `south` and `north` must be between -90 and 90 inclusive and `south`<`north`
 
-!!! info "Important"
-    For parameters that accept WKT, in case of a **Polygon** or **MultiPolygon**, the orientation should be clock-wise (left-hand rule). Otherwise, ARLAS-server will attempt to parse it as the "Complementary" Polygon on the other facet of the planet.
-    For instance the polygon `POLYGON  ((-170 -10, -175 10, 175 10, 170 -10, -170 -10))` is counter clock-wise. If it's passed as a parameter, ARLAS-server will interpret it as the Polygon that crosses the dateline `POLYGON  ((-170 -10, -175 10, 185 10, 180 -10, -170 -10))` which is clock-wise.
+!!! info "Important 2"
+    For parameters that accept WKT, in case of a **Polygon** or **MultiPolygon**, ARLAS-server will treat the orientation of the WKT according to the value of **righthand** parameter.
+    If `righthand = true`, the passed WKT should be counter clock-wise; otherwise, ARLAS-server will attempt to parse it as the "Complementary" Polygon on the other facet of the planet.
+    Inversely, if `righthand = false`, the passed WKT should be clock-wise; otherwise, ARLAS-server will attempt to parse it as the "Complementary" Polygon on the other facet of the planet.
 
-!!! info "Important"
+!!! info "Important 3"
     Coordinates of the given **WKT** must be contained in the Envelope -360, 360, -180, 180
 
 #### Filter parameters algebra

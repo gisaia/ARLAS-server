@@ -36,6 +36,7 @@ import io.arlas.server.core.services.FluidSearchService;
 import io.arlas.server.core.utils.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,16 +75,16 @@ public class JdbiFluidSearch extends FluidSearchService {
     }
 
     @Override
-    public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat) throws ArlasException {
+    public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat, Boolean righthand) throws ArlasException {
         List<String> orConditions = new ArrayList<>();
         for (Expression fFilter : f) {
-            orConditions.add(filter(fFilter, dateFormat));
+            orConditions.add(filter(fFilter, dateFormat, righthand));
         }
         req.addOrWhereClauses(orConditions);
         return this;
     }
 
-    private String filter(Expression e, String dateFormat) throws ArlasException {
+    private String filter(Expression e, String dateFormat, Boolean righthand) throws ArlasException {
         if (isNullOrEmpty(e.field) || e.op == null || isNullOrEmpty(e.value)) {
             throw new InvalidParameterException(INVALID_PARAMETER_F);
         }
@@ -149,10 +150,11 @@ public class JdbiFluidSearch extends FluidSearchService {
                         if (CheckParams.isBboxMatch(value)) {
                             double[] tlbr = CheckParams.toDoubles(value);
                             geo = GeoTileUtil.toPolygon(new BoundingBox(tlbr[3], tlbr[1], tlbr[0], tlbr[2]));
+                            return req.formatGeoCondition(e.field, e.op, geo, null);
                         } else {
                             geo = GeoUtil.readWKT(value);
+                            return req.formatGeoCondition(e.field, e.op, geo, righthand);
                         }
-                        return req.formatGeoCondition(e.field, e.op, geo);
                     default:
                         throw new ArlasException(e.op + " op on field '" + field + "' of type '" + wType + "' is not supported");
                 }

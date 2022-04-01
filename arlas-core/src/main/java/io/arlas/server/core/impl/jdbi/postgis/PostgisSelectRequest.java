@@ -49,6 +49,8 @@ public class PostgisSelectRequest extends SelectRequest {
     public static final String G5 = "concat(";
     public static final String S1 = "to_tsvector(";
     public static final String S2 = ") @@ to_tsquery(";
+    public static final String ST_FORCEPOLYGONCW = "st_forcepolygoncw";
+    public static final String ST_FORCEPOLYGONCCW = "st_forcepolygonccw";
 
     public String getDateFieldAsEpochMilli(String field) {
         return concat(EPOCH_LP, field, EPOCH_RP_MILLI);
@@ -124,10 +126,17 @@ public class PostgisSelectRequest extends SelectRequest {
         // to_tsvector(field) @@ to_tsquery('q');
         return concat(S1,field, S2, mapWhereParam(new ClauseParam("", value)), RP);
     }
-        @Override
-    protected Object jtsToDBgeo(Geometry jtsGeo) throws ArlasException {
+    @Override
+    protected Object jtsToDBgeo(Geometry jtsGeo, Boolean righthand) throws ArlasException {
         try {
-            return new PGgeometry(concat(SRID, jtsGeo.toText()));
+            if (righthand != null) {
+                String FORCED_ORIENTATION = righthand == Boolean.TRUE ? ST_FORCEPOLYGONCCW : ST_FORCEPOLYGONCW;
+                /** https://postgis.net/docs/ST_ForcePolygonCCW.html */
+                /** Non-polygonal geometries are returned unchanged. */
+                return new PGgeometry(concat(SRID, concat(FORCED_ORIENTATION, LP, jtsGeo.toText(), RP)));
+            } else {
+                return new PGgeometry(concat(SRID, jtsGeo.toText()));
+            }
         } catch (SQLException e) {
             throw new ArlasException("Could not create PGgeometry from JTS geometry", e);
         }

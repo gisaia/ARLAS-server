@@ -95,6 +95,12 @@ public class AggregateRESTService extends ExploreRESTServices {
                     value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
+            @ApiParam(name = "righthand",
+                    defaultValue = "true",
+                    value = Documentation.FILTER_RIGHT_HAND)
+            @QueryParam(value = "righthand") Boolean righthand,
+
+
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
@@ -124,7 +130,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
         AggregationsRequest aggregationsRequest = new AggregationsRequest();
-        aggregationsRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat);
+        aggregationsRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(collectionReference, agg);
         exploreService.setValidGeoFilters(collectionReference, aggregationsRequest);
 

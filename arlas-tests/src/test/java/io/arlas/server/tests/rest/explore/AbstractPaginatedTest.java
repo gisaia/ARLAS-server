@@ -42,6 +42,7 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     public void setUpSearch() {
         search.page = new Page();
         search.filter = new Filter();
+        search.filter.righthand = false;
     }
 
     //----------------------------------------------------------------
@@ -92,6 +93,7 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     public void testPageSort() throws Exception {
 
         search.filter = new Filter();
+        search.filter.righthand = false;
         search.page.sort = "-params.job";
         //an empty column filter is not considered
         handleSortParameter(post(search, ""), "Dancer");

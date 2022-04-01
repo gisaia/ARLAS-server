@@ -108,6 +108,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
+            @ApiParam(name = "righthand",
+                    defaultValue = "true",
+                    value = Documentation.FILTER_RIGHT_HAND)
+            @QueryParam(value = "righthand") Boolean righthand,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
@@ -140,7 +144,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
 
         return geoaggregate(collectionReference,
-                ParamsParser.getFilter(collectionReference, f, q, dateformat),
+                ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand),
                 partitionFilter, columnFilter, flat, agg, maxagecache, Optional.empty(), false);
 
     }
@@ -188,6 +192,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
+            @ApiParam(name = "righthand",
+                    value = Documentation.FILTER_RIGHT_HAND,
+                    defaultValue = "true")
+            @QueryParam(value = "righthand") Boolean righthand,
+
 
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
@@ -216,7 +225,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
 
         return geoaggregate(collectionReference,
-                ParamsParser.getFilter(collectionReference, f, q, dateformat),
+                ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand),
                 partitionFilter, columnFilter, true, agg, maxagecache, Optional.empty(), true);
 
     }
@@ -267,6 +276,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
+            @ApiParam(name = "righthand",
+                    defaultValue = "true",
+                    value = Documentation.FILTER_RIGHT_HAND)
+            @QueryParam(value = "righthand") Boolean righthand,
+
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
@@ -314,7 +328,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                             + String.format(Locale.ROOT, "%.8f", b.getEast() - GEOHASH_EPSILON) + ","
                             + String.format(Locale.ROOT,"%.8f", b.getNorth() - GEOHASH_EPSILON));
             MixedRequest request = getGeoaggregateRequest(collectionReference,
-                    ParamsParser.getFilter(collectionReference, f, q, dateformat, b, pwithinBbox)
+                    ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand, b, pwithinBbox)
                     , partitionFilter, columnFilter, agg);
             aggType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
 
@@ -392,6 +406,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
+            @ApiParam(name = "righthand",
+                    defaultValue = "true",
+                    value = Documentation.FILTER_RIGHT_HAND)
+            @QueryParam(value = "righthand") Boolean righthand,
+
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
@@ -436,7 +455,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                             + String.format(Locale.ROOT, "%.8f", b.getEast() - GEOHASH_EPSILON) + ","
                             + String.format(Locale.ROOT, "%.8f", b.getNorth() - GEOHASH_EPSILON));
             MixedRequest request = getGeoaggregateRequest(collectionReference,
-                    ParamsParser.getFilter(collectionReference, f, q, dateformat, b, pwithinBbox)
+                    ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand, b, pwithinBbox)
                     , partitionFilter, columnFilter, agg);
             aggType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
 

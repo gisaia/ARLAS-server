@@ -86,6 +86,11 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                     value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
+            @ApiParam(name = "righthand",
+                    defaultValue = "true",
+                    value = Documentation.FILTER_RIGHT_HAND)
+            @QueryParam(value = "righthand") Boolean righthand,
+
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
 
@@ -172,7 +177,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         }
 
         return geosearch(collectionReference,
-                ParamsParser.getFilter(collectionReference, f, q, dateformat), partitionFilter, columnFilter,
+                ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand), partitionFilter, columnFilter,
                 flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries, false);
     }
 
@@ -207,6 +212,11 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(name = "dateformat",
                     value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
+
+            @ApiParam(name = "righthand",
+                    defaultValue = "true",
+                    value = Documentation.FILTER_RIGHT_HAND)
+            @QueryParam(value = "righthand") Boolean righthand,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
@@ -289,7 +299,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         }
 
         return geosearch(collectionReference,
-                ParamsParser.getFilter(collectionReference, f, q, dateformat), partitionFilter, columnFilter,
+                ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand), partitionFilter, columnFilter,
                 true, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries, true);
     }
 
@@ -337,6 +347,11 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @ApiParam(name = "dateformat",
                     value = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
+
+            @ApiParam(name = "righthand",
+                    defaultValue = "true",
+                    value = Documentation.FILTER_RIGHT_HAND)
+            @QueryParam(value = "righthand") Boolean righthand,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = "partition-filter") String partitionFilter,
@@ -429,7 +444,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
                 bbox.getWest() + "," + bbox.getSouth() + "," + bbox.getEast() + "," + bbox.getNorth());
 
         return geosearch(collectionReference,
-                ParamsParser.getFilter(collectionReference, f, q, dateformat, bbox, pwithinBbox),
+                ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand, bbox, pwithinBbox),
                 partitionFilter, columnFilter, flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries, false);
     }
 

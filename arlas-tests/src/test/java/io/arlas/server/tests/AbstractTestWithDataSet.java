@@ -34,6 +34,7 @@ public abstract class AbstractTestWithDataSet extends AbstractTestContext {
 
     static {
         request.filter = new Filter();
+        request.filter.righthand = false;
     }
 
     @BeforeClass

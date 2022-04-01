@@ -111,18 +111,18 @@ public class ElasticFluidSearch extends FluidSearchService {
     }
 
     @Override
-    public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat) throws ArlasException {
+    public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat, Boolean righthand) throws ArlasException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         for (Expression fFilter : f) {
             orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(filter(fFilter, dateFormat));
+                    .should(filter(fFilter, dateFormat, righthand));
         }
         orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
         boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
         return this;
     }
 
-    private BoolQueryBuilder filter(Expression expression, String dateFormat) throws ArlasException {
+    private BoolQueryBuilder filter(Expression expression, String dateFormat, Boolean righthand) throws ArlasException {
         BoolQueryBuilder ret = QueryBuilders.boolQuery();
         if (Strings.isNullOrEmpty(expression.field) || expression.op == null || Strings.isNullOrEmpty(expression.value)) {
             throw new InvalidParameterException(INVALID_PARAMETER_F);
@@ -210,7 +210,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                         }
                         break;
                     case GEO_SHAPE:
-                        orBoolQueryBuilder = orBoolQueryBuilder.should(filterGWithin(field, value));
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(filterGWithin(field, value, righthand));
                         break;
                     default:
                         throw new ArlasException("'within' op on field '" + field + "' of type '" + wType + "' is not supported");
@@ -228,7 +228,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                         }
                         break;
                     case GEO_SHAPE:
-                        orBoolQueryBuilder2 = orBoolQueryBuilder2.should(filterGWithin(field, value));
+                        orBoolQueryBuilder2 = orBoolQueryBuilder2.should(filterGWithin(field, value, righthand));
                         break;
                     default:
                         throw new ArlasException("'notwithin' op on field '" + field + "' of type '" + type + "' is not supported");
@@ -236,10 +236,10 @@ public class ElasticFluidSearch extends FluidSearchService {
                 ret = ret.mustNot(orBoolQueryBuilder2);
                 break;
             case intersects:
-                ret = ret.filter(filterGIntersect(field, value));
+                ret = ret.filter(filterGIntersect(field, value, righthand));
                 break;
             case notintersects:
-                ret = ret.mustNot(filterGIntersect(field, value));
+                ret = ret.mustNot(filterGIntersect(field, value, righthand));
                 break;
             default:
                 throw new InvalidParameterException(INVALID_OPERATOR);
@@ -367,18 +367,18 @@ public class ElasticFluidSearch extends FluidSearchService {
         return builderList;
     }
 
-    public GeoShapeQueryBuilder filterGWithin(String field, String geometry) throws ArlasException {
+    public GeoShapeQueryBuilder filterGWithin(String field, String geometry, Boolean righthand) throws ArlasException {
         try {
-            ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+            ShapeBuilder shapeBuilder = getShapeBuilder(geometry, righthand);
             return QueryBuilders.geoWithinQuery(field, shapeBuilder);
         } catch (IOException e) {
             throw new ArlasException("Exception while building geoWithinQuery: " + e.getMessage());
         }
     }
 
-    public GeoShapeQueryBuilder filterGIntersect(String field, String geometry) throws ArlasException {
+    public GeoShapeQueryBuilder filterGIntersect(String field, String geometry, Boolean righthand) throws ArlasException {
         try {
-            ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
+            ShapeBuilder shapeBuilder = getShapeBuilder(geometry, righthand);
             return QueryBuilders.geoIntersectionQuery(field, shapeBuilder);
         } catch (IOException e) {
             throw new ArlasException("Exception while building geoIntersectionQuery: " + e.getMessage());
@@ -879,12 +879,13 @@ public class ElasticFluidSearch extends FluidSearchService {
         }
     }
 
-    private PolygonBuilder createPolygonBuilder(Polygon polygon) {
+    private PolygonBuilder createPolygonBuilder(Polygon polygon, Boolean righthand) {
         // TODO: add interior holes
         CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
         List<Coordinate> coordinates = Arrays.asList(polygon.getCoordinates());
         coordinatesBuilder.coordinates(coordinates);
-        return new PolygonBuilder(coordinatesBuilder, Orientation.LEFT);
+
+        return new PolygonBuilder(coordinatesBuilder, righthand == Boolean.TRUE ? Orientation.RIGHT : Orientation.LEFT);
     }
 
     private PolygonBuilder createPolygonBuilder(double[] bbox) {
@@ -915,10 +916,10 @@ public class ElasticFluidSearch extends FluidSearchService {
 
     }
 
-    private MultiPolygonBuilder createMultiPolygonBuilder(MultiPolygon multiPolygon) {
+    private MultiPolygonBuilder createMultiPolygonBuilder(MultiPolygon multiPolygon, Boolean righthand) {
         MultiPolygonBuilder multiPolygonBuilder = new MultiPolygonBuilder(Orientation.LEFT);
         for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
-            multiPolygonBuilder.polygon(createPolygonBuilder((Polygon) multiPolygon.getGeometryN(i)));
+            multiPolygonBuilder.polygon(createPolygonBuilder((Polygon) multiPolygon.getGeometryN(i), righthand));
         }
         return multiPolygonBuilder;
     }
@@ -935,7 +936,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         return pointBuilder;
     }
 
-    private ShapeBuilder getShapeBuilder(String geometry) throws ArlasException {
+    private ShapeBuilder getShapeBuilder(String geometry, Boolean righthand) throws ArlasException {
         // test if geometry is 'west,south,east,north' or wkt string
         if (CheckParams.isBboxMatch(geometry)) {
             return createPolygonBuilder((double[]) CheckParams.toDoubles(geometry));
@@ -946,9 +947,9 @@ public class ElasticFluidSearch extends FluidSearchService {
                 String geometryType = wktGeometry.getGeometryType().toUpperCase();
                 switch (geometryType) {
                     case "POLYGON":
-                        return createPolygonBuilder((Polygon) wktGeometry);
+                        return createPolygonBuilder((Polygon) wktGeometry, righthand);
                     case "MULTIPOLYGON":
-                        return createMultiPolygonBuilder((MultiPolygon) wktGeometry);
+                        return createMultiPolygonBuilder((MultiPolygon) wktGeometry, righthand);
                     case "LINESTRING":
                         return createLineStringBuilder((LineString) wktGeometry);
                     case "POINT":

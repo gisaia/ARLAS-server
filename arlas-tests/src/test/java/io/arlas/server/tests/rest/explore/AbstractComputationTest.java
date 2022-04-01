@@ -37,6 +37,7 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
     public void setUpComputationRequest() {
         computationRequest = new ComputationRequest();
         computationRequest.filter = new Filter();
+        computationRequest.filter.righthand =false;
         request = computationRequest;
     }
 
@@ -78,6 +79,7 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
 
         /** SUM **/
         computationRequest.filter =  new Filter();
+        computationRequest.filter.righthand = false;
         computationRequest.metric = ComputationEnum.SUM;
         handleComputationRequest(post(computationRequest), 271, 374900);
         handleComputationRequest(get(computationRequest.field, computationRequest.metric.value()), 271, 374900);
@@ -101,6 +103,7 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
         handleComputationEmptyResponse(post(computationRequest));
         handleComputationEmptyResponse(get(computationRequest.field, computationRequest.metric.value(), "f", computationRequest.filter.f.get(0).get(0).toString()));
         computationRequest.filter =  new Filter();
+        computationRequest.filter.righthand = false;
 
         /** EMPTY RESPONSE : NON-EXISTING FIELD**/
         computationRequest.field = "params.foo";
