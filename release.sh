@@ -50,10 +50,6 @@ BASEDIR=$PWD
 for i in "$@"
 do
 case $i in
-    -rel=*|--arlas-release=*)
-    ARLAS_REL="${i#*=}"
-    shift # past argument=value
-    ;;
     -dev=*|--arlas-dev=*)
     ARLAS_DEV="${i#*=}"
     shift # past argument=value
@@ -68,10 +64,6 @@ case $i in
     ;;
     -api-patch=*|--api-patch-version=*)
     API_PATCH_VERSION="${i#*=}"
-    shift # past argument=value
-    ;;
-    -es=*|--elastic-range=*)
-    ELASTIC_RANGE="${i#*=}"
     shift # past argument=value
     ;;
     --no-tests)
@@ -107,23 +99,12 @@ ELASTIC_VERSIONS_7=(
   7.16.0
 )
 
-case $ELASTIC_RANGE in
-    "7")
-        ELASTIC_VERSIONS=( "${ELASTIC_VERSIONS_7[@]}" )
-        ;;
-    *)
-        echo "Unknown --elasticsearch-range value"
-        echo "Possible values : "
-        echo "   -es=7 for versions ${ELASTIC_VERSIONS_7[*]}"
-        usage
-esac
-
+ELASTIC_VERSIONS=( "${ELASTIC_VERSIONS_7[@]}" )
 
 if [ -z ${ELASTIC_VERSIONS+x} ]; then usage;   else echo "Elasticsearch versions support : ${ELASTIC_VERSIONS[*]}"; fi
 if [ -z ${API_MAJOR_VERSION+x} ]; then usage;  else    echo "API MAJOR version           : ${API_MAJOR_VERSION}"; fi
 if [ -z ${API_MINOR_VERSION+x} ]; then usage;  else    echo "API MINOR version           : ${API_MINOR_VERSION}"; fi
 if [ -z ${API_PATCH_VERSION+x} ]; then usage;  else    echo "API PATCH version           : ${API_PATCH_VERSION}"; fi
-if [ -z ${ARLAS_REL+x} ]; then usage;          else    echo "Release version             : ${ARLAS_REL}"; fi
 if [ -z ${ARLAS_DEV+x} ]; then usage;          else    echo "Next development version    : ${ARLAS_DEV}"; fi
                                                        echo "Running tests               : ${TESTS}"
                                                        echo "Simulate mode               : ${SIMULATE}"
@@ -137,8 +118,8 @@ if [ "$SIMULATE" == "NO" -a "$SKIP_API" == "NO" ]; then
 fi
 
 
-export ARLAS_VERSION="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_REL}"
-ARLAS_DEV_VERSION="${API_MAJOR_VERSION}.${ELASTIC_RANGE}.${ARLAS_DEV}"
+export ARLAS_VERSION="${API_MAJOR_VERSION}.${API_MINOR_VERSION}.${API_PATCH_VERSION}"
+ARLAS_DEV_VERSION="${API_MAJOR_VERSION}.${API_MINOR_VERSION}.${ARLAS_DEV}"
 FULL_API_VERSION=${API_MAJOR_VERSION}"."${API_MINOR_VERSION}"."${API_PATCH_VERSION}
 API_DEV_VERSION=${API_MAJOR_VERSION}"."${API_MINOR_VERSION}"."${ARLAS_DEV}
 
