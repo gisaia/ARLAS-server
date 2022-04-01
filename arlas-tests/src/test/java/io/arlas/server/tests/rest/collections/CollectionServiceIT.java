@@ -281,11 +281,11 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         when().get(arlasPath + "collections/foo_described")
                 .then().statusCode(200)
                 .body("collection_name", equalTo("foo_described"))
-                .body("params.collection_description.display_name", equalTo(DataSetTool.DATASET_COLLECTION_DISPLAY_NAME))
-                .body("params.collection_description.field_descriptions['"+DataSetTool.DATASET_ID_PATH+"']", equalTo(DataSetTool.DATASET_ID_DESC))
-                .body("params.collection_description.field_descriptions['"+DataSetTool.DATASET_CENTROID_PATH+"']", equalTo(DataSetTool.DATASET_CENTROID_DESC))
-                .body("params.collection_description.field_descriptions['"+DataSetTool.DATASET_GEOMETRY_PATH+"']", equalTo(DataSetTool.DATASET_GEOMETRY_DESC))
-                .body("params.collection_description.field_descriptions['"+DataSetTool.DATASET_TIMESTAMP_PATH+"']", equalTo(DataSetTool.DATASET_TIMESTAMP_DESC));
+                .body("params.display_names.collection", equalTo(DataSetTool.DATASET_COLLECTION_DISPLAY_NAME))
+                .body("params.display_names.fields['"+DataSetTool.DATASET_ID_PATH+"']", equalTo(DataSetTool.DATASET_ID_DESC))
+                .body("params.display_names.fields['"+DataSetTool.DATASET_CENTROID_PATH+"']", equalTo(DataSetTool.DATASET_CENTROID_DESC))
+                .body("params.display_names.fields['"+DataSetTool.DATASET_GEOMETRY_PATH+"']", equalTo(DataSetTool.DATASET_GEOMETRY_DESC))
+                .body("params.display_names.fields['"+DataSetTool.DATASET_TIMESTAMP_PATH+"']", equalTo(DataSetTool.DATASET_TIMESTAMP_DESC));
 
         // DELETE collection
         when().delete(arlasPath + "collections/foo_described")

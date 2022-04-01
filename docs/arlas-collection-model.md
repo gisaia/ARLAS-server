@@ -25,10 +25,10 @@ A Collection has the following structure :
     "include_fields": "string",
     "exclude_fields": "string",
     "custom_params": {},
-    "collection_description": {
-      "display_name" : "string",
-      "field_descriptions": {},
-      "shape_column_names": {}
+    "display_names": {
+      "collection" : "string",
+      "fields": { "${doc_json_path}" :  "string" },
+      "shape_columns": { "${geojson_flatten_path}" :  "string" }
     },
     "atom_feed": {
       ...
