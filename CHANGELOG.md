@@ -1,5 +1,27 @@
 # Change Log
 
+## [v21.0.0](https://github.com/gisaia/ARLAS-server/tree/v21.0.0) (2022-04-01)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v20.7.0...v21.0.0)
+
+**New stuff:**
+
+- Add the possibility to declare an alias \(name\) for the collection [\#764](https://github.com/gisaia/ARLAS-server/issues/764)
+- Add a new query param that allows to choose orientation of passed WKT [\#760](https://github.com/gisaia/ARLAS-server/issues/760) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Enhance shape export service with key,value label/field map collection [\#759](https://github.com/gisaia/ARLAS-server/issues/759)
+- Add key,value map in collection definition to define human readable label for mapping field [\#758](https://github.com/gisaia/ARLAS-server/issues/758)
+
+**Fixed bugs:**
+
+- Documentation misuses the terms 'right' and 'left' for wkt orientation [\#761](https://github.com/gisaia/ARLAS-server/issues/761) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- `\_search` and `\_geosearch` don't return the same results when applying a `before` pagination  [\#755](https://github.com/gisaia/ARLAS-server/issues/755)
+- Doc for 'f' parameter is truncated [\#693](https://github.com/gisaia/ARLAS-server/issues/693) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- Throw appropriate exception when applying filters on non-indexed fields [\#357](https://github.com/gisaia/ARLAS-server/issues/357)
+
+**Miscellaneous:**
+
+- Fix properly the warnings at Arlas-server startup [\#428](https://github.com/gisaia/ARLAS-server/issues/428)
+
 ## [v20.7.0](https://github.com/gisaia/ARLAS-server/tree/v20.7.0) (2022-01-07)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v19.7.8...v20.7.0)

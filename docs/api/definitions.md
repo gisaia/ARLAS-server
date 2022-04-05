@@ -72,6 +72,16 @@
 |**west**  <br>*required*|number (double)|
 
 
+<a name="collectiondisplaynames"></a>
+### CollectionDisplayNames
+
+|Name|Schema|
+|---|---|
+|**collection**  <br>*optional*|string|
+|**fields**  <br>*optional*|< string, string > map|
+|**shape_columns**  <br>*optional*|< string, string > map|
+
+
 <a name="collectionreference"></a>
 ### CollectionReference
 
@@ -111,6 +121,7 @@
 |**atom_feed**  <br>*optional*|[Feed](#feed)|
 |**centroid_path**  <br>*required*|string|
 |**custom_params**  <br>*optional*|< string, string > map|
+|**display_names**  <br>*optional*|[CollectionDisplayNames](#collectiondisplaynames)|
 |**dublin_core_element_name**  <br>*optional*|[DublinCoreElementName](#dublincoreelementname)|
 |**exclude_fields**  <br>*optional*|string|
 |**exclude_wfs_fields**  <br>*optional*|string|
@@ -258,6 +269,7 @@
 |**dateformat**  <br>*optional*|string|
 |**f**  <br>*optional*|< < [Expression](#expression) > array > array|
 |**q**  <br>*optional*|< < string > array > array|
+|**righthand**  <br>*optional*|boolean|
 
 
 <a name="form"></a>
