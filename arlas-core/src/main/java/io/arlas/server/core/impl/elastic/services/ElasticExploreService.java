@@ -574,6 +574,7 @@ public class ElasticExploreService extends ExploreService {
         bounds.add(new LngLatAlt(bottomRight.getLon(), topLeft.getLat()));
         bounds.add(new LngLatAlt(bottomRight.getLon(), bottomRight.getLat()));
         bounds.add(new LngLatAlt(topLeft.getLon(), bottomRight.getLat()));
+        bounds.add(new LngLatAlt(topLeft.getLon(), topLeft.getLat()));
         box.add(bounds);
 
         return box;
