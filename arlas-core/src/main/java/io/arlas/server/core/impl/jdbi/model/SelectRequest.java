@@ -19,8 +19,8 @@
 
 package io.arlas.server.core.impl.jdbi.model;
 
-import io.arlas.server.core.app.ArlasBaseConfiguration;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.config.ArlasConfiguration;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.jdbi.clause.*;
 import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.services.FluidSearchService;
@@ -75,7 +75,7 @@ public abstract class SelectRequest {
     public static final String ST_INTERSECTS = "st_intersects";
     public static final String QKEY = "key";
     public static final String QCOUNT = "count";
-    public static final String US /* UnderScore */ = ArlasBaseConfiguration.FLATTEN_CHAR;
+    public static final String US /* UnderScore */ = ArlasConfiguration.FLATTEN_CHAR;
     public static final String SRID = "SRID=4326;";
     public static final String IS_NOT_NULL = " is not null";
     public static final String FLOOR_LP = "FLOOR(";

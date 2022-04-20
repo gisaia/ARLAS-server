@@ -25,7 +25,7 @@ import eu.europa.ec.inspire.schemas.inspire_dls._1.ExtendedCapabilitiesType;
 import io.arlas.server.core.app.InspireConfiguration;
 import io.arlas.server.core.app.OGCConfiguration;
 import io.arlas.server.core.app.WFSConfiguration;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
 import io.arlas.server.ogc.common.inspire.common.utils.InspireCheckParam;
 import io.arlas.server.core.model.CollectionReference;

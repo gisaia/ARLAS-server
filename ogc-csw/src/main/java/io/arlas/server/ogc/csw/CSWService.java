@@ -23,7 +23,7 @@ import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.app.InspireConfiguration;
 import io.arlas.server.core.app.OGCConfiguration;
 import io.arlas.server.core.services.CollectionReferenceService;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.MetaCollectionReferenceParameters;
 import io.arlas.server.core.model.OgcInspireConfigurationParameters;

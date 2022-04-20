@@ -22,7 +22,7 @@ package io.arlas.server.tests;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uber.h3core.H3Core;
 import io.arlas.server.core.app.ElasticConfiguration;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
 import io.arlas.server.core.impl.elastic.utils.ElasticTool;
 import io.arlas.server.core.model.RasterTileURL;

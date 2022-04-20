@@ -20,10 +20,10 @@
 package io.arlas.server.core.utils;
 
 import com.neovisionaries.i18n.LanguageAlpha3Code;
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.BadRequestException;
-import io.arlas.server.core.exceptions.InvalidParameterException;
-import io.arlas.server.core.exceptions.NotAllowedException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.BadRequestException;
+import io.arlas.commons.exceptions.InvalidParameterException;
+import io.arlas.commons.exceptions.NotAllowedException;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.Inspire;

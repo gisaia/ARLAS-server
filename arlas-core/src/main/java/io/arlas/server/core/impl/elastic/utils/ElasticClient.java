@@ -19,8 +19,11 @@
 
 package io.arlas.server.core.impl.elastic.utils;
 
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.BadRequestException;
+import io.arlas.commons.exceptions.InternalServerErrorException;
+import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.server.core.app.ElasticConfiguration;
-import io.arlas.server.core.exceptions.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchStatusException;
@@ -34,10 +37,12 @@ import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.*;
+import org.elasticsearch.action.search.ClearScrollRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.*;

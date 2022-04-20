@@ -19,7 +19,7 @@
 
 package io.arlas.server.core.utils;
 
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 
 public class Tile {
     int xTile;

@@ -21,15 +21,14 @@ package io.arlas.server.core.impl.jdbi.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.NotImplementedException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.NotImplementedException;
 import io.arlas.server.core.impl.jdbi.dao.DataDao;
 import io.arlas.server.core.impl.jdbi.model.ClauseParam;
 import io.arlas.server.core.impl.jdbi.model.JdbiAggregationResult;
 import io.arlas.server.core.impl.jdbi.model.RequestFactory;
 import io.arlas.server.core.impl.jdbi.model.SelectRequest;
 import io.arlas.server.core.model.CollectionReference;
-import io.arlas.server.core.model.Link;
 import io.arlas.server.core.model.enumerations.AggregatedGeometryEnum;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
 import io.arlas.server.core.model.request.Aggregation;

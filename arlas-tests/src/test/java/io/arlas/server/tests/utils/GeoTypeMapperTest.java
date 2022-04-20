@@ -19,7 +19,7 @@
 
 package io.arlas.server.tests.utils;
 
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.core.model.enumerations.GeoTypeEnum;
 import org.geojson.Point;

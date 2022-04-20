@@ -19,7 +19,8 @@ services:
       - ARLAS_INSPIRE_ENABLED="${ARLAS_INSPIRE_ENABLED:-false}"
       - ARLAS_SERVICE_CSW_ENABLE="${ARLAS_SERVICE_CSW_ENABLE:-false}"
       - ARLAS_SERVICE_RASTER_TILES_ENABLE="${ARLAS_SERVICE_RASTER_TILES_ENABLE:-false}"
-      - ARLAS_AUTH_ENABLED="${ARLAS_AUTH_ENABLED:-false}"
+      - ARLAS_AUTH_POLICY_CLASS="${ARLAS_AUTH_POLICY_CLASS:-io.arlas.commons.rest.auth.NoPolicyEnforcer}"
+      - ARLAS_AUTH_PERMISSION_URL="${ARLAS_AUTH_PERMISSION_URL:-http://arlas-auth-server:9990/arlas_auth_server/permissions}"
       - ARLAS_CORS_ENABLED="${ARLAS_CORS_ENABLED:-false}"
       - ARLAS_AUTH_CERT_URL="${ARLAS_AUTH_CERT_URL}"
     ports:

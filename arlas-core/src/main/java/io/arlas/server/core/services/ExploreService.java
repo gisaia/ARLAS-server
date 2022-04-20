@@ -19,10 +19,9 @@
 package io.arlas.server.core.services;
 
 import io.arlas.server.core.app.ArlasServerConfiguration;
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.BadRequestException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.BadRequestException;
 import io.arlas.server.core.model.CollectionReference;
-import io.arlas.server.core.model.Link;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
 import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.*;

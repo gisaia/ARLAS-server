@@ -19,10 +19,9 @@
 
 package io.arlas.server.tests.data;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.uber.h3core.H3Core;
 import io.arlas.server.tests.Data;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.RasterTileURL;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;

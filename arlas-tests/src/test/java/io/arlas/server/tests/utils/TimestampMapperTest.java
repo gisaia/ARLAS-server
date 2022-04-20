@@ -19,7 +19,7 @@
 
 package io.arlas.server.tests.utils;
 
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.utils.TimestampTypeMapper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

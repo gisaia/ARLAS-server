@@ -19,10 +19,10 @@
 
 package io.arlas.server.core.utils;
 
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.exceptions.ColumnUnavailableException;
-import io.arlas.server.core.exceptions.InternalServerErrorException;
+import io.arlas.commons.exceptions.InternalServerErrorException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.request.Projection;
 import io.arlas.server.core.model.request.Request;

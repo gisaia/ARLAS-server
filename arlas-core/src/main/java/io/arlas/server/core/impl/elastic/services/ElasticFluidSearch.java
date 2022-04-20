@@ -19,8 +19,8 @@
 
 package io.arlas.server.core.impl.elastic.services;
 
+import io.arlas.commons.exceptions.*;
 import io.arlas.server.core.app.ArlasServerConfiguration;
-import io.arlas.server.core.exceptions.*;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
 import io.arlas.server.core.impl.elastic.utils.ElasticTool;
 import io.arlas.server.core.managers.CollectionReferenceManager;

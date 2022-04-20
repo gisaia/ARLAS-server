@@ -18,7 +18,7 @@
  */
 package io.arlas.server.ogc.wfs.services;
 
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.core.impl.elastic.services.ElasticFluidSearch;

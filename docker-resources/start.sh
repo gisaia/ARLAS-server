@@ -18,4 +18,8 @@ else
   echo "ARLAS_XMX"=$ARLAS_XMX
 fi
 
-java -Xmx${ARLAS_XMX} -XX:+ExitOnOutOfMemoryError ${JVM_OPTION} -jar arlas-server.jar server /opt/app/configuration.yaml
+if [ -z "${CP}" ]; then
+  CP="./arlas-server.jar"
+fi
+
+java -Xmx${ARLAS_XMX} -XX:+ExitOnOutOfMemoryError ${JVM_OPTION} -cp "${CP}" io.arlas.server.app.ArlasServer server /opt/app/configuration.yaml

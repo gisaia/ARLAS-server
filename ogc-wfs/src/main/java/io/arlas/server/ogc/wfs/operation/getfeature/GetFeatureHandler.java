@@ -20,7 +20,7 @@
 package io.arlas.server.ogc.wfs.operation.getfeature;
 
 import io.arlas.server.core.app.OGCConfiguration;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;

@@ -22,7 +22,7 @@ package io.arlas.server.tests.ogc.csw;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.server.tests.AbstractTestWithCollection;
 import io.arlas.server.tests.CollectionTool;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.DublinCoreElementName;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;

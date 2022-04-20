@@ -20,33 +20,13 @@
 package io.arlas.server.core.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
-import io.arlas.server.core.exceptions.ArlasConfigurationException;
-import io.dropwizard.Configuration;
-import io.dropwizard.db.DataSourceFactory;
-import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import io.arlas.commons.config.ArlasConfiguration;
+import io.arlas.commons.exceptions.ArlasConfigurationException;
 
-import javax.validation.Valid;
-
-public class ArlasBaseConfiguration extends Configuration {
-    @Valid
-    @JsonProperty("database")
-    public DataSourceFactory database = new DataSourceFactory();
-
-    @JsonProperty("zipkin")
-    public ZipkinFactory zipkinConfiguration;
-
-    @JsonProperty("swagger")
-    public SwaggerBundleConfiguration swaggerBundleConfiguration;
+public class ArlasBaseConfiguration extends ArlasConfiguration {
 
     @JsonProperty("elastic")
     public ElasticConfiguration elasticConfiguration;
-
-    @JsonProperty("arlas_auth")
-    public ArlasAuthConfiguration arlasAuthConfiguration;
-
-    @JsonProperty("arlas_cors")
-    public ArlasCorsConfiguration arlarsCorsConfiguration;
 
     @JsonProperty("arlas_database_factory_class")
     public String arlasDatabaseFactoryClass;
@@ -57,22 +37,7 @@ public class ArlasBaseConfiguration extends Configuration {
     public static final String FLATTEN_CHAR = "_";
 
     public void check() throws ArlasConfigurationException {
-       if (zipkinConfiguration == null) {
-            throw new ArlasConfigurationException("Zipkin configuration missing in config file.");
-        }
-        if (swaggerBundleConfiguration == null) {
-            throw new ArlasConfigurationException("Swagger configuration missing in config file.");
-        }
-        if (arlasAuthConfiguration == null) {
-            arlasAuthConfiguration = new ArlasAuthConfiguration();
-            arlasAuthConfiguration.enabled = false;
-        } else {
-            arlasAuthConfiguration.check();
-        }
-        if (arlarsCorsConfiguration == null) {
-            arlarsCorsConfiguration = new ArlasCorsConfiguration();
-            arlarsCorsConfiguration.enabled = false;
-        }
+        super.check();
         if (arlasDatabaseFactoryClass == null) {
             throw new ArlasConfigurationException("arlas_database_factory_class is missing");
         }

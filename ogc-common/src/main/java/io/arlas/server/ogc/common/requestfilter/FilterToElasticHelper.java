@@ -20,7 +20,7 @@
 package io.arlas.server.ogc.common.requestfilter;
 
 import com.google.common.collect.ImmutableMap;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.core.utils.CheckParams;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCException;

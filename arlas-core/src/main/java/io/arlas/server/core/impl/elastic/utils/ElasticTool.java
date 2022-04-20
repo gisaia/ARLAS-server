@@ -21,9 +21,9 @@ package io.arlas.server.core.impl.elastic.utils;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import io.arlas.server.core.app.ElasticConfiguration;
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.InternalServerErrorException;
-import io.arlas.server.core.exceptions.NotFoundException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.InternalServerErrorException;
+import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.utils.CollectionUtil;
 import io.arlas.server.core.utils.StringUtil;

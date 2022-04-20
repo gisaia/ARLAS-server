@@ -18,8 +18,8 @@
  */
 package io.arlas.server.core.utils;
 
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.NotFoundException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.NotFoundException;
 import org.apache.commons.collections4.IteratorUtils;
 
 import java.util.LinkedHashMap;

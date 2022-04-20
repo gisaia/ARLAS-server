@@ -19,7 +19,7 @@
 
 package io.arlas.server.core.utils;
 
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.utils.ElasticTool;
 import io.arlas.server.core.model.response.TimestampType;
 import org.joda.time.DateTime;

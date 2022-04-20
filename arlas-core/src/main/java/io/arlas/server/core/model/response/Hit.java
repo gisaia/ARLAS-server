@@ -21,7 +21,7 @@ package io.arlas.server.core.model.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.arlas.server.core.app.ArlasServerConfiguration;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.CollectionReference;

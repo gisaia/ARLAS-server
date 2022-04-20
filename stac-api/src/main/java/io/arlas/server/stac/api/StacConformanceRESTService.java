@@ -21,7 +21,7 @@ package io.arlas.server.stac.api;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.core.app.STACConfiguration;
-import io.arlas.server.core.model.response.Error;
+import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.stac.model.ConformanceClasses;

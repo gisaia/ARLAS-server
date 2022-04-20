@@ -20,7 +20,7 @@
 package io.arlas.server.rest.explore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.IOUtils;
 import io.swagger.annotations.*;

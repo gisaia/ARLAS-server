@@ -19,7 +19,7 @@
 
 package io.arlas.server.core.impl.elastic.core;
 
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
 import io.arlas.server.core.model.CollectionReference;
 import org.elasticsearch.action.search.SearchRequest;

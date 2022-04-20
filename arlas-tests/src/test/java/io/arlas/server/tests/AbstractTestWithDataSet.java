@@ -19,7 +19,7 @@
 
 package io.arlas.server.tests;
 
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.request.Filter;
 import io.arlas.server.core.model.request.Request;
 import org.junit.AfterClass;
