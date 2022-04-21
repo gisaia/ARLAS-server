@@ -19,8 +19,8 @@
 
 package io.arlas.server.core.model.enumerations;
 
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.InvalidParameterException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.InvalidParameterException;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;

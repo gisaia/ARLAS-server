@@ -20,8 +20,8 @@
 package io.arlas.server.rest.plugins.eo;
 
 import cyclops.control.Try;
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.InvalidParameterException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.InvalidParameterException;
 import io.arlas.server.core.utils.ImageUtil;
 import io.arlas.server.core.utils.Tile;
 import java.awt.*;

@@ -1,7 +1,7 @@
 #####################
 # COMPILATION STAGE #
 #####################
-FROM maven:3.8.2-openjdk-17 as build
+FROM maven:3.8.4-openjdk-17 as build
 WORKDIR /opt/build
 
 # selectively add the POM file

@@ -19,7 +19,7 @@
 
 package io.arlas.server.opensearch.rest.explore;
 
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.Feed;
 import io.arlas.server.core.model.response.*;

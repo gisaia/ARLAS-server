@@ -19,8 +19,8 @@
 
 package io.arlas.server.core.impl.elastic.exceptions;
 
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.ArlasExceptionMapper;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasExceptionMapper;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.client.transport.NoNodeAvailableException;

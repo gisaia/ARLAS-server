@@ -20,8 +20,8 @@
 package io.arlas.server.ogc.common.utils;
 
 import io.arlas.server.core.app.ArlasServerConfiguration;
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.InternalServerErrorException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.InternalServerErrorException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.core.model.response.FieldType;

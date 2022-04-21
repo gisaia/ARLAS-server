@@ -22,7 +22,7 @@ import com.codahale.metrics.health.HealthCheck;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.app.DatabaseToolsFactory;
 import io.arlas.server.core.services.CollectionReferenceService;
-import io.arlas.server.core.exceptions.ArlasConfigurationException;
+import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.arlas.server.admin.health.ElasticsearchHealthCheck;
 import io.arlas.server.core.impl.elastic.services.ElasticCollectionReferenceService;
 import io.arlas.server.core.impl.elastic.exceptions.ElasticsearchExceptionMapper;

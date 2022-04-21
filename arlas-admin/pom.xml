@@ -31,11 +31,6 @@
             <artifactId>arlas-core</artifactId>
             <version>21.0.1-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
-            <version>${java-jwt.version}</version>
-        </dependency>
     </dependencies>
 
     <build>

@@ -18,8 +18,8 @@
  */
 package io.arlas.server.ogc.wfs.services;
 
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.NotImplementedException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.NotImplementedException;
 import io.arlas.server.core.impl.jdbi.service.JdbiExploreService;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;

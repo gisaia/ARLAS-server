@@ -21,7 +21,7 @@ package io.arlas.server.impl;
 import com.codahale.metrics.health.HealthCheck;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.app.DatabaseToolsFactory;
-import io.arlas.server.core.exceptions.ArlasConfigurationException;
+import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.arlas.server.core.impl.jdbi.model.RequestFactory;
 import io.arlas.server.core.impl.jdbi.service.JdbiCollectionReferenceService;
 import io.arlas.server.core.impl.jdbi.service.JdbiExploreService;

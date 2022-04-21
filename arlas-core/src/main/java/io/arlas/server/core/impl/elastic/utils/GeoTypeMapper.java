@@ -21,9 +21,9 @@ package io.arlas.server.core.impl.elastic.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.NotImplementedException;
-import io.arlas.server.core.exceptions.ParseException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.NotImplementedException;
+import io.arlas.commons.exceptions.ParseException;
 import io.arlas.server.core.model.enumerations.GeoTypeEnum;
 import io.arlas.server.core.utils.GeoUtil;
 import io.arlas.server.core.utils.ParamsParser;

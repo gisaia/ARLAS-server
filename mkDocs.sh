@@ -96,7 +96,7 @@ docker run --rm \
     -w /opt/maven \
 	-v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
-	maven:3.8.2-openjdk-17 \
+	maven:3.8.4-openjdk-17 \
     mvn swagger2markup:convertSwagger2markup post-integration-test
 docker run --rm \
     -v $PWD:/opt/maven \

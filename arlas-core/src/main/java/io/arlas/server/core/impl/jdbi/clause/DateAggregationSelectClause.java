@@ -19,7 +19,7 @@
 
 package io.arlas.server.core.impl.jdbi.clause;
 
-import io.arlas.server.core.exceptions.NotAllowedException;
+import io.arlas.commons.exceptions.NotAllowedException;
 import io.arlas.server.core.model.enumerations.UnitEnum;
 
 import java.util.Arrays;

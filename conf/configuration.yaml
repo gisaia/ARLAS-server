@@ -6,7 +6,7 @@ swagger: # Configuration of SWAGGER for generating documentation and APIs
   resourcePackage: io.arlas.server.rest # The java package to process for extracting the APIs
   # temporary patch for bug https://github.com/smoketurner/dropwizard-swagger/issues/206
   # to be removed when version of dropwizard.swagger.version is upgraded
-  customJavascript: "/arlas/swagger-static/custom-request-interceptor.js"
+  customJavascript: ${ARLAS_CUSTOM_JS:-/arlas/swagger-static/custom-request-interceptor.js}
 
 
 ########################################################
@@ -169,21 +169,6 @@ arlas_stac:
 #   - https://api.stacspec.org/v1.0.0/item-search#fields
 #   - https://api.stacspec.org/v1.0.0/item-search#filter
 
-########################################################
-############ AUTHENTICATION              ###############
-########################################################
-arlas_auth:
-  enabled: ${ARLAS_AUTH_ENABLED:-false}
-  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger.*:*}]
-  login_url: ${ARLAS_AUTH_LOGIN_URL:-}
-  # deprecated
-  certificate_file: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}
-  certificate_url: ${ARLAS_AUTH_CERT_URL:-}
-  header_user: ${ARLAS_HEADER_USER:-arlas-user}
-  header_group: ${ARLAS_HEADER_GROUP:-arlas-groups}
-  claim_roles: ${ARLAS_CLAIM_ROLES:-http://arlas.io/roles}
-  claim_permissions: ${ARLAS_CLAIM_PERMISSIONS:-http://arlas.io/permissions}
-
 arlas_cors:
   enabled: ${ARLAS_CORS_ENABLED:-false}
   allowed_origins: ${ARLAS_CORS_ALLOWED_ORIGINS:-"*"}
@@ -219,3 +204,8 @@ database:
   evictionInterval: 10s
   # the minimum amount of time an connection must sit idle in the pool before it is eligible for eviction
   minIdleTime: 1 minute
+
+########################################################
+############ AUTHENTICATION              ###############
+########################################################
+arlas_auth_policy_class: ${ARLAS_AUTH_POLICY_CLASS:-io.arlas.commons.rest.auth.NoPolicyEnforcer}

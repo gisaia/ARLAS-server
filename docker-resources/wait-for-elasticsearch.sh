@@ -31,4 +31,8 @@ fi
 
 i=1; until nc -w 2 $host $port; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); echo "try to connect to $host:$port"; done
 
-java ${JVM_OPTION} -jar arlas-server.jar server /opt/app/configuration.yaml
+if [ -z "${CP}" ]; then
+  CP="./arlas-server.jar"
+fi
+
+java ${JVM_OPTION} -cp "${CP}" io.arlas.server.app.ArlasServer server /opt/app/configuration.yaml

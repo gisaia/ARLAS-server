@@ -20,7 +20,7 @@
 package io.arlas.server.tests.rest.plugins.eo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.utils.ImageUtil;
 import io.arlas.server.tests.*;
 import io.restassured.response.ValidatableResponse;

@@ -150,7 +150,7 @@ else
         --mount dst=/mnt/.m2,src="$HOME/.m2/",type=bind \
         --mount dst=/opt/maven,src="$PWD",type=bind \
         --rm \
-        maven:3.8.2-openjdk-17 \
+        maven:3.8.4-openjdk-17 \
             clean install
 fi
 
@@ -285,6 +285,9 @@ if [ "$SIMULATE" == "NO" ]; then
     mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
     # publish arlas-admin jar
     cd ${BASEDIR}/arlas-admin
+    mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
+    # publish arlas-commons jar
+    cd ${BASEDIR}/arlas-commons
     mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
     # publish arlas-server-client jar
     if [[ "$SKIP_API" == "NO" ]]; then

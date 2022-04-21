@@ -21,10 +21,10 @@ package io.arlas.server.rest.explore.raw;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.core.app.Documentation;
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.NotFoundException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.server.core.model.CollectionReference;
-import io.arlas.server.core.model.response.Error;
+import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.model.response.Hit;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.ColumnFilterUtil;

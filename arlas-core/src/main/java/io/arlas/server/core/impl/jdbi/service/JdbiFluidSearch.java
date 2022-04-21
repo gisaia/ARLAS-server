@@ -19,10 +19,10 @@
 
 package io.arlas.server.core.impl.jdbi.service;
 
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.BadRequestException;
-import io.arlas.server.core.exceptions.InvalidParameterException;
-import io.arlas.server.core.exceptions.NotAllowedException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.BadRequestException;
+import io.arlas.commons.exceptions.InvalidParameterException;
+import io.arlas.commons.exceptions.NotAllowedException;
 import io.arlas.server.core.impl.jdbi.clause.*;
 import io.arlas.server.core.impl.jdbi.model.ColumnQualifier;
 import io.arlas.server.core.impl.jdbi.model.RequestFactory;

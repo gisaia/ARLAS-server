@@ -19,6 +19,7 @@
 
 package io.arlas.server.core.exceptions;
 
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.CollectionReference;
 
 import javax.ws.rs.core.Response;

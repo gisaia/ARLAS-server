@@ -19,7 +19,7 @@
 
 package io.arlas.server.rest.plugins.eo;
 
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.utils.Tile;
 import java.awt.image.BufferedImage;
 

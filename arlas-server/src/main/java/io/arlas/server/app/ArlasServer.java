@@ -23,22 +23,20 @@ import brave.http.HttpTracing;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
-import io.arlas.server.admin.auth.AuthenticationFilter;
-import io.arlas.server.admin.auth.AuthorizationFilter;
+import io.arlas.commons.config.ArlasCorsConfiguration;
+import io.arlas.commons.exceptions.ArlasExceptionMapper;
+import io.arlas.commons.exceptions.ConstraintViolationExceptionMapper;
+import io.arlas.commons.exceptions.IllegalArgumentExceptionMapper;
+import io.arlas.commons.exceptions.JsonProcessingExceptionMapper;
+import io.arlas.commons.rest.auth.PolicyEnforcer;
 import io.arlas.server.admin.task.CollectionAutoDiscover;
-import io.arlas.server.core.app.ArlasCorsConfiguration;
 import io.arlas.server.core.app.ArlasServerConfiguration;
-import io.arlas.server.core.exceptions.ArlasExceptionMapper;
-import io.arlas.server.core.exceptions.ConstraintViolationExceptionMapper;
-import io.arlas.server.core.exceptions.IllegalArgumentExceptionMapper;
-import io.arlas.server.core.exceptions.JsonProcessingExceptionMapper;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.services.ExploreService;
-import io.arlas.server.core.utils.PrettyPrintFilter;
+import io.arlas.commons.rest.utils.PrettyPrintFilter;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.CSWService;
 import io.arlas.server.ogc.csw.writer.getrecords.AtomGetRecordsMessageBodyWriter;
@@ -90,10 +88,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import javax.ws.rs.core.HttpHeaders;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -112,13 +107,13 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         bootstrap.getObjectMapper().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         bootstrap.setConfigurationSourceProvider(new SubstitutingSourceProvider(
                 bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
-        bootstrap.addBundle(new SwaggerBundle<ArlasServerConfiguration>() {
+        bootstrap.addBundle(new SwaggerBundle<>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ArlasServerConfiguration configuration) {
                 return configuration.swaggerBundleConfiguration;
             }
         });
-        bootstrap.addBundle(new ZipkinBundle<ArlasServerConfiguration>(getName()) {
+        bootstrap.addBundle(new ZipkinBundle<>(getName()) {
             @Override
             public ZipkinFactory getZipkinFactory(ArlasServerConfiguration configuration) {
                 return configuration.zipkinConfiguration;
@@ -181,20 +176,19 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             LOGGER.info("Explore API disabled");
         }
 
-        // Auth
-        if (configuration.arlasAuthConfiguration.enabled) {
-            environment.jersey().register(new AuthenticationFilter(configuration.arlasAuthConfiguration));
-            environment.jersey().register(new AuthorizationFilter(configuration.arlasAuthConfiguration));
-        }
+        PolicyEnforcer policyEnforcer = PolicyEnforcer.newInstance(configuration.arlasAuthPolicyClass)
+                .setAuthConf(configuration.arlasAuthConfiguration);
+        LOGGER.info("PolicyEnforcer: " + policyEnforcer.getClass().getCanonicalName());
+        environment.jersey().register(policyEnforcer);
 
-        if(configuration.arlasServiceCollectionsEnabled) {
+        if (configuration.arlasServiceCollectionsEnabled) {
             LOGGER.info("Collection API enabled");
             environment.jersey().register(new CollectionService(configuration, dbToolFactory.getCollectionReferenceService()));
         } else {
             LOGGER.info("Collection API disabled");
         }
 
-        if(configuration.arlasServiceWFSEnabled){
+        if (configuration.arlasServiceWFSEnabled){
             LOGGER.info("WFS Service enabled");
             WFSHandler wfsHandler = new WFSHandler(configuration.wfsConfiguration, configuration.ogcConfiguration, configuration.inspireConfiguration, configuration.arlasBaseUri);
             environment.jersey().register(new WFSService(dbToolFactory.getCollectionReferenceService(), dbToolFactory.getWFSToolService(), wfsHandler));
@@ -202,7 +196,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             LOGGER.info("WFS Service disabled");
         }
 
-        if(configuration.arlasServiceOPENSEARCHEnabled){
+        if (configuration.arlasServiceOPENSEARCHEnabled){
             LOGGER.info("OPENSEARCH Service enabled");
             environment.jersey().register(new OpenSearchDescriptorService(exploration));
         } else {
@@ -217,14 +211,14 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             LOGGER.info("CSW Service disabled");
         }
 
-        if(configuration.arlasServiceRasterTileEnabled){
+        if (configuration.arlasServiceRasterTileEnabled){
             LOGGER.info("Raster Tile Service enabled");
             environment.jersey().register(new TileRESTService(exploration));
-        }else{
+        } else {
             LOGGER.info("Raster Tile Service disabled");
         }
 
-        if(configuration.arlasServiceSTACEnabled) {
+        if (configuration.arlasServiceSTACEnabled) {
             LOGGER.info("STAC Service enabled");
 
             // Add OpenAPI v3 endpoint
@@ -275,9 +269,9 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         dbToolFactory.getHealthChecks().forEach((name, check) -> environment.healthChecks().register(name, check));
 
         //cors
-        if (configuration.arlarsCorsConfiguration.enabled) {
-            configureCors(environment,configuration.arlarsCorsConfiguration);
-        }else{
+        if (configuration.arlasCorsConfiguration.enabled) {
+            configureCors(environment,configuration.arlasCorsConfiguration);
+        } else {
             CrossOriginFilter filter = new CrossOriginFilter();
             final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CrossOriginFilter", filter);
             // Expose always HttpHeaders.WWW_AUTHENTICATE to authentify on client side a non public uri call
@@ -295,7 +289,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         cors.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, String.valueOf(configuration.allowedCredentials));
         String exposedHeader = configuration.exposedHeaders;
         // Expose always HttpHeaders.WWW_AUTHENTICATE to authentify on client side a non public uri call
-        if(configuration.exposedHeaders.indexOf(HttpHeaders.WWW_AUTHENTICATE)<0){
+        if (!configuration.exposedHeaders.contains(HttpHeaders.WWW_AUTHENTICATE)) {
              exposedHeader = configuration.exposedHeaders.concat(",").concat(HttpHeaders.WWW_AUTHENTICATE);
         }
         cors.setInitParameter(CrossOriginFilter.EXPOSED_HEADERS_PARAM, exposedHeader);

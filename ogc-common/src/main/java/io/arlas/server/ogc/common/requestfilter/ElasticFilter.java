@@ -20,7 +20,7 @@
 package io.arlas.server.ogc.common.requestfilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.core.utils.BoundingBox;
 import io.arlas.server.core.utils.ColumnFilterUtil;

@@ -19,8 +19,8 @@
 
 package io.arlas.server.core.managers;
 
-import io.arlas.server.core.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.NotFoundException;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.server.core.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.model.CollectionReference;

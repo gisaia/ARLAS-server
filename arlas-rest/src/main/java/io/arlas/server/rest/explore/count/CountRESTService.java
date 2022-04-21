@@ -21,11 +21,11 @@ package io.arlas.server.rest.explore.count;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.core.app.Documentation;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.request.Count;
 import io.arlas.server.core.model.request.MixedRequest;
-import io.arlas.server.core.model.response.Error;
+import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.model.response.Hits;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.core.services.ExploreService;

@@ -20,7 +20,7 @@
 package io.arlas.server.tests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.core.exceptions.ArlasException;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.CollectionReferenceParameters;
 import io.arlas.server.core.model.DublinCoreElementName;
 import io.arlas.server.core.model.Inspire;

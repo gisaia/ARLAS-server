@@ -19,7 +19,7 @@
 
 package io.arlas.server.core.utils;
 
-import io.arlas.server.core.exceptions.InternalServerErrorException;
+import io.arlas.commons.exceptions.InternalServerErrorException;
 import io.arlas.server.core.model.request.*;
 import org.apache.commons.lang3.StringUtils;
 

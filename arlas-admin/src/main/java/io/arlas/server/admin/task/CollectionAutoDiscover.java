@@ -21,7 +21,7 @@ package io.arlas.server.admin.task;
 
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.app.CollectionAutoDiscoverConfiguration;
-import io.arlas.server.core.exceptions.ArlasConfigurationException;
+import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
