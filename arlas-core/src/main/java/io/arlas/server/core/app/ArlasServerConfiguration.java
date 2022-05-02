@@ -84,6 +84,10 @@ public class ArlasServerConfiguration extends ArlasBaseConfiguration {
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 
+    @JsonProperty("arlas_auth_column_filter_required")
+    public Boolean arlasAuthColumnFilterRequired;
+
+
     public void check() throws ArlasConfigurationException {
         super.check();
 

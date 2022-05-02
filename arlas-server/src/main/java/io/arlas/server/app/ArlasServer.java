@@ -37,6 +37,7 @@ import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.commons.rest.utils.PrettyPrintFilter;
+import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.CSWService;
 import io.arlas.server.ogc.csw.writer.getrecords.AtomGetRecordsMessageBodyWriter;
@@ -128,6 +129,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         
         configuration.check();
         LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
+
+        ColumnFilterUtil.COLUMN_FILTER_REQUIRED = configuration.arlasAuthColumnFilterRequired;
 
         CacheFactory cacheFactory = (CacheFactory) Class
                 .forName(configuration.arlasCacheFactoryClass)

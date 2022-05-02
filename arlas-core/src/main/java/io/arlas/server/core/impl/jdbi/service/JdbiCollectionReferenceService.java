@@ -22,6 +22,7 @@ package io.arlas.server.core.impl.jdbi.service;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InvalidParameterException;
 import io.arlas.commons.exceptions.NotFoundException;
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.impl.jdbi.dao.CollectionReferenceDao;
 import io.arlas.server.core.impl.jdbi.model.ColumnDefinition;
 import io.arlas.server.core.managers.CacheManager;
@@ -91,7 +92,7 @@ public class JdbiCollectionReferenceService extends CollectionReferenceService {
     }
 
     @Override
-    public List<CollectionReference> getAllCollectionReferences(Optional<String> columnFilter) {
+    public List<CollectionReference> getAllCollectionReferences(Optional<String> columnFilter) throws CollectionUnavailableException {
         Set<String> allowedCollections = ColumnFilterUtil.getAllowedCollections(columnFilter);
         List<CollectionReference> all = dao.selectAll(this.arlasIndex);
         List<CollectionReference> result = new ArrayList<>();
