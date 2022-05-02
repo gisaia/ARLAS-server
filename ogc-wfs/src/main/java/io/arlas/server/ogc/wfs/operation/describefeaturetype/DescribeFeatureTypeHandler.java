@@ -19,6 +19,7 @@
 
 package io.arlas.server.ogc.wfs.operation.describefeaturetype;
 
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.ogc.wfs.WFSHandler;
@@ -51,14 +52,14 @@ public class DescribeFeatureTypeHandler {
             try {
                 writeArlasFeatureSchema(outputStream, collectionReference, uri, columnFilter);
 
-            } catch (XMLStreamException e) {
+            } catch (XMLStreamException | CollectionUnavailableException e) {
                 e.printStackTrace();
             }
         };
         return streamingOutput;
     }
 
-    public void writeArlasFeatureSchema(OutputStream outputStream, CollectionReference collectionReference, String uri, Optional<String> columnFilter) throws XMLStreamException {
+    public void writeArlasFeatureSchema(OutputStream outputStream, CollectionReference collectionReference, String uri, Optional<String> columnFilter) throws XMLStreamException, CollectionUnavailableException {
 
         String collectionName = collectionReference.collectionName;
         String geometryPath = collectionReference.params.geometryPath;

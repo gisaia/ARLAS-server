@@ -46,6 +46,8 @@ import java.util.stream.Stream;
  * - checking a path is then a simple regexp match
  */
 public class ColumnFilterUtil {
+    // if set to true, a column-filter must be provided to access any collection
+    public static boolean COLUMN_FILTER_REQUIRED = false; // false is legacy behaviour
 
     static Logger LOGGER = LoggerFactory.getLogger(ColumnFilterUtil.class);
 
@@ -125,7 +127,7 @@ public class ColumnFilterUtil {
         }
     }
 
-    public static void assertFieldAvailable(Optional<String> columnFilter, CollectionReference collectionReference, String field) throws ColumnUnavailableException {
+    public static void assertFieldAvailable(Optional<String> columnFilter, CollectionReference collectionReference, String field) throws ColumnUnavailableException, CollectionUnavailableException {
         Optional<Set<String>> columFilterPredicates = getColumnFilterPredicates(columnFilter, collectionReference);
         assertFieldAvailable(columFilterPredicates, field);
     }
@@ -182,14 +184,18 @@ public class ColumnFilterUtil {
      * @param columnFilter
      * @return
      */
-    public static boolean isValidColumnFilterPresent(Optional<String> columnFilter) {
+    public static boolean isValidColumnFilterPresent(Optional<String> columnFilter) throws CollectionUnavailableException {
         return cleanColumnFilter(columnFilter).isPresent();
     }
 
-    public static Optional<String> cleanColumnFilter(Optional<String> columnFilter) {
+    public static Optional<String> cleanColumnFilter(Optional<String> columnFilter) throws CollectionUnavailableException {
+
+        if (COLUMN_FILTER_REQUIRED && (columnFilter == null || columnFilter.isEmpty())) {
+            throw new CollectionUnavailableException("column-filter is mandatory according to ARLAS server configuration");
+        }
 
         if (columnFilter == null) {
-            LOGGER.error("column filter is null, Optional.empty() is expected instead");
+            LOGGER.warn("column filter is null, Optional.empty() is expected instead");
             return Optional.empty();
         }
 
@@ -202,7 +208,8 @@ public class ColumnFilterUtil {
      * @param collectionReference
      * @return
      */
-    public static Optional<Set<String>> getColumnFilterPredicates(Optional<String> columnFilter, CollectionReference collectionReference) {
+    public static Optional<Set<String>> getColumnFilterPredicates(Optional<String> columnFilter, CollectionReference collectionReference) throws CollectionUnavailableException {
+        cleanColumnFilter(columnFilter);
         return FilterMatcherUtil.filterToPredicatesAsStream(columnFilter)
                 .map(getCollectionFilters(collectionReference))
                 .map(cols -> Stream.concat(
@@ -229,7 +236,7 @@ public class ColumnFilterUtil {
      * @param collectionReference
      * @return
      */
-    public static Optional<String> getCollectionRelatedColumnFilter(Optional<String> columnFilter, CollectionReference collectionReference) {
+    public static Optional<String> getCollectionRelatedColumnFilter(Optional<String> columnFilter, CollectionReference collectionReference) throws CollectionUnavailableException {
         return cleanColumnFilter(columnFilter)
                 .map(cf -> Arrays.stream(cf.split(",")))
                 .map(getCollectionFilters(collectionReference))
@@ -267,9 +274,13 @@ public class ColumnFilterUtil {
         }
     }
 
-    public static Set<String> getAllowedCollections(Optional<String> columnFilter) {
+    public static Set<String> getAllowedCollections(Optional<String> columnFilter) throws CollectionUnavailableException {
         if (columnFilter == null || !columnFilter.isPresent()) {
-           return Collections.singleton("*"); // all collections allowed
+            if (!COLUMN_FILTER_REQUIRED) {
+                return Collections.singleton("*"); // all collections allowed
+            } else {
+                throw new CollectionUnavailableException("column-filter is mandatory according to ARLAS server configuration");
+            }
         } else {
             Set<String> res = Arrays.stream(columnFilter.get().split(","))
                     .map(f -> f.contains(":") ? (f.split(":")[0].length() != 0 ? f.split(":")[0] : "*") : "*") // "param" or ":param" or "col:param"

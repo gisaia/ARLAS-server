@@ -21,6 +21,7 @@ package io.arlas.server.ogc.csw;
 
 import com.a9.opensearch.OpenSearchDescription;
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.ogc.common.OGCRESTService;
 import io.arlas.server.core.app.Documentation;
 import io.arlas.commons.exceptions.ArlasException;
@@ -377,9 +378,17 @@ public class CSWRESTService extends OGCRESTService {
         }
     }
 
-    private void filterCollectionsByColumnFilter(@HeaderParam("Column-Filter") @ApiParam(hidden = true) Optional<String> columnFilter, List<CollectionReference> collections) {
+    private void filterCollectionsByColumnFilter(@HeaderParam("Column-Filter") @ApiParam(hidden = true) Optional<String> columnFilter, List<CollectionReference> collections) throws CollectionUnavailableException {
+        ColumnFilterUtil.cleanColumnFilter(columnFilter);
         collections.removeIf(collection ->
-                ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent() && !ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collection).isPresent());
+        {
+            try {
+                return ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent() && !ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collection).isPresent();
+            } catch (CollectionUnavailableException ignored) {
+                // already checked with the first line of this method
+                return true;
+            }
+        });
     }
 
 

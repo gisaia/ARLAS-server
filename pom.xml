@@ -50,7 +50,7 @@
     <io.rest-assured.version>5.0.1</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
-    <dropwizard.version>2.1.0-beta.8</dropwizard.version>
+    <dropwizard.version>2.1.0-beta.9</dropwizard.version>
     <dropwizard.swagger.version>2.0.12-1</dropwizard.swagger.version>
     <zipkin.dropwizard.version>2.0.16-1</zipkin.dropwizard.version>
     <swaggerv3.version>2.2.0</swaggerv3.version>
