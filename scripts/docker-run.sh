@@ -51,4 +51,4 @@ docker-compose -f docker-compose.yml ${DOCKER_COMPOSE_ARGS} --project-name arlas
 
 echo "===> wait for arlas-server up and running"
 docker run --net arlas_default --rm busybox sh -c 'i=1; until nc -w 2 arlas-server 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
-echo $(curl "http://elasticsearch:9200/_cluster/health?pretty")
+echo $(curl "http://localhost:9200/_cluster/health?pretty")

@@ -300,7 +300,7 @@ function test_doc() {
 
 echo "===> run integration tests"
 echo "version ES"
-echo $(curl "http://elasticsearch:9200/_cluster/health?pretty")
+echo $(curl "http://localhost:9200/_cluster/health?pretty")
 export ALIASED_COLLECTION="false"
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 if [ "$STAGE" == "REST" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_rest; fi
