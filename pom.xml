@@ -50,14 +50,13 @@
     <io.rest-assured.version>5.0.1</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
-    <dropwizard.version>2.1.0-beta.9</dropwizard.version>
+    <dropwizard.version>2.1.0</dropwizard.version>
     <dropwizard.swagger.version>2.0.12-1</dropwizard.swagger.version>
     <zipkin.dropwizard.version>2.0.16-1</zipkin.dropwizard.version>
     <swaggerv3.version>2.2.0</swaggerv3.version>
     <jaxb.version>2.3.6</jaxb.version>
     <jersey-media-jaxb.version>2.35</jersey-media-jaxb.version>
     <activation.version>2.1.0</activation.version>
-    <keycloak.version>17.0.0</keycloak.version>
 
     <!-- CACHE-->
     <hazelcast.version>5.1.1</hazelcast.version>

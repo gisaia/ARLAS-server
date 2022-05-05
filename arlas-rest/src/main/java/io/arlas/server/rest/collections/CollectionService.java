@@ -238,8 +238,8 @@ public class CollectionService extends CollectionRESTServices {
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty,
 
-            @ApiParam(name = "checkFields", defaultValue = "true")
-            @QueryParam(value = "checkFields") Boolean checkFields
+            @ApiParam(name = "checkfields", defaultValue = "true")
+            @QueryParam(value = "checkfields") Boolean checkFields
 
     ) throws ArlasException {
         if (collection != null && collection.equals(META_COLLECTION_NAME)) {
