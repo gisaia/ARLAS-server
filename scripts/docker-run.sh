@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-
+export ELASTIC_VERSION=7.4.0
 BUILD_OPTS="--no-build"
 
 for i in "$@"
@@ -27,6 +27,7 @@ function clean_exit {
 }
 trap clean_exit EXIT
 
+echo $(docker ps)
 export ARLAS_VERSION=`xmlstarlet sel -t -v /_:project/_:version pom.xml`
 
 # GO TO PROJECT PATH
