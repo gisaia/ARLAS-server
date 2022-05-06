@@ -1,5 +1,9 @@
 # Change Log
 
+## [v22.0.0-beta.2](https://github.com/gisaia/ARLAS-server/tree/v22.0.0-beta.2) (2022-05-06)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v22.0.0-beta.1...v22.0.0-beta.2)
+
 ## [v22.0.0-beta.1](https://github.com/gisaia/ARLAS-server/tree/v22.0.0-beta.1) (2022-05-06)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v21.0.0...v22.0.0-beta.1)
@@ -10,6 +14,7 @@
 
 **Fixed bugs:**
 
+- `checkFields` query param is ignored when PUTing a new collection [\#784](https://github.com/gisaia/ARLAS-server/issues/784)
 - H3 aggregations with geometries as bbox  returns invalid geojson [\#780](https://github.com/gisaia/ARLAS-server/issues/780)
 
 ## [v21.0.0](https://github.com/gisaia/ARLAS-server/tree/v21.0.0) (2022-04-05)
