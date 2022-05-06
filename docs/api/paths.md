@@ -157,12 +157,12 @@ Add a collection reference in ARLAS
 
 ##### Parameters
 
-| Type      | Name                                 | Description      | Schema                                                          | Default   |
-|-----------|--------------------------------------|------------------|-----------------------------------------------------------------|-----------|
-| **Path**  | **collection**  <br>*required*       | collection       | string                                                          ||
-| **Query** | **checkfields**  <br>*optional*      | check fields     | boolean                                                         | `"true"`  |
-| **Query** | **pretty**  <br>*optional*           | Pretty print     | boolean                                                         | `"false"` |
-| **Body**  | **collectionParams**  <br>*required* | collectionParams | [CollectionReferenceParameters](#collectionreferenceparameters) ||
+|Type|Name|Description|Schema|Default|
+|---|---|---|---|---|
+|**Path**|**collection**  <br>*required*|collection|string||
+|**Query**|**checkfields**  <br>*optional*||boolean|`"true"`|
+|**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
+|**Body**|**collectionParams**  <br>*required*|collectionParams|[CollectionReferenceParameters](#collectionreferenceparameters)||
 
 
 ##### Responses

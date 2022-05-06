@@ -1,6 +1,18 @@
 # Change Log
 
-## [v21.0.0](https://github.com/gisaia/ARLAS-server/tree/v21.0.0) (2022-04-01)
+## [v22.0.0-beta.1](https://github.com/gisaia/ARLAS-server/tree/v22.0.0-beta.1) (2022-05-06)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v21.0.0...v22.0.0-beta.1)
+
+**New stuff:**
+
+- Forbid access if no column filter is provided [\#782](https://github.com/gisaia/ARLAS-server/issues/782)
+
+**Fixed bugs:**
+
+- H3 aggregations with geometries as bbox  returns invalid geojson [\#780](https://github.com/gisaia/ARLAS-server/issues/780)
+
+## [v21.0.0](https://github.com/gisaia/ARLAS-server/tree/v21.0.0) (2022-04-05)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v20.7.0...v21.0.0)
 
