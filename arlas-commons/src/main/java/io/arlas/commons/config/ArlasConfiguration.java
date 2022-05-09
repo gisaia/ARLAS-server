@@ -23,15 +23,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.dropwizard.Configuration;
-import io.dropwizard.db.DataSourceFactory;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
-import javax.validation.Valid;
-
 public class ArlasConfiguration extends Configuration {
-    @Valid
-    @JsonProperty("database")
-    public DataSourceFactory database = new DataSourceFactory();
 
     @JsonProperty("zipkin")
     public ZipkinFactory zipkinConfiguration;

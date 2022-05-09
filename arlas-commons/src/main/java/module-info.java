@@ -34,7 +34,6 @@ module arlas.commons {
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.jaxrs.base;
     requires dropwizard.core;
-    requires dropwizard.db;
     requires dropwizard.jackson;
     requires dropwizard.swagger;
     requires java.annotation;

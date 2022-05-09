@@ -65,9 +65,6 @@
     <elastic.version>7.15.2</elastic.version>
     <httpclient.version>4.5.13</httpclient.version>
 
-    <postgis-jdbc.version>2021.1.0</postgis-jdbc.version>
-    <jdbi3.version>3.28.0</jdbi3.version>
-
     <!-- GEO-->
     <geotools.version>26.4</geotools.version>
     <protobuf.version>3.19.4</protobuf.version>

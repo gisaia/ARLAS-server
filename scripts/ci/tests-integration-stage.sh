@@ -13,7 +13,7 @@ function clean_docker {
 		-w /opt/maven \
 		-v $PWD:/opt/maven \
 		-v $HOME/.m2:/root/.m2 \
-		maven:3.8.4-openjdk-17 \
+		maven:3.8.5-openjdk-17 \
 		mvn clean -B
 }
 
@@ -96,8 +96,8 @@ function test_rest() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         -e WKT_GEOMETRIES=${WKT_GEOMETRIES} \
         --net arlas_default \
-        maven:3.8.4-openjdk-17 \
-        mvn "-Dit.test=*,!AuthServiceIT,!CollectionTool,!CollectionInjector,!CSWServiceIT,!WFSService*IT" verify -DskipTests=false -DfailIfNoTests=false -B
+        maven:3.8.5-openjdk-17 \
+        mvn "-Dit.test=*,!AuthServiceIT,!CollectionTool,!CSWServiceIT,!WFSService*IT" verify -DskipTests=false -DfailIfNoTests=false -B
 }
 
 function test_auth() {
@@ -128,7 +128,7 @@ function test_auth() {
 #        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
 #        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
 #        --net arlas_default \
-#        maven:3.8.4-openjdk-17 \
+#        maven:3.8.5-openjdk-17 \
 #        mvn -Dit.test=AuthServiceIT verify -DskipTests=false -DfailIfNoTests=false -B
 }
 
@@ -151,7 +151,7 @@ function test_wfs() {
         -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
-        maven:3.8.4-openjdk-17 \
+        maven:3.8.5-openjdk-17 \
         mvn "-Dit.test=WFSService*IT" verify -DskipTests=false -DfailIfNoTests=false -B
     docker run --rm \
         -w /opt/maven \
@@ -165,7 +165,7 @@ function test_wfs() {
         -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
-        maven:3.8.4-openjdk-17 \
+        maven:3.8.5-openjdk-17 \
         mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="load" -pl arlas-tests -B
 
     docker run --rm \
@@ -185,7 +185,7 @@ function test_wfs() {
         -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
-        maven:3.8.4-openjdk-17 \
+        maven:3.8.5-openjdk-17 \
         mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="delete" -pl arlas-tests -B
 }
 
@@ -208,7 +208,7 @@ function test_stac() {
         -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
-        maven:3.8.4-openjdk-17 \
+        maven:3.8.5-openjdk-17 \
         mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="load" -pl arlas-tests -B
 
     docker run --rm \
@@ -232,7 +232,7 @@ function test_stac() {
         -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
-        maven:3.8.4-openjdk-17 \
+        maven:3.8.5-openjdk-17 \
         mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="delete" -pl arlas-tests -B
 }
 
@@ -256,7 +256,7 @@ function test_csw() {
         -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
-        maven:3.8.4-openjdk-17 \
+        maven:3.8.5-openjdk-17 \
         mvn "-Dit.test=CSWServiceIT" verify -DskipTests=false -DfailIfNoTests=false -B
 
     docker run --rm \
@@ -271,7 +271,7 @@ function test_csw() {
         -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
-        maven:3.8.4-openjdk-17 \
+        maven:3.8.5-openjdk-17 \
         mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="loadcsw" -pl arlas-tests -B
 
     docker run --rm \
@@ -290,7 +290,7 @@ function test_csw() {
         -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
-        maven:3.8.4-openjdk-17 \
+        maven:3.8.5-openjdk-17 \
         mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="deletecsw" -pl arlas-tests -B
 }
 
