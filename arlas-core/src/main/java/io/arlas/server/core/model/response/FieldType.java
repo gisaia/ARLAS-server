@@ -19,11 +19,6 @@
 
 package io.arlas.server.core.model.response;
 
-import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
@@ -81,36 +76,5 @@ public enum FieldType {
     @Override
     public String toString() {
         return fieldType.toString();
-    }
-
-    public Object getJavaObject(Object v) {
-        switch(this) {
-            case NUMERIC:
-            case DECIMAL:
-                return BigDecimal.valueOf(Double.valueOf((String)v));
-            case BIT:
-                return Boolean.valueOf((String)v);
-            case TINYINT:
-            case SMALLINT:
-            case INTEGER:
-            case INT:
-                return Integer.valueOf((String)v);
-            case BIGINT:
-                return Long.valueOf((String)v);
-            case REAL:
-                return Float.valueOf((String)v);
-            case FLOAT:
-            case DOUBLE:
-            case DOUBLEPRECISION:
-                return Double.valueOf((String)v);
-            case TIMESTAMP:
-                return Timestamp.from(Instant.ofEpochMilli(Long.valueOf((String)v)));
-            case TIME:
-                return Time.valueOf((String)v);
-            case DATE:
-                return Date.valueOf((String)v);
-            default:
-                return v;
-        }
     }
 }
