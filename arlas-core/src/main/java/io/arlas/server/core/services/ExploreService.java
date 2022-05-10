@@ -18,6 +18,7 @@
  */
 package io.arlas.server.core.services;
 
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.BadRequestException;

@@ -24,6 +24,7 @@ import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.BadRequestException;
 import io.arlas.commons.exceptions.InvalidParameterException;
 import io.arlas.commons.exceptions.NotAllowedException;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.Inspire;
@@ -684,7 +685,7 @@ public class CheckParams {
     }
 
     public static void checkReturnedGeometries(CollectionReference collectionReference, String include, String exclude, String returned_geometries) throws ArlasException {
-        if (exclude != null && exclude != ""){
+        if (!StringUtil.isNullOrEmpty(exclude)) {
             List<String> fields = new ArrayList<>();
             if (collectionReference.params.idPath != null)
                 fields.add(collectionReference.params.idPath);

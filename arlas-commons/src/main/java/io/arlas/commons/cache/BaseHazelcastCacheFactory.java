@@ -17,23 +17,20 @@
  * under the License.
  */
 
-package io.arlas.server.impl;
+package io.arlas.commons.cache;
 
-import io.arlas.server.core.app.ArlasServerConfiguration;
-import io.arlas.server.app.CacheFactory;
-import io.arlas.server.core.impl.cache.HazelcastCacheManager;
-import io.arlas.server.core.managers.CacheManager;
+import io.arlas.commons.config.ArlasConfiguration;
 
-public class HazelcastCacheFactory extends CacheFactory {
-    private final CacheManager cacheManager;
+public class BaseHazelcastCacheFactory extends CacheFactory {
+    private final BaseCacheManager cacheManager;
 
-    public HazelcastCacheFactory(ArlasServerConfiguration configuration) {
+    public BaseHazelcastCacheFactory(ArlasConfiguration configuration) {
         super(configuration);
-        this.cacheManager = new HazelcastCacheManager(configuration.arlasCacheTimeout);
+        this.cacheManager = new BaseHazelcastCacheManager(configuration.arlasCacheTimeout);
     }
 
     @Override
-    public CacheManager getCacheManager() {
+    public BaseCacheManager getCacheManager() {
         return this.cacheManager;
     }
 }

@@ -30,7 +30,7 @@ import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.GeoUtil;
-import io.arlas.server.core.utils.StringUtil;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.stac.model.SearchBody;
 import io.arlas.server.stac.model.StacFeatureCollection;
 import io.dropwizard.jersey.params.IntParam;

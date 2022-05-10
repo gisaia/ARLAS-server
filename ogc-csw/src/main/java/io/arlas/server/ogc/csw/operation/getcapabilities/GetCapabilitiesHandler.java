@@ -37,7 +37,7 @@ import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.CSWParamsParser;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
-import io.arlas.server.core.utils.StringUtil;
+import io.arlas.commons.utils.StringUtil;
 import net.opengis.cat.csw._3.CapabilitiesType;
 import net.opengis.fes._2.*;
 import net.opengis.ows._2.*;

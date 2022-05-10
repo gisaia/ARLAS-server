@@ -42,6 +42,12 @@ public class ArlasConfiguration extends Configuration {
     @JsonProperty("arlas_cors")
     public ArlasCorsConfiguration arlasCorsConfiguration;
 
+    @JsonProperty("arlas_cache_factory_class")
+    public String arlasCacheFactoryClass;
+
+    @JsonProperty("arlas-cache-timeout")
+    public int arlasCacheTimeout;
+
     public static final String FLATTEN_CHAR = "_";
 
     public void check() throws ArlasConfigurationException {
@@ -59,6 +65,9 @@ public class ArlasConfiguration extends Configuration {
         if (arlasCorsConfiguration == null) {
             arlasCorsConfiguration = new ArlasCorsConfiguration();
             arlasCorsConfiguration.enabled = false;
+        }
+        if (arlasCacheFactoryClass == null) {
+            arlasCacheFactoryClass = "io.arlas.commons.cache.BaseHazelcastCacheFactory";
         }
     }
 }

@@ -22,6 +22,7 @@ package io.arlas.server.ogc.wfs.operation.getcapabilities;
 
 import eu.europa.ec.inspire.schemas.common._1.*;
 import eu.europa.ec.inspire.schemas.inspire_dls._1.ExtendedCapabilitiesType;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.InspireConfiguration;
 import io.arlas.server.core.app.OGCConfiguration;
 import io.arlas.server.core.app.WFSConfiguration;
@@ -451,10 +452,10 @@ public class GetCapabilitiesHandler {
             /* Check if other keywords have a Controled vocabulary*/
             eu.europa.ec.inspire.schemas.common._1.Keyword inspireKeyword = new eu.europa.ec.inspire.schemas.common._1.Keyword();
             inspireKeyword.setKeywordValue(keyword.value);
-            if (keyword.vocabulary != null && !keyword.vocabulary.equals("")) {
+            if (!StringUtil.isNullOrEmpty(keyword.vocabulary)) {
                 OriginatingControlledVocabulary vocabulary = new OriginatingControlledVocabulary();
                 vocabulary.setTitle(keyword.vocabulary);
-                if (keyword.dateOfPublication != null && !keyword.dateOfPublication.equals("")) {
+                if (!StringUtil.isNullOrEmpty(keyword.dateOfPublication)) {
                     vocabulary.setDateOfCreation(keyword.dateOfPublication);
                 }
                 inspireKeyword.setOriginatingControlledVocabulary(vocabulary);

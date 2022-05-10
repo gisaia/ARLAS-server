@@ -30,7 +30,7 @@ import io.arlas.server.core.model.response.FieldType;
 import io.arlas.server.core.ns.ATOM;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.ColumnFilterUtil;
-import io.arlas.server.core.utils.StringUtil;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.opensearch.rest.explore.model.Image;
 import io.arlas.server.opensearch.rest.explore.model.OpenSearchDescription;
 import io.arlas.server.opensearch.rest.explore.model.Url;

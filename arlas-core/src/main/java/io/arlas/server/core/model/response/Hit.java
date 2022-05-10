@@ -26,7 +26,7 @@ import io.arlas.server.core.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.utils.MapExplorer;
-import io.arlas.server.core.utils.StringUtil;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.utils.TimestampTypeMapper;
 import io.dropwizard.jackson.JsonSnakeCase;
 import org.geojson.GeoJsonObject;

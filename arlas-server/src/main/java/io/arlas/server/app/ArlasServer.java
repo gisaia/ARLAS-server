@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
 import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
+import io.arlas.commons.config.ArlasConfiguration;
 import io.arlas.commons.config.ArlasCorsConfiguration;
 import io.arlas.commons.exceptions.ArlasExceptionMapper;
 import io.arlas.commons.exceptions.ConstraintViolationExceptionMapper;
@@ -33,6 +34,7 @@ import io.arlas.commons.exceptions.JsonProcessingExceptionMapper;
 import io.arlas.commons.rest.auth.PolicyEnforcer;
 import io.arlas.server.admin.task.CollectionAutoDiscover;
 import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.commons.cache.CacheFactory;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.services.ExploreService;
@@ -132,7 +134,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         CacheFactory cacheFactory = (CacheFactory) Class
                 .forName(configuration.arlasCacheFactoryClass)
-                .getConstructor(ArlasServerConfiguration.class)
+                .getConstructor(ArlasConfiguration.class)
                 .newInstance(configuration);
 
         DatabaseToolsFactory dbToolFactory = (DatabaseToolsFactory) Class
@@ -141,7 +143,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
                 .newInstance(environment, configuration, cacheFactory.getCacheManager());
 
         CollectionReferenceManager.getInstance().init(dbToolFactory.getCollectionReferenceService(),
-                cacheFactory.getCacheManager());
+                (CacheManager) cacheFactory.getCacheManager());
 
         if (configuration.zipkinConfiguration != null) {
             Optional<HttpTracing> tracing = configuration.zipkinConfiguration.build(environment);
@@ -178,7 +180,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         }
 
         PolicyEnforcer policyEnforcer = PolicyEnforcer.newInstance(configuration.arlasAuthPolicyClass)
-                .setAuthConf(configuration.arlasAuthConfiguration);
+                .setAuthConf(configuration.arlasAuthConfiguration)
+                .setCacheManager(cacheFactory.getCacheManager());
         LOGGER.info("PolicyEnforcer: " + policyEnforcer.getClass().getCanonicalName());
         environment.jersey().register(policyEnforcer);
 

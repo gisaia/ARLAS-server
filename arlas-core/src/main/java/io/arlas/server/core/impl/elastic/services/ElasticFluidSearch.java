@@ -20,6 +20,7 @@
 package io.arlas.server.core.impl.elastic.services;
 
 import io.arlas.commons.exceptions.*;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
 import io.arlas.server.core.impl.elastic.utils.ElasticTool;
@@ -33,11 +34,9 @@ import io.arlas.server.core.services.FluidSearchService;
 import io.arlas.server.core.utils.CheckParams;
 import io.arlas.server.core.utils.GeoUtil;
 import io.arlas.server.core.utils.ParamsParser;
-import io.arlas.server.core.utils.StringUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.geo.Orientation;
@@ -124,7 +123,7 @@ public class ElasticFluidSearch extends FluidSearchService {
 
     private BoolQueryBuilder filter(Expression expression, String dateFormat, Boolean righthand) throws ArlasException {
         BoolQueryBuilder ret = QueryBuilders.boolQuery();
-        if (Strings.isNullOrEmpty(expression.field) || expression.op == null || Strings.isNullOrEmpty(expression.value)) {
+        if (StringUtil.isNullOrEmpty(expression.field) || expression.op == null || StringUtil.isNullOrEmpty(expression.value)) {
             throw new InvalidParameterException(INVALID_PARAMETER_F);
         }
         String field = expression.field;
@@ -525,7 +524,7 @@ public class ElasticFluidSearch extends FluidSearchService {
 
 
     private DateHistogramAggregationBuilder buildDateHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
-        if (Strings.isNullOrEmpty(aggregationModel.field)) {
+        if (StringUtil.isNullOrEmpty(aggregationModel.field)) {
             aggregationModel.field = collectionReference.params.timestampPath;
         }
         DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram(DATEHISTOGRAM_AGG);
@@ -618,7 +617,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         termsAggregationBuilder = (TermsAggregationBuilder) setAggregatedGeometries(aggregationModel, termsAggregationBuilder);
         termsAggregationBuilder = (TermsAggregationBuilder) setRawGeometries(aggregationModel, termsAggregationBuilder);
         termsAggregationBuilder = (TermsAggregationBuilder) setHitsToFetch(aggregationModel, termsAggregationBuilder);
-        if (aggregationModel.include != null && !aggregationModel.include.isEmpty()) {
+        if (!StringUtil.isNullOrEmpty(aggregationModel.include)) {
             String[] includeList = aggregationModel.include.split(",");
             IncludeExclude includeExclude;
             if (includeList.length > 1) {
@@ -651,7 +650,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         termsAggregationBuilder = (TermsAggregationBuilder) setAggregatedGeometries(aggregationModel, termsAggregationBuilder);
         termsAggregationBuilder = (TermsAggregationBuilder) setRawGeometries(aggregationModel, termsAggregationBuilder);
         termsAggregationBuilder = (TermsAggregationBuilder) setHitsToFetch(aggregationModel, termsAggregationBuilder);
-        if (aggregationModel.include != null && !aggregationModel.include.isEmpty()) {
+        if (!StringUtil.isNullOrEmpty(aggregationModel.include)) {
             String[] includeList = aggregationModel.include.split(",");
             IncludeExclude includeExclude;
             if (includeList.length > 1) {

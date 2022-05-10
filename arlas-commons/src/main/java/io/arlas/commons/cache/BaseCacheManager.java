@@ -17,25 +17,24 @@
  * under the License.
  */
 
-package io.arlas.server.core.managers;
+package io.arlas.commons.cache;
 
-import io.arlas.commons.cache.BaseCacheManager;
-import io.arlas.server.core.model.CollectionReference;
-import io.arlas.server.core.model.response.FieldType;
+public interface BaseCacheManager {
+    Object getObject(String key, String ref);
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+    void putObject(String key, String ref, Object col);
 
-public interface CacheManager extends BaseCacheManager {
+    void removeObject(String key, String ref);
 
-    CollectionReference getCollectionReference(String ref);
-    void putCollectionReference(String ref, CollectionReference col);
-    void removeCollectionReference(String ref);
+    void putDecision(String p, Boolean decision);
 
-    FieldType getFieldType(String ref, String name);
-    void putFieldType(String ref, String name, FieldType type);
+    Boolean getDecision(String p);
 
-    void putMapping(String indexName, Map<String, LinkedHashMap> exists);
-    Map<String, LinkedHashMap> getMapping(String indexName);
-    void removeMapping(String indexName);
+    void removeDecision(String p);
+
+    void putPermission(String token, String p);
+
+    String getPermission(String token);
+
+    void removePermission(String token);
 }

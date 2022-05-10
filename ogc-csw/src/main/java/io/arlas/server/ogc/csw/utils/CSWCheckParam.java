@@ -19,6 +19,7 @@
 
 package io.arlas.server.ogc.csw.utils;
 
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.ogc.common.model.Service;
@@ -97,7 +98,7 @@ public class CSWCheckParam {
             VersionUtils.checkVersion(requestVersion, CSWConstant.SUPPORTED_CSW_VERSION, Service.CSW);
         }
 
-        if (constraintLanguage != null && !constraintLanguage.equals("") && !Arrays.asList(CSWConstant.SUPPORTED_CSW_CONSTRAINTLANGUAGE).contains(constraintLanguage)) {
+        if (!StringUtil.isNullOrEmpty(constraintLanguage) && !Arrays.asList(CSWConstant.SUPPORTED_CSW_CONSTRAINTLANGUAGE).contains(constraintLanguage)) {
             throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid constraintLanguage. Supported constraint languages are : 'Filter'. ", "outputSchema", Service.CSW);
         }
     }

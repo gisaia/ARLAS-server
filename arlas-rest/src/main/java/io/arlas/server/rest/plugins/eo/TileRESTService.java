@@ -23,6 +23,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import cyclops.control.Try;
 import cyclops.data.tuple.Tuple2;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.Documentation;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.CollectionReference;

@@ -21,6 +21,7 @@ package io.arlas.server.ogc.common.requestfilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.core.utils.BoundingBox;
 import io.arlas.server.core.utils.ColumnFilterUtil;
@@ -59,7 +60,7 @@ public class ElasticFilter {
                 orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(idFieldName, resourceIdValue));
             }
             minimumShouldMatch = minimumShouldMatch + 1;
-        } else if (q != null && q.length() > 0) {
+        } else if (!StringUtil.isNullOrEmpty(q)) {
             orBoolQueryBuilder = orBoolQueryBuilder
                     .should((QueryBuilders.simpleQueryStringQuery(q).defaultOperator(Operator.AND).field(fulltextField)));
             minimumShouldMatch = minimumShouldMatch + 1;

@@ -17,25 +17,19 @@
  * under the License.
  */
 
-package io.arlas.server.core.managers;
+package io.arlas.commons.utils;
 
-import io.arlas.commons.cache.BaseCacheManager;
-import io.arlas.server.core.model.CollectionReference;
-import io.arlas.server.core.model.response.FieldType;
+import java.util.Arrays;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+public class StringUtil {
 
-public interface CacheManager extends BaseCacheManager {
+    public static boolean isNullOrEmpty (String s) {
+        return s == null || s.isEmpty();
+    }
 
-    CollectionReference getCollectionReference(String ref);
-    void putCollectionReference(String ref, CollectionReference col);
-    void removeCollectionReference(String ref);
-
-    FieldType getFieldType(String ref, String name);
-    void putFieldType(String ref, String name, FieldType type);
-
-    void putMapping(String indexName, Map<String, LinkedHashMap> exists);
-    Map<String, LinkedHashMap> getMapping(String indexName);
-    void removeMapping(String indexName);
+    public static String concat(String... s) {
+        StringBuilder sb = new StringBuilder();
+        Arrays.stream(s).forEach(e -> sb.append(e));
+        return sb.toString();
+    }
 }

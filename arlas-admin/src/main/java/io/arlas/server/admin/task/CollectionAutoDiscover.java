@@ -19,6 +19,7 @@
 
 package io.arlas.server.admin.task;
 
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.app.CollectionAutoDiscoverConfiguration;
 import io.arlas.commons.exceptions.ArlasConfigurationException;
@@ -115,10 +116,10 @@ public class CollectionAutoDiscover extends Task implements Runnable {
                 break;
             }
         }
-        if (collection.params.idPath == null || collection.params.idPath.isEmpty()
-                || collection.params.centroidPath == null || collection.params.centroidPath.isEmpty()
-                || collection.params.geometryPath == null || collection.params.geometryPath.isEmpty()
-                || collection.params.timestampPath == null || collection.params.timestampPath.isEmpty())
+        if (StringUtil.isNullOrEmpty(collection.params.idPath)
+                || StringUtil.isNullOrEmpty(collection.params.centroidPath)
+                || StringUtil.isNullOrEmpty(collection.params.geometryPath)
+                || StringUtil.isNullOrEmpty(collection.params.timestampPath))
             return null;
         return collection;    }
 
