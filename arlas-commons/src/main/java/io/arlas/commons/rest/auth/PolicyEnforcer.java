@@ -19,6 +19,7 @@
 
 package io.arlas.commons.rest.auth;
 
+import io.arlas.commons.cache.BaseCacheManager;
 import io.arlas.commons.config.ArlasAuthConfiguration;
 
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -28,6 +29,8 @@ import java.util.stream.Collectors;
 public interface PolicyEnforcer extends ContainerRequestFilter {
 
     PolicyEnforcer setAuthConf(ArlasAuthConfiguration conf) throws Exception;
+
+    PolicyEnforcer setCacheManager(BaseCacheManager cacheManager);
 
     default boolean isEnabled() { return true; }
 

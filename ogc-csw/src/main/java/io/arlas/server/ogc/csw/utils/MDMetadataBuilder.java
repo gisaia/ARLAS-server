@@ -19,6 +19,7 @@
 
 package io.arlas.server.ogc.csw.utils;
 
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.InspireConfiguration;
 import io.arlas.server.core.app.OGCConfiguration;
 import io.arlas.server.core.model.*;
@@ -206,7 +207,7 @@ public class MDMetadataBuilder {
                 MDKeywordsPropertyType mdKeywordsPropertyType = new MDKeywordsPropertyType();
                 MDKeywordsType mdKeywordsType = new MDKeywordsType();
                 mdKeywordsType.getKeyword().add(createCharacterStringPropertyType(keyword.value));
-                if (keyword.vocabulary != null && !keyword.vocabulary.equals("")) {
+                if (!StringUtil.isNullOrEmpty(keyword.vocabulary)) {
                     mdKeywordsType.setThesaurusName(createCICitation(keyword.vocabulary, keyword.dateOfPublication, PUBLICATION_DATE_TYPE));
                 }
                 mdKeywordsPropertyType.setMDKeywords(mdKeywordsType);
@@ -451,7 +452,7 @@ public class MDMetadataBuilder {
         CICitationType ciCitationType = new CICitationType();
         CharacterStringPropertyType cs = createCharacterStringPropertyType(title);
         ciCitationType.setTitle(cs);
-        if(date != null && !date.equals("")) {
+        if(!StringUtil.isNullOrEmpty(date)) {
             CIDatePropertyType ciDatePropertyType = new CIDatePropertyType();
             CIDateType ciDateType = new CIDateType();
             DatePropertyType datePropertyType = new DatePropertyType();

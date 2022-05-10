@@ -26,7 +26,7 @@ import io.arlas.commons.exceptions.InternalServerErrorException;
 import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.utils.CollectionUtil;
-import io.arlas.server.core.utils.StringUtil;
+import io.arlas.commons.utils.StringUtil;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;

@@ -21,6 +21,7 @@ package io.arlas.server.core.utils;
 
 import cyclops.data.tuple.Tuple2;
 import cyclops.reactive.ReactiveSeq;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
 
 import java.util.*;

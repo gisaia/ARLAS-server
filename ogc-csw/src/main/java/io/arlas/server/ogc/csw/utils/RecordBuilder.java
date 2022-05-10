@@ -23,7 +23,7 @@ import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.DublinCoreElementName;
 import io.arlas.server.core.model.Inspire;
 import io.arlas.server.ogc.common.utils.OGCConstant;
-import io.arlas.server.core.utils.StringUtil;
+import io.arlas.commons.utils.StringUtil;
 import net.opengis.cat.csw._3.AbstractRecordType;
 import net.opengis.cat.csw._3.BriefRecordType;
 import net.opengis.cat.csw._3.RecordType;

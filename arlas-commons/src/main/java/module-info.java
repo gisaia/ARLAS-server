@@ -21,11 +21,13 @@ import io.arlas.commons.config.ArlasAuthConfiguration;
 import io.arlas.commons.rest.auth.PolicyEnforcer;
 
 module arlas.commons {
+    exports io.arlas.commons.cache;
     exports io.arlas.commons.config;
     exports io.arlas.commons.exceptions;
     exports io.arlas.commons.rest.auth;
     exports io.arlas.commons.rest.response;
     exports io.arlas.commons.rest.utils;
+    exports io.arlas.commons.utils;
     uses PolicyEnforcer;
     uses ArlasAuthConfiguration;
 
@@ -41,4 +43,5 @@ module arlas.commons {
     requires java.ws.rs;
     requires org.slf4j;
     requires zipkin.core;
+    requires com.hazelcast.core;
 }

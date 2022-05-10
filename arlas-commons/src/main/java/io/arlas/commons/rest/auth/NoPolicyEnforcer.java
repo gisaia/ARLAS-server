@@ -18,6 +18,7 @@
  */
 package io.arlas.commons.rest.auth;
 
+import io.arlas.commons.cache.BaseCacheManager;
 import io.arlas.commons.config.ArlasAuthConfiguration;
 
 import javax.annotation.Priority;
@@ -28,7 +29,7 @@ import java.io.IOException;
 
 @Provider
 @Priority(Priorities.AUTHORIZATION)
-public class NoPolicyEnforcer  implements PolicyEnforcer {
+public class NoPolicyEnforcer implements PolicyEnforcer {
 
     public NoPolicyEnforcer() {}
 
@@ -37,6 +38,11 @@ public class NoPolicyEnforcer  implements PolicyEnforcer {
 
     @Override
     public PolicyEnforcer setAuthConf(ArlasAuthConfiguration conf) throws Exception {
+        return this;
+    }
+
+    @Override
+    public PolicyEnforcer setCacheManager(BaseCacheManager cacheManager) {
         return this;
     }
 

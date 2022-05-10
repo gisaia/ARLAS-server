@@ -30,7 +30,7 @@ import io.arlas.server.core.ns.OPENSEARCH;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.MapExplorer;
-import io.arlas.server.core.utils.StringUtil;
+import io.arlas.commons.utils.StringUtil;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;

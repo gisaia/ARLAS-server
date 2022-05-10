@@ -19,6 +19,7 @@
 
 package io.arlas.server.ogc.common.utils;
 
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.ogc.common.model.Service;
@@ -44,7 +45,7 @@ public class VersionUtils {
 
     public static Version getVersion(String versionString, Service service) throws OGCException {
         Version version = null;
-        if (versionString != null && !"".equals(versionString)) {
+        if (!StringUtil.isNullOrEmpty(versionString)) {
             try {
                 version = Version.parseVersion(versionString, service);
             } catch (OGCException e) {

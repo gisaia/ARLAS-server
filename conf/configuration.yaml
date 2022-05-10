@@ -91,6 +91,7 @@ elastic:
 ############ CACHE                       ###############
 ########################################################
 # Configuration of the cache
+arlas_cache_factory_class: ${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.server.core.impl.cache.HazelcastCacheFactory}
 arlas-cache-size: ${ARLAS_CACHE_SIZE:-1000}
 arlas-cache-timeout: ${ARLAS_CACHE_TIMEOUT:-300}
 arlas-rest-cache-timeout: ${ARLAS_REST_CACHE_TIMEOUT:-0}
@@ -178,7 +179,6 @@ arlas_cors:
   exposed_headers: ${ARLAS_CORS_EXPOSED_HEADERS:-"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location,WWW-Authenticate"}
 
 arlas_database_factory_class: ${ARLAS_DATABASE_FACTORY_CLASS:-io.arlas.server.impl.ElasticDatabaseToolsFactory}
-arlas_cache_factory_class: ${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.server.impl.HazelcastCacheFactory}
 
 ########################################################
 ############ AUTHENTICATION              ###############

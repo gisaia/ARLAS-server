@@ -17,19 +17,22 @@
  * under the License.
  */
 
-package io.arlas.server.core.utils;
+package io.arlas.server.core.impl.cache;
 
-import java.util.Arrays;
+import io.arlas.commons.cache.CacheFactory;
+import io.arlas.commons.config.ArlasConfiguration;
+import io.arlas.server.core.managers.CacheManager;
 
-public class StringUtil {
+public class HazelcastCacheFactory extends CacheFactory {
+    private final CacheManager cacheManager;
 
-    public static boolean isNullOrEmpty (String s) {
-        return s == null || s.isEmpty();
+    public HazelcastCacheFactory(ArlasConfiguration configuration) {
+        super(configuration);
+        this.cacheManager = new HazelcastCacheManager(configuration.arlasCacheTimeout);
     }
 
-    public static String concat(String... s) {
-        StringBuilder sb = new StringBuilder();
-        Arrays.stream(s).forEach(e -> sb.append(e));
-        return sb.toString();
+    @Override
+    public CacheManager getCacheManager() {
+        return this.cacheManager;
     }
 }

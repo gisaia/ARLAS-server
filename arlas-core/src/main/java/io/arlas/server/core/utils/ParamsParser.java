@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.BadRequestException;
 import io.arlas.commons.exceptions.InvalidParameterException;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.*;
@@ -37,7 +38,6 @@ import org.elasticsearch.common.geo.GeoPoint;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.*;
-import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.operation.valid.IsValidOp;
 import org.locationtech.jts.operation.valid.RepeatedPointTester;
@@ -206,7 +206,7 @@ public class ParamsParser {
     }
 
     public static Interval getDatehistogramAggregationInterval(String intervalString) throws ArlasException {
-        if (intervalString != null && !intervalString.equals("")) {
+        if (!StringUtil.isNullOrEmpty(intervalString)) {
             String[] sizeAndUnit = intervalString.split("(?<=[a-zA-Z])(?=\\d)|(?<=\\d)(?=[a-zA-Z])");
             if (sizeAndUnit.length == 2) {
                 Interval interval = new Interval(tryParseInteger(sizeAndUnit[0]), UnitEnum.valueOf(sizeAndUnit[1].toLowerCase()));

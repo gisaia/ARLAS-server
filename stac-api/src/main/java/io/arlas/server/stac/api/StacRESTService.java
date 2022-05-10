@@ -23,6 +23,7 @@ import com.ethlo.time.ITU;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InvalidParameterException;

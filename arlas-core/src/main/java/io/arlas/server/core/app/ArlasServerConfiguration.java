@@ -21,7 +21,7 @@ package io.arlas.server.core.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.commons.exceptions.ArlasConfigurationException;
-import io.arlas.server.core.utils.StringUtil;
+import io.arlas.commons.utils.StringUtil;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -50,9 +50,6 @@ public class ArlasServerConfiguration extends ArlasBaseConfiguration {
 
     @JsonProperty("arlas-cache-size")
     public int arlasCacheSize;
-
-    @JsonProperty("arlas-cache-timeout")
-    public int arlasCacheTimeout;
 
     @JsonProperty("arlas-rest-cache-timeout")
     public int arlasRestCacheTimeout;

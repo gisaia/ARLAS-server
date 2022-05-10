@@ -31,18 +31,12 @@ public class ArlasBaseConfiguration extends ArlasConfiguration {
     @JsonProperty("arlas_database_factory_class")
     public String arlasDatabaseFactoryClass;
 
-    @JsonProperty("arlas_cache_factory_class")
-    public String arlasCacheFactoryClass;
-
     public static final String FLATTEN_CHAR = "_";
 
     public void check() throws ArlasConfigurationException {
         super.check();
         if (arlasDatabaseFactoryClass == null) {
-            throw new ArlasConfigurationException("arlas_database_factory_class is missing");
-        }
-        if (arlasCacheFactoryClass == null) {
-            throw new ArlasConfigurationException("arlas_cache_factory_class is missing");
+            arlasDatabaseFactoryClass = "io.arlas.server.impl.ElasticDatabaseToolsFactory";
         }
     }
 }

@@ -17,17 +17,16 @@
  * under the License.
  */
 
-package io.arlas.server.app;
+package io.arlas.commons.cache;
 
-import io.arlas.server.core.app.ArlasServerConfiguration;
-import io.arlas.server.core.managers.CacheManager;
+import io.arlas.commons.config.ArlasConfiguration;
 
 public abstract class CacheFactory {
-    protected ArlasServerConfiguration configuration;
+    protected ArlasConfiguration configuration;
 
-    public CacheFactory(ArlasServerConfiguration configuration) {
+    public CacheFactory(ArlasConfiguration configuration) {
         this.configuration = configuration;
     }
 
-    public abstract CacheManager getCacheManager();
+    public abstract BaseCacheManager getCacheManager();
 }
