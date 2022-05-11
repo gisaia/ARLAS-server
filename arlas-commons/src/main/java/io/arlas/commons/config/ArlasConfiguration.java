@@ -67,7 +67,7 @@ public class ArlasConfiguration extends Configuration {
             arlasCorsConfiguration.enabled = false;
         }
         if (arlasCacheFactoryClass == null) {
-            arlasCacheFactoryClass = "io.arlas.commons.cache.BaseHazelcastCacheFactory";
+            arlasCacheFactoryClass = "io.arlas.commons.cache.NoCacheFactory";
         }
     }
 }
