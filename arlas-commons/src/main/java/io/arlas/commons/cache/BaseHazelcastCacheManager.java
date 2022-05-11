@@ -45,6 +45,7 @@ public class BaseHazelcastCacheManager implements BaseCacheManager {
         // no need to expose the following env variable as a server configuration as it is set by Arlas Cloud if needed
         String dns = System.getenv("ARLAS_CLOUD_SERVER_DNS");
         if (dns != null) {
+            // https://github.com/hazelcast/hazelcast-kubernetes
             LOGGER.info("Setting up Hazelcast to use Kubernetes service DNS " + dns);
             this.hzConfig.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
             this.hzConfig.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(true)

@@ -17,34 +17,20 @@
  * under the License.
  */
 
-package io.arlas.commons.config;
+package io.arlas.commons.cache;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import io.arlas.commons.exceptions.ArlasConfigurationException;
+import io.arlas.commons.config.ArlasConfiguration;
 
-@JsonTypeName("noAuth")
-public class NoAuthConfiguration implements ArlasAuthConfiguration {
-    @JsonProperty("header_user")
-    public String headerUser = "arlas-user";
+public class NoCacheFactory extends CacheFactory {
+    private final BaseCacheManager cacheManager;
 
-    @JsonProperty("header_group")
-    public String headerGroup = "arlas-groups";
-
-
-    @Override
-    public String getPublicRegex() { return ""; }
-
-    @Override
-    public String getHeaderUser() {
-        return headerUser;
+    public NoCacheFactory(ArlasConfiguration configuration) {
+        super(configuration);
+        this.cacheManager = new NoCacheManager(configuration.arlasCacheTimeout);
     }
 
     @Override
-    public String getHeaderGroup() {
-        return headerGroup;
+    public BaseCacheManager getCacheManager() {
+        return this.cacheManager;
     }
-
-    @Override
-    public void check() throws ArlasConfigurationException {}
 }
