@@ -1,5 +1,9 @@
 # Change Log
 
+## [v22.0.0-beta.4](https://github.com/gisaia/ARLAS-server/tree/v22.0.0-beta.4) (2022-05-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v22.0.0-beta.3...v22.0.0-beta.4)
+
 ## [v22.0.0-beta.3](https://github.com/gisaia/ARLAS-server/tree/v22.0.0-beta.3) (2022-05-10)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v22.0.0-beta.2...v22.0.0-beta.3)
