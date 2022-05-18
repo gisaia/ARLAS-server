@@ -594,7 +594,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
         FeatureCollection fc = exploreService.getFeatures(request, collectionReference, true);
-        File result = toShapefile(fc, collectionReference.params.collectionDisplayNames.shapeColumns);
+        File result = toShapefile(fc, collectionReference.params.collectionDisplayNames!=null?collectionReference.params.collectionDisplayNames.shapeColumns:null);
         try {
             return Response.ok(result)
                     .header("Content-Disposition",
@@ -633,7 +633,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
         FeatureCollection fc = exploreService.getFeatures(request, collectionReference, (flat != null && flat));
         if (asShapeFile) {
-            File result = toShapefile(fc, collectionReference.params.collectionDisplayNames.shapeColumns);
+            File result = toShapefile(fc, collectionReference.params.collectionDisplayNames!=null?collectionReference.params.collectionDisplayNames.shapeColumns:null);
             try {
                 return Response.ok(result)
                         .header("Content-Disposition",

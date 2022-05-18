@@ -688,7 +688,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
         FeatureCollection fc = getFeatureCollection(request, collectionReference, true, Optional.empty());
-        File result = toShapefile(fc, collectionReference.params.collectionDisplayNames.shapeColumns);
+        File result = toShapefile(fc, collectionReference.params.collectionDisplayNames!=null?collectionReference.params.collectionDisplayNames.shapeColumns:null);
         try {
             return Response.ok(result)
                     .header("Content-Disposition",
@@ -726,7 +726,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         MixedRequest request = getGeoaggregateRequest(collectionReference, filter, partitionFilter, columnFilter, agg);
         FeatureCollection fc = getFeatureCollection(request, collectionReference, Boolean.TRUE.equals(flat), geohash);
         if (asShapeFile) {
-            File result = toShapefile(fc, collectionReference.params.collectionDisplayNames.shapeColumns);
+            File result = toShapefile(fc, collectionReference.params.collectionDisplayNames!=null?collectionReference.params.collectionDisplayNames.shapeColumns:null);
             try {
                 return Response.ok(result)
                         .header("Content-Disposition",
