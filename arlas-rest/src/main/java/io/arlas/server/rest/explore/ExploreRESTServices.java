@@ -117,8 +117,10 @@ public abstract class ExploreRESTServices {
                             // the geometry column name of schema for saving into a shapefile must be "the_geom"
                             builder.add("the_geom", adesc.getType().getBinding(), CRS_WGS84);
                         } else {
+                            LOGGER.debug("Original column name : " + adesc.getLocalName());
                             String columnName = shapeColumnNames!=null && shapeColumnNames.containsKey(adesc.getLocalName()) ?
                                     shapeColumnNames.get(adesc.getLocalName()) : adesc.getLocalName();
+                            LOGGER.debug("Final column name : " + columnName);
                             builder.add(getShortColumnName(columnName, colNum.get()),
                                     adesc.getType().getBinding() == Object.class ? String.class : adesc.getType().getBinding());
                         }
