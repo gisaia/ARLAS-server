@@ -280,14 +280,14 @@ if [ "$SIMULATE" == "NO" ]; then
     echo "=> Publish jars in Maven cloudsmith repo"
     # publish the parent jar
     mvn -N -s ${BASEDIR}/conf/maven/settings.xml deploy
+    # publish arlas-commons jar
+    cd ${BASEDIR}/arlas-commons
     # publish arlas-core jar
     cd ${BASEDIR}/arlas-core
     mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
     # publish arlas-admin jar
     cd ${BASEDIR}/arlas-admin
     mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
-    # publish arlas-commons jar
-    cd ${BASEDIR}/arlas-commons
     mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
     # publish arlas-server-client jar
     if [[ "$SKIP_API" == "NO" ]]; then

@@ -1,5 +1,9 @@
 # Change Log
 
+## [v22.0.0](https://github.com/gisaia/ARLAS-server/tree/v22.0.0) (2022-05-19)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v22.0.0-beta.4...v22.0.0)
+
 ## [v22.0.0-beta.4](https://github.com/gisaia/ARLAS-server/tree/v22.0.0-beta.4) (2022-05-11)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v22.0.0-beta.3...v22.0.0-beta.4)
@@ -35,12 +39,14 @@
 - Add a new query param that allows to choose orientation of passed WKT [\#760](https://github.com/gisaia/ARLAS-server/issues/760) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
 - Enhance shape export service with key,value label/field map collection [\#759](https://github.com/gisaia/ARLAS-server/issues/759)
 - Add key,value map in collection definition to define human readable label for mapping field [\#758](https://github.com/gisaia/ARLAS-server/issues/758)
+- Support multi-collection in `partition-filter` [\#749](https://github.com/gisaia/ARLAS-server/issues/749)
 
 **Fixed bugs:**
 
 - Documentation misuses the terms 'right' and 'left' for wkt orientation [\#761](https://github.com/gisaia/ARLAS-server/issues/761) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
 - `\_search` and `\_geosearch` don't return the same results when applying a `before` pagination  [\#755](https://github.com/gisaia/ARLAS-server/issues/755)
 - Doc for 'f' parameter is truncated [\#693](https://github.com/gisaia/ARLAS-server/issues/693) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+- Boolean search: wrong exception saying that field must be numeric [\#380](https://github.com/gisaia/ARLAS-server/issues/380)
 - Throw appropriate exception when applying filters on non-indexed fields [\#357](https://github.com/gisaia/ARLAS-server/issues/357)
 
 **Miscellaneous:**
