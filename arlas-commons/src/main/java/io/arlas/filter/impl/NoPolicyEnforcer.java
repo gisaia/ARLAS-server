@@ -16,35 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package io.arlas.filter.impl;
 
-package io.arlas.commons.config;
+import io.arlas.commons.cache.BaseCacheManager;
+import io.arlas.commons.config.ArlasAuthConfiguration;
+import io.arlas.filter.core.PolicyEnforcer;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import io.arlas.commons.exceptions.ArlasConfigurationException;
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.ext.Provider;
+import java.io.IOException;
 
-@JsonTypeName("noAuth")
-public class NoAuthConfiguration implements ArlasAuthConfiguration {
-    @JsonProperty("header_user")
-    public String headerUser = "arlas-user";
+@Provider
+@Priority(Priorities.AUTHORIZATION)
+public class NoPolicyEnforcer implements PolicyEnforcer {
 
-    @JsonProperty("header_group")
-    public String headerGroup = "arlas-groups";
-
+    public NoPolicyEnforcer() {}
 
     @Override
-    public String getPublicRegex() { return ""; }
+    public boolean isEnabled() { return false; }
 
     @Override
-    public String getHeaderUser() {
-        return headerUser;
+    public PolicyEnforcer setAuthConf(ArlasAuthConfiguration conf) throws Exception {
+        return this;
     }
 
     @Override
-    public String getHeaderGroup() {
-        return headerGroup;
+    public PolicyEnforcer setCacheManager(BaseCacheManager cacheManager) {
+        return this;
     }
 
     @Override
-    public void check() throws ArlasConfigurationException {}
+    public void filter(ContainerRequestContext containerRequestContext) throws IOException {}
 }

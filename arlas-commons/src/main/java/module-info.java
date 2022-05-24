@@ -17,31 +17,42 @@
  * under the License.
  */
 
-import io.arlas.commons.config.ArlasAuthConfiguration;
-import io.arlas.commons.rest.auth.PolicyEnforcer;
+import io.arlas.filter.impl.NoPolicyEnforcer;
+import io.arlas.filter.core.PolicyEnforcer;
+import io.arlas.filter.impl.Auth0PolicyEnforcer;
+import io.arlas.filter.impl.HTTPPolicyEnforcer;
+import io.arlas.filter.impl.KeycloakPolicyEnforcer;
 
 module arlas.commons {
     exports io.arlas.commons.cache;
     exports io.arlas.commons.config;
     exports io.arlas.commons.exceptions;
-    exports io.arlas.commons.rest.auth;
     exports io.arlas.commons.rest.response;
     exports io.arlas.commons.rest.utils;
     exports io.arlas.commons.utils;
-    uses PolicyEnforcer;
-    uses ArlasAuthConfiguration;
+    exports io.arlas.filter.impl;
+    exports io.arlas.filter.config;
+    exports io.arlas.filter.core;
 
+    uses PolicyEnforcer;
+    provides PolicyEnforcer with NoPolicyEnforcer, HTTPPolicyEnforcer, Auth0PolicyEnforcer, KeycloakPolicyEnforcer;
+
+    requires co.elastic.apm.api;
+    requires com.auth0.jwt;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.dataformat.yaml;
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.jaxrs.base;
+    requires com.hazelcast.core;
     requires dropwizard.core;
     requires dropwizard.jackson;
     requires dropwizard.swagger;
     requires java.annotation;
     requires java.validation;
     requires java.ws.rs;
+    requires keycloak.authz.client;
+    requires keycloak.core;
     requires org.slf4j;
     requires zipkin.core;
-    requires com.hazelcast.core;
 }

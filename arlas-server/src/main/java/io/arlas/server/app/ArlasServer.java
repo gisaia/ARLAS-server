@@ -31,7 +31,7 @@ import io.arlas.commons.exceptions.ArlasExceptionMapper;
 import io.arlas.commons.exceptions.ConstraintViolationExceptionMapper;
 import io.arlas.commons.exceptions.IllegalArgumentExceptionMapper;
 import io.arlas.commons.exceptions.JsonProcessingExceptionMapper;
-import io.arlas.commons.rest.auth.PolicyEnforcer;
+import io.arlas.filter.core.PolicyEnforcer;
 import io.arlas.server.admin.task.CollectionAutoDiscover;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.commons.cache.CacheFactory;

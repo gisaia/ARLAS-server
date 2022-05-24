@@ -37,10 +37,10 @@ SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 cd ${SCRIPT_PATH}/../..
 
 # TESTS SUITE
-./scripts/tests-integration-stage.sh --stage=REST
-./scripts/tests-integration-stage.sh --stage=REST_WKT_GEOMETRIES
-./scripts/tests-integration-stage.sh --stage=STAC
-./scripts/tests-integration-stage.sh --stage=WFS
-./scripts/tests-integration-stage.sh --stage=CSW
-./scripts/tests-integration-stage.sh --stage=DOC
-./scripts/tests-integration-stage.sh --stage=AUTH
+./scripts/ci/tests-integration-stage.sh --stage=REST
+./scripts/ci/tests-integration-stage.sh --stage=REST_WKT_GEOMETRIES
+./scripts/ci/tests-integration-stage.sh --stage=STAC
+./scripts/ci/tests-integration-stage.sh --stage=WFS
+./scripts/ci/tests-integration-stage.sh --stage=CSW
+./scripts/ci/tests-integration-stage.sh --stage=DOC
+./scripts/ci/tests-integration-stage.sh --stage=AUTH

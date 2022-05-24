@@ -19,18 +19,100 @@
 
 package io.arlas.commons.config;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.commons.exceptions.ArlasConfigurationException;
-import io.dropwizard.jackson.Discoverable;
+import io.arlas.filter.config.InitConfiguration;
+import org.keycloak.representations.adapters.config.AdapterConfig;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public interface ArlasAuthConfiguration extends Discoverable {
+import javax.ws.rs.HttpMethod;
+import java.util.*;
+import java.util.stream.Collectors;
 
-    void check() throws ArlasConfigurationException;
+public class ArlasAuthConfiguration {
 
-    String getPublicRegex();
+    @JsonProperty("permission_url")
+    public String permissionUrl;
 
-    String getHeaderUser();
+    @JsonProperty("public_uris")
+    public List<String> publicUris;
 
-    String getHeaderGroup();
+    @JsonProperty("header_user")
+    public String headerUser;
+
+    @JsonProperty("header_group")
+    public String headerGroup;
+
+    @JsonProperty("claim_roles")
+    public String claimRoles;
+
+    @JsonProperty("claim_permissions")
+    public String claimPermissions;
+
+    @Deprecated
+    @JsonProperty("certificate_file")
+    public String certificateFile;
+
+    @JsonProperty("certificate_url")
+    public String certificateUrl;
+
+    @JsonProperty("access_token_ttl")
+    public long accessTokenTTL;
+
+    @JsonProperty("refresh_token_ttl")
+    public long refreshTokenTTL;
+
+    @JsonProperty("verify_token_ttl")
+    public long verifyTokenTTL;
+
+    @JsonProperty("keycloak")
+    public final AdapterConfig keycloakConfiguration = new AdapterConfig();
+
+    @JsonProperty("init")
+    public final InitConfiguration initConfiguration = new InitConfiguration();
+
+    private String publicRegex;
+
+    public String getHeaderUser() {
+        return headerUser;
+    }
+
+    public String getHeaderGroup() {
+        return headerGroup;
+    }
+
+    public String getPublicRegex()  {
+        // [swagger.*:*, persist.*:GET/POST/DELETE}]
+        if (this.publicRegex == null) {
+            final String allMethods = ":" + String.join("/", Arrays.asList(HttpMethod.DELETE, HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.POST, HttpMethod.PUT));
+            String pathToVerbs = Optional.ofNullable(this.publicUris)
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .map(u -> !u.contains(":") ? u.concat(allMethods) : (u.endsWith(":*") ? u.replace(":*", allMethods) : u))
+                    .flatMap(uri -> {
+                        String path = uri.split(":")[0];
+                        String verbs = uri.split(":")[1];
+                        return Arrays.stream(verbs.split("/")).map(verb -> path.concat(":").concat(verb));
+                    })
+                    .collect(Collectors.joining("|"));
+            this.publicRegex = "^(".concat(pathToVerbs).concat(")");
+        }
+        return this.publicRegex;
+    }
+
+    public void check() throws ArlasConfigurationException  {
+        // collect all invalid verbs declared after 'path:'
+        List<String> methods = Arrays.asList(HttpMethod.DELETE, HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.POST, HttpMethod.PUT);
+        Set<String> invalidVerbs = Optional.ofNullable(this.publicUris)
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(uri -> uri.contains(":") && !uri.endsWith(":*")) // no ':' or ends with ':*' then no further check is needed
+                .flatMap(uri -> Arrays.stream(uri.split(":")[1].split("/")))
+                .filter(verb -> !methods.contains(verb))
+                .collect(Collectors.toSet());
+
+        if (invalidVerbs.size() > 0) {
+            throw new ArlasConfigurationException("Public uris and verbs list is invalid. Format is 'path' or 'path:*' " +
+                    "or 'path:GET/POST/DELETE'. Invalid verbs: " + invalidVerbs);
+        }
+    }
 }

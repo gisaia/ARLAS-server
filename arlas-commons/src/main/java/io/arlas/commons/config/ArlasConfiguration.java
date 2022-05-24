@@ -58,10 +58,10 @@ public class ArlasConfiguration extends Configuration {
             throw new ArlasConfigurationException("Swagger configuration missing in config file.");
         }
         if (arlasAuthConfiguration == null) {
-            arlasAuthConfiguration = new NoAuthConfiguration();
-        } else {
-            arlasAuthConfiguration.check();
+            arlasAuthConfiguration = new ArlasAuthConfiguration();
         }
+        arlasAuthConfiguration.check();
+
         if (arlasCorsConfiguration == null) {
             arlasCorsConfiguration = new ArlasCorsConfiguration();
             arlasCorsConfiguration.enabled = false;

@@ -1,0 +1,58 @@
+technicalRoles:
+  group/public: []
+
+  role/arlas/user:
+# ARLAS explore
+    - r:explore/${org}.*:GET,POST
+    - r:collections/${org}.*:GET
+    - r:explore/_list:GET
+    - r:explore/ogc/opensearch/${org}.*:GET
+    - r:ogc/${org}.*:GET
+    - r:stac/.*:GET,POST
+# ARLAS persistence
+    - r:persist/resource/.*:GET
+    - r:persist/groups/.*:GET
+    - r:persist/resources/.*:GET
+# ARLAS permissions
+    - r:authorize/resources:GET
+# ARLAS IAM session management
+    - r:session:POST,DELETE
+    - r:session/.*:PUT
+    - r:permissions:GET
+
+  role/arlas/tagger:
+    - r:write/${org}.*:POST
+    - r:status/${org}.*:GET
+
+  role/arlas/builder:
+    - r:collections:GET
+    - r:persist/resource/.*:PUT,POST,DELETE
+
+  role/arlas/owner:
+# ARLAS explore
+    - r:collections/${org}.*:PUT,DELETE
+    - r:collections/_export:GET
+# ARLAS city
+    - r:storage/${org}.*:GET,DELETE
+    - r:data/${org}.*:GET,POST,DELETE
+    - r:process/${org}.*:GET,POST
+    - r:usage:GET
+# ARLAS IAM
+    - r:organisations:GET,POST
+    - r:organisations/.*:GET,POST,DELETE
+    - r:users:POST
+    - r:users/.*:GET,PUT,POST,DELETE
+
+# M2M role
+  role/arlas/importer:
+    - r:collections/_import:POST
+
+# IAM super admin role
+  role/iam/admin:
+    - r:organisations:GET,POST
+    - r:organisations/.*:GET,POST,DELETE
+    - r:users:POST
+    - r:users/.*:GET,PUT,POST,DELETE
+    - r:session:POST,DELETE
+    - r:session/.*:PUT
+    - r:permissions:GET

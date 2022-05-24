@@ -39,10 +39,13 @@
     <log4j.version>2.17.2</log4j.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <skipTests>true</skipTests>
-    <surefire.version>2.22.2</surefire.version>
+    <maven.surefire.version>2.22.2</maven.surefire.version>
+    <maven.failsafe.version>2.22.2</maven.failsafe.version>
+    <maven.compiler.version>3.10.1</maven.compiler.version>
+    <maven.shade.version>3.2.4</maven.shade.version>
 
     <!-- DEV TOOLS -->
-    <cyclops.version>10.4.0</cyclops.version>
+    <cyclops.version>10.4.1</cyclops.version>
 
     <!-- TESTS -->
     <junit.version>4.13.2</junit.version>
@@ -63,7 +66,6 @@
 
     <!-- ELASTICSEARCH-->
     <elastic.version>7.15.2</elastic.version>
-    <httpclient.version>4.5.13</httpclient.version>
 
     <!-- GEO-->
     <geotools.version>26.4</geotools.version>
@@ -74,7 +76,9 @@
     <h3.version>3.7.0</h3.version>
 
     <!-- AUTH -->
-    <java-jwt.version>3.18.3</java-jwt.version>
+    <jwt.version>3.19.2</jwt.version>
+    <elastic-apm.version>1.31.0</elastic-apm.version>
+    <keycloak.version>18.0.0</keycloak.version>
 
     <nv-i18n.version>1.29</nv-i18n.version>
 
@@ -100,7 +104,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>${maven.compiler.version}</version>
         <configuration>
           <release>17</release>
           <source>17</source>
@@ -111,7 +115,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.22.2</version>
+        <version>${maven.failsafe.version}</version>
         <configuration>
           <argLine>-Xmx2048m</argLine>
           <skipITs>${skipTests}</skipITs>
@@ -132,7 +136,7 @@
         <!-- avoid having to "download all the internet" on each docker build of arlas-server docker image -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${surefire.version}</version>
+        <version>${maven.surefire.version}</version>
       </plugin>
 
       <!-- DOCUMENTATION GENERATION -->
