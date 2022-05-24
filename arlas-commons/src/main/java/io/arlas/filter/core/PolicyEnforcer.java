@@ -16,36 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.arlas.commons.rest.auth;
+
+package io.arlas.filter.core;
 
 import io.arlas.commons.cache.BaseCacheManager;
 import io.arlas.commons.config.ArlasAuthConfiguration;
 
-import javax.annotation.Priority;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.ext.Provider;
-import java.io.IOException;
+import javax.ws.rs.container.ContainerRequestFilter;
+import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
-@Provider
-@Priority(Priorities.AUTHORIZATION)
-public class NoPolicyEnforcer implements PolicyEnforcer {
+public interface PolicyEnforcer extends ContainerRequestFilter {
 
-    public NoPolicyEnforcer() {}
+    PolicyEnforcer setAuthConf(ArlasAuthConfiguration conf) throws Exception;
 
-    @Override
-    public boolean isEnabled() { return false; }
+    PolicyEnforcer setCacheManager(BaseCacheManager cacheManager);
 
-    @Override
-    public PolicyEnforcer setAuthConf(ArlasAuthConfiguration conf) throws Exception {
-        return this;
+    default boolean isEnabled() { return true; }
+
+    static PolicyEnforcer newInstance(String defaultClass) {
+
+        ServiceLoader<PolicyEnforcer> loader = ServiceLoader.load(PolicyEnforcer.class);
+        return loader.stream()
+                .filter(f -> defaultClass != null && f.get().getClass().getCanonicalName().equals(defaultClass))
+                .collect(Collectors.toList()).get(0).get();
     }
-
-    @Override
-    public PolicyEnforcer setCacheManager(BaseCacheManager cacheManager) {
-        return this;
-    }
-
-    @Override
-    public void filter(ContainerRequestContext containerRequestContext) throws IOException {}
 }

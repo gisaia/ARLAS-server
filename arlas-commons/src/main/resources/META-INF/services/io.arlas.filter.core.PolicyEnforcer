@@ -1,0 +1,4 @@
+io.arlas.filter.impl.NoPolicyEnforcer
+io.arlas.filter.impl.Auth0PolicyEnforcer
+io.arlas.filter.impl.HTTPPolicyEnforcer
+io.arlas.filter.impl.KeycloakPolicyEnforcer

@@ -184,5 +184,22 @@ arlas_database_factory_class: ${ARLAS_DATABASE_FACTORY_CLASS:-io.arlas.server.im
 ########################################################
 ############ AUTHENTICATION              ###############
 ########################################################
-arlas_auth_policy_class: ${ARLAS_AUTH_POLICY_CLASS:-io.arlas.commons.rest.auth.NoPolicyEnforcer}
+arlas_auth_policy_class: ${ARLAS_AUTH_POLICY_CLASS:-io.arlas.filter.impl.NoPolicyEnforcer}
 arlas_auth_column_filter_required: ${ARLAS_AUTH_COLUMN_FILTER_REQUIRED:-false}
+
+arlas_auth:
+  permission_url: ${ARLAS_AUTH_PERMISSION_URL:-http://arlas-iam-server/arlas_iam_server/auth/permissions}
+  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger.*:*}]
+  # deprecated, use it only for Integration tests
+  certificate_file: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}
+  certificate_url: ${ARLAS_AUTH_CERT_URL:-}
+  header_user: ${ARLAS_HEADER_USER:-arlas-user}
+  header_group: ${ARLAS_HEADER_GROUP:-arlas-groups}
+  claim_roles: ${ARLAS_CLAIM_ROLES:-http://arlas.io/roles}
+  claim_permissions: ${ARLAS_CLAIM_PERMISSIONS:-http://arlas.io/permissions}
+  keycloak:
+    realm: ${ARLAS_AUTH_KEYCLOAK_REALM:-arlas}
+    auth-server-url: ${ARLAS_AUTH_KEYCLOAK_URL:-http://keycloak:8080/auth}
+    resource: ${ARLAS_AUTH_KEYCLOAK_RESOURCE:-arlas}
+    credentials:
+      secret: ${ARLAS_AUTH_KEYCLOAK_SECRET:-2ec98d5c-7a6d-4f7f-9214-99d0a4ba3907}

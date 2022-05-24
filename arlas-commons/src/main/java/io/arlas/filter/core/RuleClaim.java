@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.arlas.commons.rest.auth;
+package io.arlas.filter.core;
 
 public class RuleClaim implements Comparable {
     public String resource; // regex
