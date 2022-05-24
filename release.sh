@@ -282,18 +282,18 @@ if [ "$SIMULATE" == "NO" ]; then
     mvn -N -s ${BASEDIR}/conf/maven/settings.xml deploy
     # publish arlas-commons jar
     cd ${BASEDIR}/arlas-commons
+    mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
     # publish arlas-core jar
     cd ${BASEDIR}/arlas-core
     mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
     # publish arlas-admin jar
     cd ${BASEDIR}/arlas-admin
     mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
-    mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
     # publish arlas-server-client jar
     if [[ "$SKIP_API" == "NO" ]]; then
         cd ${BASEDIR}/target/tmp/java-api
         mvn versions:set -DnewVersion=${ARLAS_VERSION}
-        sed 'r /<\/modelVersion>/  "${BASEDIR}"/conf/maven/distribution-arlas-client.xml' pom.xml >> ${BASEDIR}/target/tmp/java-api/pom_with_distribution.xml
+        sed '$e cat '"${BASEDIR}"'/conf/maven/distribution-arlas-client.xml' pom.xml >> ${BASEDIR}/target/tmp/java-api/pom_with_distribution.xml
         mv ${BASEDIR}/target/tmp/java-api/pom_with_distribution.xml ${BASEDIR}/target/tmp/java-api/pom.xml
         mvn -s ${BASEDIR}/conf/maven/settings.xml deploy
     else
