@@ -1,20 +1,17 @@
 ###################
 # PACKAGING STAGE #
 ###################
-FROM gisaia/arlas-openjdk:17
-
-# install script dependencies
-RUN apt-get update && apt-get install -y netcat-openbsd curl
+FROM gisaia/arlas-openjdk:17-distroless
 
 # application placed into /opt/app
 WORKDIR /opt/app
 ADD arlas-server/target/arlas-server*.jar /opt/app/arlas-server.jar
 ADD conf/configuration.yaml /opt/app/configuration.yaml
-ADD docker-resources/wait-for-elasticsearch.sh /opt/app/wait-for-elasticsearch.sh
-ADD docker-resources/start.sh /opt/app/start.sh
 EXPOSE 9999
 
 HEALTHCHECK --interval=5m --timeout=3s \
   CMD curl http://localhost:9999/admin/healthcheck | grep -v "\"healthy\":false" || exit 1
 
-CMD /opt/app/start.sh
+ENV JDK_JAVA_OPTIONS="-Xmx512m -XX:+ExitOnOutOfMemoryError"
+CMD ["arlas-server.jar", "server", "/opt/app/configuration.yaml"]
+
