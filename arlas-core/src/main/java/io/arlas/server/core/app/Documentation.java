@@ -336,6 +336,8 @@ public class Documentation {
             "\n \n" +
             "For more details, check https://github.com/gisaia/ARLAS-server/blob/master/docs/arlas-api-exploration.md ";
 
+    public static final String GEOAGGREGATION_PARAM_GAUSSIAN = "Performs gaussian clustering of data";
+
     public static final String FORM_PRETTY = "Pretty print";
     public static final String FORM_FLAT = "Flats the property map: only key/value on one level";
 

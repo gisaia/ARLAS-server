@@ -39,6 +39,7 @@ import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.commons.rest.utils.PrettyPrintFilter;
+import io.arlas.server.core.services.GaussianClusteringService;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.CSWService;
@@ -150,6 +151,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         }
 
         ExploreService exploration = dbToolFactory.getExploreService();
+        GaussianClusteringService gaussian = new GaussianClusteringService();
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
         environment.jersey().register(MultiPartFeature.class);
         environment.jersey().register(new ArlasExceptionMapper());
@@ -168,7 +170,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             environment.jersey().register(new SearchRESTService(exploration));
             environment.jersey().register(new AggregateRESTService(exploration));
             environment.jersey().register(new GeoSearchRESTService(exploration));
-            environment.jersey().register(new GeoAggregateRESTService(exploration));
+            environment.jersey().register(new GeoAggregateRESTService(exploration, gaussian));
             environment.jersey().register(new SuggestRESTService(exploration));
             environment.jersey().register(new DescribeRESTService(exploration));
             environment.jersey().register(new RawRESTService(exploration));

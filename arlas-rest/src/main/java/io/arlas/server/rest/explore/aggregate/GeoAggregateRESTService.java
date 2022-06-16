@@ -32,6 +32,7 @@ import io.arlas.server.core.model.request.*;
 import io.arlas.server.core.model.response.AggregationResponse;
 import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.services.ExploreService;
+import io.arlas.server.core.services.GaussianClusteringService;
 import io.arlas.server.core.utils.*;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.swagger.annotations.ApiOperation;
@@ -55,8 +56,12 @@ import java.util.stream.Collectors;
 public class GeoAggregateRESTService extends ExploreRESTServices {
 
     private static final double GEOHASH_EPSILON = 0.00000001;
-    public GeoAggregateRESTService(ExploreService exploreService) {
+    private  GaussianClusteringService gaussianClusteringService;
+
+    public GeoAggregateRESTService(ExploreService exploreService, GaussianClusteringService gaussianClusteringService) {
         super(exploreService);
+
+        this.gaussianClusteringService = gaussianClusteringService;
     }
 
     private static final String FEATURE_TYPE_KEY = "feature_type";
@@ -390,6 +395,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     value = Documentation.GEOAGGREGATION_PARAM_AGG)
             @QueryParam(value = "agg") List<String> agg,
 
+            @ApiParam(name = "gaussian",
+                    value = Documentation.GEOAGGREGATION_PARAM_GAUSSIAN,
+                    defaultValue = "false")
+            @QueryParam(value = "gaussian") Boolean gaussian,
+
             // --------------------------------------------------------
             // ----------------------- FILTER -------------------------
             // --------------------------------------------------------
@@ -461,6 +471,13 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
             futureList.add(CompletableFuture.supplyAsync(() -> {
                 try {
+                    if (gaussian != null && gaussian) {
+                        AggregationResponse histogram2D = exploreService.aggregate(request,collectionReference, true,
+                                ((AggregationsRequest) request.basicRequest).aggregations,0,
+                                System.nanoTime());
+
+                        return gaussianClusteringService.clusterData(histogram2D);
+                    }
                     return exploreService.aggregate(request,collectionReference, true,
                             ((AggregationsRequest) request.basicRequest).aggregations,0,
                             System.nanoTime());
