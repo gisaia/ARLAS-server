@@ -469,9 +469,26 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                     , partitionFilter, columnFilter, agg);
             aggType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
 
+            List<String> finalAgg = agg;
             futureList.add(CompletableFuture.supplyAsync(() -> {
                 try {
                     if (gaussian != null && gaussian) {
+                        // Check if there are 3 aggregations (geotile + 2 * histogram)
+                        if (((AggregationsRequest) request.basicRequest).aggregations.size() != 3) {
+                            throw new ArlasException("Gaussian Clustering requires precisely 3 aggregations (1 geotile, and 2 histogram)");
+                        }
+
+                        List<AggregationTypeEnum> aggTypes = new ArrayList();
+                        for (Aggregation aggregation : ((AggregationsRequest) request.basicRequest).aggregations) {
+                            aggTypes.add(aggregation.type);
+                        }
+
+                        LOGGER.debug(String.valueOf(Collections.frequency(aggTypes, AggregationTypeEnum.histogram)));
+                        LOGGER.debug(String.valueOf(Collections.frequency(aggTypes, AggregationTypeEnum.geotile)));
+                        if (Collections.frequency(aggTypes, AggregationTypeEnum.histogram) != 2 || Collections.frequency(aggTypes, AggregationTypeEnum.geotile) != 1) {
+                            throw new ArlasException("Gaussian Clustering requires precisely 3 aggregations (1 geotile, and 2 histogram)");
+                        }
+
                         AggregationResponse histogram2D = exploreService.aggregate(request,collectionReference, true,
                                 ((AggregationsRequest) request.basicRequest).aggregations,0,
                                 System.nanoTime());
