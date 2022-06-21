@@ -258,7 +258,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         //filters
         environment.jersey().register(PrettyPrintFilter.class);
-        environment.jersey().register(InsensitiveCaseFilter.class);
+//        environment.jersey().register(InsensitiveCaseFilter.class);
 
         //tasks
         environment.admin().addTask(new CollectionAutoDiscover(dbToolFactory.getCollectionReferenceService(), configuration));
