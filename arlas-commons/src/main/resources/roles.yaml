@@ -39,7 +39,7 @@ technicalRoles:
     - r:usage:GET
 # ARLAS IAM
     - r:organisations:GET,POST
-    - r:organisations/.*:GET,POST,DELETE
+    - r:organisations/.*:GET,POST,PUT,DELETE
     - r:users:POST
     - r:users/.*:GET,PUT,POST,DELETE
 
