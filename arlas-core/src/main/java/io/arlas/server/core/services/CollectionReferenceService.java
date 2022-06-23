@@ -19,9 +19,11 @@
 
 package io.arlas.server.core.services;
 
+import co.elastic.clients.elasticsearch._types.mapping.Property;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.commons.utils.StringUtil;
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.CollectionReferenceParameters;
@@ -41,8 +43,9 @@ import java.util.stream.Stream;
 /**
  * DAO for collection references
  */
+@SuppressWarnings({"rawtypes"})
 public abstract class CollectionReferenceService {
-    private static Logger LOGGER = LoggerFactory.getLogger(CollectionReferenceService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CollectionReferenceService.class);
     protected final String arlasIndex;
     protected final CacheManager cacheManager;
 
@@ -53,9 +56,9 @@ public abstract class CollectionReferenceService {
 
     abstract protected CollectionReference getCollectionReferenceFromDao(String ref) throws ArlasException;
 
-    abstract protected Map<String, LinkedHashMap> getMappingFromDao(String indexName) throws ArlasException;
+    abstract protected Map<String, Map<String, Property>> getMappingFromDao(String indexName) throws ArlasException;
 
-    abstract protected Map<String, LinkedHashMap> getAllMappingsFromDao(String arlasIndex) throws ArlasException;
+    abstract protected Map<String, Map<String, Property>> getAllMappingsFromDao(String arlasIndex) throws ArlasException;
 
     abstract protected void putCollectionReferenceWithDao(CollectionReference collectionReference) throws ArlasException;
 
@@ -80,8 +83,8 @@ public abstract class CollectionReferenceService {
         }
     }
 
-    protected Map<String, LinkedHashMap> getMapping(String indexName) throws ArlasException {
-        Map<String, LinkedHashMap> mapping = cacheManager.getMapping(indexName);
+    protected Map<String, Map<String, Property>> getMapping(String indexName) throws ArlasException {
+        Map<String, Map<String, Property>> mapping = cacheManager.getMapping(indexName);
         if (mapping == null) {
             mapping = getMappingFromDao(indexName);
             cacheManager.putMapping(indexName, mapping);
@@ -89,8 +92,8 @@ public abstract class CollectionReferenceService {
         return mapping;
     }
 
-    public CollectionReference putCollectionReference(CollectionReference collectionReference) throws ArlasException {
-        return putCollectionReference(collectionReference, true);
+    public void putCollectionReference(CollectionReference collectionReference) throws ArlasException {
+        putCollectionReference(collectionReference, true);
     }
 
     public CollectionReference putCollectionReference(CollectionReference collectionReference, boolean checkFields) throws ArlasException {
@@ -103,17 +106,18 @@ public abstract class CollectionReferenceService {
     }
 
     public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
-                                                                       Optional<String> columnFilter) throws ArlasException {
+                                                                       Optional<String> columnFilter) throws CollectionUnavailableException {
 
         // Can't use lambdas because of the need to throw the exception of describeCollection()
         List<CollectionReferenceDescription> res  = new ArrayList<>();
         for (CollectionReference collection : collectionReferenceList) {
-            if (!ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent()
+            if (ColumnFilterUtil.cleanColumnFilter(columnFilter).isEmpty()
                     || ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter,collection).isPresent()) {
-                try{
+                try {
                     CollectionReferenceDescription describe = describeCollection(collection, columnFilter);
                     res.add(describe);
-                }catch (ArlasException e){}
+                } catch (ArlasException ignored){
+                }
             }
         }
         return res;
@@ -134,14 +138,14 @@ public abstract class CollectionReferenceService {
         collectionReferenceDescription.params = collectionReference.params;
         collectionReferenceDescription.collectionName = collectionReference.collectionName;
 
-        Map<String, LinkedHashMap> mappings = getMapping(collectionReferenceDescription.params.indexName);
+        Map<String, Map<String, Property>> mappings = getMapping(collectionReferenceDescription.params.indexName);
         Iterator<String> indices = mappings.keySet().iterator();
         Map<String, CollectionReferenceDescriptionProperty> properties = new HashMap<>();
         Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionReference);
 
         while (indices.hasNext()) {
             String index = indices.next();
-            LinkedHashMap fields = mappings.get(index);
+            Map fields = mappings.get(index);
             properties = union(properties, getFromSource(collectionReference, fields, new Stack<>(), excludeFields, columnFilterPredicates, true));
         }
 
@@ -167,7 +171,8 @@ public abstract class CollectionReferenceService {
         return ret;
     }
 
-    private Map<String, CollectionReferenceDescriptionProperty> getFromSource(CollectionReference collectionReference,
+    // TODO es8: refactor
+    protected Map<String, CollectionReferenceDescriptionProperty> getFromSource(CollectionReference collectionReference,
                                                                               Map source, Stack<String> namespace,
                                                                               ArrayList<Pattern> excludeFields,
                                                                               Optional<Set<String>> columnFilterPredicates,
@@ -180,8 +185,7 @@ public abstract class CollectionReferenceService {
             String path = String.join(".", namespace);
             boolean excludePath = excludeFields.stream().anyMatch(pattern -> pattern.matcher(path).matches());
             if (!excludePath) {
-                if (source.get(key) instanceof Map) {
-                    Map property = (Map) source.get(key);
+                if (source.get(key) instanceof Map property) {
                     CollectionReferenceDescriptionProperty collectionProperty = new CollectionReferenceDescriptionProperty();
                     if (property.containsKey("type")) {
                         collectionProperty.type = FieldType.getType(property.get("type"));
@@ -208,7 +212,7 @@ public abstract class CollectionReferenceService {
                             collectionProperty.properties = getFromSource(collectionReference, (Map) property.get("properties"), namespace, excludeFields, columnFilterPredicates, collectionProperty.indexed);
                         }
                         if (collectionReference.params.taggableFields != null) {
-                            collectionProperty.taggable = Arrays.asList(collectionReference.params.taggableFields.split(",")).stream().map(s -> s.trim()).collect(Collectors.toList()).contains(path);
+                            collectionProperty.taggable = Arrays.stream(collectionReference.params.taggableFields.split(",")).map(String::trim).toList().contains(path);
                         }
                         ret.put(key.toString(), collectionProperty);
                     }
@@ -246,7 +250,7 @@ public abstract class CollectionReferenceService {
 
     public List<CollectionReferenceDescription> getAllIndicesAsCollections() throws ArlasException {
         List<CollectionReferenceDescription> collections = new ArrayList<>();
-        Map<String, LinkedHashMap> indices = getAllMappingsFromDao(this.arlasIndex);
+        Map<String, Map<String, Property>> indices = getAllMappingsFromDao(this.arlasIndex);
 
         for (String indexName : indices.keySet()) {
             CollectionReference collection = new CollectionReference();
@@ -258,7 +262,7 @@ public abstract class CollectionReferenceService {
         return collections;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked"})
     protected void checkCollectionReferenceParameters(CollectionReference collectionReference, boolean checkFields) throws ArlasException {
         //get fields
         List<String> fields = new ArrayList<>();
@@ -278,9 +282,9 @@ public abstract class CollectionReferenceService {
                 CheckParams.checkExcludeField(excludeField, fields);
             }
         }
-        Map<String, LinkedHashMap> mappings = CollectionUtil.checkAliasMappingFields(getMapping(collectionReference.params.indexName), fields.toArray(new String[0]));
+        Map<String, Map<String, Property>> mappings = CollectionUtil.checkAliasMappingFields(getMapping(collectionReference.params.indexName), fields.toArray(new String[0]));
         for (String index : mappings.keySet()) {
-            Map<String, Object> timestampMD = CollectionUtil.getFieldFromProperties(collectionReference.params.timestampPath, mappings.get(index));
+            Map<String, Property> timestampMD = CollectionUtil.getFieldFromProperties(collectionReference.params.timestampPath, mappings.get(index));
             collectionReference.params.customParams = new HashMap<>();
             if (timestampMD.containsKey("format")) {
                 collectionReference.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
@@ -304,12 +308,8 @@ public abstract class CollectionReferenceService {
                     return getUnknownType(field, collectionReference.collectionName, throwException);
                 }
             }
-            if (esField != null) {
-                fieldType = esField.type;
-                cacheManager.putFieldType(collectionReference.collectionName, field, fieldType);
-            } else {
-                return getUnknownType(field, collectionReference.collectionName, throwException);
-            }
+            fieldType = esField.type;
+            cacheManager.putFieldType(collectionReference.collectionName, field, fieldType);
         }
         return fieldType;
     }
@@ -333,11 +333,9 @@ public abstract class CollectionReferenceService {
     private FieldType getFieldType(String field, String index) throws ArlasException  {
         AtomicReference<FieldType> ret = new AtomicReference<>(FieldType.UNKNOWN);
         Optional.ofNullable(getMapping(index).get(index))
-                .ifPresent(e -> Optional.ofNullable(e.get(field))
-                        .ifPresent(f -> Optional.ofNullable(((Map)f).get("type"))
-                                .ifPresent(t -> ret.set(FieldType.getType(t)))
-                        )
-                );
+                .flatMap(e -> Optional.ofNullable(e.get(field)))
+                .flatMap(f -> Optional.ofNullable(((Map) f).get("type")))
+                .ifPresent(t -> ret.set(FieldType.getType(t)));
         return ret.get();
     }
 

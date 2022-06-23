@@ -19,28 +19,20 @@
 
 package io.arlas.server.ogc.common.dao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import io.arlas.server.core.services.CollectionReferenceService;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InternalServerErrorException;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
-import io.arlas.server.core.impl.elastic.utils.ElasticTool;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.CollectionReferenceParameters;
 import io.arlas.server.core.model.CollectionReferences;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
+import io.arlas.server.core.services.CollectionReferenceService;
+import io.arlas.server.core.utils.BoundingBox;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
-import io.arlas.server.core.utils.BoundingBox;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.IndexNotFoundException;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,15 +44,6 @@ public class ElasticOGCCollectionReferenceDao implements OGCCollectionReferenceD
     private final String arlasIndex;
     private final Service service;
     private final CollectionReferenceService collectionReferenceService;
-
-    private static ObjectMapper mapper;
-    private static ObjectReader reader;
-
-    static {
-        mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
-        reader = mapper.readerFor(CollectionReferenceParameters.class);
-    }
 
     public ElasticOGCCollectionReferenceDao(ElasticClient client, CollectionReferenceService collectionReferenceService, String index, Service service) {
         this.client = client;
@@ -141,8 +124,8 @@ public class ElasticOGCCollectionReferenceDao implements OGCCollectionReferenceD
         return collectionReferences;
     }
 
-    private CollectionReferenceDescription getMetacollectionDescription() throws ArlasException, IOException {
-        CollectionReference metaCollection = ElasticTool.getCollectionReferenceFromES(client, arlasIndex, reader, "metacollection");
+    private CollectionReferenceDescription getMetacollectionDescription() throws ArlasException {
+        CollectionReference metaCollection = client.getCollectionReferenceFromES(arlasIndex, "metacollection");
         return collectionReferenceService.describeCollection(metaCollection);
     }
 }
