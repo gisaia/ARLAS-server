@@ -19,11 +19,11 @@
 
 package io.arlas.server.core.managers;
 
+import co.elastic.clients.elasticsearch._types.mapping.Property;
 import io.arlas.commons.cache.BaseCacheManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.response.FieldType;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public interface CacheManager extends BaseCacheManager {
@@ -35,7 +35,7 @@ public interface CacheManager extends BaseCacheManager {
     FieldType getFieldType(String ref, String name);
     void putFieldType(String ref, String name, FieldType type);
 
-    void putMapping(String indexName, Map<String, LinkedHashMap> exists);
-    Map<String, LinkedHashMap> getMapping(String indexName);
+    void putMapping(String indexName, Map<String, Map<String, Property>> exists);
+    Map<String, Map<String, Property>> getMapping(String indexName);
     void removeMapping(String indexName);
 }

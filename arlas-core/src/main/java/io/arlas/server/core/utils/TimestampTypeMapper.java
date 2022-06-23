@@ -21,7 +21,6 @@ package io.arlas.server.core.utils;
 
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.utils.StringUtil;
-import io.arlas.server.core.impl.elastic.utils.ElasticTool;
 import io.arlas.server.core.model.response.TimestampType;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -82,7 +81,7 @@ public class TimestampTypeMapper {
     public static Object formatDate(Object timestamp, String elasticsearchDateFormat) {
         List<String> formatList = Arrays.asList(elasticsearchDateFormat.split("\\|\\|"));
         DateTime timestampDate = new DateTime((Long) timestamp);
-        DateTimeFormatter dtf = null;
+        DateTimeFormatter dtf;
 
         if (formatList.size() == 1) {
             String format = formatList.get(0);

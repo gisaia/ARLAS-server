@@ -33,6 +33,7 @@ import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.model.*;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.utils.CheckParams;
+import io.arlas.server.core.utils.CollectionUtil;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
