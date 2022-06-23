@@ -19,6 +19,7 @@
 
 package io.arlas.server.ogc.common.requestfilter;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.utils.StringUtil;
@@ -28,14 +29,9 @@ import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.OpenGISFieldsExtractor;
-import org.elasticsearch.common.geo.Orientation;
-import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
-import org.elasticsearch.common.geo.builders.PolygonBuilder;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.geotools.filter.v2_0.FESConfiguration;
 import org.geotools.xsd.Parser;
+import org.locationtech.jts.algorithm.Orientation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;

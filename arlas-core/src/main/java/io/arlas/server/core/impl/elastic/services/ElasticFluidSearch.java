@@ -19,65 +19,58 @@
 
 package io.arlas.server.core.impl.elastic.services;
 
+import co.elastic.clients.elasticsearch._types.*;
+import co.elastic.clients.elasticsearch._types.aggregations.*;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.json.JsonData;
+import co.elastic.clients.util.ObjectBuilder;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.arlas.commons.exceptions.*;
 import io.arlas.commons.utils.StringUtil;
-import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
-import io.arlas.server.core.impl.elastic.utils.ElasticTool;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.*;
+import io.arlas.server.core.model.request.Aggregation;
 import io.arlas.server.core.model.request.*;
 import io.arlas.server.core.model.response.FieldType;
 import io.arlas.server.core.model.response.TimestampType;
 import io.arlas.server.core.services.FluidSearchService;
 import io.arlas.server.core.utils.CheckParams;
+import io.arlas.server.core.utils.CollectionUtil;
 import io.arlas.server.core.utils.GeoUtil;
 import io.arlas.server.core.utils.ParamsParser;
 import org.apache.commons.lang3.tuple.Pair;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.geo.GeoDistance;
-import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.common.geo.Orientation;
-import org.elasticsearch.common.geo.builders.*;
-import org.elasticsearch.index.query.*;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.BucketOrder;
-import org.elasticsearch.search.aggregations.bucket.geogrid.GeoGridAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.*;
-import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
+import org.geojson.LngLatAlt;
+import org.geojson.Polygon;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static io.arlas.server.core.utils.CheckParams.GEO_AGGREGATION_TYPE_ENUMS;
 
 public class ElasticFluidSearch extends FluidSearchService {
-    private static Logger LOGGER = LoggerFactory.getLogger(ElasticFluidSearch.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFluidSearch.class);
 
     private ElasticClient client;
-    private SearchRequest request;
-    private SearchSourceBuilder searchSourceBuilder;
-    private BoolQueryBuilder boolQueryBuilder;
+    private SearchRequest.Builder requestBuilder;
+    private BoolQuery.Builder boolQueryBuilder;
+
 
     public ElasticFluidSearch(CollectionReference collectionReference) {
         super(collectionReference);
-        request = new SearchRequest(collectionReference.params.indexName);
-        boolQueryBuilder = QueryBuilders.boolQuery();
-        searchSourceBuilder = new SearchSourceBuilder();
+        requestBuilder = new SearchRequest.Builder()
+                .index(collectionReference.params.indexName)
+                .trackTotalHits(b -> b.enabled(true));
+        boolQueryBuilder = new BoolQuery.Builder();
     }
 
     public ElasticClient getClient() {
@@ -89,122 +82,125 @@ public class ElasticFluidSearch extends FluidSearchService {
         return this;
     }
 
-    public BoolQueryBuilder getBoolQueryBuilder() {
+    public BoolQuery.Builder getBoolQueryBuilder() {
         return boolQueryBuilder;
     }
 
-    public SearchResponse exec() throws ArlasException {
-        searchSourceBuilder.query(boolQueryBuilder);
-        searchSourceBuilder.trackTotalHits(true);
-
+    public SearchResponse<ObjectNode> exec() throws ArlasException {
         Pair<String[], String[]> includeExclude = computeIncludeExclude(false);
-        searchSourceBuilder = searchSourceBuilder.fetchSource(includeExclude.getLeft(), includeExclude.getRight());
 
-        //Get Elasticsearch response
-        LOGGER.debug("QUERY : " + searchSourceBuilder.toString());
-        SearchResponse result = null;
-        request.source(searchSourceBuilder);
-        result = client.search(request);
-        LOGGER.debug("RESULT : " + result.toString());
-        return result;
+        SearchRequest request = requestBuilder
+                .source(s -> s
+                        .filter(f -> f
+                                .includes(Arrays.asList(includeExclude.getLeft()))
+                                .excludes(Arrays.asList(includeExclude.getRight())
+                                )
+                        )
+                )
+                .query(boolQueryBuilder.build()._toQuery())
+                .build();
+
+        // https://www.elastic.co/guide/en/elasticsearch/client/java-api-client/current/reading.html#_reading_raw_json
+        return client.search(request, ObjectNode.class);
     }
 
     @Override
     public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat, Boolean righthand) throws ArlasException {
-        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+        List<Query> queries = new ArrayList<>();
         for (Expression fFilter : f) {
-            orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(filter(fFilter, dateFormat, righthand));
+            queries.add(filter(fFilter, dateFormat, righthand));
         }
-        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
-        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
+        boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.bool().should(queries).minimumShouldMatch("1").build()._toQuery());
         return this;
     }
 
-    private BoolQueryBuilder filter(Expression expression, String dateFormat, Boolean righthand) throws ArlasException {
-        BoolQueryBuilder ret = QueryBuilders.boolQuery();
+    private Query filter(Expression expression, String dateFormat, Boolean righthand) throws ArlasException {
+        BoolQuery.Builder ret = new BoolQuery.Builder();
         if (StringUtil.isNullOrEmpty(expression.field) || expression.op == null || StringUtil.isNullOrEmpty(expression.value)) {
             throw new InvalidParameterException(INVALID_PARAMETER_F);
         }
-        String field = expression.field;
+        final String field = expression.field;
         OperatorEnum op = expression.op;
         String value = expression.value;
-        String fieldValues[] = value.split(",");
+        String[] fieldValues = value.split(",");
         switch (op) {
             case eq:
                 if (fieldValues.length > 1) {
-                    BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-                    for (String valueInValues : fieldValues) {
-                        orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(field, valueInValues));
-                    }
-                    ret = ret.filter(orBoolQueryBuilder);
+                    ret = ret.filter(QueryBuilders.bool().should(
+                                    Arrays.stream(fieldValues)
+                                            .map(valueInValues -> QueryBuilders.match()
+                                                    .field(field)
+                                                    .query(valueInValues)
+                                                    .build()
+                                                    ._toQuery())
+                                            .collect(Collectors.toList())
+                                    ).build()._toQuery()
+                    );
                 } else {
-                    ret = ret.filter(QueryBuilders.matchQuery(field, value));
+                    ret = ret.filter(QueryBuilders.match().field(field).query(value).build()._toQuery());
                 }
                 break;
             case gte:
                 if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
                     value = ParamsParser.parseDate(value, dateFormat);
                 }
-                RangeQueryBuilder gteRangeQuery = QueryBuilders.rangeQuery(field).gte(value);
+                RangeQuery.Builder gteRangeQuery = QueryBuilders.range().field(field).gte(JsonData.of(value));
                 applyFormatOnRangeQuery(field, value, gteRangeQuery);
-                ret = ret.filter(gteRangeQuery);
+                ret = ret.filter(gteRangeQuery.build()._toQuery());
                 break;
             case gt:
                 if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
                     value = ParamsParser.parseDate(value, dateFormat);
                 }
-                RangeQueryBuilder gtRangeQuery = QueryBuilders.rangeQuery(field).gt(value);
+                RangeQuery.Builder gtRangeQuery = QueryBuilders.range().field(field).gt(JsonData.of(value));
                 applyFormatOnRangeQuery(field, value, gtRangeQuery);
-                ret = ret.filter(gtRangeQuery);
+                ret = ret.filter(gtRangeQuery.build()._toQuery());
                 break;
             case lte:
                 if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
                     value = ParamsParser.parseDate(value, dateFormat);
                 }
-                RangeQueryBuilder lteRangeQuery = QueryBuilders.rangeQuery(field).lte(value);
+                RangeQuery.Builder lteRangeQuery = QueryBuilders.range().field(field).lte(JsonData.of(value));
                 applyFormatOnRangeQuery(field, value, lteRangeQuery);
-                ret = ret.filter(lteRangeQuery);
+                ret = ret.filter(lteRangeQuery.build()._toQuery());
                 break;
             case lt:
                 if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
                     value = ParamsParser.parseDate(value, dateFormat);
                 }
-                RangeQueryBuilder ltRangeQuery = QueryBuilders.rangeQuery(field).lt(value);
+                RangeQuery.Builder ltRangeQuery = QueryBuilders.range().field(field).lt(JsonData.of(value));
                 applyFormatOnRangeQuery(field, value, ltRangeQuery);
-                ret = ret.filter(ltRangeQuery);
+                ret = ret.filter(ltRangeQuery.build()._toQuery());
                 break;
             case like:
                 // TODO: if field type is fullText, use matchPhraseQuery instead of regexQuery
-                ret = ret
-                        .filter(QueryBuilders.regexpQuery(field, ".*" + value + ".*"));
+                ret = ret.filter(QueryBuilders.regexp().field(field).value(".*" + value + ".*").build()._toQuery());
                 break;
             case ne:
                 for (String valueInValues : fieldValues) {
-                    ret = ret
-                            .mustNot(QueryBuilders.matchQuery(field, valueInValues));
+                    ret = ret.mustNot(QueryBuilders.match().field(field).query(valueInValues).build()._toQuery());
                 }
                 break;
             case range:
-                field = ParamsParser.getFieldFromFieldAliases(field, collectionReference);
+                final String newField = ParamsParser.getFieldFromFieldAliases(field, collectionReference);
                 if (fieldValues.length > 1) {
-                    BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+                    BoolQuery.Builder orBoolQueryBuilder = new BoolQuery.Builder();
                     for (String valueInValues : fieldValues) {
                         CheckParams.checkRangeValidity(valueInValues);
-                        orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(field, valueInValues, dateFormat));
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(newField, valueInValues, dateFormat).build()._toQuery());
                     }
-                    ret = ret.filter(orBoolQueryBuilder);
+                    ret = ret.filter(orBoolQueryBuilder.build()._toQuery());
                 } else {
                     CheckParams.checkRangeValidity(value);
-                    ret = ret.filter(getRangeQueryBuilder(field, value, dateFormat));
+                    ret = ret.filter(getRangeQueryBuilder(newField, value, dateFormat).build()._toQuery());
                 }
                 break;
             case within:
                 FieldType wType = collectionReferenceManager.getType(collectionReference, field, true);
-                BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+                BoolQuery.Builder orBoolQueryBuilder = new BoolQuery.Builder().minimumShouldMatch("1");
                 switch (wType) {
                     case GEO_POINT:
-                        for (AbstractQueryBuilder q : filterPWithin(field, value)) {
+                        for (Query q : filterPWithin(field, value)) {
                             orBoolQueryBuilder = orBoolQueryBuilder.should(q);
                         }
                         break;
@@ -214,15 +210,14 @@ public class ElasticFluidSearch extends FluidSearchService {
                     default:
                         throw new ArlasException("'within' op on field '" + field + "' of type '" + wType + "' is not supported");
                 }
-                orBoolQueryBuilder.minimumShouldMatch(1);
-                ret = ret.filter(orBoolQueryBuilder);
+                ret = ret.filter(orBoolQueryBuilder.build()._toQuery());
                 break;
             case notwithin:
                 FieldType type = collectionReferenceManager.getType(collectionReference, field, true);
-                BoolQueryBuilder orBoolQueryBuilder2 = QueryBuilders.boolQuery();
+                BoolQuery.Builder orBoolQueryBuilder2 = new BoolQuery.Builder();
                 switch (type) {
                     case GEO_POINT:
-                        for (AbstractQueryBuilder q : filterNotPWithin(field, value)) {
+                        for (Query q : filterNotPWithin(field, value)) {
                             orBoolQueryBuilder2 = orBoolQueryBuilder2.should(q);
                         }
                         break;
@@ -232,7 +227,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                     default:
                         throw new ArlasException("'notwithin' op on field '" + field + "' of type '" + type + "' is not supported");
                 }
-                ret = ret.mustNot(orBoolQueryBuilder2);
+                ret = ret.mustNot(orBoolQueryBuilder2.build()._toQuery());
                 break;
             case intersects:
                 ret = ret.filter(filterGIntersect(field, value, righthand));
@@ -243,18 +238,18 @@ public class ElasticFluidSearch extends FluidSearchService {
             default:
                 throw new InvalidParameterException(INVALID_OPERATOR);
         }
-        return ret;
+        return ret.build()._toQuery();
     }
 
 
-    public void applyFormatOnRangeQuery(String field, String value, RangeQueryBuilder rangeQuery) throws ArlasException {
+    public void applyFormatOnRangeQuery(String field, String value, RangeQuery.Builder rangeQuery) throws ArlasException {
         if (field.equals(collectionReference.params.timestampPath)) {
             CheckParams.checkTimestampFormatValidity(value);
-            rangeQuery = rangeQuery.format(TimestampType.epoch_millis.name());
+            rangeQuery.format(TimestampType.epoch_millis.name());
         }
     }
 
-    protected RangeQueryBuilder getRangeQueryBuilder(String field, String value, String dateFormat) throws ArlasException {
+    protected RangeQuery.Builder getRangeQueryBuilder(String field, String value, String dateFormat) throws ArlasException {
         boolean incMin = value.startsWith("[");
         boolean incMax = value.endsWith("]");
         String min = value.substring(1, value.lastIndexOf("<"));
@@ -269,46 +264,44 @@ public class ElasticFluidSearch extends FluidSearchService {
             CheckParams.checkTimestampFormatValidity(min);
             CheckParams.checkTimestampFormatValidity(max);
         }
-        RangeQueryBuilder ret = QueryBuilders.rangeQuery(field);
+        RangeQuery.Builder ret = QueryBuilders.range().field(field);
         if (incMin) {
-            ret = ret.gte(min);
+            ret = ret.gte(JsonData.of(min));
         } else {
-            ret = ret.gt(min);
+            ret = ret.gt(JsonData.of(min));
         }
         if (incMax) {
-            ret = ret.lte(max);
+            ret = ret.lte(JsonData.of(max));
         } else {
-            ret = ret.lt(max);
+            ret = ret.lt(JsonData.of(max));
         }
         if (field.equals(collectionReference.params.timestampPath)) {
             ret = ret.format(TimestampType.epoch_millis.name());
         }
         return ret;
-
     }
 
     @Override
     public FluidSearchService filterQ(MultiValueFilter<String> q) throws ArlasException {
-        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+        BoolQuery.Builder orBoolQueryBuilder = new BoolQuery.Builder().minimumShouldMatch("1");
         for (String qFilter : q) {
-            String operands[] = qFilter.split(":",2);
+            String[] operands = qFilter.split(":",2);
             if (operands.length == 2) {
                 orBoolQueryBuilder = orBoolQueryBuilder
-                        .should((QueryBuilders.simpleQueryStringQuery(operands[1]).defaultOperator(Operator.AND).field(operands[0])));
+                        .should(QueryBuilders.simpleQueryString().query(operands[1]).defaultOperator(Operator.And).fields(operands[0]).build()._toQuery());
             } else if (operands.length == 1) {
                 orBoolQueryBuilder = orBoolQueryBuilder
-                        .should((QueryBuilders.simpleQueryStringQuery(operands[0]).defaultOperator(Operator.AND)));
+                        .should(QueryBuilders.simpleQueryString().query(operands[0]).defaultOperator(Operator.And).build()._toQuery());
             } else {
                 throw new InvalidParameterException(INVALID_Q_FILTER);
             }
         }
-        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
-        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
+        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder.build()._toQuery());
         return this;
     }
 
-    public List<AbstractQueryBuilder> filterPWithin(String field, String pwithinFilter) throws ArlasException {
-        List<AbstractQueryBuilder> builderList = new ArrayList<>();
+    public List<Query> filterPWithin(String field, String pwithinFilter) throws ArlasException {
+        List<Query> builderList = new ArrayList<>();
         if (CheckParams.isBboxMatch(pwithinFilter)) {
             double[] tlbr = CheckParams.toDoubles(pwithinFilter);
             builderList.add(filterPWithin(field, tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
@@ -319,11 +312,15 @@ public class ElasticFluidSearch extends FluidSearchService {
                 // If the polygon is not a rectangle, ES provides `geoPolygonQuery` that allows to search geo-points that are within a polygon formed by list of points
                 // ==> we can't pass polygons with holes nor multipolygons (for multipolygons we can split them)
                 // !!! ISSUE ES 6.X: points on the edge of a polygon are not considered as within. Fixed in 7.X
-                for(int i = 0; i< p.getNumGeometries(); i++) {
-                    List<Coordinate> coordinates = Arrays.asList(p.getGeometryN(i).getCoordinates());
-                    List<GeoPoint> geoPoints = new ArrayList<>();
-                    coordinates.forEach(coordinate -> geoPoints.add(new GeoPoint(coordinate.y, coordinate.x)));
-                    builderList.add(QueryBuilders.geoPolygonQuery(field, geoPoints));
+                for (int i = 0; i< p.getNumGeometries(); i++) {
+                    List<GeoLocation> geoPoints = Arrays.stream(p.getGeometryN(i).getCoordinates())
+                            .map(c -> GeoLocation.of(b1 -> b1.latlon(b2 -> b2.lat(c.y).lon(c.x))))
+                            .collect(Collectors.toList());
+                    builderList.add(QueryBuilders.geoPolygon()
+                            .field(field)
+                            .polygon(b -> b.points(geoPoints))
+                            .build()._toQuery()
+                    );
                 }
             } else {
                 throw new NotImplementedException("WKT is not supported for 'within' op on field '" + field + "' of type '" + geometryType + "'");
@@ -332,14 +329,19 @@ public class ElasticFluidSearch extends FluidSearchService {
         return builderList;
     }
 
-    private GeoBoundingBoxQueryBuilder filterPWithin(String field, double west, double south, double east, double north) {
-        GeoPoint topLeft = new GeoPoint(north, west);
-        GeoPoint bottomRight = new GeoPoint(south, east);
-        return QueryBuilders.geoBoundingBoxQuery(field).setCorners(topLeft, bottomRight);
+    private Query filterPWithin(String field, double west, double south, double east, double north) {
+        return QueryBuilders.geoBoundingBox()
+                .field(field)
+                .boundingBox(b1 -> b1
+                        .tlbr(b2 -> b2
+                                .topLeft(b3 -> b3.coords(Arrays.asList(north, west)))
+                                .bottomRight(b3 -> b3.coords(Arrays.asList(south, south)))
+                        )
+                ).build()._toQuery();
     }
 
-    public List<AbstractQueryBuilder> filterNotPWithin(String field, String notpwithinFilter) throws ArlasException {
-        List<AbstractQueryBuilder> builderList = new ArrayList<>();
+    public List<Query> filterNotPWithin(String field, String notpwithinFilter) throws ArlasException {
+        List<Query> builderList = new ArrayList<>();
         if (CheckParams.isBboxMatch(notpwithinFilter)) {
             double[] tlbr = CheckParams.toDoubles(notpwithinFilter);
             builderList.add(filterPWithin(field, tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
@@ -350,15 +352,19 @@ public class ElasticFluidSearch extends FluidSearchService {
                 // If the polygon is not a rectangle, ES provides `geoPolygonQuery` that allows to search geo-points that are within a polygon formed by list of points
                 // ==> we can't pass polygons with holes nor multipolygons (for multipolygons we can split them)
                 // !!! ISSUE ES 6.X: points on the edge of a polygon are not considered as within. Fixed in 7.X
-                BoolQueryBuilder andQueryBuilder = QueryBuilders.boolQuery();
-                for(int i = 0; i< p.getNumGeometries(); i++) {
-                    List<Coordinate> coordinates = Arrays.asList(p.getGeometryN(i).getCoordinates());
-                    List<GeoPoint> geoPoints = new ArrayList<>();
-                    coordinates.forEach(coordinate -> geoPoints.add(new GeoPoint(coordinate.y, coordinate.x)));
-                    /** `andQueryBuilder` will allow us to consider a multipolygon as one entity when we apply notpwithin query*/
-                    andQueryBuilder = andQueryBuilder.should(QueryBuilders.geoPolygonQuery(field, geoPoints));
+                BoolQuery.Builder andQueryBuilder = new BoolQuery.Builder();
+                for (int i = 0; i< p.getNumGeometries(); i++) {
+                    List<GeoLocation> geoPoints = Arrays.stream(p.getGeometryN(i).getCoordinates())
+                            .map(c -> GeoLocation.of(b1 -> b1.latlon(b2 -> b2.lat(c.y).lon(c.x))))
+                            .collect(Collectors.toList());
+                    // `andQueryBuilder` will allow us to consider a multipolygon as one entity when we apply notpwithin query
+                    andQueryBuilder = andQueryBuilder.should(QueryBuilders.geoPolygon()
+                            .field(field)
+                            .polygon(b -> b.points(geoPoints))
+                            .build()._toQuery()
+                    );
                 }
-                builderList.add(andQueryBuilder);
+                builderList.add(andQueryBuilder.build()._toQuery());
             } else {
                 throw new NotImplementedException(geometryType + " WKT is not supported for `notpwithin`");
             }
@@ -366,33 +372,43 @@ public class ElasticFluidSearch extends FluidSearchService {
         return builderList;
     }
 
-    public GeoShapeQueryBuilder filterGWithin(String field, String geometry, Boolean righthand) throws ArlasException {
+    public Query filterGWithin(String field, String geometry, Boolean righthand) throws ArlasException {
         try {
-            ShapeBuilder shapeBuilder = getShapeBuilder(geometry, righthand);
-            return QueryBuilders.geoWithinQuery(field, shapeBuilder);
-        } catch (IOException e) {
+            JSONObject shapeBuilder = getShapeObject(geometry, righthand);
+            return QueryBuilders.geoShape()
+                    .field(field)
+                    .shape(s -> s
+                            .relation(GeoShapeRelation.Within)
+                            .shape(JsonData.of(shapeBuilder))
+                    ).build()._toQuery();
+        } catch (Exception e) {
             throw new ArlasException("Exception while building geoWithinQuery: " + e.getMessage());
         }
     }
 
-    public GeoShapeQueryBuilder filterGIntersect(String field, String geometry, Boolean righthand) throws ArlasException {
+    public Query filterGIntersect(String field, String geometry, Boolean righthand) throws ArlasException {
         try {
-            ShapeBuilder shapeBuilder = getShapeBuilder(geometry, righthand);
-            return QueryBuilders.geoIntersectionQuery(field, shapeBuilder);
-        } catch (IOException e) {
+            JSONObject shapeObject = getShapeObject(geometry, righthand);
+            return QueryBuilders.geoShape()
+                    .field(field)
+                    .shape(s -> s
+                            .relation(GeoShapeRelation.Intersects)
+                            .shape(JsonData.of(shapeObject))
+                    ).build()._toQuery();
+        } catch (Exception e) {
             throw new ArlasException("Exception while building geoIntersectionQuery: " + e.getMessage());
         }
     }
 
     @Override
     public FluidSearchService filterSize(Integer size, Integer from) {
-        searchSourceBuilder = searchSourceBuilder.size(size).from(from);
+        requestBuilder = requestBuilder.size(size).from(from);
         return this;
     }
 
     @Override
     public FluidSearchService searchAfter(Page page, String after) {
-        searchSourceBuilder = searchSourceBuilder.searchAfter(after.split(","));
+        requestBuilder = requestBuilder.searchAfter(Arrays.asList(after.split(",")));
         return this;
     }
 
@@ -406,15 +422,21 @@ public class ElasticFluidSearch extends FluidSearchService {
             if (!signedField.equals("")) {
                 if (signedField.substring(0, 1).equals("-")) {
                     field = signedField.substring(1);
-                    sortOrder = SortOrder.DESC;
+                    sortOrder = SortOrder.Desc;
                 } else {
                     field = signedField;
-                    sortOrder = SortOrder.ASC;
+                    sortOrder = SortOrder.Asc;
                 }
                 if (field.split(" ").length > 1) {
                     geoDistanceSort(field, sortOrder);
                 } else {
-                    searchSourceBuilder = searchSourceBuilder.sort(field, sortOrder);
+                    ;
+                    requestBuilder = requestBuilder.sort(new SortOptions.Builder()
+                            .field(new FieldSort.Builder()
+                                    .field(field)
+                                    .order(sortOrder)
+                                    .build())
+                            .build());
                 }
             }
         }
@@ -422,13 +444,22 @@ public class ElasticFluidSearch extends FluidSearchService {
     }
 
     private void geoDistanceSort(String geoSort, SortOrder sortOrder) throws ArlasException {
-        GeoPoint sortOnPoint = ParamsParser.getGeoSortParams(geoSort);
+        Pair<Double, Double> latLon = ParamsParser.getGeoSortParamsAsLatLon(geoSort);
+        GeoLocation sortOnPoint = GeoLocation.of(b1 -> b1.latlon(b2 -> b2.lat(latLon.getLeft()).lon(latLon.getRight())));
         String geoSortField = collectionReference.params.centroidPath;
-        searchSourceBuilder = searchSourceBuilder.sort(SortBuilders.geoDistanceSort(geoSortField, sortOnPoint.lat(), sortOnPoint.lon())
-                .order(sortOrder).geoDistance(GeoDistance.PLANE));
+        requestBuilder = requestBuilder.sort(b -> b
+                .geoDistance(d -> d
+                        .field(geoSortField)
+                        .distanceType(GeoDistanceType.Plane)
+                        .location(sortOnPoint)
+                        .order(sortOrder)
+                )
+        );
     }
 
-    private AggregationBuilder aggregateRecursive(List<Aggregation> aggregations, AggregationBuilder aggregationBuilder, Boolean isGeoAggregate, Integer counter) throws ArlasException {
+    // TODO deal with this subAggregation stuff
+    private Function<co.elastic.clients.elasticsearch._types.aggregations.Aggregation.Builder, ObjectBuilder<co.elastic.clients.elasticsearch._types.aggregations.Aggregation>> aggregateRecursive(List<Aggregation> aggregations , Function<co.elastic.clients.elasticsearch._types.aggregations.Aggregation.Builder, ObjectBuilder<co.elastic.clients.elasticsearch._types.aggregations.Aggregation>>	 aggregation,
+                                                                                                                                                                                                   Boolean isGeoAggregate, Integer counter) throws ArlasException {
         //check the agg syntax is correct
         Aggregation aggregationModel = aggregations.get(0);
         if (isGeoAggregate && counter == 0) {
@@ -439,95 +470,95 @@ public class ElasticFluidSearch extends FluidSearchService {
                 throw new NotAllowedException("'" + aggregationModel.type.name() +"' aggregation type is not allowed in _geoaggregate service if at least `aggregated_geometries` or `raw_geometries` parameters are not specified");
             }
         }
+        aggregation = _3 -> _3.histogram(_4 -> _4.field("price"));
         switch (aggregationModel.type) {
             case datehistogram:
-                aggregationBuilder = buildDateHistogramAggregation(aggregationModel);
+                //aggregation.
+                //aggregation = buildDateHistogramAggregation(aggregationModel).build();
                 break;
             case geohash:
-                aggregationBuilder = buildGeohashAggregation(aggregationModel);
+                // aggregation = buildGeohashAggregation(aggregationModel).build();
                 break;
             case geotile:
-                aggregationBuilder = buildGeotileAggregation(aggregationModel);
+                //aggregation = buildGeotileAggregation(aggregationModel).build();
                 break;
             case histogram:
-                aggregationBuilder = buildHistogramAggregation(aggregationModel);
+                //aggregation = buildHistogramAggregation(aggregationModel).build();
                 break;
             case term:
-                aggregationBuilder = buildTermsAggregation(aggregationModel);
+                //aggregation = buildTermsAggregation(aggregationModel).build();
                 break;
             case h3:
-                aggregationBuilder = buildH3Aggregation(aggregationModel);
+                //aggregation = buildH3Aggregation(aggregationModel).build();
                 break;
-        }
+        };
         aggregations.remove(0);
         if (aggregations.size() == 0) {
-            return aggregationBuilder;
+            return aggregation;
         }
         counter++;
-        return aggregationBuilder.subAggregation(aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate, counter));
+
+        return aggregation.subAgregtaion(aggregateRecursive(aggregations, aggregationBuilder, isGeoAggregate, counter));
+
     }
 
     @Override
     public FluidSearchService aggregate(List<Aggregation> aggregations, Boolean isGeoAggregate) throws ArlasException {
-        AggregationBuilder aggregationBuilder = aggregateRecursive(new ArrayList<>(aggregations), null, isGeoAggregate, 0);
-        searchSourceBuilder = searchSourceBuilder.size(0).aggregation(aggregationBuilder);
-        return this;
-    }
-
-    public FluidSearchService getFieldRange(String field) {
-        boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.existsQuery(field));
-        MinAggregationBuilder minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
-        MaxAggregationBuilder maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
-        searchSourceBuilder = searchSourceBuilder.size(0).aggregation(minAggregationBuilder).aggregation(maxAggregationBuilder);
+        // co.elastic.clients.elasticsearch._types.aggregations.Aggregation agg = aggregateRecursive(new ArrayList<>(aggregations), null, isGeoAggregate, 0);
+        // TODO deal with this subAggregation stuff
+        // requestBuilder = requestBuilder.size(0).aggregations("agg", agg);
         return this;
     }
 
     @Override
     public FluidSearchService compute(String field, ComputationEnum metric) {
-        boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.existsQuery(field));
+        boolQueryBuilder = boolQueryBuilder.filter(builder -> builder.exists(builder1 -> builder1.field(field)));
         switch (metric) {
             case AVG:
-                AvgAggregationBuilder avgAggregationBuilder = AggregationBuilders.avg(FIELD_AVG_VALUE).field(field);
-                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(avgAggregationBuilder);
+                AverageAggregation.Builder avgAggregationBuilder = AggregationBuilders.avg().field(field);
+                requestBuilder = requestBuilder.size(0).aggregations(FIELD_AVG_VALUE,avgAggregationBuilder.build()._toAggregation());
                 break;
             case MAX:
-                MaxAggregationBuilder maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
-                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(maxAggregationBuilder);
+                MaxAggregation.Builder maxAggregationBuilder = AggregationBuilders.max().field(field);
+                requestBuilder = requestBuilder.size(0).aggregations(FIELD_MAX_VALUE,maxAggregationBuilder.build()._toAggregation());
                 break;
             case MIN:
-                MinAggregationBuilder minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
-                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(minAggregationBuilder);
+                MinAggregation.Builder minAggregationBuilder = AggregationBuilders.min().field(field);
+                requestBuilder = requestBuilder.size(0).aggregations(FIELD_MIN_VALUE,minAggregationBuilder.build()._toAggregation());
                 break;
             case SUM:
-                SumAggregationBuilder sumAggregationBuilder = AggregationBuilders.sum(FIELD_SUM_VALUE).field(field);
-                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(sumAggregationBuilder);
+                SumAggregation.Builder sumAggregationBuilder = AggregationBuilders.sum().field(field);
+                requestBuilder = requestBuilder.size(0).aggregations(FIELD_SUM_VALUE,sumAggregationBuilder.build()._toAggregation());
+
             case CARDINALITY:
-                CardinalityAggregationBuilder cardinalityAggregationBuilder = AggregationBuilders.cardinality(FIELD_CARDINALITY_VALUE).field(field);
-                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(cardinalityAggregationBuilder);
+                CardinalityAggregation.Builder cardinalityAggregationBuilder = AggregationBuilders.cardinality().field(field);
+                requestBuilder = requestBuilder.size(0).aggregations(FIELD_CARDINALITY_VALUE,cardinalityAggregationBuilder.build()._toAggregation());
                 break;
             case SPANNING:
-                minAggregationBuilder = AggregationBuilders.min(FIELD_MIN_VALUE).field(field);
-                maxAggregationBuilder = AggregationBuilders.max(FIELD_MAX_VALUE).field(field);
-                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(minAggregationBuilder).aggregation(maxAggregationBuilder);
+                minAggregationBuilder = AggregationBuilders.min().field(field);
+                maxAggregationBuilder = AggregationBuilders.max().field(field);
+                requestBuilder = requestBuilder.size(0).aggregations(FIELD_MIN_VALUE,minAggregationBuilder.build()._toAggregation())
+                        .aggregations(FIELD_MAX_VALUE,maxAggregationBuilder.build()._toAggregation());
                 break;
             case GEOBBOX:
-                GeoBoundsAggregationBuilder geoBoundsAggregationBuilder = AggregationBuilders.geoBounds(FIELD_GEOBBOX_VALUE).field(field);
-                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(geoBoundsAggregationBuilder);
+                GeoBoundsAggregation.Builder geoBoundsAggregationBuilder = AggregationBuilders.geoBounds().field(field);
+                requestBuilder = requestBuilder.size(0).aggregations(FIELD_GEOBBOX_VALUE,geoBoundsAggregationBuilder.build()._toAggregation());
                 break;
             case GEOCENTROID:
-                GeoCentroidAggregationBuilder geoCentroidAggregationBuilder = AggregationBuilders.geoCentroid(FIELD_GEOCENTROID_VALUE).field(field);
-                searchSourceBuilder = searchSourceBuilder.size(0).aggregation(geoCentroidAggregationBuilder);
+                GeoCentroidAggregation.Builder geoCentroidAggregationBuilder = AggregationBuilders.geoCentroid().field(field);
+                requestBuilder = requestBuilder.size(0).aggregations(FIELD_GEOCENTROID_VALUE,geoCentroidAggregationBuilder.build()._toAggregation());
                 break;
         }
         return this;
     }
 
 
-    private DateHistogramAggregationBuilder buildDateHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
+
+    private DateHistogramAggregation.Builder buildDateHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
         if (StringUtil.isNullOrEmpty(aggregationModel.field)) {
             aggregationModel.field = collectionReference.params.timestampPath;
         }
-        DateHistogramAggregationBuilder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram(DATEHISTOGRAM_AGG);
+        DateHistogramAggregation.Builder dateHistogramAggregationBuilder = AggregationBuilders.dateHistogram();
         if (aggregationModel.interval.unit.equals(UnitEnum.year)
                 || aggregationModel.interval.unit.equals(UnitEnum.month)
                 || aggregationModel.interval.unit.equals(UnitEnum.quarter)
@@ -535,182 +566,175 @@ public class ElasticFluidSearch extends FluidSearchService {
             if ((Integer)aggregationModel.interval.value > 1)
                 throw new NotAllowedException("The size must be equal to 1 for the unit " + aggregationModel.interval.unit + ".");
         }
-        DateHistogramInterval intervalUnit = null;
+        CalendarInterval intervalUnit = null;
+        Time intervalTime = null;
         switch (aggregationModel.interval.unit) {
             case year:
-                intervalUnit = DateHistogramInterval.YEAR;
+                intervalUnit = CalendarInterval.Year;
                 break;
             case quarter:
-                intervalUnit = DateHistogramInterval.QUARTER;
+                intervalUnit = CalendarInterval.Quarter;
                 break;
             case month:
-                intervalUnit = DateHistogramInterval.MONTH;
+                intervalUnit = CalendarInterval.Month;
                 break;
             case week:
-                intervalUnit = DateHistogramInterval.WEEK;
+                intervalUnit = CalendarInterval.Week;
                 break;
             case day:
-                intervalUnit = DateHistogramInterval.days((Integer)aggregationModel.interval.value);
+                intervalUnit = CalendarInterval.Day;
+                intervalTime = Time.of(builder -> builder.time(aggregationModel.interval.value.toString()+"d"));
                 break;
             case hour:
-                intervalUnit = DateHistogramInterval.hours((Integer)aggregationModel.interval.value);
+                intervalUnit = CalendarInterval.Hour;
+                intervalTime = Time.of(builder -> builder.time(aggregationModel.interval.value.toString()+"h"));
                 break;
             case minute:
-                intervalUnit = DateHistogramInterval.minutes((Integer)aggregationModel.interval.value);
+                intervalUnit = CalendarInterval.Minute;
+                intervalTime = Time.of(builder -> builder.time(aggregationModel.interval.value.toString()+"m"));
+
                 break;
             case second:
-                intervalUnit = DateHistogramInterval.seconds((Integer)aggregationModel.interval.value);
+                intervalUnit = CalendarInterval.Second;
+                intervalTime = Time.of(builder -> builder.time(aggregationModel.interval.value.toString()+"s"));
                 break;
             default:
                 throw new InvalidParameterException(INVALID_DATE_UNIT);
         }
         if ((Integer)aggregationModel.interval.value > 1) {
-            dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.fixedInterval(intervalUnit);
+            dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.fixedInterval(intervalTime);
         } else {
             dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.calendarInterval(intervalUnit);
         }
         //get the field, format, collect_field, collect_fct, order, on
-        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
-        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setHitsToFetch(aggregationModel, dateHistogramAggregationBuilder);
-        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregatedGeometries(aggregationModel, dateHistogramAggregationBuilder);
-        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setRawGeometries(aggregationModel, dateHistogramAggregationBuilder);
+        dateHistogramAggregationBuilder = (DateHistogramAggregation.Builder) setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
+        dateHistogramAggregationBuilder = (DateHistogramAggregation.Builder) setHitsToFetch(aggregationModel, dateHistogramAggregationBuilder);
+        dateHistogramAggregationBuilder = (DateHistogramAggregation.Builder) setAggregatedGeometries(aggregationModel, dateHistogramAggregationBuilder);
+        dateHistogramAggregationBuilder = (DateHistogramAggregation.Builder) setRawGeometries(aggregationModel, dateHistogramAggregationBuilder);
         return dateHistogramAggregationBuilder;
     }
 
     // construct and returns the geohash aggregationModel builder
-    private GeoGridAggregationBuilder buildGeohashAggregation(Aggregation aggregationModel) throws ArlasException {
-        GeoGridAggregationBuilder geoHashAggregationBuilder = AggregationBuilders.geohashGrid(GEOHASH_AGG);
+    private GeoHashGridAggregation.Builder buildGeohashAggregation(Aggregation aggregationModel) throws ArlasException {
+        GeoHashGridAggregation.Builder geoHashAggregationBuilder = AggregationBuilders.geohashGrid();
         //get the precision
-        Integer precision = (Integer)aggregationModel.interval.value;
+        GeoHashPrecision precision = GeoHashPrecision.of(builder -> builder.geohashLength((Number)aggregationModel.interval.value));
         geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
         //get the field, format, collect_field, collect_fct, order, on
-        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
-        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggregatedGeometries(aggregationModel, geoHashAggregationBuilder);
-        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setRawGeometries(aggregationModel, geoHashAggregationBuilder);
-        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setHitsToFetch(aggregationModel, geoHashAggregationBuilder);
+        geoHashAggregationBuilder = (GeoHashGridAggregation.Builder) setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
+        geoHashAggregationBuilder = (GeoHashGridAggregation.Builder) setAggregatedGeometries(aggregationModel, geoHashAggregationBuilder);
+        geoHashAggregationBuilder = (GeoHashGridAggregation.Builder) setRawGeometries(aggregationModel, geoHashAggregationBuilder);
+        geoHashAggregationBuilder = (GeoHashGridAggregation.Builder) setHitsToFetch(aggregationModel, geoHashAggregationBuilder);
         return geoHashAggregationBuilder;
     }
 
     // construct and returns the geotile aggregationModel builder
-    private GeoGridAggregationBuilder buildGeotileAggregation(Aggregation aggregationModel) throws ArlasException {
-        GeoGridAggregationBuilder geoTileAggregationBuilder = AggregationBuilders.geotileGrid(GEOTILE_AGG);
+    private GeoTileGridAggregation.Builder buildGeotileAggregation(Aggregation aggregationModel) throws ArlasException {
+        GeoTileGridAggregation.Builder geoTileAggregationBuilder = AggregationBuilders.geotileGrid();
         //get the precision
         Integer precision = (Integer)aggregationModel.interval.value;
         geoTileAggregationBuilder = geoTileAggregationBuilder.precision(precision);
         //get the field, format, collect_field, collect_fct, order, on
-        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoTileAggregationBuilder);
-        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setAggregatedGeometries(aggregationModel, geoTileAggregationBuilder);
-        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setRawGeometries(aggregationModel, geoTileAggregationBuilder);
-        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setHitsToFetch(aggregationModel, geoTileAggregationBuilder);
+        geoTileAggregationBuilder = (GeoTileGridAggregation.Builder) setAggregationParameters(aggregationModel, geoTileAggregationBuilder);
+        geoTileAggregationBuilder = (GeoTileGridAggregation.Builder) setAggregatedGeometries(aggregationModel, geoTileAggregationBuilder);
+        geoTileAggregationBuilder = (GeoTileGridAggregation.Builder) setRawGeometries(aggregationModel, geoTileAggregationBuilder);
+        geoTileAggregationBuilder = (GeoTileGridAggregation.Builder) setHitsToFetch(aggregationModel, geoTileAggregationBuilder);
         return geoTileAggregationBuilder;
     }
 
     // construct and returns the h3 aggregationModel builder
-    private TermsAggregationBuilder buildH3Aggregation(Aggregation aggregationModel) throws ArlasException {
-        TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(H3_AGG);
+    private TermsAggregation.Builder buildH3Aggregation(Aggregation aggregationModel) throws ArlasException {
+        TermsAggregation.Builder termsAggregationBuilder = AggregationBuilders.terms();
         aggregationModel.field = aggregationModel.field + "." + aggregationModel.interval.value;
         if (aggregationModel.size == null) {
             aggregationModel.size = "10000"; // by default
         }
         //get the field, format, collect_field, collect_fct, order, on
-        termsAggregationBuilder = (TermsAggregationBuilder) setAggregationParameters(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregationBuilder) setAggregatedGeometries(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregationBuilder) setRawGeometries(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregationBuilder) setHitsToFetch(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregation.Builder) setAggregationParameters(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregation.Builder) setAggregatedGeometries(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregation.Builder) setRawGeometries(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregation.Builder) setHitsToFetch(aggregationModel, termsAggregationBuilder);
         if (!StringUtil.isNullOrEmpty(aggregationModel.include)) {
             String[] includeList = aggregationModel.include.split(",");
-            IncludeExclude includeExclude;
-            if (includeList.length > 1) {
-                includeExclude = new IncludeExclude(includeList, null);
-            } else {
-                includeExclude = new IncludeExclude(includeList[0], null);
-            }
-            termsAggregationBuilder = termsAggregationBuilder.includeExclude(includeExclude);
+            termsAggregationBuilder = termsAggregationBuilder.include(builder -> builder.terms(Arrays.asList(includeList)));
         }
         return termsAggregationBuilder;
     }
 
     // construct and returns the histogram aggregationModel builder
-    private HistogramAggregationBuilder buildHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
-        HistogramAggregationBuilder histogramAggregationBuilder = AggregationBuilders.histogram(HISTOGRAM_AGG);
+    private HistogramAggregation.Builder buildHistogramAggregation(Aggregation aggregationModel) throws ArlasException {
+        HistogramAggregation.Builder histogramAggregationBuilder = AggregationBuilders.histogram();
         histogramAggregationBuilder = histogramAggregationBuilder.interval((Double)aggregationModel.interval.value);
         //get the field, format, collect_field, collect_fct, order, on
-        histogramAggregationBuilder = (HistogramAggregationBuilder) setAggregationParameters(aggregationModel, histogramAggregationBuilder);
-        histogramAggregationBuilder = (HistogramAggregationBuilder) setHitsToFetch(aggregationModel, histogramAggregationBuilder);
-        histogramAggregationBuilder = (HistogramAggregationBuilder) setAggregatedGeometries(aggregationModel, histogramAggregationBuilder);
-        histogramAggregationBuilder = (HistogramAggregationBuilder) setRawGeometries(aggregationModel, histogramAggregationBuilder);
+        histogramAggregationBuilder = (HistogramAggregation.Builder) setAggregationParameters(aggregationModel, histogramAggregationBuilder);
+        histogramAggregationBuilder = (HistogramAggregation.Builder) setHitsToFetch(aggregationModel, histogramAggregationBuilder);
+        histogramAggregationBuilder = (HistogramAggregation.Builder) setAggregatedGeometries(aggregationModel, histogramAggregationBuilder);
+        histogramAggregationBuilder = (HistogramAggregation.Builder) setRawGeometries(aggregationModel, histogramAggregationBuilder);
         return histogramAggregationBuilder;
     }
 
     // construct and returns the terms aggregationModel builder
-    private TermsAggregationBuilder buildTermsAggregation(Aggregation aggregationModel) throws ArlasException {
-        TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(TERM_AGG);
+    private TermsAggregation.Builder buildTermsAggregation(Aggregation aggregationModel) throws ArlasException {
+        TermsAggregation.Builder termsAggregationBuilder = AggregationBuilders.terms();
         //get the field, format, collect_field, collect_fct, order, on
-        termsAggregationBuilder = (TermsAggregationBuilder) setAggregationParameters(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregationBuilder) setAggregatedGeometries(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregationBuilder) setRawGeometries(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregationBuilder) setHitsToFetch(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregation.Builder) setAggregationParameters(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregation.Builder) setAggregatedGeometries(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregation.Builder) setRawGeometries(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregation.Builder) setHitsToFetch(aggregationModel, termsAggregationBuilder);
         if (!StringUtil.isNullOrEmpty(aggregationModel.include)) {
             String[] includeList = aggregationModel.include.split(",");
-            IncludeExclude includeExclude;
-            if (includeList.length > 1) {
-                includeExclude = new IncludeExclude(includeList, null);
-            } else {
-                includeExclude = new IncludeExclude(includeList[0], null);
-            }
-            termsAggregationBuilder = termsAggregationBuilder.includeExclude(includeExclude);
+            termsAggregationBuilder = termsAggregationBuilder.include(builder -> builder.terms(Arrays.asList(includeList)));
         }
         return termsAggregationBuilder;
     }
 
-    private ValuesSourceAggregationBuilder setAggregationParameters(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
+    private ObjectBuilder  setAggregationParameters(Aggregation aggregationModel, final ObjectBuilder aggregationBuilder) throws ArlasException {
         aggregationBuilder = aggregationBuilder.field(aggregationModel.field);
         //Get the format
         String format = ParamsParser.getValidAggregationFormat(aggregationModel.format);
-        if (aggregationBuilder instanceof DateHistogramAggregationBuilder) {
-            aggregationBuilder = aggregationBuilder.format(format);
+        if (aggregationBuilder instanceof DateHistogramAggregation.Builder) {
+            // aggregationBuilder = ((DateHistogramAggregation.Builder) aggregationBuilder).format(format);
         } else if (aggregationModel.format != null) {
             throw new BadRequestException(NO_FORMAT_TO_SPECIFY);
         }
         // firstMetricAggregationBuilder is the aggregation builder on which the order aggregation will be applied
-        ValuesSourceAggregationBuilder firstMetricAggregationBuilder = null;
+        ObjectBuilder firstMetricAggregationBuilder = null;
         if (aggregationModel.metrics != null) {
             for (Metric m: aggregationModel.metrics) {
-                ValuesSourceAggregationBuilder metricAggregationBuilder = null;
+                ObjectBuilder metricAggregationBuilder = null;
                 if (m.collectField != null && m.collectFct == null) {
                     throw new BadRequestException(COLLECT_FCT_NOT_SPECIFIED);
                 } else if (m.collectField == null && m.collectFct != null) {
                     throw new BadRequestException(COLLECT_FIELD_NOT_SPECIFIED);
                 }
-                String collectField = m.collectField.replace(".", ArlasServerConfiguration.FLATTEN_CHAR);
                 switch (m.collectFct) {
                     case AVG:
-                        metricAggregationBuilder = AggregationBuilders.avg("avg:" + collectField).field(m.collectField);
+                        metricAggregationBuilder = AggregationBuilders.avg().field(m.collectField);
                         break;
                     case CARDINALITY:
-                        metricAggregationBuilder = AggregationBuilders.cardinality("cardinality:" + collectField).field(m.collectField);
+                        metricAggregationBuilder = AggregationBuilders.cardinality().field(m.collectField);
                         break;
                     case MAX:
-                        metricAggregationBuilder = AggregationBuilders.max("max:" + collectField).field(m.collectField);
+                        metricAggregationBuilder = AggregationBuilders.max().field(m.collectField);
                         break;
                     case MIN:
-                        metricAggregationBuilder = AggregationBuilders.min("min:" + collectField).field(m.collectField);
+                        metricAggregationBuilder = AggregationBuilders.min().field(m.collectField);
                         break;
                     case SUM:
-                        metricAggregationBuilder = AggregationBuilders.sum("sum:" + collectField).field(m.collectField);
+                        metricAggregationBuilder = AggregationBuilders.sum().field(m.collectField);
                         break;
                     case GEOCENTROID:
                         setGeoMetricAggregationCollectField(m);
                         /** We calculate this metric only if it wasn't requested as a geometry to return in `aggregatedGeometries` parameter **/
                         if (!(aggregationModel.aggregatedGeometries != null && aggregationModel.aggregatedGeometries.contains(AggregatedGeometryEnum.CENTROID) && aggregationModel.field.equals(m.collectField))) {
-                            metricAggregationBuilder = AggregationBuilders.geoCentroid(CollectionFunction.GEOCENTROID.name().toLowerCase() + ":" + collectField).field(m.collectField);
+                            metricAggregationBuilder = AggregationBuilders.geoCentroid().field(m.collectField);
                         }
                         break;
                     case GEOBBOX:
                         setGeoMetricAggregationCollectField(m);
                         /** We calculate this metric only if it wasn't requested as a geometry to return in `aggregatedGeometries` parameter **/
                         if (!(aggregationModel.aggregatedGeometries != null && aggregationModel.aggregatedGeometries.contains(AggregatedGeometryEnum.BBOX) && aggregationModel.field.equals(m.collectField))) {
-                            metricAggregationBuilder = AggregationBuilders.geoBounds(CollectionFunction.GEOBBOX.name().toLowerCase() + ":" + collectField).field(m.collectField);
+                            metricAggregationBuilder = AggregationBuilders.geoBounds().field(m.collectField);
                         }
                         break;
                 }
@@ -727,9 +751,9 @@ public class ElasticFluidSearch extends FluidSearchService {
 
         if (aggregationModel.size != null) {
             Integer s = ParamsParser.getValidAggregationSize(aggregationModel.size);
-            if (aggregationBuilder instanceof TermsAggregationBuilder)
-                aggregationBuilder = ((TermsAggregationBuilder) aggregationBuilder).size(s);
-            else if (aggregationBuilder instanceof GeoGridAggregationBuilder)
+            if (aggregationBuilder instanceof TermsAggregation.Builder)
+                aggregationBuilder = ((TermsAggregation.Builder) aggregationBuilder).size(s);
+            else if (aggregationBuilder instanceof GeoHashGridAggregation.Builder || aggregationBuilder instanceof GeoTileGridAggregation.Builder )
                 throw new NotImplementedException(SIZE_NOT_IMPLEMENTED);
             else
                 throw new BadRequestException(NO_SIZE_TO_SPECIFY);
@@ -739,18 +763,18 @@ public class ElasticFluidSearch extends FluidSearchService {
         return aggregationBuilder;
     }
 
-    private ValuesSourceAggregationBuilder setAggregatedGeometries(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
+    private ObjectBuilder setAggregatedGeometries(Aggregation aggregationModel, ObjectBuilder aggregationBuilder) throws ArlasException {
         if (aggregationModel.aggregatedGeometries != null) {
             String aggregationGeoField = GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type) ? aggregationModel.field : collectionReference.params.centroidPath;
             aggregationModel.aggregatedGeometries.forEach(ag -> {
-                ValuesSourceAggregationBuilder metricAggregation;
+                ObjectBuilder metricAggregation;
                 switch (ag) {
                     case BBOX:
-                        metricAggregation = AggregationBuilders.geoBounds(AggregatedGeometryEnum.BBOX.value() + AGGREGATED_GEOMETRY_SUFFIX).field(aggregationGeoField);
+                        metricAggregation = AggregationBuilders.geoBounds().field(aggregationGeoField);
                         aggregationBuilder.subAggregation(metricAggregation);
                         break;
                     case CENTROID:
-                        metricAggregation = AggregationBuilders.geoCentroid(AggregatedGeometryEnum.CENTROID.value() + AGGREGATED_GEOMETRY_SUFFIX).field(aggregationGeoField);
+                        metricAggregation = AggregationBuilders.geoCentroid().field(aggregationGeoField);
                         aggregationBuilder.subAggregation(metricAggregation);
                         break;
                 }
@@ -759,7 +783,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         return aggregationBuilder;
     }
 
-    private ValuesSourceAggregationBuilder setRawGeometries(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
+    private ObjectBuilder setRawGeometries(Aggregation aggregationModel, ObjectBuilder aggregationBuilder) throws ArlasException {
         if (aggregationModel.rawGeometries != null) {
             Map<String, Set<String>> rgs = new HashMap<>();
             aggregationModel.rawGeometries.forEach(rg -> {
@@ -770,46 +794,44 @@ public class ElasticFluidSearch extends FluidSearchService {
             });
             for (String sort: rgs.keySet()) {
                 String[] includes = rgs.get(sort).stream().toArray(String[]::new);
-                TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(RAW_GEOMETRY_SUFFIX + sort).size(1).fetchSource(includes, null);
+                TopHitsAggregation.Builder topHitsAggregationBuilder = AggregationBuilders.topHits().size(1).fetchSource(includes, null);
                 for (String field : sort.split(",")) {
                     String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
-                    ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
+                    CollectionUtil.checkAliasMappingFields(client.getMappings(collectionReference.params.indexName), unsignedField);
                     if (field.startsWith("+") || !field.startsWith("-")) {
-                        topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
+                        topHitsAggregationBuilder.sort(builder -> builder.field(FieldSort.of(builder1 -> builder1.field(unsignedField).order(SortOrder.Asc))));
                     } else {
-                        topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
+                        topHitsAggregationBuilder.sort(builder -> builder.field(FieldSort.of(builder1 -> builder1.field(unsignedField).order(SortOrder.Desc))));
                     }
                 }
-                aggregationBuilder.subAggregation(topHitsAggregationBuilder);
+                aggregationBuilder
+                        .subAggregation(topHitsAggregationBuilder);
             }
 
         }
         return aggregationBuilder;
     }
 
-    private ValuesSourceAggregationBuilder setHitsToFetch(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
+    private ObjectBuilder setHitsToFetch(Aggregation aggregationModel, ObjectBuilder aggregationBuilder) throws ArlasException {
         if (aggregationModel.fetchHits != null) {
-            TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(FETCH_HITS_AGG);
+            TopHitsAggregation.Builder topHitsAggregationBuilder = AggregationBuilders.topHits();
             Integer size = Optional.ofNullable(aggregationModel.fetchHits.size).orElse(1);
             topHitsAggregationBuilder.size(size);
             List<String> includes = new ArrayList<>();
             if (aggregationModel.fetchHits.include != null) {
                 for (String field : aggregationModel.fetchHits.include) {
                     String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
-                    ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
+                    CollectionUtil.checkAliasMappingFields(client.getMappings(collectionReference.params.indexName), unsignedField);
                     includes.add(unsignedField);
                     /** For geo-fields, we don't sort them. Sorting geo-fields need to be according a given point to calculate a geo-distance
                      * which is not supported in the syntax of fetch_hits*/
                     if (CollectionReferenceManager.getInstance().getType(collectionReference, unsignedField, false) != FieldType.GEO_POINT && CollectionReferenceManager.getInstance().getType(collectionReference, unsignedField, false) != FieldType.GEO_SHAPE) {
                         if (field.startsWith("+") || !field.startsWith("-")) {
-                            topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
+                            topHitsAggregationBuilder.sort(builder -> builder.field(FieldSort.of(builder1 -> builder1.field(unsignedField).order(SortOrder.Asc))));
                         } else {
-                            topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
+                            topHitsAggregationBuilder.sort(builder -> builder.field(FieldSort.of(builder1 -> builder1.field(unsignedField).order(SortOrder.Desc))));
                         }
                     }
-
-
-
                 }
                 String[] hitsToInclude = includes.toArray(new String[includes.size()]);
                 topHitsAggregationBuilder.fetchSource(hitsToInclude, null);
@@ -826,17 +848,17 @@ public class ElasticFluidSearch extends FluidSearchService {
         }
     }
 
-    private void setOrder(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder, ValuesSourceAggregationBuilder metricAggregation) throws ArlasException {
+    private void setOrder(Aggregation aggregationModel, ObjectBuilder aggregationBuilder, ObjectBuilder metricAggregation) throws ArlasException {
         Order order = aggregationModel.order;
         OrderOn on = aggregationModel.on;
         if (order != null && on != null) {
-            if (!(aggregationBuilder instanceof GeoGridAggregationBuilder)) {
+            if (!(aggregationBuilder instanceof GeoHashGridAggregation.Builder) && !(aggregationBuilder instanceof GeoTileGridAggregation.Builder)) {
                 Boolean asc = order.equals(Order.asc);
-                BucketOrder bucketOrder = null;
+                HistogramOrder histogramOrder = null;
                 if (on.equals(OrderOn.field)) {
-                    bucketOrder = BucketOrder.key(asc);
+                    histogramOrder = HistogramOrder.of(builder -> builder.key(SortOrder.Asc));
                 } else if (on.equals(OrderOn.count)) {
-                    bucketOrder = BucketOrder.count(asc);
+                    histogramOrder = HistogramOrder.of(builder -> builder.count(SortOrder.Asc));
                 } else if (on.equals(OrderOn.result)) {
                     if (metricAggregation != null) {
                         // ORDER ON RESULT IS NOT ALLOWED ON COORDINATES (CENTROID) OR BOUNDING BOX
@@ -849,15 +871,17 @@ public class ElasticFluidSearch extends FluidSearchService {
                         throw new BadRequestException(ORDER_ON_RESULT_NOT_ALLOWED);
                     }
                 }
+                HistogramOrder.of(builder -> builder.count(SortOrder.Asc));
                 switch (aggregationBuilder.getName()) {
                     case DATEHISTOGRAM_AGG:
-                        aggregationBuilder = ((DateHistogramAggregationBuilder) aggregationBuilder).order(bucketOrder);
+                        aggregationBuilder = ((DateHistogramAggregation.Builder) aggregationBuilder).order(histogramOrder);
                         break;
                     case HISTOGRAM_AGG:
-                        aggregationBuilder = ((HistogramAggregationBuilder) aggregationBuilder).order(bucketOrder);
+                        aggregationBuilder = ((HistogramAggregation.Builder) aggregationBuilder).order(histogramOrder);
                         break;
                     case TERM_AGG:
-                        aggregationBuilder = ((TermsAggregationBuilder) aggregationBuilder).order(bucketOrder);
+                        // TODO
+                        // aggregationBuilder = ((TermsAggregation.Builder) aggregationBuilder).order();
                         break;
                     default:
                         throw new NotAllowedException(NO_ORDER_ON_TO_SPECIFY);
@@ -866,34 +890,44 @@ public class ElasticFluidSearch extends FluidSearchService {
                 throw new NotAllowedException(ORDER_PARAM_NOT_ALLOWED);
             }
         } else if (order != null && on == null) {
-            if (aggregationBuilder instanceof GeoGridAggregationBuilder)
+            if (aggregationBuilder instanceof GeoHashGridAggregation.Builder || aggregationBuilder instanceof GeoTileGridAggregation.Builder )
                 throw new NotAllowedException(ORDER_PARAM_NOT_ALLOWED);
             else
                 throw new BadRequestException(ON_NOT_SPECIFIED);
         } else if (order == null && on != null) {
-            if (aggregationBuilder instanceof GeoGridAggregationBuilder)
+            if (aggregationBuilder instanceof GeoHashGridAggregation.Builder || aggregationBuilder instanceof GeoTileGridAggregation.Builder )
                 throw new NotAllowedException(ORDER_PARAM_NOT_ALLOWED);
             else
                 throw new BadRequestException(ORDER_NOT_SPECIFIED);
         }
     }
 
-    private PolygonBuilder createPolygonBuilder(Polygon polygon, Boolean righthand) {
-        // TODO: add interior holes
-        CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
-        List<Coordinate> coordinates = Arrays.asList(polygon.getCoordinates());
-        coordinatesBuilder.coordinates(coordinates);
-
-        return new PolygonBuilder(coordinatesBuilder, righthand == Boolean.TRUE ? Orientation.RIGHT : Orientation.LEFT);
+    // TODO : check the righthand for es8
+    private JSONObject createPolygon(org.locationtech.jts.geom.Polygon geomPolygon, Boolean righthand) {
+        Coordinate[] exteriorRing = geomPolygon.getExteriorRing().getCoordinates();
+        // TODO : deal with interior ring too
+        // int nInteriorRing = geomPolygon.getNumInteriorRing();
+        // geomPolygon.getInteriorRingN(nInteriorRing);
+        JSONObject polygon = new JSONObject();
+        JSONArray jsonArayExt = new JSONArray();
+        Arrays.asList(exteriorRing).forEach(coordinate -> {
+            JSONArray jsonArayLngLat = new JSONArray();
+            jsonArayLngLat.add(0, coordinate.x);
+            jsonArayLngLat.add(1, coordinate.y);
+            jsonArayExt.add(jsonArayLngLat);
+        });
+        JSONArray jsonAray = new JSONArray();
+        jsonAray.add(jsonArayExt);
+        polygon.put("type", "Polygon");
+        polygon.put("coordinates", jsonAray);
+        return polygon;
     }
 
-    private PolygonBuilder createPolygonBuilder(double[] bbox) {
+    private JSONObject createPolygonFromBbox(double[] bbox) {
         double west = bbox[0];
         double east = bbox[2];
         double south = bbox[1];
         double north = bbox[3];
-
-        CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
         /** In ARLAS-api west and east are necessarily between -180 and 180**/
         /** In case of west > east, it means the bbox crosses the dateline (antiméridien) => a translation of west or east by 360 is necessary to be
          * correctly interpreted by geoWithinQuery and geoIntersectsQuery*/
@@ -905,40 +939,83 @@ public class ElasticFluidSearch extends FluidSearchService {
                 east += 360;
             }
         }
-        coordinatesBuilder.coordinate(east, south);
-        coordinatesBuilder.coordinate(east, north);
-        coordinatesBuilder.coordinate(west, north);
-        coordinatesBuilder.coordinate(west, south);
-        coordinatesBuilder.coordinate(east, south);
-        // NB : In ES api LEFT is clockwise and RIGHT anticlockwise
-        return new PolygonBuilder(coordinatesBuilder, Orientation.RIGHT);
-
+        Polygon polygonGeometry = new Polygon();
+        List<LngLatAlt> exteriorRing = new ArrayList<>();
+        exteriorRing.add(new LngLatAlt(east, south));
+        exteriorRing.add(new LngLatAlt(east, north));
+        exteriorRing.add(new LngLatAlt(west, north));
+        exteriorRing.add(new LngLatAlt(west, south));
+        exteriorRing.add(new LngLatAlt(east, south));
+        polygonGeometry.setExteriorRing(exteriorRing);
+        JSONObject polygon = new JSONObject();
+        JSONArray jsonArayExt = new JSONArray();
+        polygonGeometry.getExteriorRing().forEach(lngLatAlt -> {
+            JSONArray jsonArayLngLat = new JSONArray();
+            jsonArayLngLat.add(0, lngLatAlt.getLongitude());
+            jsonArayLngLat.add(1, lngLatAlt.getLatitude());
+            jsonArayExt.add(jsonArayLngLat);
+        });
+        JSONArray jsonAray = new JSONArray();
+        jsonAray.add(jsonArayExt);
+        polygon.put("type", "Polygon");
+        polygon.put("coordinates", jsonAray);
+        return polygon;
     }
 
-    private MultiPolygonBuilder createMultiPolygonBuilder(MultiPolygon multiPolygon, Boolean righthand) {
-        MultiPolygonBuilder multiPolygonBuilder = new MultiPolygonBuilder(Orientation.LEFT);
-        for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
-            multiPolygonBuilder.polygon(createPolygonBuilder((Polygon) multiPolygon.getGeometryN(i), righthand));
+    private JSONObject createMultiPolygon(MultiPolygon geomMultiPolygon, Boolean righthand) {
+
+        int nPolygon = geomMultiPolygon.getNumGeometries();
+        JSONObject multiPolygon = new JSONObject();
+        JSONArray coordinates = new JSONArray();
+        for (int i = 0; i < nPolygon ; i++) {
+            org.locationtech.jts.geom.Polygon geomPolygon = (org.locationtech.jts.geom.Polygon) geomMultiPolygon.getGeometryN(i);
+            JSONArray jsonArayExt = new JSONArray();
+            // TODO : deal with interior ring too
+            Coordinate[] exteriorRing = geomPolygon.getExteriorRing().getCoordinates();
+            Arrays.asList(exteriorRing).forEach(coordinate -> {
+                JSONArray jsonArayLngLat = new JSONArray();
+                jsonArayLngLat.add(0, coordinate.x);
+                jsonArayLngLat.add(1, coordinate.y);
+                jsonArayExt.add(jsonArayLngLat);
+            });
+            JSONArray jsonAray = new JSONArray();
+            jsonAray.add(jsonArayExt);
+            coordinates.add(jsonAray);
         }
-        return multiPolygonBuilder;
+        multiPolygon.put("type", "MultiPolygon");
+        multiPolygon.put("coordinates", coordinates);
+        return multiPolygon;
     }
 
-    private LineStringBuilder createLineStringBuilder(LineString lineString) {
-        CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
-        coordinatesBuilder.coordinates(lineString.getCoordinates());
-        return new LineStringBuilder(coordinatesBuilder);
+    private JSONObject createLineString(LineString geomLineString) {
+        JSONObject lineString = new JSONObject();
+        JSONArray jsonAray = new JSONArray();
+        Coordinate[] lineSequence = geomLineString.getCoordinates();
+        Arrays.asList(lineSequence).forEach(coordinate -> {
+            JSONArray jsonArayLngLat = new JSONArray();
+            jsonArayLngLat.add(0, coordinate.x);
+            jsonArayLngLat.add(1, coordinate.y);
+            jsonAray.add(jsonArayLngLat);
+        });
+        lineString.put("type", "LineString");
+        lineString.put("coordinates", jsonAray);
+        return lineString;
     }
 
-    private PointBuilder createPointBuilder(Point point) {
-        PointBuilder pointBuilder = new PointBuilder();
-        pointBuilder.coordinate(point.getCoordinate());
-        return pointBuilder;
+    private JSONObject createPoint(Point geomPoint) {
+        JSONObject point = new JSONObject();
+        JSONArray jsonAray = new JSONArray();
+        jsonAray.add(0, geomPoint.getCoordinate().x);
+        jsonAray.add(1, geomPoint.getCoordinate().y);
+        point.put("type", "Point");
+        point.put("coordinates", jsonAray);
+        return point;
     }
-
-    private ShapeBuilder getShapeBuilder(String geometry, Boolean righthand) throws ArlasException {
+    // TODO: Check the righthand stuff with ES 8
+    private JSONObject getShapeObject(String geometry, Boolean righthand) throws ArlasException {
         // test if geometry is 'west,south,east,north' or wkt string
         if (CheckParams.isBboxMatch(geometry)) {
-            return createPolygonBuilder((double[]) CheckParams.toDoubles(geometry));
+            return createPolygonFromBbox(CheckParams.toDoubles(geometry));
         } else {
             // TODO: multilinestring
             Geometry wktGeometry = GeoUtil.readWKT(geometry);
@@ -946,13 +1023,13 @@ public class ElasticFluidSearch extends FluidSearchService {
                 String geometryType = wktGeometry.getGeometryType().toUpperCase();
                 switch (geometryType) {
                     case "POLYGON":
-                        return createPolygonBuilder((Polygon) wktGeometry, righthand);
+                        return createPolygon((org.locationtech.jts.geom.Polygon) wktGeometry, righthand);
                     case "MULTIPOLYGON":
-                        return createMultiPolygonBuilder((MultiPolygon) wktGeometry, righthand);
+                        return createMultiPolygon((MultiPolygon) wktGeometry, righthand);
                     case "LINESTRING":
-                        return createLineStringBuilder((LineString) wktGeometry);
+                        return createLineString((LineString) wktGeometry);
                     case "POINT":
-                        return createPointBuilder((Point) wktGeometry);
+                        return createPoint((Point) wktGeometry);
                     default:
                         throw new InvalidParameterException("The given geometry is not handled.");
                 }

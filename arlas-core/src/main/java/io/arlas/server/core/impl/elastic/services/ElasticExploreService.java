@@ -19,6 +19,12 @@
 
 package io.arlas.server.core.impl.elastic.services;
 
+import co.elastic.clients.elasticsearch._types.GeoBounds;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
+import co.elastic.clients.json.JsonData;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.core.ElasticDocument;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
@@ -38,13 +44,6 @@ import io.arlas.server.core.services.FluidSearchService;
 import io.arlas.server.core.utils.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.*;
 import org.geojson.*;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.io.GeohashUtils;
@@ -81,11 +80,11 @@ public class ElasticExploreService extends ExploreService {
     @Override
     public Hits count(CollectionReference collectionReference,
                       FluidSearchService fluidSearch) throws ArlasException {
-        SearchHits searchHits = ((ElasticFluidSearch) fluidSearch).exec().getHits();
+        SearchResponse<ObjectNode> searchHits = ((ElasticFluidSearch) fluidSearch).exec();
 
         Hits hits = new Hits(collectionReference.collectionName);
-        hits.totalnb = searchHits.getTotalHits().value;
-        hits.nbhits = searchHits.getHits().length;
+        hits.totalnb = searchHits.hits().total().value();
+        hits.nbhits = searchHits.hits().hits().size();
         return hits;
     }
 
@@ -93,51 +92,46 @@ public class ElasticExploreService extends ExploreService {
     public ComputationResponse compute(CollectionReference collectionReference,
                                        FluidSearchService fluidSearch,
                                        String field, ComputationEnum metric) throws ArlasException {
-        SearchResponse response = ((ElasticFluidSearch) fluidSearch).exec();
+        SearchResponse<ObjectNode> response = ((ElasticFluidSearch) fluidSearch).exec();
         ComputationResponse computationResponse = new ComputationResponse();
         long startQueryTimestamp = System.nanoTime();
         computationResponse.field = field;
         computationResponse.metric = metric;
-        computationResponse.totalnb = response.getHits().getTotalHits().value;
-        List<org.elasticsearch.search.aggregations.Aggregation> aggregations = response.getAggregations().asList();
+        computationResponse.totalnb = response.hits().total().value();
+        Map<String, Aggregate> aggregations = response.aggregations();
         computationResponse.value = null;
         computationResponse.geometry = null;
 
         if (computationResponse.totalnb > 0) {
             switch (metric) {
                 case AVG:
-                    computationResponse.value = ((Avg)aggregations.get(0)).getValue();
+                    computationResponse.value = aggregations.get(FIELD_AVG_VALUE).simpleValue().value();
                     break;
                 case CARDINALITY:
-                    computationResponse.value = (double) ((Cardinality) aggregations.get(0)).getValue();
+                    computationResponse.value = aggregations.get(FIELD_CARDINALITY_VALUE).simpleValue().value();
                     break;
                 case MAX:
-                    computationResponse.value = ((Max)aggregations.get(0)).getValue();
+                    computationResponse.value = aggregations.get(FIELD_MAX_VALUE).simpleValue().value();
                     break;
                 case MIN:
-                    computationResponse.value = ((Min)aggregations.get(0)).getValue();
+                    computationResponse.value = aggregations.get(FIELD_MIN_VALUE).simpleValue().value();
                     break;
                 case SPANNING:
-                    double min;
-                    double max;
-                    if (aggregations.get(0).getName().equals(FIELD_MIN_VALUE)) {
-                        min = ((Min)aggregations.get(0)).getValue();
-                        max = ((Max)aggregations.get(1)).getValue();
-                    } else {
-                        min = ((Min)aggregations.get(1)).getValue();
-                        max = ((Max)aggregations.get(0)).getValue();
-                    }
+                    double min = aggregations.get(FIELD_MIN_VALUE).simpleValue().value();
+                    double max =aggregations.get(FIELD_MAX_VALUE).simpleValue().value();
                     computationResponse.value = max - min;
                     break;
                 case SUM:
-                    computationResponse.value = ((Sum)aggregations.get(0)).getValue();
+                    computationResponse.value = aggregations.get(FIELD_SUM_VALUE).simpleValue().value();
                     break;
                 case GEOBBOX:
-                    computationResponse.geometry = createBox(((GeoBounds)aggregations.get(0)));
+                    // TODO es8
+                    //computationResponse.geometry = createBox(((GeoBounds)aggregations.get(0)));
                     break;
                 case GEOCENTROID:
-                    GeoPoint centroid = ((GeoCentroid) aggregations.get(0)).centroid();
-                    computationResponse.geometry = new Point(centroid.getLon(), centroid.getLat());
+                    // TODO es8
+                    //GeoPoint centroid = ((GeoCentroid) aggregations.get(0)).centroid();
+                    //computationResponse.geometry = new Point(centroid.getLon(), centroid.getLat());
                     break;
             }
         }
@@ -148,24 +142,24 @@ public class ElasticExploreService extends ExploreService {
 
     @Override
     public Hits search(MixedRequest request, CollectionReference collectionReference, Boolean flat, UriInfo uriInfo, String method) throws ArlasException {
-        SearchHits searchHits = getSearchHits(request, collectionReference);
+        HitsMetadata<ObjectNode> searchHits = getSearchHits(request, collectionReference);
         Search searchRequest  = (Search)request.basicRequest;
         Hits hits = new Hits(collectionReference.collectionName);
-        hits.totalnb = searchHits.getTotalHits().value;
-        hits.nbhits = searchHits.getHits().length;
+        hits.totalnb = searchHits.total().value();
+        hits.nbhits = searchHits.hits().size();
         hits.hits = new ArrayList<>((int) hits.nbhits);
-        List<SearchHit> searchHitList = Arrays.asList(searchHits.getHits());
+        List<co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode>> searchHitList = searchHits.hits();
         if(searchRequest.page != null && searchRequest.page.before != null ){
             Collections.reverse(searchHitList);
         }
-        for (SearchHit hit : searchHitList) {
-            hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), searchRequest.returned_geometries, flat, false));
+        for (co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode> hit : searchHitList) {
+            hits.hits.add(new Hit(collectionReference, hit.fields(), searchRequest.returned_geometries, flat, false));
         }
         hits.links = getLinks(searchRequest, collectionReference, hits.nbhits, searchHitList, uriInfo, method);
         return hits;
     }
 
-    private HashMap<String, Link> getLinks(Search searchRequest, CollectionReference collectionReference, long nbhits, List<SearchHit> searchHitList, UriInfo uriInfo, String method) {
+    private HashMap<String, Link> getLinks(Search searchRequest, CollectionReference collectionReference, long nbhits, List<co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode>> searchHitList, UriInfo uriInfo, String method) {
         HashMap<String, Link> links = new HashMap<>();
         UriInfoWrapper uriInfoUtil = new UriInfoWrapper(uriInfo, getBaseUri());
         Link self = new Link();
@@ -184,11 +178,13 @@ public class ElasticExploreService extends ExploreService {
             next = new Link();
             next.method = method;
             // Use sorted value of last element return by ES to build after param of next & previous link
+            // TODO es8
             lastHitAfter = Arrays.stream(searchHitList.get(lastIndex).getSortValues()).map(Object::toString).collect(Collectors.joining(","));
         }
         if (searchHitList.size() > 0 && sortParam != null && (beforeParam != null || sortParam.contains(collectionReference.params.idPath))) {
             previous = new Link();
             previous.method = method;
+            // TODO es8
             firstHitAfter = Arrays.stream(searchHitList.get(0).getSortValues()).map(Object::toString).collect(Collectors.joining(","));
         }
 
@@ -245,33 +241,39 @@ public class ElasticExploreService extends ExploreService {
     }
 
     @Override
-    public List<Map<String, Object>> searchAsRaw(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
-        return Arrays.stream(getSearchHits(request, collectionReference).getHits()).map(SearchHit::getSourceAsMap).collect(Collectors.toList());
+    public List<Map<String, JsonData>> searchAsRaw(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
+        List<co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode>> searchHitList = getSearchHits(request, collectionReference).hits();
+        List<Map<String, JsonData>> rawList = new ArrayList<>( searchHitList.size());
+        for (co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode> hit : searchHitList) {
+            rawList.add(hit.fields());
+        }
+        return rawList;
+
     }
 
-    private SearchHits getSearchHits(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
+    private HitsMetadata<ObjectNode> getSearchHits(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         ElasticFluidSearch fluidSearch = (ElasticFluidSearch) getSearchRequest(request, collectionReference);
-        return fluidSearch.exec().getHits();
+        return fluidSearch.exec().hits();
     }
 
     @Override
     public FeatureCollection getFeatures(MixedRequest request, CollectionReference collectionReference,
                                          boolean flat, UriInfo uriInfo, String method,
                                          HashMap<String, Object> context) throws ArlasException {
-        SearchHits searchHits = getSearchHits(request, collectionReference);
-        long totalnb = searchHits.getTotalHits().value;
+        HitsMetadata<ObjectNode> searchHits = getSearchHits(request, collectionReference);
+        long totalnb = searchHits.total().value();
         Search searchRequest = (Search) request.basicRequest;
         FeatureCollection fc = new FeatureCollection();
-        List<SearchHit> results = Arrays.asList(searchHits.getHits());
+        List<co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode>> results = searchHits.hits();
         if (context != null) {
-            context.putAll(getLinks(searchRequest, collectionReference, searchHits.getHits().length, results, uriInfo, method));
+            context.putAll(getLinks(searchRequest, collectionReference, results.size(), results, uriInfo, method));
             context.put("matched", Long.valueOf(totalnb));
         }
         if (searchRequest.page != null && searchRequest.page.before != null) {
             Collections.reverse(results);
         }
-        for (SearchHit hit : results) {
-            Map<String, Object> source = hit.getSourceAsMap();
+        for (co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode> hit : results) {
+            Map<String, JsonData> source = hit.fields();
             Hit arlasHit = new Hit(collectionReference, source, searchRequest.returned_geometries, flat, true);
             if (searchRequest.returned_geometries != null) {
                 for (String path : searchRequest.returned_geometries.split(",")) {
@@ -294,7 +296,7 @@ public class ElasticExploreService extends ExploreService {
     }
 
     @Override
-    public Map<String, Object> getRawDoc(CollectionReference collectionReference, String identifier, String[] includes) throws ArlasException {
+    public Map<String, JsonData> getRawDoc(CollectionReference collectionReference, String identifier, String[] includes) throws ArlasException {
         return new ElasticDocument(client).getSource(collectionReference, identifier, includes);
     }
 
@@ -305,32 +307,32 @@ public class ElasticExploreService extends ExploreService {
                                          int aggTreeDepth,
                                          Long startQuery,
                                          FluidSearchService fluidSearch) throws ArlasException {
-        SearchResponse response = ((ElasticFluidSearch) fluidSearch).exec();
+        SearchResponse<ObjectNode> response = ((ElasticFluidSearch) fluidSearch).exec();
 
         AggregationResponse aggregationResponse = new AggregationResponse();
-        aggregationResponse.totalnb = response.getHits().getTotalHits().value;
+        aggregationResponse.totalnb = response.hits().total().value();
         aggregationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
-        return formatAggregationResult((MultiBucketsAggregation) response.getAggregations().asList().get(0), aggregationResponse, collectionReference, aggregationsRequests, aggTreeDepth);
+        //TODO es8 agg must have a name
+        return formatAggregationResult(response.aggregations().get("agg"), aggregationResponse, collectionReference, aggregationsRequests, aggTreeDepth);
     }
 
 
+
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse,
+    private AggregationResponse formatAggregationResult(Aggregate aggregate, AggregationResponse aggregationResponse,
                                                         CollectionReference collection, List<Aggregation> aggregationsRequest, int aggTreeDepth) {
-        aggregationResponse.name = aggregation.getName();
-        if (aggregationResponse.name.equals(TERM_AGG)) {
-            aggregationResponse.sumotherdoccounts = ((Terms) aggregation).getSumOfOtherDocCounts();
+        aggregationResponse.name = aggregate._kind().name();
+        if (aggregate.isMultiTerms()) {
+            aggregationResponse.sumotherdoccounts = aggregate.multiTerms().sumOtherDocCount();
         }
         List<RawGeometry> rawGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).rawGeometries : null;
         List<AggregatedGeometryEnum> aggregatedGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).aggregatedGeometries : null;
         aggregationResponse.elements = new ArrayList<>();
-        List<MultiBucketsAggregation.Bucket> buckets = (List<MultiBucketsAggregation.Bucket>) aggregation.getBuckets();
-        buckets.forEach(bucket -> {
-            AggregationResponse element = new AggregationResponse();
-            element.keyAsString = bucket.getKeyAsString();
-            // if it is a `geohash` aggregation type, we set the GEOHASHCENTER and GEOHASH aggregated geometries if they're requested
-            if (aggregationResponse.name.equals(GEOHASH_AGG)) {
-                GeoPoint geoPoint = getGeohashCentre(element.keyAsString.toString());
+        if(aggregate.isGeohashGrid()){
+            aggregate.geohashGrid().buckets().array().forEach(geoHashGridBucket -> {
+                AggregationResponse element = new AggregationResponse();
+                element.keyAsString = geoHashGridBucket.key();
+                Point geoPoint = getGeohashCentre(element.keyAsString.toString());
                 element.key = geoPoint;
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
@@ -342,7 +344,7 @@ public class ElasticExploreService extends ExploreService {
                                 if (g.isCellAgg()) {
                                     returnedGeometry.geometry = createPolygonFromGeohash(element.keyAsString.toString());
                                 } else {
-                                    returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
+                                    returnedGeometry.geometry = new Point(geoPoint.getCoordinates().getLongitude(), geoPoint.getCoordinates().getLatitude());
                                 }
                                 if (element.geometries == null) {
                                     element.geometries = new ArrayList<>();
@@ -351,12 +353,16 @@ public class ElasticExploreService extends ExploreService {
 
                             });
                 }
-            } else if (aggregationResponse.name.equals(GEOTILE_AGG)) {
+            });
+        } else if (aggregate.isGeotileGrid()){
+            aggregate.geohashGrid().buckets().array().forEach(geoTileGridBucket -> {
+                AggregationResponse element = new AggregationResponse();
+                element.keyAsString = geoTileGridBucket.key();
                 List<Integer> zxy = Stream.of(element.keyAsString.toString().split("/"))
                         .map (elem -> Integer.valueOf(elem))
                         .collect(Collectors.toList());
                 BoundingBox tile = GeoTileUtil.getBoundingBox(zxy.get(1), zxy.get(2), zxy.get(0));
-                GeoPoint geoPoint = getTileCentre(tile);
+                Point geoPoint = getTileCentre(tile);
                 element.key = geoPoint;
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
@@ -368,38 +374,25 @@ public class ElasticExploreService extends ExploreService {
                                 if (g.isCellAgg()) {
                                     returnedGeometry.geometry = createBox(tile);
                                 } else {
-                                    returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
+                                    returnedGeometry.geometry = new Point(geoPoint.getCoordinates().getLongitude(),
+                                            geoPoint.getCoordinates().getLatitude());
                                 }
                                 if (element.geometries == null) {
                                     element.geometries = new ArrayList<>();
                                 }
                                 element.geometries.add(returnedGeometry);
-
                             });
                 }
-            } else if (aggregationResponse.name.equals(H3_AGG)){
-                GeoPoint geoPoint = getH3Centre(element.keyAsString.toString());
-                element.key = geoPoint;
-                if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
-                    aggregatedGeometries.stream()
-                            .filter(g -> g.isCellOrCellCenterAgg())
-                            .forEach(g -> {
-                                ReturnedGeometry returnedGeometry = new ReturnedGeometry();
-                                returnedGeometry.reference = g.value();
-                                returnedGeometry.isRaw = false;
-                                if (g.isCellAgg()) {
-                                    returnedGeometry.geometry = createPolygonFromH3(element.keyAsString.toString());
-                                } else {
-                                    returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
-                                }
-                                if (element.geometries == null) {
-                                    element.geometries = new ArrayList<>();
-                                }
-                                element.geometries.add(returnedGeometry);
+            });
+        }
 
-                            });
-                }
-            } else if (aggregationResponse.name.startsWith(DATEHISTOGRAM_AGG)){
+        //TODO MB finish to re-write this function
+
+
+        buckets.forEach(bucket -> {
+            AggregationResponse element = new AggregationResponse();
+            element.keyAsString = bucket.getKeyAsString();
+         else if (aggregationResponse.name.startsWith(DATEHISTOGRAM_AGG)){
                 element.key = ((ZonedDateTime)bucket.getKey()).withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
             } else {
                 element.key = bucket.getKey();
@@ -531,7 +524,6 @@ public class ElasticExploreService extends ExploreService {
         return aggregationResponse;
     }
 
-
     private boolean isAggregatedGeometry(String subName, List<AggregatedGeometryEnum> geometries) {
         if(!CollectionUtils.isEmpty(geometries)) {
             return geometries.stream().map(g -> g.value() + AGGREGATED_GEOMETRY_SUFFIX).anyMatch(g -> g.equals(subName));
@@ -539,9 +531,8 @@ public class ElasticExploreService extends ExploreService {
         return false;
     }
 
-    private GeoPoint getGeohashCentre(String geohash) {
+    private Point getGeohashCentre(String geohash) {
         Rectangle bbox = GeohashUtils.decodeBoundary(geohash, SpatialContext.GEO);
-
         Double maxLon = bbox.getMaxX();
         Double minLon = bbox.getMinX();
         double lon = (maxLon + minLon) / 2;
@@ -550,33 +541,34 @@ public class ElasticExploreService extends ExploreService {
         Double minLat = bbox.getMinY();
         double lat = (maxLat + minLat) / 2;
 
-        return new GeoPoint(lat, lon);
+        return new Point(lat, lon);
     }
 
-    private GeoPoint getH3Centre(String h3) {
+    private Point getH3Centre(String h3) {
         Pair<Double, Double> latLon = H3Util.getInstance().getCellCenterAsLatLon(h3);
-        return new GeoPoint(latLon.getLeft(), latLon.getRight());
+        return new Point(latLon.getLeft(), latLon.getRight());
     }
 
-    private GeoPoint getTileCentre(BoundingBox bbox) {
+    private Point getTileCentre(BoundingBox bbox) {
         double lon = (bbox.getEast() + bbox.getWest()) / 2;
         double lat = (bbox.getNorth() + bbox.getSouth()) / 2;
 
-        return new GeoPoint(lat, lon);
+        return new Point(lat, lon);
     }
 
     private Polygon createBox(GeoBounds subAggregation) {
         Polygon box = new Polygon();
-        GeoPoint topLeft = subAggregation.topLeft();
-        GeoPoint bottomRight = subAggregation.bottomRight();
+        Double bottom = subAggregation.coords().bottom();
+        Double top = subAggregation.coords().top();
+        Double right = subAggregation.coords().right();
+        Double left = subAggregation.coords().left();
         List<LngLatAlt> bounds = new ArrayList<>();
-        bounds.add(new LngLatAlt(topLeft.getLon(), topLeft.getLat()));
-        bounds.add(new LngLatAlt(bottomRight.getLon(), topLeft.getLat()));
-        bounds.add(new LngLatAlt(bottomRight.getLon(), bottomRight.getLat()));
-        bounds.add(new LngLatAlt(topLeft.getLon(), bottomRight.getLat()));
-        bounds.add(new LngLatAlt(topLeft.getLon(), topLeft.getLat()));
+        bounds.add(new LngLatAlt(left, top));
+        bounds.add(new LngLatAlt(right, top));
+        bounds.add(new LngLatAlt(right, bottom));
+        bounds.add(new LngLatAlt(left, bottom));
+        bounds.add(new LngLatAlt(left, top));
         box.add(bounds);
-
         return box;
     }
 }
