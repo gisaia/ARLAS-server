@@ -19,7 +19,9 @@
 
 package io.arlas.server.core.model.response;
 
+import co.elastic.clients.json.JsonData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.utils.GeoTypeMapper;
@@ -44,7 +46,7 @@ public class Hit {
     public Object data;
 
     @JsonIgnore
-    private Map<String, Object> dataAsMap;
+    private Map<String, JsonData> dataAsMap;
 
     @JsonIgnore
     private Map<String, GeoJsonObject> geometriesAsMap;
@@ -55,11 +57,11 @@ public class Hit {
     public Hit() {
     }
 
-    public Hit(CollectionReference collectionReference, Map<String, Object> source, Boolean flat, Boolean ignoreGeo) throws ArlasException {
+    public Hit(CollectionReference collectionReference, Map<String, JsonData> source, Boolean flat, Boolean ignoreGeo) throws ArlasException {
         this(collectionReference, source, null, flat, ignoreGeo);
     }
 
-    public Hit(CollectionReference collectionReference, Map<String, Object> source, String returned_geometries, Boolean flat, Boolean ignoreGeo) throws ArlasException {
+    public Hit(CollectionReference collectionReference, Map<String, JsonData> source, String returned_geometries, Boolean flat, Boolean ignoreGeo) throws ArlasException {
         this.flat = flat;
         this.geometriesAsMap = new HashMap<>();
 
@@ -134,7 +136,7 @@ public class Hit {
         return flat;
     }
 
-    public Map<String, Object> getDataAsMap() {
+    public Map<String, JsonData> getDataAsMap() {
         return dataAsMap;
     }
 
