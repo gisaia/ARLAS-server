@@ -57,7 +57,6 @@ public class TileServiceIT extends AbstractTestContext {
     public static void beforeClass() throws IOException, InterruptedException, ArlasException {
         AbstractTestWithCollection.beforeClass();
 
-        ObjectMapper mapper = new ObjectMapper();
         Data data = new Data();
         int i=0,j=10;
         data.id = ("ID_" + i + "_" + j + "DI_bottom").replace("-", "_");
@@ -82,11 +81,11 @@ public class TileServiceIT extends AbstractTestContext {
         data.geo_params.geometry = new Polygon(coords);
         data.geo_params.wktgeometry = wktGeometry;
         String indexName = DataSetTool.ALIASED_COLLECTION ? DataSetTool.DATASET_INDEX_NAME+"_original" : DataSetTool.DATASET_INDEX_NAME;
-        DataSetTool.client.index(indexName, "ES_ID_TEST" + data.id, mapper.writer().writeValueAsString(data));
+        DataSetTool.client.index(indexName, "ES_ID_TEST" + data.id, data);
 
         data.id = ("ID_" + i + "_" + j + "DI_top").replace("-", "_");
         data.fullname = "My name is " + data.id;
-        DataSetTool.client.index(indexName, "ES_ID_TEST" + data.id, mapper.writer().writeValueAsString(data));
+        DataSetTool.client.index(indexName, "ES_ID_TEST" + data.id, data);
         Thread.sleep(5000);
     }
 

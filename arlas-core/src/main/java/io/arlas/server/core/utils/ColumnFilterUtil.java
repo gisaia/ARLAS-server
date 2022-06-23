@@ -250,17 +250,14 @@ public class ColumnFilterUtil {
 
     private static Function<Stream<String>, Stream<String>> getCollectionFilters(CollectionReference collectionReference) {
         return cols -> cols
-                .filter(col -> !col.contains(":") // "param"
-                        || col.indexOf(":") == 0 // ":param"
-                        || ( // "col*:param" -> col and col_foo must match
-                                (col.substring(0, col.indexOf(":")).endsWith("*") &&
-                                        collectionReference.collectionName.startsWith(col.substring(0, col.indexOf("*"))))
-                        )
-                        || ( // "col:param" -> col must match but not "col_foo"
-                                (!col.substring(0, col.indexOf(":")).endsWith("*") &&
-                                        collectionReference.collectionName.equals(col.substring(0, col.indexOf(":"))))
-                        )
-                )
+                .filter(col ->
+                        // "param"
+                        !col.contains(":")
+                        // ":param"
+                        || col.indexOf(":") == 0
+                        // "col*:param" -> col and col_foo must match
+                        // "col:param" -> col must match but not "col_foo"
+                        || CollectionUtil.matches(col.substring(0, col.indexOf(":")), collectionReference.collectionName))
                 .map(col -> col.contains(":") ? col.substring(col.indexOf(":")+1) : col);
     }
 

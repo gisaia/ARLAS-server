@@ -19,6 +19,7 @@
 
 package io.arlas.server.core.utils;
 
+import co.elastic.clients.json.JsonData;
 import cyclops.data.tuple.Tuple2;
 import cyclops.reactive.ReactiveSeq;
 import io.arlas.commons.utils.StringUtil;
@@ -54,7 +55,7 @@ public class MapExplorer {
         }
     }
 
-    public static Map<String, Object> flat(Object source, Function<Map<List<String>, Object>,Map<String, Object>> keyStringifier, Set<String> exclude) {
+    public static Map<String, JsonData> flat(Object source, Function<Map<List<String>, Object>,Map<String, Object>> keyStringifier, Set<String> exclude) {
         Map<List<String>, Object> flatted= new HashMap<>();
         flat(new ArrayList<>(),source, flatted, exclude);
         return keyStringifier.apply(flatted);
