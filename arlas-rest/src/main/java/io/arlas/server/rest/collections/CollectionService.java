@@ -32,6 +32,7 @@ import io.arlas.commons.rest.response.Error;
 import io.arlas.commons.rest.response.Success;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.utils.CheckParams;
+import io.arlas.server.core.utils.CollectionUtil;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.commons.rest.utils.ResponseFormatter;
 import io.swagger.annotations.ApiOperation;
@@ -143,12 +144,11 @@ public class CollectionService extends CollectionRESTServices {
         Set<String> allowedCollections = ColumnFilterUtil.getAllowedCollections(columnFilter);
         for (CollectionReference collection : collections) {
             for (String c : allowedCollections) {
-                if ((c.endsWith("*") && collection.collectionName.startsWith(c.substring(0, c.indexOf("*"))))
-                        || collection.collectionName.equals(c)){
+                if (CollectionUtil.matches(c, collection.collectionName)){
                     try {
                         savedCollections.add(save(collection.collectionName, collection.params, true));
                     } catch (Exception e) {
-                            throw new ArlasException(e.getMessage());
+                        throw new ArlasException(e.getMessage());
                     }
                 } else {
                     throw new CollectionUnavailableException("Collection '" + collection.collectionName + "' not authorized by column filter");
