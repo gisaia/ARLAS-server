@@ -24,13 +24,8 @@ import com.uber.h3core.H3Core;
 import io.arlas.server.core.app.ElasticConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
-import io.arlas.server.core.impl.elastic.utils.ElasticTool;
 import io.arlas.server.core.model.RasterTileURL;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.http.HttpHost;
 import org.apache.logging.log4j.core.util.IOUtils;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.sniff.Sniffer;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
 import org.slf4j.Logger;
@@ -91,12 +86,13 @@ public class DataSetTool {
     public static boolean WKT_GEOMETRIES;
 
     static {
-        HttpHost[] nodes = ElasticConfiguration.getElasticNodes(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_NODES")).orElse("localhost:9200"), false);
-        ImmutablePair<RestHighLevelClient, Sniffer> pair = ElasticTool.getRestHighLevelClient(nodes,false, null, true, true, 30000);
-        client = new ElasticClient(pair.getLeft(), pair.getRight());
+        ElasticConfiguration conf = new ElasticConfiguration();
+        conf.elasticnodes = Optional.ofNullable(System.getenv("ARLAS_ELASTIC_NODES")).orElse("localhost:9200");
+        conf.elasticEnableSsl = false;
+        client = new ElasticClient(conf);
         ALIASED_COLLECTION = Optional.ofNullable(System.getenv("ALIASED_COLLECTION")).orElse("false").equals("true");
         WKT_GEOMETRIES = false;
-        LOGGER.info("Load data in " + nodes[0].getHostName() + ":" + nodes[0].getPort() + " with ALIASED_COLLECTION=" + ALIASED_COLLECTION);
+        LOGGER.info("Load data in " + conf.elasticnodes + " with ALIASED_COLLECTION=" + ALIASED_COLLECTION);
     }
 
     public static void main(String[] args) throws IOException, ArlasException {
@@ -125,7 +121,7 @@ public class DataSetTool {
         String mapping = IOUtils.toString(new InputStreamReader(DataSetTool.class.getClassLoader().getResourceAsStream(mappingFileName)));
         try {
             client.deleteIndex(indexName);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         client.createIndex(indexName, mapping);
     }
@@ -137,21 +133,20 @@ public class DataSetTool {
     private static void fillIndex(String indexName, int lonMin, int lonMax, int latMin, int latMax) throws IOException, ArlasException {
         Data data;
         H3Core h3 = H3Core.newInstance();
-        ObjectMapper mapper = new ObjectMapper();
 
         for (int i = lonMin; i <= lonMax; i += 10) {
             for (int j = latMin; j <= latMax; j += 10) {
                 int i2 = i + 6;
                 int j2 = j + 6;
                 data = new Data();
-                data.id = String.valueOf("ID_" + i + "_" + j + "DI").replace("-", "_");
+                data.id = ("ID_" + i + "_" + j + "DI").replace("-", "_");
                 data.fullname = "My name is " + data.id;
                 data.params.age = Math.abs(i * j);
-                data.params.startdate = 1l * (i + 1000) * (j + 1000);
+                data.params.startdate = (long) (i + 1000) * (j + 1000);
                 if (data.params.startdate >= 1013600) {
                     data.params.weight = (i + 10) * (j + 10);
                 }
-                data.params.stopdate = 1l * (i + 1000) * (j + 1000) + 100;
+                data.params.stopdate = (long) (i + 1000) * (j + 1000) + 100;
                 data.geo_params.centroid = j + "," + i;
                 for (int res = 0; res <= 15; res++) {
                     data.geo_params.h3.put(String.valueOf(res), h3.geoToH3Address(j, i, res));
@@ -182,25 +177,17 @@ public class DataSetTool {
                 data.geo_params.geometry = new Polygon(coords);
                 data.geo_params.second_geometry = new Polygon(second_coords);
                 data.geo_params.wktgeometry = wktGeometry;
-                client.index(indexName, "ES_ID_TEST" + data.id, mapper.writer().writeValueAsString(data));
+                client.index(indexName, "ES_ID_TEST" + data.id, data);
             }
         }
     }
 
-    public static void clearDataSet() {
-        try {
-            if (!ALIASED_COLLECTION) {
-                client.deleteIndex(DATASET_INDEX_NAME);
-            } else {
-                client.deleteIndex(DATASET_INDEX_NAME + "_original");
-                client.deleteIndex(DATASET_INDEX_NAME + "_alt");
-            }
-        } catch (ArlasException e) {
-            e.printStackTrace();
+    public static void clearDataSet() throws ArlasException {
+        if (!ALIASED_COLLECTION) {
+            client.deleteIndex(DATASET_INDEX_NAME);
+        } else {
+            client.deleteIndex(DATASET_INDEX_NAME + "_original");
+            client.deleteIndex(DATASET_INDEX_NAME + "_alt");
         }
-    }
-
-    public static void close() {
-        client.close();
     }
 }

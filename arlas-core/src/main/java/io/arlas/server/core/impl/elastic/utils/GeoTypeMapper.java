@@ -27,7 +27,6 @@ import io.arlas.commons.exceptions.ParseException;
 import io.arlas.server.core.model.enumerations.GeoTypeEnum;
 import io.arlas.server.core.utils.GeoUtil;
 import io.arlas.server.core.utils.ParamsParser;
-import org.elasticsearch.common.geo.GeoPoint;
 import org.geojson.GeoJsonObject;
 import org.geojson.Point;
 import org.locationtech.jts.geom.Geometry;
@@ -45,14 +44,13 @@ import java.util.regex.Pattern;
 
 public class GeoTypeMapper {
 
-    private static ObjectMapper mapper = new ObjectMapper();
-    private static ObjectReader reader = mapper.readerFor(GeoJsonObject.class);
+    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectReader reader = mapper.readerFor(GeoJsonObject.class);
 
-    private static Logger LOGGER = LoggerFactory.getLogger(GeoTypeMapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoTypeMapper.class);
     public static final String NOT_SUPPORTED_GEO_FORMAT = "Not supported geo_point or geo_shape format found.";
 
 
-    @SuppressWarnings("rawtypes")
     public static GeoJsonObject getGeoJsonObject(Object elasticsearchGeoField) throws ArlasException {
         return getGeoJsonObject(elasticsearchGeoField, getGeometryType(elasticsearchGeoField));
     }
@@ -60,7 +58,7 @@ public class GeoTypeMapper {
     public static GeoJsonObject getGeoJsonObject(Object elasticsearchGeoField, GeoTypeEnum type) throws ArlasException {
         GeoJsonObject geoObject = null;
         String parseExceptionMsg = "Unable to parse " + elasticsearchGeoField.toString() + "as valid " + type;
-        String loggerMsg = "Unable to parse " + elasticsearchGeoField.toString() + "as valid " + type + " from " + elasticsearchGeoField.getClass();
+        String loggerMsg = "Unable to parse " + elasticsearchGeoField + "as valid " + type + " from " + elasticsearchGeoField.getClass();
         switch (type) {
             case GEOPOINT_AS_STRING:
             case GEOHASH:
@@ -74,7 +72,7 @@ public class GeoTypeMapper {
                 break;
             case GEOPOINT_AS_ARRAY:
                 try {
-                    geoObject = new Point(((Number) ((ArrayList) elasticsearchGeoField).get(0)).doubleValue(), ((Number) ((ArrayList) elasticsearchGeoField).get(1)).doubleValue());
+                    geoObject = new Point(((Number) ((ArrayList<?>) elasticsearchGeoField).get(0)).doubleValue(), ((Number) ((ArrayList<?>) elasticsearchGeoField).get(1)).doubleValue());
                 } catch (Exception e) {
                     LOGGER.error(loggerMsg, e);
                     throw new ParseException(parseExceptionMsg);
@@ -93,7 +91,7 @@ public class GeoTypeMapper {
                 break;
             case GEOPOINT:
                 try {
-                    geoObject = new Point(((Number) ((HashMap) elasticsearchGeoField).get("lon")).doubleValue(), ((Number) ((HashMap) elasticsearchGeoField).get("lat")).doubleValue());
+                    geoObject = new Point(((Number) ((HashMap<?, ?>) elasticsearchGeoField).get("lon")).doubleValue(), ((Number) ((HashMap<?, ?>) elasticsearchGeoField).get("lat")).doubleValue());
                 } catch (Exception e) {
                     LOGGER.error(loggerMsg, e);
                     throw new ParseException(parseExceptionMsg);

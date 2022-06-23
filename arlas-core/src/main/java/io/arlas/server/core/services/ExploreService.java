@@ -18,10 +18,12 @@
  */
 package io.arlas.server.core.services;
 
+import co.elastic.clients.json.JsonData;
 import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.BadRequestException;
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
 import io.arlas.server.core.model.enumerations.OperatorEnum;
@@ -311,7 +313,7 @@ public abstract class ExploreService {
     public CollectionReferenceService getCollectionReferenceService() { return collectionReferenceService; }
 
     public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
-                                                                       Optional<String> columnFilter) throws ArlasException {
+                                                                       Optional<String> columnFilter) throws CollectionUnavailableException {
         return collectionReferenceService.describeAllCollections(collectionReferenceList, columnFilter);
     }
 
@@ -407,11 +409,11 @@ public abstract class ExploreService {
                                 UriInfo uriInfo,
                                 String method) throws ArlasException;
 
-    public abstract List<Map<String, Object>> searchAsRaw(MixedRequest request,
-                                                          CollectionReference collectionReference) throws ArlasException;
+    public abstract List<Map<String, JsonData>> searchAsRaw(MixedRequest request,
+                                                            CollectionReference collectionReference) throws ArlasException;
 
-    public abstract Map<String, Object> getRawDoc(CollectionReference collectionReference,
-                                                  String identifier,
-                                                  String[] includes) throws ArlasException;
+    public abstract Map<String, JsonData> getRawDoc(CollectionReference collectionReference,
+                                                      String identifier,
+                                                      String[] includes) throws ArlasException;
 
 }
