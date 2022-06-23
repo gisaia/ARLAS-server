@@ -159,6 +159,11 @@ public class ElasticExploreService extends ExploreService {
         return hits;
     }
 
+    private String getSortValues(String sortParam, co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode> hit) {
+        // https://jenkov.com/tutorials/java-json/jackson-jsonnode.html#get-json-node-at-path
+        return Arrays.stream(sortParam.split(",")).map(p -> hit.source().at("/" + p.replace(".", "/")).asText()).collect(Collectors.joining(","));
+    }
+
     private HashMap<String, Link> getLinks(Search searchRequest, CollectionReference collectionReference, long nbhits, List<co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode>> searchHitList, UriInfo uriInfo, String method) {
         HashMap<String, Link> links = new HashMap<>();
         UriInfoWrapper uriInfoUtil = new UriInfoWrapper(uriInfo, getBaseUri());
@@ -178,14 +183,14 @@ public class ElasticExploreService extends ExploreService {
             next = new Link();
             next.method = method;
             // Use sorted value of last element return by ES to build after param of next & previous link
-            // TODO es8
-            lastHitAfter = Arrays.stream(searchHitList.get(lastIndex).getSortValues()).map(Object::toString).collect(Collectors.joining(","));
+            lastHitAfter = getSortValues(sortParam, searchHitList.get(lastIndex));
+            LOGGER.debug("lastHitAfter="+lastHitAfter);
         }
         if (searchHitList.size() > 0 && sortParam != null && (beforeParam != null || sortParam.contains(collectionReference.params.idPath))) {
             previous = new Link();
             previous.method = method;
-            // TODO es8
-            firstHitAfter = Arrays.stream(searchHitList.get(0).getSortValues()).map(Object::toString).collect(Collectors.joining(","));
+            firstHitAfter = getSortValues(sortParam, searchHitList.get(0));
+            LOGGER.debug("firstHitAfter="+firstHitAfter);
         }
 
         switch (method){
