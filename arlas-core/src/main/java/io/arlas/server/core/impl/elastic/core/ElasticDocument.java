@@ -21,7 +21,6 @@ package io.arlas.server.core.impl.elastic.core;
 
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
-import co.elastic.clients.json.JsonData;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
 import io.arlas.server.core.model.CollectionReference;
@@ -38,16 +37,15 @@ public class ElasticDocument {
         this.client = client;
     }
 
-    public Map<String, JsonData> getSource(CollectionReference collectionReference, String identifier, String[] includes) throws ArlasException {
+    public Map<String, Object> getSource(CollectionReference collectionReference, String identifier, String[] includes) throws ArlasException {
         String[] excludes = collectionReference.params.excludeFields.split(",");
         SearchRequest request = SearchRequest.of(r -> r
                         .index(collectionReference.params.indexName)
                         .source(b -> b.filter(c -> c.excludes(Arrays.asList(excludes)).includes(Arrays.asList(includes))))
-//  TODO es8                  .source(b -> b.fetch(true).filter(c -> c.excludes(INCLUDE_FIELDS)))
                         .query(b -> b.term(c -> c.field(collectionReference.params.idPath).value(identifier)))
         );
 
-        Optional<Hit<Map>> hits = client.search(request, Map.class).hits().hits().stream().findFirst();
-        return hits.<Map<String, JsonData>>map(Hit::source).orElse(null);
+        Optional<Hit<Map>> hits = client.search(request).hits().hits().stream().findFirst();
+        return hits.<Map<String, Object>>map(Hit::source).orElse(null);
     }
 }
