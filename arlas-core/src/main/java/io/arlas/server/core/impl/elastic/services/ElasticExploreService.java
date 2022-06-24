@@ -22,6 +22,9 @@ package io.arlas.server.core.impl.elastic.services;
 import co.elastic.clients.elasticsearch._types.GeoBounds;
 import co.elastic.clients.elasticsearch._types.GeoLocation;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch._types.GeoLocation;
+import co.elastic.clients.elasticsearch._types.aggregations.*;
+import co.elastic.clients.elasticsearch._types.mapping.GeoPointProperty;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
@@ -188,6 +191,7 @@ public class ElasticExploreService extends ExploreService {
             // Use sorted value of last element return by ES to build after param of next & previous link
             lastHitAfter = getSortValues(sortParam, searchHitList.get(lastIndex));
             LOGGER.debug("lastHitAfter="+lastHitAfter);
+
         }
         if (searchHitList.size() > 0 && sortParam != null && (beforeParam != null || sortParam.contains(collectionReference.params.idPath))) {
             previous = new Link();
@@ -340,7 +344,7 @@ public class ElasticExploreService extends ExploreService {
             aggregate.geohashGrid().buckets().array().forEach(geoHashGridBucket -> {
                 AggregationResponse element = new AggregationResponse();
                 element.keyAsString = geoHashGridBucket.key();
-                Point geoPoint = getGeohashCentre(element.keyAsString.toString());
+                GeoLocation geoPoint = getGeohashCentre(element.keyAsString.toString());
                 element.key = geoPoint;
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
@@ -352,7 +356,7 @@ public class ElasticExploreService extends ExploreService {
                                 if (g.isCellAgg()) {
                                     returnedGeometry.geometry = createPolygonFromGeohash(element.keyAsString.toString());
                                 } else {
-                                    returnedGeometry.geometry = new Point(geoPoint.getCoordinates().getLongitude(), geoPoint.getCoordinates().getLatitude());
+                                    returnedGeometry.geometry = new Point(geoPoint.latlon().lon(),geoPoint.latlon().lat());
                                 }
                                 if (element.geometries == null) {
                                     element.geometries = new ArrayList<>();
@@ -369,7 +373,7 @@ public class ElasticExploreService extends ExploreService {
                 List<Integer> zxy = Stream.of(element.keyAsString.toString().split("/"))
                         .map(Integer::valueOf).toList();
                 BoundingBox tile = GeoTileUtil.getBoundingBox(zxy.get(1), zxy.get(2), zxy.get(0));
-                Point geoPoint = getTileCentre(tile);
+                GeoLocation geoPoint = getTileCentre(tile);
                 element.key = geoPoint;
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
@@ -381,8 +385,7 @@ public class ElasticExploreService extends ExploreService {
                                 if (g.isCellAgg()) {
                                     returnedGeometry.geometry = createBox(tile);
                                 } else {
-                                    returnedGeometry.geometry = new Point(geoPoint.getCoordinates().getLongitude(),
-                                            geoPoint.getCoordinates().getLatitude());
+                                    returnedGeometry.geometry = new Point(geoPoint.latlon().lon(),geoPoint.latlon().lat());
                                 }
                                 if (element.geometries == null) {
                                     element.geometries = new ArrayList<>();
@@ -553,7 +556,7 @@ public class ElasticExploreService extends ExploreService {
         return false;
     }
 
-    private Point getGeohashCentre(String geohash) {
+    private GeoLocation getGeohashCentre(String geohash) {
         Rectangle bbox = GeohashUtils.decodeBoundary(geohash, SpatialContext.GEO);
         Double maxLon = bbox.getMaxX();
         Double minLon = bbox.getMinX();
@@ -563,7 +566,7 @@ public class ElasticExploreService extends ExploreService {
         Double minLat = bbox.getMinY();
         double lat = (maxLat + minLat) / 2;
 
-        return new Point(lat, lon);
+        return GeoLocation.of(builder -> builder.latlon(builder1 -> builder1.lat(lat).lon(lon)));
     }
 
     private Point getH3Centre(String h3) {
@@ -571,11 +574,11 @@ public class ElasticExploreService extends ExploreService {
         return new Point(latLon.getLeft(), latLon.getRight());
     }
 
-    private Point getTileCentre(BoundingBox bbox) {
+    private GeoLocation getTileCentre(BoundingBox bbox) {
         double lon = (bbox.getEast() + bbox.getWest()) / 2;
         double lat = (bbox.getNorth() + bbox.getSouth()) / 2;
 
-        return new Point(lat, lon);
+        return GeoLocation.of(builder -> builder.latlon(builder1 -> builder1.lat(lat).lon(lon)));
     }
 
     private Polygon createBox(GeoBounds subAggregation) {
