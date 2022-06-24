@@ -26,7 +26,6 @@ import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.json.JsonData;
 import co.elastic.clients.util.ObjectBuilder;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.arlas.commons.exceptions.*;
 import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
@@ -86,22 +85,21 @@ public class ElasticFluidSearch extends FluidSearchService {
         return boolQueryBuilder;
     }
 
-    public SearchResponse<ObjectNode> exec() throws ArlasException {
+    public SearchResponse<Map> exec() throws ArlasException {
         Pair<String[], String[]> includeExclude = computeIncludeExclude(false);
 
         SearchRequest request = requestBuilder
                 .source(s -> s
                         .filter(f -> f
                                 .includes(Arrays.asList(includeExclude.getLeft()))
-                                .excludes(Arrays.asList(includeExclude.getRight())
-                                )
+                                .excludes(Arrays.asList(includeExclude.getRight()))
                         )
                 )
                 .query(boolQueryBuilder.build()._toQuery())
                 .build();
 
         // https://www.elastic.co/guide/en/elasticsearch/client/java-api-client/current/reading.html#_reading_raw_json
-        return client.search(request, ObjectNode.class);
+        return client.search(request);
     }
 
     @Override
@@ -266,17 +264,17 @@ public class ElasticFluidSearch extends FluidSearchService {
         }
         RangeQuery.Builder ret = QueryBuilders.range().field(field);
         if (incMin) {
-            ret = ret.gte(JsonData.of(min));
+            ret.gte(JsonData.of(min));
         } else {
-            ret = ret.gt(JsonData.of(min));
+            ret.gt(JsonData.of(min));
         }
         if (incMax) {
-            ret = ret.lte(JsonData.of(max));
+            ret.lte(JsonData.of(max));
         } else {
-            ret = ret.lt(JsonData.of(max));
+            ret.lt(JsonData.of(max));
         }
         if (field.equals(collectionReference.params.timestampPath)) {
-            ret = ret.format(TimestampType.epoch_millis.name());
+            ret.format(TimestampType.epoch_millis.name());
         }
         return ret;
     }
@@ -335,7 +333,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                 .boundingBox(b1 -> b1
                         .tlbr(b2 -> b2
                                 .topLeft(b3 -> b3.coords(Arrays.asList(north, west)))
-                                .bottomRight(b3 -> b3.coords(Arrays.asList(south, south)))
+                                .bottomRight(b3 -> b3.coords(Arrays.asList(south, east)))
                         )
                 ).build()._toQuery();
     }
@@ -402,25 +400,25 @@ public class ElasticFluidSearch extends FluidSearchService {
 
     @Override
     public FluidSearchService filterSize(Integer size, Integer from) {
-        requestBuilder = requestBuilder.size(size).from(from);
+        requestBuilder.size(size).from(from);
         return this;
     }
 
     @Override
     public FluidSearchService searchAfter(Page page, String after) {
-        requestBuilder = requestBuilder.searchAfter(Arrays.asList(after.split(",")));
+        requestBuilder.searchAfter(Arrays.asList(after.split(",")));
         return this;
     }
 
 
     @Override
     public FluidSearchService sort(String sort) throws ArlasException {
-        List<String> fieldList = Arrays.asList(sort.split(","));
+        String[] fieldList = sort.split(",");
         String field;
         SortOrder sortOrder;
         for (String signedField : fieldList) {
             if (!signedField.equals("")) {
-                if (signedField.substring(0, 1).equals("-")) {
+                if (signedField.charAt(0) == '-') {
                     field = signedField.substring(1);
                     sortOrder = SortOrder.Desc;
                 } else {
@@ -430,7 +428,6 @@ public class ElasticFluidSearch extends FluidSearchService {
                 if (field.split(" ").length > 1) {
                     geoDistanceSort(field, sortOrder);
                 } else {
-                    ;
                     requestBuilder = requestBuilder.sort(new SortOptions.Builder()
                             .field(new FieldSort.Builder()
                                     .field(field)
@@ -491,7 +488,7 @@ public class ElasticFluidSearch extends FluidSearchService {
             case h3:
                 //aggregation = buildH3Aggregation(aggregationModel).build();
                 break;
-        };
+        }
         aggregations.remove(0);
         if (aggregations.size() == 0) {
             return aggregation;
@@ -566,40 +563,30 @@ public class ElasticFluidSearch extends FluidSearchService {
             if ((Integer)aggregationModel.interval.value > 1)
                 throw new NotAllowedException("The size must be equal to 1 for the unit " + aggregationModel.interval.unit + ".");
         }
-        CalendarInterval intervalUnit = null;
+        CalendarInterval intervalUnit;
         Time intervalTime = null;
         switch (aggregationModel.interval.unit) {
-            case year:
-                intervalUnit = CalendarInterval.Year;
-                break;
-            case quarter:
-                intervalUnit = CalendarInterval.Quarter;
-                break;
-            case month:
-                intervalUnit = CalendarInterval.Month;
-                break;
-            case week:
-                intervalUnit = CalendarInterval.Week;
-                break;
-            case day:
+            case year -> intervalUnit = CalendarInterval.Year;
+            case quarter -> intervalUnit = CalendarInterval.Quarter;
+            case month -> intervalUnit = CalendarInterval.Month;
+            case week -> intervalUnit = CalendarInterval.Week;
+            case day -> {
                 intervalUnit = CalendarInterval.Day;
-                intervalTime = Time.of(builder -> builder.time(aggregationModel.interval.value.toString()+"d"));
-                break;
-            case hour:
+                intervalTime = Time.of(builder -> builder.time(aggregationModel.interval.value.toString() + "d"));
+            }
+            case hour -> {
                 intervalUnit = CalendarInterval.Hour;
-                intervalTime = Time.of(builder -> builder.time(aggregationModel.interval.value.toString()+"h"));
-                break;
-            case minute:
+                intervalTime = Time.of(builder -> builder.time(aggregationModel.interval.value.toString() + "h"));
+            }
+            case minute -> {
                 intervalUnit = CalendarInterval.Minute;
-                intervalTime = Time.of(builder -> builder.time(aggregationModel.interval.value.toString()+"m"));
-
-                break;
-            case second:
+                intervalTime = Time.of(builder -> builder.time(aggregationModel.interval.value.toString() + "m"));
+            }
+            case second -> {
                 intervalUnit = CalendarInterval.Second;
-                intervalTime = Time.of(builder -> builder.time(aggregationModel.interval.value.toString()+"s"));
-                break;
-            default:
-                throw new InvalidParameterException(INVALID_DATE_UNIT);
+                intervalTime = Time.of(builder -> builder.time(aggregationModel.interval.value.toString() + "s"));
+            }
+            default -> throw new InvalidParameterException(INVALID_DATE_UNIT);
         }
         if ((Integer)aggregationModel.interval.value > 1) {
             dateHistogramAggregationBuilder = dateHistogramAggregationBuilder.fixedInterval(intervalTime);
@@ -618,7 +605,7 @@ public class ElasticFluidSearch extends FluidSearchService {
     private GeoHashGridAggregation.Builder buildGeohashAggregation(Aggregation aggregationModel) throws ArlasException {
         GeoHashGridAggregation.Builder geoHashAggregationBuilder = AggregationBuilders.geohashGrid();
         //get the precision
-        GeoHashPrecision precision = GeoHashPrecision.of(builder -> builder.geohashLength((Number)aggregationModel.interval.value));
+        GeoHashPrecision precision = GeoHashPrecision.of(builder -> builder.geohashLength(aggregationModel.interval.value));
         geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
         //get the field, format, collect_field, collect_fct, order, on
         geoHashAggregationBuilder = (GeoHashGridAggregation.Builder) setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
@@ -708,35 +695,26 @@ public class ElasticFluidSearch extends FluidSearchService {
                     throw new BadRequestException(COLLECT_FIELD_NOT_SPECIFIED);
                 }
                 switch (m.collectFct) {
-                    case AVG:
-                        metricAggregationBuilder = AggregationBuilders.avg().field(m.collectField);
-                        break;
-                    case CARDINALITY:
-                        metricAggregationBuilder = AggregationBuilders.cardinality().field(m.collectField);
-                        break;
-                    case MAX:
-                        metricAggregationBuilder = AggregationBuilders.max().field(m.collectField);
-                        break;
-                    case MIN:
-                        metricAggregationBuilder = AggregationBuilders.min().field(m.collectField);
-                        break;
-                    case SUM:
-                        metricAggregationBuilder = AggregationBuilders.sum().field(m.collectField);
-                        break;
-                    case GEOCENTROID:
+                    case AVG -> metricAggregationBuilder = AggregationBuilders.avg().field(m.collectField);
+                    case CARDINALITY ->
+                            metricAggregationBuilder = AggregationBuilders.cardinality().field(m.collectField);
+                    case MAX -> metricAggregationBuilder = AggregationBuilders.max().field(m.collectField);
+                    case MIN -> metricAggregationBuilder = AggregationBuilders.min().field(m.collectField);
+                    case SUM -> metricAggregationBuilder = AggregationBuilders.sum().field(m.collectField);
+                    case GEOCENTROID -> {
                         setGeoMetricAggregationCollectField(m);
                         /** We calculate this metric only if it wasn't requested as a geometry to return in `aggregatedGeometries` parameter **/
                         if (!(aggregationModel.aggregatedGeometries != null && aggregationModel.aggregatedGeometries.contains(AggregatedGeometryEnum.CENTROID) && aggregationModel.field.equals(m.collectField))) {
                             metricAggregationBuilder = AggregationBuilders.geoCentroid().field(m.collectField);
                         }
-                        break;
-                    case GEOBBOX:
+                    }
+                    case GEOBBOX -> {
                         setGeoMetricAggregationCollectField(m);
                         /** We calculate this metric only if it wasn't requested as a geometry to return in `aggregatedGeometries` parameter **/
                         if (!(aggregationModel.aggregatedGeometries != null && aggregationModel.aggregatedGeometries.contains(AggregatedGeometryEnum.BBOX) && aggregationModel.field.equals(m.collectField))) {
                             metricAggregationBuilder = AggregationBuilders.geoBounds().field(m.collectField);
                         }
-                        break;
+                    }
                 }
                 if (metricAggregationBuilder != null) {
                     aggregationBuilder.subAggregation(metricAggregationBuilder);
@@ -763,20 +741,20 @@ public class ElasticFluidSearch extends FluidSearchService {
         return aggregationBuilder;
     }
 
-    private ObjectBuilder setAggregatedGeometries(Aggregation aggregationModel, ObjectBuilder aggregationBuilder) throws ArlasException {
+    private ObjectBuilder setAggregatedGeometries(Aggregation aggregationModel, ObjectBuilder aggregationBuilder) {
         if (aggregationModel.aggregatedGeometries != null) {
             String aggregationGeoField = GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type) ? aggregationModel.field : collectionReference.params.centroidPath;
             aggregationModel.aggregatedGeometries.forEach(ag -> {
                 ObjectBuilder metricAggregation;
                 switch (ag) {
-                    case BBOX:
+                    case BBOX -> {
                         metricAggregation = AggregationBuilders.geoBounds().field(aggregationGeoField);
                         aggregationBuilder.subAggregation(metricAggregation);
-                        break;
-                    case CENTROID:
+                    }
+                    case CENTROID -> {
                         metricAggregation = AggregationBuilders.geoCentroid().field(aggregationGeoField);
                         aggregationBuilder.subAggregation(metricAggregation);
-                        break;
+                    }
                 }
             });
         }
@@ -793,7 +771,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                 rgs.put(rg.sort, geos);
             });
             for (String sort: rgs.keySet()) {
-                String[] includes = rgs.get(sort).stream().toArray(String[]::new);
+                String[] includes = rgs.get(sort).toArray(String[]::new);
                 TopHitsAggregation.Builder topHitsAggregationBuilder = AggregationBuilders.topHits().size(1).fetchSource(includes, null);
                 for (String field : sort.split(",")) {
                     String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
@@ -833,7 +811,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                         }
                     }
                 }
-                String[] hitsToInclude = includes.toArray(new String[includes.size()]);
+                String[] hitsToInclude = includes.toArray(new String[0]);
                 topHitsAggregationBuilder.fetchSource(hitsToInclude, null);
             }
             aggregationBuilder.subAggregation(topHitsAggregationBuilder);
@@ -1020,18 +998,13 @@ public class ElasticFluidSearch extends FluidSearchService {
             Geometry wktGeometry = GeoUtil.readWKT(geometry);
             if (wktGeometry != null) {
                 String geometryType = wktGeometry.getGeometryType().toUpperCase();
-                switch (geometryType) {
-                    case "POLYGON":
-                        return createPolygon((org.locationtech.jts.geom.Polygon) wktGeometry, righthand);
-                    case "MULTIPOLYGON":
-                        return createMultiPolygon((MultiPolygon) wktGeometry, righthand);
-                    case "LINESTRING":
-                        return createLineString((LineString) wktGeometry);
-                    case "POINT":
-                        return createPoint((Point) wktGeometry);
-                    default:
-                        throw new InvalidParameterException("The given geometry is not handled.");
-                }
+                return switch (geometryType) {
+                    case "POLYGON" -> createPolygon((org.locationtech.jts.geom.Polygon) wktGeometry, righthand);
+                    case "MULTIPOLYGON" -> createMultiPolygon((MultiPolygon) wktGeometry, righthand);
+                    case "LINESTRING" -> createLineString((LineString) wktGeometry);
+                    case "POINT" -> createPoint((Point) wktGeometry);
+                    default -> throw new InvalidParameterException("The given geometry is not handled.");
+                };
             }
             throw new InvalidParameterException("The given geometry is invalid.");
         }
