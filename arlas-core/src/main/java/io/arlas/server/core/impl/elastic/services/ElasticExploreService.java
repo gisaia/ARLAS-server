@@ -20,6 +20,7 @@
 package io.arlas.server.core.impl.elastic.services;
 
 import co.elastic.clients.elasticsearch._types.GeoBounds;
+import co.elastic.clients.elasticsearch._types.GeoLocation;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
@@ -128,13 +129,13 @@ public class ElasticExploreService extends ExploreService {
                     computationResponse.value = aggregations.get(FIELD_SUM_VALUE).simpleValue().value();
                     break;
                 case GEOBBOX:
-                    // TODO es8
-                    //computationResponse.geometry = createBox(((GeoBounds)aggregations.get(0)));
+                    // TODO es8 : replace get(0) with proper key?
+                    computationResponse.geometry = createBox(aggregations.get(0).geoBounds().bounds());
                     break;
                 case GEOCENTROID:
-                    // TODO es8
-                    //GeoPoint centroid = ((GeoCentroid) aggregations.get(0)).centroid();
-                    //computationResponse.geometry = new Point(centroid.getLon(), centroid.getLat());
+                    // TODO es8 : replace get(0) with proper key?
+                    GeoLocation centroid = aggregations.get(0).geoCentroid().location();
+                    computationResponse.geometry = new Point(centroid.latlon().lon(), centroid.latlon().lat());
                     break;
             }
         }
@@ -578,17 +579,19 @@ public class ElasticExploreService extends ExploreService {
     }
 
     private Polygon createBox(GeoBounds subAggregation) {
-        Polygon box = new Polygon();
         double bottom = subAggregation.coords().bottom();
         double top = subAggregation.coords().top();
         double right = subAggregation.coords().right();
         double left = subAggregation.coords().left();
+
         List<LngLatAlt> bounds = new ArrayList<>();
         bounds.add(new LngLatAlt(left, top));
         bounds.add(new LngLatAlt(right, top));
         bounds.add(new LngLatAlt(right, bottom));
         bounds.add(new LngLatAlt(left, bottom));
         bounds.add(new LngLatAlt(left, top));
+
+        Polygon box = new Polygon();
         box.add(bounds);
         return box;
     }
