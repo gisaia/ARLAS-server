@@ -467,10 +467,8 @@ public class ElasticFluidSearch extends FluidSearchService {
                 throw new NotAllowedException("'" + aggregationModel.type.name() +"' aggregation type is not allowed in _geoaggregate service if at least `aggregated_geometries` or `raw_geometries` parameters are not specified");
             }
         }
-        aggregation = _3 -> _3.histogram(_4 -> _4.field("price"));
         switch (aggregationModel.type) {
             case datehistogram:
-                //aggregation.
                 //aggregation = buildDateHistogramAggregation(aggregationModel).build();
                 break;
             case geohash:
@@ -503,7 +501,7 @@ public class ElasticFluidSearch extends FluidSearchService {
     public FluidSearchService aggregate(List<Aggregation> aggregations, Boolean isGeoAggregate) throws ArlasException {
         // co.elastic.clients.elasticsearch._types.aggregations.Aggregation agg = aggregateRecursive(new ArrayList<>(aggregations), null, isGeoAggregate, 0);
         // TODO deal with this subAggregation stuff
-        // requestBuilder = requestBuilder.size(0).aggregations("agg", agg);
+        requestBuilder = requestBuilder.size(0).aggregations("agg", agg);
         return this;
     }
 
