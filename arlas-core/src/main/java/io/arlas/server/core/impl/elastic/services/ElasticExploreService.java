@@ -22,6 +22,7 @@ package io.arlas.server.core.impl.elastic.services;
 import co.elastic.clients.elasticsearch._types.GeoBounds;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import co.elastic.clients.json.JsonData;
 import io.arlas.commons.exceptions.ArlasException;
@@ -154,8 +155,8 @@ public class ElasticExploreService extends ExploreService {
         if(searchRequest.page != null && searchRequest.page.before != null ){
             Collections.reverse(searchHitList);
         }
-        for (co.elastic.clients.elasticsearch.core.search.Hit<Map> hit : searchHitList) {
-            hits.hits.add(new Hit(collectionReference, hit.fields(), searchRequest.returned_geometries, flat, false));
+        for (Hit<Map> hit : searchHitList) {
+            hits.hits.add(new ArlasHit(collectionReference, hit.fields(), searchRequest.returned_geometries, flat, false));
         }
         hits.links = getLinks(searchRequest, collectionReference, hits.nbhits, searchHitList, uriInfo, method);
         return hits;
@@ -250,7 +251,7 @@ public class ElasticExploreService extends ExploreService {
     public List<Map<String, JsonData>> searchAsRaw(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> searchHitList = getSearchHits(request, collectionReference).hits();
         List<Map<String, JsonData>> rawList = new ArrayList<>( searchHitList.size());
-        for (co.elastic.clients.elasticsearch.core.search.Hit<Map> hit : searchHitList) {
+        for (Hit<Map> hit : searchHitList) {
             rawList.add(hit.fields());
         }
         return rawList;
@@ -278,9 +279,9 @@ public class ElasticExploreService extends ExploreService {
         if (searchRequest.page != null && searchRequest.page.before != null) {
             Collections.reverse(results);
         }
-        for (co.elastic.clients.elasticsearch.core.search.Hit<Map> hit : results) {
+        for (Hit<Map> hit : results) {
             Map<String, JsonData> source = hit.fields();
-            Hit arlasHit = new Hit(collectionReference, source, searchRequest.returned_geometries, flat, true);
+            ArlasHit arlasHit = new ArlasHit(collectionReference, source, searchRequest.returned_geometries, flat, true);
             if (searchRequest.returned_geometries != null) {
                 for (String path : searchRequest.returned_geometries.split(",")) {
                     GeoJsonObject g = arlasHit.getGeometry(path);

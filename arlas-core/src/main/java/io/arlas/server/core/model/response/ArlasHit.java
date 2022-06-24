@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 @JsonSnakeCase
-public class Hit {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Hit.class);
+public class ArlasHit {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArlasHit.class);
 
     public MD md;
 
@@ -52,14 +52,14 @@ public class Hit {
     @JsonIgnore
     private boolean flat;
 
-    public Hit() {
+    public ArlasHit() {
     }
 
-    public Hit(CollectionReference collectionReference, Map source, Boolean flat, Boolean ignoreGeo) throws ArlasException {
+    public ArlasHit(CollectionReference collectionReference, Map source, Boolean flat, Boolean ignoreGeo) throws ArlasException {
         this(collectionReference, source, null, flat, ignoreGeo);
     }
 
-    public Hit(CollectionReference collectionReference, Map source, String returned_geometries, Boolean flat, Boolean ignoreGeo) throws ArlasException {
+    public ArlasHit(CollectionReference collectionReference, Map source, String returned_geometries, Boolean flat, Boolean ignoreGeo) throws ArlasException {
         this.flat = flat;
         this.geometriesAsMap = new HashMap<>();
 
