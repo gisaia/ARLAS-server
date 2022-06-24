@@ -178,7 +178,7 @@ public abstract class ExploreService {
                 );
     }
 
-    protected Feature getFeatureFromHit(Hit arlasHit, String path, GeoJsonObject geometry) {
+    protected Feature getFeatureFromHit(ArlasHit arlasHit, String path, GeoJsonObject geometry) {
         Feature feature = new Feature();
         geometry.setCrs(null);
         // Setting geometry of geojson
