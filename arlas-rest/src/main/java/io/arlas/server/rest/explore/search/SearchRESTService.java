@@ -183,8 +183,6 @@ public class SearchRESTService extends ExploreRESTServices {
         search.page = ParamsParser.getPage(size, from, sort, after, before);
         search.projection = ParamsParser.getProjection(include, exclude);
         search.returned_geometries = returned_geometries;
-        exploreService.setValidGeoFilters(collectionReference, search);
-
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
 
         search.projection = ParamsParser.enrichIncludes(search.projection, returned_geometries);

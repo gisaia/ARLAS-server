@@ -506,7 +506,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
-
         exploreService.setValidGeoFilters(collectionReference, search);
         exploreService.setValidGeoFilters(collectionReference, searchHeader);
 
@@ -618,7 +617,6 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         search.page = ParamsParser.getPage(size, from, sort, after, before);
         search.projection = ParamsParser.getProjection(include, exclude);
         search.returned_geometries = returned_geometries;
-        exploreService.setValidGeoFilters(collectionReference, search);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
 

@@ -127,7 +127,6 @@ public class ComputeRESTService extends ExploreRESTServices {
         computationRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand);
         computationRequest.field = field;
         computationRequest.metric = ComputationEnum.fromValue(metric);
-        exploreService.setValidGeoFilters(collectionReference, computationRequest);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, computationRequest);
 

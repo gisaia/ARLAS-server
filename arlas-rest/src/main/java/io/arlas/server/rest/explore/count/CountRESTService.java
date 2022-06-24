@@ -112,7 +112,6 @@ public class CountRESTService extends ExploreRESTServices {
 
         Count count = new Count();
         count.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand);
-        exploreService.setValidGeoFilters(collectionReference, count);
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, count);
 
