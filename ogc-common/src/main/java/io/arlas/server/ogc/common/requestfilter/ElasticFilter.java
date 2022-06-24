@@ -72,7 +72,8 @@ public class ElasticFilter {
             coordinatesBuilder.coordinate(boundingBox.getWest(), boundingBox.getNorth());
             coordinatesBuilder.coordinate(boundingBox.getWest(), boundingBox.getSouth());
             coordinatesBuilder.coordinate(boundingBox.getEast(), boundingBox.getSouth());
-            PolygonBuilder polygonBuilder = new PolygonBuilder(coordinatesBuilder, Orientation.LEFT);
+            /** The polygon above is already Righthanded, asking for left orientation was a bug*/
+            PolygonBuilder polygonBuilder = new PolygonBuilder(coordinatesBuilder);
             orBoolQueryBuilder = orBoolQueryBuilder
                     .should(QueryBuilders.geoIntersectionQuery(geometryField, polygonBuilder));
             minimumShouldMatch = minimumShouldMatch + 1;

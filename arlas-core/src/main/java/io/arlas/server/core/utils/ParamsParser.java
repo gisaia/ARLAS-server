@@ -405,7 +405,7 @@ public class ParamsParser {
                     Polygon subWkt = (Polygon) wkt.getGeometryN(i);
                     if (Orientation.isCCW(subWkt.getCoordinates())) {
                         if (righthand != Boolean.TRUE) {
-                            polygonList.addAll(getClockwisePolygons(subWkt));
+                            polygonList.addAll(getClockwisePolygons(subWkt).stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
                         } else {
                             polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1().stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
                         }
@@ -415,7 +415,7 @@ public class ParamsParser {
                         if (righthand == Boolean.TRUE) {
                             polygonList.addAll(getClockwisePolygons(subWkt).stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
                         } else {
-                            polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1());
+                            polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1().stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
                         }
                     }
 

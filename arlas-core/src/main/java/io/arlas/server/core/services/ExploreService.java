@@ -141,7 +141,7 @@ public abstract class ExploreService {
                     throw new BadRequestException("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
                 }
                 for (MultiValueFilter<Expression> f : filter.f) {
-                    fluidSearch = fluidSearch.filter(f, filter.dateformat, filter.righthand);
+                    fluidSearch = fluidSearch.filter(f, filter.dateformat);
                 }
             }
             if (filter.q != null && !filter.q.isEmpty()) {
