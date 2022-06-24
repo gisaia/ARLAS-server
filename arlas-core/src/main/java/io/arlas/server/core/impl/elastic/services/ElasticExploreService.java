@@ -24,7 +24,6 @@ import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import co.elastic.clients.json.JsonData;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.core.ElasticDocument;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
@@ -83,7 +82,7 @@ public class ElasticExploreService extends ExploreService {
     @Override
     public Hits count(CollectionReference collectionReference,
                       FluidSearchService fluidSearch) throws ArlasException {
-        SearchResponse<ObjectNode> searchHits = ((ElasticFluidSearch) fluidSearch).exec();
+        SearchResponse<Map> searchHits = ((ElasticFluidSearch) fluidSearch).exec();
 
         Hits hits = new Hits(collectionReference.collectionName);
         hits.totalnb = searchHits.hits().total().value();
@@ -95,7 +94,7 @@ public class ElasticExploreService extends ExploreService {
     public ComputationResponse compute(CollectionReference collectionReference,
                                        FluidSearchService fluidSearch,
                                        String field, ComputationEnum metric) throws ArlasException {
-        SearchResponse<ObjectNode> response = ((ElasticFluidSearch) fluidSearch).exec();
+        SearchResponse<Map> response = ((ElasticFluidSearch) fluidSearch).exec();
         ComputationResponse computationResponse = new ComputationResponse();
         long startQueryTimestamp = System.nanoTime();
         computationResponse.field = field;
@@ -145,29 +144,28 @@ public class ElasticExploreService extends ExploreService {
 
     @Override
     public Hits search(MixedRequest request, CollectionReference collectionReference, Boolean flat, UriInfo uriInfo, String method) throws ArlasException {
-        HitsMetadata<ObjectNode> searchHits = getSearchHits(request, collectionReference);
+        HitsMetadata<Map> searchHits = getSearchHits(request, collectionReference);
         Search searchRequest  = (Search)request.basicRequest;
         Hits hits = new Hits(collectionReference.collectionName);
         hits.totalnb = searchHits.total().value();
         hits.nbhits = searchHits.hits().size();
         hits.hits = new ArrayList<>((int) hits.nbhits);
-        List<co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode>> searchHitList = searchHits.hits();
+        List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> searchHitList = searchHits.hits();
         if(searchRequest.page != null && searchRequest.page.before != null ){
             Collections.reverse(searchHitList);
         }
-        for (co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode> hit : searchHitList) {
+        for (co.elastic.clients.elasticsearch.core.search.Hit<Map> hit : searchHitList) {
             hits.hits.add(new Hit(collectionReference, hit.fields(), searchRequest.returned_geometries, flat, false));
         }
         hits.links = getLinks(searchRequest, collectionReference, hits.nbhits, searchHitList, uriInfo, method);
         return hits;
     }
 
-    private String getSortValues(String sortParam, co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode> hit) {
-        // https://jenkov.com/tutorials/java-json/jackson-jsonnode.html#get-json-node-at-path
-        return Arrays.stream(sortParam.split(",")).map(p -> hit.source().at("/" + p.replace(".", "/")).asText()).collect(Collectors.joining(","));
+    private String getSortValues(String sortParam, co.elastic.clients.elasticsearch.core.search.Hit<Map> hit) {
+        return Arrays.stream(sortParam.split(",")).map(p -> MapExplorer.getObjectFromPath(p, hit.source()).toString()).collect(Collectors.joining(","));
     }
 
-    private HashMap<String, Link> getLinks(Search searchRequest, CollectionReference collectionReference, long nbhits, List<co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode>> searchHitList, UriInfo uriInfo, String method) {
+    private HashMap<String, Link> getLinks(Search searchRequest, CollectionReference collectionReference, long nbhits, List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> searchHitList, UriInfo uriInfo, String method) {
         HashMap<String, Link> links = new HashMap<>();
         UriInfoWrapper uriInfoUtil = new UriInfoWrapper(uriInfo, getBaseUri());
         Link self = new Link();
@@ -196,30 +194,30 @@ public class ElasticExploreService extends ExploreService {
             LOGGER.debug("firstHitAfter="+firstHitAfter);
         }
 
-        switch (method){
-            case"GET":
+        switch (method) {
+            case "GET" -> {
                 links.put("self", self);
-                if (next != null){
+                if (next != null) {
                     next.href = uriInfoUtil.getNextHref(lastHitAfter);
                     links.put("next", next);
                 }
-                if (previous != null){
+                if (previous != null) {
                     previous.href = uriInfoUtil.getPreviousHref(firstHitAfter);
                     links.put("previous", previous);
                 }
-                break;
-            case"POST":
+            }
+            case "POST" -> {
                 self.body = searchRequest;
                 links.put("self", self);
-                if (next != null){
+                if (next != null) {
                     Page nextPage = new Page();
                     Search search = new Search();
                     search.filter = searchRequest.filter;
                     search.form = searchRequest.form;
                     search.projection = searchRequest.projection;
                     search.returned_geometries = searchRequest.returned_geometries;
-                    nextPage.sort= searchRequest.page.sort;
-                    nextPage.size= searchRequest.page.size;
+                    nextPage.sort = searchRequest.page.sort;
+                    nextPage.size = searchRequest.page.size;
                     nextPage.from = searchRequest.page.from;
                     nextPage.after = lastHitAfter;
                     search.page = nextPage;
@@ -227,7 +225,7 @@ public class ElasticExploreService extends ExploreService {
                     next.body = search;
                     links.put("next", next);
                 }
-                if (previous != null){
+                if (previous != null) {
                     Page previousPage = new Page();
                     Search search = new Search();
                     search.filter = searchRequest.filter;
@@ -243,23 +241,23 @@ public class ElasticExploreService extends ExploreService {
                     previous.body = search;
                     links.put("previous", previous);
                 }
-                break;
+            }
         }
         return links;
     }
 
     @Override
     public List<Map<String, JsonData>> searchAsRaw(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
-        List<co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode>> searchHitList = getSearchHits(request, collectionReference).hits();
+        List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> searchHitList = getSearchHits(request, collectionReference).hits();
         List<Map<String, JsonData>> rawList = new ArrayList<>( searchHitList.size());
-        for (co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode> hit : searchHitList) {
+        for (co.elastic.clients.elasticsearch.core.search.Hit<Map> hit : searchHitList) {
             rawList.add(hit.fields());
         }
         return rawList;
 
     }
 
-    private HitsMetadata<ObjectNode> getSearchHits(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
+    private HitsMetadata<Map> getSearchHits(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         ElasticFluidSearch fluidSearch = (ElasticFluidSearch) getSearchRequest(request, collectionReference);
         return fluidSearch.exec().hits();
     }
@@ -268,19 +266,19 @@ public class ElasticExploreService extends ExploreService {
     public FeatureCollection getFeatures(MixedRequest request, CollectionReference collectionReference,
                                          boolean flat, UriInfo uriInfo, String method,
                                          HashMap<String, Object> context) throws ArlasException {
-        HitsMetadata<ObjectNode> searchHits = getSearchHits(request, collectionReference);
+        HitsMetadata<Map> searchHits = getSearchHits(request, collectionReference);
         long totalnb = searchHits.total().value();
         Search searchRequest = (Search) request.basicRequest;
         FeatureCollection fc = new FeatureCollection();
-        List<co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode>> results = searchHits.hits();
+        List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> results = searchHits.hits();
         if (context != null) {
             context.putAll(getLinks(searchRequest, collectionReference, results.size(), results, uriInfo, method));
-            context.put("matched", Long.valueOf(totalnb));
+            context.put("matched", totalnb);
         }
         if (searchRequest.page != null && searchRequest.page.before != null) {
             Collections.reverse(results);
         }
-        for (co.elastic.clients.elasticsearch.core.search.Hit<ObjectNode> hit : results) {
+        for (co.elastic.clients.elasticsearch.core.search.Hit<Map> hit : results) {
             Map<String, JsonData> source = hit.fields();
             Hit arlasHit = new Hit(collectionReference, source, searchRequest.returned_geometries, flat, true);
             if (searchRequest.returned_geometries != null) {
@@ -304,7 +302,7 @@ public class ElasticExploreService extends ExploreService {
     }
 
     @Override
-    public Map<String, JsonData> getRawDoc(CollectionReference collectionReference, String identifier, String[] includes) throws ArlasException {
+    public Map<String, Object> getRawDoc(CollectionReference collectionReference, String identifier, String[] includes) throws ArlasException {
         return new ElasticDocument(client).getSource(collectionReference, identifier, includes);
     }
 
@@ -315,7 +313,7 @@ public class ElasticExploreService extends ExploreService {
                                          int aggTreeDepth,
                                          Long startQuery,
                                          FluidSearchService fluidSearch) throws ArlasException {
-        SearchResponse<ObjectNode> response = ((ElasticFluidSearch) fluidSearch).exec();
+        SearchResponse<Map> response = ((ElasticFluidSearch) fluidSearch).exec();
 
         AggregationResponse aggregationResponse = new AggregationResponse();
         aggregationResponse.totalnb = response.hits().total().value();
@@ -344,7 +342,7 @@ public class ElasticExploreService extends ExploreService {
                 element.key = geoPoint;
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
-                            .filter(g -> g.isCellOrCellCenterAgg())
+                            .filter(AggregatedGeometryEnum::isCellOrCellCenterAgg)
                             .forEach(g -> {
                                 ReturnedGeometry returnedGeometry = new ReturnedGeometry();
                                 returnedGeometry.reference = g.value();
@@ -367,14 +365,13 @@ public class ElasticExploreService extends ExploreService {
                 AggregationResponse element = new AggregationResponse();
                 element.keyAsString = geoTileGridBucket.key();
                 List<Integer> zxy = Stream.of(element.keyAsString.toString().split("/"))
-                        .map (elem -> Integer.valueOf(elem))
-                        .collect(Collectors.toList());
+                        .map(Integer::valueOf).toList();
                 BoundingBox tile = GeoTileUtil.getBoundingBox(zxy.get(1), zxy.get(2), zxy.get(0));
                 Point geoPoint = getTileCentre(tile);
                 element.key = geoPoint;
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
-                            .filter(g -> g.isCellOrCellCenterAgg())
+                            .filter(AggregatedGeometryEnum::isCellOrCellCenterAgg)
                             .forEach(g -> {
                                 ReturnedGeometry returnedGeometry = new ReturnedGeometry();
                                 returnedGeometry.reference = g.value();
@@ -581,10 +578,10 @@ public class ElasticExploreService extends ExploreService {
 
     private Polygon createBox(GeoBounds subAggregation) {
         Polygon box = new Polygon();
-        Double bottom = subAggregation.coords().bottom();
-        Double top = subAggregation.coords().top();
-        Double right = subAggregation.coords().right();
-        Double left = subAggregation.coords().left();
+        double bottom = subAggregation.coords().bottom();
+        double top = subAggregation.coords().top();
+        double right = subAggregation.coords().right();
+        double left = subAggregation.coords().left();
         List<LngLatAlt> bounds = new ArrayList<>();
         bounds.add(new LngLatAlt(left, top));
         bounds.add(new LngLatAlt(right, top));
