@@ -107,8 +107,8 @@ public abstract class ExploreService {
             int i = 0;
             for (Object hit : element.hits) {
                 Map<String, Object> flatHit = MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>());
-                for (Object k: flatHit.keySet()) {
-                    addToFlat(flat, newKeyParts(newKeyParts(keyParts, "hits"), i + "" ), k.toString(), flatHit.get(k).toString());
+                for (String k: flatHit.keySet()) {
+                    addToFlat(flat, newKeyParts(newKeyParts(keyParts, "hits"), i + "" ), k, flatHit.get(k).toString());
                 }
                 i++;
             }
@@ -223,7 +223,7 @@ public abstract class ExploreService {
         }
 
         if (projection != null && !StringUtil.isNullOrEmpty(projection.excludes)) {
-            fluidSearch = fluidSearch.exclude(projection.excludes);
+            fluidSearch.exclude(projection.excludes);
         }
     }
 
@@ -411,8 +411,8 @@ public abstract class ExploreService {
     public abstract List<Map<String, JsonData>> searchAsRaw(MixedRequest request,
                                                             CollectionReference collectionReference) throws ArlasException;
 
-    public abstract Map<String, JsonData> getRawDoc(CollectionReference collectionReference,
-                                                      String identifier,
-                                                      String[] includes) throws ArlasException;
+    public abstract Map<String, Object> getRawDoc(CollectionReference collectionReference,
+                                                  String identifier,
+                                                  String[] includes) throws ArlasException;
 
 }
