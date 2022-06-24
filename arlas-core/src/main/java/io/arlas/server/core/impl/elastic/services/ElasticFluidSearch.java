@@ -884,7 +884,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         List<Coordinate> coordinates = Arrays.asList(polygon.getCoordinates());
         coordinatesBuilder.coordinates(coordinates);
 
-        return new PolygonBuilder(coordinatesBuilder, righthand == Boolean.TRUE ? Orientation.RIGHT : Orientation.LEFT);
+        return new PolygonBuilder(coordinatesBuilder, Orientation.RIGHT);
     }
 
     private PolygonBuilder createPolygonBuilder(double[] bbox) {
@@ -916,7 +916,7 @@ public class ElasticFluidSearch extends FluidSearchService {
     }
 
     private MultiPolygonBuilder createMultiPolygonBuilder(MultiPolygon multiPolygon, Boolean righthand) {
-        MultiPolygonBuilder multiPolygonBuilder = new MultiPolygonBuilder(Orientation.LEFT);
+        MultiPolygonBuilder multiPolygonBuilder = new MultiPolygonBuilder(Orientation.RIGHT);
         for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
             multiPolygonBuilder.polygon(createPolygonBuilder((Polygon) multiPolygon.getGeometryN(i), righthand));
         }
