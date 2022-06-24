@@ -67,8 +67,8 @@ public class ElasticClient {
     public ElasticClient(ElasticConfiguration configuration) {
         // disable JVM default policies of caching positive hostname resolutions indefinitely
         // because the Elastic load balancer can change IP addresses
-        java.security.Security.setProperty("networkaddress.cache.ttl" , "60");
-        java.security.Security.setProperty("networkaddress.cache.negative.ttl" , "0");
+        java.security.Security.setProperty("networkaddress.cache.ttl", "60");
+        java.security.Security.setProperty("networkaddress.cache.negative.ttl", "0");
 
         // Create the low-level client
         RestClientBuilder restClientBuilder = RestClient.builder(configuration.getElasticNodes());
@@ -142,7 +142,7 @@ public class ElasticClient {
         try {
             GetMappingResponse response = client.indices().getMapping(b -> b.index(index));
             final Map<String, Map<String, Property>> res = new HashMap<>(); // Map<String, Map<String, Property>>
-            response.result().forEach((k,v) -> res.put(k, v.mappings().properties()));
+            response.result().forEach((k, v) -> res.put(k, v.mappings().properties()));
 
             if (res.isEmpty()) {
                 client.indices().getIndexTemplate()
@@ -161,7 +161,7 @@ public class ElasticClient {
                         });
             }
             return res;
-        } catch (IOException | ElasticsearchException e ) {
+        } catch (IOException | ElasticsearchException e) {
             processException(e, index);
             return null;
         }
@@ -182,6 +182,9 @@ public class ElasticClient {
             processException(e, index);
             return null;
         }
+    }
+    public SearchResponse<Map> search(SearchRequest request) throws ArlasException {
+        return search(request, Map.class);
     }
 
     public <T> SearchResponse<T> search(SearchRequest request, Class<T> cl) throws ArlasException {
@@ -230,16 +233,12 @@ public class ElasticClient {
     }
 
     public boolean isDateField(String field, String index) throws ArlasException {
-        //TODO es8 test behaviour
         String lastKey = field.substring(field.lastIndexOf(".") + 1);
         GetFieldMappingResponse response = getFieldMapping(index, field);
         return response.result().keySet()
                 .stream()
                 .anyMatch(indexName -> {
                     TypeFieldMappings data = response.result().get(indexName);
-                    LOGGER.debug("****** getFieldMapping key=" + indexName);
-                    LOGGER.debug("****** getFieldMapping data=" + response.result().get(indexName).toString());
-                    LOGGER.debug("****** getFieldMapping mapping=" + data.mappings().mapping().get(lastKey));
                     return data != null && data.mappings().mapping().get(lastKey).isDate();
                 });
     }
