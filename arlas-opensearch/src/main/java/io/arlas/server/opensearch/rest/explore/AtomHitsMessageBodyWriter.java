@@ -129,7 +129,7 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
                 writeElement(writer, ATOM.XML_NS, "rights", feed.rights);
                 writeElement(writer, ATOM.XML_NS, "subtitle", feed.subtitle);
             }
-            for (Hit hit : hits.hits) {
+            for (ArlasHit hit : hits.hits) {
                 writer.writeStartElement(ATOM.XML_NS, "entry");
                 writeElement(writer, ATOM.XML_NS, "id", hit.md.id);
                 writeElement(writer, ATOM.XML_NS, "title", hit.md.id);
