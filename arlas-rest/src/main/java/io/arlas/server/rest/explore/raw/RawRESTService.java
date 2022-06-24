@@ -27,7 +27,7 @@ import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.app.Documentation;
 import io.arlas.server.core.model.CollectionReference;
-import io.arlas.server.core.model.response.Hit;
+import io.arlas.server.core.model.response.ArlasHit;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.rest.explore.ExploreRESTServices;
@@ -56,8 +56,8 @@ public class RawRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Get an Arlas document", produces = UTF8JSON, notes = "Returns a raw indexed document.", consumes = UTF8JSON, response = Hit.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Hit.class),
+    @ApiOperation(value = "Get an Arlas document", produces = UTF8JSON, notes = "Returns a raw indexed document.", consumes = UTF8JSON, response = ArlasHit.class)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = ArlasHit.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class),
             @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
             @ApiResponse(code = 404, message = "Not Found Error.", response = Error.class)})
@@ -123,7 +123,7 @@ public class RawRESTService extends ExploreRESTServices {
             throw new NotFoundException("Document " + identifier + " not found.");
         }
 
-        Hit hit = new Hit(collectionReference, source, Boolean.TRUE.equals(flat), false);
+        ArlasHit hit = new ArlasHit(collectionReference, source, Boolean.TRUE.equals(flat), false);
         return cache(Response.ok(hit), maxagecache);
     }
 }
