@@ -916,7 +916,7 @@ public class ElasticFluidSearch extends FluidSearchService {
     }
 
     private MultiPolygonBuilder createMultiPolygonBuilder(MultiPolygon multiPolygon, Boolean righthand) {
-        MultiPolygonBuilder multiPolygonBuilder = new MultiPolygonBuilder(Orientation.RIGHT);
+        MultiPolygonBuilder multiPolygonBuilder = new MultiPolygonBuilder(Orientation.LEFT);
         for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
             multiPolygonBuilder.polygon(createPolygonBuilder((Polygon) multiPolygon.getGeometryN(i), righthand));
         }
