@@ -19,9 +19,7 @@
 
 package io.arlas.server.rest.explore.raw;
 
-import co.elastic.clients.json.JsonData;
 import com.codahale.metrics.annotation.Timed;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.arlas.server.core.app.Documentation;
 import io.arlas.commons.exceptions.ArlasException;
@@ -119,7 +117,7 @@ public class RawRESTService extends ExploreRESTServices {
                 .map(i -> i.split(","))
                 .orElse(null);
 
-        Map<String, JsonData> source = exploreService.getRawDoc(collectionReference, identifier, includes);
+        Map<String, Object> source = exploreService.getRawDoc(collectionReference, identifier, includes);
 
         if (source == null || source.isEmpty()) {
             throw new NotFoundException("Document " + identifier + " not found.");

@@ -223,7 +223,7 @@ public abstract class ExploreService {
         }
 
         if (projection != null && !StringUtil.isNullOrEmpty(projection.excludes)) {
-            fluidSearch = fluidSearch.exclude(projection.excludes);
+            fluidSearch.exclude(projection.excludes);
         }
     }
 
@@ -412,8 +412,8 @@ public abstract class ExploreService {
     public abstract List<Map<String, JsonData>> searchAsRaw(MixedRequest request,
                                                             CollectionReference collectionReference) throws ArlasException;
 
-    public abstract Map<String, JsonData> getRawDoc(CollectionReference collectionReference,
-                                                      String identifier,
-                                                      String[] includes) throws ArlasException;
+    public abstract Map<String, Object> getRawDoc(CollectionReference collectionReference,
+                                                  String identifier,
+                                                  String[] includes) throws ArlasException;
 
 }
