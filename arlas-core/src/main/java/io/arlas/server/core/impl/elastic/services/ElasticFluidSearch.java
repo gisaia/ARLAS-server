@@ -39,8 +39,6 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.geo.GeoDistance;
 import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.common.geo.Orientation;
-import org.elasticsearch.common.geo.builders.*;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -368,8 +366,7 @@ public class ElasticFluidSearch extends FluidSearchService {
 
     public GeoShapeQueryBuilder filterGWithin(String field, String geometry) throws ArlasException {
         try {
-            ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
-            return QueryBuilders.geoWithinQuery(field, shapeBuilder);
+            return QueryBuilders.geoWithinQuery(field, getShapeBuilder(geometry));
         } catch (IOException e) {
             throw new ArlasException("Exception while building geoWithinQuery: " + e.getMessage());
         }
@@ -377,8 +374,7 @@ public class ElasticFluidSearch extends FluidSearchService {
 
     public GeoShapeQueryBuilder filterGIntersect(String field, String geometry) throws ArlasException {
         try {
-            ShapeBuilder shapeBuilder = getShapeBuilder(geometry);
-            return QueryBuilders.geoIntersectionQuery(field, shapeBuilder);
+            return QueryBuilders.geoIntersectionQuery(field, getShapeBuilder(geometry));
         } catch (IOException e) {
             throw new ArlasException("Exception while building geoIntersectionQuery: " + e.getMessage());
         }
@@ -878,22 +874,20 @@ public class ElasticFluidSearch extends FluidSearchService {
         }
     }
 
-    private PolygonBuilder createPolygonBuilder(Polygon polygon) {
+    private org.elasticsearch.geometry.Polygon createPolygon(Polygon polygon) {
         // TODO: add interior holes
-        CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
-        List<Coordinate> coordinates = Arrays.asList(polygon.getCoordinates());
-        coordinatesBuilder.coordinates(coordinates);
-
-        return new PolygonBuilder(coordinatesBuilder, Orientation.RIGHT);
+        // default orientation of ES Polygon is Orientation.RIGHT
+        return new org.elasticsearch.geometry.Polygon(new org.elasticsearch.geometry.LinearRing(
+                Arrays.stream(polygon.getCoordinates()).mapToDouble(i -> i.x).toArray(),
+                Arrays.stream(polygon.getCoordinates()).mapToDouble(i -> i.y).toArray()));
     }
 
-    private PolygonBuilder createPolygonBuilder(double[] bbox) {
+    public static org.elasticsearch.geometry.Polygon createPolygon(double[] bbox) {
         double west = bbox[0];
         double east = bbox[2];
         double south = bbox[1];
         double north = bbox[3];
 
-        CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
         /** In ARLAS-api west and east are necessarily between -180 and 180**/
         /** In case of west > east, it means the bbox crosses the dateline (antiméridien) => a translation of west or east by 360 is necessary to be
          * correctly interpreted by geoWithinQuery and geoIntersectsQuery*/
@@ -905,40 +899,37 @@ public class ElasticFluidSearch extends FluidSearchService {
                 east += 360;
             }
         }
-        coordinatesBuilder.coordinate(east, south);
-        coordinatesBuilder.coordinate(east, north);
-        coordinatesBuilder.coordinate(west, north);
-        coordinatesBuilder.coordinate(west, south);
-        coordinatesBuilder.coordinate(east, south);
-        // NB : In ES api LEFT is clockwise and RIGHT anticlockwise
-        return new PolygonBuilder(coordinatesBuilder, Orientation.RIGHT);
+        // default orientation of ES Polygon is Orientation.RIGHT
+        return new org.elasticsearch.geometry.Polygon(new org.elasticsearch.geometry.LinearRing(
+                new double[]{ east, east, west, west, east },
+                new double[]{ south, north, north, south, south }));
 
     }
 
-    private MultiPolygonBuilder createMultiPolygonBuilder(MultiPolygon multiPolygon) {
-        MultiPolygonBuilder multiPolygonBuilder = new MultiPolygonBuilder(Orientation.RIGHT);
+
+    private org.elasticsearch.geometry.MultiPolygon createMultiPolygon(MultiPolygon multiPolygon) {
+        List<org.elasticsearch.geometry.Polygon> shapes = new ArrayList<>();
         for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
-            multiPolygonBuilder.polygon(createPolygonBuilder((Polygon) multiPolygon.getGeometryN(i)));
+            shapes.add(createPolygon((Polygon) multiPolygon.getGeometryN(i)));
         }
-        return multiPolygonBuilder;
+        return new org.elasticsearch.geometry.MultiPolygon(shapes);
     }
 
-    private LineStringBuilder createLineStringBuilder(LineString lineString) {
-        CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
-        coordinatesBuilder.coordinates(lineString.getCoordinates());
-        return new LineStringBuilder(coordinatesBuilder);
+    private org.elasticsearch.geometry.Line createLineString(LineString lineString) {
+        return new org.elasticsearch.geometry.Line(
+                Arrays.stream(lineString.getCoordinates()).mapToDouble(i -> i.x).toArray(),
+                Arrays.stream(lineString.getCoordinates()).mapToDouble(i -> i.y).toArray());
     }
 
-    private PointBuilder createPointBuilder(Point point) {
-        PointBuilder pointBuilder = new PointBuilder();
-        pointBuilder.coordinate(point.getCoordinate());
-        return pointBuilder;
+    private org.elasticsearch.geometry.Point createPoint(Point point) {
+        return new org.elasticsearch.geometry.Point(point.getX(), point.getY());
     }
 
-    private ShapeBuilder getShapeBuilder(String geometry) throws ArlasException {
+
+    private org.elasticsearch.geometry.Geometry getShapeBuilder(String geometry) throws ArlasException {
         // test if geometry is 'west,south,east,north' or wkt string
         if (CheckParams.isBboxMatch(geometry)) {
-            return createPolygonBuilder((double[]) CheckParams.toDoubles(geometry));
+            return createPolygon((double[]) CheckParams.toDoubles(geometry));
         } else {
             // TODO: multilinestring
             Geometry wktGeometry = GeoUtil.readWKT(geometry);
@@ -946,13 +937,13 @@ public class ElasticFluidSearch extends FluidSearchService {
                 String geometryType = wktGeometry.getGeometryType().toUpperCase();
                 switch (geometryType) {
                     case "POLYGON":
-                        return createPolygonBuilder((Polygon) wktGeometry);
+                        return createPolygon((Polygon) wktGeometry);
                     case "MULTIPOLYGON":
-                        return createMultiPolygonBuilder((MultiPolygon) wktGeometry);
+                        return createMultiPolygon((MultiPolygon) wktGeometry);
                     case "LINESTRING":
-                        return createLineStringBuilder((LineString) wktGeometry);
+                        return createLineString((LineString) wktGeometry);
                     case "POINT":
-                        return createPointBuilder((Point) wktGeometry);
+                        return createPoint((Point) wktGeometry);
                     default:
                         throw new InvalidParameterException("The given geometry is not handled.");
                 }

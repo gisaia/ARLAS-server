@@ -39,6 +39,7 @@ import org.elasticsearch.client.NodeSelector;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.RestHighLevelClientBuilder;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetFieldMappingsResponse;
 import org.elasticsearch.client.sniff.ElasticsearchNodesSniffer;
@@ -77,6 +78,8 @@ public class ElasticTool {
         java.security.Security.setProperty("networkaddress.cache.ttl" , "60");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl" , "0");
 
+
+
         RestClientBuilder restClientBuilder = RestClient.builder(nodes);
         if (skipMaster) {
             restClientBuilder.setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS);
@@ -92,7 +95,8 @@ public class ElasticTool {
                     httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
         }
 
-        RestHighLevelClient client = new RestHighLevelClient(restClientBuilder);
+        RestClient restClient = restClientBuilder.build();
+        RestHighLevelClient client = new RestHighLevelClientBuilder(restClient).setApiCompatibilityMode(true).build();
 
         // Sniffing should be disabled with Elasticsearch Service (cloud)
         Sniffer sniffer = null;

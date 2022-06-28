@@ -22,15 +22,13 @@ package io.arlas.server.ogc.common.requestfilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.utils.StringUtil;
+import io.arlas.server.core.impl.elastic.services.ElasticFluidSearch;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.core.utils.BoundingBox;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.OpenGISFieldsExtractor;
-import org.elasticsearch.common.geo.Orientation;
-import org.elasticsearch.common.geo.builders.CoordinatesBuilder;
-import org.elasticsearch.common.geo.builders.PolygonBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -45,18 +43,17 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Optional;
 
 public class ElasticFilter {
-    private static Logger LOGGER = LoggerFactory.getLogger(ElasticFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFilter.class);
 
     public static BoolQueryBuilder filter(String[] ids, String idFieldName, String q, String fulltextField, BoundingBox boundingBox, String geometryField) throws IOException {
         BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         int minimumShouldMatch = 0;
         if (ids != null && ids.length > 0) {
-            for (String resourceIdValue : Arrays.asList(ids)) {
+            for (String resourceIdValue : ids) {
                 orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(idFieldName, resourceIdValue));
             }
             minimumShouldMatch = minimumShouldMatch + 1;
@@ -66,16 +63,9 @@ public class ElasticFilter {
             minimumShouldMatch = minimumShouldMatch + 1;
         }
         if (boundingBox != null) {
-            CoordinatesBuilder coordinatesBuilder = new CoordinatesBuilder();
-            coordinatesBuilder.coordinate(boundingBox.getEast(), boundingBox.getSouth());
-            coordinatesBuilder.coordinate(boundingBox.getEast(), boundingBox.getNorth());
-            coordinatesBuilder.coordinate(boundingBox.getWest(), boundingBox.getNorth());
-            coordinatesBuilder.coordinate(boundingBox.getWest(), boundingBox.getSouth());
-            coordinatesBuilder.coordinate(boundingBox.getEast(), boundingBox.getSouth());
-            /** The polygon above is already Righthanded, asking for left orientation was a bug*/
-            PolygonBuilder polygonBuilder = new PolygonBuilder(coordinatesBuilder);
+            double[] bbox = new double[] { boundingBox.getWest(), boundingBox.getSouth(), boundingBox.getEast(), boundingBox.getNorth() };
             orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(QueryBuilders.geoIntersectionQuery(geometryField, polygonBuilder));
+                    .should(QueryBuilders.geoIntersectionQuery(geometryField, ElasticFluidSearch.createPolygon(bbox)));
             minimumShouldMatch = minimumShouldMatch + 1;
         }
         orBoolQueryBuilder.minimumShouldMatch(minimumShouldMatch);

@@ -48,7 +48,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.*;
 import org.elasticsearch.client.sniff.Sniffer;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.xcontent.XContentType;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
