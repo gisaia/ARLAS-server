@@ -22,13 +22,15 @@ package io.arlas.server.core.utils;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.model.response.TimestampType;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
+import org.joda.time.*;
+import org.joda.time.format.*;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public class TimestampTypeMapper {
@@ -70,9 +72,9 @@ public class TimestampTypeMapper {
             } else if (!type.name().equals(TimestampType.epoch_second.name()) && !type.name().equals(TimestampType.epoch_millis.name())) {
                 dtf = type.dateTimeFormatter.withZoneUTC();
             } else if (type.name().equals(TimestampType.epoch_second.name())) {
-                dtf = (new DateTimeFormatterBuilder()).append(ElasticTool.getElasticEpochTimePrinter(false), ElasticTool.getElasticEpochTimeParser(false)).toFormatter().withZoneUTC();
+                dtf = (new DateTimeFormatterBuilder()).append(new EpochTimePrinter(false), new EpochTimeParser(false)).toFormatter().withZoneUTC();
             } else if (type.name().equals(TimestampType.epoch_millis.name())) {
-                dtf = (new DateTimeFormatterBuilder()).append(ElasticTool.getElasticEpochTimePrinter(true), ElasticTool.getElasticEpochTimeParser(true)).toFormatter().withZoneUTC();
+                dtf = (new DateTimeFormatterBuilder()).append(new EpochTimePrinter(true), new EpochTimeParser(true)).toFormatter().withZoneUTC();
             }
         }
         return Optional.ofNullable(dtf);
@@ -110,4 +112,111 @@ public class TimestampTypeMapper {
         return getDateTimeFormatter(format).map(dtf -> dtf.parseDateTime(dateValue).getMillis()).orElse(null);
     }
 
+    public static class EpochTimeParser implements DateTimeParser {
+
+        private final boolean hasMilliSecondPrecision;
+
+        public EpochTimeParser(boolean hasMilliSecondPrecision) {
+            this.hasMilliSecondPrecision = hasMilliSecondPrecision;
+        }
+
+        @Override
+        public int estimateParsedLength() {
+            return hasMilliSecondPrecision ? 19 : 16;
+        }
+
+        @Override
+        public int parseInto(DateTimeParserBucket bucket, String text, int position) {
+            boolean isPositive = !text.startsWith("-");
+            int firstDotIndex = text.indexOf('.');
+            boolean isTooLong = (firstDotIndex == -1 ? text.length() : firstDotIndex) > estimateParsedLength();
+
+            if (bucket.getZone() != DateTimeZone.UTC) {
+                throw new IllegalArgumentException("time_zone must be UTC ");
+            } else if (isPositive && isTooLong) {
+                return -1;
+            }
+
+            int factor = hasMilliSecondPrecision ? 1 : 1000;
+            try {
+                long millis = new BigDecimal(text).longValue() * factor;
+                DateTime dt = new DateTime(millis, DateTimeZone.UTC);
+                bucket.saveField(DateTimeFieldType.year(), dt.getYear());
+                bucket.saveField(DateTimeFieldType.monthOfYear(), dt.getMonthOfYear());
+                bucket.saveField(DateTimeFieldType.dayOfMonth(), dt.getDayOfMonth());
+                bucket.saveField(DateTimeFieldType.hourOfDay(), dt.getHourOfDay());
+                bucket.saveField(DateTimeFieldType.minuteOfHour(), dt.getMinuteOfHour());
+                bucket.saveField(DateTimeFieldType.secondOfMinute(), dt.getSecondOfMinute());
+                bucket.saveField(DateTimeFieldType.millisOfSecond(), dt.getMillisOfSecond());
+                bucket.setZone(DateTimeZone.UTC);
+            } catch (Exception e) {
+                return -1;
+            }
+            return text.length();
+        }
+    }
+
+    public static class EpochTimePrinter implements DateTimePrinter {
+
+        private final boolean hasMilliSecondPrecision;
+
+        public EpochTimePrinter(boolean hasMilliSecondPrecision) {
+            this.hasMilliSecondPrecision = hasMilliSecondPrecision;
+        }
+
+        @Override
+        public int estimatePrintedLength() {
+            return hasMilliSecondPrecision ? 19 : 16;
+        }
+
+
+        @Override
+        public void printTo(StringBuffer buf, long instant, Chronology chrono, int displayOffset, DateTimeZone displayZone, Locale locale) {
+            if (hasMilliSecondPrecision) {
+                buf.append(instant - displayOffset);
+            } else {
+                buf.append((instant  - displayOffset) / 1000);
+            }
+        }
+
+        @Override
+        public void printTo(Writer out, long instant, Chronology chrono, int displayOffset,
+                            DateTimeZone displayZone, Locale locale) throws IOException {
+            if (hasMilliSecondPrecision) {
+                out.write(String.valueOf(instant - displayOffset));
+            } else {
+                out.append(String.valueOf((instant - displayOffset) / 1000));
+            }
+        }
+
+        @Override
+        public void printTo(StringBuffer buf, ReadablePartial partial, Locale locale) {
+            if (hasMilliSecondPrecision) {
+                buf.append(getDateTimeMillis(partial));
+            } else {
+                buf.append(getDateTimeMillis(partial) / 1000);
+            }
+        }
+
+        @Override
+        public void printTo(Writer out, ReadablePartial partial, Locale locale) throws IOException {
+            if (hasMilliSecondPrecision) {
+                out.append(String.valueOf(getDateTimeMillis(partial)));
+            } else {
+                out.append(String.valueOf(getDateTimeMillis(partial) / 1000));
+            }
+        }
+
+        private long getDateTimeMillis(ReadablePartial partial) {
+            int year = partial.get(DateTimeFieldType.year());
+            int monthOfYear = partial.get(DateTimeFieldType.monthOfYear());
+            int dayOfMonth = partial.get(DateTimeFieldType.dayOfMonth());
+            int hourOfDay = partial.get(DateTimeFieldType.hourOfDay());
+            int minuteOfHour = partial.get(DateTimeFieldType.minuteOfHour());
+            int secondOfMinute = partial.get(DateTimeFieldType.secondOfMinute());
+            int millisOfSecond = partial.get(DateTimeFieldType.millisOfSecond());
+            return partial.getChronology().getDateTimeMillis(year, monthOfYear, dayOfMonth,
+                    hourOfDay, minuteOfHour, secondOfMinute, millisOfSecond);
+        }
+    }
 }
