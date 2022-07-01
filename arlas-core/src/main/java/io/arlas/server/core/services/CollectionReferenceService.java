@@ -172,7 +172,6 @@ public abstract class CollectionReferenceService {
         return ret;
     }
 
-    // TODO es8: refactor
     protected Map<String, CollectionReferenceDescriptionProperty> getFromSource(CollectionReference collectionReference,
                                                                               Map source, Stack<String> namespace,
                                                                               ArrayList<Pattern> excludeFields,
