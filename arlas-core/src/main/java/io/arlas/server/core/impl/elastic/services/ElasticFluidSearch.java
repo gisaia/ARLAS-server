@@ -1045,7 +1045,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         return point;
     }
 
-    private JSONObject getShapeObject(String geometry, Boolean righthand) throws ArlasException {
+    private JSONObject getShapeObject(String geometry) throws ArlasException {
         // test if geometry is 'west,south,east,north' or wkt string
         if (CheckParams.isBboxMatch(geometry)) {
             return createPolygonFromBbox(CheckParams.toDoubles(geometry));
@@ -1055,8 +1055,8 @@ public class ElasticFluidSearch extends FluidSearchService {
             if (wktGeometry != null) {
                 String geometryType = wktGeometry.getGeometryType().toUpperCase();
                 return switch (geometryType) {
-                    case "POLYGON" -> createPolygon((org.locationtech.jts.geom.Polygon) wktGeometry, righthand);
-                    case "MULTIPOLYGON" -> createMultiPolygon((MultiPolygon) wktGeometry, righthand);
+                    case "POLYGON" -> createPolygon((org.locationtech.jts.geom.Polygon) wktGeometry);
+                    case "MULTIPOLYGON" -> createMultiPolygon((MultiPolygon) wktGeometry);
                     case "LINESTRING" -> createLineString((LineString) wktGeometry);
                     case "POINT" -> createPoint((Point) wktGeometry);
                     default -> throw new InvalidParameterException("The given geometry is not handled.");
