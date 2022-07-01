@@ -19,6 +19,7 @@
 
 package io.arlas.server.core.impl.elastic.utils;
 
+import co.elastic.clients.elasticsearch._types.GeoLocation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import io.arlas.commons.exceptions.ArlasException;
@@ -61,10 +62,17 @@ public class GeoTypeMapper {
         String loggerMsg = "Unable to parse " + elasticsearchGeoField + "as valid " + type + " from " + elasticsearchGeoField.getClass();
         switch (type) {
             case GEOPOINT_AS_STRING:
+                try {
+                    GeoLocation geoPoint = GeoLocation.of(b -> b.text(elasticsearchGeoField.toString()));
+                    geoObject = new Point(geoPoint.latlon().lon(), geoPoint.latlon().lat());
+                } catch (Exception e) {
+                    LOGGER.error(loggerMsg, e);
+                    throw new ParseException(parseExceptionMsg);
+                }
+                break;
             case GEOHASH:
                 try {
-                    GeoPoint geoPoint = new GeoPoint(elasticsearchGeoField.toString());
-                    geoObject = new Point(geoPoint.getLon(), geoPoint.getLat());
+                    geoObject = GeoUtil.getGeohashCentre(elasticsearchGeoField.toString());
                 } catch (Exception e) {
                     LOGGER.error(loggerMsg, e);
                     throw new ParseException(parseExceptionMsg);
@@ -72,7 +80,8 @@ public class GeoTypeMapper {
                 break;
             case GEOPOINT_AS_ARRAY:
                 try {
-                    geoObject = new Point(((Number) ((ArrayList<?>) elasticsearchGeoField).get(0)).doubleValue(), ((Number) ((ArrayList<?>) elasticsearchGeoField).get(1)).doubleValue());
+                    geoObject = new Point(((Number) ((ArrayList<?>) elasticsearchGeoField).get(0)).doubleValue(),
+                            ((Number) ((ArrayList<?>) elasticsearchGeoField).get(1)).doubleValue());
                 } catch (Exception e) {
                     LOGGER.error(loggerMsg, e);
                     throw new ParseException(parseExceptionMsg);
@@ -82,8 +91,7 @@ public class GeoTypeMapper {
                 try {
                     List geohashes = (ArrayList) elasticsearchGeoField;
                     int middleIndex = (geohashes.size() / 2);
-                    GeoPoint geoPoint = new GeoPoint(geohashes.get(middleIndex).toString());
-                    geoObject = new Point(geoPoint.getLon(), geoPoint.getLat());
+                    geoObject = GeoUtil.getGeohashCentre(geohashes.get(middleIndex).toString());
                 } catch (Exception e) {
                     LOGGER.error(loggerMsg, e);
                     throw new ParseException(parseExceptionMsg);
@@ -91,7 +99,8 @@ public class GeoTypeMapper {
                 break;
             case GEOPOINT:
                 try {
-                    geoObject = new Point(((Number) ((HashMap<?, ?>) elasticsearchGeoField).get("lon")).doubleValue(), ((Number) ((HashMap<?, ?>) elasticsearchGeoField).get("lat")).doubleValue());
+                    geoObject = new Point(((Number) ((HashMap<?, ?>) elasticsearchGeoField).get("lon")).doubleValue(),
+                            ((Number) ((HashMap<?, ?>) elasticsearchGeoField).get("lat")).doubleValue());
                 } catch (Exception e) {
                     LOGGER.error(loggerMsg, e);
                     throw new ParseException(parseExceptionMsg);
@@ -134,7 +143,9 @@ public class GeoTypeMapper {
             }
         } else if (geometry instanceof ArrayList) {
             List geometries = (ArrayList) geometry;
-            if (geometries.size() == 2 && ParamsParser.tryParseDouble(geometries.get(0).toString()) != null && ParamsParser.tryParseDouble(geometries.get(1).toString()) != null) {
+            if (geometries.size() == 2
+                    && ParamsParser.tryParseDouble(geometries.get(0).toString()) != null
+                    && ParamsParser.tryParseDouble(geometries.get(1).toString()) != null) {
                 return GeoTypeEnum.GEOPOINT_AS_ARRAY;
             } else {
                 if (geometries.stream().filter(g -> isGeohash(g.toString())).count() == geometries.size()) {
