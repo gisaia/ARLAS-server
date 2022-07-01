@@ -41,6 +41,7 @@ import io.arlas.server.core.model.enumerations.CollectionFunction;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
 import io.arlas.server.core.model.enumerations.GeoTypeEnum;
 import io.arlas.server.core.model.request.*;
+import io.arlas.server.core.model.request.Aggregation;
 import io.arlas.server.core.model.response.*;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
@@ -309,7 +310,6 @@ public class ElasticExploreService extends ExploreService {
         return new ElasticDocument(client).getSource(collectionReference, identifier, includes);
     }
 
-
     @Override
     public AggregationResponse aggregate(CollectionReference collectionReference,
                                          List<Aggregation> aggregationsRequests,
@@ -321,8 +321,7 @@ public class ElasticExploreService extends ExploreService {
         AggregationResponse aggregationResponse = new AggregationResponse();
         aggregationResponse.totalnb = response.hits().total().value();
         aggregationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
-        //TODO es8 agg must have a name
-        return formatAggregationResult(response.aggregations().get("agg"), aggregationResponse, collectionReference, aggregationsRequests, aggTreeDepth);
+        return formatAggregationResult(response.aggregations().get("mainAgg"), aggregationResponse, collectionReference, aggregationsRequests, aggTreeDepth);
     }
 
 
@@ -362,13 +361,14 @@ public class ElasticExploreService extends ExploreService {
 
                             });
                 }
+                aggregationResponse.elements.add(element);
             });
         } else if (aggregate.isGeotileGrid()){
             aggregate.geohashGrid().buckets().array().forEach(geoTileGridBucket -> {
                 AggregationResponse element = new AggregationResponse();
                 element.keyAsString = geoTileGridBucket.key();
                 List<Integer> zxy = Stream.of(element.keyAsString.toString().split("/"))
-                        .map(Integer::valueOf).toList();
+                        .map(Integer::valueOf).collect(Collectors.toList());
                 BoundingBox tile = GeoTileUtil.getBoundingBox(zxy.get(1), zxy.get(2), zxy.get(0));
                 GeoLocation geoPoint = getTileCentre(tile);
                 element.key = geoPoint;
@@ -390,20 +390,31 @@ public class ElasticExploreService extends ExploreService {
                                 element.geometries.add(returnedGeometry);
                             });
                 }
+                aggregationResponse.elements.add(element);
             });
+        } else if (aggregate.isDateHistogram()){
+            aggregate.dateHistogram().buckets().array().forEach(dateHistogramBucket -> {
+                AggregationResponse element = new AggregationResponse();
+                element.keyAsString = geoTileGridBucket.key();
+                element.key = ((ZonedDateTime)bucket.getKey()).withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
+
+
+            })
+
+
         }
 
         //TODO MB finish to re-write this function
-
-
         buckets.forEach(bucket -> {
             AggregationResponse element = new AggregationResponse();
             element.keyAsString = bucket.getKeyAsString();
-         else if (aggregationResponse.name.startsWith(DATEHISTOGRAM_AGG)){
+            else if (aggregationResponse.name.startsWith(DATEHISTOGRAM_AGG)){
                 element.key = ((ZonedDateTime)bucket.getKey()).withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
             } else {
                 element.key = bucket.getKey();
             }
+
+
             element.count = bucket.getDocCount();
             element.elements = new ArrayList<>();
             if (bucket.getAggregations().asList().size() == 0) {
@@ -421,7 +432,7 @@ public class ElasticExploreService extends ExploreService {
                                 .map(Arrays::asList)
                                 .map(hitsList -> hitsList.stream().map(SearchHit::getSourceAsMap).collect(Collectors.toList()))
                                 .orElse(new ArrayList());
-                    } else if (Arrays.asList(DATEHISTOGRAM_AGG, HISTOGRAM_AGG, TERM_AGG, GEOHASH_AGG, GEOTILE_AGG, H3_AGG).contains(subAggregation.getName())) {
+                    } else if (Arrays.asList(DATEHISTOGRAM_AGG, HISTOGRAM_AGG, TERM_AGG, GEOHASH_AGG, GEOTILE_AGG).contains(subAggregation.getName())) {
                         subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
                     } else if (isAggregatedGeometry(subAggregation.getName(), aggregatedGeometries)) {
                         subAggregationResponse = null;
@@ -531,6 +542,10 @@ public class ElasticExploreService extends ExploreService {
         return aggregationResponse;
     }
 
+
+
+
+
     private boolean isAggregatedGeometry(String subName, List<AggregatedGeometryEnum> geometries) {
         if(!CollectionUtils.isEmpty(geometries)) {
             return geometries.stream().map(g -> g.value() + AGGREGATED_GEOMETRY_SUFFIX).anyMatch(g -> g.equals(subName));
@@ -549,11 +564,6 @@ public class ElasticExploreService extends ExploreService {
         double lat = (maxLat + minLat) / 2;
 
         return GeoLocation.of(builder -> builder.latlon(builder1 -> builder1.lat(lat).lon(lon)));
-    }
-
-    private Point getH3Centre(String h3) {
-        Pair<Double, Double> latLon = H3Util.getInstance().getCellCenterAsLatLon(h3);
-        return new Point(latLon.getLeft(), latLon.getRight());
     }
 
     private GeoLocation getTileCentre(BoundingBox bbox) {
