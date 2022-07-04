@@ -25,12 +25,12 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.services.CollectionReferenceService;
+import co.elastic.clients.elasticsearch._types.Result;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InternalServerErrorException;
@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.arlas.server.core.model.CollectionReference.INCLUDE_FIELDS;
 
@@ -88,90 +89,65 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
     @Override
     public List<CollectionReference> getAllCollectionReferences(Optional<String> columnFilter, Optional<String> organisations) throws ArlasException {
         List<CollectionReference> collections = new ArrayList<>();
-
+        Set<String> allowedCollections = ColumnFilterUtil.getAllowedCollections(columnFilter);
+        List<Hit<CollectionReferenceParameters>> hits = null;
         try {
-            SearchRequest request = SearchRequest.of(r -> r
-                    .index(arlasIndex)
-                    .source(b -> b.filter(c -> c.excludes(INCLUDE_FIELDS)))
-                    .sort(b -> b.field(c -> c.order(SortOrder.Asc)))
-                    .query(b -> b.matchAll(c -> c.queryName("matchAllQuery")))
-                    .size(100)
-            );
-//            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-//            //Exclude old include_fields for support old collection
-//            searchSourceBuilder.fetchSource(null, "include_fields")
-//                    .sort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
-//                    .query(QueryBuilders.matchAllQuery())
-//                    .size(100);// max of 100 hits will be returned for each scroll
-//            SearchRequest request = new SearchRequest(arlasIndex);
-//            request.source(searchSourceBuilder);
-            SearchResponse<CollectionReferenceParameters> response = client.search(request, CollectionReferenceParameters.class);
-            Set<String> allowedCollections = ColumnFilterUtil.getAllowedCollections(columnFilter);
-/*<<<<<<< HEAD
             do {
-                for (SearchHit hit : scrollResp.getHits().getHits()) {
-                    String source = hit.getSourceAsString();
-                    try {
-                        CollectionReference colRef = new CollectionReference(hit.getId(), reader.readValue(source));
-                        checkIfAllowedForOrganisations(colRef, organisations);
-                        for (String c : allowedCollections) {
-                            if ((c.endsWith("*") && hit.getId().startsWith(c.substring(0, c.indexOf("*"))))
-                                    || hit.getId().equals(c)) {
-                                collections.add(colRef);
-                                break;
-                            }
-                        }
-                    } catch (IOException e) {
-                        throw new InternalServerErrorException("Can not fetch collection", e);
-                    } catch (CollectionUnavailableException e) {
-                        LOGGER.warn(String.format("Collection %s not available for this organisation %s",
-                                hit.getId(), organisations));
-=======*/
-
-            // TODO es8 add search after
-            for (Hit<CollectionReferenceParameters> hit : response.hits().hits()) {
-                for (String c : allowedCollections) {
-                    if (CollectionUtil.matches(c, hit.id())){
-                        collections.add(new CollectionReference(hit.id(), hit.source()));
-                        break;
-                    }
+                var requestBuilder = new SearchRequest.Builder()
+                        .index(arlasIndex)
+                        .source(b -> b.filter(c -> c.excludes(INCLUDE_FIELDS)))
+                        .sort(b -> b.field(c -> c.field("_doc").order(SortOrder.Asc)))
+                        .query(b -> b.matchAll(c -> c.queryName("matchAllQuery")))
+                        .size(100);
+                if (hits != null && hits.size() > 0) {
+                    requestBuilder.searchAfter(hits.get(hits.size() - 1).sort());
                 }
-            }
-
+                hits = client.search(requestBuilder.build(), CollectionReferenceParameters.class).hits().hits();
+    // TODO ES8
+/*                for (Hit<CollectionReferenceParameters> hit : hits) {
+                    CollectionReference colRef = new CollectionReference(hit.getId(), reader.readValue(source));
+                    checkIfAllowedForOrganisations(colRef, organisations);
+                    for (String c : allowedCollections) {
+                        if ((c.endsWith("*") && hit.getId().startsWith(c.substring(0, c.indexOf("*"))))
+                                || hit.getId().equals(c)) {
+                            collections.add(colRef);
+                            break;
+                        }
+                    }
+                }*/
+            } while (hits.size() > 0);
         } catch (NotFoundException e) {
             throw new InternalServerErrorException("Unreachable collections", e);
         }
+
         return collections.stream().filter(c-> {
             try {
                 return !getMapping(c.params.indexName).isEmpty();
             } catch (ArlasException e) {
                 return false;
             }
-        }).toList();
+        }).collect(Collectors.toList());
     }
 
     @Override
     public void deleteCollectionReference(String ref) throws ArlasException {
         DeleteResponse response = client.deleteDocument(arlasIndex, ref);
-        // TODO es8
-//        if (response.status().equals(RestStatus.NOT_FOUND)) {
-//            throw new NotFoundException("collection " + ref + " not found.");
-//        } else if (!response.status().equals(RestStatus.OK)) {
-//            throw new InternalServerErrorException("Unable to delete collection : " + response.status().toString());
-//        } else {
-            //explicit clean-up cache
-            cacheManager.removeCollectionReference(ref);
-//        }
+        if (response.result().equals(Result.NotFound)) {
+            throw new NotFoundException("collection " + ref + " not found.");
+        } else if (!response.result().equals(Result.Deleted)) {
+            throw new InternalServerErrorException("Unable to delete collection : " + response.result());
+        } else {
+        //explicit clean-up cache
+        cacheManager.removeCollectionReference(ref);
+        }
     }
 
     @Override
     protected void putCollectionReferenceWithDao(CollectionReference collectionReference) throws ArlasException {
         IndexResponse response = client.index(arlasIndex, collectionReference.collectionName, collectionReference.params);
-        // TODO es8
-//        if (response.status().getStatus() != RestStatus.OK.getStatus()
-//                && response.status().getStatus() != RestStatus.CREATED.getStatus()) {
-//            throw new InternalServerErrorException("Unable to index collection : " + response.status().toString());
-//        }
+        if (!response.result().equals(Result.Created)) {
+            throw new InternalServerErrorException("Unable to index collection : " + response.result());
+        }
     }
 
     @Override
