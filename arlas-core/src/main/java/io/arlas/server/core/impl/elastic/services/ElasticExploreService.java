@@ -167,10 +167,6 @@ public class ElasticExploreService extends ExploreService {
         return hits;
     }
 
-    private String getSortValues(String sortParam, co.elastic.clients.elasticsearch.core.search.Hit<Map> hit) {
-        return Arrays.stream(sortParam.split(",")).map(p -> MapExplorer.getObjectFromPath(p, hit.source()).toString()).collect(Collectors.joining(","));
-    }
-
     private HashMap<String, Link> getLinks(Search searchRequest, CollectionReference collectionReference, long nbhits, List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> searchHitList, UriInfo uriInfo, String method) {
         HashMap<String, Link> links = new HashMap<>();
         UriInfoWrapper uriInfoUtil = new UriInfoWrapper(uriInfo, getBaseUri());
@@ -190,14 +186,14 @@ public class ElasticExploreService extends ExploreService {
             next = new Link();
             next.method = method;
             // Use sorted value of last element return by ES to build after param of next & previous link
-            lastHitAfter = getSortValues(sortParam, searchHitList.get(lastIndex));
+            lastHitAfter = searchHitList.get(lastIndex).sort().stream().map(Object::toString).collect(Collectors.joining(","));
             LOGGER.debug("lastHitAfter="+lastHitAfter);
 
         }
         if (searchHitList.size() > 0 && sortParam != null && (beforeParam != null || sortParam.contains(collectionReference.params.idPath))) {
             previous = new Link();
             previous.method = method;
-            firstHitAfter = getSortValues(sortParam, searchHitList.get(0));
+            firstHitAfter = searchHitList.get(0).sort().stream().map(Object::toString).collect(Collectors.joining(","));
             LOGGER.debug("firstHitAfter="+firstHitAfter);
         }
 
