@@ -34,12 +34,10 @@ public class ElasticsearchExceptionMapper implements ExceptionMapper<Elasticsear
     @Override
     public Response toResponse(ElasticsearchException e) {
         logger.error("Error occurred", e);
-        // TODO es8 : find new exceptions mapping
-//        if (e instanceof NoNodeAvailableException || e instanceof ClusterBlockException)
-//            return ArlasException.getResponse(e, Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
-//        else if (e instanceof SearchPhaseExecutionException)
-//            return ArlasException.getResponse(e, Response.Status.BAD_REQUEST, e.getCause().getMessage());
-//        else
-            return ArlasException.getResponse(e, Response.Status.BAD_REQUEST, e.getMessage());
+        logger.error("e.endpointId()=" + e.endpointId());
+        logger.error("e.error()=" + e.error());
+        logger.error("e.response()" + e.response());
+        logger.error("e.status()" + e.status());
+        return ArlasException.getResponse(e, Response.Status.BAD_REQUEST, e.getMessage());
     }
 }
