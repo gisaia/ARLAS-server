@@ -36,7 +36,7 @@
 
   <properties>
     <!-- PROJECT-->
-    <log4j.version>2.17.2</log4j.version>
+    <log4j.version>2.18.0</log4j.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <skipTests>true</skipTests>
     <maven.surefire.version>2.22.2</maven.surefire.version>
@@ -53,7 +53,7 @@
     <io.rest-assured.version>5.1.1</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
-    <dropwizard.version>2.1.0</dropwizard.version>
+    <dropwizard.version>2.1.1</dropwizard.version>
     <dropwizard.swagger.version>2.0.12-1</dropwizard.swagger.version>
     <zipkin.dropwizard.version>2.0.16-1</zipkin.dropwizard.version>
     <swaggerv3.version>2.2.1</swaggerv3.version>
@@ -78,7 +78,7 @@
     <!-- AUTH -->
     <jwt.version>3.19.2</jwt.version>
     <elastic-apm.version>1.32.0</elastic-apm.version>
-    <keycloak.version>18.0.1</keycloak.version>
+    <keycloak.version>18.0.2</keycloak.version>
 
     <nv-i18n.version>1.29</nv-i18n.version>
 
