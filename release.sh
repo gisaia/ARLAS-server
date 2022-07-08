@@ -97,6 +97,7 @@ ELASTIC_VERSIONS_7=(
   7.14.2
   7.15.2
   7.16.0
+  7.17.4
 )
 
 ELASTIC_VERSIONS=( "${ELASTIC_VERSIONS_7[@]}" )
@@ -157,7 +158,11 @@ fi
 echo "=> Start arlas-server stack"
 export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
 export ELASTIC_DATADIR="/tmp"
-docker-compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas up -d --build
+docker-compose -f docker-compose-elasticsearch.yml --project-name arlas up -d
+echo "Waiting for ES readiness"
+docker run --net arlas_default --rm busybox sh -c 'i=1; until nc -w 2 elasticsearch 9200; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
+echo "ES is ready"
+docker-compose -f docker-compose.yml --project-name arlas up -d --build
 DOCKER_IP=$(docker-machine ip || echo "localhost")
 
 echo "=> Wait for arlas-server up and running"
