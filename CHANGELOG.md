@@ -1,5 +1,20 @@
 # Change Log
 
+## [v23.0.0](https://github.com/gisaia/ARLAS-server/tree/v23.0.0) (2022-07-08)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v22.0.1...v23.0.0)
+
+**Fixed bugs:**
+
+- Use the base uri of the request if ARLAS\_BASE\_URI is not set [\#770](https://github.com/gisaia/ARLAS-server/issues/770)
+
+**Miscellaneous:**
+
+- Upgrade dependencies [\#809](https://github.com/gisaia/ARLAS-server/issues/809)
+- Migrate to ES client 7.17  [\#804](https://github.com/gisaia/ARLAS-server/issues/804)
+- add trivy action in github CI to detect CVEs [\#793](https://github.com/gisaia/ARLAS-server/issues/793)
+- Handle polygons orientation on ARLAS-server side [\#778](https://github.com/gisaia/ARLAS-server/issues/778)
+
 ## [v22.0.1](https://github.com/gisaia/ARLAS-server/tree/v22.0.1) (2022-05-24)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v22.0.0...v22.0.1)
