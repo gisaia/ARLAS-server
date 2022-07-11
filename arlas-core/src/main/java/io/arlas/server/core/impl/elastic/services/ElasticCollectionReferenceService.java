@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.arlas.server.core.model.CollectionReference.INCLUDE_FIELDS;
 
@@ -116,7 +117,7 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
             } catch (ArlasException e) {
                 return false;
             }
-        }).toList();
+        }).collect(Collectors.toList());
     }
 
     @Override

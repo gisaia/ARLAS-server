@@ -82,10 +82,8 @@ logging:
 arlas-index:  ${ARLAS_ELASTIC_INDEX:-.arlas}
 elastic:
   elastic-nodes: ${ARLAS_ELASTIC_NODES:-localhost:9200}
-  elastic-sniffing: ${ARLAS_ELASTIC_SNIFFING:-false}
   elastic-enable-ssl: ${ARLAS_ELASTIC_ENABLE_SSL:-false}
   elastic-credentials: ${ARLAS_ELASTIC_CREDENTIALS}
-  elastic-skip-master: ${ARLAS_ELASTIC_SKIP_MASTER:-true}
 
 ########################################################
 ############ CACHE                       ###############
