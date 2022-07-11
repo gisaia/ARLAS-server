@@ -498,19 +498,19 @@ public class ElasticFluidSearch extends FluidSearchService {
             Aggregation aggregationModel = aggregations.get(i);
             switch (aggregationModel.type) {
                 case datehistogram:
-                    aggContainerBuilder = aggContainerBuilder.aggregations("datehistogram_"+ i,buildDateHistogramAggregation(aggregationModel).build());
+                    aggContainerBuilder = aggContainerBuilder.aggregations(DATEHISTOGRAM_AGG+ i,buildDateHistogramAggregation(aggregationModel).build());
                     break;
                 case geohash:
-                    aggContainerBuilder = aggContainerBuilder.aggregations("geohash"+ i,buildGeohashAggregation(aggregationModel).build());
+                    aggContainerBuilder = aggContainerBuilder.aggregations(GEOHASH_AGG+ i,buildGeohashAggregation(aggregationModel).build());
                     break;
                 case geotile:
-                    aggContainerBuilder = aggContainerBuilder.aggregations("geotile"+ i,buildGeotileAggregation(aggregationModel).build());
+                    aggContainerBuilder = aggContainerBuilder.aggregations(GEOTILE_AGG+ i,buildGeotileAggregation(aggregationModel).build());
                     break;
                 case histogram:
-                    aggContainerBuilder = aggContainerBuilder.aggregations("histogram"+ i,buildHistogramAggregation(aggregationModel).build());
+                    aggContainerBuilder = aggContainerBuilder.aggregations(HISTOGRAM_AGG+ i,buildHistogramAggregation(aggregationModel).build());
                     break;
                 case term:
-                    aggContainerBuilder = aggContainerBuilder.aggregations("term"+ i,buildTermsAggregation(aggregationModel).build());
+                    aggContainerBuilder = aggContainerBuilder.aggregations(TERM_AGG+ i,buildTermsAggregation(aggregationModel).build());
                     break;
             }
 
@@ -777,7 +777,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                     }
                 }
                 if (metricAggregation != null) {
-                    metricsAggregation.put(m.collectField + "_" + m.collectFct, metricAggregation);
+                    metricsAggregation.put(m.collectField + ":" + m.collectFct, metricAggregation);
                 }
 
                 // Getting the first metric aggregation builder that is different from GEOBBOX and GEOCENTROID, on which the order will be applied

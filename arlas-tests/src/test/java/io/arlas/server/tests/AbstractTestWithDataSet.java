@@ -57,7 +57,7 @@ public abstract class AbstractTestWithDataSet extends AbstractTestContext {
     }
 
     @AfterClass
-    public static void afterClass() throws IOException {
+    public static void afterClass() throws IOException, ArlasException {
         DataSetTool.clearDataSet();
     }
 }
