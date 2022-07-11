@@ -62,7 +62,7 @@ public class CSWServiceIT extends AbstractTestWithCollection {
     }
 
     @AfterClass
-    public static void afterClass() throws IOException {
+    public static void afterClass() throws IOException, ArlasException {
         new CollectionTool().deleteCsw();
     }
 
