@@ -60,7 +60,6 @@ public class CollectionTool extends AbstractTestContext {
                 new CollectionTool().deleteCsw();
                 break;
         }
-        DataSetTool.close();
     }
 
     @Test
@@ -164,14 +163,14 @@ public class CollectionTool extends AbstractTestContext {
         }
     }
 
-    public  void delete() throws IOException {
+    public  void delete() throws IOException, ArlasException {
         DataSetTool.clearDataSet();
         //DELETE collection
         when().delete(getUrlPath()).then().statusCode(200);
         when().delete(arlasPath + "collections/" + COLLECTION_NAME_ACTOR).then().statusCode(200);
     }
 
-    public  void deleteCsw() throws IOException {
+    public  void deleteCsw() throws IOException, ArlasException {
         DataSetTool.clearDataSet();
         InputStreamReader dcelementForCollection = new InputStreamReader(CollectionTool.class.getClassLoader().getResourceAsStream("csw.collection.dcelements.json"));
         ObjectMapper objectMapper = new ObjectMapper();
