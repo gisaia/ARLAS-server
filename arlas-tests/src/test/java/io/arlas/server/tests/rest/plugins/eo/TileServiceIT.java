@@ -89,7 +89,7 @@ public class TileServiceIT extends AbstractTestContext {
     }
 
     @AfterClass
-    public static void afterClass() throws IOException {
+    public static void afterClass() throws IOException, ArlasException {
         AbstractTestWithCollection.afterClass();
     }
 

@@ -10,6 +10,8 @@ services:
       - node.name=docker-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
       - xpack.monitoring.enabled=false
       - xpack.graph.enabled=false
       - xpack.watcher.enabled=false

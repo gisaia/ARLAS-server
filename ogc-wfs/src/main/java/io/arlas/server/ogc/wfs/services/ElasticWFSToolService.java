@@ -18,6 +18,16 @@
  */
 package io.arlas.server.ogc.wfs.services;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.GeoBounds;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.GeoBoundingBoxQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.GeoShapeQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
+import co.elastic.clients.elasticsearch.core.search.SourceFilter;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
@@ -36,13 +46,6 @@ import io.arlas.server.core.utils.MapExplorer;
 import io.arlas.server.core.utils.ParamsParser;
 import net.opengis.wfs._2.MemberPropertyType;
 import net.opengis.wfs._2.ValueCollectionType;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-
 import java.io.IOException;
 import java.util.*;
 
@@ -50,7 +53,7 @@ import static io.arlas.server.core.utils.CheckParams.isBboxLatLonInCorrectRanges
 
 public class ElasticWFSToolService implements WFSToolService {
     ElasticExploreService exploreServices;
-    BoolQueryBuilder wfsQuery = QueryBuilders.boolQuery();
+    BoolQuery.Builder wfsQuery = new BoolQuery.Builder();
 
 
     public ElasticWFSToolService(ElasticExploreService exploreServices) {
@@ -66,15 +69,18 @@ public class ElasticWFSToolService implements WFSToolService {
     public Map<String, Object> getFeature(String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter, CollectionReference collectionReference, String[] excludes, Optional<String> columnFilter) throws ArlasException, IOException {
         buildWFSQuery(WFSRequestType.GetFeature, id, bbox, constraint, resourceid, storedquery_id, partitionFilter, collectionReference, columnFilter);
         String[] includes = columnFilterToIncludes(collectionReference, columnFilter);
-        SearchRequest request = new SearchRequest(collectionReference.params.indexName);
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.fetchSource(includes, excludes)
-                .query(wfsQuery);
-        request.source(searchSourceBuilder);
-        SearchHits hitsGetFeature = exploreServices.getClient()
-                .search(request).getHits();
-        if (hitsGetFeature.getHits().length > 0) {
-            return hitsGetFeature.getAt(0).getSourceAsMap();
+        SourceFilter sourceFilter = new SourceFilter.Builder().excludes(Arrays.asList(excludes)).includes(Arrays.asList(includes)).build();
+        SourceConfig sourceConfig = new SourceConfig.Builder().filter(sourceFilter).build();
+        SearchRequest request = SearchRequest.of(r -> r
+                .index(collectionReference.params.indexName)
+                .source(sourceConfig)
+                .query(wfsQuery.build()._toQuery()));
+
+
+        HitsMetadata<Map> hitsGetFeature = exploreServices.getClient()
+                .search(request).hits();
+        if (hitsGetFeature.hits().size() > 0) {
+            return hitsGetFeature.hits().get(0).source();
         } else {
             throw new OGCException(OGCExceptionCode.NOT_FOUND, "Data not found", "resourceid", Service.WFS);
         }
@@ -88,17 +94,21 @@ public class ElasticWFSToolService implements WFSToolService {
         buildWFSQuery(null, id, bbox, constraint, resourceid, null, partitionFilter, collectionReference, columnFilter);
         List<Map<String, Object>> featureList = new ArrayList<>();
         String[] includes = columnFilterToIncludes(collectionReference, columnFilter);
-        SearchRequest request = new SearchRequest(collectionReference.params.indexName);
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.fetchSource(includes, excludes)
-                .query(wfsQuery)
+
+        SourceFilter sourceFilter = new SourceFilter.Builder().excludes(Arrays.asList(excludes)).includes(Arrays.asList(includes)).build();
+        SourceConfig sourceConfig = new SourceConfig.Builder().filter(sourceFilter).build();
+        SearchRequest request = SearchRequest.of(r -> r
+                .index(collectionReference.params.indexName)
+                .source(sourceConfig)
                 .from(startindex)
-                .size(count);
-        request.source(searchSourceBuilder);
-        SearchHits hitsGetFeature = exploreServices.getClient()
-                .search(request).getHits();
-        for (int i = 0; i < hitsGetFeature.getHits().length; i++) {
-            featureList.add(hitsGetFeature.getAt(i).getSourceAsMap());
+                .size(count)
+                .query(wfsQuery.build()._toQuery()));
+
+
+        HitsMetadata<Map> hitsGetFeature = exploreServices.getClient()
+                .search(request).hits();
+        for (int i = 0; i < hitsGetFeature.hits().size(); i++) {
+            featureList.add(hitsGetFeature.hits().get(i).source());
         }
         return featureList;
     }
@@ -117,23 +127,27 @@ public class ElasticWFSToolService implements WFSToolService {
 
     @Override
     public ValueCollectionType getPropertyValue(String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter,
-                                                CollectionReference collectionReference, String include, String[] excludes, Integer startindex, Integer count,
+                                                CollectionReference collectionReference, String includes, String[] excludes, Integer startindex, Integer count,
                                                 Optional<String> columnFilter) throws ArlasException, IOException {
 
         buildWFSQuery(WFSRequestType.GetPropertyValue, id, bbox, constraint, resourceid, storedquery_id, partitionFilter, collectionReference, columnFilter);
         ValueCollectionType valueCollectionType = new ValueCollectionType();
-        SearchRequest request = new SearchRequest(collectionReference.params.indexName);
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.fetchSource(new String[]{include}, excludes)
-                .query(wfsQuery)
+
+        SourceFilter sourceFilter = new SourceFilter.Builder().excludes(Arrays.asList(excludes)).includes(Arrays.asList(includes)).build();
+        SourceConfig sourceConfig = new SourceConfig.Builder().filter(sourceFilter).build();
+        SearchRequest request = SearchRequest.of(r -> r
+                .index(collectionReference.params.indexName)
+                .source(sourceConfig)
                 .from(startindex)
-                .size(count);
-        request.source(searchSourceBuilder);
-        SearchHits hitsGetPropertyValue = exploreServices.getClient()
-                .search(request).getHits();
-        for (int i = 0; i < hitsGetPropertyValue.getHits().length; i++) {
+                .size(count)
+                .query(wfsQuery.build()._toQuery()));
+
+
+        HitsMetadata<Map> hitsGetPropertyValue = exploreServices.getClient()
+                .search(request).hits();
+        for (int i = 0; i < hitsGetPropertyValue.hits().size(); i++) {
             MemberPropertyType e = new MemberPropertyType();
-            e.getContent().add(MapExplorer.getObjectFromPath(include, hitsGetPropertyValue.getAt(i).getSourceAsMap()));
+            e.getContent().add(MapExplorer.getObjectFromPath(includes, hitsGetPropertyValue.hits().get(i).source()));
             valueCollectionType.getMember().add(e);
         }
         return valueCollectionType;
@@ -143,11 +157,11 @@ public class ElasticWFSToolService implements WFSToolService {
     private void buildWFSQuery(WFSRequestType requestType, String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter,
                                CollectionReference collectionReference, Optional<String> columnFilter) throws ArlasException, IOException{
 
-        wfsQuery = QueryBuilders.boolQuery();
+        wfsQuery = new BoolQuery.Builder();
         ElasticFluidSearch fluidSearch = (ElasticFluidSearch) exploreServices.getFluidSearch(getCollectionReferenceDescription(collectionReference));
         addCollectionFilter(fluidSearch, collectionReference);
         if (constraint != null) {
-            wfsQuery.filter(ElasticFilter.filter(constraint, getCollectionReferenceDescription(collectionReference), Service.WFS, columnFilter));
+            wfsQuery.filter(ElasticFilter.filter(constraint, getCollectionReferenceDescription(collectionReference), Service.WFS, columnFilter).build()._toQuery());
         } else if (bbox != null) {
             buildBboxQuery(bbox, collectionReference);
         } else if (resourceid != null) {
@@ -165,18 +179,18 @@ public class ElasticWFSToolService implements WFSToolService {
         if (!(isBboxLatLonInCorrectRanges(tlbr) && tlbr[3] > tlbr[1]) && tlbr[0] != tlbr[2]) {
             throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, ElasticFluidSearch.INVALID_BBOX, "bbox", Service.WFS);
         }
-        wfsQuery.filter(getBBoxBoolQueryBuilder(bbox, collectionReference.params.centroidPath));
+        wfsQuery.filter(getBBoxBoolQueryBuilder(bbox, collectionReference.params.centroidPath).build()._toQuery());
     }
 
     private void buildRessourceIdQuery(String resourceid,  CollectionReference collectionReference) {
         if (resourceid.contains(",")) {
-            BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+            BoolQuery.Builder orBoolQueryBuilder = new BoolQuery.Builder();
             for (String resourceIdValue : resourceid.split(",")) {
-                orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(collectionReference.params.idPath, resourceIdValue));
+                orBoolQueryBuilder = orBoolQueryBuilder.should(MatchQuery.of(builder -> builder.query(FieldValue.of(resourceIdValue)).field(collectionReference.params.idPath))._toQuery());
             }
-            wfsQuery = wfsQuery.filter(orBoolQueryBuilder);
+            wfsQuery = wfsQuery.filter(orBoolQueryBuilder.build()._toQuery());
         } else {
-            wfsQuery.filter(QueryBuilders.matchQuery(collectionReference.params.idPath, resourceid));
+            wfsQuery.filter(MatchQuery.of(builder -> builder.query(FieldValue.of(resourceid)).field(collectionReference.params.idPath))._toQuery());
         }
     }
 
@@ -186,7 +200,8 @@ public class ElasticWFSToolService implements WFSToolService {
         }
         if (requestType !=null && requestType.equals(WFSRequestType.GetFeature)) {
             if (id != null) {
-                wfsQuery.filter(QueryBuilders.matchQuery(collectionReference.params.idPath, id));
+                wfsQuery.filter(MatchQuery.of(builder -> builder.query(FieldValue.of(id)).field(collectionReference.params.idPath))._toQuery());
+
             } else {
                 throw new OGCException(OGCExceptionCode.MISSING_PARAMETER_VALUE, "'id' parameter is missing for the StoredQuery : " + storedquery_id, "storedquery_id", Service.WFS);
             }
@@ -196,26 +211,29 @@ public class ElasticWFSToolService implements WFSToolService {
     private void addPartitionFilter(CollectionReference collectionReference, ElasticFluidSearch fluidSearch, String partitionFilter) throws ArlasException {
         Filter headerFilter = ParamsParser.getFilter(collectionReference, partitionFilter);
         exploreServices.applyFilter(headerFilter, fluidSearch);
-        wfsQuery.filter(fluidSearch.getBoolQueryBuilder());
+        wfsQuery.filter(fluidSearch.getBoolQueryBuilder().build()._toQuery());
     }
 
     private void addCollectionFilter(ElasticFluidSearch fluidSearch, CollectionReference collectionReference) throws ArlasException {
         Filter collectionFilter = collectionReference.params.filter;
         exploreServices.applyFilter(collectionFilter, fluidSearch);
-        wfsQuery.filter(fluidSearch.getBoolQueryBuilder());
+        wfsQuery.filter(fluidSearch.getBoolQueryBuilder().build()._toQuery());
     }
 
-    private BoolQueryBuilder getBBoxBoolQueryBuilder(String bbox, String centroidPath) throws OGCException {
+    private BoolQuery.Builder getBBoxBoolQueryBuilder(String bbox, String centroidPath) throws OGCException {
+        // west, south, east, north
         double[] tlbr = GeoFormat.toDoubles(bbox, Service.WFS);
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        GeoPoint topLeft = new GeoPoint(tlbr[3], tlbr[0]);
-        GeoPoint bottomRight = new GeoPoint(tlbr[1], tlbr[2]);
-        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-        orBoolQueryBuilder = orBoolQueryBuilder
-                .should(QueryBuilders
-                        .geoBoundingBoxQuery(centroidPath).setCorners(topLeft, bottomRight));
-        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch(1);
-        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder);
+        BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
+        GeoBounds geobounds = GeoBounds.of(builder ->
+                builder.tlbr(builder1 ->
+                        builder1.topLeft(
+                                        builder2 -> builder2.latlon(builder3 -> builder3.lat(tlbr[3]).lon(tlbr[0])))
+                                .bottomRight(builder2 -> builder2.latlon(builder3 -> builder3.lat(tlbr[1]).lon(tlbr[2])))
+                ));
+        BoolQuery.Builder orBoolQueryBuilder = new BoolQuery.Builder();
+        orBoolQueryBuilder = orBoolQueryBuilder.should(GeoBoundingBoxQuery.of(builder -> builder.boundingBox(geobounds).field(centroidPath))._toQuery());
+        orBoolQueryBuilder = orBoolQueryBuilder.minimumShouldMatch("1");
+        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder.build()._toQuery());
         return boolQueryBuilder;
     }
 
