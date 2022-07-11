@@ -46,6 +46,6 @@ public class ElasticDocument {
         );
 
         Optional<Hit<Map>> hits = client.search(request).hits().hits().stream().findFirst();
-        return hits.<Map<String, Object>>map(Hit::source).orElse(null);
+        return hits.map(Hit::source).orElse(null);
     }
 }
