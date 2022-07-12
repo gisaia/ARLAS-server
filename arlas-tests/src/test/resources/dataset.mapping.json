@@ -1,122 +1,122 @@
 {
-  "_source": {
-    "enabled": true
-  },
-  "dynamic": false,
-  "properties": {
-    "id": {
-      "type": "keyword"
+  "mappings":
+  {
+    "_source": {
+      "enabled": true
     },
-    "fullname": {
-      "type": "text"
-    },
-    "params": {
-      "properties": {
-        "age": {
-          "type": "integer"
-        },
-        "weight": {
-          "type": "integer"
-        },
-        "tags": {
-          "type": "keyword"
-        },
-        "job": {
-          "type": "keyword"
-        },
-        "city": {
-          "type": "keyword"
-        },
-        "country": {
-          "type": "keyword"
-        },
-        "startdate": {
-          "type": "date",
-          "format": "epoch_millis"
-        },
-        "stopdate": {
-          "type": "date",
-          "format": "epoch_millis"
-        },
-        "not_indexed": {
-          "type": "keyword",
-          "index": false
-        },
-        "not_enabled": {
-          "type": "object",
-          "enabled": false
+    "dynamic": false,
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "fullname": {
+        "type": "text"
+      },
+      "params": {
+        "properties": {
+          "age": {
+            "type": "integer"
+          },
+          "weight": {
+            "type": "integer"
+          },
+          "tags": {
+            "type": "keyword"
+          },
+          "job": {
+            "type": "keyword"
+          },
+          "city": {
+            "type": "keyword"
+          },
+          "country": {
+            "type": "keyword"
+          },
+          "startdate": {
+            "type": "date",
+            "format": "epoch_millis"
+          },
+          "stopdate": {
+            "type": "date",
+            "format": "epoch_millis"
+          },
+          "not_indexed": {
+            "type": "keyword",
+            "index": false
+          },
+          "not_enabled": {
+            "type": "object",
+            "enabled": false
+          }
         }
-      }
-    },
-    "geo_params": {
-      "properties": {
-        "geometry": {
-          "type": "geo_shape",
-          "tree": "geohash"
-        },
-        "second_geometry": {
-          "type": "geo_shape",
-          "tree": "geohash"
-        },
-        "wktgeometry": {
-          "type": "geo_shape",
-          "tree": "geohash"
-        },
-        "centroid": {
-          "type": "geo_point"
-        },
-        "other_geopoint": {
-          "type": "geo_point"
-        },
-        "h3": {
-          "properties": {
-            "0": {
-              "type": "keyword"
-            },
-            "1": {
-              "type": "keyword"
-            },
-            "2": {
-              "type": "keyword"
-            },
-            "3": {
-              "type": "keyword"
-            },
-            "4": {
-              "type": "keyword"
-            },
-            "5": {
-              "type": "keyword"
-            },
-            "6": {
-              "type": "keyword"
-            },
-            "7": {
-              "type": "keyword"
-            },
-            "8": {
-              "type": "keyword"
-            },
-            "9": {
-              "type": "keyword"
-            },
-            "10": {
-              "type": "keyword"
-            },
-            "11": {
-              "type": "keyword"
-            },
-            "12": {
-              "type": "keyword"
-            },
-            "13": {
-              "type": "keyword"
-            },
-            "14": {
-              "type": "keyword"
-            },
-            "15": {
-              "type": "keyword"
+      },
+      "geo_params": {
+        "properties": {
+          "geometry": {
+            "type": "geo_shape"
+          },
+          "second_geometry": {
+            "type": "geo_shape"
+          },
+          "wktgeometry": {
+            "type": "geo_shape"
+          },
+          "centroid": {
+            "type": "geo_point"
+          },
+          "other_geopoint": {
+            "type": "geo_point"
+          },
+          "h3": {
+            "properties": {
+              "0": {
+                "type": "keyword"
+              },
+              "1": {
+                "type": "keyword"
+              },
+              "2": {
+                "type": "keyword"
+              },
+              "3": {
+                "type": "keyword"
+              },
+              "4": {
+                "type": "keyword"
+              },
+              "5": {
+                "type": "keyword"
+              },
+              "6": {
+                "type": "keyword"
+              },
+              "7": {
+                "type": "keyword"
+              },
+              "8": {
+                "type": "keyword"
+              },
+              "9": {
+                "type": "keyword"
+              },
+              "10": {
+                "type": "keyword"
+              },
+              "11": {
+                "type": "keyword"
+              },
+              "12": {
+                "type": "keyword"
+              },
+              "13": {
+                "type": "keyword"
+              },
+              "14": {
+                "type": "keyword"
+              },
+              "15": {
+                "type": "keyword"
+              }
             }
           }
         }
