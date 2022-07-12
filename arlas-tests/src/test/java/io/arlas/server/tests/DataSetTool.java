@@ -118,12 +118,11 @@ public class DataSetTool {
     }
 
     private static void createIndex(String indexName, String mappingFileName) throws IOException, ArlasException {
-        String mapping = IOUtils.toString(new InputStreamReader(DataSetTool.class.getClassLoader().getResourceAsStream(mappingFileName)));
         try {
             client.deleteIndex(indexName);
         } catch (Exception ignored) {
         }
-        client.createIndex(indexName, mapping);
+        client.getClient().indices().create(b -> b.index(indexName).withJson(new InputStreamReader(DataSetTool.class.getClassLoader().getResourceAsStream(mappingFileName))));
     }
 
     private static void addAlias(String index, String alias) throws ArlasException {
