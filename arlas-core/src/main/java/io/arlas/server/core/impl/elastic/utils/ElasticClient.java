@@ -103,9 +103,9 @@ public class ElasticClient {
         }
     }
 
-    public void createIndex(String index, String arlasMappingFileName) throws ArlasException {
-        try (InputStream mapping = this.getClass().getResourceAsStream(arlasMappingFileName)) {
-            client.indices().create(b -> b.index("products").withJson(mapping));
+    public void createIndex(String index, InputStream mapping) throws ArlasException {
+        try {
+            client.indices().create(b -> b.index(index).withJson(mapping));
         } catch (IOException e) {
             processException(e, index);
         }
@@ -167,8 +167,8 @@ public class ElasticClient {
         }
     }
 
-    public void putMapping(String index, String arlasMappingFileName) throws ArlasException {
-        try (InputStream mapping = this.getClass().getClassLoader().getResourceAsStream(arlasMappingFileName)) {
+    public void putMapping(String index, InputStream mapping) throws ArlasException {
+        try {
             client.indices().putMapping(b -> b.index(index).withJson(mapping));
         } catch (IOException e) {
             processException(e, index);
