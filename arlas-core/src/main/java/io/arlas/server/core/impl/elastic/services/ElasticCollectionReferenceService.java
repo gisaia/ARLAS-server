@@ -45,6 +45,7 @@ import io.arlas.server.core.utils.ColumnFilterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,6 +55,7 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticCollectionReferenceService.class);
 
     private static final String ARLAS_MAPPING_FILE_NAME = "arlas.mapping.json";
+    private static final String  ARLAS_PUT_MAPPING_FILE_NAME = "arlas.put.mapping.json";
 
     private final ElasticClient client;
 
@@ -64,10 +66,13 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
 
     @Override
     public void initCollectionDatabase() throws ArlasException {
+        InputStream mapping = this.getClass().getClassLoader().getResourceAsStream(ARLAS_MAPPING_FILE_NAME);
+        InputStream putMapping = this.getClass().getClassLoader().getResourceAsStream(ARLAS_PUT_MAPPING_FILE_NAME);
+
         if (client.indexExists(arlasIndex)) {
-            client.putMapping(arlasIndex, ARLAS_MAPPING_FILE_NAME);
+            client.putMapping(arlasIndex, putMapping);
         } else {
-            client.createIndex(arlasIndex, ARLAS_MAPPING_FILE_NAME);
+            client.createIndex(arlasIndex, mapping);
         }
     }
 

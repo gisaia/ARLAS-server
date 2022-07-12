@@ -1,4 +1,6 @@
 {
+  "mappings":
+  {
   "_source": {
     "enabled": true
   },
@@ -29,4 +31,4 @@
       "type": "text"
     }
   }
-}
+}},

@@ -1,4 +1,4 @@
-{"mappings":{
+{
   "_source": {
     "enabled": true
   },
@@ -191,4 +191,4 @@
       }
     }
   }
-}}
+}
