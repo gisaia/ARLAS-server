@@ -82,12 +82,12 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
     }
 
     @Override
-    protected Map<String, Map<String, Property>> getMappingFromDao(String indexName) throws ArlasException {
+    protected Map<String, Map<String, Object>> getMappingFromDao(String indexName) throws ArlasException {
         return client.getMappings(indexName);
     }
 
     @Override
-    protected Map<String, Map<String, Property>> getAllMappingsFromDao(String arlasIndex) throws ArlasException {
+    protected Map<String, Map<String, Object>> getAllMappingsFromDao(String arlasIndex) throws ArlasException {
         return client.getMappings();
     }
 
@@ -150,7 +150,7 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
     @Override
     protected void putCollectionReferenceWithDao(CollectionReference collectionReference) throws ArlasException {
         IndexResponse response = client.index(arlasIndex, collectionReference.collectionName, collectionReference.params);
-        if (!response.result().equals(Result.Created)) {
+        if (!Arrays.asList(Result.Created, Result.Updated).contains(response.result())) {
             throw new InternalServerErrorException("Unable to index collection : " + response.result());
         }
     }

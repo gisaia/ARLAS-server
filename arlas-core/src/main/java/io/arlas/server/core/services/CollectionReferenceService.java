@@ -56,9 +56,9 @@ public abstract class CollectionReferenceService {
 
     abstract protected CollectionReference getCollectionReferenceFromDao(String ref) throws ArlasException;
 
-    abstract protected Map<String, Map<String, Property>> getMappingFromDao(String indexName) throws ArlasException;
+    abstract protected Map<String, Map<String, Object>> getMappingFromDao(String indexName) throws ArlasException;
 
-    abstract protected Map<String, Map<String, Property>> getAllMappingsFromDao(String arlasIndex) throws ArlasException;
+    abstract protected Map<String, Map<String, Object>> getAllMappingsFromDao(String arlasIndex) throws ArlasException;
 
     abstract protected void putCollectionReferenceWithDao(CollectionReference collectionReference) throws ArlasException;
 
@@ -84,8 +84,8 @@ public abstract class CollectionReferenceService {
         }
     }
 
-    protected Map<String, Map<String, Property>> getMapping(String indexName) throws ArlasException {
-        Map<String, Map<String, Property>> mapping = cacheManager.getMapping(indexName);
+    protected Map<String, Map<String, Object>> getMapping(String indexName) throws ArlasException {
+        Map<String, Map<String, Object>> mapping = cacheManager.getMapping(indexName);
         if (mapping == null) {
             mapping = getMappingFromDao(indexName);
             cacheManager.putMapping(indexName, mapping);
@@ -139,7 +139,7 @@ public abstract class CollectionReferenceService {
         collectionReferenceDescription.params = collectionReference.params;
         collectionReferenceDescription.collectionName = collectionReference.collectionName;
 
-        Map<String, Map<String, Property>> mappings = getMapping(collectionReferenceDescription.params.indexName);
+        Map<String, Map<String, Object>> mappings = getMapping(collectionReferenceDescription.params.indexName);
         Iterator<String> indices = mappings.keySet().iterator();
         Map<String, CollectionReferenceDescriptionProperty> properties = new HashMap<>();
         Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(columnFilter, collectionReference);
@@ -263,7 +263,7 @@ public abstract class CollectionReferenceService {
 
     public List<CollectionReferenceDescription> getAllIndicesAsCollections() throws ArlasException {
         List<CollectionReferenceDescription> collections = new ArrayList<>();
-        Map<String, Map<String, Property>> indices = getAllMappingsFromDao(this.arlasIndex);
+        Map<String, Map<String, Object>> indices = getAllMappingsFromDao(this.arlasIndex);
 
         for (String indexName : indices.keySet()) {
             CollectionReference collection = new CollectionReference();
@@ -295,9 +295,9 @@ public abstract class CollectionReferenceService {
                 CheckParams.checkExcludeField(excludeField, fields);
             }
         }
-        Map<String, Map<String, Property>> mappings = CollectionUtil.checkAliasMappingFields(getMapping(collectionReference.params.indexName), fields.toArray(new String[0]));
+        Map<String, Map<String, Object>> mappings = CollectionUtil.checkAliasMappingFields(getMapping(collectionReference.params.indexName), fields.toArray(new String[0]));
         for (String index : mappings.keySet()) {
-            Map<String, Property> timestampMD = CollectionUtil.getFieldFromProperties(collectionReference.params.timestampPath, mappings.get(index));
+            Map<String, Object> timestampMD = CollectionUtil.getFieldFromProperties(collectionReference.params.timestampPath, mappings.get(index));
             collectionReference.params.customParams = new HashMap<>();
             if (timestampMD.containsKey("format")) {
                 collectionReference.params.customParams.put(CollectionReference.TIMESTAMP_FORMAT, timestampMD.get("format").toString());
