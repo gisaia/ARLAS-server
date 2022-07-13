@@ -70,13 +70,13 @@ public class HazelcastCacheManager extends BaseHazelcastCacheManager implements 
     }
 
     @Override
-    public void putMapping(String indexName, Map<String, Map<String, Property>> mapping) {
+    public void putMapping(String indexName, Map<String, Map<String, Object>> mapping) {
         putObject("mappings", indexName, mapping);
     }
 
     @Override
-    public Map<String, Map<String, Property>> getMapping(String indexName) {
-        return (Map<String, Map<String, Property>>) getObject("mappings", indexName);
+    public Map<String, Map<String, Object>> getMapping(String indexName) {
+        return (Map<String, Map<String, Object>>) getObject("mappings", indexName);
     }
 
     @Override
