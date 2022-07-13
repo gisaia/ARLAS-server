@@ -30,6 +30,8 @@ import co.elastic.clients.elasticsearch.indices.get_field_mapping.TypeFieldMappi
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.BadRequestException;
 import io.arlas.commons.exceptions.InternalServerErrorException;
@@ -39,6 +41,7 @@ import io.arlas.server.core.app.ElasticConfiguration;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.CollectionReferenceParameters;
 import io.arlas.server.core.utils.CollectionUtil;
+import jakarta.json.stream.JsonGenerator;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -51,6 +54,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,6 +67,7 @@ public class ElasticClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticClient.class);
 
     private final ElasticsearchClient client;
+    private final JacksonJsonpMapper mapper;
 
     public ElasticClient(ElasticConfiguration configuration) {
         // disable JVM default policies of caching positive hostname resolutions indefinitely
@@ -82,9 +87,9 @@ public class ElasticClient {
             restClientBuilder.setHttpClientConfigCallback(
                     httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
         }
-
+        mapper = new JacksonJsonpMapper();
         // Create the transport with a Jackson mapper
-        ElasticsearchTransport transport = new RestClientTransport(restClientBuilder.build(), new JacksonJsonpMapper());
+        ElasticsearchTransport transport = new RestClientTransport(restClientBuilder.build(), mapper);
 
         // And create the API client
         client = new ElasticsearchClient(transport);
@@ -134,15 +139,36 @@ public class ElasticClient {
         }
     }
 
-    public Map<String, Map<String, Property>> getMappings() throws ArlasException {
+    public Map<String, Map<String, Object>> getMappings() throws ArlasException {
         return getMappings(null);
     }
 
-    public Map<String, Map<String, Property>> getMappings(String index) throws ArlasException {
+    private Map<String, Object> toMap(Map<String, Property> properties) {
+        final Map<String, Object> mapping = new HashMap<>();
+        properties.forEach((field, props) -> {
+            StringWriter writer = new StringWriter();
+            try (JsonGenerator generator = mapper.jsonProvider().createGenerator(writer)) {
+                mapper.serialize(props, generator);
+            }
+            try {
+                mapping.put(field, mapper.objectMapper().readValue(writer.toString(), Map.class));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return mapping;
+    }
+
+    public Map<String, Map<String, Object>> getMappings(String index) throws ArlasException {
         try {
-            GetMappingResponse response = client.indices().getMapping(b -> b.index(index));
-            final Map<String, Map<String, Property>> res = new HashMap<>(); // Map<String, Map<String, Property>>
-            response.result().forEach((k, v) -> res.put(k, v.mappings().properties()));
+            final Map<String, Map<String, Object>> res = new HashMap<>();
+            client.indices()
+                    .getMapping(b -> b.index(index))
+                    .result()
+                    .forEach((_index, _record) -> {
+                        res.put(_index, toMap(_record.mappings().properties()));
+                    });
+
 
             if (res.isEmpty()) {
                 client.indices().getIndexTemplate()
@@ -156,7 +182,7 @@ public class ElasticClient {
                             });
                             // if true, add associated template's mappings
                             if (matchIndex.get()) {
-                                res.put(tpl.name(), tpl.indexTemplate().template().mappings().properties());
+                                res.put(tpl.name(), toMap(tpl.indexTemplate().template().mappings().properties()));
                             }
                         });
             }
