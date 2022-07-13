@@ -35,7 +35,7 @@ public interface CacheManager extends BaseCacheManager {
     FieldType getFieldType(String ref, String name);
     void putFieldType(String ref, String name, FieldType type);
 
-    void putMapping(String indexName, Map<String, Map<String, Property>> exists);
-    Map<String, Map<String, Property>> getMapping(String indexName);
+    void putMapping(String indexName, Map<String, Map<String, Object>> exists);
+    Map<String, Map<String, Object>> getMapping(String indexName);
     void removeMapping(String indexName);
 }

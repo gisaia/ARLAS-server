@@ -54,7 +54,7 @@ public class CollectionUtil {
         return res;
     }
 
-    public static Map<String, Map<String, Property>> checkAliasMappingFields(Map<String, Map<String, Property>> mappings,
+    public static Map<String, Map<String, Object>> checkAliasMappingFields(Map<String, Map<String, Object>> mappings,
                                                                              String... fields) throws ArlasException {
         List<String> indices = IteratorUtils.toList(mappings.keySet().iterator());
         for (String index : indices) {
