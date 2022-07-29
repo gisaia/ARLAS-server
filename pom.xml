@@ -75,6 +75,9 @@
     <jts.version>1.19.0</jts.version>
     <h3.version>3.7.0</h3.version>
 
+    <!-- GMM-->
+    <GMM.version>1.0.0</GMM.version>
+
     <!-- AUTH -->
     <jwt.version>3.19.2</jwt.version>
     <elastic-apm.version>1.33.0</elastic-apm.version>
@@ -234,5 +237,17 @@
       <id>jcenter</id>
       <url>https://jcenter.bintray.com</url>
     </repository>
+      <repository>
+        <id>gisaia-private</id>
+        <url>https://dl.cloudsmith.io/bHHFZD7I3IxAdOXw/gisaia/private/maven/</url>
+        <releases>
+          <enabled>true</enabled>
+          <updatePolicy>always</updatePolicy>
+        </releases>
+        <snapshots>
+          <enabled>true</enabled>
+          <updatePolicy>always</updatePolicy>
+        </snapshots>
+      </repository>
   </repositories>
 </project>

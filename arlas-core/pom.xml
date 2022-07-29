@@ -196,6 +196,15 @@
             <version>${jersey-media-jaxb.version}</version>
         </dependency>
 
+        <!-- ____________________________________________________ -->
+        <!-- GMM -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>gisaia</groupId>
+            <artifactId>GMM</artifactId>
+            <version>${GMM.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
