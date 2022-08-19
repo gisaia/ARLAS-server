@@ -105,16 +105,16 @@ public class ElasticFluidSearch extends FluidSearchService {
     }
 
     @Override
-    public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat) throws ArlasException {
+    public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat, Boolean rightHand )throws ArlasException {
         List<Query> queries = new ArrayList<>();
         for (Expression fFilter : f) {
-            queries.add(filter(fFilter, dateFormat));
+            queries.add(filter(fFilter, dateFormat, rightHand));
         }
         boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.bool().should(queries).minimumShouldMatch("1").build()._toQuery());
         return this;
     }
 
-    private Query filter(Expression expression, String dateFormat) throws ArlasException {
+    private Query filter(Expression expression, String dateFormat, Boolean rightHand) throws ArlasException {
         BoolQuery.Builder ret = new BoolQuery.Builder();
         if (StringUtil.isNullOrEmpty(expression.field) || expression.op == null || StringUtil.isNullOrEmpty(expression.value)) {
             throw new InvalidParameterException(INVALID_PARAMETER_F);
@@ -205,7 +205,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                         }
                         break;
                     case GEO_SHAPE:
-                        orBoolQueryBuilder = orBoolQueryBuilder.should(filterGWithin(field, value));
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(filterGWithin(field, value, rightHand));
                         break;
                     default:
                         throw new ArlasException("'within' op on field '" + field + "' of type '" + wType + "' is not supported");
@@ -222,7 +222,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                         }
                         break;
                     case GEO_SHAPE:
-                        orBoolQueryBuilder2 = orBoolQueryBuilder2.should(filterGWithin(field, value));
+                        orBoolQueryBuilder2 = orBoolQueryBuilder2.should(filterGWithin(field, value, rightHand));
                         break;
                     default:
                         throw new ArlasException("'notwithin' op on field '" + field + "' of type '" + type + "' is not supported");
@@ -230,10 +230,10 @@ public class ElasticFluidSearch extends FluidSearchService {
                 ret = ret.mustNot(orBoolQueryBuilder2.build()._toQuery());
                 break;
             case intersects:
-                ret = ret.filter(filterGIntersect(field, value));
+                ret = ret.filter(filterGIntersect(field, value, rightHand));
                 break;
             case notintersects:
-                ret = ret.mustNot(filterGIntersect(field, value));
+                ret = ret.mustNot(filterGIntersect(field, value, rightHand));
                 break;
             default:
                 throw new InvalidParameterException(INVALID_OPERATOR);
@@ -334,8 +334,8 @@ public class ElasticFluidSearch extends FluidSearchService {
                 .field(field)
                 .boundingBox(b1 -> b1
                         .tlbr(b2 -> b2
-                                .topLeft(b3 -> b3.coords(Arrays.asList(north, west)))
-                                .bottomRight(b3 -> b3.coords(Arrays.asList(south, east)))
+                                .topLeft(b3 -> b3.coords(Arrays.asList(west, north)))
+                                .bottomRight(b3 -> b3.coords(Arrays.asList(east, south)))
                         )
                 ).build()._toQuery();
     }
@@ -372,23 +372,23 @@ public class ElasticFluidSearch extends FluidSearchService {
         return builderList;
     }
 
-    public Query filterGWithin(String field, String geometry) throws ArlasException {
+    public Query filterGWithin(String field, String geometry, Boolean rightHand) throws ArlasException {
         try {
-            JSONObject shapeBuilder = getShapeObject(geometry);
+            JSONObject shapeObject = getShapeObject(geometry,rightHand);
             return QueryBuilders.geoShape()
                     .field(field)
                     .shape(s -> s
                             .relation(GeoShapeRelation.Within)
-                            .shape(JsonData.of(shapeBuilder))
+                            .shape(JsonData.of(shapeObject))
                     ).build()._toQuery();
         } catch (Exception e) {
             throw new ArlasException("Exception while building geoWithinQuery: " + e.getMessage());
         }
     }
 
-    public Query filterGIntersect(String field, String geometry) throws ArlasException {
+    public Query filterGIntersect(String field, String geometry, Boolean rightHand) throws ArlasException {
         try {
-            JSONObject shapeObject = getShapeObject(geometry);
+            JSONObject shapeObject = getShapeObject(geometry,rightHand);
             return QueryBuilders.geoShape()
                     .field(field)
                     .shape(s -> s
@@ -1028,7 +1028,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         }
     }
 
-    private JSONObject createPolygon(org.locationtech.jts.geom.Polygon geomPolygon) {
+    private JSONObject createPolygon(org.locationtech.jts.geom.Polygon geomPolygon, Boolean rightHand) {
         Coordinate[] exteriorRing = geomPolygon.getExteriorRing().getCoordinates();
         // TODO : deal with interior ring too
         // int nInteriorRing = geomPolygon.getNumInteriorRing();
@@ -1045,49 +1045,38 @@ public class ElasticFluidSearch extends FluidSearchService {
         jsonAray.add(jsonArayExt);
         polygon.put("type", "Polygon");
         polygon.put("coordinates", jsonAray);
+        polygon = setOrientation(polygon,rightHand);
         return polygon;
     }
 
     private JSONObject createPolygonFromBbox(double[] bbox) {
+
         double west = bbox[0];
-        double east = bbox[2];
         double south = bbox[1];
+        double east = bbox[2];
         double north = bbox[3];
-        /** In ARLAS-api west and east are necessarily between -180 and 180**/
-        /** In case of west > east, it means the bbox crosses the dateline (antiméridien) => a translation of west or east by 360 is necessary to be
-         * correctly interpreted by geoWithinQuery and geoIntersectsQuery*/
-        if (west > east) {
-            if (west >= 0) {
-                west -= 360;
-            } else {
-                /** east is necessarily < 0 */
-                east += 360;
-            }
-        }
-        Polygon polygonGeometry = new Polygon();
-        List<LngLatAlt> exteriorRing = new ArrayList<>();
-        exteriorRing.add(new LngLatAlt(east, south));
-        exteriorRing.add(new LngLatAlt(east, north));
-        exteriorRing.add(new LngLatAlt(west, north));
-        exteriorRing.add(new LngLatAlt(west, south));
-        exteriorRing.add(new LngLatAlt(east, south));
-        polygonGeometry.setExteriorRing(exteriorRing);
+
         JSONObject polygon = new JSONObject();
-        JSONArray jsonArayExt = new JSONArray();
-        polygonGeometry.getExteriorRing().forEach(lngLatAlt -> {
-            JSONArray jsonArayLngLat = new JSONArray();
-            jsonArayLngLat.add(0, lngLatAlt.getLongitude());
-            jsonArayLngLat.add(1, lngLatAlt.getLatitude());
-            jsonArayExt.add(jsonArayLngLat);
-        });
-        JSONArray jsonAray = new JSONArray();
-        jsonAray.add(jsonArayExt);
-        polygon.put("type", "Polygon");
-        polygon.put("coordinates", jsonAray);
+        JSONArray jsonArrayCoord = new JSONArray();
+        JSONArray jsonArrayBottomLeft = new JSONArray();
+        JSONArray jsonArrayUpRight = new JSONArray();
+
+        jsonArrayBottomLeft.add(0,west);
+        jsonArrayBottomLeft.add(1,north);
+
+        jsonArrayUpRight.add(0,east);
+        jsonArrayUpRight.add(1,south);
+
+
+        jsonArrayCoord.add(jsonArrayBottomLeft);
+        jsonArrayCoord.add(jsonArrayUpRight);
+
+        polygon.put("type", "envelope");
+        polygon.put("coordinates", jsonArrayCoord);
         return polygon;
     }
 
-    private JSONObject createMultiPolygon(MultiPolygon geomMultiPolygon) {
+    private JSONObject createMultiPolygon(MultiPolygon geomMultiPolygon, Boolean rightHand) {
 
         int nPolygon = geomMultiPolygon.getNumGeometries();
         JSONObject multiPolygon = new JSONObject();
@@ -1109,6 +1098,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         }
         multiPolygon.put("type", "MultiPolygon");
         multiPolygon.put("coordinates", coordinates);
+        multiPolygon = setOrientation(multiPolygon,rightHand);
         return multiPolygon;
     }
 
@@ -1137,7 +1127,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         return point;
     }
 
-    private JSONObject getShapeObject(String geometry) throws ArlasException {
+    private JSONObject getShapeObject(String geometry,Boolean rightHand) throws ArlasException {
         // test if geometry is 'west,south,east,north' or wkt string
         if (CheckParams.isBboxMatch(geometry)) {
             return createPolygonFromBbox(CheckParams.toDoubles(geometry));
@@ -1147,8 +1137,8 @@ public class ElasticFluidSearch extends FluidSearchService {
             if (wktGeometry != null) {
                 String geometryType = wktGeometry.getGeometryType().toUpperCase();
                 return switch (geometryType) {
-                    case "POLYGON" -> createPolygon((org.locationtech.jts.geom.Polygon) wktGeometry);
-                    case "MULTIPOLYGON" -> createMultiPolygon((MultiPolygon) wktGeometry);
+                    case "POLYGON" -> createPolygon((org.locationtech.jts.geom.Polygon) wktGeometry, rightHand);
+                    case "MULTIPOLYGON" -> createMultiPolygon((MultiPolygon) wktGeometry, rightHand);
                     case "LINESTRING" -> createLineString((LineString) wktGeometry);
                     case "POINT" -> createPoint((Point) wktGeometry);
                     default -> throw new InvalidParameterException("The given geometry is not handled.");
@@ -1156,5 +1146,14 @@ public class ElasticFluidSearch extends FluidSearchService {
             }
             throw new InvalidParameterException("The given geometry is invalid.");
         }
+    }
+
+    private JSONObject setOrientation(JSONObject jsonObject, Boolean rightHand){
+        if(rightHand){
+            jsonObject.put("orientation","RIGHT");
+        }else{
+            jsonObject.put("orientation","LEFT");
+        }
+        return jsonObject;
     }
 }
