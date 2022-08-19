@@ -408,27 +408,29 @@ public class ParamsParser {
         } else {
             Geometry wkt = getValidWKT(geo);
             // For the case of Polygon and MultiPolygon, a check of the coordinates orientation is necessary in order to correctly interpret the "desired" polygon
-            if (wkt.getGeometryType().equals("Polygon") || wkt.getGeometryType().equals("MultiPolygon")) {
+            // TODO Check if we really need this
+            if ((wkt.getGeometryType().equals("Polygon") || wkt.getGeometryType().equals("MultiPolygon"))) {
                 List<Polygon> polygonList = new ArrayList<>();
                 for (int i = 0; i < wkt.getNumGeometries(); i++) {
                     Polygon subWkt = (Polygon) wkt.getGeometryN(i);
                     if (Orientation.isCCW(subWkt.getCoordinates())) {
                         if (righthand != Boolean.TRUE) {
+                            // TODO RISE an exception ? if polygon is CCW the righthand must be true
                             polygonList.addAll(getClockwisePolygons(subWkt).stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
                         } else {
+                            // TODO dont split systemically just if we cross -180/180
                             polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1().stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
                         }
-
                     } else {
                         // the wkt is CW
                         if (righthand == Boolean.TRUE) {
+                            // TODO RISE an exception ? if polygon is CW the righthand must be false
                             polygonList.addAll(getClockwisePolygons(subWkt).stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
                         } else {
+                            // TODO dont split systemically just if we cross -180/180
                             polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1().stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
                         }
                     }
-
-
                 }
                 if (polygonList.size() == 1) {
                     return polygonList.get(0).toString();
