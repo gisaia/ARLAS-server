@@ -190,7 +190,7 @@ public abstract class FluidSearchService {
 
     public abstract FluidSearchService compute(String field, ComputationEnum metric, int precisionThresold) throws ArlasException;
 
-    abstract public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat) throws ArlasException;
+    abstract public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat, Boolean rightHand) throws ArlasException;
 
     abstract public FluidSearchService filterQ(MultiValueFilter<String> q) throws ArlasException;
 
