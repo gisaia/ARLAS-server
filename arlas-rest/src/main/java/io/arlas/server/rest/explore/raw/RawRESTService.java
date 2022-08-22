@@ -115,7 +115,7 @@ public class RawRESTService extends ExploreRESTServices {
         String[] includes = ColumnFilterUtil.cleanColumnFilter(columnFilter)
                 .map(cf -> cf + "," + String.join(",", ColumnFilterUtil.getCollectionMandatoryPaths(collectionReference)))
                 .map(i -> i.split(","))
-                .orElse(null);
+                .orElse(new String[]{});
 
         Map<String, Object> source = exploreService.getRawDoc(collectionReference, identifier, includes);
 
