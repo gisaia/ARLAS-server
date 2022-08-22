@@ -110,32 +110,30 @@ public class ElasticExploreService extends ExploreService {
         if (computationResponse.totalnb > 0) {
             switch (metric) {
                 case AVG:
-                    computationResponse.value = aggregations.get(FIELD_AVG_VALUE).simpleValue().value();
+                    computationResponse.value = aggregations.get(FIELD_AVG_VALUE).avg().value();
                     break;
                 case CARDINALITY:
-                    computationResponse.value = aggregations.get(FIELD_CARDINALITY_VALUE).simpleValue().value();
+                    computationResponse.value = Double.valueOf(aggregations.get(FIELD_CARDINALITY_VALUE).cardinality().value());
                     break;
                 case MAX:
-                    computationResponse.value = aggregations.get(FIELD_MAX_VALUE).simpleValue().value();
+                    computationResponse.value = aggregations.get(FIELD_MAX_VALUE).max().value();
                     break;
                 case MIN:
-                    computationResponse.value = aggregations.get(FIELD_MIN_VALUE).simpleValue().value();
+                    computationResponse.value = aggregations.get(FIELD_MIN_VALUE).min().value();
                     break;
                 case SPANNING:
-                    double min = aggregations.get(FIELD_MIN_VALUE).simpleValue().value();
-                    double max =aggregations.get(FIELD_MAX_VALUE).simpleValue().value();
+                    double min = aggregations.get(FIELD_MIN_VALUE).min().value();
+                    double max = aggregations.get(FIELD_MAX_VALUE).max().value();
                     computationResponse.value = max - min;
                     break;
                 case SUM:
-                    computationResponse.value = aggregations.get(FIELD_SUM_VALUE).simpleValue().value();
+                    computationResponse.value = aggregations.get(FIELD_SUM_VALUE).sum().value();
                     break;
                 case GEOBBOX:
-                    // TODO es8 : replace get(0) with proper key?
-                    computationResponse.geometry = createBox(aggregations.get(0).geoBounds().bounds());
+                    computationResponse.geometry = createBox(aggregations.get(FIELD_GEOBBOX_VALUE).geoBounds().bounds());
                     break;
                 case GEOCENTROID:
-                    // TODO es8 : replace get(0) with proper key?
-                    GeoLocation centroid = aggregations.get(0).geoCentroid().location();
+                    GeoLocation centroid = aggregations.get(FIELD_GEOCENTROID_VALUE).geoCentroid().location();
                     computationResponse.geometry = new Point(centroid.latlon().lon(), centroid.latlon().lat());
                     break;
             }
@@ -158,7 +156,7 @@ public class ElasticExploreService extends ExploreService {
             Collections.reverse(searchHitList);
         }
         for (Hit<Map> hit : searchHitList) {
-            hits.hits.add(new ArlasHit(collectionReference, hit.fields(), searchRequest.returned_geometries, flat, false));
+            hits.hits.add(new ArlasHit(collectionReference, hit.source(), searchRequest.returned_geometries, flat, false));
         }
         hits.links = getLinks(searchRequest, collectionReference, hits.nbhits, searchHitList, uriInfo, method);
         return hits;
@@ -251,7 +249,7 @@ public class ElasticExploreService extends ExploreService {
         List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> searchHitList = getSearchHits(request, collectionReference).hits();
         List<Map<String, JsonData>> rawList = new ArrayList<>( searchHitList.size());
         for (Hit<Map> hit : searchHitList) {
-            rawList.add(hit.fields());
+            rawList.add(hit.source());
         }
         return rawList;
 
@@ -279,8 +277,9 @@ public class ElasticExploreService extends ExploreService {
             Collections.reverse(results);
         }
         for (Hit<Map> hit : results) {
-            Map<String, JsonData> source = hit.fields();
+            Map<String, JsonData> source = hit.source();
             ArlasHit arlasHit = new ArlasHit(collectionReference, source, searchRequest.returned_geometries, flat, true);
+            LOGGER.info(arlasHit.toString());
             if (searchRequest.returned_geometries != null) {
                 for (String path : searchRequest.returned_geometries.split(",")) {
                     GeoJsonObject g = arlasHit.getGeometry(path);
@@ -855,10 +854,10 @@ public class ElasticExploreService extends ExploreService {
     }
 
     private Polygon createBox(GeoBounds subAggregation) {
-        double bottom = subAggregation.coords().bottom();
-        double top = subAggregation.coords().top();
-        double right = subAggregation.coords().right();
-        double left = subAggregation.coords().left();
+        double bottom = subAggregation.tlbr().bottomRight().latlon().lat();
+        double top = subAggregation.tlbr().topLeft().latlon().lat();
+        double right = subAggregation.tlbr().bottomRight().latlon().lon();
+        double left = subAggregation.tlbr().topLeft().latlon().lon();
 
         List<LngLatAlt> bounds = new ArrayList<>();
         bounds.add(new LngLatAlt(left, top));
