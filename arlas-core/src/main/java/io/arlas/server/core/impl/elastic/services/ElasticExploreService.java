@@ -282,7 +282,6 @@ public class ElasticExploreService extends ExploreService {
         for (Hit<Map> hit : results) {
             Map<String, JsonData> source = hit.source();
             ArlasHit arlasHit = new ArlasHit(collectionReference, source, searchRequest.returned_geometries, flat, true);
-            LOGGER.info(arlasHit.toString());
             if (searchRequest.returned_geometries != null) {
                 for (String path : searchRequest.returned_geometries.split(",")) {
                     GeoJsonObject g = arlasHit.getGeometry(path);
