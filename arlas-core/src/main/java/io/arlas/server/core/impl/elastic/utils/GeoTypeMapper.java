@@ -58,13 +58,13 @@ public class GeoTypeMapper {
 
     public static GeoJsonObject getGeoJsonObject(Object elasticsearchGeoField, GeoTypeEnum type) throws ArlasException {
         GeoJsonObject geoObject = null;
-        String parseExceptionMsg = "Unable to parse " + elasticsearchGeoField.toString() + "as valid " + type;
+        String parseExceptionMsg = "Unable to parse " + elasticsearchGeoField.toString() + " as valid " + type;
         String loggerMsg = "Unable to parse " + elasticsearchGeoField + "as valid " + type + " from " + elasticsearchGeoField.getClass();
         switch (type) {
             case GEOPOINT_AS_STRING:
                 try {
-                    GeoLocation geoPoint = GeoLocation.of(b -> b.text(elasticsearchGeoField.toString()));
-                    geoObject = new Point(geoPoint.latlon().lon(), geoPoint.latlon().lat());
+                    String[] geoPoint = elasticsearchGeoField.toString().split(",");
+                    geoObject = new Point(Double.parseDouble(geoPoint[0]), Double.parseDouble(geoPoint[1]));
                 } catch (Exception e) {
                     LOGGER.error(loggerMsg, e);
                     throw new ParseException(parseExceptionMsg);
