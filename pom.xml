@@ -65,7 +65,7 @@
     <hazelcast.version>5.1.2</hazelcast.version>
 
     <!-- ELASTICSEARCH-->
-    <elastic.version>8.4.0</elastic.version>
+    <elastic.version>8.4.1</elastic.version>
 
     <!-- GEO-->
     <geotools.version>27.0</geotools.version>
