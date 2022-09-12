@@ -265,7 +265,7 @@ public class ElasticClient {
                 .stream()
                 .anyMatch(indexName -> {
                     TypeFieldMappings data = response.result().get(indexName);
-                    return data != null && data.mappings().mapping().get(lastKey).isDate();
+                    return data != null && data.mappings().get(field).mapping().get(lastKey).isDate();
                 });
     }
 
