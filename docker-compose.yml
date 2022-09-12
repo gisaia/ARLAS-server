@@ -26,6 +26,7 @@ services:
       - ARLAS_AUTH_COLUMN_FILTER_REQUIRED="${ARLAS_AUTH_COLUMN_FILTER_REQUIRED:-false}"
       - ARLAS_CACHE_FACTORY_CLASS="${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.server.core.impl.cache.HazelcastCacheFactory}"
       - ARLAS_CACHE_TIMEOUT="${ARLAS_CACHE_TIMEOUT:-5}"
+      - ARLAS_SWAGGER_RESOURCE_PKG="${ARLAS_SWAGGER_RESOURCE_PKG:-io.arlas.server.rest}"
     ports:
       - 19999:9999
     volumes:
