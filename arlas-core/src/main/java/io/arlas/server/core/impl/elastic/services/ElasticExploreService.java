@@ -328,8 +328,14 @@ public class ElasticExploreService extends ExploreService {
     private AggregationResponse formatAggregationResult(Aggregate aggregate, AggregationResponse aggregationResponse,
                                                         CollectionReference collection, List<Aggregation> aggregationsRequest, int aggTreeDepth) {
         aggregationResponse.name = aggregate._kind().name();
-        if (aggregate.isMultiTerms()) {
-            aggregationResponse.sumotherdoccounts = aggregate.multiTerms().sumOtherDocCount();
+        if (aggregate.isSterms()) {
+            aggregationResponse.sumotherdoccounts = aggregate.sterms().sumOtherDocCount();
+        }
+        if (aggregate.isDterms()) {
+            aggregationResponse.sumotherdoccounts = aggregate.dterms().sumOtherDocCount();
+        }
+        if (aggregate.isLterms()) {
+            aggregationResponse.sumotherdoccounts = aggregate.lterms().sumOtherDocCount();
         }
         List<RawGeometry> rawGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).rawGeometries : null;
         List<AggregatedGeometryEnum> aggregatedGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).aggregatedGeometries : null;
@@ -505,7 +511,9 @@ public class ElasticExploreService extends ExploreService {
                 AggregationResponse element = new AggregationResponse();
                 element.keyAsString = dateHistogramBucket.key();
                 element.count = dateHistogramBucket.docCount();
-                element.key = (dateHistogramBucket.key()).toZonedDateTime().withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
+                // TEST
+                //element.key = (dateHistogramBucket.key()).toZonedDateTime().withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
+                element.key = (dateHistogramBucket.key());
                 element.elements = new ArrayList<>();
                 if (dateHistogramBucket.aggregations().size() == 0) {
                     element.elements = null;
@@ -859,8 +867,22 @@ public class ElasticExploreService extends ExploreService {
                             AggregationMetric aggregationMetric = new AggregationMetric();
                             aggregationMetric.type = key.split(":")[0];
                             aggregationMetric.field = key.split(":")[1];
-                            if (!aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                aggregationMetric.value =  bucket.aggregations().get(key).simpleValue().value();
+                            if (!aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase()) && !aggregationMetric.type.equalsIgnoreCase(CollectionFunction.GEOBBOX.name().toLowerCase())) {
+                                if(aggregationMetric.type.equalsIgnoreCase(CollectionFunction.AVG.name().toLowerCase())){
+                                    aggregationMetric.value =  bucket.aggregations().get(key).avg().value();
+                                }
+                                if(aggregationMetric.type.equals(CollectionFunction.MAX.name().toLowerCase())){
+                                    aggregationMetric.value =  bucket.aggregations().get(key).max().value();
+                                }
+                                if(aggregationMetric.type.equals(CollectionFunction.MIN.name().toLowerCase())){
+                                    aggregationMetric.value =  bucket.aggregations().get(key).min().value();
+                                }
+                                if(aggregationMetric.type.equals(CollectionFunction.SUM.name().toLowerCase())){
+                                    aggregationMetric.value =  bucket.aggregations().get(key).sum().value();
+                                }
+                                if(aggregationMetric.type.equals(CollectionFunction.CARDINALITY.name().toLowerCase())){
+                                    aggregationMetric.value =  (double) bucket.aggregations().get(key).cardinality().value();
+                                }
                             } else {
                                 FeatureCollection fc = new FeatureCollection();
                                 Feature feature = new Feature();
