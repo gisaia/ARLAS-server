@@ -1,5 +1,13 @@
 # Change Log
 
+## [v23.0.2](https://github.com/gisaia/ARLAS-server/tree/v23.0.2) (2022-09-13)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.0...v23.0.2)
+
+**Fixed bugs:**
+
+- Upgrade maven plugins in java-client pom.xml [\#812](https://github.com/gisaia/ARLAS-server/issues/812)
+
 ## [v23.0.0](https://github.com/gisaia/ARLAS-server/tree/v23.0.0) (2022-07-08)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v22.0.1...v23.0.0)
