@@ -19,7 +19,6 @@
 
 package io.arlas.server.core.impl.elastic.utils;
 
-import co.elastic.clients.elasticsearch._types.GeoLocation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import io.arlas.commons.exceptions.ArlasException;
@@ -28,6 +27,7 @@ import io.arlas.commons.exceptions.ParseException;
 import io.arlas.server.core.model.enumerations.GeoTypeEnum;
 import io.arlas.server.core.utils.GeoUtil;
 import io.arlas.server.core.utils.ParamsParser;
+import jakarta.json.JsonObject;
 import org.geojson.GeoJsonObject;
 import org.geojson.Point;
 import org.locationtech.jts.geom.Geometry;
@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -109,7 +110,11 @@ public class GeoTypeMapper {
             case GEOJSON:
                 //Standard GeoJSON object
                 try {
-                    geoObject = reader.readValue(mapper.writer().writeValueAsString(elasticsearchGeoField));
+                    if(elasticsearchGeoField instanceof JsonObject){
+                        geoObject= reader.readValue(elasticsearchGeoField.toString());
+                    }else{
+                        geoObject = reader.readValue(mapper.writer().writeValueAsString(elasticsearchGeoField));
+                    }
                 } catch (IOException e) {
                     LOGGER.error(loggerMsg, e);
                     throw new ParseException(parseExceptionMsg);
@@ -164,7 +169,7 @@ public class GeoTypeMapper {
                 LOGGER.error("Unknown geo_point or geo_shape format from " + geometry.getClass() + " :" + geometry);
                 throw new NotImplementedException(NOT_SUPPORTED_GEO_FORMAT);
             }
-        } else {
+        }   else {
             LOGGER.error("Unknown geo_point or geo_shape format from " + geometry.getClass() + " :" + geometry);
             throw new NotImplementedException(NOT_SUPPORTED_GEO_FORMAT);
         }
