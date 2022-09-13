@@ -32,6 +32,12 @@
             <version>23.0.1-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.31</version>
+        </dependency>
+
         <!-- ____________________________________________________ -->
         <!-- DEV -->
         <!-- ____________________________________________________ -->

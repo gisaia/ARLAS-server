@@ -243,7 +243,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             //
 
             environment.jersey().register(new StacCoreRESTService(configuration.stacConfiguration, configuration.arlasRestCacheTimeout,
-                    dbToolFactory.getCollectionReferenceService(), dbToolFactory.getExploreService()));
+                    dbToolFactory.getCollectionReferenceService(), dbToolFactory.getExploreService(), configuration.arlasBaseUri));
             environment.jersey().register(new StacCollectionsRESTService(configuration.stacConfiguration, configuration.arlasRestCacheTimeout,
                     dbToolFactory.getCollectionReferenceService(), dbToolFactory.getExploreService()));
             environment.jersey().register(new StacConformanceRESTService(configuration.stacConfiguration, configuration.arlasRestCacheTimeout,
