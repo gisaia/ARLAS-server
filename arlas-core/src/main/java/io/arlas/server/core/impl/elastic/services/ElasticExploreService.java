@@ -21,6 +21,7 @@ package io.arlas.server.core.impl.elastic.services;
 
 import co.elastic.clients.elasticsearch._types.GeoBounds;
 import co.elastic.clients.elasticsearch._types.GeoLocation;
+import co.elastic.clients.elasticsearch._types.LatLonGeoLocation;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import co.elastic.clients.elasticsearch._types.GeoLocation;
 import co.elastic.clients.elasticsearch._types.aggregations.*;
@@ -29,6 +30,10 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import co.elastic.clients.json.JsonData;
+import co.elastic.clients.json.JsonpMapper;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.core.ElasticDocument;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
@@ -49,7 +54,9 @@ import io.arlas.server.core.services.FluidSearchService;
 import io.arlas.server.core.utils.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.jetty.util.ajax.JSON;
 import org.geojson.*;
+import org.json.simple.JSONObject;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.io.GeohashUtils;
 import org.locationtech.spatial4j.shape.Rectangle;
@@ -67,6 +74,7 @@ import static io.arlas.server.core.services.FluidSearchService.*;
 public class ElasticExploreService extends ExploreService {
 
     protected ElasticClient client;
+    private ObjectMapper mapper = new ObjectMapper();
 
     public ElasticExploreService(ElasticClient client, CollectionReferenceService collectionReferenceService, String baseUri, int arlasRestCacheTimeout) {
         super(baseUri, arlasRestCacheTimeout, collectionReferenceService);
@@ -318,15 +326,18 @@ public class ElasticExploreService extends ExploreService {
         return formatAggregationResult(response.aggregations().get("mainAgg"), aggregationResponse, collectionReference, aggregationsRequests, aggTreeDepth);
     }
 
-
-
     @SuppressWarnings({"rawtypes", "unchecked"})
-    // TODO DEAL WITH Fetch hit, raw geom, aggregated geom
     private AggregationResponse formatAggregationResult(Aggregate aggregate, AggregationResponse aggregationResponse,
                                                         CollectionReference collection, List<Aggregation> aggregationsRequest, int aggTreeDepth) {
         aggregationResponse.name = aggregate._kind().name();
-        if (aggregate.isMultiTerms()) {
-            aggregationResponse.sumotherdoccounts = aggregate.multiTerms().sumOtherDocCount();
+        if (aggregate.isSterms()) {
+            aggregationResponse.sumotherdoccounts = aggregate.sterms().sumOtherDocCount();
+        }
+        if (aggregate.isDterms()) {
+            aggregationResponse.sumotherdoccounts = aggregate.dterms().sumOtherDocCount();
+        }
+        if (aggregate.isLterms()) {
+            aggregationResponse.sumotherdoccounts = aggregate.lterms().sumOtherDocCount();
         }
         List<RawGeometry> rawGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).rawGeometries : null;
         List<AggregatedGeometryEnum> aggregatedGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).aggregatedGeometries : null;
@@ -335,12 +346,11 @@ public class ElasticExploreService extends ExploreService {
             aggregate.geohashGrid().buckets().array().forEach(geoHashGridBucket -> {
                 AggregationResponse element = new AggregationResponse();
                 element.keyAsString = geoHashGridBucket.key();
-                element.count = geoHashGridBucket.docCount();
-                GeoLocation geoPoint = getGeohashCentre(element.keyAsString.toString());
-                element.key = geoPoint;
+                LatLonGeoLocation geoPoint = getGeohashCentre(element.keyAsString.toString()).latlon();
+                element.key = new LatLon(geoPoint.lat(),geoPoint.lon());
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
-                            .filter(AggregatedGeometryEnum::isCellOrCellCenterAgg)
+                            .filter(g -> g.isCellOrCellCenterAgg())
                             .forEach(g -> {
                                 ReturnedGeometry returnedGeometry = new ReturnedGeometry();
                                 returnedGeometry.reference = g.value();
@@ -348,7 +358,7 @@ public class ElasticExploreService extends ExploreService {
                                 if (g.isCellAgg()) {
                                     returnedGeometry.geometry = createPolygonFromGeohash(element.keyAsString.toString());
                                 } else {
-                                    returnedGeometry.geometry = new Point(geoPoint.latlon().lon(),geoPoint.latlon().lat());
+                                    returnedGeometry.geometry = new Point(geoPoint.lon(), geoPoint.lat());
                                 }
                                 if (element.geometries == null) {
                                     element.geometries = new ArrayList<>();
@@ -357,75 +367,21 @@ public class ElasticExploreService extends ExploreService {
 
                             });
                 }
-                element.elements = new ArrayList<>();
-                if (geoHashGridBucket.aggregations().size() == 0) {
-                    element.elements = null;
-                } else {
-                    geoHashGridBucket.aggregations().keySet().forEach(key -> {
-                        AggregationResponse subAggregationResponse = new AggregationResponse();
-                        if (key.contains(TERM_AGG)) {
-                            if( geoHashGridBucket.aggregations().get(key).isSterms()){
-                                subAggregationResponse.sumotherdoccounts = geoHashGridBucket.aggregations().get(key).sterms().sumOtherDocCount();
-                            }
-                            if( geoHashGridBucket.aggregations().get(key).isDterms()){
-                                subAggregationResponse.sumotherdoccounts = geoHashGridBucket.aggregations().get(key).dterms().sumOtherDocCount();
-                            }
-                            if( geoHashGridBucket.aggregations().get(key).isLterms()){
-                                subAggregationResponse.sumotherdoccounts = geoHashGridBucket.aggregations().get(key).lterms().sumOtherDocCount();
-                            }
-                        }
-                        if (key.contains(TERM_AGG) || key.contains(DATEHISTOGRAM_AGG) || key.contains(HISTOGRAM_AGG)
-                                || key.contains(GEOTILE_AGG) || key.contains(GEOHASH_AGG)){
-                            subAggregationResponse = formatAggregationResult(geoHashGridBucket.aggregations().get(key), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
-
-                        }else {
-                            //metric
-                            if (element.metrics == null) {
-                                element.metrics = new ArrayList<>();
-                            }
-                            subAggregationResponse = null;
-                            AggregationMetric aggregationMetric = new AggregationMetric();
-                            aggregationMetric.type = key.split(":")[0];
-                            aggregationMetric.field = key.split(":")[1];
-                            if (!aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                aggregationMetric.value =  geoHashGridBucket.aggregations().get(key).simpleValue().value();
-                            } else {
-                                FeatureCollection fc = new FeatureCollection();
-                                Feature feature = new Feature();
-                                if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                    GeoJsonObject g = createBox(geoHashGridBucket.aggregations().get(key).geoBounds().bounds());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                } else if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase())) {
-                                    GeoLocation centroid = geoHashGridBucket.aggregations().get(key).geoCentroid().location();
-                                    GeoJsonObject g = new Point(centroid.latlon().lon(), centroid.latlon().lat());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                }
-                                aggregationMetric.value = fc;
-                            }
-                            element.metrics.add(aggregationMetric);
-                        }
-                        if (subAggregationResponse != null) {
-                            element.elements.add(subAggregationResponse);
-                        }
-                    });
-                }
-                aggregationResponse.elements.add(element);
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, geoHashGridBucket);
             });
         } else if (aggregate.isGeotileGrid()){
-            aggregate.geohashGrid().buckets().array().forEach(geoTileGridBucket -> {
+            aggregate.geotileGrid().buckets().array().forEach(geoTileGridBucket -> {
                 AggregationResponse element = new AggregationResponse();
                 element.keyAsString = geoTileGridBucket.key();
-                element.count = geoTileGridBucket.docCount();
                 List<Integer> zxy = Stream.of(element.keyAsString.toString().split("/"))
-                        .map(Integer::valueOf).collect(Collectors.toList());
+                        .map (elem -> Integer.valueOf(elem))
+                        .collect(Collectors.toList());
                 BoundingBox tile = GeoTileUtil.getBoundingBox(zxy.get(1), zxy.get(2), zxy.get(0));
-                GeoLocation geoPoint = getTileCentre(tile);
-                element.key = geoPoint;
+                LatLonGeoLocation geoPoint = getTileCentre(tile).latlon();
+                element.key = new LatLon(geoPoint.lat(),geoPoint.lon());
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
-                            .filter(AggregatedGeometryEnum::isCellOrCellCenterAgg)
+                            .filter(g -> g.isCellOrCellCenterAgg())
                             .forEach(g -> {
                                 ReturnedGeometry returnedGeometry = new ReturnedGeometry();
                                 returnedGeometry.reference = g.value();
@@ -433,396 +389,214 @@ public class ElasticExploreService extends ExploreService {
                                 if (g.isCellAgg()) {
                                     returnedGeometry.geometry = createBox(tile);
                                 } else {
-                                    returnedGeometry.geometry = new Point(geoPoint.latlon().lon(),geoPoint.latlon().lat());
+                                    returnedGeometry.geometry = new Point(geoPoint.lon(), geoPoint.lat());
                                 }
                                 if (element.geometries == null) {
                                     element.geometries = new ArrayList<>();
                                 }
                                 element.geometries.add(returnedGeometry);
+
                             });
                 }
-                element.elements = new ArrayList<>();
-                if (geoTileGridBucket.aggregations().size() == 0) {
-                    element.elements = null;
-                } else {
-                    geoTileGridBucket.aggregations().keySet().forEach(key -> {
-                        AggregationResponse subAggregationResponse = new AggregationResponse();
-                        if (key.contains(TERM_AGG)) {
-                            if( geoTileGridBucket.aggregations().get(key).isSterms()){
-                                subAggregationResponse.sumotherdoccounts = geoTileGridBucket.aggregations().get(key).sterms().sumOtherDocCount();
-                            }
-                            if( geoTileGridBucket.aggregations().get(key).isDterms()){
-                                subAggregationResponse.sumotherdoccounts = geoTileGridBucket.aggregations().get(key).dterms().sumOtherDocCount();
-                            }
-                            if( geoTileGridBucket.aggregations().get(key).isLterms()){
-                                subAggregationResponse.sumotherdoccounts = geoTileGridBucket.aggregations().get(key).lterms().sumOtherDocCount();
-                            }
-                        }
-                        if (key.contains(TERM_AGG) || key.contains(DATEHISTOGRAM_AGG) || key.contains(HISTOGRAM_AGG)
-                                || key.contains(GEOTILE_AGG) || key.contains(GEOHASH_AGG)){
-                            subAggregationResponse = formatAggregationResult(geoTileGridBucket.aggregations().get(key), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
-
-                        }else {
-                            //metric
-                            if (element.metrics == null) {
-                                element.metrics = new ArrayList<>();
-                            }
-                            subAggregationResponse = null;
-                            AggregationMetric aggregationMetric = new AggregationMetric();
-                            aggregationMetric.type = key.split(":")[0];
-                            aggregationMetric.field = key.split(":")[1];
-                            if (!aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                aggregationMetric.value =  geoTileGridBucket.aggregations().get(key).simpleValue().value();
-                            } else {
-                                FeatureCollection fc = new FeatureCollection();
-                                Feature feature = new Feature();
-                                if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                    GeoJsonObject g = createBox(geoTileGridBucket.aggregations().get(key).geoBounds().bounds());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                } else if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase())) {
-                                    GeoLocation centroid = geoTileGridBucket.aggregations().get(key).geoCentroid().location();
-                                    GeoJsonObject g = new Point(centroid.latlon().lon(), centroid.latlon().lat());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                }
-                                aggregationMetric.value = fc;
-                            }
-                            element.metrics.add(aggregationMetric);
-                        }
-                        if (subAggregationResponse != null) {
-                            element.elements.add(subAggregationResponse);
-                        }
-                    });
-                }
-                aggregationResponse.elements.add(element);
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, geoTileGridBucket);
             });
         } else if (aggregate.isDateHistogram()){
             aggregate.dateHistogram().buckets().array().forEach(dateHistogramBucket -> {
                 AggregationResponse element = new AggregationResponse();
-                element.keyAsString = dateHistogramBucket.key();
-                element.count = dateHistogramBucket.docCount();
-                element.key = (dateHistogramBucket.key()).toZonedDateTime().withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
-                element.elements = new ArrayList<>();
-                if (dateHistogramBucket.aggregations().size() == 0) {
-                    element.elements = null;
-                } else {
-                    dateHistogramBucket.aggregations().keySet().forEach(key -> {
-                        AggregationResponse subAggregationResponse = new AggregationResponse();
-                        if (key.contains(TERM_AGG)) {
-                            if( dateHistogramBucket.aggregations().get(key).isSterms()){
-                                subAggregationResponse.sumotherdoccounts = dateHistogramBucket.aggregations().get(key).sterms().sumOtherDocCount();
-                            }
-                            if( dateHistogramBucket.aggregations().get(key).isDterms()){
-                                subAggregationResponse.sumotherdoccounts = dateHistogramBucket.aggregations().get(key).dterms().sumOtherDocCount();
-                            }
-                            if( dateHistogramBucket.aggregations().get(key).isLterms()){
-                                subAggregationResponse.sumotherdoccounts = dateHistogramBucket.aggregations().get(key).lterms().sumOtherDocCount();
-                            }
-                        }
-                        if (key.contains(TERM_AGG) || key.contains(DATEHISTOGRAM_AGG) || key.contains(HISTOGRAM_AGG)
-                                || key.contains(GEOTILE_AGG) || key.contains(GEOHASH_AGG)){
-                            subAggregationResponse = formatAggregationResult(dateHistogramBucket.aggregations().get(key), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
-
-                        }else {
-                            //metric
-                            if (element.metrics == null) {
-                                element.metrics = new ArrayList<>();
-                            }
-                            subAggregationResponse = null;
-                            AggregationMetric aggregationMetric = new AggregationMetric();
-                            aggregationMetric.type = key.split(":")[0];
-                            aggregationMetric.field = key.split(":")[1];
-                            if (!aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                aggregationMetric.value =  dateHistogramBucket.aggregations().get(key).simpleValue().value();
-                            } else {
-                                FeatureCollection fc = new FeatureCollection();
-                                Feature feature = new Feature();
-                                if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                    GeoJsonObject g = createBox(dateHistogramBucket.aggregations().get(key).geoBounds().bounds());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                } else if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase())) {
-                                    GeoLocation centroid = dateHistogramBucket.aggregations().get(key).geoCentroid().location();
-                                    GeoJsonObject g = new Point(centroid.latlon().lon(), centroid.latlon().lat());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                }
-                                aggregationMetric.value = fc;
-                            }
-                            element.metrics.add(aggregationMetric);
-                        }
-                        if (subAggregationResponse != null) {
-                            element.elements.add(subAggregationResponse);
-                        }
-                    });
-                }
-                aggregationResponse.elements.add(element);
+                element.keyAsString = dateHistogramBucket.keyAsString();
+                element.key = dateHistogramBucket.key();
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, dateHistogramBucket);
             });
-
-
         } else if (aggregate.isHistogram()) {
             aggregate.histogram().buckets().array().forEach(histogramBucket -> {
                 AggregationResponse element = new AggregationResponse();
-                element.keyAsString = histogramBucket.key();
-                element.count = histogramBucket.docCount();
+                element.keyAsString = histogramBucket.keyAsString();
                 element.key = histogramBucket.key();
-
-
-
-                element.elements = new ArrayList<>();
-                if (histogramBucket.aggregations().size() == 0) {
-                    element.elements = null;
-                } else {
-                    histogramBucket.aggregations().keySet().forEach(key -> {
-                        AggregationResponse subAggregationResponse = new AggregationResponse();
-                        if (key.contains(TERM_AGG)) {
-                            if( histogramBucket.aggregations().get(key).isSterms()){
-                                subAggregationResponse.sumotherdoccounts = histogramBucket.aggregations().get(key).sterms().sumOtherDocCount();
-                            }
-                            if( histogramBucket.aggregations().get(key).isDterms()){
-                                subAggregationResponse.sumotherdoccounts = histogramBucket.aggregations().get(key).dterms().sumOtherDocCount();
-                            }
-                            if( histogramBucket.aggregations().get(key).isLterms()){
-                                subAggregationResponse.sumotherdoccounts = histogramBucket.aggregations().get(key).lterms().sumOtherDocCount();
-                            }
-                        }
-                        if (key.contains(TERM_AGG) || key.contains(DATEHISTOGRAM_AGG) || key.contains(HISTOGRAM_AGG)
-                                || key.contains(GEOTILE_AGG) || key.contains(GEOHASH_AGG)){
-                            subAggregationResponse = formatAggregationResult(histogramBucket.aggregations().get(key), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
-
-                        }else {
-                            //metric
-                            if (element.metrics == null) {
-                                element.metrics = new ArrayList<>();
-                            }
-                            subAggregationResponse = null;
-                            AggregationMetric aggregationMetric = new AggregationMetric();
-                            aggregationMetric.type = key.split(":")[0];
-                            aggregationMetric.field = key.split(":")[1];
-                            if (!aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                aggregationMetric.value =  histogramBucket.aggregations().get(key).simpleValue().value();
-                            } else {
-                                FeatureCollection fc = new FeatureCollection();
-                                Feature feature = new Feature();
-                                if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                    GeoJsonObject g = createBox(histogramBucket.aggregations().get(key).geoBounds().bounds());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                } else if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase())) {
-                                    GeoLocation centroid = histogramBucket.aggregations().get(key).geoCentroid().location();
-                                    GeoJsonObject g = new Point(centroid.latlon().lon(), centroid.latlon().lat());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                }
-                                aggregationMetric.value = fc;
-                            }
-                            element.metrics.add(aggregationMetric);
-                        }
-                        if (subAggregationResponse != null) {
-                            element.elements.add(subAggregationResponse);
-                        }
-                    });
-                }
-                aggregationResponse.elements.add(element);
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, histogramBucket);
             });
 
         } else if (aggregate.isDterms()) {
             aggregate.dterms().buckets().array().forEach(bucket -> {
-                        AggregationResponse element = new AggregationResponse();
-                        element.keyAsString = bucket.key();
-                        element.count = bucket.docCount();
-                        element.key = bucket.key();
-
-                element.elements = new ArrayList<>();
-                if (bucket.aggregations().size() == 0) {
-                    element.elements = null;
-                } else {
-                    bucket.aggregations().keySet().forEach(key -> {
-                        AggregationResponse subAggregationResponse = new AggregationResponse();
-                        if (key.contains(TERM_AGG)) {
-                            if( bucket.aggregations().get(key).isSterms()){
-                                subAggregationResponse.sumotherdoccounts = bucket.aggregations().get(key).sterms().sumOtherDocCount();
-                            }
-                            if( bucket.aggregations().get(key).isDterms()){
-                                subAggregationResponse.sumotherdoccounts = bucket.aggregations().get(key).dterms().sumOtherDocCount();
-                            }
-                            if( bucket.aggregations().get(key).isLterms()){
-                                subAggregationResponse.sumotherdoccounts = bucket.aggregations().get(key).lterms().sumOtherDocCount();
-                            }
-                        }
-                        if (key.contains(TERM_AGG) || key.contains(DATEHISTOGRAM_AGG) || key.contains(HISTOGRAM_AGG)
-                                || key.contains(GEOTILE_AGG) || key.contains(GEOHASH_AGG)){
-                            subAggregationResponse = formatAggregationResult(bucket.aggregations().get(key), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
-
-                        }else {
-                            //metric
-                            if (element.metrics == null) {
-                                element.metrics = new ArrayList<>();
-                            }
-                            subAggregationResponse = null;
-                            AggregationMetric aggregationMetric = new AggregationMetric();
-                            aggregationMetric.type = key.split(":")[0];
-                            aggregationMetric.field = key.split(":")[1];
-                            if (!aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                aggregationMetric.value =  bucket.aggregations().get(key).simpleValue().value();
-                            } else {
-                                FeatureCollection fc = new FeatureCollection();
-                                Feature feature = new Feature();
-                                if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                    GeoJsonObject g = createBox(bucket.aggregations().get(key).geoBounds().bounds());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                } else if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase())) {
-                                    GeoLocation centroid = bucket.aggregations().get(key).geoCentroid().location();
-                                    GeoJsonObject g = new Point(centroid.latlon().lon(), centroid.latlon().lat());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                }
-                                aggregationMetric.value = fc;
-                            }
-                            element.metrics.add(aggregationMetric);
-                        }
-                        if (subAggregationResponse != null) {
-                            element.elements.add(subAggregationResponse);
-                        }
-                    });
-                }
-                aggregationResponse.elements.add(element);
-
+                AggregationResponse element = new AggregationResponse();
+                element.keyAsString = bucket.keyAsString();
+                element.key = bucket.key();
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, bucket);
         });
         } else if (aggregate.isLterms()) {
             aggregate.lterms().buckets().array().forEach(bucket -> {
                 AggregationResponse element = new AggregationResponse();
-                element.keyAsString = bucket.key();
-                element.count = bucket.docCount();
+                element.keyAsString = bucket.keyAsString();
                 element.key = bucket.key();
-
-                element.elements = new ArrayList<>();
-                if (bucket.aggregations().size() == 0) {
-                    element.elements = null;
-                } else {
-                    bucket.aggregations().keySet().forEach(key -> {
-                        AggregationResponse subAggregationResponse = new AggregationResponse();
-                        if (key.contains(TERM_AGG)) {
-                            if( bucket.aggregations().get(key).isSterms()){
-                                subAggregationResponse.sumotherdoccounts = bucket.aggregations().get(key).sterms().sumOtherDocCount();
-                            }
-                            if( bucket.aggregations().get(key).isDterms()){
-                                subAggregationResponse.sumotherdoccounts = bucket.aggregations().get(key).dterms().sumOtherDocCount();
-                            }
-                            if( bucket.aggregations().get(key).isLterms()){
-                                subAggregationResponse.sumotherdoccounts = bucket.aggregations().get(key).lterms().sumOtherDocCount();
-                            }
-                        }
-                        if (key.contains(TERM_AGG) || key.contains(DATEHISTOGRAM_AGG) || key.contains(HISTOGRAM_AGG)
-                                || key.contains(GEOTILE_AGG) || key.contains(GEOHASH_AGG)){
-                            subAggregationResponse = formatAggregationResult(bucket.aggregations().get(key), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
-
-                        }else {
-                            //metric
-                            if (element.metrics == null) {
-                                element.metrics = new ArrayList<>();
-                            }
-                            subAggregationResponse = null;
-                            AggregationMetric aggregationMetric = new AggregationMetric();
-                            aggregationMetric.type = key.split(":")[0];
-                            aggregationMetric.field = key.split(":")[1];
-                            if (!aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                aggregationMetric.value =  bucket.aggregations().get(key).simpleValue().value();
-                            } else {
-                                FeatureCollection fc = new FeatureCollection();
-                                Feature feature = new Feature();
-                                if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                    GeoJsonObject g = createBox(bucket.aggregations().get(key).geoBounds().bounds());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                } else if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase())) {
-                                    GeoLocation centroid = bucket.aggregations().get(key).geoCentroid().location();
-                                    GeoJsonObject g = new Point(centroid.latlon().lon(), centroid.latlon().lat());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                }
-                                aggregationMetric.value = fc;
-                            }
-                            element.metrics.add(aggregationMetric);
-                        }
-                        if (subAggregationResponse != null) {
-                            element.elements.add(subAggregationResponse);
-                        }
-                    });
-                }
-                aggregationResponse.elements.add(element);
-
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, bucket);
             });
         } else if (aggregate.isSterms()) {
             aggregate.sterms().buckets().array().forEach(bucket -> {
                 AggregationResponse element = new AggregationResponse();
                 element.keyAsString = bucket.key();
-                element.count = bucket.docCount();
                 element.key = bucket.key();
-                element.elements = new ArrayList<>();
-                if (bucket.aggregations().size() == 0) {
-                    element.elements = null;
-                } else {
-                    bucket.aggregations().keySet().forEach(key -> {
-                        AggregationResponse subAggregationResponse = new AggregationResponse();
-                        if (key.contains(TERM_AGG)) {
-                            if( bucket.aggregations().get(key).isSterms()){
-                                subAggregationResponse.sumotherdoccounts = bucket.aggregations().get(key).sterms().sumOtherDocCount();
-                            }
-                            if( bucket.aggregations().get(key).isDterms()){
-                                subAggregationResponse.sumotherdoccounts = bucket.aggregations().get(key).dterms().sumOtherDocCount();
-                            }
-                            if( bucket.aggregations().get(key).isLterms()){
-                                subAggregationResponse.sumotherdoccounts = bucket.aggregations().get(key).lterms().sumOtherDocCount();
-                            }
-                        }
-                        if (key.contains(TERM_AGG) || key.contains(DATEHISTOGRAM_AGG) || key.contains(HISTOGRAM_AGG)
-                                || key.contains(GEOTILE_AGG) || key.contains(GEOHASH_AGG)){
-                            subAggregationResponse = formatAggregationResult(bucket.aggregations().get(key), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
-
-                        }else {
-                            //metric
-                            if (element.metrics == null) {
-                                element.metrics = new ArrayList<>();
-                            }
-                            subAggregationResponse = null;
-                            AggregationMetric aggregationMetric = new AggregationMetric();
-                            aggregationMetric.type = key.split(":")[0];
-                            aggregationMetric.field = key.split(":")[1];
-                            if (!aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                aggregationMetric.value =  bucket.aggregations().get(key).simpleValue().value();
-                            } else {
-                                FeatureCollection fc = new FeatureCollection();
-                                Feature feature = new Feature();
-                                if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                    GeoJsonObject g = createBox(bucket.aggregations().get(key).geoBounds().bounds());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                } else if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase())) {
-                                    GeoLocation centroid = bucket.aggregations().get(key).geoCentroid().location();
-                                    GeoJsonObject g = new Point(centroid.latlon().lon(), centroid.latlon().lat());
-                                    feature.setGeometry(g);
-                                    fc.add(feature);
-                                }
-                                aggregationMetric.value = fc;
-                            }
-                            element.metrics.add(aggregationMetric);
-                        }
-                        if (subAggregationResponse != null) {
-                            element.elements.add(subAggregationResponse);
-                        }
-                    });
-                }
-                aggregationResponse.elements.add(element);
+                buildResponseFromBucket(element, aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, bucket);
             });
         }
         return aggregationResponse;
     }
 
+    private void buildResponseFromBucket(AggregationResponse element, AggregationResponse aggregationResponse, CollectionReference collection, List<Aggregation> aggregationsRequest, int aggTreeDepth, List<RawGeometry> rawGeometries, List<AggregatedGeometryEnum> aggregatedGeometries, MultiBucketBase bucket) {
+        element.count = bucket.docCount();
+        element.elements = new ArrayList<>();
+        if (bucket.aggregations().size() == 0) {
+            element.elements = null;
+        } else {
+            bucket.aggregations().entrySet().forEach(aggregateEntry -> {
+                String key = aggregateEntry.getKey();
+                Aggregate subAgg = aggregateEntry.getValue();
+                AggregationResponse subAggregationResponse = new AggregationResponse();
+                if (key.contains(TERM_AGG)) {
+                    if( subAgg.isSterms()){
+                        subAggregationResponse.sumotherdoccounts = subAgg.sterms().sumOtherDocCount();
+                    }
+                    if( subAgg.isDterms()){
+                        subAggregationResponse.sumotherdoccounts = subAgg.dterms().sumOtherDocCount();
+                    }
+                    if( subAgg.isLterms()){
+                        subAggregationResponse.sumotherdoccounts = subAgg.lterms().sumOtherDocCount();
+                    }
+                }
+                if (key.equals(FETCH_HITS_AGG)) {
+                    subAggregationResponse = null;
+                    element.hits = new ArrayList<>();
+                    for (int i = 0; i < subAgg.topHits().hits().hits().size(); i++) {
+                        try {
+                            element.hits.add(mapper.readValue(subAgg.topHits().hits().hits().get(i).source().toString(),Map.class));
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                else if (key.contains(TERM_AGG) || key.contains(DATEHISTOGRAM_AGG) || key.contains(HISTOGRAM_AGG)
+                        || key.contains(GEOTILE_AGG) || key.contains(GEOHASH_AGG)){
+                    subAggregationResponse = formatAggregationResult(subAgg, subAggregationResponse, collection, aggregationsRequest, aggTreeDepth +1);
 
-
+                } else if (isAggregatedGeometry(key, aggregatedGeometries)) {
+                    subAggregationResponse = null;
+                    ReturnedGeometry returnedGeometry = new ReturnedGeometry();
+                    returnedGeometry.isRaw = false;
+                    if (key.equals(AggregatedGeometryEnum.BBOX.value() + AGGREGATED_GEOMETRY_SUFFIX)) {
+                        Polygon box = createBox(subAgg.geoBounds().bounds());
+                        returnedGeometry.reference = AggregatedGeometryEnum.BBOX.value();
+                        returnedGeometry.geometry = box;
+                    } else if (key.equals(AggregatedGeometryEnum.CENTROID.value() + AGGREGATED_GEOMETRY_SUFFIX)) {
+                        GeoLocation centroid = subAgg.geoCentroid().location();
+                        GeoJsonObject g = new Point(centroid.latlon().lon(), centroid.latlon().lat());
+                        returnedGeometry.reference = AggregatedGeometryEnum.CENTROID.value();
+                        returnedGeometry.geometry = g;
+                    }
+                    if (element.geometries == null) {
+                        element.geometries = new ArrayList<>();
+                    }
+                    element.geometries.add(returnedGeometry);
+                } else if (key.startsWith(RAW_GEOMETRY_SUFFIX)) {
+                    String sort = key.substring(RAW_GEOMETRY_SUFFIX.length());
+                    subAggregationResponse = null;
+                    long nbHits = subAgg.topHits().hits().total().value();
+                    if (nbHits > 0) {
+                        List<Hit<JsonData>> hits = subAgg.topHits().hits().hits();
+                        for (Hit<JsonData> hit: hits) {
+                            JsonData source = hit.source();
+                            if (rawGeometries != null) {
+                                List<String> geometries = rawGeometries.stream().filter(rg -> rg.sort.equals(sort)).map(rg -> rg.geometry).collect(Collectors.toList());
+                                geometries.forEach(g -> {
+                                    GeoJsonObject geometryGeoJson;
+                                    try {
+                                        CollectionReferenceManager.setCollectionGeometriesType(source, collection, String.join(",", geometries));
+                                        GeoTypeEnum geometryType;
+                                        Object geometry = MapExplorer.getObjectFromPath(g, source);
+                                        ReturnedGeometry returnedGeometry = null;
+                                        if (geometry != null) {
+                                            returnedGeometry = new ReturnedGeometry();
+                                            geometryType = collection.params.getGeometryType(g);
+                                            returnedGeometry.reference = g;
+                                        } else {
+                                            geometry = MapExplorer.getObjectFromPath(collection.params.centroidPath, source);
+                                            geometryType = collection.params.getGeometryType(collection.params.centroidPath);
+                                            if (geometry != null) {
+                                                returnedGeometry = new ReturnedGeometry();
+                                                returnedGeometry.reference = collection.params.centroidPath;
+                                            }
+                                        }
+                                        geometryGeoJson = geometry != null ?
+                                                GeoTypeMapper.getGeoJsonObject(geometry, geometryType) : null;
+                                        if (geometryGeoJson != null) {
+                                            // "old-style crs member is not recommended" so we remove it
+                                            geometryGeoJson.setCrs(null);
+                                            returnedGeometry.geometry = geometryGeoJson;
+                                            returnedGeometry.isRaw = true;
+                                            returnedGeometry.sort = sort;
+                                            if (element.geometries == null) {
+                                                element.geometries = new ArrayList<>();
+                                            }
+                                            element.geometries.add(returnedGeometry);
+                                        }
+                                    } catch (ArlasException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    if (bucket.aggregations().size() == 1) {
+                        element.metrics = null;
+                        element.elements = null;
+                    }
+                } else {
+                    //metric
+                    if (element.metrics == null) {
+                        element.metrics = new ArrayList<>();
+                    }
+                    subAggregationResponse = null;
+                    AggregationMetric aggregationMetric = new AggregationMetric();
+                    aggregationMetric.type = key.split(":")[0];
+                    if (!subAgg.isGeoBounds() && !subAgg.isGeoCentroid()) {
+                        aggregationMetric.field = key.split(":")[1];
+                        if(subAgg.isAvg()){
+                            aggregationMetric.value =  subAgg.avg().value();
+                        }
+                        if(subAgg.isMax()){
+                            aggregationMetric.value =  subAgg.max().value();
+                        }
+                        if(subAgg.isMin()){
+                            aggregationMetric.value =  subAgg.min().value();
+                        }
+                        if(subAgg.isSum()){
+                            aggregationMetric.value =  subAgg.sum().value();
+                        }
+                        if(subAgg.isCardinality()){
+                            aggregationMetric.value =  (double) subAgg.cardinality().value();
+                        }
+                    } else {
+                        FeatureCollection fc = new FeatureCollection();
+                        Feature feature = new Feature();
+                        aggregationMetric.field = key.split(":")[1];
+                        if (subAgg.isGeoBounds()) {
+                            GeoJsonObject g = createBox(subAgg.geoBounds().bounds());
+                            feature.setGeometry(g);
+                            fc.add(feature);
+                        } else if (subAgg.isGeoCentroid()) {
+                            GeoLocation centroid = subAgg.geoCentroid().location();
+                            GeoJsonObject g = new Point(centroid.latlon().lon(), centroid.latlon().lat());
+                            feature.setGeometry(g);
+                            fc.add(feature);
+                        }
+                        aggregationMetric.value = fc;
+                    }
+                    element.metrics.add(aggregationMetric);
+                }
+                if (subAggregationResponse != null) {
+                    element.elements.add(subAggregationResponse);
+                }
+            });
+        }
+        aggregationResponse.elements.add(element);
+    }
 
 
     private boolean isAggregatedGeometry(String subName, List<AggregatedGeometryEnum> geometries) {
