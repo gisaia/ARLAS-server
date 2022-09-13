@@ -26,6 +26,7 @@ import io.dropwizard.jackson.JsonSnakeCase;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -200,6 +201,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
     }
 
     @Test
+    @Ignore
     public void testH3Aggregate() throws Exception {
         //H3
         aggregationRequest.aggregations.get(0).type = AggregationTypeEnum.h3;

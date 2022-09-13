@@ -19,6 +19,9 @@
 
 package io.arlas.server.core.utils;
 
+import co.elastic.clients.json.JsonData;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cyclops.data.tuple.Tuple2;
 import cyclops.reactive.ReactiveSeq;
 import io.arlas.commons.utils.StringUtil;
@@ -29,8 +32,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class MapExplorer {
-
-    public static Object getObjectFromPath(String path, Object source) {
+    private static ObjectMapper mapper = new ObjectMapper();
+    public static Object getObjectFromPath(String path, Object source)  {
         if (StringUtil.isNullOrEmpty(path)) {
             return source;
         } else {
@@ -42,17 +45,25 @@ public class MapExplorer {
                     newPath.append(".");
                 }
             }
+
             if (source instanceof Map && ((Map) source).containsKey(pathLevels[0])) {
                 return getObjectFromPath(newPath.toString(), ((Map) source).get(pathLevels[0]));
             } else if (source instanceof CollectionReferenceDescriptionProperty
                     && ((CollectionReferenceDescriptionProperty) source).properties != null
                     && ((CollectionReferenceDescriptionProperty) source).properties.containsKey(pathLevels[0])) {
                 return getObjectFromPath(newPath.toString(), ((CollectionReferenceDescriptionProperty) source).properties.get(pathLevels[0]));
-            } else {
+            } else if(source instanceof JsonData && ((JsonData) source).toJson().asJsonObject().containsKey(pathLevels[0])) {
+                Map<String,JsonData> data = null;
+                try {
+                    data = mapper.readValue(source.toString(), Map.class);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+                return getObjectFromPath(newPath.toString(), ((Map) data).get(pathLevels[0]));
+            }
                 return null;
             }
         }
-    }
 
     public static Map<String, Object> flat(Object source, Function<Map<List<String>, Object>,Map<String, Object>> keyStringifier, Set<String> exclude) {
         Map<List<String>, Object> flatted= new HashMap<>();
