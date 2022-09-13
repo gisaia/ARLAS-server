@@ -55,6 +55,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.Aggregation.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.arlas.server.core.model.CollectionReference.INCLUDE_FIELDS;
 import static io.arlas.server.core.utils.CheckParams.GEO_AGGREGATION_TYPE_ENUMS;
 
 public class ElasticFluidSearch extends FluidSearchService {
@@ -613,11 +614,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         Builder.ContainerBuilder dateHistogramContainerBuilder =
                 setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
         dateHistogramContainerBuilder = setAggregatedGeometries(aggregationModel, dateHistogramContainerBuilder);
-
-        // TODO ES 8 implement setHitsToFetch
-        //dateHistogramAggregationBuilder = (DateHistogramAggregation.Builder) setHitsToFetch(aggregationModel, dateHistogramAggregationBuilder);
-        // TODO ES 8 implement setRawGeometries
-        // dateHistogramAggregationBuilder = (DateHistogramAggregation.Builder) setRawGeometriesAndFetch(aggregationModel, dateHistogramAggregationBuilder);
+        dateHistogramContainerBuilder =  setRawGeometriesAndFetch(aggregationModel, dateHistogramContainerBuilder);
         return dateHistogramContainerBuilder;
     }
 
@@ -631,10 +628,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         Builder.ContainerBuilder geoHashAggregationContainerBuilder =
                 setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
         geoHashAggregationContainerBuilder = setAggregatedGeometries(aggregationModel, geoHashAggregationContainerBuilder);
-        // TODO ES 8 implement setRawGeometries
-        // geoHashAggregationBuilder = (GeoHashGridAggregation.Builder) setRawGeometries(aggregationModel, geoHashAggregationBuilder);
-        // TODO ES 8 implement setHitsToFetch
-        //geoHashAggregationBuilder = (GeoHashGridAggregation.Builder) setRawGeometriesAndFetch(aggregationModel, geoHashAggregationBuilder);
+        geoHashAggregationContainerBuilder =  setRawGeometriesAndFetch(aggregationModel, geoHashAggregationContainerBuilder);
         return geoHashAggregationContainerBuilder;
     }
 
@@ -647,31 +641,25 @@ public class ElasticFluidSearch extends FluidSearchService {
         //get the field, format, collect_field, collect_fct, order, on
         Builder.ContainerBuilder geoTileAggregationContainerBuilder =  setAggregationParameters(aggregationModel, geoTileAggregationBuilder);
         geoTileAggregationContainerBuilder = setAggregatedGeometries(aggregationModel, geoTileAggregationContainerBuilder);
-        // TODO ES 8 implement setRawGeometries
-        // geoTileAggregationBuilder = (GeoTileGridAggregation.Builder) setRawGeometriesAndFetch(aggregationModel, geoTileAggregationBuilder);
-        // TODO ES 8 implement setHitsToFetch
-        //geoTileAggregationBuilder = (GeoTileGridAggregation.Builder) setRawGeometriesAndFetch(aggregationModel, geoTileAggregationBuilder);
+        geoTileAggregationContainerBuilder = setRawGeometriesAndFetch(aggregationModel, geoTileAggregationContainerBuilder);
         return geoTileAggregationContainerBuilder;
-
-
     }
 
     // construct and returns the h3 aggregationModel builder
-    private TermsAggregation.Builder buildH3Aggregation(Aggregation aggregationModel) throws ArlasException {
+    private Builder.ContainerBuilder buildH3Aggregation(Aggregation aggregationModel) throws ArlasException {
         TermsAggregation.Builder termsAggregationBuilder = AggregationBuilders.terms();
+        if (!StringUtil.isNullOrEmpty(aggregationModel.include)) {
+            termsAggregationBuilder = termsAggregationBuilder.include(builder -> builder.regexp(aggregationModel.include));
+        }
         aggregationModel.field = aggregationModel.field + "." + aggregationModel.interval.value;
         if (aggregationModel.size == null) {
             aggregationModel.size = "10000"; // by default
         }
         //get the field, format, collect_field, collect_fct, order, on
         Builder.ContainerBuilder termsAggregationContainerBuilder =setAggregationParameters(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregation.Builder) setAggregatedGeometries(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregation.Builder) setRawGeometriesAndFetch(aggregationModel, termsAggregationBuilder);
-        if (!StringUtil.isNullOrEmpty(aggregationModel.include)) {
-            String[] includeList = aggregationModel.include.split(",");
-            termsAggregationBuilder = termsAggregationBuilder.include(builder -> builder.terms(Arrays.asList(includeList)));
-        }
-        return termsAggregationBuilder;
+        termsAggregationContainerBuilder =  setAggregatedGeometries(aggregationModel, termsAggregationContainerBuilder);
+        termsAggregationContainerBuilder =  setRawGeometriesAndFetch(aggregationModel, termsAggregationContainerBuilder);
+        return termsAggregationContainerBuilder;
     }
 
     // construct and returns the histogram aggregationModel builder
@@ -681,11 +669,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         //get the field, format, collect_field, collect_fct, order, on
         Builder.ContainerBuilder histogramAggregationContainerBuilder =  setAggregationParameters(aggregationModel, histogramAggregationBuilder);
         histogramAggregationContainerBuilder = setAggregatedGeometries(aggregationModel, histogramAggregationContainerBuilder);
-
-        // TODO ES 8 implement setHitsToFetch
-        //histogramAggregationBuilder = (HistogramAggregation.Builder) setHitsToFetch(aggregationModel, histogramAggregationBuilder);
-        // TODO ES 8 implement setRawGeometries
-        // histogramAggregationBuilder = (HistogramAggregation.Builder) setRawGeometriesAndFetch(aggregationModel, histogramAggregationBuilder);
+        histogramAggregationContainerBuilder = setRawGeometriesAndFetch(aggregationModel, histogramAggregationContainerBuilder);
         return histogramAggregationContainerBuilder;
     }
 
@@ -698,10 +682,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         //get the field, format, collect_field, collect_fct, order, on
         Builder.ContainerBuilder termsAggregationContainerBuilder =  setAggregationParameters(aggregationModel, termsAggregationBuilder);
         termsAggregationContainerBuilder = setAggregatedGeometries(aggregationModel, termsAggregationContainerBuilder);
-        // TODO ES 8 implement setRawGeometries
-        // termsAggregationBuilder = (TermsAggregation.Builder) setRawGeometriesAndFetch(aggregationModel, termsAggregationBuilder);
-        // TODO ES 8 implement setHitsToFetch
-        //termsAggregationBuilder = (TermsAggregation.Builder) setHitsToFetch(aggregationModel, termsAggregationBuilder);
+        termsAggregationContainerBuilder = setRawGeometriesAndFetch(aggregationModel, termsAggregationContainerBuilder);
         return termsAggregationContainerBuilder;
     }
 
@@ -788,7 +769,6 @@ public class ElasticFluidSearch extends FluidSearchService {
         }
 
         aggregationBuilder = setOrder(aggregationModel, aggregationBuilder, firstMetricAggregation);
-
         if (aggregationBuilder instanceof DateHistogramAggregation.Builder) {
             containerBuilder = new Builder().dateHistogram(((DateHistogramAggregation.Builder) aggregationBuilder).build());
         }
@@ -828,7 +808,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         return containerBuilder;
     }
 
-    private ObjectBuilder setRawGeometriesAndFetch(Aggregation aggregationModel, ObjectBuilder aggregationBuilder) throws ArlasException {
+    private Builder.ContainerBuilder setRawGeometriesAndFetch(Aggregation aggregationModel, Builder.ContainerBuilder aggregationBuilder) throws ArlasException {
         if(aggregationModel.rawGeometries != null && aggregationModel.fetchHits != null){
             Integer fetchSize = Optional.ofNullable(aggregationModel.fetchHits.size).orElse(1);
             List<String> signedFetchIncludes = new ArrayList<>();
@@ -891,7 +871,8 @@ public class ElasticFluidSearch extends FluidSearchService {
         return  aggregationBuilder;
     }
 
-    private ObjectBuilder setRawGeometries(Aggregation aggregationModel, ObjectBuilder aggregationBuilder) throws ArlasException {
+
+    private Builder.ContainerBuilder setRawGeometries(Aggregation aggregationModel, Builder.ContainerBuilder containerBuilder) throws ArlasException {
         if (aggregationModel.rawGeometries != null) {
             Map<String, Set<String>> rgs = new HashMap<>();
             aggregationModel.rawGeometries.forEach(rg -> {
@@ -900,10 +881,10 @@ public class ElasticFluidSearch extends FluidSearchService {
                 geos.add(rg.geometry);
                 rgs.put(rg.sort, geos);
             });
-            // TODO ES8
             for (String sort: rgs.keySet()) {
-/*                String[] includes = rgs.get(sort).toArray(;
-                TopHitsAggregation.Builder topHitsAggregationBuilder = AggregationBuilders.topHits().size(1).fetchSource(includes, null);
+                String[] includes = rgs.get(sort).stream().toArray(String[]::new);
+                TopHitsAggregation.Builder topHitsAggregationBuilder = AggregationBuilders.topHits().size(1)
+                        .source(builder -> builder.filter(builder1 -> builder1.includes(Arrays.stream(includes).toList())));
                 for (String field : sort.split(",")) {
                     String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
                     CollectionUtil.checkAliasMappingFields(client.getMappings(collectionReference.params.indexName), unsignedField);
@@ -916,14 +897,14 @@ public class ElasticFluidSearch extends FluidSearchService {
                         topHitsAggregationBuilder.sort(builder -> builder.field(FieldSort.of(builder1 -> builder1.field(unsignedField).order(SortOrder.Desc))));
                     }
                 }
-                aggregationBuilder
-                        .subAggregation(topHitsAggregationBuilder);*/
+                containerBuilder
+                        .aggregations(RAW_GEOMETRY_SUFFIX + sort,topHitsAggregationBuilder.build()._toAggregation());
             }
         }
-        return aggregationBuilder;
+        return containerBuilder;
     }
 
-    private ObjectBuilder setHitsToFetch(Aggregation aggregationModel, ObjectBuilder aggregationBuilder) throws ArlasException {
+    private Builder.ContainerBuilder setHitsToFetch(Aggregation aggregationModel, Builder.ContainerBuilder containerBuilder) throws ArlasException {
         if (aggregationModel.fetchHits != null) {
             TopHitsAggregation.Builder topHitsAggregationBuilder = AggregationBuilders.topHits();
             Integer size = Optional.ofNullable(aggregationModel.fetchHits.size).orElse(1);
@@ -945,13 +926,11 @@ public class ElasticFluidSearch extends FluidSearchService {
                     }
                 }
                 String[] hitsToInclude = includes.toArray(new String[0]);
-                // TODO ES8
-                // topHitsAggregationBuilder.fetchSource(hitsToInclude, null);
+                topHitsAggregationBuilder.source(builder -> builder.filter(builder1 -> builder1.includes(Arrays.stream(hitsToInclude).toList())));
             }
-            // TODO ES8
-            //aggregationBuilder.subAggregation(topHitsAggregationBuilder);
+            containerBuilder.aggregations(FETCH_HITS_AGG,topHitsAggregationBuilder.build()._toAggregation());
         }
-        return aggregationBuilder;
+        return containerBuilder;
     }
 
     private void setGeoMetricAggregationCollectField(Metric metric) throws ArlasException {
