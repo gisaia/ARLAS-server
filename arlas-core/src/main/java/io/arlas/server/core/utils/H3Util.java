@@ -20,7 +20,7 @@
 package io.arlas.server.core.utils;
 
 import com.uber.h3core.H3Core;
-import com.uber.h3core.util.GeoCoord;
+import com.uber.h3core.util.LatLng;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +48,12 @@ public class H3Util {
     }
 
     public Pair<Double, Double> getCellCenterAsLatLon(String h3AsHex) {
-        GeoCoord gc = h3Core.h3ToGeo(h3AsHex);
+        LatLng gc = h3Core.cellToLatLng(h3AsHex);
         return Pair.of(gc.lat, gc.lng);
     }
 
     public List<Pair<Double, Double>> getCellBoundaryAsLatLonList(String h3AsHex) {
-        List<GeoCoord> gc = h3Core.h3ToGeoBoundary(h3AsHex);
+        List<LatLng> gc = h3Core.cellToBoundary(h3AsHex);
         return gc.stream().map(g -> Pair.of(g.lat, g.lng)).collect(Collectors.toList());
     }
 
