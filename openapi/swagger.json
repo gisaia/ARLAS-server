@@ -2541,9 +2541,6 @@
         "centroid_path" : {
           "type" : "string"
         },
-        "h3_path" : {
-          "type" : "string"
-        },
         "timestamp_path" : {
           "type" : "string"
         },

@@ -787,8 +787,8 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                        if (mainAggregationType == AggregationTypeEnum.geohash) {
                            properties.put("geohash", element.keyAsString);
                            tile.ifPresent(s -> properties.put("parent_geohash", s));
-                       } else if (mainAggregationType == AggregationTypeEnum.h3) {
-                           properties.put("h3", element.keyAsString);
+                       } else if (mainAggregationType == AggregationTypeEnum.geohex) {
+                           properties.put("geohex", element.keyAsString);
                            tile.ifPresent(s -> properties.put("parent_cell", s));
                        } else if (mainAggregationType == AggregationTypeEnum.geotile) {
                            properties.put("tile", element.keyAsString);
