@@ -127,7 +127,6 @@
 |**exclude_wfs_fields**  <br>*optional*|string|
 |**filter**  <br>*optional*|[Filter](#filter)|
 |**geometry_path**  <br>*required*|string|
-|**h3_path**  <br>*optional*|string|
 |**id_path**  <br>*required*|string|
 |**index_name**  <br>*required*|string|
 |**inspire**  <br>*optional*|[Inspire](#inspire)|

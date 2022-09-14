@@ -19,6 +19,7 @@
 package io.arlas.server.core.services;
 
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.AggregationTypeEnum;
@@ -27,7 +28,6 @@ import io.arlas.server.core.model.request.Aggregation;
 import io.arlas.server.core.model.request.Expression;
 import io.arlas.server.core.model.request.MultiValueFilter;
 import io.arlas.server.core.model.request.Page;
-import io.arlas.commons.utils.StringUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public abstract class FluidSearchService {
     public static final String TERM_AGG = "Term aggregation";
     public static final String GEOHASH_AGG = "Geohash aggregation";
     public static final String GEOTILE_AGG = "Geotile aggregation";
-    public static final String H3_AGG = "H3 aggregation";
+    public static final String GEOHEX_AGG = "Geohex aggregation";
     public static final String FETCH_HITS_AGG = "fetched_hits";
     public static final String GEO_DISTANCE = "geodistance";
     public static final String NO_INCLUDE_TO_SPECIFY = "'include-' should not be specified for this aggregation";
@@ -98,7 +98,6 @@ public abstract class FluidSearchService {
         return Arrays.asList(collectionReference.params.idPath,
                 collectionReference.params.geometryPath,
                 collectionReference.params.centroidPath,
-                collectionReference.params.h3Path,
                 collectionReference.params.timestampPath);
     }
 
@@ -175,8 +174,8 @@ public abstract class FluidSearchService {
                 return HISTOGRAM_AGG;
             case term:
                 return TERM_AGG;
-            case h3:
-                return H3_AGG;
+            case geohex:
+                return GEOHEX_AGG;
             default:
                 LOGGER.warn("Getting name for a non defined aggregation type: " + aggName);
                 return aggName;

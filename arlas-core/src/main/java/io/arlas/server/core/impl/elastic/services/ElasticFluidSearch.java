@@ -20,6 +20,7 @@
 package io.arlas.server.core.impl.elastic.services;
 
 import co.elastic.clients.elasticsearch._types.*;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation.Builder;
 import co.elastic.clients.elasticsearch._types.aggregations.*;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
@@ -44,14 +45,12 @@ import io.arlas.server.core.utils.CollectionUtil;
 import io.arlas.server.core.utils.GeoUtil;
 import io.arlas.server.core.utils.ParamsParser;
 import org.apache.commons.lang3.tuple.Pair;
-import org.geojson.LngLatAlt;
-import org.geojson.Polygon;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import co.elastic.clients.elasticsearch._types.aggregations.Aggregation.*;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -477,6 +476,9 @@ public class ElasticFluidSearch extends FluidSearchService {
             case geohash:
                 aggContainerBuilder = buildGeohashAggregation(firsAggregationModel);
                 break;
+            case geohex:
+                aggContainerBuilder = buildGeohexAggregation(firsAggregationModel);
+                break;
             case geotile:
                 aggContainerBuilder = buildGeotileAggregation(firsAggregationModel);
                 break;
@@ -496,6 +498,9 @@ public class ElasticFluidSearch extends FluidSearchService {
                     break;
                 case geohash:
                     aggContainerBuilder = aggContainerBuilder.aggregations(GEOHASH_AGG+ i,buildGeohashAggregation(aggregationModel).build());
+                    break;
+                case geohex:
+                    aggContainerBuilder = aggContainerBuilder.aggregations(GEOHEX_AGG + i,buildGeohexAggregation(aggregationModel).build());
                     break;
                 case geotile:
                     aggContainerBuilder = aggContainerBuilder.aggregations(GEOTILE_AGG+ i,buildGeotileAggregation(aggregationModel).build());
@@ -622,12 +627,25 @@ public class ElasticFluidSearch extends FluidSearchService {
         GeoHashPrecision precision = GeoHashPrecision.of(builder -> builder.geohashLength(aggregationModel.interval.value));
         geoHashAggregationBuilder = geoHashAggregationBuilder.precision(precision);
         //get the field, format, collect_field, collect_fct, order, on
-        Builder.ContainerBuilder geoHashAggregationContainerBuilder =
-                setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
+        Builder.ContainerBuilder geoHashAggregationContainerBuilder = setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
         geoHashAggregationContainerBuilder = setAggregatedGeometries(aggregationModel, geoHashAggregationContainerBuilder);
         geoHashAggregationContainerBuilder =  setRawGeometries(aggregationModel, geoHashAggregationContainerBuilder);
         geoHashAggregationContainerBuilder =  setHitsToFetch(aggregationModel, geoHashAggregationContainerBuilder);
         return geoHashAggregationContainerBuilder;
+    }
+
+    // construct and returns the geotile aggregationModel builder
+    private Builder.ContainerBuilder buildGeohexAggregation(Aggregation aggregationModel) throws ArlasException {
+        GeohexGridAggregation.Builder geoHexAggregationBuilder = AggregationBuilders.geohexGrid();
+        //get the precision
+        Integer precision = (Integer)aggregationModel.interval.value;
+        geoHexAggregationBuilder = geoHexAggregationBuilder.precision(precision);
+        //get the field, format, collect_field, collect_fct, order, on
+        Builder.ContainerBuilder geoHexAggregationContainerBuilder =  setAggregationParameters(aggregationModel, geoHexAggregationBuilder);
+        geoHexAggregationContainerBuilder = setAggregatedGeometries(aggregationModel, geoHexAggregationContainerBuilder);
+        geoHexAggregationContainerBuilder = setRawGeometries(aggregationModel, geoHexAggregationContainerBuilder);
+        geoHexAggregationContainerBuilder = setHitsToFetch(aggregationModel, geoHexAggregationContainerBuilder);
+        return geoHexAggregationContainerBuilder;
     }
 
     // construct and returns the geotile aggregationModel builder

@@ -19,10 +19,10 @@
 
 package io.arlas.server.admin.task;
 
+import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.app.CollectionAutoDiscoverConfiguration;
-import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
@@ -76,7 +76,6 @@ public class CollectionAutoDiscover extends Task implements Runnable {
         List<String> timestampPaths = configuration.getPreferredTimestampFieldNames();
         List<String> centroidPaths = configuration.getPreferredCentroidFieldNames();
         List<String> geometryPaths = configuration.getPreferredGeometryFieldNames();
-        List<String> h3Paths = configuration.getPreferredH3FieldNames();
         for (String path : idPaths) {
             Object field = MapExplorer.getObjectFromPath(path, collection.properties);
             if (field instanceof CollectionReferenceDescriptionProperty) {
@@ -106,13 +105,6 @@ public class CollectionAutoDiscover extends Task implements Runnable {
             Object field = MapExplorer.getObjectFromPath(path, collection.properties);
             if (field instanceof CollectionReferenceDescriptionProperty) {
                 collection.params.geometryPath = path;
-                break;
-            }
-        }
-        for (String path : h3Paths) {
-            Object field = MapExplorer.getObjectFromPath(path, collection.properties);
-            if (field instanceof CollectionReferenceDescriptionProperty) {
-                collection.params.h3Path = path;
                 break;
             }
         }

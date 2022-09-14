@@ -26,11 +26,14 @@ import io.restassured.config.XmlConfig;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.junit.Test;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.withArgs;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.stringContainsInOrder;
 
 public class OpenSearchServiceIT extends AbstractTestWithCollection {
 
@@ -48,7 +51,6 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
         AVAILABLE_COLUMNS.put("params.tags", 2);
         AVAILABLE_COLUMNS.put("params.not_indexed", 0);
         AVAILABLE_COLUMNS.put("params.not_enabled", 0);
-        AVAILABLE_COLUMNS.put("geo_params.h3", 32);
     }
     private static final List<String> MANDATORY_COLUMNS = Arrays.asList("id", "params.startdate");
     private static final List<String> ALIASED_COLUMNS = Arrays.asList("params.keywords");
@@ -80,7 +82,7 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
     @Test
     public void testOpenSearchFeatureWithAvailableColumns() throws Exception {
         handleOpenSearchFeature(get(""));
-        handleOpenSearchFeature(get("fullname,params,geo_params.h3"));
+        handleOpenSearchFeature(get("fullname,params"));
     }
 
     @Test

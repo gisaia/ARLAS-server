@@ -283,6 +283,7 @@ public abstract class ExploreService {
 
         return box;
     }
+
     protected Polygon createPolygonFromGeohash(String geohash) {
         Rectangle rectangle = GeohashUtils.decodeBoundary(geohash, SpatialContext.GEO);
         Polygon polygon = new Polygon();

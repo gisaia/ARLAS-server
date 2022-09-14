@@ -23,14 +23,16 @@ import io.arlas.server.tests.AbstractTestWithCollection;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Test;
+
 import java.util.Optional;
+
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
-import static io.restassured.RestAssured.given;
 
 public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
 
-    private static final String PARAMS_FIELD_EXCEPT_DUBLIN_CORE = "['index_name', 'type_name', 'id_path', 'geometry_path', 'centroid_path','h3_path', 'timestamp_path', 'exclude_fields', 'update_max_hits', 'taggable_fields', " +
+    private static final String PARAMS_FIELD_EXCEPT_DUBLIN_CORE = "['index_name', 'type_name', 'id_path', 'geometry_path', 'centroid_path', 'timestamp_path', 'exclude_fields', 'update_max_hits', 'taggable_fields', " +
             "'exclude_wfs_fields', 'custom_params', 'inspire', 'raster_tile_url', 'raster_tile_width', 'raster_tile_height', 'filter']";
     private static final String DUBLIN_CORE_FIELDS_EXCEPT_DATE = "['title', 'creator', 'subject', 'description', 'publisher', 'contributor', 'type', 'format', 'identifier', 'source', 'language', 'bbox', 'coverage', " +
             "'coverage_centroid']";
@@ -47,14 +49,14 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
 
     @Test
     public void testDescribeFeatureWithFullnameAndParamsInColumFilter() throws Exception {
-        handleMatchingResponse(get(Optional.of("fullname,params,,geo_params.wktgeomet,geo_params.h3")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("*fullname*,params.*,geo_params.metry,geo_params.h3")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("geo_params.h3,fullname,params.country,params.not_indexed,params.not_enabled,params.weight,params.job,params.age,params.tags,params.keywords,params.stopdate")),
+        handleMatchingResponse(get(Optional.of("fullname,params,,geo_params.wktgeomet")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("*fullname*,params.*,geo_params.metry")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("fullname,params.country,params.not_indexed,params.not_enabled,params.weight,params.job,params.age,params.tags,params.keywords,params.stopdate")),
                 new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("geo_params.h3,fullnam*,param*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("geo_params.h3,fullname,*.country,*arams.weight,param*.job,*age,*ags,params.*eywor*,*arams.stopdate*,*enabled,*indexed")),
+        handleMatchingResponse(get(Optional.of("fullnam*,param*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("fullname,*.country,*arams.weight,param*.job,*age,*ags,params.*eywor*,*arams.stopdate*,*enabled,*indexed")),
                 new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("geo_params.h3,fullname,params.*ountry,params.weigh*,params.*o*,*aram*.age,params.tags,params.keywords*,params.stopdate")),
+        handleMatchingResponse(get(Optional.of("fullname,params.*ountry,params.weigh*,params.*o*,*aram*.age,params.tags,params.keywords*,params.stopdate")),
                 new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
     }
 

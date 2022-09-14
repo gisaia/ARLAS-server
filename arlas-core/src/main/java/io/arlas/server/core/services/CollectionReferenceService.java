@@ -19,7 +19,6 @@
 
 package io.arlas.server.core.services;
 
-import co.elastic.clients.elasticsearch._types.mapping.Property;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.commons.utils.StringUtil;
@@ -30,7 +29,10 @@ import io.arlas.server.core.model.CollectionReferenceParameters;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.core.model.response.FieldType;
-import io.arlas.server.core.utils.*;
+import io.arlas.server.core.utils.CheckParams;
+import io.arlas.server.core.utils.CollectionUtil;
+import io.arlas.server.core.utils.ColumnFilterUtil;
+import io.arlas.server.core.utils.FilterMatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -272,8 +274,6 @@ public abstract class CollectionReferenceService {
                 fields.add(collectionReference.params.geometryPath);
             if (collectionReference.params.centroidPath != null)
                 fields.add(collectionReference.params.centroidPath);
-            if (collectionReference.params.h3Path != null)
-                fields.add(collectionReference.params.h3Path);
             if (collectionReference.params.timestampPath != null)
                 fields.add(collectionReference.params.timestampPath);
             if (!StringUtil.isNullOrEmpty(collectionReference.params.excludeFields)) {

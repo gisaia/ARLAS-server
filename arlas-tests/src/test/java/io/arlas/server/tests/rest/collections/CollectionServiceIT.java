@@ -367,7 +367,6 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         jsonAsMap.put(CollectionReference.ID_PATH, DataSetTool.DATASET_ID_PATH);
         jsonAsMap.put(CollectionReference.GEOMETRY_PATH, DataSetTool.DATASET_GEOMETRY_PATH);
         jsonAsMap.put(CollectionReference.CENTROID_PATH, DataSetTool.DATASET_CENTROID_PATH);
-        jsonAsMap.put(CollectionReference.H3_PATH, DataSetTool.DATASET_H3_PATH);
         jsonAsMap.put(CollectionReference.TIMESTAMP_PATH, DataSetTool.DATASET_TIMESTAMP_PATH);
         jsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_EXCLUDE_FIELDS);
         jsonAsMap.put(CollectionReference.EXCLUDE_WFS_FIELDS, DataSetTool.DATASET_EXCLUDE_WFS_FIELDS);
