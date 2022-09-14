@@ -162,12 +162,17 @@ public class ElasticClient {
     public Map<String, Map<String, Object>> getMappings(String index) throws ArlasException {
         try {
             final Map<String, Map<String, Object>> res = new HashMap<>();
-            client.indices()
-                    .getMapping(b -> b.index(index))
-                    .result()
-                    .forEach((_index, _record) -> {
-                        res.put(_index, toMap(_record.mappings().properties()));
-                    });
+            if (index != null) {
+                client.indices()
+                        .getMapping(b -> b.index(index))
+                        .result()
+                        .forEach((_index, _record) -> res.put(_index, toMap(_record.mappings().properties())));
+            } else {
+                client.indices()
+                        .getMapping()
+                        .result()
+                        .forEach((_index, _record) -> res.put(_index, toMap(_record.mappings().properties())));
+            }
 
 
             if (res.isEmpty()) {
