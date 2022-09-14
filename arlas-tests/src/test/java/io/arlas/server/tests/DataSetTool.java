@@ -19,13 +19,10 @@
 
 package io.arlas.server.tests;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.uber.h3core.H3Core;
-import io.arlas.server.core.app.ElasticConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.server.core.app.ElasticConfiguration;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
 import io.arlas.server.core.model.RasterTileURL;
-import org.apache.logging.log4j.core.util.IOUtils;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
 import org.slf4j.Logger;
@@ -53,7 +50,6 @@ public class DataSetTool {
     public final static String DATASET_WKT_GEOMETRY_PATH="geo_params.wktgeometry";
     public final static String DATASET_CENTROID_PATH="geo_params.centroid";
     public final static String DATASET_CENTROID_DESC = "object centroid";
-    public final static String DATASET_H3_PATH="geo_params.h3";
     public final static String DATASET_TIMESTAMP_PATH="params.startdate";
     public final static String DATASET_TIMESTAMP_DESC = "record timestamp";
     public final static String DATASET_EXCLUDE_FIELDS = "params.ci*";
@@ -131,7 +127,6 @@ public class DataSetTool {
 
     private static void fillIndex(String indexName, int lonMin, int lonMax, int latMin, int latMax) throws IOException, ArlasException {
         Data data;
-        H3Core h3 = H3Core.newInstance();
 
         for (int i = lonMin; i <= lonMax; i += 10) {
             for (int j = latMin; j <= latMax; j += 10) {
@@ -147,9 +142,6 @@ public class DataSetTool {
                 }
                 data.params.stopdate = (long) (i + 1000) * (j + 1000) + 100;
                 data.geo_params.centroid = j + "," + i;
-                for (int res = 0; res <= 15; res++) {
-                    data.geo_params.h3.put(String.valueOf(res), h3.geoToH3Address(j, i, res));
-                }
                 data.geo_params.other_geopoint = j2 + "," + i2;
                 data.params.job = jobs[((Math.abs(i) + Math.abs(j)) / 10) % (jobs.length - 1)];
                 data.params.country = countries[((Math.abs(i) + Math.abs(j)) / 10) % (countries.length - 1)];

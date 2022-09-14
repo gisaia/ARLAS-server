@@ -45,7 +45,7 @@ public class DescribeServiceIT extends AbstractDescribeTest {
                 new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
 
         ValidatableResponse fullGeodataPartialActorResponse = get(Optional.of(COLLECTION_NAME + ":fullname," + COLLECTION_NAME + ":params," + COLLECTION_NAME + ":geo_params," +  COLLECTION_NAME_ACTOR + ":fullname," +
-                COLLECTION_NAME_ACTOR + ":geo_params.h3," + COLLECTION_NAME_ACTOR + ":params,notExisting:geo_params"));
+                COLLECTION_NAME_ACTOR + ":params,notExisting:geo_params"));
         compare(fullGeodataPartialActorResponse, new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())), Optional.of(0), true);
         compare(fullGeodataPartialActorResponse, new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())), Optional.of(1), true);
 
