@@ -32,12 +32,6 @@
             <version>23.0.3-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.31</version>
-        </dependency>
-
         <!-- ____________________________________________________ -->
         <!-- DEV -->
         <!-- ____________________________________________________ -->
@@ -77,6 +71,10 @@
                 <exclusion>
                     <artifactId>jackson-core</artifactId>
                     <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>snakeyaml</artifactId>
+                    <groupId>org.yaml</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
