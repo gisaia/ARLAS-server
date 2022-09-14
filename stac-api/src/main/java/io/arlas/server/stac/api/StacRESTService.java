@@ -23,10 +23,10 @@ import com.ethlo.time.ITU;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import io.arlas.commons.utils.StringUtil;
-import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InvalidParameterException;
+import io.arlas.commons.utils.StringUtil;
+import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.Link;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
@@ -37,7 +37,10 @@ import io.arlas.server.core.model.request.Search;
 import io.arlas.server.core.model.response.MD;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
-import io.arlas.server.core.utils.*;
+import io.arlas.server.core.utils.ColumnFilterUtil;
+import io.arlas.server.core.utils.GeoUtil;
+import io.arlas.server.core.utils.ParamsParser;
+import io.arlas.server.core.utils.ResponseCacheManager;
 import io.arlas.server.stac.model.Collection;
 import io.arlas.server.stac.model.*;
 import io.dropwizard.jersey.params.IntParam;
@@ -415,7 +418,11 @@ public abstract class StacRESTService {
         MixedRequest request = new MixedRequest();
         request.basicRequest = computationRequest;
         request.headerRequest = new ComputationRequest();
-        return new ExtentSpatial().bbox(getBbox((Polygon)exploreService.compute(request, collectionReference).geometry));
+        return new ExtentSpatial().bbox(getBbox(
+                Optional.ofNullable((Polygon)exploreService.compute(request, collectionReference).geometry)
+                        .orElseThrow(InvalidParameterException::new)
+                )
+        );
     }
 
     private List<List<Double>> getBbox(Polygon polygon) {
