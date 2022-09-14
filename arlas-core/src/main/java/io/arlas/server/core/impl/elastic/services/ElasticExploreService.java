@@ -23,13 +23,13 @@ import co.elastic.clients.elasticsearch._types.GeoBounds;
 import co.elastic.clients.elasticsearch._types.GeoLocation;
 import co.elastic.clients.elasticsearch._types.LatLonGeoLocation;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
-import co.elastic.clients.elasticsearch._types.GeoLocation;
-import co.elastic.clients.elasticsearch._types.aggregations.*;
-import co.elastic.clients.elasticsearch._types.mapping.GeoPointProperty;
+import co.elastic.clients.elasticsearch._types.aggregations.MultiBucketBase;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import co.elastic.clients.json.JsonData;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import co.elastic.clients.json.JsonpMapper;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -46,7 +46,6 @@ import io.arlas.server.core.model.enumerations.CollectionFunction;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
 import io.arlas.server.core.model.enumerations.GeoTypeEnum;
 import io.arlas.server.core.model.request.*;
-import io.arlas.server.core.model.request.Aggregation;
 import io.arlas.server.core.model.response.*;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
@@ -62,8 +61,6 @@ import org.locationtech.spatial4j.io.GeohashUtils;
 import org.locationtech.spatial4j.shape.Rectangle;
 
 import javax.ws.rs.core.UriInfo;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -403,6 +400,38 @@ public class ElasticExploreService extends ExploreService {
                 }
                 buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, geoTileGridBucket);
             });
+            // TODO es8: uncomment when geohex_grid is available in Aggregate
+//        } else if (aggregate.isGeohexGrid()){
+//            aggregate.geohexGrid().buckets().array().forEach(geohexGridBucket -> {
+//                AggregationResponse element = new AggregationResponse();
+//                element.keyAsString = geohexGridBucket.key();
+//                List<Integer> zxy = Stream.of(element.keyAsString.toString().split("/"))
+//                        .map (elem -> Integer.valueOf(elem))
+//                        .collect(Collectors.toList());
+//                BoundingBox tile = GeoTileUtil.getBoundingBox(zxy.get(1), zxy.get(2), zxy.get(0));
+//                LatLonGeoLocation geoPoint = getH3Centre(element.keyAsString.toString()).latlon();
+//                element.key = new LatLon(geoPoint.lat(),geoPoint.lon());
+//                if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
+//                    aggregatedGeometries.stream()
+//                            .filter(g -> g.isCellOrCellCenterAgg())
+//                            .forEach(g -> {
+//                                ReturnedGeometry returnedGeometry = new ReturnedGeometry();
+//                                returnedGeometry.reference = g.value();
+//                                returnedGeometry.isRaw = false;
+//                                if (g.isCellAgg()) {
+//                                    returnedGeometry.geometry = createPolygonFromH3(element.keyAsString.toString());
+//                                } else {
+//                                    returnedGeometry.geometry = new Point(geoPoint.lon(), geoPoint.lat());
+//                                }
+//                                if (element.geometries == null) {
+//                                    element.geometries = new ArrayList<>();
+//                                }
+//                                element.geometries.add(returnedGeometry);
+//
+//                            });
+//                }
+//                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, geohexGridBucket);
+//            });
         } else if (aggregate.isDateHistogram()){
             aggregate.dateHistogram().buckets().array().forEach(dateHistogramBucket -> {
                 AggregationResponse element = new AggregationResponse();
@@ -641,6 +670,11 @@ public class ElasticExploreService extends ExploreService {
         double lat = (maxLat + minLat) / 2;
 
         return GeoLocation.of(builder -> builder.latlon(builder1 -> builder1.lat(lat).lon(lon)));
+    }
+
+    private GeoLocation getH3Centre(String h3) {
+        Pair<Double, Double> latLon = H3Util.getInstance().getCellCenterAsLatLon(h3);
+        return GeoLocation.of(builder -> builder.latlon(builder1 -> builder1.lat(latLon.getLeft()).lon(latLon.getRight())));
     }
 
     private GeoLocation getTileCentre(BoundingBox bbox) {

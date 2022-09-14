@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.withArgs;
 import static org.hamcrest.Matchers.is;
@@ -52,7 +53,6 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
         AVAILABLE_COLUMNS.put("params.tags", 2);
         AVAILABLE_COLUMNS.put("params.not_indexed", 0);
         AVAILABLE_COLUMNS.put("params.not_enabled", 0);
-        AVAILABLE_COLUMNS.put("geo_params.h3", 32);
     }
     private static final List<String> MANDATORY_COLUMNS = Arrays.asList("id", "params.startdate");
     private static final List<String> ALIASED_COLUMNS = Arrays.asList("params.keywords");
@@ -85,6 +85,7 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
     public void testOpenSearchFeatureWithAvailableColumns() throws Exception {
         handleOpenSearchFeature(get());
         handleOpenSearchFeature(get("fullname,params,geo_params.h3"));
+
     }
 
     @Test

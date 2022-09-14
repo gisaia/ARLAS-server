@@ -19,7 +19,6 @@
 
 package io.arlas.server.core.services;
 
-import co.elastic.clients.elasticsearch._types.mapping.Property;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.commons.utils.StringUtil;
@@ -290,8 +289,6 @@ public abstract class CollectionReferenceService {
                 fields.add(collectionReference.params.geometryPath);
             if (collectionReference.params.centroidPath != null)
                 fields.add(collectionReference.params.centroidPath);
-            if (collectionReference.params.h3Path != null)
-                fields.add(collectionReference.params.h3Path);
             if (collectionReference.params.timestampPath != null)
                 fields.add(collectionReference.params.timestampPath);
             if (!StringUtil.isNullOrEmpty(collectionReference.params.excludeFields)) {
