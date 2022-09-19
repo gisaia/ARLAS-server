@@ -19,6 +19,7 @@
 
 package io.arlas.server.core.model.response;
 
+import gaussian.GaussianDistribution;
 import io.dropwizard.jackson.JsonSnakeCase;
 
 import java.util.List;
@@ -36,5 +37,6 @@ public class AggregationResponse extends OperationInfo {
     public List<Object> hits;
     public List<ReturnedGeometry> geometries;
     public Map<String, Object> flattenedElements;
+    public List<GaussianResponse> gaussians;
 }
 
