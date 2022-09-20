@@ -58,6 +58,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static io.arlas.server.core.services.FluidSearchService.GMM_AGG;
@@ -916,8 +918,14 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         Array1D<Double> maxGaussianSpread = Array1D.PRIMITIVE64.copy(maxSpread);
 
         List<Double> minSpread = new ArrayList<>(agg.size() - 1);
-        for (int i = 1; i < agg.size(); i++)
-            minSpread.add(Math.pow(Double.parseDouble(agg.get(i).split("interval-")[1]), 2) / 2);
+        Pattern intervalPattern = Pattern.compile("interval-\\d*\\.?\\d*");
+        for (int i = 1; i < agg.size(); i++) {
+            Matcher intervalMatcher = intervalPattern.matcher(agg.get(i));
+            if (intervalMatcher.find())
+                minSpread.add(Math.pow(Double.parseDouble(intervalMatcher.group(0).split("-")[1]), 2) / 2);
+            else
+                minSpread.add(0.);
+        }
         Array1D<Double> minGaussianSpread = Array1D.PRIMITIVE64.copy(minSpread);
 
         // GMM on each feature
