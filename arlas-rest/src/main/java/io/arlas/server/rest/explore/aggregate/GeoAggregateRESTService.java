@@ -247,6 +247,35 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
     }
 
+    private List<AggregationResponse> geocellaggregate(CollectionReference collectionReference, List<String> agg,
+                                                       List<String> f, List<String> q, String dateformat, Boolean righthand,
+                                                       String partitionFilter, Optional<String> columnFilter, List<BoundingBox> bboxes) throws ArlasException {
+        List<CompletableFuture<AggregationResponse>> futureList = new ArrayList<>();
+        for (BoundingBox b : bboxes) {
+            Expression pwithinBbox = new Expression(collectionReference.params.centroidPath, OperatorEnum.within,
+                    b.getWest() + "," + b.getSouth() + ","
+                            + String.format(Locale.ROOT, "%.8f", b.getEast() - GEOHASH_EPSILON) + ","
+                            + String.format(Locale.ROOT,"%.8f", b.getNorth() - GEOHASH_EPSILON));
+            MixedRequest request = getGeoaggregateRequest(collectionReference,
+                    ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand, b, pwithinBbox)
+                    , partitionFilter, columnFilter, agg);
+
+            futureList.add(CompletableFuture.supplyAsync(() -> {
+                try {
+                    return exploreService.aggregate(request,collectionReference, true,
+                            ((AggregationsRequest) request.basicRequest).aggregations,0,
+                            System.nanoTime());
+                } catch (ArlasException e) {
+                    throw new RuntimeException(e);
+                }
+            }));
+        }
+
+        return futureList.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+    }
+
     @Timed
     @Path("{collection}/_geoaggregate/{geohash}")
     @GET
@@ -337,33 +366,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
 
         List<BoundingBox> bboxes = getBoundingBoxes(geohash, agg, collectionReference);
-        List<CompletableFuture<AggregationResponse>> futureList = new ArrayList<>();
-        AggregationTypeEnum aggType = null;
-        for (BoundingBox b : bboxes) {
-            Expression pwithinBbox = new Expression(collectionReference.params.centroidPath, OperatorEnum.within,
-                    b.getWest() + "," + b.getSouth() + ","
-                            + String.format(Locale.ROOT, "%.8f", b.getEast() - GEOHASH_EPSILON) + ","
-                            + String.format(Locale.ROOT,"%.8f", b.getNorth() - GEOHASH_EPSILON));
-            MixedRequest request = getGeoaggregateRequest(collectionReference,
-                    ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand, b, pwithinBbox)
-                    , partitionFilter, columnFilter, agg);
-            aggType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
+        AggregationTypeEnum aggType = ParamsParser.getAggregations(collectionReference, agg).get(0).type;
 
-            futureList.add(CompletableFuture.supplyAsync(() -> {
-                try {
-                    return exploreService.aggregate(request,collectionReference, true,
-                            ((AggregationsRequest) request.basicRequest).aggregations,0,
-                            System.nanoTime());
-                } catch (ArlasException e) {
-                    throw new RuntimeException(e);
-                }
-            }));
-
-        }
-
-        List<AggregationResponse> aggResponses = futureList.stream()
-                .map(CompletableFuture::join)
-                .collect(Collectors.toList());
+        List<AggregationResponse> aggResponses = geocellaggregate(collectionReference, agg, f, q, dateformat, righthand,
+                partitionFilter, columnFilter, bboxes);
 
         return cache(Response.ok(toGeoJson(merge(aggResponses), aggType, Boolean.TRUE.equals(flat), Optional.of(geohash))), maxagecache);
 
@@ -464,33 +470,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
 
         List<BoundingBox> bboxes = getBoundingBoxes(z, x, y, agg, collectionReference);
-        List<CompletableFuture<AggregationResponse>> futureList = new ArrayList<>();
-        AggregationTypeEnum aggType = null;
-        for (BoundingBox b : bboxes) {
-            Expression pwithinBbox = new Expression(collectionReference.params.centroidPath, OperatorEnum.within,
-                    b.getWest() + "," + b.getSouth() + ","
-                            + String.format(Locale.ROOT, "%.8f", b.getEast() - GEOHASH_EPSILON) + ","
-                            + String.format(Locale.ROOT, "%.8f", b.getNorth() - GEOHASH_EPSILON));
-            MixedRequest request = getGeoaggregateRequest(collectionReference,
-                    ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand, b, pwithinBbox)
-                    , partitionFilter, columnFilter, agg);
-            aggType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
+        AggregationTypeEnum aggType = ParamsParser.getAggregations(collectionReference, agg).get(0).type;
 
-            futureList.add(CompletableFuture.supplyAsync(() -> {
-                try {
-                    return exploreService.aggregate(request,collectionReference, true,
-                            ((AggregationsRequest) request.basicRequest).aggregations,0,
-                            System.nanoTime());
-                } catch (ArlasException e) {
-                    throw new RuntimeException(e);
-                }
-            }));
-
-        }
-
-        List<AggregationResponse> aggResponses = futureList.stream()
-                .map(CompletableFuture::join)
-                .collect(Collectors.toList());
+        List<AggregationResponse> aggResponses = geocellaggregate(collectionReference, agg, f, q, dateformat, righthand,
+                partitionFilter, columnFilter, bboxes);
 
         return cache(Response.ok(toGeoJson(merge(aggResponses), aggType, Boolean.TRUE.equals(flat), Optional.of(z + "/" + x + "/" + y))), maxagecache);
 
@@ -897,33 +880,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
         // Performs geo-aggregated 2D histogram
         List<BoundingBox> bboxes = getBoundingBoxes(z, x, y, agg, collectionReference);
-        List<CompletableFuture<AggregationResponse>> futureList = new ArrayList<>();
-        AggregationTypeEnum aggType = null;
-        for (BoundingBox b : bboxes) {
-            Expression pwithinBbox = new Expression(collectionReference.params.centroidPath, OperatorEnum.within,
-                    b.getWest() + "," + b.getSouth() + ","
-                            + String.format(Locale.ROOT, "%.8f", b.getEast() - GEOHASH_EPSILON) + ","
-                            + String.format(Locale.ROOT, "%.8f", b.getNorth() - GEOHASH_EPSILON));
-            MixedRequest request = getGeoaggregateRequest(collectionReference,
-                    ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand, b, pwithinBbox)
-                    , partitionFilter, columnFilter, agg);
-            aggType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
+        AggregationTypeEnum aggType = ParamsParser.getAggregations(collectionReference, agg).get(0).type;
 
-            futureList.add(CompletableFuture.supplyAsync(() -> {
-                try {
-                    return exploreService.aggregate(request,collectionReference, true,
-                            ((AggregationsRequest) request.basicRequest).aggregations,0,
-                            System.nanoTime());
-                } catch (ArlasException e) {
-                    throw new RuntimeException(e);
-                }
-            }));
-
-        }
-
-        List<AggregationResponse> aggResponses = futureList.stream()
-                .map(CompletableFuture::join)
-                .collect(Collectors.toList());
+        List<AggregationResponse> aggResponses = geocellaggregate(collectionReference, agg, f, q, dateformat, righthand,
+                partitionFilter, columnFilter, bboxes);
 
         FeatureCollection geoHistogramAggregation = toGeoJson(merge(aggResponses), aggType, Boolean.TRUE.equals(flat), Optional.of(z + "/" + x + "/" + y));
 
