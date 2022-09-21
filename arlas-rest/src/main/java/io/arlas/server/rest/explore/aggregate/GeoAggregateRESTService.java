@@ -20,10 +20,10 @@
 package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
-import data.DataPoint;
-import data.DataSet;
-import gaussian.GaussianDistribution;
-import gaussian.GaussianMixtureModel;
+import io.arlas.gmm.data.DataPoint;
+import io.arlas.gmm.data.DataSet;
+import io.arlas.gmm.gaussian.GaussianDistribution;
+import io.arlas.gmm.gaussian.GaussianMixtureModel;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.app.Documentation;
 import io.arlas.commons.exceptions.ArlasException;

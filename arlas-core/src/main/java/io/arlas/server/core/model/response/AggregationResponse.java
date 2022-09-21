@@ -19,7 +19,6 @@
 
 package io.arlas.server.core.model.response;
 
-import gaussian.GaussianDistribution;
 import io.dropwizard.jackson.JsonSnakeCase;
 
 import java.util.List;

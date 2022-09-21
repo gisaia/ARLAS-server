@@ -76,7 +76,7 @@
     <h3.version>3.7.0</h3.version>
 
     <!-- GMM-->
-    <GMM.version>1.0.0</GMM.version>
+    <gmm.version>1.0.1</gmm.version>
 
     <!-- AUTH -->
     <jwt.version>3.19.2</jwt.version>

@@ -200,9 +200,9 @@
         <!-- GMM -->
         <!-- ____________________________________________________ -->
         <dependency>
-            <groupId>gisaia</groupId>
-            <artifactId>GMM</artifactId>
-            <version>${GMM.version}</version>
+            <groupId>io.arlas</groupId>
+            <artifactId>gmm</artifactId>
+            <version>${gmm.version}</version>
         </dependency>
 
     </dependencies>
