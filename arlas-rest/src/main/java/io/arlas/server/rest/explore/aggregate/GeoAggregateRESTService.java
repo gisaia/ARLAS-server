@@ -363,7 +363,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         if (geohash.startsWith("#")) {
             geohash = geohash.substring(1);
         }
-        if (agg == null || agg.size() == 0) {
+        if (CollectionUtils.isEmpty(agg)) {
             agg = Collections.singletonList("geohash:" + collectionReference.params.centroidPath + ":interval-" + geohash.length());
         }
 
@@ -467,7 +467,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
-        if (agg == null || agg.size() == 0) {
+        if (CollectionUtils.isEmpty(agg)) {
             agg = Collections.singletonList("geotile:" + collectionReference.params.centroidPath + ":interval-" + (z+3));
         }
 
@@ -860,25 +860,31 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
                 .getCollectionReference(collection);
 
-        if (collectionReference == null)
+        if (collectionReference == null) {
             throw new NotFoundException(collection);
+        }
 
         // If there is no aggregations, then throw an error
-        if (agg == null || agg.size() == 0)
+        if (CollectionUtils.isEmpty(agg)) {
             throw new NotAllowedException("For a GMM clustering, there needs to be something to aggregate");
+        }
 
         // If the aggregations don't start with a geotile aggregation, insert it
-        if (!Objects.equals(agg.get(0).split(":")[0], "geotile"))
+        if (!Objects.equals(agg.get(0).split(":")[0], "geotile")) {
             throw new NotAllowedException("For a GMM aggregation, the first aggregation has to be a geotile one");
+        }
 
         // For the following aggregations, if not histogram, raise an error
-        for (int i = 1; i < agg.size(); i++)
-            if (!Objects.equals(agg.get(i).split(":")[0], "histogram"))
+        for (int i = 1; i < agg.size(); i++) {
+            if (!Objects.equals(agg.get(i).split(":")[0], "histogram")) {
                 throw new NotAllowedException("The aggregations should all but the first be histograms");
+            }
+        }
 
         // Should work for any dimensions, but only tested in 2D so check for that
-        if (agg.size() != 3)
+        if (agg.size() != 3) {
             throw new NotAllowedException("The GMM clustering is only performed on 2D histograms");
+        }
 
         // Performs geo-aggregated 2D histogram
         List<BoundingBox> bboxes = getBoundingBoxes(z, x, y, agg, collectionReference);
@@ -895,15 +901,15 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
         // Check that the parameters for the GMM are well-defined
         // The maximum number of gaussians for the clustering
-        maxGaussians = maxGaussians == null ? Integer.valueOf(GMM_MAX_COMPONENTS) : maxGaussians;
+        maxGaussians = Optional.ofNullable(maxGaussians).orElse(Integer.valueOf(GMM_MAX_COMPONENTS));
 
         // The unit of the first coordinate of the aggregated histogram
-        abscissaUnit = abscissaUnit == null ? "" : abscissaUnit;
+        abscissaUnit = Optional.ofNullable(abscissaUnit).orElse("");
 
         // The maximum and minimum spread values for the gaussians
 
         // If maximum spread values have been specified for no aggregation, create the list
-        if (maxSpread == null || maxSpread.size() == 0) {
+        if (CollectionUtils.isEmpty(maxSpread)) {
             maxSpread = new ArrayList<>(agg.size() - 1);
             double maxFirstValueStd = switch (abscissaUnit) {
                 case DEGREE_UNIT -> MAXIMUM_ANGLE_STD;
