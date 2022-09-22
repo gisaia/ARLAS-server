@@ -36,5 +36,6 @@ public class AggregationResponse extends OperationInfo {
     public List<Object> hits;
     public List<ReturnedGeometry> geometries;
     public Map<String, Object> flattenedElements;
+    public List<GaussianResponse> gaussians;
 }
 

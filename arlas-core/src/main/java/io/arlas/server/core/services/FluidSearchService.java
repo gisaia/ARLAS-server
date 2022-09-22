@@ -55,6 +55,7 @@ public abstract class FluidSearchService {
     public static final String GEOTILE_AGG = "Geotile aggregation";
     public static final String H3_AGG = "H3 aggregation";
     public static final String FETCH_HITS_AGG = "fetched_hits";
+    public static final String GMM_AGG = "Multiple Gaussian Clustering";
     public static final String GEO_DISTANCE = "geodistance";
     public static final String NO_INCLUDE_TO_SPECIFY = "'include-' should not be specified for this aggregation";
     public static final String NO_FORMAT_TO_SPECIFY = "'format-' should not be specified for this aggregation.";
@@ -177,6 +178,8 @@ public abstract class FluidSearchService {
                 return TERM_AGG;
             case h3:
                 return H3_AGG;
+            case gmm:
+                return GMM_AGG;
             default:
                 LOGGER.warn("Getting name for a non defined aggregation type: " + aggName);
                 return aggName;
