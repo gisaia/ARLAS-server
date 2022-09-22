@@ -20,14 +20,9 @@
 package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.gmm.data.DataPoint;
-import io.arlas.gmm.data.DataSet;
-import io.arlas.gmm.gaussian.GaussianDistribution;
-import io.arlas.gmm.gaussian.GaussianMixtureModel;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.app.Documentation;
 import io.arlas.commons.exceptions.ArlasException;
-import io.arlas.commons.exceptions.NotAllowedException;
 import io.arlas.commons.exceptions.InvalidParameterException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.AggregationGeometryEnum;
@@ -36,9 +31,8 @@ import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.*;
 import io.arlas.server.core.model.response.AggregationResponse;
 import io.arlas.commons.rest.response.Error;
-import io.arlas.server.core.model.response.GaussianResponse;
-import io.arlas.server.core.model.response.ReturnedGeometry;
 import io.arlas.server.core.services.ExploreService;
+import io.arlas.server.core.services.GMMService;
 import io.arlas.server.core.utils.*;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.swagger.annotations.ApiOperation;
@@ -50,7 +44,6 @@ import org.apache.commons.io.FileUtils;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
-import org.ojalgo.array.Array1D;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -58,24 +51,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static io.arlas.server.core.services.FluidSearchService.GMM_AGG;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
 
     private static final double GEOHASH_EPSILON = 0.00000001;
+    protected GMMService gmmService;
 
-    // Parameters for the GMM
-    private static final String GMM_MAX_COMPONENTS = "" + 6;
-    private static final int MAXIMUM_ANGLE_STD = 60;
-    private static final String DEGREE_UNIT = "degree";
-    private static final String RADIAN_UNIT = "radian";
-
-    public GeoAggregateRESTService(ExploreService exploreService) {
+    public GeoAggregateRESTService(ExploreService exploreService, GMMService gmmService) {
         super(exploreService);
+        this.gmmService = gmmService;
     }
 
     private static final String FEATURE_TYPE_KEY = "feature_type";
@@ -795,7 +780,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "abscissaUnit") String abscissaUnit,
 
             @ApiParam(name = "maxGaussians",
-                    defaultValue = GMM_MAX_COMPONENTS,
+                    defaultValue = GMMService.GMM_MAX_COMPONENTS,
                     value = Documentation.GMM_MAX_COMPONENTS)
             @QueryParam(value = "maxGaussians") Integer maxGaussians,
 
@@ -864,166 +849,25 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
-        // If there is no aggregations, then throw an error
-        if (CollectionUtils.isEmpty(agg)) {
-            throw new NotAllowedException("For a GMM clustering, there needs to be something to aggregate");
-        }
+        List<Aggregation> aggregationList = ParamsParser.getAggregations(collectionReference, agg);
+        AggregationTypeEnum aggType = aggregationList.get(0).type;
 
-        // If the aggregations don't start with a geotile aggregation, insert it
-        if (!Objects.equals(agg.get(0).split(":")[0], "geotile")) {
-            throw new NotAllowedException("For a GMM aggregation, the first aggregation has to be a geotile one");
-        }
+        GMMRequest gmmRequest = new GMMRequest(aggregationList, abscissaUnit, maxGaussians, maxSpread);
 
-        // For the following aggregations, if not histogram, raise an error
-        for (int i = 1; i < agg.size(); i++) {
-            if (!Objects.equals(agg.get(i).split(":")[0], "histogram")) {
-                throw new NotAllowedException("The aggregations should all but the first be histograms");
-            }
-        }
-
-        // Should work for any dimensions, but only tested in 2D so check for that
-        if (agg.size() != 3) {
-            throw new NotAllowedException("The GMM clustering is only performed on 2D histograms");
-        }
+        CheckParams.checkParamsGMM(gmmRequest, aggType);
 
         // Performs geo-aggregated 2D histogram
         List<BoundingBox> bboxes = getBoundingBoxes(z, x, y, agg, collectionReference);
-        AggregationTypeEnum aggType = ParamsParser.getAggregations(collectionReference, agg).get(0).type;
 
         List<AggregationResponse> aggResponses = geocellaggregate(collectionReference, agg, f, q, dateformat, righthand,
                 partitionFilter, columnFilter, bboxes);
 
         FeatureCollection geoHistogramAggregation = toGeoJson(merge(aggResponses), aggType, Boolean.TRUE.equals(flat), Optional.of(z + "/" + x + "/" + y));
 
-        AggregationResponse gmmAggregation = new AggregationResponse();
-        gmmAggregation.name = GMM_AGG;
-        gmmAggregation.elements = new ArrayList<>(geoHistogramAggregation.getFeatures().size());
-
-        // Check that the parameters for the GMM are well-defined
-        // The maximum number of gaussians for the clustering
-        maxGaussians = Optional.ofNullable(maxGaussians).orElse(Integer.valueOf(GMM_MAX_COMPONENTS));
-
-        // The unit of the first coordinate of the aggregated histogram
-        abscissaUnit = Optional.ofNullable(abscissaUnit).orElse("");
-
-        // The maximum and minimum spread values for the gaussians
-
-        // If maximum spread values have been specified for no aggregation, create the list
-        if (CollectionUtils.isEmpty(maxSpread)) {
-            maxSpread = new ArrayList<>(agg.size() - 1);
-            double maxFirstValueStd = switch (abscissaUnit) {
-                case DEGREE_UNIT -> MAXIMUM_ANGLE_STD;
-                case RADIAN_UNIT -> MAXIMUM_ANGLE_STD * Math.PI / 180;
-                default -> Double.MAX_VALUE;
-            };
-            maxSpread.add(maxFirstValueStd);
-        }
-
-        while (maxSpread.size() < agg.size() - 1)
-            maxSpread.add(Double.MAX_VALUE);
-        Array1D<Double> maxGaussianSpread = Array1D.PRIMITIVE64.copy(maxSpread);
-
-        List<Double> minSpread = new ArrayList<>(agg.size() - 1);
-        Pattern intervalPattern = Pattern.compile("interval-\\d*\\.?\\d*");
-        for (int i = 1; i < agg.size(); i++) {
-            Matcher intervalMatcher = intervalPattern.matcher(agg.get(i));
-            if (intervalMatcher.find())
-                minSpread.add(Math.pow(Double.parseDouble(intervalMatcher.group(0).split("-")[1]), 2) / 2);
-            else
-                minSpread.add(0.);
-        }
-        Array1D<Double> minGaussianSpread = Array1D.PRIMITIVE64.copy(minSpread);
-
-        // GMM on each feature
-        for(Feature feature: geoHistogramAggregation.getFeatures()) {
-            DataSet dataSet = new DataSet(agg.size() - 1);
-
-            long totalCount = feature.getProperty("count");
-            double valley = Double.MAX_VALUE;
-
-            boolean isFluxClustering = Objects.equals(abscissaUnit, DEGREE_UNIT) || Objects.equals(abscissaUnit, RADIAN_UNIT);
-
-            // Search for the lowest count on angle bucket in case the aggregation is performed on flux data
-            if (isFluxClustering) {
-                long valleyCount = feature.getProperty("count");
-
-                for (AggregationResponse elem : (ArrayList<AggregationResponse>) feature.getProperty("elements")) {
-                    for (AggregationResponse bucketAngle : elem.elements) {
-                        if (bucketAngle.count < valleyCount) {
-                            valley = (double) bucketAngle.key;
-                            valleyCount = bucketAngle.count;
-                        }
-                    }
-                }
-            }
-
-            // Fill the data set
-            for (AggregationResponse elem : (ArrayList<AggregationResponse>) feature.getProperty("elements")) {
-                fillDataSetRecursively(dataSet, elem, new ArrayList<>());
-            }
-
-            List<Double> observedProbabilities = new ArrayList<>(dataSet.getWeights());
-
-            dataSet.normaliseWeights((double) totalCount/dataSet.length);
-            observedProbabilities.replaceAll(aDouble -> aDouble / totalCount);
-
-            // Shift dataset to have the valley at the start of the data
-            if (isFluxClustering) {
-                double angleOffset = Objects.equals(abscissaUnit, DEGREE_UNIT) ? 360 : 2 * Math.PI;
-
-                for (DataPoint data : dataSet.getDataPoints()) {
-                    if (data.values.get(0) < valley) {
-                        data.values.set(0, data.values.get(0) + angleOffset);
-                    }
-                }
-            }
-
-            GaussianMixtureModel model = new GaussianMixtureModel(Math.min(maxGaussians, (int) Math.ceil(dataSet.length/10.)), dataSet);
-
-            // Perform the clustering
-            model.cluster(dataSet, maxGaussianSpread, minGaussianSpread);
-            GaussianMixtureModel clusteredModel = model.mergeCloseGaussians(dataSet.getDataPoints(), observedProbabilities, minGaussianSpread);
-
-            // Convert the result to an AggregationResponse
-            AggregationResponse gmm = new AggregationResponse();
-            gmm.count = totalCount;
-
-            ReturnedGeometry geometry = new ReturnedGeometry();
-            geometry.geometry = feature.getGeometry();
-            gmm.geometries = List.of(geometry);
-
-            gmm.gaussians = new ArrayList<>(clusteredModel.numberClusters);
-            for (int i = 0; i < clusteredModel.numberClusters; i++) {
-                GaussianDistribution gaussian = clusteredModel.getGaussian(i);
-                gmm.gaussians.add(new GaussianResponse(gaussian.weight, gaussian.mean, gaussian.covariance));
-            }
-
-            gmmAggregation.elements.add(gmm);
-        }
+        AggregationResponse gmmAggregation = gmmService.gmm(geoHistogramAggregation, gmmRequest, true);
 
         // Format the output of the clustering to the right format
         return cache(Response.ok(toGeoJson(gmmAggregation, AggregationTypeEnum.gmm, Boolean.TRUE.equals(flat), Optional.of(z + "/" + x + "/" + y))), maxagecache);
-    }
-
-    /**
-     * Explore recursively the aggregation tree in order to fill the dataSet with the data contained
-     * @param dataSet the DataSet to fill
-     * @param element the Feature element containing the aggregated data
-     * @param numericalValues the list storing the information of the bucket
-     */
-    private void fillDataSetRecursively(DataSet dataSet, AggregationResponse element, List<Double> numericalValues) {
-        if (element.elements == null || element.elements.size() == 0) {
-            dataSet.addDataPoint(new DataPoint(numericalValues), (double) element.count);
-            return;
-        }
-
-        for (AggregationResponse bucket : element.elements) {
-            List<Double> treeExploration = new ArrayList<>(numericalValues);
-            if (bucket.key != null)
-                treeExploration.add((double) bucket.key);
-
-            fillDataSetRecursively(dataSet, bucket, treeExploration);
-        }
     }
 
     private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat, Optional<String> tile) {

@@ -32,6 +32,8 @@ import io.arlas.server.core.model.Keyword;
 import io.arlas.server.core.model.enumerations.*;
 import io.arlas.server.core.model.request.*;
 import io.arlas.server.core.model.response.FieldType;
+import io.arlas.server.core.services.GMMService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.geom.Geometry;
@@ -40,10 +42,7 @@ import org.locationtech.jts.geom.Polygon;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static io.arlas.server.core.services.FluidSearchService.*;
@@ -69,6 +68,10 @@ public class CheckParams {
     private static final String BAD_COLLECT_FCT_COLLECT_FIELD_NUMBERS = "'collect_field' and 'collect_fct' occurrences should be even.";
     private static final String DATE_NOW = "now";
     private static final String AGGREGATED_GEOMETRY_NOT_SUPPORTED = "'cell' & 'cell_center' are only supported for geohash and geotile aggregation type.";
+    private static final String NO_AGG_GMM = "'agg' should not be empty when requesting a GMM aggregation";
+    private static final String NO_GEO_AGG_GMM = "The first aggregation should be 'geotile' for a GMM aggregation";
+    private static final String INVALID_AGG_GMM = "Other than the first one, aggregations should be 'histogram' for a GMM aggregation";
+    private static final String INVALID_NUMBER_AGG_GMM = "GMM aggregations require three aggregations in total: one 'geotile' and two 'histogram'";
 
     public static final String INTERVAL_NOT_SPECIFIED = "Interval parameter is not specified.";
     public static final String INTERVAL_VALUE_NOT_SPECIFIED = "Interval value is missing.";
@@ -711,6 +714,52 @@ public class CheckParams {
                     throw new ArlasException("Returned geometry '" + geo + "' should not be in the exclude list: '" + exclude + "'");
                 }
             }
+        }
+    }
+
+    public static void checkParamsGMM(GMMRequest gmmRequest, AggregationTypeEnum aggType) throws InvalidParameterException {
+        // Check that the aggregation is valid
+        // For now only accepts geotile + double histogram aggregation
+
+        if (CollectionUtils.isEmpty(gmmRequest.aggregations)) {
+            throw new InvalidParameterException(NO_AGG_GMM);
+        }
+
+        if (aggType != AggregationTypeEnum.geotile) {
+            throw new InvalidParameterException(NO_GEO_AGG_GMM);
+        }
+
+        for (int i = 1; i < gmmRequest.aggregations.size(); i++) {
+            if (gmmRequest.aggregations.get(i).type !=AggregationTypeEnum.histogram) {
+                throw new InvalidParameterException(INVALID_AGG_GMM);
+            }
+        }
+
+        if (gmmRequest.aggregations.size() != 3) {
+            throw new InvalidParameterException(INVALID_NUMBER_AGG_GMM);
+        }
+
+        // Check and fill the GMM parameters
+        gmmRequest.maxGaussians = Optional.ofNullable(gmmRequest.maxGaussians).orElse(Integer.valueOf(GMMService.GMM_MAX_COMPONENTS));
+        gmmRequest.abscissaUnit = Optional.ofNullable(gmmRequest.abscissaUnit).orElse("");
+
+        if (CollectionUtils.isEmpty(gmmRequest.maxSpread)) {
+            gmmRequest.maxSpread = new ArrayList<>(gmmRequest.aggregations.size() - 1);
+            double maxFirstValueStd = switch (gmmRequest.abscissaUnit) {
+                case GMMService.DEGREE_UNIT -> GMMService.MAXIMUM_ANGLE_STD;
+                case GMMService.RADIAN_UNIT -> GMMService.MAXIMUM_ANGLE_STD * Math.PI / 180;
+                default -> Double.MAX_VALUE;
+            };
+            gmmRequest.maxSpread.add(maxFirstValueStd);
+        }
+
+        while (gmmRequest.maxSpread.size() < gmmRequest.aggregations.size() - 1) {
+            gmmRequest.maxSpread.add(Double.MAX_VALUE);
+        }
+
+        gmmRequest.minSpread = new ArrayList<>(gmmRequest.aggregations.size() - 1);
+        for (int i = 1; i < gmmRequest.aggregations.size(); i++) {
+            gmmRequest.minSpread.add(Math.pow((double) gmmRequest.aggregations.get(i).interval.value / 2, 2));
         }
     }
 }
