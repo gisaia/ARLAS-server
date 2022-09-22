@@ -742,7 +742,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     }
 
     @Timed
-    @Path("{collection}/_gmm/{z}/{x}/{y}")
+    @Path("{collection}/_geoaggregate/_gmm/{z}/{x}/{y}")
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
