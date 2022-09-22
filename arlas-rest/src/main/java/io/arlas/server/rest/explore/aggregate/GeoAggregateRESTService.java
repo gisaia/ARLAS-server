@@ -867,7 +867,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         AggregationResponse gmmAggregation = gmmService.gmm(geoHistogramAggregation, gmmRequest, true);
 
         // Format the output of the clustering to the right format
-        return cache(Response.ok(toGeoJson(gmmAggregation, AggregationTypeEnum.gmm, Boolean.TRUE.equals(flat), Optional.of(z + "/" + x + "/" + y))), maxagecache);
+        return cache(Response.ok(toGeoJson(gmmAggregation, aggType, Boolean.TRUE.equals(flat), Optional.of(z + "/" + x + "/" + y))), maxagecache);
     }
 
     private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat, Optional<String> tile) {
@@ -889,9 +889,6 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                        } else if (mainAggregationType == AggregationTypeEnum.geotile) {
                            properties.put("tile", element.keyAsString);
                            tile.ifPresent(s -> properties.put("parent_tile", s));
-                       } else if (mainAggregationType == AggregationTypeEnum.gmm) {
-                           properties.put("gmm", element.gaussians);
-                           tile.ifPresent(s -> properties.put("parent_tile", s));
                        } else {
                            properties.put("key", element.keyAsString);
                        }
@@ -903,7 +900,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                            if (element.hits != null) {
                                properties.put("hits", element.hits);
                            }
+                           if (!CollectionUtils.isEmpty(element.gaussians)) {
+                               properties.put("gmm", element.gaussians);
+                           }
                        }
+
                        feature.setProperties(properties);
                        feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
                        feature.setProperty(GEOMETRY_REFERENCE, g.reference);
