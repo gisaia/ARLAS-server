@@ -137,7 +137,9 @@ public class GMMService {
      */
     private void fillDataSetRecursively(DataSet dataSet, AggregationResponse element, List<Double> numericalValues) {
         if (element.elements == null || element.elements.size() == 0) {
-            dataSet.addDataPoint(new DataPoint(numericalValues), (double) element.count);
+            if (element.count != null && element.count != 0) {
+                dataSet.addDataPoint(new DataPoint(numericalValues), (double) element.count);
+            }
             return;
         }
 
