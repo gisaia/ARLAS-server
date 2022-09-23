@@ -88,7 +88,7 @@ public class GMMService {
 
             List<Double> observedProbabilities = new ArrayList<>(dataSet.getWeights());
 
-            dataSet.normaliseWeights((double) totalCount/dataSet.length);
+            dataSet.updateWeights((double) totalCount / dataSet.length, 2);
             observedProbabilities.replaceAll(aDouble -> aDouble / totalCount);
 
             // Shift dataset to have the valley at the start of the data
