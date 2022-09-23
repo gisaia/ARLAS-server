@@ -178,8 +178,6 @@ public abstract class FluidSearchService {
                 return TERM_AGG;
             case h3:
                 return H3_AGG;
-            case gmm:
-                return GMM_AGG;
             default:
                 LOGGER.warn("Getting name for a non defined aggregation type: " + aggName);
                 return aggName;

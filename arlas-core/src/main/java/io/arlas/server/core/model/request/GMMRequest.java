@@ -17,8 +17,23 @@
  * under the License.
  */
 
-package io.arlas.server.core.model.enumerations;
+package io.arlas.server.core.model.request;
 
-public enum AggregationTypeEnum {
-    datehistogram, geohash, geotile, histogram, term, h3;
+import io.arlas.server.core.utils.CheckParams;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class GMMRequest extends AggregationsRequest {
+    public String abscissaUnit;
+    public Integer maxGaussians;
+    public List<Double> maxSpread;
+    public List<Double> minSpread;
+
+    public GMMRequest(List<Aggregation> aggregations, String abscissaUnit, Integer maxGaussians, List<Double> maxSpread) {
+        this.aggregations = aggregations;
+        this.abscissaUnit = abscissaUnit;
+        this.maxGaussians = maxGaussians;
+        this.maxSpread = maxSpread;
+    }
 }

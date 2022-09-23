@@ -39,6 +39,7 @@ import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.commons.rest.utils.PrettyPrintFilter;
+import io.arlas.server.core.services.GMMService;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.CSWService;
@@ -163,12 +164,14 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         environment.jersey().register(new XmlRecordMessageBodyBuilder());
         environment.jersey().register(new AtomRecordMessageBodyWriter());
 
+        GMMService gmm = new GMMService();
+
         if (configuration.arlasServiceExploreEnabled) {
             environment.jersey().register(new CountRESTService(exploration));
             environment.jersey().register(new SearchRESTService(exploration));
             environment.jersey().register(new AggregateRESTService(exploration));
             environment.jersey().register(new GeoSearchRESTService(exploration));
-            environment.jersey().register(new GeoAggregateRESTService(exploration));
+            environment.jersey().register(new GeoAggregateRESTService(exploration, gmm));
             environment.jersey().register(new SuggestRESTService(exploration));
             environment.jersey().register(new DescribeRESTService(exploration));
             environment.jersey().register(new RawRESTService(exploration));
