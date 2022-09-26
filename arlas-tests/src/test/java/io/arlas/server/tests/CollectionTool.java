@@ -51,11 +51,17 @@ public class CollectionTool extends AbstractTestContext {
             case "loadcsw":
                 new CollectionTool().loadCsw(0);
                 break;
+            case "loadgmm":
+                new CollectionTool().loadGMM();
+                break;
             case "delete":
                 new CollectionTool().delete();
                 break;
             case "deletecsw":
                 new CollectionTool().deleteCsw();
+                break;
+            case "deletegmm":
+                new CollectionTool().deleteGMM();
                 break;
         }
         DataSetTool.close();
@@ -159,6 +165,42 @@ public class CollectionTool extends AbstractTestContext {
         }
     }
 
+    @Test
+    public void loadGMM() throws IOException {
+        this.loadGMM(GMMTool.DATASET_INDEX_NAME, GMMTool.DATA_FILE, GMMTool.MAPPING_FILE, 0);
+    }
+
+    public void loadGMM(String indexName, String dataFile, String mappingFile, long sleepAfter) throws  IOException {
+        try {
+            DataSetTool.loadDataSet(indexName, dataFile, mappingFile);
+        } catch (ArlasException e) {
+            e.printStackTrace();
+        }
+
+        CollectionReferenceParameters params = new CollectionReferenceParameters();
+        params.indexName = GMMTool.DATASET_INDEX_NAME;
+        params.idPath = GMMTool.DATASET_ID_PATH;
+        params.geometryPath = GMMTool.DATASET_GEOMETRY_PATH;
+        params.centroidPath = GMMTool.DATASET_CENTROID_PATH;
+        params.timestampPath = GMMTool.DATASET_TIMESTAMP_PATH;
+        params.inspire = new Inspire();
+        params.inspire.lineage = GMMTool.DATASET_INSPIRE_LINEAGE;
+        params.inspire.topicCategories = Arrays.asList(GMMTool.DATASET_INSPIRE_TOPIC_CATEGORY);
+        params.dublinCoreElementName = new DublinCoreElementName();
+        params.dublinCoreElementName.title = GMMTool.DATASET_DUBLIN_CORE_TITLE;
+        params.dublinCoreElementName.description = GMMTool.DATASET_DUBLIN_CORE_DESCRIPTION;
+        params.dublinCoreElementName.language = GMMTool.DATASET_DUBLIN_CORE_LANGUAGE;
+
+        // PUT new collection
+        given().contentType("application/json").body(params).when().put(getUrlPath(GMMTool.COLLECTION_NAME)).then().statusCode(200);
+
+        try {
+            Thread.sleep(sleepAfter);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public  void delete() throws IOException {
         DataSetTool.clearDataSet();
         //DELETE collection
@@ -179,9 +221,15 @@ public class CollectionTool extends AbstractTestContext {
         );
     }
 
+    public  void deleteGMM() {
+        DataSetTool.clearDataSet(GMMTool.DATASET_INDEX_NAME);
+        //DELETE collection
+        when().delete(getUrlPath(GMMTool.COLLECTION_NAME)).then().statusCode(200);
+    }
+
     @Override
     protected String getUrlPath(String collection) {
-        return getUrlPath();
+        return arlasPath + "collections/" + collection;
     }
 
     protected static String getUrlPath() {

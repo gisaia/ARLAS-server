@@ -1,0 +1,27 @@
+{
+  "_source": {
+    "enabled": true
+  },
+  "dynamic": false,
+  "properties": {
+    "unique_id": {
+      "type": "keyword"
+    },
+    "current_speed": {
+      "type": "double"
+    },
+    "current_dir_angle_arlas": {
+      "type": "double"
+    },
+    "box_geom": {
+      "type": "geo_shape"
+    },
+    "point_geom": {
+      "type": "geo_point"
+    },
+    "timestamp": {
+      "type": "date",
+      "format": "epoch_second"
+    }
+  }
+}
