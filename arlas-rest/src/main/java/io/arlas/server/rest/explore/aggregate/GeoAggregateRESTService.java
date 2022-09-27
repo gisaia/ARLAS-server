@@ -850,11 +850,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
 
         List<Aggregation> aggregationList = ParamsParser.getAggregations(collectionReference, agg);
-        AggregationTypeEnum aggType = aggregationList.get(0).type;
 
         GMMRequest gmmRequest = new GMMRequest(aggregationList, abscissaunit, maxgaussians, maxspread);
 
-        CheckParams.checkParamsGMM(gmmRequest, aggType);
+        CheckParams.checkParamsGMM(gmmRequest);
+        AggregationTypeEnum aggType = aggregationList.get(0).type;
 
         // Performs geo-aggregated 2D histogram
         List<BoundingBox> bboxes = getBoundingBoxes(z, x, y, agg, collectionReference);

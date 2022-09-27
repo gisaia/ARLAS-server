@@ -717,13 +717,15 @@ public class CheckParams {
         }
     }
 
-    public static void checkParamsGMM(GMMRequest gmmRequest, AggregationTypeEnum aggType) throws InvalidParameterException {
+    public static void checkParamsGMM(GMMRequest gmmRequest) throws InvalidParameterException {
         // Check that the aggregation is valid
         // For now only accepts geotile + double histogram aggregation
 
         if (CollectionUtils.isEmpty(gmmRequest.aggregations)) {
             throw new InvalidParameterException(NO_AGG_GMM);
         }
+
+        AggregationTypeEnum aggType = gmmRequest.aggregations.get(0).type;
 
         if (aggType != AggregationTypeEnum.geotile) {
             throw new InvalidParameterException(NO_GEO_AGG_GMM);
