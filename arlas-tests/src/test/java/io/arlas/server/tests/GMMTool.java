@@ -25,13 +25,13 @@ import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class GMMTool {
 
-    public static final String RESULTS_FILE = "./arlas-tests/src/test/resources/gmm/results/_gmm_result.json";
+    public static final String RESULTS_FILE = "gmm/results/_gmm_result.json";
     public static final String MAPPING_FILE = "gmm/gmm.mapping.json";
     public static final String DATA_FILE = "gmm/data.json";
 
@@ -52,10 +52,14 @@ public class GMMTool {
         List<List<GaussianResponse>> output = new ArrayList<>();
 
         ObjectMapper mapper = new ObjectMapper();
-        FeatureCollection fc = mapper.readValue(Paths.get(file).toFile(), FeatureCollection.class);
+        FeatureCollection fc = mapper.readValue(GMMTool.class.getClassLoader().getResource(file), FeatureCollection.class);
 
         for (Feature feature : fc.getFeatures()) {
-            output.add(feature.getProperty("gmm"));
+            List<GaussianResponse> gmm = new ArrayList<>();
+            for (LinkedHashMap<String, Object> gaussian : (List<LinkedHashMap<String, Object>>) feature.getProperties().get("gmm")) {
+                gmm.add(new GaussianResponse(gaussian));
+            }
+            output.add(gmm);
         }
 
         return output;
@@ -66,7 +70,7 @@ public class GMMTool {
         System.out.println(gaussians);
 
         ObjectMapper mapper = new ObjectMapper();
-        GMMDataSet fc = mapper.readValue(DataSetTool.class.getClassLoader().getResource(DATA_FILE), GMMDataSet.class);
+        GMMDataSet fc = mapper.readValue(GMMTool.class.getClassLoader().getResource(DATA_FILE), GMMDataSet.class);
 
         for (GMMData obj: fc.data) {
             System.out.println(obj);

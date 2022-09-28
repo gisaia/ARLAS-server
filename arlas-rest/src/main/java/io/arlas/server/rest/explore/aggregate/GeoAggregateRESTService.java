@@ -777,16 +777,16 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(name = "abscissaunit",
                     value = Documentation.GMM_ABSCISSA_UNIT)
-            @QueryParam(value = "abscissaunit") String abscissaunit,
+            @QueryParam(value = "abscissaunit") String abscissaUnit,
 
             @ApiParam(name = "maxgaussians",
                     defaultValue = GMMService.GMM_MAX_COMPONENTS,
                     value = Documentation.GMM_MAX_COMPONENTS)
-            @QueryParam(value = "maxgaussians") Integer maxgaussians,
+            @QueryParam(value = "maxgaussians") Integer maxGaussians,
 
             @ApiParam(name = "maxspread",
                     value = Documentation.GMM_MAX_SPREAD)
-            @QueryParam(value = "maxspread") List<Double> maxspread,
+            @QueryParam(value = "maxspread") List<Double> maxSpread,
 
             // --------------------------------------------------------
             // ----------------------- AGGREGATION --------------------
@@ -851,7 +851,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
         List<Aggregation> aggregationList = ParamsParser.getAggregations(collectionReference, agg);
 
-        GMMRequest gmmRequest = new GMMRequest(aggregationList, abscissaunit, maxgaussians, maxspread);
+        GMMRequest gmmRequest = new GMMRequest(aggregationList, abscissaUnit, maxGaussians, maxSpread);
 
         CheckParams.checkParamsGMM(gmmRequest);
         AggregationTypeEnum aggType = aggregationList.get(0).type;

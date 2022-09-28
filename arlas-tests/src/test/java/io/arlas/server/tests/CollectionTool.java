@@ -165,9 +165,12 @@ public class CollectionTool extends AbstractTestContext {
         }
     }
 
-    @Test
     public void loadGMM() throws IOException {
         this.loadGMM(GMMTool.DATASET_INDEX_NAME, GMMTool.DATA_FILE, GMMTool.MAPPING_FILE, 0);
+    }
+
+    public void loadGMM(long sleepAfter) throws IOException {
+        this.loadGMM(GMMTool.DATASET_INDEX_NAME, GMMTool.DATA_FILE, GMMTool.MAPPING_FILE, sleepAfter);
     }
 
     public void loadGMM(String indexName, String dataFile, String mappingFile, long sleepAfter) throws  IOException {
