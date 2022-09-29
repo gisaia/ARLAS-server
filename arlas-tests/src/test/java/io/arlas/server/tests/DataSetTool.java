@@ -119,6 +119,18 @@ public class DataSetTool {
         }
     }
 
+    public static void loadDataSet(String indexName, String dataFile, String mappingFile) throws IOException, ArlasException {
+        createIndex(indexName, mappingFile);
+        LOGGER.info("Created index: " + indexName);
+
+        ObjectMapper mapper = new ObjectMapper();
+        GMMDataSet dataSet = mapper.readValue(DataSetTool.class.getClassLoader().getResource(dataFile), GMMDataSet.class);
+
+        for (GMMData data: dataSet.data) {
+            client.index(indexName, data.unique_id, mapper.writer().writeValueAsString(data));
+        }
+    }
+
     private static void createIndex(String indexName, String mappingFileName) throws IOException, ArlasException {
         String mapping = IOUtils.toString(new InputStreamReader(DataSetTool.class.getClassLoader().getResourceAsStream(mappingFileName)));
         try {
@@ -193,6 +205,14 @@ public class DataSetTool {
                 client.deleteIndex(DATASET_INDEX_NAME + "_original");
                 client.deleteIndex(DATASET_INDEX_NAME + "_alt");
             }
+        } catch (ArlasException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void clearDataSet(String indexName) {
+        try {
+            client.deleteIndex(indexName);
         } catch (ArlasException e) {
             e.printStackTrace();
         }

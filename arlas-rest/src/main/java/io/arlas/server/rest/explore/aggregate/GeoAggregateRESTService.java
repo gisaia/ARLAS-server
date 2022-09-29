@@ -775,18 +775,18 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             // ---------------------- GMM PARAMETERS ------------------
             // --------------------------------------------------------
-            @ApiParam(name = "abscissaUnit",
+            @ApiParam(name = "abscissaunit",
                     value = Documentation.GMM_ABSCISSA_UNIT)
-            @QueryParam(value = "abscissaUnit") String abscissaUnit,
+            @QueryParam(value = "abscissaunit") String abscissaUnit,
 
-            @ApiParam(name = "maxGaussians",
+            @ApiParam(name = "maxgaussians",
                     defaultValue = GMMService.GMM_MAX_COMPONENTS,
                     value = Documentation.GMM_MAX_COMPONENTS)
-            @QueryParam(value = "maxGaussians") Integer maxGaussians,
+            @QueryParam(value = "maxgaussians") Integer maxGaussians,
 
-            @ApiParam(name = "maxSpread",
+            @ApiParam(name = "maxspread",
                     value = Documentation.GMM_MAX_SPREAD)
-            @QueryParam(value = "maxSpread") List<Double> maxSpread,
+            @QueryParam(value = "maxspread") List<Double> maxSpread,
 
             // --------------------------------------------------------
             // ----------------------- AGGREGATION --------------------
@@ -850,11 +850,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         }
 
         List<Aggregation> aggregationList = ParamsParser.getAggregations(collectionReference, agg);
-        AggregationTypeEnum aggType = aggregationList.get(0).type;
 
         GMMRequest gmmRequest = new GMMRequest(aggregationList, abscissaUnit, maxGaussians, maxSpread);
 
-        CheckParams.checkParamsGMM(gmmRequest, aggType);
+        CheckParams.checkParamsGMM(gmmRequest);
+        AggregationTypeEnum aggType = aggregationList.get(0).type;
 
         // Performs geo-aggregated 2D histogram
         List<BoundingBox> bboxes = getBoundingBoxes(z, x, y, agg, collectionReference);

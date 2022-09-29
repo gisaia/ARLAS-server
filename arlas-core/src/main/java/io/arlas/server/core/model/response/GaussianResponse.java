@@ -19,19 +19,58 @@
 
 package io.arlas.server.core.model.response;
 
-import io.dropwizard.jackson.JsonSnakeCase;
+import io.arlas.gmm.utils.MatrixVectorOps;
 import org.ojalgo.array.Array1D;
 import org.ojalgo.matrix.store.Primitive64Store;
 
-@JsonSnakeCase
+import java.util.List;
+import java.util.Map;
+
 public class GaussianResponse {
     public double weight;
     public Array1D<Double> mean;
-    public double[] covariance;
+    public Array1D<Double> covariance;
+
+    private static double equalityMargin = 0.05;
 
     public GaussianResponse(double weight, Array1D<Double> mean, Primitive64Store covariance) {
         this.weight = weight;
         this.mean = mean;
-        this.covariance = covariance.data;
+        this.covariance = Array1D.PRIMITIVE64.copy(covariance.data);
+    }
+
+    public GaussianResponse(Map<String, Object> map) {
+        this.weight = (Double) map.get("weight");
+        this.mean = Array1D.PRIMITIVE64.copy((List<Double>) map.get("mean"));
+        this.covariance = Array1D.PRIMITIVE64.copy((List<Double>) map.get("covariance"));
+    }
+
+    public void setEqualityMargin(double equalityMargin) {
+        GaussianResponse.equalityMargin = equalityMargin;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+
+        if (!(o instanceof GaussianResponse gaussianResponse)) {
+            return false;
+        }
+
+        boolean weightEquality =
+                Math.abs(this.weight - gaussianResponse.weight)
+                        < equalityMargin * this.weight;
+
+        boolean meanEquality =
+                MatrixVectorOps.norm2(MatrixVectorOps.subtract(this.mean, gaussianResponse.mean))
+                        < equalityMargin * MatrixVectorOps.norm2(this.mean);
+
+        boolean covarianceEquality =
+                MatrixVectorOps.norm2(MatrixVectorOps.subtract(this.covariance, gaussianResponse.covariance))
+                        < equalityMargin * MatrixVectorOps.norm2(this.covariance);
+
+        return weightEquality && meanEquality && covarianceEquality;
     }
 }

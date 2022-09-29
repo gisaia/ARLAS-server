@@ -94,3 +94,9 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USER }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
       run: scripts/ci/tests-integration-stage.sh --stage=AUTH
+    - name: Run tests [GMM]
+      env:
+        # secrets are defined here : https://github.com/organizations/gisaia/settings/secrets/actions
+        DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USER }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      run: scripts/ci/tests-integration-stage.sh --stage=GMM

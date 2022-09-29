@@ -97,7 +97,7 @@ function test_rest() {
         -e WKT_GEOMETRIES=${WKT_GEOMETRIES} \
         --net arlas_default \
         maven:3.8.5-openjdk-17 \
-        mvn "-Dit.test=*,!AuthServiceIT,!CollectionTool,!CSWServiceIT,!WFSService*IT" verify -DskipTests=false -DfailIfNoTests=false -B
+        mvn "-Dit.test=*,!AuthServiceIT,!CollectionTool,!CSWServiceIT,!WFSService*IT,!GMMAggregateServiceIT" verify -DskipTests=false -DfailIfNoTests=false -B
 }
 
 function test_auth() {
@@ -128,7 +128,7 @@ function test_auth() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.8.5-openjdk-17 \
-        mvn -Dit.test=AuthServiceIT verify -DskipTests=false -DfailIfNoTests=false -B
+        mvn "-Dit.test=AuthServiceIT" verify -DskipTests=false -DfailIfNoTests=false -B
 }
 
 function test_wfs() {
@@ -297,6 +297,30 @@ function test_doc() {
     ./mkDocs.sh
 }
 
+function test_gmm() {
+    export ARLAS_PREFIX="/arlastest"
+    export ARLAS_APP_PATH="/pathtest"
+    export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"
+    start_stack
+    docker run --rm \
+        -w /opt/maven \
+        -v $PWD:/opt/maven \
+        -v $HOME/.m2:/root/.m2 \
+        -e ARLAS_HOST="arlas-server" \
+        -e ARLAS_PORT="9999" \
+        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+        -e ARLAS_SERVICE_TAG_ENABLE=${ARLAS_SERVICE_TAG_ENABLE} \
+        -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED=true}\
+        -e ARLAS_SERVICE_RASTER_TILES_ENABLE=${ARLAS_SERVICE_RASTER_TILES_ENABLE} \
+        -e ARLAS_TILE_URL=${ARLAS_TILE_URL} \
+        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
+        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+        --net arlas_default \
+        maven:3.8.5-openjdk-17 \
+        mvn "-Dit.test=GMMAggregateServiceIT" verify -DskipTests=false -DfailIfNoTests=false -B
+}
+
 echo "===> run integration tests"
 export ALIASED_COLLECTION="false"
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
@@ -311,3 +335,4 @@ if [ "$STAGE" == "CSW_ALIASED" ]; then export ALIASED_COLLECTION="true"; export 
 if [ "$STAGE" == "STAC_ALIASED" ]; then export ALIASED_COLLECTION="true"; export WKT_GEOMETRIES="false"; test_stac; fi
 if [ "$STAGE" == "DOC" ]; then test_doc; fi
 if [ "$STAGE" == "AUTH" ]; then test_auth; fi
+if [ "$STAGE" == "GMM" ]; then test_gmm; fi

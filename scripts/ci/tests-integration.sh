@@ -44,3 +44,4 @@ cd ${SCRIPT_PATH}/../..
 ./scripts/ci/tests-integration-stage.sh --stage=CSW
 ./scripts/ci/tests-integration-stage.sh --stage=DOC
 ./scripts/ci/tests-integration-stage.sh --stage=AUTH
+./scripts/ci/tests-integration-stage.sh --stage=GMM
