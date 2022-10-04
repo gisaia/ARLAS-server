@@ -8,6 +8,8 @@ technicalRoles:
     - r:explore/_list:GET
     - r:explore/ogc/opensearch/${org}.*:GET
     - r:ogc/${org}.*:GET
+    - r:stac:GET
+    - r:openapi.json:GET
     - r:stac/.*:GET,POST
 # ARLAS persistence
     - r:persist/resource/.*:GET
