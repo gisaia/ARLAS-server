@@ -19,30 +19,23 @@
 
 package io.arlas.server.core.model.response;
 
-import io.arlas.gmm.utils.MatrixVectorOps;
-import org.ojalgo.array.Array1D;
-import org.ojalgo.matrix.store.Primitive64Store;
-
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 public class GaussianResponse {
     public double weight;
-    public Array1D<Double> mean;
-    public Array1D<Double> covariance;
+    public Map<String, Double> mean;
 
     private static double equalityMargin = 0.05;
 
-    public GaussianResponse(double weight, Array1D<Double> mean, Primitive64Store covariance) {
+    public GaussianResponse(double weight, Map<String, Double> mean) {
         this.weight = weight;
-        this.mean = mean;
-        this.covariance = Array1D.PRIMITIVE64.copy(covariance.data);
+        this.mean = new HashMap<>(mean);
     }
 
     public GaussianResponse(Map<String, Object> map) {
         this.weight = (Double) map.get("weight");
-        this.mean = Array1D.PRIMITIVE64.copy((List<Double>) map.get("mean"));
-        this.covariance = Array1D.PRIMITIVE64.copy((List<Double>) map.get("covariance"));
+        this.mean = (Map<String, Double>) map.get("mean");
     }
 
     public void setEqualityMargin(double equalityMargin) {
@@ -63,14 +56,15 @@ public class GaussianResponse {
                 Math.abs(this.weight - gaussianResponse.weight)
                         < equalityMargin * this.weight;
 
-        boolean meanEquality =
-                MatrixVectorOps.norm2(MatrixVectorOps.subtract(this.mean, gaussianResponse.mean))
-                        < equalityMargin * MatrixVectorOps.norm2(this.mean);
+        boolean meanEquality = true;
+        for (String key: this.mean.keySet()) {
+            if (!mean.containsKey(key)) {
+                return false;
+            }
+            meanEquality = meanEquality && (Math.abs(this.mean.get(key) - mean.get(key))
+                        < Math.abs(equalityMargin * this.mean.get(key)));
+        }
 
-        boolean covarianceEquality =
-                MatrixVectorOps.norm2(MatrixVectorOps.subtract(this.covariance, gaussianResponse.covariance))
-                        < equalityMargin * MatrixVectorOps.norm2(this.covariance);
-
-        return weightEquality && meanEquality && covarianceEquality;
+        return weightEquality && meanEquality;
     }
 }

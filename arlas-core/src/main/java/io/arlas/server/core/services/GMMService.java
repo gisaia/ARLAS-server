@@ -27,16 +27,13 @@ import io.arlas.server.core.model.request.GMMRequest;
 import io.arlas.server.core.model.response.AggregationResponse;
 import io.arlas.server.core.model.response.GaussianResponse;
 import io.arlas.server.core.model.response.ReturnedGeometry;
-import io.arlas.server.core.utils.CheckParams;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.ojalgo.array.Array1D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static io.arlas.server.core.services.FluidSearchService.GMM_AGG;
 
@@ -52,7 +49,7 @@ public class GMMService {
     public GMMService() {
     }
 
-    public AggregationResponse gmm(FeatureCollection histogramAggregation, GMMRequest gmmRequest, Boolean isGeoAggregation) {
+    public AggregationResponse gmm(FeatureCollection histogramAggregation, GMMRequest gmmRequest, List<String> histogramFields, Boolean isGeoAggregation) {
         AggregationResponse gmmAggregation = new AggregationResponse();
         gmmAggregation.name = GMM_AGG;
         gmmAggregation.elements = new ArrayList<>(histogramAggregation.getFeatures().size());
@@ -122,8 +119,13 @@ public class GMMService {
             gmm.gaussians = new ArrayList<>(clusteredModel.numberClusters);
             for (int i = 0; i < clusteredModel.numberClusters; i++) {
                 GaussianDistribution gaussian = clusteredModel.getGaussian(i);
-                gmm.gaussians.add(new GaussianResponse(gaussian.weight, gaussian.mean, gaussian.covariance));
+                Map<String, Double> mean = new HashMap<>();
+                for (int j = 0; j < histogramFields.size(); j++) {
+                    mean.put(histogramFields.get(j), gaussian.mean.get(j));
+                }
+                gmm.gaussians.add(new GaussianResponse(gaussian.weight, mean));
             }
+            gmm.gaussians.forEach(g -> {System.out.println(g.mean);});
             gmmAggregation.elements.add(gmm);
         }
         return gmmAggregation;

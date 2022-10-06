@@ -855,6 +855,12 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
         CheckParams.checkParamsGMM(gmmRequest);
         AggregationTypeEnum aggType = aggregationList.get(0).type;
+        List<String> histogramFields = new ArrayList<>(aggregationList.size() - 1);
+        aggregationList.forEach(aggregation -> {
+            if (aggregation.type == AggregationTypeEnum.histogram) {
+                histogramFields.add(aggregation.field);
+            }
+        });
 
         // Performs geo-aggregated 2D histogram
         List<BoundingBox> bboxes = getBoundingBoxes(z, x, y, agg, collectionReference);
@@ -864,10 +870,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
         FeatureCollection geoHistogramAggregation = toGeoJson(merge(aggResponses), aggType, Boolean.TRUE.equals(flat), Optional.of(z + "/" + x + "/" + y));
 
-        AggregationResponse gmmAggregation = gmmService.gmm(geoHistogramAggregation, gmmRequest, true);
+        AggregationResponse gmmAggregation = gmmService.gmm(geoHistogramAggregation, gmmRequest, histogramFields, true);
 
         // Format the output of the clustering to the right format
-        return cache(Response.ok(toGeoJson(gmmAggregation, aggType, Boolean.TRUE.equals(flat), Optional.of(z + "/" + x + "/" + y))), maxagecache);
+        return cache(Response.ok(toGeoJsonGMM(gmmAggregation, aggType, Boolean.TRUE.equals(flat), Optional.of(z + "/" + x + "/" + y))), maxagecache);
     }
 
     private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat, Optional<String> tile) {
@@ -878,32 +884,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                if (!CollectionUtils.isEmpty(element.geometries)) {
                    element.geometries.forEach(g -> {
                        Feature feature = new Feature();
-                       Map<String, Object> properties = new HashMap<>();
-                       properties.put("count", element.count);
-                       if (mainAggregationType == AggregationTypeEnum.geohash) {
-                           properties.put("geohash", element.keyAsString);
-                           tile.ifPresent(s -> properties.put("parent_geohash", s));
-                       } else if (mainAggregationType == AggregationTypeEnum.h3) {
-                           properties.put("h3", element.keyAsString);
-                           tile.ifPresent(s -> properties.put("parent_cell", s));
-                       } else if (mainAggregationType == AggregationTypeEnum.geotile) {
-                           properties.put("tile", element.keyAsString);
-                           tile.ifPresent(s -> properties.put("parent_tile", s));
-                       } else {
-                           properties.put("key", element.keyAsString);
-                       }
-                       if (flat) {
-                           properties.putAll(exploreService.flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))));
-                       } else {
-                           properties.put("elements", element.elements);
-                           properties.put("metrics", element.metrics);
-                           if (element.hits != null) {
-                               properties.put("hits", element.hits);
-                           }
-                           if (!CollectionUtils.isEmpty(element.gaussians)) {
-                               properties.put("gmm", element.gaussians);
-                           }
-                       }
+                       Map<String, Object> properties = fillProperties(element, mainAggregationType, flat, tile);
 
                        feature.setProperties(properties);
                        feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
@@ -921,5 +902,70 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             }
         }
         return fc;
+    }
+
+    private FeatureCollection toGeoJsonGMM(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat, Optional<String> tile) {
+        FeatureCollection fc = new FeatureCollection();
+        List<AggregationResponse> elements = aggregationResponse.elements;
+        if (!CollectionUtils.isEmpty(elements)) {
+            for (AggregationResponse element : elements) {
+                if (!CollectionUtils.isEmpty(element.geometries)) {
+                    Map<String, Object> properties = fillProperties(element, mainAggregationType, flat, tile);
+                    element.geometries.forEach(g -> {
+                        if (!CollectionUtils.isEmpty(element.gaussians)) {
+                            element.gaussians.forEach(gaussianResponse -> {
+                                Map<String, Object> gaussian = new HashMap<>();
+                                gaussian.put("weight", gaussianResponse.weight);
+                                gaussian.put("mean", gaussianResponse.mean);
+
+                                Feature feature = new Feature();
+                                feature.setProperties(new HashMap<>(properties));
+                                feature.setProperty("gmm", gaussian);
+
+                                feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
+                                feature.setProperty(GEOMETRY_REFERENCE, g.reference);
+                                String aggregationGeometryType = g.isRaw ? AggregationGeometryEnum.RAW.value() : AggregationGeometryEnum.AGGREGATED.value();
+                                feature.setProperty(GEOMETRY_TYPE, aggregationGeometryType);
+                                if (g.isRaw) {
+                                    feature.setProperty(GEOMETRY_SORT, g.sort);
+                                }
+                                GeoJsonObject geometry = g.geometry;
+                                feature.setGeometry(geometry);
+                                fc.add(feature);
+                            });
+                        }
+                    });
+                }
+            }
+        }
+        return fc;
+    }
+
+    private Map<String, Object> fillProperties(AggregationResponse element, AggregationTypeEnum mainAggregationType, boolean flat, Optional<String> tile) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("count", element.count);
+        if (mainAggregationType == AggregationTypeEnum.geohash) {
+            properties.put("geohash", element.keyAsString);
+            tile.ifPresent(s -> properties.put("parent_geohash", s));
+        } else if (mainAggregationType == AggregationTypeEnum.h3) {
+            properties.put("h3", element.keyAsString);
+            tile.ifPresent(s -> properties.put("parent_cell", s));
+        } else if (mainAggregationType == AggregationTypeEnum.geotile) {
+            properties.put("tile", element.keyAsString);
+            tile.ifPresent(s -> properties.put("parent_tile", s));
+        } else {
+            properties.put("key", element.keyAsString);
+        }
+        if (flat) {
+            properties.putAll(exploreService.flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))));
+        } else {
+            properties.put("elements", element.elements);
+            properties.put("metrics", element.metrics);
+            if (element.hits != null) {
+                properties.put("hits", element.hits);
+            }
+        }
+
+        return properties;
     }
 }

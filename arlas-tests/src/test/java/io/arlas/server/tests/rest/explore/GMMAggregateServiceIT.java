@@ -35,8 +35,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -74,14 +74,11 @@ public class GMMAggregateServiceIT extends AbstractTestWithCollection {
 
     protected void handleGMMGeotileAggregate(ValidatableResponse then, int featuresSize, List<GaussianResponse> gmmResponse) {
         then.statusCode(200)
-                .body("features.size()", equalTo(featuresSize))
-                .body("features.get(0).properties.gmm.size()", equalTo(gmmResponse.size()));
+                .body("features.size()", equalTo(featuresSize));
 
         FeatureCollection fc = then.extract().response().getBody().as(FeatureCollection.class);
         for (Feature feature : fc.getFeatures()) {
-            for (LinkedHashMap<String, Object> map : (List<LinkedHashMap<String, Object>>) feature.getProperties().get("gmm")) {
-                assertThat(gmmResponse, hasItem(new GaussianResponse(map)));
-            }
+            assertThat(gmmResponse, hasItem(new GaussianResponse((Map<String, Object>) feature.getProperties().get("gmm"))));
         }
     }
 
@@ -112,6 +109,6 @@ public class GMMAggregateServiceIT extends AbstractTestWithCollection {
                         .param("agg", "histogram:current_speed:interval-0.04375")
                         .param("abscissaunit", "degree")
                         .when().get(getTileUrlPathGMM(GMMTool.COLLECTION_NAME, "4/8/5"))
-                        .then(), 1, GMMTool.loadGMM(GMMTool.RESULTS_FILE).get(0));
+                        .then(), 4, GMMTool.loadGMM(GMMTool.RESULTS_FILE));
     }
 }

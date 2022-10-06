@@ -26,8 +26,8 @@ import org.geojson.FeatureCollection;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GMMTool {
 
@@ -48,26 +48,25 @@ public class GMMTool {
     public static final String DATASET_DUBLIN_CORE_DESCRIPTION = "gmm_current set for testing";
     public static final String DATASET_DUBLIN_CORE_LANGUAGE = "eng";
 
-    public static List<List<GaussianResponse>> loadGMM(String file) throws IOException {
-        List<List<GaussianResponse>> output = new ArrayList<>();
+    public static List<GaussianResponse> loadGMM(String file) throws IOException {
+        List<GaussianResponse> output = new ArrayList<>();
 
         ObjectMapper mapper = new ObjectMapper();
         FeatureCollection fc = mapper.readValue(GMMTool.class.getClassLoader().getResource(file), FeatureCollection.class);
 
         for (Feature feature : fc.getFeatures()) {
-            List<GaussianResponse> gmm = new ArrayList<>();
-            for (LinkedHashMap<String, Object> gaussian : (List<LinkedHashMap<String, Object>>) feature.getProperties().get("gmm")) {
-                gmm.add(new GaussianResponse(gaussian));
-            }
-            output.add(gmm);
+            Map<String, Object> gaussian = (Map<String, Object>) feature.getProperties().get("gmm");
+            output.add(new GaussianResponse(gaussian));
         }
 
         return output;
     }
 
     public static void main(String... args) throws IOException {
-        List<List<GaussianResponse>> gaussians = loadGMM(RESULTS_FILE);
-        System.out.println(gaussians);
+        List<GaussianResponse> gaussians = loadGMM(RESULTS_FILE);
+        for (GaussianResponse gaussian : gaussians) {
+            System.out.println(gaussian.mean);
+        }
 
         ObjectMapper mapper = new ObjectMapper();
         GMMDataSet fc = mapper.readValue(GMMTool.class.getClassLoader().getResource(DATA_FILE), GMMDataSet.class);
