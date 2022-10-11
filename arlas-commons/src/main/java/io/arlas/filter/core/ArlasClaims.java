@@ -27,6 +27,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ArlasClaims {
     private final static Logger LOGGER = LoggerFactory.getLogger(ArlasClaims.class);
@@ -121,5 +123,9 @@ public class ArlasClaims {
 
     public static String getHeaderColumnFilterDefault(String org) {
         return String.format("h:column-filter:%s_*:*", org);
+    }
+
+    public static String getHeaderColumnFilter(List<String> collections) {
+        return String.format("h:column-filter:%s", collections.stream().map(v -> v + ":*").collect(Collectors.joining(",")));
     }
 }

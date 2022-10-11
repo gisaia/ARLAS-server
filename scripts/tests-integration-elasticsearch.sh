@@ -13,7 +13,7 @@ ELASTIC_RANGE=(
   7.14.2
   7.15.2
   7.16.0
-  7.17.4
+  7.17.6
 )
 
 for i in "${ELASTIC_RANGE[@]}"
