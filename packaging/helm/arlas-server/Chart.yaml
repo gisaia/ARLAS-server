@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: 23.0.2
+appVersion: 23.0.3
 description: Exploration & analyzis of geo-referenced data from elasticsearch.
 home: http://arlas.io/
 icon: http://arlas.io/wp-content/uploads/2017/12/Logo-Arlas-Bicolor-01.png
@@ -10,4 +10,4 @@ maintainers:
 name: arlas-server
 sources:
   - https://github.com/gisaia/ARLAS-server
-version: 23.0.2
+version: 23.0.3
