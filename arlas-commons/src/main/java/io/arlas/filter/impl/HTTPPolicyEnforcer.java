@@ -83,7 +83,7 @@ public class HTTPPolicyEnforcer extends AbstractPolicyEnforcer {
 
             if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
                 token = response.readEntity(String.class);
-                LOGGER.info("Got permission token=" + token);
+                LOGGER.debug("Got permission token=" + token);
             } else {
                 throw new ArlasException("Impossible to get permissions with given access token:" + accessToken);
             }
