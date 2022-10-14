@@ -4,21 +4,21 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-rest</artifactId>
-    <version>23.0.4</version>
+    <version>23.0.5-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>ARLAS server rest</name>
 
     <parent>
         <groupId>io.arlas</groupId>
         <artifactId>arlas-server-parent</artifactId>
-        <version>23.0.4</version>
+        <version>23.0.5-SNAPSHOT</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>io.arlas</groupId>
             <artifactId>arlas-core</artifactId>
-            <version>23.0.4</version>
+            <version>23.0.5-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
