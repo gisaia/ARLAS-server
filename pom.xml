@@ -53,23 +53,23 @@
     <io.rest-assured.version>5.2.0</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
-    <dropwizard.version>2.1.2</dropwizard.version>
+    <dropwizard.version>2.1.3</dropwizard.version>
     <dropwizard.swagger.version>2.0.12-1</dropwizard.swagger.version>
     <zipkin.dropwizard.version>2.0.16-1</zipkin.dropwizard.version>
     <swaggerv3.version>2.2.3</swaggerv3.version>
     <jaxb.version>2.3.6</jaxb.version>
-    <jersey-media-jaxb.version>2.35</jersey-media-jaxb.version>
+    <jersey-media-jaxb.version>2.37</jersey-media-jaxb.version>
     <activation.version>2.1.0</activation.version>
 
     <!-- CACHE-->
-    <hazelcast.version>5.1.3</hazelcast.version>
+    <hazelcast.version>5.1.4</hazelcast.version>
 
     <!-- ELASTICSEARCH-->
     <elastic.version>7.17.6</elastic.version>
 
     <!-- GEO-->
     <geotools.version>27.1</geotools.version>
-    <protobuf.version>3.19.4</protobuf.version>
+    <protobuf.version>3.21.7</protobuf.version>
     <geojson.jackson.version>1.14</geojson.jackson.version>
     <spatial4j.version>0.8</spatial4j.version>
     <jts.version>1.19.0</jts.version>
