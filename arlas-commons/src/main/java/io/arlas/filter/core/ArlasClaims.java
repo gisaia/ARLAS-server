@@ -28,13 +28,14 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ArlasClaims {
     private final static Logger LOGGER = LoggerFactory.getLogger(ArlasClaims.class);
     private final List<RuleClaim> rules;
     private final Map<String, List<String>> headers;
     private final Map<String, String> variables;
+
+    private final static String COLUMN_FILTER_HEADER_PREFIX = "h:column-filter:";
 
     public ArlasClaims(List<String> claims) {
         this.rules = new ArrayList<>();
@@ -122,10 +123,21 @@ public class ArlasClaims {
     }
 
     public static String getHeaderColumnFilterDefault(String org) {
-        return String.format("h:column-filter:%s_*:*", org);
+        return String.format("%s:%s_*:*", COLUMN_FILTER_HEADER_PREFIX, org);
     }
 
     public static String getHeaderColumnFilter(List<String> collections) {
-        return String.format("h:column-filter:%s", collections.stream().map(v -> v + ":*").collect(Collectors.joining(",")));
+        return String.format("%s:%s", COLUMN_FILTER_HEADER_PREFIX,
+                collections.stream().map(v -> v + ":*").collect(Collectors.joining(",")));
     }
+
+    public static boolean isColumnFilterHeader(String header) {
+        return header != null && header.startsWith(COLUMN_FILTER_HEADER_PREFIX);
+    }
+
+    public static List<String> extractCollections(String columnFilter) {
+        return Arrays.stream(columnFilter.substring(COLUMN_FILTER_HEADER_PREFIX.length()).split(","))
+                .map(s -> s.split(":")[0]).toList();
+    }
+
 }
