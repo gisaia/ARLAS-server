@@ -55,4 +55,5 @@ module arlas.commons {
     requires keycloak.core;
     requires org.slf4j;
     requires zipkin.core;
+    requires java.servlet;
 }

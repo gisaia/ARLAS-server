@@ -3,6 +3,8 @@ technicalRoles:
 
   role/arlas/user:
 # ARLAS explore
+    - h:arlas-organization:${org}
+    - h:arlas-workspace:${ws}
     - r:explore/${org}.*:GET,POST
     - r:collections/${org}.*:GET
     - r:explore/_list:GET
