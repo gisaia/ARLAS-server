@@ -19,12 +19,9 @@
 
 package io.arlas.server.app;
 
-import brave.http.HttpTracing;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.smoketurner.dropwizard.zipkin.ZipkinBundle;
-import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.commons.config.ArlasConfiguration;
 import io.arlas.commons.config.ArlasCorsConfiguration;
 import io.arlas.commons.exceptions.ArlasExceptionMapper;
@@ -115,12 +112,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
                 return configuration.swaggerBundleConfiguration;
             }
         });
-        bootstrap.addBundle(new ZipkinBundle<>(getName()) {
-            @Override
-            public ZipkinFactory getZipkinFactory(ArlasServerConfiguration configuration) {
-                return configuration.zipkinConfiguration;
-            }
-        });
         bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
     }
 
@@ -144,10 +135,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         CollectionReferenceManager.getInstance().init(dbToolFactory.getCollectionReferenceService(),
                 (CacheManager) cacheFactory.getCacheManager());
-
-        if (configuration.zipkinConfiguration != null) {
-            Optional<HttpTracing> tracing = configuration.zipkinConfiguration.build(environment);
-        }
 
         ExploreService exploration = dbToolFactory.getExploreService();
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);

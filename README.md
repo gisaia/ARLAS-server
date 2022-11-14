@@ -92,16 +92,6 @@ export ARLAS_ELASTIC_NODES="localhost:9200";
 mvn clean install -DskipTests=false
 ```
 
-### [OPTIONAL] Zipkin monitoring
-In order to monitor the REST service performances in ZIPKIN:
-- Enable zipkin in configuration.yaml
-- Then:
-
-```sh
-wget -O zipkin.jar 'https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec'
-java -jar zipkin.jar &
-```
-
 ## Built with :
 
 - [Dropwizard](http://www.dropwizard.io) - The web framework used.

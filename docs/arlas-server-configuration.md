@@ -10,7 +10,6 @@ External module configurations are available online:
 |------------|---------------------------------------------------------------|
 | Swagger    | https://github.com/federecio/dropwizard-swagger               |
 | Dropwizard | http://www.dropwizard.io/1.0.4/docs/manual/configuration.html |
-| Zipkin     | https://github.com/smoketurner/dropwizard-zipkin              |
 
 ## Configure ARLAS Server as a docker container
 
@@ -205,16 +204,6 @@ docker run -ti -d \
 | ARLAS_LOGGING_FILE_ARCHIVE              | logging.appenders[type: file].archive                    | true         |
 | ARLAS_LOGGING_FILE_ARCHIVE_FILE_PATTERN | logging.appenders[type: file].archivedLogFilenamePattern | arlas-%d.log |
 | ARLAS_LOGGING_FILE_ARCHIVE_FILE_COUNT   | logging.appenders[type: file].archivedFileCount          | 5            |
-
-### Zipkin
-
-| Environment variable      | ARLAS Server configuration variable | Default               |
-|---------------------------|-------------------------------------|-----------------------|
-| ARLAS_ZIPKIN_ENABLED      | zipkin.enabled                      | false                 |
-| ARLAS_ZIPKIN_SERVICE_HOST | zipkin.serviceHost                  | 127.0.0.1             |
-| ARLAS_ZIPKIN_COLLECTOR    | zipkin.servicePort                  | 9999                  |
-| ARLAS_ZIPKIN_BASEURL      | zipkin.collector                    | http                  |
-| ARLAS_ZIPKIN_BASEURL      | zipkin.baseUrl                      | http://localhost:9411 |
 
 ### JAVA
 

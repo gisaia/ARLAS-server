@@ -111,17 +111,6 @@ collection-auto-discover:
   schedule: ${ARLAS_COLLECTION_AUTODISCOVER_SCHEDULE:-0} # Set to 0 to disable the discovery
 
 ########################################################
-############ ZIPKIN                      ###############
-########################################################
-# Zipkin let you analyze the API calls
-zipkin: # The ZIPIN configuration, not active by default
-  enabled: ${ARLAS_ZIPKIN_ENABLED:-false} # Do we want zipkin to collect the API calls? Not by default.
-  serviceHost: ${ARLAS_ZIPKIN_SERVICE_HOST:-127.0.0.1} # Listening IP address of the service
-  servicePort: ${ARLAS_PORT:-9999} # Listening port of the service
-  collector: ${ARLAS_ZIPKIN_COLLECTOR:-http}
-  baseUrl: ${ARLAS_ZIPKIN_BASEURL:-http://localhost:9411} # Where is zipkin running?
-
-########################################################
 ############ WFS                         ###############
 ########################################################
 arlas-wfs:

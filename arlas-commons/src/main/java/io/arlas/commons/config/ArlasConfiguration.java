@@ -20,15 +20,11 @@
 package io.arlas.commons.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.smoketurner.dropwizard.zipkin.ZipkinFactory;
 import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 public class ArlasConfiguration extends Configuration {
-
-    @JsonProperty("zipkin")
-    public ZipkinFactory zipkinConfiguration;
 
     @JsonProperty("swagger")
     public SwaggerBundleConfiguration swaggerBundleConfiguration;
@@ -51,9 +47,6 @@ public class ArlasConfiguration extends Configuration {
     public static final String FLATTEN_CHAR = "_";
 
     public void check() throws ArlasConfigurationException {
-       if (zipkinConfiguration == null) {
-            throw new ArlasConfigurationException("Zipkin configuration missing in config file.");
-        }
         if (swaggerBundleConfiguration == null) {
             throw new ArlasConfigurationException("Swagger configuration missing in config file.");
         }
