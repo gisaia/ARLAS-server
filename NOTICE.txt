@@ -8,7 +8,6 @@ ARLAS-server embeds the following components and their dependencies :
 + DROPWIZARD
     - Dropwizard            (Apache License Version 2.0 - http://www.dropwizard.io/)
     - dropwizard-swagger    (Apache License Version 2.0 - https://github.com/smoketurner/dropwizard-swagger)
-    - dropwizard-zipkin     (Apache License Version 2.0 - https://github.com/smoketurner/dropwizard-zipkin)
 
 + ELASTICSEARCH
     - Elasticsearch         (Apache License Version 2.0 - https://www.elastic.co/products/elasticsearch)
