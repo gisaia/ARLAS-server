@@ -35,7 +35,7 @@ public class ArlasClaims {
     private final Map<String, List<String>> headers;
     private final Map<String, String> variables;
 
-    private final static String COLUMN_FILTER_HEADER_PREFIX = "h:column-filter:";
+    private final static String COLUMN_FILTER_HEADER_PREFIX = "h:column-filter";
 
     public ArlasClaims(List<String> claims) {
         this.rules = new ArrayList<>();
