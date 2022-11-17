@@ -23,10 +23,10 @@ import com.ethlo.time.ITU;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import io.arlas.commons.utils.StringUtil;
-import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InvalidParameterException;
+import io.arlas.commons.utils.StringUtil;
+import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.Link;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
@@ -65,6 +65,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.arlas.server.core.utils.TimestampTypeMapper.formatDate;
+import static javax.ws.rs.core.UriBuilder.fromUri;
 
 @Path("/stac")
 @Api(value = "/stac")
@@ -77,16 +78,18 @@ public abstract class StacRESTService {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final GeoJsonReader reader = new GeoJsonReader();
     public static final ObjectWriter writer = objectMapper.writer();
+    public final String baseUri;
 
     public StacRESTService(STACConfiguration configuration,
                            int arlasRestCacheTimeout,
                            CollectionReferenceService collectionReferenceService,
-                           ExploreService exploreService) {
+                           ExploreService exploreService,String baseUri) {
         super();
         this.configuration = configuration;
         this.collectionReferenceService = collectionReferenceService;
         this.exploreService = exploreService;
         this.responseCacheManager = new ResponseCacheManager(arlasRestCacheTimeout);
+        this.baseUri = baseUri;
     }
 
     public Response cache(Response.ResponseBuilder response, Integer maxagecache) {
@@ -97,7 +100,7 @@ public abstract class StacRESTService {
 
     protected StacLink getRootLink(UriInfo uriInfo) {
         return new StacLink().rel("root").type(MediaType.APPLICATION_JSON)
-                .href(uriInfo.getBaseUriBuilder().path(StacRESTService.class).build().toString());
+                .href(fromUri(new UriInfoWrapper(uriInfo,baseUri).getBaseUri()).path(StacRESTService.class).build().toString());
     }
 
     protected StacLink getSelfLink(UriInfo uriInfo) {
@@ -107,7 +110,7 @@ public abstract class StacRESTService {
 
     protected StacLink getApiLink(UriInfo uriInfo) {
         return new StacLink().rel("service-desc").type("application/vnd.oai.openapi+json;version=3.0")
-                .href(uriInfo.getBaseUriBuilder().path(StacRESTService.class).path("/api").build().toString());
+                .href(fromUri(new UriInfoWrapper(uriInfo,baseUri).getBaseUri()).path(StacRESTService.class).path("/api").build().toString());
     }
 
     protected StacLink getRawLink(String url, String rel) {
@@ -128,12 +131,12 @@ public abstract class StacRESTService {
 
     protected StacLink getLink(UriInfo uriInfo, String path, String method, String rel, String type) {
         StacLink link = new StacLink().method(method).rel(rel).type(type)
-                .href(uriInfo.getBaseUriBuilder().path(StacRESTService.class).path(path).build().toString());
+                .href(fromUri(new UriInfoWrapper(uriInfo,baseUri).getBaseUri()).path(StacRESTService.class).path(path).build().toString());
         return link;
     }
 
     protected String getAggregateUrl(UriInfo uriInfo, CollectionReference collection, String type, String id) {
-        UriBuilder builder = uriInfo.getBaseUriBuilder()
+        UriBuilder builder = fromUri(new UriInfoWrapper(uriInfo,baseUri).getBaseUri())
                 .path("explore")
                 .path(collection.collectionName)
                 .path(type);
@@ -147,7 +150,18 @@ public abstract class StacRESTService {
         // https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md#link-object
         List<StacLink> cLinks = new ArrayList<>();
         cLinks.add(getRootLink(uriInfo));
-        cLinks.add(getRawLink("TODO", "licence")); // TODO
+        if(collectionReference.params.licenseUrls != null &&  !collectionReference.params.licenseUrls.isEmpty()){
+            collectionReference.params.licenseUrls.forEach(l->{
+                cLinks.add(getRawLink(l, "licence"));
+            });
+        }
+        String licenseName = collectionReference.params.licenseName;
+        if(licenseName == null){
+            licenseName = "proprietary";
+        }
+        if((licenseName.equals("proprietary") || licenseName.equals("various"))  && collectionReference.params.licenseUrls == null  ){
+            cLinks.add(getRawLink("missing configuration", "licence"));
+        }
         cLinks.add(getLink(uriInfo, "collections/" + collectionReference.collectionName, "self", MediaType.APPLICATION_JSON));
         cLinks.add(getLink(uriInfo, "collections/" + collectionReference.collectionName + "/items", "items", "application/geo+json"));
 
@@ -159,7 +173,7 @@ public abstract class StacRESTService {
                 .title(collectionReference.params.dublinCoreElementName.title)
                 .description(collectionReference.params.dublinCoreElementName.description)
                 .keywords(collectionReference.params.inspire.keywords.stream().map(k -> k.value).collect(Collectors.toList()))
-                .license("proprietary") // TODO *required*
+                .license(licenseName)
                 //.providers(new ArrayList<>()) // TODO optional
                 .extent(new Extent().spatial(getSpatialExtent(collectionReference))
                         .temporal(getTemporalExtent(collectionReference)))
@@ -415,7 +429,11 @@ public abstract class StacRESTService {
         MixedRequest request = new MixedRequest();
         request.basicRequest = computationRequest;
         request.headerRequest = new ComputationRequest();
-        return new ExtentSpatial().bbox(getBbox((Polygon)exploreService.compute(request, collectionReference).geometry));
+        return new ExtentSpatial().bbox(getBbox(
+                Optional.ofNullable((Polygon)exploreService.compute(request, collectionReference).geometry)
+                        .orElseThrow(InvalidParameterException::new)
+                )
+        );
     }
 
     private List<List<Double>> getBbox(Polygon polygon) {

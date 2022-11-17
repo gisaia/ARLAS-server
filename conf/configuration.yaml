@@ -3,7 +3,7 @@
 ########################################################
 #
 swagger: # Configuration of SWAGGER for generating documentation and APIs
-  resourcePackage: io.arlas.server.rest # The java package to process for extracting the APIs
+  resourcePackage: ${ARLAS_SWAGGER_RESOURCE_PKG:-io.arlas.server.rest} # The java package to process for extracting the APIs (,io.arlas.server.stac)
   # temporary patch for bug https://github.com/smoketurner/dropwizard-swagger/issues/206
   # to be removed when version of dropwizard.swagger.version is upgraded
   customJavascript: ${ARLAS_CUSTOM_JS:-/arlas/swagger-static/custom-request-interceptor.js}

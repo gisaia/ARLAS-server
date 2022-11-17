@@ -20,12 +20,13 @@
 package io.arlas.server.stac.api;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.InvalidParameterException;
+import io.arlas.commons.exceptions.NotFoundException;
+import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.app.Documentation;
 import io.arlas.server.core.app.STACConfiguration;
-import io.arlas.commons.exceptions.ArlasException;
-import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.server.core.model.CollectionReference;
-import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.stac.model.*;
@@ -55,8 +56,8 @@ public class StacCollectionsRESTService extends StacRESTService {
     public StacCollectionsRESTService(STACConfiguration configuration,
                                       int arlasRestCacheTimeout,
                                       CollectionReferenceService collectionReferenceService,
-                                      ExploreService exploreService) {
-        super(configuration, arlasRestCacheTimeout, collectionReferenceService, exploreService);
+                                      ExploreService exploreService, String baseUri) {
+        super(configuration, arlasRestCacheTimeout, collectionReferenceService, exploreService, baseUri);
     }
 
     @Timed
@@ -99,7 +100,11 @@ public class StacCollectionsRESTService extends StacRESTService {
                         .stream()
                         .filter(c -> !c.collectionName.equals("metacollection"))
                         .collect(Collectors.toList())) {
-            collectionList.add(getCollection(c, uriInfo));
+            try {
+                collectionList.add(getCollection(c, uriInfo));
+            } catch (InvalidParameterException e) {
+                // skipping collection with no geometry
+            }
         }
 
         return cache(Response.ok(new CollectionList().collections(collectionList).links(links)), 0);

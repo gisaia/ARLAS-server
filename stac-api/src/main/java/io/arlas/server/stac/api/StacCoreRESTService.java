@@ -25,11 +25,13 @@ import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
+import io.arlas.server.core.utils.UriInfoWrapper;
 import io.arlas.server.stac.model.LandingPage;
 import io.arlas.server.stac.model.StacLink;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.http.client.utils.URIBuilder;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -44,15 +46,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static javax.ws.rs.core.UriBuilder.fromUri;
+
 public class StacCoreRESTService extends StacRESTService {
 
-    private Client client;
+    private final Client client;
 
     public StacCoreRESTService(STACConfiguration configuration,
                                int arlasRestCacheTimeout,
                                CollectionReferenceService collectionReferenceService,
-                               ExploreService exploreService) {
-        super(configuration, arlasRestCacheTimeout, collectionReferenceService, exploreService);
+                               ExploreService exploreService, String baseUri) {
+        super(configuration, arlasRestCacheTimeout, collectionReferenceService, exploreService,baseUri);
         this.client = ClientBuilder.newClient();
     }
 
@@ -113,7 +117,7 @@ public class StacCoreRESTService extends StacRESTService {
             @ApiResponse(code = 200, message = "OpenAPI specification", response = String.class, responseContainer = "OpenAPI")})
     public Response getApi(@Context UriInfo uriInfo) {
         return Response.ok(client
-                .target(uriInfo.getBaseUriBuilder().path("openapi.json").build())
+                .target(fromUri(new UriInfoWrapper(uriInfo,baseUri).getBaseUri()).path("openapi.json").build())
                 .request()
                 .get().getEntity()).type("application/vnd.oai.openapi+json;version=3.0").build();
     }

@@ -53,7 +53,7 @@
     <io.rest-assured.version>5.0.1</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
-    <dropwizard.version>2.1.0</dropwizard.version>
+    <dropwizard.version>2.1.4</dropwizard.version>
     <dropwizard.swagger.version>2.0.12-1</dropwizard.swagger.version>
     <zipkin.dropwizard.version>2.0.16-1</zipkin.dropwizard.version>
     <swaggerv3.version>2.2.0</swaggerv3.version>
@@ -68,8 +68,8 @@
     <elastic.version>7.15.2</elastic.version>
 
     <!-- GEO-->
-    <geotools.version>26.4</geotools.version>
-    <protobuf.version>3.19.4</protobuf.version>
+    <geotools.version>27.1</geotools.version>
+    <protobuf.version>3.21.9</protobuf.version>
     <geojson.jackson.version>1.14</geojson.jackson.version>
     <spatial4j.version>0.8</spatial4j.version>
     <jts.version>1.18.2</jts.version>
