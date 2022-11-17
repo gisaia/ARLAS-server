@@ -1,5 +1,57 @@
 # Change Log
 
+## [v22.0.2](https://github.com/gisaia/ARLAS-server/tree/v22.0.2) (2022-11-17)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.6...v22.0.2)
+
+## [v23.0.6](https://github.com/gisaia/ARLAS-server/tree/v23.0.6) (2022-11-17)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.5...v23.0.6)
+
+## [v23.0.5](https://github.com/gisaia/ARLAS-server/tree/v23.0.5) (2022-11-16)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.4...v23.0.5)
+
+**Fixed bugs:**
+
+- NPE on stac collection endpoint if no data in the collection [\#840](https://github.com/gisaia/ARLAS-server/issues/840)
+
+**Miscellaneous:**
+
+- Remove Zipkin support [\#843](https://github.com/gisaia/ARLAS-server/issues/843) [[conf](https://github.com/gisaia/ARLAS-server/labels/conf)] [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
+## [v23.0.4](https://github.com/gisaia/ARLAS-server/tree/v23.0.4) (2022-10-14)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.3...v23.0.4)
+
+## [v23.0.3](https://github.com/gisaia/ARLAS-server/tree/v23.0.3) (2022-10-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.2...v23.0.3)
+
+## [v23.0.2](https://github.com/gisaia/ARLAS-server/tree/v23.0.2) (2022-09-13)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.0...v23.0.2)
+
+**Fixed bugs:**
+
+- Fix broken STAC /api endpoint [\#821](https://github.com/gisaia/ARLAS-server/issues/821)
+- Upgrade maven plugins in java-client pom.xml [\#812](https://github.com/gisaia/ARLAS-server/issues/812)
+
+## [v23.0.0](https://github.com/gisaia/ARLAS-server/tree/v23.0.0) (2022-07-08)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v22.0.1...v23.0.0)
+
+**Fixed bugs:**
+
+- Use the base uri of the request if ARLAS\_BASE\_URI is not set [\#770](https://github.com/gisaia/ARLAS-server/issues/770)
+
+**Miscellaneous:**
+
+- Upgrade dependencies [\#809](https://github.com/gisaia/ARLAS-server/issues/809)
+- Migrate to ES client 7.17  [\#804](https://github.com/gisaia/ARLAS-server/issues/804)
+- add trivy action in github CI to detect CVEs [\#793](https://github.com/gisaia/ARLAS-server/issues/793)
+- Handle polygons orientation on ARLAS-server side [\#778](https://github.com/gisaia/ARLAS-server/issues/778)
+
 ## [v22.0.1](https://github.com/gisaia/ARLAS-server/tree/v22.0.1) (2022-05-24)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v22.0.0...v22.0.1)
