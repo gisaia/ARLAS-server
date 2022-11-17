@@ -61,8 +61,8 @@ public class StacSearchRESTService extends StacRESTService {
     public StacSearchRESTService(STACConfiguration configuration,
                                  int arlasRestCacheTimeout,
                                  CollectionReferenceService collectionReferenceService,
-                                 ExploreService exploreService) {
-        super(configuration, arlasRestCacheTimeout, collectionReferenceService, exploreService);
+                                 ExploreService exploreService, String baseUri) {
+        super(configuration, arlasRestCacheTimeout, collectionReferenceService, exploreService, baseUri);
     }
 
     @Timed
