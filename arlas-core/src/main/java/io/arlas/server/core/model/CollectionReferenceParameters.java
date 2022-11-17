@@ -27,6 +27,7 @@ import io.arlas.server.core.model.request.Filter;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -98,6 +99,12 @@ public class CollectionReferenceParameters implements Serializable {
 
     @JsonProperty(value = "filter")
     public Filter filter = null;
+
+    @JsonProperty(value = "license_name")
+    public String licenseName = null;
+
+    @JsonProperty(value = "license_urls")
+    public List<String> licenseUrls = null;
 
     @JsonIgnore
     private Map<String, GeoTypeEnum> geoTypes = new ConcurrentHashMap<>();
