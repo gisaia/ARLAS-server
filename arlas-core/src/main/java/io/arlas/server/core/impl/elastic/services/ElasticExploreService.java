@@ -19,6 +19,7 @@
 
 package io.arlas.server.core.impl.elastic.services;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.GeoBounds;
 import co.elastic.clients.elasticsearch._types.GeoLocation;
 import co.elastic.clients.elasticsearch._types.LatLonGeoLocation;
@@ -169,14 +170,14 @@ public class ElasticExploreService extends ExploreService {
             next = new Link();
             next.method = method;
             // Use sorted value of last element return by ES to build after param of next & previous link
-            lastHitAfter = searchHitList.get(lastIndex).sort().stream().map(Object::toString).collect(Collectors.joining(","));
+            lastHitAfter = searchHitList.get(lastIndex).sort().stream().map(FieldValue::_toJsonString).collect(Collectors.joining(","));
             LOGGER.debug("lastHitAfter="+lastHitAfter);
 
         }
         if (searchHitList.size() > 0 && sortParam != null && (beforeParam != null || sortParam.contains(collectionReference.params.idPath))) {
             previous = new Link();
             previous.method = method;
-            firstHitAfter = searchHitList.get(0).sort().stream().map(Object::toString).collect(Collectors.joining(","));
+            firstHitAfter = searchHitList.get(0).sort().stream().map(FieldValue::_toJsonString).collect(Collectors.joining(","));
             LOGGER.debug("firstHitAfter="+firstHitAfter);
         }
 
