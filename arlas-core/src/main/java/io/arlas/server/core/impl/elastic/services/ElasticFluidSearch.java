@@ -70,12 +70,14 @@ public class ElasticFluidSearch extends FluidSearchService {
     private SearchRequest request;
     private SearchSourceBuilder searchSourceBuilder;
     private BoolQueryBuilder boolQueryBuilder;
+    private int elasticMaxPrecisionThreshold;
 
-    public ElasticFluidSearch(CollectionReference collectionReference) {
+    public ElasticFluidSearch(CollectionReference collectionReference, int elasticMaxPrecisionThreshold) {
         super(collectionReference);
         request = new SearchRequest(collectionReference.params.indexName);
         boolQueryBuilder = QueryBuilders.boolQuery();
         searchSourceBuilder = new SearchSourceBuilder();
+        this.elasticMaxPrecisionThreshold = elasticMaxPrecisionThreshold;
     }
 
     public ElasticClient getClient() {
@@ -479,7 +481,7 @@ public class ElasticFluidSearch extends FluidSearchService {
     }
 
     @Override
-    public FluidSearchService compute(String field, ComputationEnum metric) {
+    public FluidSearchService compute(String field, ComputationEnum metric, int precisionThreshold) {
         boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.existsQuery(field));
         switch (metric) {
             case AVG:
@@ -498,7 +500,8 @@ public class ElasticFluidSearch extends FluidSearchService {
                 SumAggregationBuilder sumAggregationBuilder = AggregationBuilders.sum(FIELD_SUM_VALUE).field(field);
                 searchSourceBuilder = searchSourceBuilder.size(0).aggregation(sumAggregationBuilder);
             case CARDINALITY:
-                CardinalityAggregationBuilder cardinalityAggregationBuilder = AggregationBuilders.cardinality(FIELD_CARDINALITY_VALUE).field(field);
+                CardinalityAggregationBuilder cardinalityAggregationBuilder = AggregationBuilders.cardinality(FIELD_CARDINALITY_VALUE)
+                        .field(field).precisionThreshold(Math.min(Optional.ofNullable(precisionThreshold).orElse(3000), elasticMaxPrecisionThreshold));;
                 searchSourceBuilder = searchSourceBuilder.size(0).aggregation(cardinalityAggregationBuilder);
                 break;
             case SPANNING:
@@ -684,7 +687,8 @@ public class ElasticFluidSearch extends FluidSearchService {
                         metricAggregationBuilder = AggregationBuilders.avg("avg:" + collectField).field(m.collectField);
                         break;
                     case CARDINALITY:
-                        metricAggregationBuilder = AggregationBuilders.cardinality("cardinality:" + collectField).field(m.collectField);
+                        metricAggregationBuilder = AggregationBuilders.cardinality("cardinality:" + collectField)
+                                .field(m.collectField).precisionThreshold(Math.min(Optional.ofNullable(m.precisionThreshold).orElse(3000), elasticMaxPrecisionThreshold));
                         break;
                     case MAX:
                         metricAggregationBuilder = AggregationBuilders.max("max:" + collectField).field(m.collectField);

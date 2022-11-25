@@ -60,6 +60,7 @@ public class ParamsParser {
     private static final String AGG_FORMAT_PARAM = "format-";
     private static final String AGG_COLLECT_FIELD_PARAM = "collect_field-";
     private static final String AGG_COLLECT_FCT_PARAM = "collect_fct-";
+    private static final String AGG_COLLECT_FCT_PRECISION_THRESHOLD = "precision_threshold-";
     private static final String AGG_ORDER_PARAM = "order-";
     private static final String AGG_ON_PARAM = "on-";
     private static final String AGG_SIZE_PARAM = "size-";
@@ -194,11 +195,25 @@ public class ParamsParser {
             List<CollectionFunction> collectFcts = agg.stream().filter(s -> s.contains(AGG_COLLECT_FCT_PARAM))
                     .map(s -> CollectionFunction.valueOf(s.substring(AGG_COLLECT_FCT_PARAM.length()).toUpperCase()))
                     .collect(Collectors.toList());
+            List<String> collectPrecisionThreshold = agg.stream()
+                    .map(s -> {
+                        if(s.contains(AGG_COLLECT_FCT_PRECISION_THRESHOLD)){
+                            return s.substring(AGG_COLLECT_FCT_PRECISION_THRESHOLD.length());
+                        } else {
+                            //This value will be never use, just to fill the List to have the right size and to make work get(i)
+                            return null;
+                        }
+                    }).collect(Collectors.toList());
             CheckParams.checkCollectionFunctionValidity(collectFields, collectFcts);
             metrics = IntStream.range(0, collectFcts.size())
                     .filter(i -> i < collectFcts.size())
-                    .mapToObj(i -> new Metric(collectFields.get(i), collectFcts.get(i)))
-                    .collect(Collectors.toList());
+                    .mapToObj(i -> {
+                        if(collectPrecisionThreshold.get(i) == null){
+                          return  new Metric(collectFields.get(i), collectFcts.get(i));
+                        }else{
+                            return  new Metric(collectFields.get(i), collectFcts.get(i), Integer.parseInt(collectPrecisionThreshold.get(i)));
+                        }
+                    }).collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
             throw new InvalidParameterException("Invalid collection function");
         }

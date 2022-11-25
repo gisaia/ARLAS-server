@@ -112,7 +112,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
                 32, 16, 25, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"avg", 790075F, 1230075F);
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
-        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.CARDINALITY));
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.CARDINALITY, 40000));
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
                 32, 16, 25, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"cardinality", 16F, 25F);
         handleMatchingGeohashAggregateWithCollect(get("geohash:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-cardinality"),
@@ -402,7 +402,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
                 4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"avg", 873600F, 1133825F);
 
         aggregationRequest.aggregations.get(0).metrics = new ArrayList<>();
-        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.CARDINALITY));
+        aggregationRequest.aggregations.get(0).metrics.add(new Metric("params.startdate", CollectionFunction.CARDINALITY, 3000));
         handleMatchingGeohashAggregateWithCollect(post(aggregationRequest),
                 4, 136, 162, aggregationRequest.aggregations.get(0).metrics.get(0).collectField,"cardinality", 116, 162F);
         handleMatchingGeohashAggregateWithCollect(get("geotile:geo_params.centroid:interval-1:collect_field-params.startdate:collect_fct-cardinality"),

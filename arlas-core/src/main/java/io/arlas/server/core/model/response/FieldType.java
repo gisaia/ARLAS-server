@@ -42,7 +42,7 @@ public enum FieldType {
     GEOMETRY("geometry"), GEOGRAPHY("geography"),
     POINT("point"), LINESTRING("linestring"), POLYGON("polygon"),
     MULTIPOINT("multipoint"), MULTILINESTRING("multilinestring"), MULTIPOLYGON("multipolygon"),
-    GEOMETRYCOLLECTION("geometrycollection");
+    GEOMETRYCOLLECTION("geometrycollection"), MURMUR3("murmur3");
 
     public final String fieldType;
 

@@ -41,6 +41,12 @@ public class ElasticConfiguration {
     @JsonProperty("elastic-skip-master")
     public Boolean elasticSkipMaster;
 
+    @JsonProperty("elastic-socket-timeout")
+    public Integer elasticSocketTimeout;
+
+    @JsonProperty("elastic-max-precision-threshold")
+    public Integer elasticMaxPrecisionThreshold;
+
     public void check() throws ArlasConfigurationException {
         if (getElasticNodes().length == 0) {
             throw new ArlasConfigurationException("Elastic search configuration missing in config file.");
