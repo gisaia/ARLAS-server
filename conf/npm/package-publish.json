@@ -6,13 +6,9 @@
   "main": "./index.js",
   "typings": "./index.d.ts",
   "keywords": [
-    "arlas",
-    "fetch",
-    "portable-fetch"
+    "arlas"
 ],
   "dependencies": {
-    "es6-promise": "4.2.4",
-    "portable-fetch": "3.0.0",
     "url": "0.11.0"
   }
 }
