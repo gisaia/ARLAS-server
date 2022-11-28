@@ -5,7 +5,7 @@
     <parent>
         <artifactId>arlas-server-parent</artifactId>
         <groupId>io.arlas</groupId>
-        <version>23.0.7</version>
+        <version>23.0.8-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
