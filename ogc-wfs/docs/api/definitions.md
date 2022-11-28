@@ -131,6 +131,8 @@
 |**id_path**  <br>*required*|string|
 |**index_name**  <br>*required*|string|
 |**inspire**  <br>*optional*|[Inspire](#inspire)|
+|**license_name**  <br>*optional*|string|
+|**license_urls**  <br>*optional*|< string > array|
 |**open_search**  <br>*optional*|[OpenSearch](#opensearch)|
 |**raster_tile_height**  <br>*optional*|integer (int32)|
 |**raster_tile_url**  <br>*optional*|[RasterTileURL](#rastertileurl)|
