@@ -73,7 +73,7 @@ docker run --rm \
 BASEDIR=$PWD
 
 cd ${BASEDIR}/target/tmp/typescript-fetch/
-docker run -a STDERR --rm  -i -v `pwd`:/docs gisaia/typedocgen:0.0.5 generatedoc api.ts
+docker run -a STDERR --rm  -i -v `pwd`:/docs gisaia/typedocgen:0.0.7 generatedoc api.ts
 cd ${BASEDIR}
 
 docker run --rm \
@@ -115,8 +115,8 @@ docker run --rm \
         sh -c 'cp /opt/maven/CHANGELOG.md /opt/maven/target/generated-docs/CHANGELOG_ARLAS-server.md'
 
 echo "=> Check generated documentation"
-if [[ ! -f ${BASEDIR}/target/generated-docs/typescript-doc/classes/_api_.exploreapi.md ]] ; then
-    echo 'File "_api_.exploreapi.md" is not generated, aborting.'
+if [[ ! -f ${BASEDIR}/target/generated-docs/typescript-doc/classes/ExploreApi.md ]] ; then
+    echo 'File "ExploreApi.md" is not generated, aborting.'
     exit -1
 fi
 if [[ ! -f ${BASEDIR}/target/generated-docs/reference.md ]] ; then
