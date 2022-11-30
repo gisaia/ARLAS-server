@@ -696,6 +696,9 @@ public class ElasticFluidSearch extends FluidSearchService {
         if (aggregationBuilder instanceof GeoHashGridAggregation.Builder) {
             aggregationBuilder =  ((GeoHashGridAggregation.Builder) aggregationBuilder).field(aggregationModel.field);
         }
+        if (aggregationBuilder instanceof GeohexGridAggregation.Builder) {
+            aggregationBuilder =  ((GeohexGridAggregation.Builder) aggregationBuilder).field(aggregationModel.field);
+        }
         if (aggregationBuilder instanceof GeoTileGridAggregation.Builder) {
             aggregationBuilder =  ((GeoTileGridAggregation.Builder) aggregationBuilder).field(aggregationModel.field);
         }
@@ -775,6 +778,9 @@ public class ElasticFluidSearch extends FluidSearchService {
         }
         if (aggregationBuilder instanceof GeoHashGridAggregation.Builder) {
             containerBuilder = new Builder().geohashGrid(((GeoHashGridAggregation.Builder) aggregationBuilder).build());
+        }
+        if (aggregationBuilder instanceof GeohexGridAggregation.Builder) {
+            containerBuilder = new Builder().geohexGrid(((GeohexGridAggregation.Builder) aggregationBuilder).build());
         }
         if (aggregationBuilder instanceof GeoTileGridAggregation.Builder) {
             containerBuilder = new Builder().geotileGrid(((GeoTileGridAggregation.Builder) aggregationBuilder).build());
