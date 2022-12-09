@@ -32,6 +32,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
@@ -66,13 +67,13 @@ public class ElasticTool {
                 conf.elasticEnableSsl,
                 conf.elasticCredentials,
                 conf.elasticSkipMaster,
-                conf.elasticsniffing);
+                conf.elasticsniffing,conf.elasticSocketTimeout);
     }
     public static ImmutablePair<RestHighLevelClient, Sniffer> getRestHighLevelClient(HttpHost[] nodes,
                                                                             boolean ssl,
                                                                             String cred,
                                                                             boolean skipMaster,
-                                                                            boolean sniffing) {
+                                                                            boolean sniffing, int socketTimeout) {
         // disable JVM default policies of caching positive hostname resolutions indefinitely
         // because the Elastic load balancer can change IP addresses
         java.security.Security.setProperty("networkaddress.cache.ttl" , "60");
@@ -85,6 +86,10 @@ public class ElasticTool {
             restClientBuilder.setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS);
         }
 
+        restClientBuilder.setHttpClientConfigCallback(
+                httpClientBuilder -> httpClientBuilder
+                        .setDefaultRequestConfig(RequestConfig.custom().setSocketTimeout(socketTimeout).build()));
+
         // Authentication needed ?
         if (!StringUtil.isNullOrEmpty(cred)) {
             String[] credentials = ElasticConfiguration.getCredentials(cred);
@@ -92,7 +97,8 @@ public class ElasticTool {
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(credentials[0], credentials[1]));
 
             restClientBuilder.setHttpClientConfigCallback(
-                    httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+                    httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+                            .setDefaultRequestConfig(RequestConfig.custom().setSocketTimeout(socketTimeout).build()));
         }
 
         RestClient restClient = restClientBuilder.build();

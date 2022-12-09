@@ -24,4 +24,5 @@ import io.arlas.server.core.model.enumerations.ComputationEnum;
 public class ComputationRequest extends Request {
     public String field;
     public ComputationEnum metric;
+    public int precisionThreshold = 3000;
 }

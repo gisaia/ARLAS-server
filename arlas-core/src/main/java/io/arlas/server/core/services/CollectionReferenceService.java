@@ -189,6 +189,19 @@ public abstract class CollectionReferenceService {
                         collectionProperty.type = FieldType.OBJECT;
                     }
                     if (FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, collectionProperty.type == FieldType.OBJECT)) {
+                        if (property.containsKey("fields")) {
+                            if(property.get("fields") instanceof Map){
+                                for (Object keyFields : ((Map)property.get("fields")).keySet()) {
+                                    if ( ((Map)property.get("fields")).get(keyFields) instanceof Map propertyFields) {
+                                        if (propertyFields.containsKey("type")) {
+                                            if(propertyFields.get("type").equals(FieldType.MAPPER_MURMUR3.toString())){
+                                                collectionProperty.hashField = keyFields.toString();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         // check whether the field is declared in the mapping but not index
                         if (property.containsKey("enabled")) {
                             collectionProperty.indexed = (boolean)property.get("enabled") && parentIsIndexed;

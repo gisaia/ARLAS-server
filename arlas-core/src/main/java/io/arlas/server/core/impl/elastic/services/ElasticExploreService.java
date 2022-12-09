@@ -63,10 +63,13 @@ import static io.arlas.server.core.services.FluidSearchService.*;
 public class ElasticExploreService extends ExploreService {
 
     protected ElasticClient client;
+    protected int arlasElasticMaxPrecisionThreshold;
 
-    public ElasticExploreService(ElasticClient client, CollectionReferenceService collectionReferenceService, String baseUri, int arlasRestCacheTimeout) {
+    public ElasticExploreService(ElasticClient client, CollectionReferenceService collectionReferenceService,
+                                 String baseUri, int arlasRestCacheTimeout, int arlasElasticMaxPrecisionThreshold) {
         super(baseUri, arlasRestCacheTimeout, collectionReferenceService);
         this.client = client;
+        this.arlasElasticMaxPrecisionThreshold =arlasElasticMaxPrecisionThreshold;
     }
 
     public ElasticClient getClient() {
@@ -75,7 +78,7 @@ public class ElasticExploreService extends ExploreService {
 
     @Override
     public FluidSearchService getFluidSearch(CollectionReference collectionReference) {
-        return new ElasticFluidSearch(collectionReference).setClient(client);
+        return new ElasticFluidSearch(collectionReference, arlasElasticMaxPrecisionThreshold).setClient(client);
     }
 
     @Override

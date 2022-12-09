@@ -77,6 +77,13 @@ public class ComputeRESTService extends ExploreRESTServices {
                     value = Documentation.COMPUTE_METRIC,
                     required = true)
             @QueryParam(value = "metric") String metric,
+
+            @ApiParam(name = "precision",
+                    value = Documentation.COMPUTE_PRECISON,
+                    defaultValue = "3000",
+                    required = false)
+            @DefaultValue("3000")
+            @QueryParam(value = "precision") int precision,
             // --------------------------------------------------------
             // ----------------------- FILTER -----------------------
             // --------------------------------------------------------
@@ -127,6 +134,7 @@ public class ComputeRESTService extends ExploreRESTServices {
         computationRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand);
         computationRequest.field = field;
         computationRequest.metric = ComputationEnum.fromValue(metric);
+        computationRequest.precisionThreshold = precision;
 
         ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, computationRequest);
 

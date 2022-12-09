@@ -90,7 +90,7 @@ public class DataSetTool {
 
     static {
         HttpHost[] nodes = ElasticConfiguration.getElasticNodes(Optional.ofNullable(System.getenv("ARLAS_ELASTIC_NODES")).orElse("localhost:9200"), false);
-        ImmutablePair<RestHighLevelClient, Sniffer> pair = ElasticTool.getRestHighLevelClient(nodes,false, null, true, true);
+        ImmutablePair<RestHighLevelClient, Sniffer> pair = ElasticTool.getRestHighLevelClient(nodes,false, null, true, true, 30000);
         client = new ElasticClient(pair.getLeft(), pair.getRight());
         ALIASED_COLLECTION = Optional.ofNullable(System.getenv("ALIASED_COLLECTION")).orElse("false").equals("true");
         WKT_GEOMETRIES = false;

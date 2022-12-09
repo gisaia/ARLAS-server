@@ -27,10 +27,17 @@ import io.arlas.server.core.model.enumerations.CollectionFunction;
 public class Metric {
     public String collectField;
     public CollectionFunction collectFct;
+    public Integer precisionThreshold;
 
     public Metric(String collectField, CollectionFunction collectFct) {
         this.collectField = collectField;
         this.collectFct = collectFct;
+    }
+
+    public Metric(String collectField, CollectionFunction collectFct, Integer precisionThreshold ) {
+        this.collectField = collectField;
+        this.collectFct = collectFct;
+        this.precisionThreshold = precisionThreshold;
     }
 
     public Metric() {}

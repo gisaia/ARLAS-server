@@ -55,7 +55,8 @@ public class ElasticDatabaseToolsFactory extends DatabaseToolsFactory {
 
         this.elasticClient = new ElasticClient(configuration.elasticConfiguration);
         this.collectionReferenceService = new ElasticCollectionReferenceService(elasticClient, configuration.arlasIndex, cacheManager);
-        this.exploreService = new ElasticExploreService(elasticClient, collectionReferenceService, configuration.arlasBaseUri, configuration.arlasRestCacheTimeout);
+        this.exploreService = new ElasticExploreService(elasticClient, collectionReferenceService, configuration.arlasBaseUri,
+                configuration.arlasRestCacheTimeout,configuration.elasticConfiguration.elasticMaxPrecisionThreshold);
         if (configuration.arlasServiceCSWEnabled) {
             this.ogcDao = new ElasticOGCCollectionReferenceDao(elasticClient, collectionReferenceService, configuration.arlasIndex, Service.CSW);
         }

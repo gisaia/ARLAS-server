@@ -19,6 +19,8 @@
 package io.arlas.server.core.services;
 
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.utils.StringUtil;
+import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.AggregationTypeEnum;
@@ -27,7 +29,6 @@ import io.arlas.server.core.model.request.Aggregation;
 import io.arlas.server.core.model.request.Expression;
 import io.arlas.server.core.model.request.MultiValueFilter;
 import io.arlas.server.core.model.request.Page;
-import io.arlas.commons.utils.StringUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,7 +188,7 @@ public abstract class FluidSearchService {
 
     public abstract FluidSearchService aggregate(List<Aggregation> aggregations, Boolean isGeoAggregate) throws ArlasException;
 
-    public abstract FluidSearchService compute(String field, ComputationEnum metric) throws ArlasException;
+    public abstract FluidSearchService compute(String field, ComputationEnum metric, int precisionThresold) throws ArlasException;
 
     abstract public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat) throws ArlasException;
 

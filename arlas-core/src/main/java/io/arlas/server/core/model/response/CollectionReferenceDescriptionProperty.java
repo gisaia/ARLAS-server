@@ -29,6 +29,7 @@ public class CollectionReferenceDescriptionProperty {
 
     public FieldType type;
     public String format;
+    public String hashField;
     public Map<String, CollectionReferenceDescriptionProperty> properties;
     public boolean taggable=false;
     public boolean indexed=true;
@@ -38,6 +39,6 @@ public class CollectionReferenceDescriptionProperty {
 
     @Override
     public String toString() {
-        return "[type=" + type + ", format=" + format + ", properties=" + properties + "]";
+        return "[type=" + type + ", format=" + format + ", properties=" + properties + ", hashField=" + hashField + "]";
     }
 }

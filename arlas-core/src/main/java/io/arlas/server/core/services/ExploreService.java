@@ -347,7 +347,8 @@ public abstract class ExploreService {
         applyFilter(request.headerRequest.filter, fluidSearch);
         String field = ((ComputationRequest)request.basicRequest).field;
         ComputationEnum metric = ((ComputationRequest)request.basicRequest).metric;
-        fluidSearch = fluidSearch.compute(field, metric);
+        int precisionThreshold = ((ComputationRequest)request.basicRequest).precisionThreshold;
+        fluidSearch = fluidSearch.compute(field, metric, precisionThreshold);
         return compute(collectionReference, fluidSearch, field, metric);
     }
 
