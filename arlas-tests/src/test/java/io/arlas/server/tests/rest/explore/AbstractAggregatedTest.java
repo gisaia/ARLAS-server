@@ -534,9 +534,9 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -81F, 171F, 81F);
         handleMatchingAggregateWithGeometry(get("datehistogram:interval-1minute:raw_geometries-geo_params.geometry(-params.startdate)"), 10, 1, 104, -171F, -81F, 171F, 81F);
 
-        aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry", "params.age"));
+        aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry", "+params.age"));
         handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -71F, 171F, 81F);
-        handleMatchingAggregateWithGeometry(get("datehistogram:interval-1minute:raw_geometries-geo_params.geometry(params.age)"), 10, 1, 104, -171F, -71F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("datehistogram:interval-1minute:raw_geometries-geo_params.geometry(+params.age)"), 10, 1, 104, -171F, -71F, 171F, 81F);
 
         aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry", "-params.age"));
         handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -81F, 171F, 81F);
@@ -712,9 +712,9 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -81F, 171F, 81F);
         handleMatchingAggregateWithGeometry(get("histogram:params.startdate:interval-60000:raw_geometries-geo_params.geometry(-params.startdate)"), 10, 1, 104, -171F, -81F, 171F, 81F);
 
-        aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry", "params.age"));
+        aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry", "+params.age"));
         handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -71F, 171F, 81F);
-        handleMatchingAggregateWithGeometry(get("histogram:params.startdate:interval-60000:raw_geometries-geo_params.geometry(params.age)"), 10, 1, 104, -171F, -71F, 171F, 81F);
+        handleMatchingAggregateWithGeometry(get("histogram:params.startdate:interval-60000:raw_geometries-geo_params.geometry(+params.age)"), 10, 1, 104, -171F, -71F, 171F, 81F);
 
         aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry", "-params.age"));
         handleMatchingAggregateWithGeometry(post(aggregationRequest), 10, 1, 104, -171F, -81F, 171F, 81F);
@@ -934,9 +934,11 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         handleMatchingAggregateWithGeometry(get("term:params.job:aggregated_geometries-bbox"), DataSetTool.jobs.length - 1, 58, 64, -170.1F, -80.1F, 170F, 80F);
 
         aggregationRequest.aggregations.get(0).aggregatedGeometries = null;
-        aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry"));
+        // We need to add a sort in this test to have a constant response between aliases and not aliases
+        // Fetch without sort dont give the same result with alias and not alias
+        aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry","+params.startdate"));
         handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -159F, 1F);
-        handleMatchingAggregateWithGeometry(get("term:params.job:raw_geometries-geo_params.geometry"), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -159F, 1F);
+        handleMatchingAggregateWithGeometry(get("term:params.job:raw_geometries-geo_params.geometry(+params.startdate)"), DataSetTool.jobs.length - 1, 58, 64, -171F, -81F, -159F, 1F);
 
         aggregationRequest.aggregations.get(0).rawGeometries = Arrays.asList(new RawGeometry("geo_params.geometry", "-params.startdate"));
         handleMatchingAggregateWithGeometry(post(aggregationRequest), DataSetTool.jobs.length - 1, 58, 64, 79F, 79F, 171F, 81F);

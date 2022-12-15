@@ -781,16 +781,28 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                        }
                        if (flat) {
                            properties.putAll(exploreService.flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))));
+                           // To remove the geometry from the properties when we make a raw geom with include
+                           String keyToRemove = "";
+                           for (String key: properties.keySet()) {
+                               List<String> kElements =  Arrays.asList(key.split(ArlasServerConfiguration.FLATTEN_CHAR));
+                               if(kElements.size()>1 && kElements.get(0).equals("hits") ){
+                                   if(String.join(".", kElements.subList(2,kElements.size())).equals(g.reference)){
+                                       keyToRemove=key;
+                                   }
+                               }
+                           }
+                           properties.remove(keyToRemove);
                        }else{
                            properties.put("elements", element.elements);
                            properties.put("metrics", element.metrics);
                            if (element.hits != null) {
-                               properties.put("hits", element.hits);
+                               properties.put("hits", element.hits.stream());
                            }
                        }
                        feature.setProperties(properties);
                        feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
                        feature.setProperty(GEOMETRY_REFERENCE, g.reference);
+
                        String aggregationGeometryType = g.isRaw ? AggregationGeometryEnum.RAW.value() : AggregationGeometryEnum.AGGREGATED.value();
                        feature.setProperty(GEOMETRY_TYPE, aggregationGeometryType);
                        if (g.isRaw) {

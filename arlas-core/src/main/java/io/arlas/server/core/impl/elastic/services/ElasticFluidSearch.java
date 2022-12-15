@@ -60,6 +60,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.arlas.server.core.utils.CheckParams.GEO_AGGREGATION_TYPE_ENUMS;
 
@@ -570,9 +571,9 @@ public class ElasticFluidSearch extends FluidSearchService {
         }
         //get the field, format, collect_field, collect_fct, order, on
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregationParameters(aggregationModel, dateHistogramAggregationBuilder);
-        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setHitsToFetch(aggregationModel, dateHistogramAggregationBuilder);
         dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setAggregatedGeometries(aggregationModel, dateHistogramAggregationBuilder);
-        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setRawGeometries(aggregationModel, dateHistogramAggregationBuilder);
+        dateHistogramAggregationBuilder = (DateHistogramAggregationBuilder) setRawGeometriesAndFetch(aggregationModel, dateHistogramAggregationBuilder);
+
         return dateHistogramAggregationBuilder;
     }
 
@@ -585,8 +586,8 @@ public class ElasticFluidSearch extends FluidSearchService {
         //get the field, format, collect_field, collect_fct, order, on
         geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoHashAggregationBuilder);
         geoHashAggregationBuilder = (GeoGridAggregationBuilder) setAggregatedGeometries(aggregationModel, geoHashAggregationBuilder);
-        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setRawGeometries(aggregationModel, geoHashAggregationBuilder);
-        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setHitsToFetch(aggregationModel, geoHashAggregationBuilder);
+        geoHashAggregationBuilder = (GeoGridAggregationBuilder) setRawGeometriesAndFetch(aggregationModel, geoHashAggregationBuilder);
+
         return geoHashAggregationBuilder;
     }
 
@@ -599,8 +600,8 @@ public class ElasticFluidSearch extends FluidSearchService {
         //get the field, format, collect_field, collect_fct, order, on
         geoTileAggregationBuilder = (GeoGridAggregationBuilder) setAggregationParameters(aggregationModel, geoTileAggregationBuilder);
         geoTileAggregationBuilder = (GeoGridAggregationBuilder) setAggregatedGeometries(aggregationModel, geoTileAggregationBuilder);
-        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setRawGeometries(aggregationModel, geoTileAggregationBuilder);
-        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setHitsToFetch(aggregationModel, geoTileAggregationBuilder);
+        geoTileAggregationBuilder = (GeoGridAggregationBuilder) setRawGeometriesAndFetch(aggregationModel, geoTileAggregationBuilder);
+
         return geoTileAggregationBuilder;
     }
 
@@ -614,8 +615,8 @@ public class ElasticFluidSearch extends FluidSearchService {
         //get the field, format, collect_field, collect_fct, order, on
         termsAggregationBuilder = (TermsAggregationBuilder) setAggregationParameters(aggregationModel, termsAggregationBuilder);
         termsAggregationBuilder = (TermsAggregationBuilder) setAggregatedGeometries(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregationBuilder) setRawGeometries(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregationBuilder) setHitsToFetch(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregationBuilder) setRawGeometriesAndFetch(aggregationModel, termsAggregationBuilder);
+
         if (!StringUtil.isNullOrEmpty(aggregationModel.include)) {
             String[] includeList = aggregationModel.include.split(",");
             IncludeExclude includeExclude;
@@ -635,9 +636,8 @@ public class ElasticFluidSearch extends FluidSearchService {
         histogramAggregationBuilder = histogramAggregationBuilder.interval((Double)aggregationModel.interval.value);
         //get the field, format, collect_field, collect_fct, order, on
         histogramAggregationBuilder = (HistogramAggregationBuilder) setAggregationParameters(aggregationModel, histogramAggregationBuilder);
-        histogramAggregationBuilder = (HistogramAggregationBuilder) setHitsToFetch(aggregationModel, histogramAggregationBuilder);
         histogramAggregationBuilder = (HistogramAggregationBuilder) setAggregatedGeometries(aggregationModel, histogramAggregationBuilder);
-        histogramAggregationBuilder = (HistogramAggregationBuilder) setRawGeometries(aggregationModel, histogramAggregationBuilder);
+        histogramAggregationBuilder = (HistogramAggregationBuilder) setRawGeometriesAndFetch(aggregationModel, histogramAggregationBuilder);
         return histogramAggregationBuilder;
     }
 
@@ -647,8 +647,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         //get the field, format, collect_field, collect_fct, order, on
         termsAggregationBuilder = (TermsAggregationBuilder) setAggregationParameters(aggregationModel, termsAggregationBuilder);
         termsAggregationBuilder = (TermsAggregationBuilder) setAggregatedGeometries(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregationBuilder) setRawGeometries(aggregationModel, termsAggregationBuilder);
-        termsAggregationBuilder = (TermsAggregationBuilder) setHitsToFetch(aggregationModel, termsAggregationBuilder);
+        termsAggregationBuilder = (TermsAggregationBuilder) setRawGeometriesAndFetch(aggregationModel, termsAggregationBuilder);
         if (!StringUtil.isNullOrEmpty(aggregationModel.include)) {
             String[] includeList = aggregationModel.include.split(",");
             IncludeExclude includeExclude;
@@ -759,6 +758,69 @@ public class ElasticFluidSearch extends FluidSearchService {
         return aggregationBuilder;
     }
 
+    private ValuesSourceAggregationBuilder setRawGeometriesAndFetch(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
+        if(aggregationModel.rawGeometries != null && aggregationModel.fetchHits != null){
+            Integer fetchSize = Optional.ofNullable(aggregationModel.fetchHits.size).orElse(1);
+            List<String> signedFetchIncludes = new ArrayList<>();
+            if (aggregationModel.fetchHits.include != null) {
+                for (String field : aggregationModel.fetchHits.include) {
+                    String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
+                    ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
+                    if((field.startsWith("+") || field.startsWith("-"))){
+                        signedFetchIncludes.add(field);
+                    }
+                }
+            }
+            List<RawGeometry> mergeableRS = new ArrayList<>();
+            aggregationModel.rawGeometries.forEach(rg -> {
+                List<String>  signedRawGeometriesIncludes = Arrays.stream(rg.sort.split(",")).filter(field -> (field.startsWith("+") || field.startsWith("-"))).collect(Collectors.toList());
+                if(String.join(",", signedRawGeometriesIncludes).equals(String.join(",", signedFetchIncludes))){
+                    rg.setSignedSort(String.join(",", signedFetchIncludes));
+                    rg.setInclude(aggregationModel.fetchHits.include);
+                    mergeableRS.add(rg);
+                }
+            });
+            if(mergeableRS.isEmpty() || fetchSize != 1){
+                aggregationBuilder = this.setRawGeometries(aggregationModel,aggregationBuilder);
+                aggregationBuilder = this.setHitsToFetch(aggregationModel,aggregationBuilder);
+                return aggregationBuilder;
+            }else{
+                Map<String, Set<String>> rgs = new HashMap<>();
+                mergeableRS.forEach(rg -> {
+                    Set<String> geos = rgs.get(rg.signedSort);
+                    if (geos == null) geos = new HashSet<>();
+                    geos.add(rg.geometry);
+                    geos.addAll(rg.include);
+                    rgs.put(rg.signedSort, geos);
+                });
+                for (String sort: rgs.keySet()) {
+                    String[] includes = rgs.get(sort).stream().toArray(String[]::new);
+                    TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(RAW_GEOMETRY_SUFFIX + FETCH_HITS_AGG + sort).size(1).fetchSource(includes, null);
+                    for (String field : sort.split(",")) {
+                        String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
+                        if (field.startsWith("+")) {
+                            ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
+                            topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
+                        } else if(field.startsWith("-")) {
+                            ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
+                            topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
+                        }
+                    }
+                    aggregationBuilder.subAggregation(topHitsAggregationBuilder);
+                }
+                return  aggregationBuilder;
+            }
+        }
+        if(aggregationModel.rawGeometries != null && aggregationModel.fetchHits == null){
+            return this.setRawGeometries(aggregationModel,aggregationBuilder);
+        }
+        if(aggregationModel.rawGeometries == null && aggregationModel.fetchHits != null){
+            return this.setHitsToFetch(aggregationModel,aggregationBuilder);
+        }
+        //If no rawGeometries and no fetchHits
+        return  aggregationBuilder;
+    }
+
     private ValuesSourceAggregationBuilder setRawGeometries(Aggregation aggregationModel, ValuesSourceAggregationBuilder aggregationBuilder) throws ArlasException {
         if (aggregationModel.rawGeometries != null) {
             Map<String, Set<String>> rgs = new HashMap<>();
@@ -774,15 +836,16 @@ public class ElasticFluidSearch extends FluidSearchService {
                 for (String field : sort.split(",")) {
                     String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
                     ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
-                    if (field.startsWith("+") || !field.startsWith("-")) {
+                    if (field.startsWith("+")) {
+                        ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
                         topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
-                    } else {
+                    } else if(field.startsWith("-")) {
+                        ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
                         topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
                     }
                 }
                 aggregationBuilder.subAggregation(topHitsAggregationBuilder);
             }
-
         }
         return aggregationBuilder;
     }
@@ -796,20 +859,19 @@ public class ElasticFluidSearch extends FluidSearchService {
             if (aggregationModel.fetchHits.include != null) {
                 for (String field : aggregationModel.fetchHits.include) {
                     String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
-                    ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
-                    includes.add(unsignedField);
-                    /** For geo-fields, we don't sort them. Sorting geo-fields need to be according a given point to calculate a geo-distance
-                     * which is not supported in the syntax of fetch_hits*/
-                    if (CollectionReferenceManager.getInstance().getType(collectionReference, unsignedField, false) != FieldType.GEO_POINT && CollectionReferenceManager.getInstance().getType(collectionReference, unsignedField, false) != FieldType.GEO_SHAPE) {
-                        if (field.startsWith("+") || !field.startsWith("-")) {
-                            topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
-                        } else {
-                            topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
+                    if(!field.isEmpty()){
+                        ElasticTool.checkAliasMappingFields(client, collectionReference.params.indexName, unsignedField);
+                        includes.add(unsignedField);
+                        /** For geo-fields, we don't sort them. Sorting geo-fields need to be according a given point to calculate a geo-distance
+                         * which is not supported in the syntax of fetch_hits*/
+                        if (CollectionReferenceManager.getInstance().getType(collectionReference, unsignedField, false) != FieldType.GEO_POINT && CollectionReferenceManager.getInstance().getType(collectionReference, unsignedField, false) != FieldType.GEO_SHAPE) {
+                            if (field.startsWith("+")) {
+                                topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
+                            } else if(field.startsWith("-")) {
+                                topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
+                            }
                         }
                     }
-
-
-
                 }
                 String[] hitsToInclude = includes.toArray(new String[includes.size()]);
                 topHitsAggregationBuilder.fetchSource(hitsToInclude, null);
