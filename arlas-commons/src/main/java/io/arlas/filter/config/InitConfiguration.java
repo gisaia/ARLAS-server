@@ -30,6 +30,4 @@ public class InitConfiguration {
     public String timezone;
     @JsonProperty("locale")
     public String locale;
-    @JsonProperty("organisation")
-    public String organisation;
 }

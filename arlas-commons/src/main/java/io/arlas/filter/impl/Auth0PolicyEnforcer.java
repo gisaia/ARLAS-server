@@ -60,7 +60,7 @@ public class Auth0PolicyEnforcer extends AbstractPolicyEnforcer {
     }
 
     @Override
-    protected Object getObjectToken(String accessToken) {
+    protected Object getObjectToken(String accessToken, String orgFilter) {
         LOGGER.debug("accessToken=" + decodeToken(accessToken));
         return jwtVerifier.verify(accessToken);
     }

@@ -167,7 +167,7 @@ arlas_stac:
 arlas_cors:
   enabled: ${ARLAS_CORS_ENABLED:-false}
   allowed_origins: ${ARLAS_CORS_ALLOWED_ORIGINS:-"*"}
-  allowed_headers: ${ARLAS_CORS_ALLOWED_HEADERS:-"arlas-user,arlas-groups,arlas-organization,X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User"}
+  allowed_headers: ${ARLAS_CORS_ALLOWED_HEADERS:-"arlas-user,arlas-groups,arlas-organization,arlas-org-filter,X-Requested-With,Content-Type,Accept,Origin,Authorization,X-Forwarded-User"}
   allowed_methods: ${ARLAS_CORS_ALLOWED_METHODS:-"OPTIONS,GET,PUT,POST,DELETE,HEAD"}
   allowed_credentials: ${ARLAS_CORS_ALLOWED_CREDENTIALS:-true}
   exposed_headers: ${ARLAS_CORS_EXPOSED_HEADERS:-"Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location,WWW-Authenticate"}
@@ -179,6 +179,7 @@ arlas_database_factory_class: ${ARLAS_DATABASE_FACTORY_CLASS:-io.arlas.server.im
 ########################################################
 arlas_auth_policy_class: ${ARLAS_AUTH_POLICY_CLASS:-io.arlas.filter.impl.NoPolicyEnforcer}
 arlas_auth_column_filter_required: ${ARLAS_AUTH_COLUMN_FILTER_REQUIRED:-false}
+arlas_default_org: ${ARLAS_DEFAULT_ORG:-arlas}
 
 arlas_auth:
   permission_url: ${ARLAS_AUTH_PERMISSION_URL:-http://arlas-iam-server/arlas_iam_server/auth/permissions}
@@ -188,6 +189,8 @@ arlas_auth:
   certificate_url: ${ARLAS_AUTH_CERT_URL:-}
   header_user: ${ARLAS_HEADER_USER:-arlas-user}
   header_group: ${ARLAS_HEADER_GROUP:-arlas-groups}
+  header_organisation: ${ARLAS_ORGANIZATION_HEADER:-arlas-organization}
+  anonymous_value: ${ARLAS_ANONYMOUS_VALUE:-anonymous}
   claim_roles: ${ARLAS_CLAIM_ROLES:-http://arlas.io/roles}
   claim_permissions: ${ARLAS_CLAIM_PERMISSIONS:-http://arlas.io/permissions}
   keycloak:
