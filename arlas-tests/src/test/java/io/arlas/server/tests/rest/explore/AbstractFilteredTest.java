@@ -21,13 +21,13 @@ package io.arlas.server.tests.rest.explore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.tests.AbstractTestWithCollection;
-import io.arlas.server.tests.DataSetTool;
 import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.Expression;
 import io.arlas.server.core.model.request.Filter;
 import io.arlas.server.core.model.request.MultiValueFilter;
 import io.arlas.server.core.model.request.Request;
+import io.arlas.server.tests.AbstractTestWithCollection;
+import io.arlas.server.tests.DataSetTool;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -35,11 +35,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
 import static org.hamcrest.Matchers.*;
 
 public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
@@ -134,14 +137,14 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
         //an empty column filter is not considered
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name:is"));
-        handleNotMatchingQueryFilter(post(request, "column-filter", ""));
-        handleNotMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", ""));
-        handleNotMatchingQueryFilter(header(request.filter, "column-filter", ""));
+        handleNotMatchingQueryFilter(post(request, COLUMN_FILTER, ""));
+        handleNotMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), COLUMN_FILTER, ""));
+        handleNotMatchingQueryFilter(header(request.filter, COLUMN_FILTER, ""));
 
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name is"));
-        handleMatchingQueryFilter(post(request, "column-filter", "fullname*"), 595);
-        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", "fullname*"), 595);
-        handleMatchingQueryFilter(header(request.filter, "column-filter", "id"), 595);//header is not column filtered
+        handleMatchingQueryFilter(post(request, COLUMN_FILTER, "fullname*"), 595);
+        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), COLUMN_FILTER, "fullname*"), 595);
+        handleMatchingQueryFilter(header(request.filter, COLUMN_FILTER, "id"), 595);//header is not column filtered
 
         request.filter.q = Arrays.asList(new MultiValueFilter<>("UnknownQuery"));
         handleNotMatchingQueryFilter(post(request));
@@ -237,22 +240,22 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     public void testPwithinFilter() throws Exception {
         /** west < east bbox */
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "-5,-5,5,5")));
-        handleMatchingGeometryFilter(post(request, "column-filter", ""), 1, everyItem(equalTo("0,0")));//an empty column filter is not considered
-        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", ""), 1, everyItem(equalTo("0,0")));//an empty column filter is not considered
+        handleMatchingGeometryFilter(post(request, COLUMN_FILTER, ""), 1, everyItem(equalTo("0,0")));//an empty column filter is not considered
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString(), COLUMN_FILTER, ""), 1, everyItem(equalTo("0,0")));//an empty column filter is not considered
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
 
         /** clock-wise WKT */
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "POLYGON((-5 -5, -5 5, 5 5, 5 -5, -5 -5))")));
-        handleMatchingGeometryFilter(post(request, "column-filter", "fullname"), 1, everyItem(equalTo("0,0")));
-        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "fullname"), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(post(request, COLUMN_FILTER, "fullname"), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString(), COLUMN_FILTER, "fullname"), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
         /** counter clock-wise WKT with right_hand true */
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "POLYGON((-5 -5, 5 -5, 5 5, -5 5, -5 -5))")));
         request.filter.righthand = true;
-        handleMatchingGeometryFilter(post(request, "column-filter", "fullname"), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(post(request, COLUMN_FILTER, "fullname"), 1, everyItem(equalTo("0,0")));
         ValidatableResponse getWithRightHand = this.getExtraParamsRequest().param("f", request.filter.f.get(0).get(0).toString())
                 .param("righthand", request.filter.righthand)
-                .header("column-filter", "fullname")
+                .header(COLUMN_FILTER, "fullname")
                 .when().get(getUrlPath("geodata"))
                 .then();
         handleMatchingGeometryFilter(getWithRightHand, 1, everyItem(equalTo("0,0")));
@@ -556,8 +559,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
         //column filter allows other geometry fields
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.other_geopoint", OperatorEnum.within, "-5,-5,5,5")));
-        handleMatchingGeometryFilter(post(request, "column-filter", "geo_params"), 1, everyItem(equalTo("-10,-10")));
-        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "geo_params"), 1, everyItem(equalTo("-10,-10")));
+        handleMatchingGeometryFilter(post(request, COLUMN_FILTER, "geo_params"), 1, everyItem(equalTo("-10,-10")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString(), COLUMN_FILTER, "geo_params"), 1, everyItem(equalTo("-10,-10")));
 
         request.filter.f = null;
     }
@@ -1667,8 +1670,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         filterHeader.righthand = false;
         handleComplexFilter(
                 givenFilterableRequestParams()
-                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
-                        .header("column-filter", "params.job,params.city,params.country")
+                        .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
+                        .header(COLUMN_FILTER, "params.job,params.city,params.country")
                         .param("f", new Expression("params.job", OperatorEnum.eq, "Architect").toString())
                         .param("f", new Expression("params.startdate", OperatorEnum.range, "[1009799<2000000]").toString())
                         .param("f", request.filter.f.get(2).get(0).toString())
@@ -1681,23 +1684,23 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleComplexFilter(
                 post(
                         request,
-                        "partition-filter",
+                        PARTITION_FILTER,
                         objectMapper.writeValueAsString(filterHeader),
-                        "column-filter",
+                        COLUMN_FILTER,
                         "params.job,params.city,params.country"));
 
         filterHeader.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, "Actor")));
         handleNotMatchingRequest(
                 givenFilterableRequestParams()
-                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
-                        .header("column-filter", "") //an empty column filter is not considered
+                        .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
+                        .header(COLUMN_FILTER, "") //an empty column filter is not considered
                         .param("f", (new Expression("params.job", OperatorEnum.eq, "Architect")).toString())
                         .when().get(getUrlPath("geodata"))
                         .then());
         handleNotMatchingRequest(
                 givenFilterableRequestBody().body(request)
-                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
-                        .header("column-filter", "")//an empty column filter is not considered
+                        .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
+                        .header(COLUMN_FILTER, "")//an empty column filter is not considered
                         .when().post(getUrlPath("geodata"))
                         .then());
         request.filter = new Filter();
@@ -1728,8 +1731,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
         handleComplexFilter(
                 givenFilterableRequestParams()
-                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
-                        .header("column-filter", "params.job,params.city,params.country")
+                        .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
+                        .header(COLUMN_FILTER, "params.job,params.city,params.country")
                         .param("f", new Expression("params.job", OperatorEnum.eq, "Architect").toString())
                         .param("f", new Expression("params.startdate", OperatorEnum.range, "[1009799<2000000]").toString())
                         .param("f", request.filter.f.get(2).get(0).toString())
@@ -1742,24 +1745,24 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleComplexFilter(
                 post(
                         request,
-                        "partition-filter",
+                        PARTITION_FILTER,
                         objectMapper.writeValueAsString(filterHeader),
-                        "column-filter",
+                        COLUMN_FILTER,
                         "params.job,params.city,params.country"));
 
         filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, "Actor")));
         handleNotMatchingRequest(
                 givenFilterableRequestParams()
-                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
-                        .header("column-filter", "") //an empty column filter is not considered
+                        .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
+                        .header(COLUMN_FILTER, "") //an empty column filter is not considered
                         .param("f", (new Expression("params.job", OperatorEnum.eq, "Architect")).toString())
                         .when().get(getUrlPath("geodata"))
                         .then());
         filterHeader.put("geodata", filter);
         handleNotMatchingRequest(
                 givenFilterableRequestBody().body(request)
-                        .header("partition-filter", objectMapper.writeValueAsString(filterHeader))
-                        .header("column-filter", "")//an empty column filter is not considered
+                        .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
+                        .header(COLUMN_FILTER, "")//an empty column filter is not considered
                         .when().post(getUrlPath("geodata"))
                         .then());
         request.filter = new Filter();
@@ -1773,7 +1776,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.righthand = false;
         handleUnavailableColumn(
                 givenFilterableRequestParams()
-                        .header("column-filter", "params.city")
+                        .header(COLUMN_FILTER, "params.city")
                         .param("f", new Expression("params.job", OperatorEnum.eq, "Architect").toString())
                         .when().get(getUrlPath("geodata"))
                         .then());
@@ -1781,13 +1784,13 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleUnavailableColumn(
                 post(
                         request,
-                        "column-filter",
+                        COLUMN_FILTER,
                         "params.city"));
 
         //also filter geometry filters
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.other_geopoint", OperatorEnum.within, "-5,-5,5,5")));
-        handleUnavailableColumn(post(request, "column-filter", "fullname"));
-        handleUnavailableColumn(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "fullname"));
+        handleUnavailableColumn(post(request, COLUMN_FILTER, "fullname"));
+        handleUnavailableColumn(get("f", request.filter.f.get(0).get(0).toString(), COLUMN_FILTER, "fullname"));
 
         request.filter = new Filter();
         request.filter.righthand = false;
@@ -1797,17 +1800,17 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     public void testFieldFilterWithCollectionBasedColumnFiltering() throws Exception {
 
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0])));
-        handleFieldFilter(post(request, "column-filter", "params.job"), 59, "Actor");
-        handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "params.job"), 59, "Actor");
+        handleFieldFilter(post(request, COLUMN_FILTER, "params.job"), 59, "Actor");
+        handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString(), COLUMN_FILTER, "params.job"), 59, "Actor");
 
-        handleFieldFilter(post(request, "column-filter", COLLECTION_NAME + ":params.job"), 59, "Actor");
-        handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", COLLECTION_NAME + ":params.job"), 59, "Actor");
+        handleFieldFilter(post(request, COLUMN_FILTER, COLLECTION_NAME + ":params.job"), 59, "Actor");
+        handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString(), COLUMN_FILTER, COLLECTION_NAME + ":params.job"), 59, "Actor");
 
-        handleUnavailableColumn(post(request, "column-filter", "fullname,notExisting:params.job"));
-        handleUnavailableColumn(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "fullname,notExisting:params.job"));
+        handleUnavailableColumn(post(request, COLUMN_FILTER, "fullname,notExisting:params.job"));
+        handleUnavailableColumn(get("f", request.filter.f.get(0).get(0).toString(), COLUMN_FILTER, "fullname,notExisting:params.job"));
 
-        handleUnavailableCollection(post(request, "column-filter", "notExisting:params.job"));
-        handleUnavailableCollection(get("f", request.filter.f.get(0).get(0).toString(), "column-filter", "notExisting:params.job"));
+        handleUnavailableCollection(post(request, COLUMN_FILTER, "notExisting:params.job"));
+        handleUnavailableCollection(get("f", request.filter.f.get(0).get(0).toString(), COLUMN_FILTER, "notExisting:params.job"));
 
         request.filter = new Filter();
         request.filter.righthand = false;
@@ -1818,21 +1821,21 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter = new Filter();
         request.filter.righthand = false;
         request.filter.q = Arrays.asList(new MultiValueFilter<>("My name is"));
-        handleUnavailableColumn(post(request, "column-filter", "params.city"));
-        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "params.city"));
+        handleUnavailableColumn(post(request, COLUMN_FILTER, "params.city"));
+        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), COLUMN_FILTER, "params.city"));
 
         request.filter.q = Arrays.asList(new MultiValueFilter<>("*ullnam*:My name is"));
-        handleUnavailableColumn(post(request, "column-filter", "fullname"));
-        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "fullname"));
+        handleUnavailableColumn(post(request, COLUMN_FILTER, "fullname"));
+        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), COLUMN_FILTER, "fullname"));
 
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name:is"));
-        handleUnavailableColumn(post(request, "column-filter", "params.city"));
-        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "params.city"));
+        handleUnavailableColumn(post(request, COLUMN_FILTER, "params.city"));
+        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), COLUMN_FILTER, "params.city"));
 
         //used to return 200 in previous implementation, this is anti-regression
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name:is"));
-        handleUnavailableColumn(post(request, "column-filter", "fullname.anything"));
-        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "fullname.anything"));
+        handleUnavailableColumn(post(request, COLUMN_FILTER, "fullname.anything"));
+        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), COLUMN_FILTER, "fullname.anything"));
 
         request.filter = new Filter();
         request.filter.righthand = false;
@@ -1844,17 +1847,17 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.righthand = false;
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name is"));
 
-        handleMatchingQueryFilter(post(request, "column-filter", "fullname*"), 595);
-        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", "fullname*"), 595);
+        handleMatchingQueryFilter(post(request, COLUMN_FILTER, "fullname*"), 595);
+        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), COLUMN_FILTER, "fullname*"), 595);
 
-        handleMatchingQueryFilter(post(request, "column-filter", COLLECTION_NAME + ":fullname*"), 595);
-        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), "column-filter", COLLECTION_NAME + ":fullname*"), 595);
+        handleMatchingQueryFilter(post(request, COLUMN_FILTER, COLLECTION_NAME + ":fullname*"), 595);
+        handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), COLUMN_FILTER, COLLECTION_NAME + ":fullname*"), 595);
 
-        handleUnavailableColumn(post(request, "column-filter", "params,notExisting:fullname*"));
-        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), "column-filter", "params,notExisting:fullname*"));
+        handleUnavailableColumn(post(request, COLUMN_FILTER, "params,notExisting:fullname*"));
+        handleUnavailableColumn(get("q", request.filter.q.get(0).get(0), COLUMN_FILTER, "params,notExisting:fullname*"));
 
-        handleUnavailableCollection(post(request, "column-filter", "notExisting:fullname*"));
-        handleUnavailableCollection(get("q", request.filter.q.get(0).get(0), "column-filter", "notExisting:fullname*"));
+        handleUnavailableCollection(post(request, COLUMN_FILTER, "notExisting:fullname*"));
+        handleUnavailableCollection(get("q", request.filter.q.get(0).get(0), COLUMN_FILTER, "notExisting:fullname*"));
     }
 
     //----------------------------------------------------------------
@@ -2239,14 +2242,14 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     }
 
     private ValidatableResponse header(Filter filter) throws JsonProcessingException {
-        return givenFilterableRequestParams().header("partition-filter", objectMapper.writeValueAsString(filter))
+        return givenFilterableRequestParams().header(PARTITION_FILTER, objectMapper.writeValueAsString(filter))
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
 
     private ValidatableResponse header(Filter filter, String headerKey, String headerValue) throws JsonProcessingException {
         return givenFilterableRequestParams()
-                .header("Partition-Filter", objectMapper.writeValueAsString(filter))
+                .header(PARTITION_FILTER, objectMapper.writeValueAsString(filter))
                 .header(headerKey, headerValue)
                 .when().get(getUrlPath("geodata"))
                 .then();

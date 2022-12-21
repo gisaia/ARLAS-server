@@ -20,8 +20,8 @@
 package io.arlas.server.rest.explore.suggest;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.core.services.ExploreService;
+import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -31,6 +31,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
 
 public class SuggestRESTService extends ExploreRESTServices {
 
@@ -57,35 +60,36 @@ public class SuggestRESTService extends ExploreRESTServices {
             // -----------------------  SEARCH  -----------------------
             // --------------------------------------------------------
             @ApiParam(name = "f",
-                    value = "- A triplet for filtering the result. Multiple filter can be provided. " +
-                            "The order does not matter. " +
-                            "\n \n" +
-                            "- A triplet is composed of a field name, a comparison operator and a value. " +
-                            "\n \n" +
-                            "  The possible values of the comparison operator are : " +
-                            "\n \n" +
-                            "       Operator   |                   Description                      | value type" +
-                            "\n \n" +
-                            "       :          |  {fieldName} equals {value}                        | numeric or strings " +
-                            "\n \n" +
-                            "       :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric " +
-                            "\n \n" +
-                            "       :gt:       |  {fieldName} is greater than {value}               | numeric " +
-                            "\n \n" +
-                            "       :lte:      |  {fieldName} is less than or equal to {value}      | numeric " +
-                            "\n \n" +
-                            "       :lt:       |  {fieldName}  is less than {value}                 | numeric " +
-                            "\n \n" +
-                            "\n \n" +
-                            "- The AND operator is applied between filters having different fieldNames. " +
-                            "\n \n" +
-                            "- The OR operator is applied on filters having the same fieldName. " +
-                            "\n \n" +
-                            "- If the fieldName starts with - then a must not filter is used" +
-                            "\n \n" +
-                            "- If the fieldName starts with - then a must not filter is used" +
-                            "\n \n" +
-                            "For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md "
+                    value = """
+                            - A triplet for filtering the result. Multiple filter can be provided. The order does not matter.\s
+                            \s
+                            - A triplet is composed of a field name, a comparison operator and a value.\s
+                            \s
+                              The possible values of the comparison operator are :\s
+                            \s
+                                   Operator   |                   Description                      | value type
+                            \s
+                                   :          |  {fieldName} equals {value}                        | numeric or strings\s
+                            \s
+                                   :gte:      |  {fieldName} is greater than or equal to  {value}  | numeric\s
+                            \s
+                                   :gt:       |  {fieldName} is greater than {value}               | numeric\s
+                            \s
+                                   :lte:      |  {fieldName} is less than or equal to {value}      | numeric\s
+                            \s
+                                   :lt:       |  {fieldName}  is less than {value}                 | numeric\s
+                            \s
+
+                            \s
+                            - The AND operator is applied between filters having different fieldNames.\s
+                            \s
+                            - The OR operator is applied on filters having the same fieldName.\s
+                            \s
+                            - If the fieldName starts with - then a must not filter is used
+                            \s
+                            - If the fieldName starts with - then a must not filter is used
+                            \s
+                            For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md\s"""
                     ,
 
                     allowMultiple = true)
@@ -100,10 +104,10 @@ public class SuggestRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Partition-Filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------

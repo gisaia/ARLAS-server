@@ -20,17 +20,17 @@
 package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.core.app.ArlasServerConfiguration;
-import io.arlas.server.core.app.Documentation;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InvalidParameterException;
+import io.arlas.commons.rest.response.Error;
+import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.app.Documentation;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.AggregationGeometryEnum;
 import io.arlas.server.core.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.*;
 import io.arlas.server.core.model.response.AggregationResponse;
-import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.*;
 import io.arlas.server.rest.explore.ExploreRESTServices;
@@ -51,6 +51,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
 
@@ -114,10 +117,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "righthand") Boolean righthand,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -199,10 +202,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -282,10 +285,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "righthand") Boolean righthand,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM ---------------------------
@@ -412,10 +415,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "righthand") Boolean righthand,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM ---------------------------
@@ -580,10 +583,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -650,10 +653,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------

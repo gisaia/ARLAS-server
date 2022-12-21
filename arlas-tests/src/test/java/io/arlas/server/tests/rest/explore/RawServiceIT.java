@@ -26,6 +26,8 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Optional;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.*;
@@ -149,7 +151,7 @@ public class RawServiceIT extends AbstractTestWithCollection {
     private ValidatableResponse givenRawQuery(String identifier, Optional<Boolean> flatParam, Optional<String> columnFilter) {
         RequestSpecification given = given();
         flatParam.ifPresent(fp -> given.param("flat", fp));
-        columnFilter.ifPresent(cf -> given.header("column-filter", cf));
+        columnFilter.ifPresent(cf -> given.header(COLUMN_FILTER, cf));
 
         return given.when().get(getUrlPath(COLLECTION_NAME) + identifier).then();
     }

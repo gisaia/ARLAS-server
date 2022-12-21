@@ -49,7 +49,9 @@ import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
 
 public class StacCollectionsRESTService extends StacRESTService {
 
@@ -69,26 +71,23 @@ public class StacCollectionsRESTService extends StacRESTService {
             notes = "A body of Feature Collections that belong or are used together with additional links.\n" +
                     "Request may not return the full set of metadata per Feature Collection.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The feature collections shared by this API.\n" +
-                    "The dataset is organized as one or more feature collections.\n" +
-                    "This resource provides information about and access to the collections.\n" +
-                    "The response contains the list of collections.\n" +
-                    "For each collection, a link to the items in the collection (path `/collections/{collectionId}/items`, " +
-                    "link relation `items`) as well as key information about the collection.\n" +
-                    "This information includes:\n" +
-                    "  * A local identifier for the collection that is unique for the dataset;\n" +
-                    "  * A list of coordinate reference systems (CRS) in which geometries may be returned by the server. " +
-                    "The first CRS is the default coordinate reference system (the default is always WGS 84 with axis order longitude/latitude);\n" +
-                    "  * An optional title and description for the collection;\n" +
-                    "  * An optional extent that can be used to provide an indication of the spatial and temporal " +
-                    "extent of the collection - typically derived from the data;\n" +
-                    "  * An optional indicator about the type of the items in the collection (the default value, " +
-                    "if the indicator is not provided, is 'feature').",
+            @ApiResponse(code = 200, message = """
+                    The feature collections shared by this API.
+                    The dataset is organized as one or more feature collections.
+                    This resource provides information about and access to the collections.
+                    The response contains the list of collections.
+                    For each collection, a link to the items in the collection (path `/collections/{collectionId}/items`, link relation `items`) as well as key information about the collection.
+                    This information includes:
+                      * A local identifier for the collection that is unique for the dataset;
+                      * A list of coordinate reference systems (CRS) in which geometries may be returned by the server. The first CRS is the default coordinate reference system (the default is always WGS 84 with axis order longitude/latitude);
+                      * An optional title and description for the collection;
+                      * An optional extent that can be used to provide an indication of the spatial and temporal extent of the collection - typically derived from the data;
+                      * An optional indicator about the type of the items in the collection (the default value, if the indicator is not provided, is 'feature').""",
                     response = CollectionList.class, responseContainer = "CollectionList"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response getCollections(@Context UriInfo uriInfo,
                                    @ApiParam(hidden = true)
-                                   @HeaderParam(value = "Column-Filter") Optional<String> columnFilter
+                                   @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter
                                    ) throws ArlasException {
 
         List<StacLink> links = new ArrayList<>(); // TODO what do we put in there?
@@ -99,7 +98,7 @@ public class StacCollectionsRESTService extends StacRESTService {
                 collectionReferenceService.getAllCollectionReferences(columnFilter)
                         .stream()
                         .filter(c -> !c.collectionName.equals("metacollection"))
-                        .collect(Collectors.toList())) {
+                        .toList()) {
             try {
                 collectionList.add(getCollection(c, uriInfo));
             } catch (InvalidParameterException e) {
@@ -118,17 +117,15 @@ public class StacCollectionsRESTService extends StacRESTService {
             value = "Describe the feature collection with id `collectionId`",
             notes = "A single Feature Collection for the given id `collectionId`. Request this endpoint to get a full list of metadata for the Feature Collection.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Information about the feature collection with id `collectionId`.\n" +
-                    "The response contains a link to the items in the collection (path `/collections/{collectionId}/items`, " +
-                    "link relation `items`) as well as key information about the collection.\nThis information includes:\n" +
-                    "  * A local identifier for the collection that is unique for the dataset;\n" +
-                    "  * A list of coordinate reference systems (CRS) in which geometries may be returned by the server. " +
-                    "The first CRS is the default coordinate reference system (the default is always WGS 84 with axis order longitude/latitude);\n" +
-                    "  * An optional title and description for the collection;\n" +
-                    "  * An optional extent that can be used to provide an indication of the spatial and " +
-                    "temporal extent of the collection - typically derived from the data;\n" +
-                    "  * An optional indicator about the type of the items in the collection (the default value, " +
-                    "if the indicator is not provided, is 'feature').",
+            @ApiResponse(code = 200, message = """
+                    Information about the feature collection with id `collectionId`.
+                    The response contains a link to the items in the collection (path `/collections/{collectionId}/items`, link relation `items`) as well as key information about the collection.
+                    This information includes:
+                      * A local identifier for the collection that is unique for the dataset;
+                      * A list of coordinate reference systems (CRS) in which geometries may be returned by the server. The first CRS is the default coordinate reference system (the default is always WGS 84 with axis order longitude/latitude);
+                      * An optional title and description for the collection;
+                      * An optional extent that can be used to provide an indication of the spatial and temporal extent of the collection - typically derived from the data;
+                      * An optional indicator about the type of the items in the collection (the default value, if the indicator is not provided, is 'feature').""",
                     response = Collection.class, responseContainer = "Collection"),
             @ApiResponse(code = 404, message = "The requested URI was not found.", response = Error.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
@@ -145,22 +142,20 @@ public class StacCollectionsRESTService extends StacRESTService {
     @Produces({ "application/geo+json", MediaType.APPLICATION_JSON })
     @ApiOperation(
             value = "Fetch features",
-            notes = "Fetch features of the feature collection with id `collectionId`.\n" +
-                    "Every feature in a dataset belongs to a collection. A dataset may consist of multiple feature collections.\n" +
-                    "A feature collection is often a collection of features of a similar type, based on a common schema.")
+            notes = """
+                    Fetch features of the feature collection with id `collectionId`.
+                    Every feature in a dataset belongs to a collection. A dataset may consist of multiple feature collections.
+                    A feature collection is often a collection of features of a similar type, based on a common schema.""")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The response is a document consisting of features in the collection.\n" +
-                    "The features included in the response are determined by the server based on the query parameters of the request.\n" +
-                    "To support access to larger collections without overloading the client, the API supports paged " +
-                    "access with links to the next page, if more features are selected than the page size.\n" +
-                    "The `bbox` and `datetime` parameter can be used to select only a subset of the features in the " +
-                    "collection (the features that are in the bounding box or time interval).\n" +
-                    "The `bbox` parameter matches all features in the collection that are not associated with a location, too.\n" +
-                    "The `datetime` parameter matches all features in the collection that are not associated with a time stamp or interval, too.\n" +
-                    "The `limit` parameter may be used to control the subset of the selected features that should be " +
-                    "returned in the response, the page size.\n" +
-                    "Each page may include information about the number of selected and returned features " +
-                    "(`numberMatched` and `numberReturned`) as well as links to support paging (link relation `next`).",
+            @ApiResponse(code = 200, message = """
+                    The response is a document consisting of features in the collection.
+                    The features included in the response are determined by the server based on the query parameters of the request.
+                    To support access to larger collections without overloading the client, the API supports paged access with links to the next page, if more features are selected than the page size.
+                    The `bbox` and `datetime` parameter can be used to select only a subset of the features in the collection (the features that are in the bounding box or time interval).
+                    The `bbox` parameter matches all features in the collection that are not associated with a location, too.
+                    The `datetime` parameter matches all features in the collection that are not associated with a time stamp or interval, too.
+                    The `limit` parameter may be used to control the subset of the selected features that should be returned in the response, the page size.
+                    Each page may include information about the number of selected and returned features (`numberMatched` and `numberReturned`) as well as links to support paging (link relation `next`).""",
                     response = StacFeatureCollection.class, responseContainer = "StacFeatureCollection"),
             @ApiResponse(code = 400, message = "A query parameter has an invalid value.", response = Error.class),
             @ApiResponse(code = 404, message = "The requested URI was not found.", response = Error.class),
@@ -171,37 +166,41 @@ public class StacCollectionsRESTService extends StacRESTService {
 
                                 @Parameter(name = "limit", style = ParameterStyle.FORM,
                                         schema = @Schema(maximum="10000", defaultValue = "10", minimum = "1", type="integer"))
-                                @ApiParam(name = "limit", defaultValue = "10", allowableValues = "range[1,10000]", value = "The optional limit parameter limits the number of items that are presented in the response document.\n" +
-                                        "Only items are counted that are on the first level of the collection in the response document.\n" +
-                                        "Nested objects contained within the explicitly requested items shall not be counted.\n" +
-                                        "Minimum &#x3D; 1. Maximum &#x3D; 10000. Default &#x3D; 10.")
+                                @ApiParam(name = "limit", defaultValue = "10", allowableValues = "range[1,10000]", value = """
+                                        The optional limit parameter limits the number of items that are presented in the response document.
+                                        Only items are counted that are on the first level of the collection in the response document.
+                                        Nested objects contained within the explicitly requested items shall not be counted.
+                                        Minimum &#x3D; 1. Maximum &#x3D; 10000. Default &#x3D; 10.""")
                                 @DefaultValue("10")
                                 @QueryParam(value = "limit") IntParam limit,
 
                                 @Parameter(name = "bbox", style = ParameterStyle.FORM, explode = Explode.FALSE,
                                         array = @ArraySchema(schema = @Schema(type="number"), maxItems = 6, minItems = 4))
-                                @ApiParam(name = "bbox", value = "Only features that have a geometry that intersects the bounding box are selected. " +
-                                        "The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth):\n" +
-                                        "  * Lower left corner, coordinate axis 1\n" +
-                                        "  * Lower left corner, coordinate axis 2\n" +
-                                        "  * Minimum value, coordinate axis 3 (optional)\n" +
-                                        "  * Upper right corner, coordinate axis 1\n" +
-                                        "  * Upper right corner, coordinate axis 2\n" +
-                                        "  * Maximum value, coordinate axis 3 (optional)\n\n" +
-                                        "The coordinate reference system of the values is WGS 84 longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84).\n" +
-                                        "For WGS 84 longitude/latitude the values are in most cases the sequence of minimum longitude, minimum latitude, maximum longitude and maximum latitude.\n" +
-                                        "However, in cases where the box spans the antimeridian the first value (west-most box edge) is larger than the third value (east-most box edge).\n" +
-                                        "If the vertical axis is included, the third and the sixth number are the bottom and the top of the 3-dimensional bounding box.\n" +
-                                        "If a feature has multiple spatial geometry properties, it is the decision of the server whether only a single spatial geometry property is used to determine the extent or all relevant geometries.")
+                                @ApiParam(name = "bbox", value = """
+                                        Only features that have a geometry that intersects the bounding box are selected. The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth):
+                                          * Lower left corner, coordinate axis 1
+                                          * Lower left corner, coordinate axis 2
+                                          * Minimum value, coordinate axis 3 (optional)
+                                          * Upper right corner, coordinate axis 1
+                                          * Upper right corner, coordinate axis 2
+                                          * Maximum value, coordinate axis 3 (optional)
+
+                                        The coordinate reference system of the values is WGS 84 longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84).
+                                        For WGS 84 longitude/latitude the values are in most cases the sequence of minimum longitude, minimum latitude, maximum longitude and maximum latitude.
+                                        However, in cases where the box spans the antimeridian the first value (west-most box edge) is larger than the third value (east-most box edge).
+                                        If the vertical axis is included, the third and the sixth number are the bottom and the top of the 3-dimensional bounding box.
+                                        If a feature has multiple spatial geometry properties, it is the decision of the server whether only a single spatial geometry property is used to determine the extent or all relevant geometries.""")
                                 @QueryParam(value = "bbox") String bbox,
 
                                 @Parameter(name = "datetime", style = ParameterStyle.FORM)
-                                @ApiParam(name = "datetime", value = "Either a date-time or an interval, open or closed. Date and time expressions adhere to RFC 3339. Open intervals are expressed using double-dots.  Examples:\n" +
-                                        "  * A date-time: \"2018-02-12T23:20:50Z\"\n" +
-                                        "  * A closed interval: \"2018-02-12T00:00:00Z/2018-03-18T12:31:12Z\"\n" +
-                                        "  * Open intervals: \"2018-02-12T00:00:00Z/..\" or \"../2018-03-18T12:31:12Z\"\n\n" +
-                                        "Only features that have a temporal property that intersects the value of &#x60;datetime&#x60; are selected.\n" +
-                                        "If a feature has multiple temporal properties, it is the decision of the server whether only a single temporal property is used to determine the extent or all relevant temporal properties.")
+                                @ApiParam(name = "datetime", value = """
+                                        Either a date-time or an interval, open or closed. Date and time expressions adhere to RFC 3339. Open intervals are expressed using double-dots.  Examples:
+                                          * A date-time: "2018-02-12T23:20:50Z"
+                                          * A closed interval: "2018-02-12T00:00:00Z/2018-03-18T12:31:12Z"
+                                          * Open intervals: "2018-02-12T00:00:00Z/.." or "../2018-03-18T12:31:12Z"
+
+                                        Only features that have a temporal property that intersects the value of &#x60;datetime&#x60; are selected.
+                                        If a feature has multiple temporal properties, it is the decision of the server whether only a single temporal property is used to determine the extent or all relevant temporal properties.""")
                                 @QueryParam(value = "datetime") String datetime,
 
                                 // --------------------------------------------------------
@@ -226,10 +225,10 @@ public class StacCollectionsRESTService extends StacRESTService {
                                 @QueryParam(value = "before") String before,
 
                                 @ApiParam(hidden = true)
-                                @HeaderParam(value = "partition-filter") String partitionFilter,
+                                @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
                                 @ApiParam(hidden = true)
-                                @HeaderParam(value = "Column-Filter") Optional<String> columnFilter
+                                @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter
                                 ) throws ArlasException {
 
         CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collectionId);
@@ -271,10 +270,10 @@ public class StacCollectionsRESTService extends StacRESTService {
                                @PathParam(value = "featureId") String featureId,
 
                                @ApiParam(hidden = true)
-                                   @HeaderParam(value = "partition-filter") String partitionFilter,
+                                   @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
                                @ApiParam(hidden = true)
-                               @HeaderParam(value = "Column-Filter") Optional<String> columnFilter
+                               @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter
     ) throws ArlasException {
 
         CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collectionId);

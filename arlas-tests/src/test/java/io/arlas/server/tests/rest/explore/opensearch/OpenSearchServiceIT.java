@@ -26,11 +26,15 @@ import io.restassured.config.XmlConfig;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.junit.Test;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.withArgs;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.stringContainsInOrder;
 
 public class OpenSearchServiceIT extends AbstractTestWithCollection {
 
@@ -130,7 +134,7 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
     }
 
     private ValidatableResponse get(String columnFilter) {
-        return givenXmlNamespace().header("column-filter", columnFilter)
+        return givenXmlNamespace().header(COLUMN_FILTER, columnFilter)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }

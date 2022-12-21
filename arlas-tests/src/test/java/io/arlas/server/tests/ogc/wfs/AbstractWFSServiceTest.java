@@ -21,8 +21,8 @@ package io.arlas.server.tests.ogc.wfs;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.tests.AbstractTestWithCollection;
 import io.arlas.server.core.model.request.Filter;
+import io.arlas.server.tests.AbstractTestWithCollection;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.Pair;
@@ -30,6 +30,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.stringContainsInOrder;
 
@@ -63,12 +66,12 @@ public abstract class AbstractWFSServiceTest extends AbstractTestWithCollection 
     }
 
     protected ValidatableResponse get(List<Pair<String, String>> params, Filter headerFilter, Optional<String> columnFilter) throws JsonProcessingException {
-        RequestSpecification req = givenFilterableRequestParams().header("Partition-Filter", objectMapper.writeValueAsString(headerFilter));
+        RequestSpecification req = givenFilterableRequestParams().header(PARTITION_FILTER, objectMapper.writeValueAsString(headerFilter));
         for (Pair<String, String> param : params) {
             req = req.param(param.getKey(), param.getValue());
         }
         if (columnFilter.isPresent()) {
-            req = req.header("column-filter", columnFilter.get());
+            req = req.header(COLUMN_FILTER, columnFilter.get());
         }
         return req
                 .when().get(getUrlPath("geodata"))

@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.arlas.server.tests.CollectionTool.COLLECTION_NAME;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.greaterThan;
@@ -59,11 +60,11 @@ public class TileServiceIT extends AbstractTestContext {
         ObjectMapper mapper = new ObjectMapper();
         Data data = new Data();
         int i=0,j=10;
-        data.id = String.valueOf("ID_" + i + "_" + j + "DI_bottom").replace("-", "_");
+        data.id = ("ID_" + i + "_" + j + "DI_bottom").replace("-", "_");
         data.fullname = "My name is " + data.id;
-        data.params.age = Math.abs(i * j);
-        data.params.startdate = 1l * (i + 1000) * (j + 1000);
-        data.params.stopdate = 1l * (i + 1000) * (j + 1000) + 100;
+        data.params.age = 0;
+        data.params.startdate = (long) (i + 1000) * (j + 1000);
+        data.params.stopdate = (long) (i + 1000) * (j + 1000) + 100;
         data.geo_params.centroid = j + "," + i;
         List<LngLatAlt> coords = new ArrayList<>();
         String wktGeometry = "POLYGON ((";
@@ -83,7 +84,7 @@ public class TileServiceIT extends AbstractTestContext {
         String indexName = DataSetTool.ALIASED_COLLECTION ? DataSetTool.DATASET_INDEX_NAME+"_original" : DataSetTool.DATASET_INDEX_NAME;
         DataSetTool.client.index(indexName, "ES_ID_TEST" + data.id, mapper.writer().writeValueAsString(data));
 
-        data.id = String.valueOf("ID_" + i + "_" + j + "DI_top").replace("-", "_");
+        data.id = ("ID_" + i + "_" + j + "DI_top").replace("-", "_");
         data.fullname = "My name is " + data.id;
         DataSetTool.client.index(indexName, "ES_ID_TEST" + data.id, mapper.writer().writeValueAsString(data));
         Thread.sleep(5000);
@@ -109,7 +110,7 @@ public class TileServiceIT extends AbstractTestContext {
 
     private ValidatableResponse givenTileQuery(String params, Optional<String> columnFilter) {
         return columnFilter
-                .map(cf -> given().header("column-filter", cf))
+                .map(cf -> given().header(COLUMN_FILTER, cf))
                 .orElse(given())
                 .when()
                 .get(getUrlPath(CollectionTool.COLLECTION_NAME) + "/10/511/484.png?" + params)

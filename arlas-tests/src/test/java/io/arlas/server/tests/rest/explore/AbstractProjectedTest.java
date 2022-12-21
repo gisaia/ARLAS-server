@@ -19,6 +19,7 @@
 
 package io.arlas.server.tests.rest.explore;
 
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import io.arlas.server.core.model.request.Filter;
 import io.arlas.server.core.model.request.Projection;
 import io.arlas.server.core.model.request.Request;
@@ -121,7 +122,7 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
         handleDisplayedParameter(post(search, "params.job,fullname,geo_params.geometry"), Arrays.asList("id", "params.startdate",  "geo_params.centroid"));
         handleDisplayedParameter(givenFilterableRequestParams().param("include", search.projection.includes)
                 .param("exclude", search.projection.excludes)
-                .header("column-filter", "params.job,fullname,geo_params.geometry")
+                .header(COLUMN_FILTER, "params.job,fullname,geo_params.geometry")
                 .when().get(getUrlPath("geodata"))
                 .then(), Arrays.asList("id", "params.startdate",  "geo_params.centroid"));
 
@@ -202,7 +203,7 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
 
         handleReturnedMultiGeometries(post(search, ""), search.returned_geometries);
         handleReturnedMultiGeometries(givenFilterableRequestParams().param("include", search.projection.includes)
-                .header("column-filter", "")
+                .header(COLUMN_FILTER, "")
                 .param("returned_geometries",  search.returned_geometries)
                 .when().get(getUrlPath("geodata"))
                 .then(), search.returned_geometries);
@@ -217,7 +218,7 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
 
         handleReturnedMultiGeometries(post(search, "geo_params.second_geometry"), search.returned_geometries);
         handleReturnedMultiGeometries(givenFilterableRequestParams().param("include", search.projection.includes)
-                .header("column-filter", "geo_params.second_geometry")
+                .header(COLUMN_FILTER, "geo_params.second_geometry")
                 .param("returned_geometries",  search.returned_geometries)
                 .when().get(getUrlPath("geodata"))
                 .then(), search.returned_geometries);
@@ -230,7 +231,7 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
         search.returned_geometries = "geo_params.geometry,geo_params.second_geometry";
         handleUnavailableColumn(post(search, "geo_params.geometry"));
         handleUnavailableColumn(givenFilterableRequestParams().param("include", search.projection.includes)
-                .header("column-filter", "geo_params.geometry")
+                .header(COLUMN_FILTER, "geo_params.geometry")
                 .param("returned_geometries",  search.returned_geometries)
                 .when().get(getUrlPath("geodata"))
                 .then());
@@ -245,28 +246,28 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
 
         handleReturnedMultiGeometries(post(search, "geo_params.second_geometry"), search.returned_geometries);
         handleReturnedMultiGeometries(givenFilterableRequestParams().param("include", search.projection.includes)
-                .header("column-filter", "geo_params.second_geometry")
+                .header(COLUMN_FILTER, "geo_params.second_geometry")
                 .param("returned_geometries",  search.returned_geometries)
                 .when().get(getUrlPath("geodata"))
                 .then(), search.returned_geometries);
 
         handleReturnedMultiGeometries(post(search, COLLECTION_NAME + ":geo_params.second_geometry"), search.returned_geometries);
         handleReturnedMultiGeometries(givenFilterableRequestParams().param("include", search.projection.includes)
-                .header("column-filter", COLLECTION_NAME + ":geo_params.second_geometry")
+                .header(COLUMN_FILTER, COLLECTION_NAME + ":geo_params.second_geometry")
                 .param("returned_geometries",  search.returned_geometries)
                 .when().get(getUrlPath("geodata"))
                 .then(), search.returned_geometries);
 
         handleUnavailableColumn(post(search, "fullname,notExisting:geo_params.second_geometry"));
         handleUnavailableColumn(givenFilterableRequestParams().param("include", search.projection.includes)
-                .header("column-filter", "fullname,notExisting:geo_params.second_geometry")
+                .header(COLUMN_FILTER, "fullname,notExisting:geo_params.second_geometry")
                 .param("returned_geometries",  search.returned_geometries)
                 .when().get(getUrlPath("geodata"))
                 .then());
 
         handleUnavailableCollection(post(search, "notExisting:geo_params.second_geometry"));
         handleUnavailableCollection(givenFilterableRequestParams().param("include", search.projection.includes)
-                .header("column-filter", "notExisting:geo_params.second_geometry")
+                .header(COLUMN_FILTER, "notExisting:geo_params.second_geometry")
                 .param("returned_geometries",  search.returned_geometries)
                 .when().get(getUrlPath("geodata"))
                 .then());
@@ -292,7 +293,7 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
     private ValidatableResponse post(Request request, String columnFilter) {
         RequestSpecification req = givenFilterableRequestBody();
         return req.body(handlePostRequest(request))
-                .header("column-filter", columnFilter)
+                .header(COLUMN_FILTER, columnFilter)
                 .when().post(getUrlPath("geodata"))
                 .then();
     }

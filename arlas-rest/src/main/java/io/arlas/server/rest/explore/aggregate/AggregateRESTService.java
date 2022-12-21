@@ -20,14 +20,14 @@
 package io.arlas.server.rest.explore.aggregate;
 
 import com.codahale.metrics.annotation.Timed;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.app.Documentation;
-import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.request.AggregationsRequest;
 import io.arlas.server.core.model.request.MixedRequest;
 import io.arlas.server.core.model.response.AggregationResponse;
-import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.core.utils.MapExplorer;
@@ -44,6 +44,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
 
 public class AggregateRESTService extends ExploreRESTServices {
 
@@ -102,10 +105,10 @@ public class AggregateRESTService extends ExploreRESTServices {
 
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -176,10 +179,10 @@ public class AggregateRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -236,12 +239,11 @@ public class AggregateRESTService extends ExploreRESTServices {
         if (elements != null && elements.size() > 0) {
             for (AggregationResponse element : elements) {
                 element.flattenedElements = new HashMap<>();
-                exploreService.flat(
-                                element,
-                                new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR),
-                                s -> (!"elements".equals(s))
-                        )
-                        .forEach((key, value) -> element.flattenedElements.put(key,value));
+                element.flattenedElements.putAll(exploreService.flat(
+                        element,
+                        new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR),
+                        s -> (!"elements".equals(s))
+                ));
                 element.elements = null;
                 element.metrics = null;
             }

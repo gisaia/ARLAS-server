@@ -21,16 +21,19 @@ package io.arlas.server.ogc.csw;
 
 import com.a9.opensearch.OpenSearchDescription;
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.core.exceptions.CollectionUnavailableException;
-import io.arlas.server.ogc.common.OGCRESTService;
-import io.arlas.server.core.app.Documentation;
 import io.arlas.commons.exceptions.ArlasException;
-import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
-import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
+import io.arlas.commons.rest.response.Error;
+import io.arlas.server.core.app.Documentation;
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.CollectionReferences;
-import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.ns.ATOM;
+import io.arlas.server.core.services.FluidSearchService;
+import io.arlas.server.core.utils.BoundingBox;
+import io.arlas.server.core.utils.ColumnFilterUtil;
+import io.arlas.server.ogc.common.OGCRESTService;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.common.utils.RequestUtils;
@@ -43,9 +46,6 @@ import io.arlas.server.ogc.csw.utils.CSWCheckParam;
 import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
-import io.arlas.server.core.services.FluidSearchService;
-import io.arlas.server.core.utils.BoundingBox;
-import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.swagger.annotations.*;
 import net.opengis.cat.csw._3.AbstractRecordType;
 import net.opengis.cat.csw._3.CapabilitiesType;
@@ -53,7 +53,10 @@ import net.opengis.cat.csw._3.GetRecordsResponseType;
 import org.apache.commons.collections4.CollectionUtils;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;
@@ -62,6 +65,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.arlas.server.core.utils.CheckParams.isBboxLatLonInCorrectRanges;
 
 @Path("/ogc")
@@ -72,7 +76,7 @@ public class CSWRESTService extends OGCRESTService {
 
     public CSWHandler cswHandler;
 
-    private String serverBaseUri;
+    private final String serverBaseUri;
 
     public CSWRESTService(CSWHandler cswHandler) {
         this.cswHandler = cswHandler;
@@ -225,7 +229,7 @@ public class CSWRESTService extends OGCRESTService {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -327,7 +331,7 @@ public class CSWRESTService extends OGCRESTService {
         List<CollectionReference> collections;
 
         switch (requestType) {
-            case GetCapabilities:
+            case GetCapabilities -> {
                 GetCapabilitiesHandler getCapabilitiesHandler = cswHandler.getCapabilitiesHandler;
                 List<String> responseSections = Arrays.asList(sectionList);
                 String serviceUrl = serverBaseUri + "ogc/csw/?";
@@ -344,13 +348,12 @@ public class CSWRESTService extends OGCRESTService {
                 }
                 JAXBElement<CapabilitiesType> getCapabilitiesResponse = getCapabilitiesHandler.getCSWCapabilitiesResponse();
                 return Response.ok(getCapabilitiesResponse).type(acceptFormatMediaType).build();
-            case GetRecords:
+            }
+            case GetRecords -> {
                 GetRecordsHandler getRecordsHandler = cswHandler.getRecordsHandler;
-
                 CollectionReferences collectionReferences = getCollectionReferencesForGetRecords(elements, null, maxRecords, startPosition, ids, query, constraint, boundingBox);
                 collections = new ArrayList<>(collectionReferences.collectionReferences);
                 filterCollectionsByColumnFilter(columnFilter, collections);
-
                 long recordsMatched = collectionReferences.totalCollectionReferences;
                 if (recordIds != null && recordIds.length() > 0) {
                     if (collections.size() == 0) {
@@ -360,12 +363,12 @@ public class CSWRESTService extends OGCRESTService {
                 GetRecordsResponseType getRecordsResponse = getRecordsHandler.getCSWGetRecordsResponse(collections,
                         ElementSetName.valueOf(elementSetName), startPosition - 1, recordsMatched, elements, outputSchema);
                 return Response.ok(getRecordsResponse).type(outputFormatMediaType).build();
-            case GetRecordById:
+            }
+            case GetRecordById -> {
                 GetRecordsByIdHandler getRecordsByIdHandler = cswHandler.getRecordsByIdHandler;
                 CollectionReferences recordCollectionReferences = ogcDao.getCollectionReferences(elements, null, maxRecords, startPosition - 1, ids, query, constraint, boundingBox);
                 collections = new ArrayList<>(recordCollectionReferences.collectionReferences);
                 ColumnFilterUtil.assertCollectionsAllowed(columnFilter, collections);
-
                 if (outputSchema != null && outputSchema.equals(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA[2])) {
                     GetRecordByIdResponse getRecordByIdResponse = getRecordsByIdHandler.getMDMetadaTypeResponse(collections, ElementSetName.valueOf(elementSetName));
                     return Response.ok(getRecordByIdResponse).type(outputFormatMediaType).build();
@@ -373,17 +376,18 @@ public class CSWRESTService extends OGCRESTService {
                     AbstractRecordType abstractRecordType = getRecordsByIdHandler.getAbstractRecordTypeResponse(collections, ElementSetName.valueOf(elementSetName));
                     return Response.ok(abstractRecordType).type(outputFormatMediaType).build();
                 }
-            default:
-                throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.CSW);
+            }
+            default ->
+                    throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.CSW);
         }
     }
 
-    private void filterCollectionsByColumnFilter(@HeaderParam("Column-Filter") @ApiParam(hidden = true) Optional<String> columnFilter, List<CollectionReference> collections) throws CollectionUnavailableException {
+    private void filterCollectionsByColumnFilter(@HeaderParam(COLUMN_FILTER) @ApiParam(hidden = true) Optional<String> columnFilter, List<CollectionReference> collections) throws CollectionUnavailableException {
         ColumnFilterUtil.cleanColumnFilter(columnFilter);
         collections.removeIf(collection ->
         {
             try {
-                return ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent() && !ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collection).isPresent();
+                return ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent() && ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collection).isEmpty();
             } catch (CollectionUnavailableException ignored) {
                 // already checked with the first line of this method
                 return true;

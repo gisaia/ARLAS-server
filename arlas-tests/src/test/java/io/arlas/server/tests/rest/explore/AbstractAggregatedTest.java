@@ -19,9 +19,9 @@
 
 package io.arlas.server.tests.rest.explore;
 
-import io.arlas.server.tests.DataSetTool;
 import io.arlas.server.core.model.enumerations.*;
 import io.arlas.server.core.model.request.*;
+import io.arlas.server.tests.DataSetTool;
 import io.dropwizard.jackson.JsonSnakeCase;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.arlas.server.core.utils.CheckParams.GEO_AGGREGATION_TYPE_ENUMS;
 import static io.restassured.RestAssured.given;
 
@@ -1380,7 +1381,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
     protected ValidatableResponse post(Request request, String columnFilter) {
         return given().contentType("application/json;charset=utf-8")
                 .body(request)
-                .header("column-filter", columnFilter)
+                .header(COLUMN_FILTER, columnFilter)
                 .when().post(getUrlPath("geodata"))
                 .then();
     }
@@ -1399,7 +1400,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         RequestSpecification req = given();
         req = handleGetRequest(req);
         return req.param("agg", paramValue)
-                .header("column-filter", columnFilter)
+                .header(COLUMN_FILTER, columnFilter)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }

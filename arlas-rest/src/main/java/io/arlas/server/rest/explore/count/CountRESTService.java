@@ -20,17 +20,17 @@
 package io.arlas.server.rest.explore.count;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.core.app.Documentation;
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.rest.response.Error;
+import io.arlas.server.core.app.Documentation;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.request.Count;
 import io.arlas.server.core.model.request.MixedRequest;
-import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.model.response.Hits;
-import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.core.utils.ParamsParser;
+import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -40,6 +40,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
 
 public class CountRESTService extends ExploreRESTServices {
 
@@ -86,10 +89,10 @@ public class CountRESTService extends ExploreRESTServices {
             @QueryParam(value = "righthand") Boolean righthand,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionfilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionfilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -150,10 +153,10 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionfilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionfilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------

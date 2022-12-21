@@ -20,15 +20,16 @@
 package io.arlas.server.ogc.wfs;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.ogc.common.OGCRESTService;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.app.OGCConfiguration;
 import io.arlas.server.core.app.WFSConfiguration;
-import io.arlas.commons.exceptions.ArlasException;
-import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
-import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
-import io.arlas.commons.rest.response.Error;
+import io.arlas.server.core.utils.ColumnFilterUtil;
+import io.arlas.server.ogc.common.OGCRESTService;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.OGCCheckParam;
 import io.arlas.server.ogc.common.utils.RequestUtils;
@@ -40,11 +41,10 @@ import io.arlas.server.ogc.wfs.utils.ExtendedWFSCapabilitiesType;
 import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
-import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.swagger.annotations.*;
-import net.opengis.wfs._2.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.opengis.wfs._2.DescribeStoredQueriesResponseType;
+import net.opengis.wfs._2.ListStoredQueriesResponseType;
+import net.opengis.wfs._2.ValueCollectionType;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -53,20 +53,21 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
+
 @Path("/ogc/wfs")
 @Api(value = "/ogc/wfs")
 public class WFSRESTService extends OGCRESTService {
-    Logger LOGGER = LoggerFactory.getLogger(WFSRESTService.class);
 
     public WFSHandler wfsHandler;
-    private WFSConfiguration wfsConfiguration;
-    private OGCConfiguration ogcConfiguration;
-    private String serverBaseUrl;
+    private final WFSConfiguration wfsConfiguration;
+    private final OGCConfiguration ogcConfiguration;
+    private final String serverBaseUrl;
     protected WFSToolService wfsToolService;
 
     //TODO extends and create a wfsexploreService not inject it
@@ -185,9 +186,9 @@ public class WFSRESTService extends OGCRESTService {
 
             //header filters
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Partition-Filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter
 
     ) throws IOException, ArlasException {
 
@@ -205,7 +206,7 @@ public class WFSRESTService extends OGCRESTService {
             throw new OGCException(OGCExceptionCode.NOT_FOUND, "Collection not found " + collection, Service.WFS);
         }
 
-        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Arrays.asList(collectionReference));
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, List.of(collectionReference));
 
         CollectionReferenceDescription collectionReferenceDescription = wfsToolService.getCollectionReferenceDescription(collectionReference);
         String collectionName = collectionReferenceDescription.collectionName;
@@ -218,29 +219,30 @@ public class WFSRESTService extends OGCRESTService {
         }
 
         switch (requestType) {
-            case GetCapabilities:
+            case GetCapabilities -> {
                 GetCapabilitiesHandler getCapabilitiesHandler = wfsHandler.getCapabilitiesHandler;
                 getCapabilitiesHandler.setFeatureTypeListType(collectionReference, serviceUrl);
                 getCapabilitiesHandler.setOperationsUrl(serviceUrl);
-                if(wfsHandler.inspireConfiguration.enabled) {
+                if (wfsHandler.inspireConfiguration.enabled) {
                     getCapabilitiesHandler.addINSPIRECompliantElements(collectionReference, serviceUrl, language);
                 }
                 JAXBElement<ExtendedWFSCapabilitiesType> getCapabilitiesResponse = ExtendedWFSCapabilitiesType.createWFSCapabilities(getCapabilitiesHandler.getCapabilitiesType);
-
-
                 return Response
                         .ok(getCapabilitiesResponse)
                         .type(MediaType.APPLICATION_XML)
 
                         .build();
-            case DescribeFeatureType:
+            }
+            case DescribeFeatureType -> {
                 StreamingOutput describeFeatureTypeResponse = wfsHandler.describeFeatureTypeHandler.getDescribeFeatureTypeResponse(collectionReferenceDescription, serviceUrl, columnFilter);
                 return Response.ok(describeFeatureTypeResponse).type(MediaType.APPLICATION_XML).build();
-            case ListStoredQueries:
+            }
+            case ListStoredQueries -> {
                 wfsHandler.listStoredQueriesHandler.setFeatureType(featureQname);
                 JAXBElement<ListStoredQueriesResponseType> listStoredQueriesResponse = wfsHandler.listStoredQueriesHandler.getListStoredQueriesResponse();
                 return Response.ok(listStoredQueriesResponse).type(MediaType.APPLICATION_XML).build();
-            case DescribeStoredQueries:
+            }
+            case DescribeStoredQueries -> {
                 DescribeStoredQueriesResponseType describeStoredQueriesType = wfsHandler.wfsFactory.createDescribeStoredQueriesResponseType();
                 wfsHandler.storedQueryManager.listStoredQueries().forEach(storedQuery -> {
                     storedQuery.setFeatureType(featureQname);
@@ -248,10 +250,10 @@ public class WFSRESTService extends OGCRESTService {
                 });
                 JAXBElement<DescribeStoredQueriesResponseType> describeStoredQueriesResponse = wfsHandler.wfsFactory.createDescribeStoredQueriesResponse(describeStoredQueriesType);
                 return Response.ok(describeStoredQueriesResponse).type(MediaType.APPLICATION_XML).build();
-            case GetFeature:
+            }
+            case GetFeature -> {
                 WFSCheckParam.checkSrsName(srsname);
                 StreamingOutput getFeatureResponse = null;
-
                 if (storedquery_id != null) {
                     Map<String, Object> response = wfsToolService.getFeature(id, bbox, filter, resourceid, storedquery_id, partitionFilter, collectionReference, excludes, columnFilter);
                     getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureByIdResponse(response, collectionReferenceDescription, serviceUrl);
@@ -260,17 +262,16 @@ public class WFSRESTService extends OGCRESTService {
                     getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureResponse(wfsHandler.ogcConfiguration, collectionReferenceDescription, startindex, count, featureList, serviceUrl);
                 }
                 return Response.ok(getFeatureResponse).type(MediaType.APPLICATION_XML).build();
-
-            case GetPropertyValue:
-
+            }
+            case GetPropertyValue -> {
                 String include = OGCCheckParam.formatValueReference(valuereference, collectionReferenceDescription);
                 ColumnFilterUtil.assertFieldAvailable(columnFilter, collectionReference, include);
-
                 ValueCollectionType valueCollectionType = wfsToolService.getPropertyValue(id, bbox, filter, resourceid, storedquery_id, partitionFilter,
                         collectionReference, include, excludes, startindex, count, columnFilter);
                 return Response.ok(wfsHandler.wfsFactory.createValueCollection(valueCollectionType)).type(MediaType.APPLICATION_XML).build();
-            default:
-                throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.WFS);
+            }
+            default ->
+                    throw new OGCException(OGCExceptionCode.INTERNAL_SERVER_ERROR, "Internal error: Unhandled request '" + request + "'.", Service.WFS);
         }
     }
 }
