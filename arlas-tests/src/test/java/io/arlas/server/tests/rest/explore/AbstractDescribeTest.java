@@ -23,10 +23,13 @@ import io.arlas.server.tests.AbstractTestWithCollection;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Test;
+
 import java.util.Optional;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
-import static io.restassured.RestAssured.given;
 
 public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
 
@@ -102,7 +105,7 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
 
     protected ValidatableResponse get(Optional<String> columnFilter) {
         return given()
-                .header("column-filter", columnFilter.orElse(""))
+                .header(COLUMN_FILTER, columnFilter.orElse(""))
                 .when()
                 .get(getUrlPath("geodata"))
                 .then();

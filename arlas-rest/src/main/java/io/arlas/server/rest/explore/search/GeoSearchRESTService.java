@@ -21,15 +21,15 @@ package io.arlas.server.rest.explore.search;
 
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.core.app.Documentation;
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.rest.response.Error;
+import io.arlas.server.core.app.Documentation;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.Expression;
 import io.arlas.server.core.model.request.Filter;
 import io.arlas.server.core.model.request.MixedRequest;
 import io.arlas.server.core.model.request.Search;
-import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.*;
 import io.arlas.server.rest.explore.ExploreRESTServices;
@@ -47,6 +47,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
 
 public class GeoSearchRESTService extends ExploreRESTServices {
 
@@ -92,10 +95,10 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @QueryParam(value = "righthand") Boolean righthand,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -219,10 +222,10 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @QueryParam(value = "righthand") Boolean righthand,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -354,10 +357,10 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @QueryParam(value = "righthand") Boolean righthand,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -476,10 +479,10 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -549,10 +552,10 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------

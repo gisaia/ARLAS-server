@@ -23,14 +23,14 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import cyclops.control.Try;
 import cyclops.data.tuple.Tuple2;
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.rest.response.Error;
 import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.Documentation;
-import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.RasterTileURL;
 import io.arlas.server.core.model.request.MixedRequest;
 import io.arlas.server.core.model.request.Search;
-import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.*;
 import io.arlas.server.rest.explore.ExploreRESTServices;
@@ -53,6 +53,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.stream.Collectors;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
 
 public class TileRESTService extends ExploreRESTServices {
     public final static String PRODUCES_PNG =  "image/png";
@@ -111,10 +114,10 @@ public class TileRESTService extends ExploreRESTServices {
             @QueryParam(value = "righthand") Boolean righthand,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "partition-filter") String partitionFilter,
+            @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  PAGE    -----------------------

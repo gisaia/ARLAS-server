@@ -21,12 +21,12 @@ package io.arlas.server.rest.explore.describe;
 
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
-import io.arlas.commons.rest.response.Error;
-import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.ColumnFilterUtil;
+import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -36,6 +36,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.Optional;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 
 public class DescribeCollectionRESTService extends ExploreRESTServices {
 
@@ -62,7 +64,7 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
             @PathParam(value = "collection") String collection,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------

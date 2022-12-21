@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.restassured.RestAssured.given;
 
 public abstract class AbstractComputationTest extends AbstractFilteredTest {
@@ -192,7 +193,7 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
     private ValidatableResponse post(Request request, String columnFilter) {
         return given()
                 .contentType("application/json;charset=utf-8")
-                .header("column-filter", columnFilter)
+                .header(COLUMN_FILTER, columnFilter)
                 .body(request)
                 .when().post(getUrlPath("geodata"))
                 .then();
@@ -206,7 +207,7 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
 
     private ValidatableResponse get(String field, String metric, String columnFilter) {
         return given()
-                .header("column-filter", columnFilter)
+                .header(COLUMN_FILTER, columnFilter)
                 .param("field", field)
                 .param("metric", metric)
                 .when()

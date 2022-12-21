@@ -31,6 +31,7 @@ import org.junit.runners.MethodSorters;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -295,25 +296,25 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     @Test
     public void test08WithCollectionFilter() throws Exception {
         // get collections with NON matching collection filter
-        getAllCollections(given().header("column-filter", "notexisting:*"));
+        getAllCollections(given().header(COLUMN_FILTER, "notexisting:*"));
 
         // get collections with one matching collection filter
-        getAllCollections(given().header("column-filter", "geodata_actor:*"), COLLECTION_NAME_ACTOR);
+        getAllCollections(given().header(COLUMN_FILTER, "geodata_actor:*"), COLLECTION_NAME_ACTOR);
 
         // get collections with all matching collection filter
-        getAllCollections(given().header("column-filter", "geodata*:*"), COLLECTION_NAME_ACTOR,COLLECTION_NAME);
+        getAllCollections(given().header(COLUMN_FILTER, "geodata*:*"), COLLECTION_NAME_ACTOR,COLLECTION_NAME);
 
         // get collections with no collection filter
         getAllCollections(COLLECTION_NAME_ACTOR,COLLECTION_NAME);
 
         // EXPORT collection with matching collection filter
         String jsonExport = given()
-                .header("column-filter", COLLECTION_NAME_ACTOR+":*")
+                .header(COLUMN_FILTER, COLLECTION_NAME_ACTOR+":*")
                 .when()
                 .get(arlasPath + "collections/_export").asString();
 
         // EXPORT collections with NON matching collection filter
-        given().header("column-filter", "notexisting:*")
+        given().header(COLUMN_FILTER, "notexisting:*")
                 .when()
                 .get(arlasPath + "collections/_export").asString().isEmpty();
 
@@ -327,7 +328,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .then().statusCode(404);
 
         // IMPORT collection with matching collection filter
-        given().header("column-filter", COLLECTION_NAME_ACTOR+":*")
+        given().header(COLUMN_FILTER, COLLECTION_NAME_ACTOR+":*")
                 .multiPart("file", jsonExport)
                 .when().post(arlasPath + "collections/_import")
                 .then().statusCode(200)
@@ -335,7 +336,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
 
         // IMPORT a new collection with NON matching collection filter
-        given().header("column-filter", COLLECTION_NAME_ACTOR+":*")
+        given().header(COLUMN_FILTER, COLLECTION_NAME_ACTOR+":*")
                 .multiPart("file", jsonExport.replaceAll(COLLECTION_NAME, "foo"))
                 .when().post(arlasPath + "collections/_import")
                 .then().statusCode(403);

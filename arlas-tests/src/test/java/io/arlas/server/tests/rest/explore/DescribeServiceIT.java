@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import java.util.Optional;
 
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.restassured.RestAssured.given;
 
 public class DescribeServiceIT extends AbstractDescribeTest {
@@ -78,7 +79,7 @@ public class DescribeServiceIT extends AbstractDescribeTest {
 
     protected ValidatableResponse getWithCollectionFilter(Optional<String> collectionFilter) {
         return given()
-                .header("column-filter", collectionFilter.orElse(""))
+                .header(COLUMN_FILTER, collectionFilter.orElse(""))
                 .when()
                 .get(getUrlPath("geodata"))
                 .then();

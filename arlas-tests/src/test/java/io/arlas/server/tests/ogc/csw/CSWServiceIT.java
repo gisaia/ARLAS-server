@@ -20,10 +20,10 @@
 package io.arlas.server.tests.ogc.csw;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.server.tests.AbstractTestWithCollection;
-import io.arlas.server.tests.CollectionTool;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.DublinCoreElementName;
+import io.arlas.server.tests.AbstractTestWithCollection;
+import io.arlas.server.tests.CollectionTool;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -32,12 +32,15 @@ import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.stringContainsInOrder;
 
@@ -193,7 +196,7 @@ public class CSWServiceIT extends AbstractTestWithCollection {
                 .param("REQUEST", request);
 
         if (columnFilter.isPresent()) {
-                req = req.header("column-filter", columnFilter.get());
+                req = req.header(COLUMN_FILTER, columnFilter.get());
         }
 
         for (Pair<String, String> param : params) {

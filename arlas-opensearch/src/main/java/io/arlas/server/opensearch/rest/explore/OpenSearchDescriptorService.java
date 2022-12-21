@@ -20,17 +20,17 @@
 package io.arlas.server.opensearch.rest.explore;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.core.app.Documentation;
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.rest.response.Error;
+import io.arlas.commons.utils.StringUtil;
+import io.arlas.server.core.app.Documentation;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.OpenSearch;
 import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
-import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.model.response.FieldType;
 import io.arlas.server.core.ns.ATOM;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.ColumnFilterUtil;
-import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.opensearch.rest.explore.model.Image;
 import io.arlas.server.opensearch.rest.explore.model.OpenSearchDescription;
 import io.arlas.server.opensearch.rest.explore.model.Url;
@@ -46,6 +46,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.*;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 
 public class OpenSearchDescriptorService extends ExploreRESTServices {
 
@@ -76,7 +78,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             // ----------------------- FILTERS- -----------------------
             // --------------------------------------------------------
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------

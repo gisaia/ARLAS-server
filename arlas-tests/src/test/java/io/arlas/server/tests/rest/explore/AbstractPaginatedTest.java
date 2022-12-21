@@ -21,6 +21,7 @@ package io.arlas.server.tests.rest.explore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cyclops.data.tuple.Tuple3;
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import io.arlas.server.core.model.request.Filter;
 import io.arlas.server.core.model.request.Request;
 import io.arlas.server.core.model.request.Search;
@@ -579,7 +580,7 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     }
     protected ValidatableResponse get(String param, Object paramValue, String columnFilter) {
         return givenFilterableRequestParams().param(param, paramValue)
-                .header("column-filter", columnFilter)
+                .header(COLUMN_FILTER, columnFilter)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
@@ -590,7 +591,7 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
 
     protected ValidatableResponse get(String param1, Object paramValue1, String param2, Object paramValue2, String columnFilter) {
         return givenFilterableRequestBody().param(param1, paramValue1).param(param2, paramValue2)
-                .header("column-filter", columnFilter)
+                .header(COLUMN_FILTER, columnFilter)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
@@ -602,7 +603,7 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     private ValidatableResponse post(Request request, String columnsFilter) {
         RequestSpecification req = givenBigSizedRequestParamsPost();
         return req.body(handlePostRequest(request))
-                .header("column-filter", columnsFilter)
+                .header(COLUMN_FILTER, columnsFilter)
                 .when().post(getUrlPath("geodata"))
                 .then();
     }

@@ -22,18 +22,18 @@ package io.arlas.server.rest.collections;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import io.arlas.server.core.app.ArlasServerConfiguration;
-import io.arlas.server.core.app.Documentation;
 import io.arlas.commons.exceptions.ArlasException;
-import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.commons.exceptions.InvalidParameterException;
-import io.arlas.server.core.model.*;
 import io.arlas.commons.rest.response.Error;
 import io.arlas.commons.rest.response.Success;
+import io.arlas.commons.rest.utils.ResponseFormatter;
+import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.app.Documentation;
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
+import io.arlas.server.core.model.*;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.utils.CheckParams;
 import io.arlas.server.core.utils.ColumnFilterUtil;
-import io.arlas.commons.rest.utils.ResponseFormatter;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -51,6 +51,8 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 
 public class CollectionService extends CollectionRESTServices {
 
@@ -80,7 +82,7 @@ public class CollectionService extends CollectionRESTServices {
 
     public Response getAll(
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -109,7 +111,7 @@ public class CollectionService extends CollectionRESTServices {
 
     public Response exportCollections(
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter
             ) throws ArlasException {
         List<CollectionReference> collections = collectionReferenceService.getAllCollectionReferences(columnFilter);
         String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
@@ -133,7 +135,7 @@ public class CollectionService extends CollectionRESTServices {
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response importCollections(
             @ApiParam(hidden = true)
-            @HeaderParam(value = "Column-Filter") Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
             @FormDataParam("file") InputStream inputStream,
             @FormDataParam("file") FormDataContentDisposition fileDetail
     ) throws ArlasException {
