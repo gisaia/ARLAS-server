@@ -27,6 +27,8 @@ import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 public interface PolicyEnforcer extends ContainerRequestFilter {
+    String ARLAS_ORG_FILTER = "arlas-org-filter";
+    String NO_ORG = "";
 
     PolicyEnforcer setAuthConf(ArlasAuthConfiguration conf) throws Exception;
 
@@ -39,6 +41,6 @@ public interface PolicyEnforcer extends ContainerRequestFilter {
         ServiceLoader<PolicyEnforcer> loader = ServiceLoader.load(PolicyEnforcer.class);
         return loader.stream()
                 .filter(f -> defaultClass != null && f.get().getClass().getCanonicalName().equals(defaultClass))
-                .collect(Collectors.toList()).get(0).get();
+                .toList().get(0).get();
     }
 }

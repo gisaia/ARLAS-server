@@ -34,16 +34,15 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import javax.annotation.Priority;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 
 import static io.arlas.filter.config.TechnicalRoles.VAR_ORG;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
@@ -68,6 +67,8 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
     public static final String CLIENT_ADDRESS = "client.address";
     public static final String CLIENT_IP = "client.ip";
     public static final String X_FORWARDED_FOR = "X-Forwarded-For";
+    public static final String ORGANIZATION_NAME = "organization.name";
+    public static final String USER_ID = "user.id";
 
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractPolicyEnforcer.class);
     protected ArlasAuthConfiguration authConf;
@@ -94,7 +95,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
         return this;
     }
 
-    protected abstract Object getObjectToken(String accessToken) throws Exception;
+    protected abstract Object getObjectToken(String accessToken, String orgFilter) throws Exception;
 
     protected String getSubject(Object token) {
         return ((DecodedJWT) token).getSubject();
@@ -123,13 +124,11 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
             LOGGER.debug("Adding permissions of org/roles " + roles.toString() + " from map technical roles "
                     + TechnicalRoles.getTechnicalRolesPermissions().toString() + " in existing permissions "
                     + permissions);
-            roles.entrySet().forEach(orgRoles -> {
-                TechnicalRoles.getTechnicalRolesPermissions().entrySet().stream()
-                        .filter(rolesPerm -> ((List<String>) orgRoles.getValue()).contains(rolesPerm.getKey()))
-                        .filter(rolesPerm -> rolesPerm.getValue().size() > 0)
-                        .forEach(rolesPerm -> permissions.addAll(rolesPerm.getValue().stream()
-                                .map(rp -> ArlasClaims.replaceVar(rp, VAR_ORG, orgRoles.getKey())).toList()));
-            });
+            roles.forEach((key, value) -> TechnicalRoles.getTechnicalRolesPermissions().entrySet().stream()
+                    .filter(rolesPerm -> ((List<String>) value).contains(rolesPerm.getKey()))
+                    .filter(rolesPerm -> rolesPerm.getValue().size() > 0)
+                    .forEach(rolesPerm -> permissions.addAll(rolesPerm.getValue().stream()
+                            .map(rp -> ArlasClaims.replaceVar(rp, VAR_ORG, key)).toList())));
         }
     }
 
@@ -165,7 +164,9 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     logUAM(DENIED, "unauthorized (no token): " + log);
                     ctx.abortWith(Response.status(UNAUTHORIZED).build());
                 } else {
-                    logUAM(ALLOWED,"public (no token): " + log);
+                    if (!"OPTIONS".equals(ctx.getMethod())) {
+                        logUAM(ALLOWED, "public (no token): " + log);
+                    }
                 }
                 return;
             }
@@ -178,18 +179,24 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     ctx.abortWith(Response.status(FORBIDDEN).build());
                     return;
                 }
-                Object token = getObjectToken(accessToken);
+                String orgFilter = ctx.getHeaders().getFirst(ARLAS_ORG_FILTER);
+                Object token = getObjectToken(accessToken, orgFilter);
                 ctx.getHeaders().remove(authConf.headerUser); // remove it in case it's been set manually
                 String userId = getSubject(token);
                 if (!StringUtil.isNullOrEmpty(userId)) {
                     ctx.getHeaders().putSingle(authConf.headerUser, userId);
                     LOGGER.debug("Add Header [" + authConf.headerUser + ": " + userId + "]");
                     transaction.setUser(userId, "", "");
-                    MDC.put("user.id", userId);
+                    MDC.put(USER_ID, userId);
+                    if (orgFilter != null) {
+                        MDC.put(ORGANIZATION_NAME, orgFilter);
+                    }
+
                 }
 
                 ctx.getHeaders().remove(authConf.headerGroup); // remove it in case it's been set manually
                 Map<String, Object> roles = getRolesClaim(token);
+                log = StringUtil.concat(log, String.format(" (orgs=%s)", roles.keySet()));
                 Set<String> groups = Collections.emptySet();
                 if (!roles.isEmpty()) {
                     groups = roles.values().stream()
@@ -203,7 +210,6 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                 }
                 log = StringUtil.concat(log, String.format(" (groups=%s)", groups));
 
-
                 Set<String> permissions = getPermissionsClaim(token);
                 addTechnicalRolesToPermissions(permissions, roles);
                 log = StringUtil.concat(log, String.format(" (permissions=%s)", permissions));
@@ -213,13 +219,13 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     if ((ok != null && ok) || arlasClaims.isAllowed(ctx.getMethod(), ctx.getUriInfo().getPath())) {
                         arlasClaims.injectHeaders(ctx.getHeaders(), transaction);
                         cacheManager.putDecision(getDecisionCacheKey(ctx, accessToken), Boolean.TRUE);
-                        logUAM(ALLOWED,"granted: " + log);
+                        logUAM(ALLOWED, "granted: " + log);
                         return;
                     }
                 }
                 if (isPublic) {
                     cacheManager.putDecision(getDecisionCacheKey(ctx, accessToken), Boolean.TRUE);
-                    logUAM(ALLOWED,"public (with token): " + log);
+                    logUAM(ALLOWED, "public (with token): " + log);
                     return;
                 }
             } catch (Exception e) {

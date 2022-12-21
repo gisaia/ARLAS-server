@@ -84,6 +84,9 @@ public class ArlasServerConfiguration extends ArlasBaseConfiguration {
     @JsonProperty("arlas_auth_column_filter_required")
     public Boolean arlasAuthColumnFilterRequired;
 
+    @JsonProperty("arlas_default_org")
+    public String arlasDefaultOrg;
+
 
     public void check() throws ArlasConfigurationException {
         super.check();

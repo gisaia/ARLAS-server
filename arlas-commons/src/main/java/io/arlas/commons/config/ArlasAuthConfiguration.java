@@ -24,6 +24,7 @@ import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.arlas.filter.config.InitConfiguration;
 import org.keycloak.representations.adapters.config.AdapterConfig;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.HttpMethod;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,6 +42,13 @@ public class ArlasAuthConfiguration {
 
     @JsonProperty("header_group")
     public String headerGroup;
+
+    @NotNull
+    @JsonProperty("header_organisation")
+    public String headerOrganisation;
+
+    @JsonProperty("anonymous_value")
+    public String anonymousValue;
 
     @JsonProperty("claim_roles")
     public String claimRoles;
@@ -71,14 +79,6 @@ public class ArlasAuthConfiguration {
     public final InitConfiguration initConfiguration = new InitConfiguration();
 
     private String publicRegex;
-
-    public String getHeaderUser() {
-        return headerUser;
-    }
-
-    public String getHeaderGroup() {
-        return headerGroup;
-    }
 
     public String getPublicRegex()  {
         // [swagger.*:*, persist.*:GET/POST/DELETE}]

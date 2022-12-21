@@ -33,7 +33,10 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.ext.Provider;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Provider
 @Priority(Priorities.AUTHORIZATION)
@@ -52,7 +55,7 @@ public class KeycloakPolicyEnforcer extends AbstractPolicyEnforcer {
     }
 
     @Override
-    protected Object getObjectToken(String accessToken) throws Exception {
+    protected Object getObjectToken(String accessToken, String orgFilter) throws Exception {
         LOGGER.debug("accessToken=" + decodeToken(accessToken));
         String token = cacheManager.getPermission(accessToken);
         if (token == null) {
