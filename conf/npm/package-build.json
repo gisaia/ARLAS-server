@@ -8,10 +8,10 @@
   },
   "private": true,
   "dependencies": {
+    "portable-fetch": "3.0.0",
     "url": "0.11.0"
   },
   "devDependencies": {
-    "portable-fetch": "3.0.0",
     "typescript": "~2.3.3"
   }
 }
