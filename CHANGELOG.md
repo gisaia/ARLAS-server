@@ -1,5 +1,13 @@
 # Change Log
 
+## [v23.0.8](https://github.com/gisaia/ARLAS-server/tree/v23.0.8) (2022-12-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.8-beta.1...v23.0.8)
+
+## [v23.0.8-beta.1](https://github.com/gisaia/ARLAS-server/tree/v23.0.8-beta.1) (2022-11-28)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.7...v23.0.8-beta.1)
+
 ## [v23.0.7](https://github.com/gisaia/ARLAS-server/tree/v23.0.7) (2022-11-28)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v22.0.2...v23.0.7)

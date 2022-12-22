@@ -107,10 +107,11 @@
 |Name|Schema|
 |---|---|
 |**format**  <br>*optional*|string|
+|**hash_field**  <br>*optional*|string|
 |**indexed**  <br>*optional*|boolean|
 |**properties**  <br>*optional*|< string, [CollectionReferenceDescriptionProperty](#collectionreferencedescriptionproperty) > map|
 |**taggable**  <br>*optional*|boolean|
-|**type**  <br>*optional*|enum (TEXT, KEYWORD, LONG, INTEGER, SHORT, BYTE, DOUBLE, FLOAT, DATE, BOOLEAN, BINARY, INT_RANGE, FLOAT_RANGE, LONG_RANGE, DOUBLE_RANGE, DATE_RANGE, OBJECT, NESTED, GEO_POINT, GEO_SHAPE, IP, COMPLETION, TOKEN_COUNT, MAPPER_MURMUR3, UNKNOWN, VARCHAR, CHAR, CHARACTER, BIT, TINYINT, SMALLINT, INT, BIGINT, DECIMAL, NUMERIC, REAL, DOUBLEPRECISION, TIMESTAMP, TIME, INTERVAL, GEOMETRY, GEOGRAPHY, POINT, LINESTRING, POLYGON, MULTIPOINT, MULTILINESTRING, MULTIPOLYGON, GEOMETRYCOLLECTION)|
+|**type**  <br>*optional*|enum (TEXT, KEYWORD, LONG, INTEGER, SHORT, BYTE, DOUBLE, FLOAT, DATE, BOOLEAN, BINARY, INT_RANGE, FLOAT_RANGE, LONG_RANGE, DOUBLE_RANGE, DATE_RANGE, OBJECT, NESTED, GEO_POINT, GEO_SHAPE, IP, COMPLETION, TOKEN_COUNT, MAPPER_MURMUR3, UNKNOWN, VARCHAR, CHAR, CHARACTER, BIT, TINYINT, SMALLINT, INT, BIGINT, DECIMAL, NUMERIC, REAL, DOUBLEPRECISION, TIMESTAMP, TIME, INTERVAL, GEOMETRY, GEOGRAPHY, POINT, LINESTRING, POLYGON, MULTIPOINT, MULTILINESTRING, MULTIPOLYGON, GEOMETRYCOLLECTION, MURMUR3)|
 
 
 <a name="collectionreferenceparameters"></a>
@@ -151,6 +152,7 @@
 |**filter**  <br>*optional*|[Filter](#filter)|
 |**form**  <br>*optional*|[Form](#form)|
 |**metric**  <br>*optional*|enum (AVG, MAX, MIN, SUM, CARDINALITY, SPANNING, GEOBBOX, GEOCENTROID)|
+|**precisionThreshold**  <br>*optional*|integer (int32)|
 
 
 <a name="computationresponse"></a>
@@ -469,6 +471,7 @@
 |---|---|
 |**collect_fct**  <br>*optional*|enum (AVG, CARDINALITY, MAX, MIN, SUM, GEOCENTROID, GEOBBOX)|
 |**collect_field**  <br>*optional*|string|
+|**precision_threshold**  <br>*optional*|integer (int32)|
 
 
 <a name="multilinestring"></a>
