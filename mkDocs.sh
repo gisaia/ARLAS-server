@@ -12,7 +12,19 @@ trap clean_exit EXIT
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 cd ${SCRIPT_PATH}
 
-mkdir -p target/tmp/typescript-fetch
+docker run --rm \
+    -v $PWD:/opt/maven \
+	-v $HOME/.m2:/root/.m2 \
+	busybox \
+        sh -c '(mkdir /opt/maven/target || echo "target exists") \
+        && (mkdir /opt/maven/target/tmp || echo "target/tmp exists") \
+        && (mkdir /opt/maven/target/tmp/typescript-fetch || echo "target/tmp/typescript-fetch exists") \
+        && (mkdir /opt/maven/target/tmp/python-api || echo "target/tmp/python-api exists") \
+        && (mkdir /opt/maven/target/generated-docs || echo "target/generated-docs exists") \
+        && (mkdir /opt/maven/target/generated-docs/typescript-doc || echo "target/generated-docs/typescript-doc exists") \
+        && (mkdir /opt/maven/target/generated-docs/python-doc || echo "target/generated-docs/python-doc exists") \
+        && (cp -r /opt/maven/docs/* /opt/maven/target/generated-docs)'
+
 
 echo "=> Generate API"
 docker run --rm \
@@ -29,7 +41,6 @@ docker run --rm \
         sh -c '(cp /opt/maven/conf/npm/package-doc.json /opt/maven/target/tmp/typescript-fetch/package.json) \
         && (cp /opt/maven/conf/npm/tsconfig-build.json /opt/maven/target/tmp/typescript-fetch/tsconfig.json)'
 
-mkdir -p target/tmp/python-api
 
 echo "=> Generate Python API and its documentation"
 docker run --rm \
