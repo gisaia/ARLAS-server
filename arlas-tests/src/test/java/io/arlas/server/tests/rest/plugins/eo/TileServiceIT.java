@@ -183,7 +183,7 @@ public class TileServiceIT extends AbstractTestContext {
 
     @Test
     public void testTileWithEmptyColumnFilter() {
-        givenTileQuery("f=id:eq:ID_0_10DI_bottom", Optional.of(""))
+        givenTileQuery("f=id:eq:ID_0_10DI_bottom", Optional.empty())
                 .statusCode(Response.Status.OK.getStatusCode());
     }
 

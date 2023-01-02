@@ -22,21 +22,20 @@ package io.arlas.server.app;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.arlas.commons.cache.CacheFactory;
 import io.arlas.commons.config.ArlasConfiguration;
 import io.arlas.commons.config.ArlasCorsConfiguration;
 import io.arlas.commons.exceptions.ArlasExceptionMapper;
 import io.arlas.commons.exceptions.ConstraintViolationExceptionMapper;
 import io.arlas.commons.exceptions.IllegalArgumentExceptionMapper;
 import io.arlas.commons.exceptions.JsonProcessingExceptionMapper;
+import io.arlas.commons.rest.utils.PrettyPrintFilter;
 import io.arlas.filter.core.PolicyEnforcer;
 import io.arlas.server.admin.task.CollectionAutoDiscover;
 import io.arlas.server.core.app.ArlasServerConfiguration;
-import io.arlas.commons.cache.CacheFactory;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.services.ExploreService;
-import io.arlas.commons.rest.utils.PrettyPrintFilter;
-import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.ogc.csw.CSWHandler;
 import io.arlas.server.ogc.csw.CSWService;
 import io.arlas.server.ogc.csw.writer.getrecords.AtomGetRecordsMessageBodyWriter;
@@ -87,7 +86,8 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import javax.ws.rs.core.HttpHeaders;
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -120,8 +120,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         
         configuration.check();
         LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
-
-        ColumnFilterUtil.COLUMN_FILTER_REQUIRED = configuration.arlasAuthColumnFilterRequired;
 
         CacheFactory cacheFactory = (CacheFactory) Class
                 .forName(configuration.arlasCacheFactoryClass)
@@ -253,7 +251,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             ScheduledExecutorServiceBuilder sesBuilder = environment.lifecycle().scheduledExecutorService(nameFormat);
             ScheduledExecutorService ses = sesBuilder.build();
             Runnable autoDiscoverTask = new CollectionAutoDiscover(dbToolFactory.getCollectionReferenceService(), configuration);
-            ses.scheduleWithFixedDelay(autoDiscoverTask, 10, scheduleAutoDiscover, TimeUnit.SECONDS);
+            ses.scheduleWithFixedDelay(autoDiscoverTask, 10L, scheduleAutoDiscover, TimeUnit.SECONDS);
         }
 
         //healthchecks

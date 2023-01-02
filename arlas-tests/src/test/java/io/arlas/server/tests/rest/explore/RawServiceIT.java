@@ -62,10 +62,10 @@ public class RawServiceIT extends AbstractTestWithCollection {
     @Test
     public void testGetArlasHitWithEmptyColumnFilter() throws Exception {
         handleRawQuery(
-                givenRawQuery("/ID__170__20DI", Optional.empty(), Optional.of("")));
+                givenRawQuery("/ID__170__20DI", Optional.empty(), Optional.empty()));
 
         handleRawQuery(
-                givenRawQuery("/ID__170__20DI", Optional.of(Boolean.TRUE), Optional.of("")),
+                givenRawQuery("/ID__170__20DI", Optional.of(Boolean.TRUE), Optional.empty()),
                 FLATTEN_CHAR);
     }
 
@@ -108,6 +108,7 @@ public class RawServiceIT extends AbstractTestWithCollection {
 
         handleUnavailableCollection(givenRawQuery("/ID__170__20DI", Optional.empty(), Optional.of("notExisting:fullname")));
         handleUnavailableCollection(givenRawQuery("/ID__170__20DI", Optional.of(Boolean.TRUE), Optional.of("notExisting:fullname")));
+        handleUnavailableCollection(givenRawQuery("/ID__170__20DI", Optional.of(Boolean.TRUE), Optional.of("")));
     }
 
     @Override

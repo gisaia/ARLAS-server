@@ -47,28 +47,34 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
     //----------------------------------------------------------------
     @Test
     public void testIncludeExcludeFilter() throws Exception {
-        //an empty column filter is not considered
         search.projection.includes = "id,params,geo_params";
-        handleDisplayedParameter(post(search, ""), Arrays.asList("params.country"));
-        handleDisplayedParameter(get("include", search.projection.includes, ""), Arrays.asList("params.country"));
-        handleHiddenParameter(post(search, ""), Arrays.asList("fullname"));
-        handleHiddenParameter(get("include", search.projection.includes, ""), Arrays.asList("fullname"));
+        handleDisplayedParameter(post(search), Arrays.asList("params.country"));
+        handleDisplayedParameter(get("include", search.projection.includes), Arrays.asList("params.country"));
+        handleHiddenParameter(post(search), Arrays.asList("fullname"));
+        handleHiddenParameter(get("include", search.projection.includes), Arrays.asList("fullname"));
+        handleUnavailableCollection(post(search, ""));
+        handleUnavailableCollection(get("include", search.projection.includes, ""));
+        handleUnavailableCollection(post(search, ""));
+        handleUnavailableCollection(get("include", search.projection.includes, ""));
 
         //unexisting column should not return 404 nor 403 without column filter
         search.projection.includes = "id,params,unexisting";
-        handleDisplayedParameter(post(search, ""), Arrays.asList("params.country"));
-        handleDisplayedParameter(get("include", search.projection.includes, ""), Arrays.asList("params.country"));
-        handleHiddenParameter(post(search, ""), Arrays.asList("fullname"));
-        handleHiddenParameter(get("include", search.projection.includes, ""), Arrays.asList("fullname"));
+        handleDisplayedParameter(post(search), Arrays.asList("params.country"));
+        handleDisplayedParameter(get("include", search.projection.includes), Arrays.asList("params.country"));
+        handleHiddenParameter(post(search), Arrays.asList("fullname"));
+        handleHiddenParameter(get("include", search.projection.includes), Arrays.asList("fullname"));
 
         search.projection.includes = null;
 
-        //an empty column filter is not considered in column filter
         search.projection.excludes = "fullname";
-        handleDisplayedParameter(post(search, ""), Arrays.asList("params.country"));
-        handleDisplayedParameter(get("exclude", search.projection.excludes, ""), Arrays.asList("params.country"));
-        handleHiddenParameter(post(search, ""), Arrays.asList("fullname"));
-        handleHiddenParameter(get("exclude", search.projection.excludes, ""), Arrays.asList("fullname"));
+        handleDisplayedParameter(post(search), Arrays.asList("params.country"));
+        handleDisplayedParameter(get("exclude", search.projection.excludes), Arrays.asList("params.country"));
+        handleHiddenParameter(post(search), Arrays.asList("fullname"));
+        handleHiddenParameter(get("exclude", search.projection.excludes), Arrays.asList("fullname"));
+        handleUnavailableCollection(post(search, ""));
+        handleUnavailableCollection(get("exclude", search.projection.excludes, ""));
+        handleUnavailableCollection(post(search, ""));
+        handleUnavailableCollection(get("exclude", search.projection.excludes, ""));
 
         search.projection.excludes = null;
     }
@@ -197,16 +203,31 @@ public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
     }
 
     @Test
+    public void testReturnedGeometriesFilterWithNoColumnFilter() throws Exception {
+
+        search.returned_geometries = "geo_params.geometry,geo_params.second_geometry";
+
+        handleReturnedMultiGeometries(post(search), search.returned_geometries);
+        handleReturnedMultiGeometries(givenFilterableRequestParams().param("include", search.projection.includes)
+                .param("returned_geometries",  search.returned_geometries)
+                .when().get(getUrlPath("geodata"))
+                .then(), search.returned_geometries);
+
+        search.returned_geometries = null;
+    }
+
+    @Test
     public void testReturnedGeometriesFilterWithEmptyColumnFilter() throws Exception {
 
         search.returned_geometries = "geo_params.geometry,geo_params.second_geometry";
 
-        handleReturnedMultiGeometries(post(search, ""), search.returned_geometries);
-        handleReturnedMultiGeometries(givenFilterableRequestParams().param("include", search.projection.includes)
+        handleReturnedMultiGeometries(post(search), search.returned_geometries);
+        handleUnavailableCollection(post(search, ""));
+        handleUnavailableCollection(givenFilterableRequestParams().param("include", search.projection.includes)
                 .header(COLUMN_FILTER, "")
                 .param("returned_geometries",  search.returned_geometries)
                 .when().get(getUrlPath("geodata"))
-                .then(), search.returned_geometries);
+                .then());
 
         search.returned_geometries = null;
     }

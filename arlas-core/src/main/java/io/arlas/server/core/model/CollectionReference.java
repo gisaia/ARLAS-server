@@ -49,7 +49,7 @@ public class CollectionReference implements Serializable {
     public static final String DUBLIN_CORE_LANGUAGE = "language";
 
 
-    @JsonProperty(value = "collection_name", required = true)
+    @JsonProperty(value = COLLECTION_NAME, required = true)
     public String collectionName;
 
     @JsonProperty(value = "params", required = true)

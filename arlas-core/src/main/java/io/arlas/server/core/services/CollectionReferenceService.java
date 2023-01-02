@@ -108,12 +108,12 @@ public abstract class CollectionReferenceService {
         // Can't use lambdas because of the need to throw the exception of describeCollection()
         List<CollectionReferenceDescription> res  = new ArrayList<>();
         for (CollectionReference collection : collectionReferenceList) {
-            if (!ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent()
+            if (ColumnFilterUtil.cleanColumnFilter(columnFilter).isEmpty()
                     || ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter,collection).isPresent()) {
-                try{
+                try {
                     CollectionReferenceDescription describe = describeCollection(collection, columnFilter);
                     res.add(describe);
-                }catch (ArlasException e){}
+                } catch (ArlasException e) { }
             }
         }
         return res;

@@ -62,7 +62,6 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
 
     @Test
     public void testGetFeatureWithAvailableColumn() throws Exception {
-        //an empty column filter is not considered
         handleGetFeatureNoHeaderFilter(
                 get(Arrays.asList(
                         new ImmutablePair<>("SERVICE", "WFS"),
@@ -70,7 +69,7 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
                         new ImmutablePair<>("COUNT", "1000"),
                         new ImmutablePair<>("REQUEST", "GetFeature")),
                         new Filter(),
-                        Optional.of("")));
+                        Optional.empty()));
 
         handleGetFeatureNoHeaderFilter(
                 get(Arrays.asList(
@@ -131,6 +130,15 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
                         new ImmutablePair<>("REQUEST", "GetFeature")),
                         new Filter(),
                         Optional.of("notExisting:params")));
+
+        handleUnavailableCollection(
+                get(Arrays.asList(
+                        new ImmutablePair<>("SERVICE", "WFS"),
+                        new ImmutablePair<>("VERSION", "2.0.0"),
+                        new ImmutablePair<>("COUNT", "1000"),
+                        new ImmutablePair<>("REQUEST", "GetFeature")),
+                        new Filter(),
+                        Optional.of("")));
     }
 
     @Test
@@ -166,7 +174,7 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
                 new ImmutablePair<>("REQUEST", "GetPropertyValue"),
                 new ImmutablePair<>("valuereference", "params.job")),
                 new Filter(),
-                Optional.of("")));
+                Optional.empty()));
 
         handleGetPropertyValueNoHeaderFilter(get(Arrays.asList(
                 new ImmutablePair<>("SERVICE", "WFS"),
@@ -265,7 +273,7 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
                         new ImmutablePair<>("VERSION", "2.0.0"),
                         new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
                         new Filter(),
-                        Optional.of("")));
+                        Optional.empty()));
 
         handleDescribeFeature(
                 get(Arrays.asList(

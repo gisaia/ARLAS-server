@@ -135,11 +135,13 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingQueryFilter(get("q", request.filter.q.get(0).get(0)), 595);
         handleMatchingQueryFilter(header(request.filter), 595);
 
-        //an empty column filter is not considered
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name:is"));
-        handleNotMatchingQueryFilter(post(request, COLUMN_FILTER, ""));
-        handleNotMatchingQueryFilter(get("q", request.filter.q.get(0).get(0), COLUMN_FILTER, ""));
-        handleNotMatchingQueryFilter(header(request.filter, COLUMN_FILTER, ""));
+        handleNotMatchingQueryFilter(post(request));
+        handleNotMatchingQueryFilter(get("q", request.filter.q.get(0).get(0)));
+        handleNotMatchingQueryFilter(header(request.filter));
+        handleUnavailableCollection(post(request, COLUMN_FILTER, ""));
+        handleUnavailableCollection(get("q", request.filter.q.get(0).get(0), COLUMN_FILTER, ""));
+        handleUnavailableCollection(header(request.filter, COLUMN_FILTER, ""));
 
         request.filter.q = Arrays.asList(new MultiValueFilter<>("fullname:My name is"));
         handleMatchingQueryFilter(post(request, COLUMN_FILTER, "fullname*"), 595);
@@ -240,9 +242,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     public void testPwithinFilter() throws Exception {
         /** west < east bbox */
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "-5,-5,5,5")));
-        handleMatchingGeometryFilter(post(request, COLUMN_FILTER, ""), 1, everyItem(equalTo("0,0")));//an empty column filter is not considered
-        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString(), COLUMN_FILTER, ""), 1, everyItem(equalTo("0,0")));//an empty column filter is not considered
+        handleMatchingGeometryFilter(post(request), 1, everyItem(equalTo("0,0")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 1, everyItem(equalTo("0,0")));
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
+        handleUnavailableCollection(post(request, COLUMN_FILTER, ""));
+        handleUnavailableCollection(get("f", request.filter.f.get(0).get(0).toString(), COLUMN_FILTER, ""));
 
         /** clock-wise WKT */
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "POLYGON((-5 -5, -5 5, 5 5, 5 -5, -5 -5))")));
@@ -1693,14 +1697,25 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleNotMatchingRequest(
                 givenFilterableRequestParams()
                         .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
-                        .header(COLUMN_FILTER, "") //an empty column filter is not considered
                         .param("f", (new Expression("params.job", OperatorEnum.eq, "Architect")).toString())
                         .when().get(getUrlPath("geodata"))
                         .then());
         handleNotMatchingRequest(
                 givenFilterableRequestBody().body(request)
                         .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
-                        .header(COLUMN_FILTER, "")//an empty column filter is not considered
+                        .when().post(getUrlPath("geodata"))
+                        .then());
+        handleUnavailableCollection(
+                givenFilterableRequestParams()
+                        .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
+                        .header(COLUMN_FILTER, "")
+                        .param("f", (new Expression("params.job", OperatorEnum.eq, "Architect")).toString())
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+        handleUnavailableCollection(
+                givenFilterableRequestBody().body(request)
+                        .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
+                        .header(COLUMN_FILTER, "")
                         .when().post(getUrlPath("geodata"))
                         .then());
         request.filter = new Filter();
@@ -1754,7 +1769,13 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleNotMatchingRequest(
                 givenFilterableRequestParams()
                         .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
-                        .header(COLUMN_FILTER, "") //an empty column filter is not considered
+                        .param("f", (new Expression("params.job", OperatorEnum.eq, "Architect")).toString())
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+        handleUnavailableCollection(
+                givenFilterableRequestParams()
+                        .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
+                        .header(COLUMN_FILTER, "")
                         .param("f", (new Expression("params.job", OperatorEnum.eq, "Architect")).toString())
                         .when().get(getUrlPath("geodata"))
                         .then());
@@ -1762,7 +1783,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleNotMatchingRequest(
                 givenFilterableRequestBody().body(request)
                         .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
-                        .header(COLUMN_FILTER, "")//an empty column filter is not considered
+                        .when().post(getUrlPath("geodata"))
+                        .then());
+        handleUnavailableCollection(
+                givenFilterableRequestBody().body(request)
+                        .header(PARTITION_FILTER, objectMapper.writeValueAsString(filterHeader))
+                        .header(COLUMN_FILTER, "")
                         .when().post(getUrlPath("geodata"))
                         .then());
         request.filter = new Filter();
@@ -2261,7 +2287,9 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .when().post(getUrlPath("geodata"))
                 .then();
     }
-    protected Request handlePostRequest(Request req){return req;}
+    protected Request handlePostRequest(Request req) {
+        return req;
+    }
 
     private ValidatableResponse post(Request request, String headerkey, String headerValue) {
         return givenFilterableRequestBody().body(handlePostRequest(request))

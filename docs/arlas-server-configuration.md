@@ -64,8 +64,6 @@ docker run -ti -d \
 | Environment variable              | ARLAS Server configuration variable | Default                               | Description                                                                          |
 |-----------------------------------|-------------------------------------|---------------------------------------|--------------------------------------------------------------------------------------|
 | ARLAS_AUTH_POLICY_CLASS           | arlas_auth_policy_class             | io.arlas.filter.impl.NoPolicyEnforcer | Specify a PolicyEnforcer class to load in order to activate Authentication if needed |
-| ARLAS_AUTH_COLUMN_FILTER_REQUIRED | arlas_auth_column_filter_required   | false                                 | Specifies if a column filter is required (true) or not (false)                       |
-
 
 ### CORS, HEADERS for API response
 

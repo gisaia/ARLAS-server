@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.notNullValue;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.Optional;
 
 public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     protected static Search search = new Search();
@@ -96,9 +97,10 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
         search.filter = new Filter();
         search.filter.righthand = false;
         search.page.sort = "-params.job";
-        //an empty column filter is not considered
-        handleSortParameter(post(search, ""), "Dancer");
-        handleSortParameter(get("sort", search.page.sort, ""), "Dancer");
+        handleSortParameter(post(search), "Dancer");
+        handleSortParameter(get("sort", search.page.sort), "Dancer");
+        handleUnavailableCollection(post(search, ""));
+        handleUnavailableCollection(get("sort", search.page.sort, ""));
 
         //geodistance is never filtered
         search.page.sort = "geodistance:-50 -110";
@@ -576,28 +578,32 @@ public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     //---------------------- ValidatableResponse ------------------
     //----------------------------------------------------------------
     protected ValidatableResponse get(String param, Object paramValue) {
-        return get(param, paramValue, "");
+        return get(param, paramValue, null);
     }
     protected ValidatableResponse get(String param, Object paramValue, String columnFilter) {
-        return givenFilterableRequestParams().param(param, paramValue)
-                .header(COLUMN_FILTER, columnFilter)
-                .when().get(getUrlPath("geodata"))
-                .then();
+        if (columnFilter == null) {
+            return givenFilterableRequestParams().param(param, paramValue)
+                    .when().get(getUrlPath("geodata"))
+                    .then();
+        } else {
+            return givenFilterableRequestParams().param(param, paramValue)
+                    .header(COLUMN_FILTER, columnFilter)
+                    .when().get(getUrlPath("geodata"))
+                    .then();
+        }
     }
 
     protected ValidatableResponse get(String param1, Object paramValue1, String param2, Object paramValue2) {
-        return get(param1, paramValue1, param2, paramValue2, "");
-    }
-
-    protected ValidatableResponse get(String param1, Object paramValue1, String param2, Object paramValue2, String columnFilter) {
         return givenFilterableRequestBody().param(param1, paramValue1).param(param2, paramValue2)
-                .header(COLUMN_FILTER, columnFilter)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }
 
     private ValidatableResponse post(Request request) {
-        return post(request, "");
+        RequestSpecification req = givenBigSizedRequestParamsPost();
+        return req.body(handlePostRequest(request))
+                .when().post(getUrlPath("geodata"))
+                .then();
     }
 
     private ValidatableResponse post(Request request, String columnsFilter) {

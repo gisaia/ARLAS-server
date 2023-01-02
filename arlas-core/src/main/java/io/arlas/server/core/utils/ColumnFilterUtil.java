@@ -38,39 +38,40 @@ import java.util.stream.Stream;
 
 /**
  * Provide functions to check columns against a column filter.
- *
+ * <br/>
  * The principle is:
- * - if the filter is empty, do not filter at all;
+ * - if the filter is null, do not filter at all (Optional.empty)
+ * - if the filter is empty, forbid all collections (Optional.of(""))
  * - if there is a filter, turn it to regexp predicates
  * - append some collection mandatory fields to it
  * - checking a path is then a simple regexp match
  */
 public class ColumnFilterUtil {
-    // if set to true, a column-filter must be provided to access any collection
-    public static boolean COLUMN_FILTER_REQUIRED = false; // false is legacy behaviour
 
     static Logger LOGGER = LoggerFactory.getLogger(ColumnFilterUtil.class);
 
     //extract fields from request but without the `excludes`
-    private static final Set<String> REQUEST_FIELDS_EXTRACTOR_INCLUDE = RequestFieldsExtractor.INCLUDE_ALL.stream().filter(i -> !i.equalsIgnoreCase(RequestFieldsExtractor.INCLUDE_SEARCH_EXCLUDE)).collect(Collectors.toSet());
+    private static final Set<String> REQUEST_FIELDS_EXTRACTOR_INCLUDE =
+            RequestFieldsExtractor.INCLUDE_ALL
+                    .stream()
+                    .filter(i -> !i.equalsIgnoreCase(RequestFieldsExtractor.INCLUDE_SEARCH_EXCLUDE))
+                    .collect(Collectors.toSet());
 
     /**
      * Check that there aren't forbidden fields into the requests, and that fields are compatible with FGA prerequisites.
      * Also check that the target collection is allowed (at least one column of the collection is available, or
      * there is at least one column - in the column filter - that is not related to a specific collection).
-     * @param columnFilter
-     * @param collectionReference
-     * @param basicRequest
+     * @param columnFilter the value of the colum filter
+     * @param collectionReference the collection to be checked
+     * @param basicRequest the original request in order to check query parameters
      * @throws InternalServerErrorException if fields cannot be extracted from requests
      * @throws ColumnUnavailableException if a field is forbidden
      * @throws CollectionUnavailableException if the target collection is forbidden
-     * @return
      */
     public static void assertRequestAllowed(Optional<String> columnFilter,
                                             CollectionReference collectionReference,
                                             Request basicRequest)
             throws InternalServerErrorException, ColumnUnavailableException, CollectionUnavailableException {
-        LOGGER.debug("Column-Filter value: " + columnFilter.orElse("null"));
         assertRequestAllowed(columnFilter, collectionReference, basicRequest, null);
     }
 
@@ -79,30 +80,30 @@ public class ColumnFilterUtil {
                                             Request basicRequest,
                                             RequestFieldsExtractor.IRequestFieldsExtractor requestExtractor)
             throws InternalServerErrorException, ColumnUnavailableException, CollectionUnavailableException {
-
+        LOGGER.debug("Column-Filter value: " + columnFilter.orElse("null"));
         Optional<String> cleanColumnFilter = cleanColumnFilter(columnFilter);
 
-        if (!cleanColumnFilter.isPresent()) {
+        if (cleanColumnFilter.isEmpty()) {
             return;
         }
 
         Optional<String> collectionColumnFilter = getCollectionRelatedColumnFilter(cleanColumnFilter, collectionReference);
-        if (!collectionColumnFilter.isPresent()) {
+        if (collectionColumnFilter.isEmpty()) {
             throw new CollectionUnavailableException(collectionReference);
         }
 
         Optional<Set<String>> columnFilterPredicates = ColumnFilterUtil.getColumnFilterPredicates(collectionColumnFilter, collectionReference);
 
-        if (!columnFilterPredicates.isPresent()) {
+        if (columnFilterPredicates.isEmpty()) {
             return;
         }
 
         assertQHasCol(basicRequest);
 
         //do not consider user columns with wildcards - they should be checked later against real fields, if necessary
-        Set<String> forbiddenFields = RequestFieldsExtractor.extract(requestExtractor, basicRequest, REQUEST_FIELDS_EXTRACTOR_INCLUDE)
-                .filter(
-                        f -> !f.contains("*") && !FilterMatcherUtil.matches(columnFilterPredicates, f))
+        Set<String> forbiddenFields = RequestFieldsExtractor
+                .extract(requestExtractor, basicRequest, REQUEST_FIELDS_EXTRACTOR_INCLUDE)
+                .filter(f -> !f.contains("*") && !FilterMatcherUtil.matches(columnFilterPredicates, f))
                 .collect(Collectors.toSet());
 
         if (!forbiddenFields.isEmpty()) {
@@ -112,46 +113,56 @@ public class ColumnFilterUtil {
 
     /**
      * Check that the "q" filters have defined target field, which is NOT a wildcard
-     * @param request
+     * @param request the request to be checked
      * @throws ColumnUnavailableException if a "q" has no target field
      */
     private static void assertQHasCol(Request request) throws ColumnUnavailableException {
-        long qWithoutCol = Optional.ofNullable(request.filter).flatMap(filter -> Optional.ofNullable(filter.q)
-                .map(q -> q.stream().flatMap(
-                        qList -> qList.stream().filter(
-                                qFilter -> !qFilter.contains(":") || StringUtils.substringBefore(qFilter, ":").contains("*")))
-                        .count())).orElse(0l);
+        long qWithoutCol = Optional.ofNullable(request.filter)
+                .flatMap(filter -> Optional.ofNullable(filter.q)
+                        .map(q -> q.stream()
+                                .flatMap(qList -> qList.stream()
+                                        .filter(qFilter -> !qFilter.contains(":")
+                                                || StringUtils.substringBefore(qFilter, ":").contains("*")
+                                        )
+                                )
+                                .count()
+                        )
+                )
+                .orElse(0L);
 
         if (qWithoutCol > 0) {
             throw new ColumnUnavailableException("Searching with 'q' parameter without an explicit column is not available");
         }
     }
 
-    public static void assertFieldAvailable(Optional<String> columnFilter, CollectionReference collectionReference, String field) throws ColumnUnavailableException, CollectionUnavailableException {
+    public static void assertFieldAvailable(Optional<String> columnFilter,
+                                            CollectionReference collectionReference,
+                                            String field) throws ColumnUnavailableException, CollectionUnavailableException {
         Optional<Set<String>> columFilterPredicates = getColumnFilterPredicates(columnFilter, collectionReference);
         assertFieldAvailable(columFilterPredicates, field);
     }
 
-    public static void assertFieldAvailable(Optional<Set<String>> columnFilterPredicates, String field) throws ColumnUnavailableException {
-
+    public static void assertFieldAvailable(Optional<Set<String>> columnFilterPredicates,
+                                            String field) throws ColumnUnavailableException {
         if (!FilterMatcherUtil.matches(columnFilterPredicates, field)) {
-            throw new ColumnUnavailableException(new HashSet<>(Arrays.asList(field)));
+            throw new ColumnUnavailableException(new HashSet<>(List.of(field)));
         }
     }
 
     /**
      * Check if an openGisFilter uses only fields allowed in column filter
-     * @param columnFilter
-     * @param collectionDescription
-     * @param openGisFilter
-     * @throws ColumnUnavailableException
+     * @param columnFilter the value of the colum filter
+     * @param collectionDescription the collection to be checked
+     * @param openGisFilter the openGIS filter
+     * @throws ColumnUnavailableException if the filter uses a forbidden field
      */
-    public static void assertOpenGisFilterAllowed(Optional<String> columnFilter, CollectionReferenceDescription collectionDescription,
+    public static void assertOpenGisFilterAllowed(Optional<String> columnFilter,
+                                                  CollectionReferenceDescription collectionDescription,
                                                   List<String> openGisFilter) throws ArlasException {
 
         Optional<String> cleanColumnFilter = ColumnFilterUtil.cleanColumnFilter(columnFilter);
 
-        if (!cleanColumnFilter.isPresent()) {
+        if (cleanColumnFilter.isEmpty()) {
             return;
         }
 
@@ -165,17 +176,18 @@ public class ColumnFilterUtil {
         }
     }
 
-    public static Optional<String> getFilteredIncludes(Optional<String> columnFilter, Projection projection, Set<String> collectionAllowedFields) {
+    public static Optional<String> getFilteredIncludes(Optional<String> columnFilter,
+                                                       Projection projection,
+                                                       Set<String> collectionAllowedFields) {
 
         if (projection == null || StringUtils.isBlank(projection.includes)) {
-            return Optional.ofNullable(columnFilter.get());
+            return columnFilter;
         }
 
         Optional<Set<String>> includesPredicates = FilterMatcherUtil.filterToPredicatesAsSet(Optional.of(projection.includes));
 
         return collectionAllowedFields.stream()
-                .filter(
-                        f -> FilterMatcherUtil.matches(includesPredicates, f))
+                .filter(f -> FilterMatcherUtil.matches(includesPredicates, f))
                 .reduce((left, right) -> left + "," + right);
     }
 
@@ -189,24 +201,17 @@ public class ColumnFilterUtil {
     }
 
     public static Optional<String> cleanColumnFilter(Optional<String> columnFilter) throws CollectionUnavailableException {
-
-        if (COLUMN_FILTER_REQUIRED && (columnFilter == null || columnFilter.isEmpty())) {
-            throw new CollectionUnavailableException("column-filter is mandatory according to ARLAS server configuration");
+        if (columnFilter.isPresent() && columnFilter.get().isBlank()) {
+            throw new CollectionUnavailableException("Empty column filter forbids all collections");
         }
-
-        if (columnFilter == null) {
-            LOGGER.warn("column filter is null, Optional.empty() is expected instead");
-            return Optional.empty();
-        }
-
-        return columnFilter.filter(StringUtils::isNotBlank);
+        return columnFilter;
     }
 
     /**
      * Add collection mandatory fields, but only if a column filter is provided
-     * @param columnFilter
-     * @param collectionReference
-     * @return
+     * @param columnFilter the column filter to be checked
+     * @param collectionReference the collection reference to be analysed
+     * @return the filter as a Set of String
      */
     public static Optional<Set<String>> getColumnFilterPredicates(Optional<String> columnFilter, CollectionReference collectionReference) throws CollectionUnavailableException {
         cleanColumnFilter(columnFilter);
@@ -216,8 +221,7 @@ public class ColumnFilterUtil {
                         cols,
                         getCollectionMandatoryPaths(collectionReference)
                                 .stream()
-                                .map(
-                                        c -> c.replaceAll("\\.", "\\\\.")))
+                                .map(c -> c.replaceAll("\\.", "\\\\.")))
                         .collect(Collectors.toSet()));
     }
 
@@ -232,9 +236,9 @@ public class ColumnFilterUtil {
     /**
      * Return the column filter related to a collection.
      * It DOES NOT include the collection mandatory path.
-     * @param columnFilter
-     * @param collectionReference
-     * @return
+     * @param columnFilter the column filter to be checked
+     * @param collectionReference the collection reference to be analysed
+     * @return the column filter related to the collection
      */
     public static Optional<String> getCollectionRelatedColumnFilter(Optional<String> columnFilter, CollectionReference collectionReference) throws CollectionUnavailableException {
         return cleanColumnFilter(columnFilter)
@@ -263,26 +267,23 @@ public class ColumnFilterUtil {
     public static void assertCollectionsAllowed(Optional<String> columnFilter, List<CollectionReference> collections) throws CollectionUnavailableException {
         Optional<String> cleanColumnFilter = cleanColumnFilter(columnFilter);
 
-        if (!cleanColumnFilter.isPresent()) {
+        if (cleanColumnFilter.isEmpty()) {
             return;
         }
 
         for (CollectionReference collection : collections) {
-            if (!getCollectionRelatedColumnFilter(cleanColumnFilter, collection).isPresent()) {
+            if (getCollectionRelatedColumnFilter(cleanColumnFilter, collection).isEmpty()) {
                 throw new CollectionUnavailableException(collection);
             }
         }
     }
 
-    public static Set<String> getAllowedCollections(Optional<String> columnFilter) throws CollectionUnavailableException {
-        if (columnFilter == null || !columnFilter.isPresent()) {
-            if (!COLUMN_FILTER_REQUIRED) {
-                return Collections.singleton("*"); // all collections allowed
-            } else {
-                throw new CollectionUnavailableException("column-filter is mandatory according to ARLAS server configuration");
-            }
+    public static Set<String> getAllowedCollections(Optional<String> columnFilter) {
+        if (columnFilter.isEmpty()) {
+            return Collections.singleton("*"); // all collections allowed
         } else {
             Set<String> res = Arrays.stream(columnFilter.get().split(","))
+                    .filter(cf -> !cf.isBlank())
                     .map(f -> f.contains(":") ? (f.split(":")[0].length() != 0 ? f.split(":")[0] : "*") : "*") // "param" or ":param" or "col:param"
                     .collect(Collectors.toSet());
             if (res.contains("*")) { // if one of the collection is "all" then

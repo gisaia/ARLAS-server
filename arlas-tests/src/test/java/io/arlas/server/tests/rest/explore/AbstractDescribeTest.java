@@ -45,7 +45,7 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
 
     @Test
     public void testDescribeFeatureWithEmptyColumFilter() throws Exception {
-        handleMatchingResponse(get(Optional.of("")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.empty()), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
     }
 
     @Test
@@ -104,11 +104,18 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
     protected abstract void handleNotMatchingResponse(ValidatableResponse response, JsonPath jsonPath);
 
     protected ValidatableResponse get(Optional<String> columnFilter) {
-        return given()
-                .header(COLUMN_FILTER, columnFilter.orElse(""))
-                .when()
-                .get(getUrlPath("geodata"))
-                .then();
+        if (columnFilter.isEmpty()) {
+            return given()
+                    .when()
+                    .get(getUrlPath("geodata"))
+                    .then();
+        } else {
+            return given()
+                    .header(COLUMN_FILTER, columnFilter.get())
+                    .when()
+                    .get(getUrlPath("geodata"))
+                    .then();
+        }
     }
 
     /**
