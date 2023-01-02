@@ -73,7 +73,7 @@ public class CSWServiceIT extends AbstractTestWithCollection {
 
     @Test
     public void testGetCapabilitiesWithColumnFilter() throws Exception {
-        handleGetCapabilities(get("GetCapabilities", new ArrayList<>(), Optional.of(" ")));
+        handleGetCapabilities(get("GetCapabilities", new ArrayList<>(), Optional.empty()));
         handleGetCapabilities(get("GetCapabilities", new ArrayList<>(), Optional.of("anyFieldFromAnyCollection")));
         handleGetCapabilitiesEmpty(get("GetCapabilities", new ArrayList<>(), Optional.of("unknownCollection:anyField")));
 
@@ -90,7 +90,7 @@ public class CSWServiceIT extends AbstractTestWithCollection {
     public void testGetRecordsWithColumnFilter() throws Exception {
         String filteredCollection = dcelements[0].title.split(" ")[0].toLowerCase();
 
-        handleGetRecords(get("GetRecords", new ArrayList<>(), Optional.of(" ")));
+        handleGetRecords(get("GetRecords", new ArrayList<>(), Optional.empty()));
         handleGetRecords(get("GetRecords", new ArrayList<>(), Optional.of("anyFieldFromAnyCollection")));
         handleGetRecordsEmpty(get("GetRecords", new ArrayList<>(), Optional.of("unknownCollection:anyField")));
 
@@ -115,8 +115,10 @@ public class CSWServiceIT extends AbstractTestWithCollection {
         String id = getRecordId(collectionName);
 
         handleGetRecordById(
-                get("GetRecordById", Arrays.asList(new ImmutablePair<>("ID", id)), Optional.of(" ")),
+                get("GetRecordById", Arrays.asList(new ImmutablePair<>("ID", id)), Optional.empty()),
                 collectionName);
+        handleUnavailableCollection(
+                get("GetRecordById", Arrays.asList(new ImmutablePair<>("ID", id)), Optional.of("")));
         handleGetRecordById(
                 get("GetRecordById", Arrays.asList(new ImmutablePair<>("ID", id)), Optional.of("panda:anyField")),
                 collectionName);

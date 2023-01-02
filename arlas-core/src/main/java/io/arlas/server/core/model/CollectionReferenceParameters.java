@@ -36,29 +36,29 @@ public class CollectionReferenceParameters implements Serializable {
     private static final long serialVersionUID = 7530916591832941958L;
 
     @NotEmpty
-    @JsonProperty(value = "index_name", required = true)
+    @JsonProperty(value = CollectionReference.INDEX_NAME, required = true)
     public String indexName;
 
     @NotEmpty
-    @JsonProperty(value = "id_path", required = true)
+    @JsonProperty(value = CollectionReference.ID_PATH, required = true)
     public String idPath;
 
     @NotEmpty
-    @JsonProperty(value = "geometry_path", required = true)
+    @JsonProperty(value = CollectionReference.GEOMETRY_PATH, required = true)
     public String geometryPath;
 
     @NotEmpty
-    @JsonProperty(value = "centroid_path", required = true)
+    @JsonProperty(value = CollectionReference.CENTROID_PATH, required = true)
     public String centroidPath;
 
-    @JsonProperty(value = "h3_path")
+    @JsonProperty(value = CollectionReference.H3_PATH)
     public String h3Path;
 
     @NotEmpty
-    @JsonProperty(value = "timestamp_path", required = true)
+    @JsonProperty(value = CollectionReference.TIMESTAMP_PATH, required = true)
     public String timestampPath;
 
-    @JsonProperty(value = "exclude_fields")
+    @JsonProperty(value = CollectionReference.EXCLUDE_FIELDS)
     public String excludeFields = null;
 
     @JsonProperty(value = "update_max_hits")
@@ -67,13 +67,13 @@ public class CollectionReferenceParameters implements Serializable {
     @JsonProperty(value = "taggable_fields")
     public String taggableFields = null;
 
-    @JsonProperty(value = "exclude_wfs_fields")
+    @JsonProperty(value = CollectionReference.EXCLUDE_WFS_FIELDS)
     public String excludeWfsFields = null;
 
     @JsonProperty(value = "custom_params")
     public Map<String, String> customParams = null;
 
-    @JsonProperty(value = "display_names")
+    @JsonProperty(value = CollectionReference.DISPLAY_NAMES)
     public CollectionDisplayNames collectionDisplayNames = null;
 
     @JsonProperty(value = "atom_feed")
@@ -82,10 +82,10 @@ public class CollectionReferenceParameters implements Serializable {
     @JsonProperty(value = "open_search")
     public OpenSearch openSearch = null;
 
-    @JsonProperty(value = "inspire")
+    @JsonProperty(value = CollectionReference.INSPIRE_PATH)
     public Inspire inspire = new Inspire();
 
-    @JsonProperty(value = "dublin_core_element_name")
+    @JsonProperty(value = CollectionReference.DUBLIN_CORE_PATH)
     public DublinCoreElementName dublinCoreElementName = new DublinCoreElementName();
 
     @JsonProperty(value = "raster_tile_url")

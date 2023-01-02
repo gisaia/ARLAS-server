@@ -178,7 +178,6 @@ arlas_database_factory_class: ${ARLAS_DATABASE_FACTORY_CLASS:-io.arlas.server.im
 ############ AUTHENTICATION              ###############
 ########################################################
 arlas_auth_policy_class: ${ARLAS_AUTH_POLICY_CLASS:-io.arlas.filter.impl.NoPolicyEnforcer}
-arlas_auth_column_filter_required: ${ARLAS_AUTH_COLUMN_FILTER_REQUIRED:-false}
 arlas_default_org: ${ARLAS_DEFAULT_ORG:-arlas}
 
 arlas_auth:

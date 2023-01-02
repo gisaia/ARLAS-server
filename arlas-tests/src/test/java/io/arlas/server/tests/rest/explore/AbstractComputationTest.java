@@ -50,8 +50,8 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
         /** AVG **/
         computationRequest.field = "params.age";
         computationRequest.metric = ComputationEnum.AVG;
-        handleComputationRequest(post(computationRequest, ""), 595, 3702.8571428571427f);//empty column filter is not considered
-        handleComputationRequest(get(computationRequest.field, computationRequest.metric.value(), ""), 595, 3702.8571428571427f);//empty column filter is not considered
+        handleComputationRequest(post(computationRequest), 595, 3702.8571428571427f);
+        handleComputationRequest(get(computationRequest.field, computationRequest.metric.value()), 595, 3702.8571428571427f);
 
         /** CARDINALITY **/
         computationRequest.field = "params.job";

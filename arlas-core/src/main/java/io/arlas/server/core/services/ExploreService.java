@@ -104,9 +104,9 @@ public abstract class ExploreService {
         if (element.hits != null) {
             int i = 0;
             for (Object hit : element.hits) {
-                Map flatHit = MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>());
-                for (Object k: flatHit.keySet()) {
-                    addToFlat(flat, newKeyParts(newKeyParts(keyParts, "hits"), i + "" ), k.toString(), flatHit.get(k).toString());
+                Map<String, Object> flatHit = MapExplorer.flat(hit,new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), new HashSet<>());
+                for (String k: flatHit.keySet()) {
+                    addToFlat(flat, newKeyParts(newKeyParts(keyParts, "hits"), i + "" ), k, flatHit.get(k).toString());
                 }
                 i++;
             }
@@ -211,7 +211,7 @@ public abstract class ExploreService {
     protected void applyProjection(Projection projection, FluidSearchService fluidSearch, Optional<String> columnFilter, CollectionReference collectionReference) throws ArlasException {
         if (ColumnFilterUtil.isValidColumnFilterPresent(columnFilter)) {
             String filteredIncludes = ColumnFilterUtil.getFilteredIncludes(columnFilter, projection, collectionReferenceService.getCollectionFields(collectionReference, columnFilter))
-                    .orElse(
+                    .orElseGet(() ->
                             // if filteredIncludes were to be null or an empty string, FluidSearch would then build a bad request
                             String.join(",", ColumnFilterUtil.getCollectionMandatoryPaths(collectionReference)));
             fluidSearch = fluidSearch.include(filteredIncludes);

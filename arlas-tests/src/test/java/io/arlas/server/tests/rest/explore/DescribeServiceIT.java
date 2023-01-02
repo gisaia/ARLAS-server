@@ -78,11 +78,18 @@ public class DescribeServiceIT extends AbstractDescribeTest {
     }
 
     protected ValidatableResponse getWithCollectionFilter(Optional<String> collectionFilter) {
-        return given()
-                .header(COLUMN_FILTER, collectionFilter.orElse(""))
-                .when()
-                .get(getUrlPath("geodata"))
-                .then();
+        if (collectionFilter.isPresent()) {
+            return given()
+                    .header(COLUMN_FILTER, collectionFilter.get())
+                    .when()
+                    .get(getUrlPath("geodata"))
+                    .then();
+        } else {
+            return given()
+                    .when()
+                    .get(getUrlPath("geodata"))
+                    .then();
+        }
     }
 
     @Test

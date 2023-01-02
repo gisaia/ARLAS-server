@@ -50,7 +50,7 @@ public class WFSServiceWithOgcFilterIT extends AbstractWFSServiceTest {
         handleOK(
                 get(getFeatureParams(),
                         new Filter(),
-                        Optional.of(" "))
+                        Optional.empty())
         );
     }
 
@@ -107,7 +107,7 @@ public class WFSServiceWithOgcFilterIT extends AbstractWFSServiceTest {
         handleOK(
                 get(getGetPropertyValueParams(),
                         new Filter(),
-                        Optional.of(" "))
+                        Optional.empty())
         );
     }
 

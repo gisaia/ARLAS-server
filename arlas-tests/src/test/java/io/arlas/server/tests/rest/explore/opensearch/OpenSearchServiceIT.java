@@ -83,7 +83,7 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
 
     @Test
     public void testOpenSearchFeatureWithAvailableColumns() throws Exception {
-        handleOpenSearchFeature(get(""));
+        handleOpenSearchFeature(get());
         handleOpenSearchFeature(get("fullname,params,geo_params.h3"));
     }
 
@@ -102,6 +102,7 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
         handleOpenSearchFeatureByColumn(get(COLLECTION_NAME + ":params,notExisting:fullname"), withColumns("params."));
         handleOpenSearchFeatureByColumn(get(COLLECTION_NAME + ":params.*,notExisting:full*"), withColumns("params."));
         handleUnavailableCollection(get("notExisting:full*"));
+        handleUnavailableCollection(get(""));
     }
 
     private void handleOpenSearchFeature(ValidatableResponse then) throws Exception {
