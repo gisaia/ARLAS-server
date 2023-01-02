@@ -19,9 +19,13 @@
 
 package io.arlas.server.core.model.request;
 
+import java.util.List;
+
 public class RawGeometry {
     public String geometry;
     public String sort;
+    public String signedSort;
+    public List<String> include;
 
     public RawGeometry() {
     }
@@ -33,5 +37,21 @@ public class RawGeometry {
     public RawGeometry(String geometry, String sort) {
         this.geometry = geometry;
         this.sort = sort;
+    }
+
+    public String getSignedSort() {
+        return signedSort;
+    }
+
+    public void setSignedSort(String signedSort) {
+        this.signedSort = signedSort;
+    }
+
+    public List<String> getInclude() {
+        return include;
+    }
+
+    public void setInclude(List<String> include) {
+        this.include = include;
     }
 }

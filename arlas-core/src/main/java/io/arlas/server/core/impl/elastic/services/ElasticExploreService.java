@@ -445,15 +445,30 @@ public class ElasticExploreService extends ExploreService {
                         }
                         element.geometries.add(returnedGeometry);
                     } else if (subAggregation.getName().startsWith(RAW_GEOMETRY_SUFFIX)) {
-                        String sort = subAggregation.getName().substring(RAW_GEOMETRY_SUFFIX.length());
+                        boolean includeFetchHits = subAggregation.getName().contains(FETCH_HITS_AGG);
+                        String sort = !includeFetchHits ? subAggregation.getName().substring(RAW_GEOMETRY_SUFFIX.length()) :
+                                subAggregation.getName().substring(RAW_GEOMETRY_SUFFIX.length()+FETCH_HITS_AGG.length()) ;
                         subAggregationResponse = null;
                         long nbHits = ((TopHits) subAggregation).getHits().getTotalHits().value;
                         if (nbHits > 0) {
                             SearchHit[] hits = ((TopHits) subAggregation).getHits().getHits();
+                            if(includeFetchHits){
+                                element.hits = Optional.ofNullable(hits)
+                                        .map(Arrays::asList)
+                                        .map(hitsList -> hitsList.stream()
+                                                .map(SearchHit::getSourceAsMap)
+                                                .collect(Collectors.toList()))
+                                        .orElse(new ArrayList());
+                            }
                             for (SearchHit hit: hits) {
                                 Map source = hit.getSourceAsMap();
                                 if (rawGeometries != null) {
-                                    List<String> geometries = rawGeometries.stream().filter(rg -> rg.sort.equals(sort)).map(rg -> rg.geometry).collect(Collectors.toList());
+                                    List<String> geometries;
+                                    if(includeFetchHits){
+                                        geometries = rawGeometries.stream().filter(rg -> rg.signedSort.equals(sort)).map(rg -> rg.geometry).collect(Collectors.toList());
+                                    }else {
+                                         geometries = rawGeometries.stream().filter(rg -> rg.sort.equals(sort)).map(rg -> rg.geometry).collect(Collectors.toList());
+                                    }
                                     geometries.forEach(g -> {
                                         GeoJsonObject geometryGeoJson;
                                         try {
