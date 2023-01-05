@@ -24,7 +24,6 @@ import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.arlas.filter.config.InitConfiguration;
 import org.keycloak.representations.adapters.config.AdapterConfig;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.HttpMethod;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,10 +41,6 @@ public class ArlasAuthConfiguration {
 
     @JsonProperty("header_group")
     public String headerGroup;
-
-    @NotNull
-    @JsonProperty("header_organisation")
-    public String headerOrganisation;
 
     @JsonProperty("anonymous_value")
     public String anonymousValue;

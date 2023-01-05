@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORGANISATION;
+
 public class IdentityParam {
 
     public String userId;
@@ -38,7 +40,7 @@ public class IdentityParam {
                 .orElse(configuration.anonymousValue);
 
         // in a context where resources are publicly available, no organisation is defined
-        this.organisation = Optional.ofNullable(headers.getHeaderString(configuration.headerOrganisation))
+        this.organisation = Optional.ofNullable(headers.getHeaderString(ARLAS_ORGANISATION))
                 .orElse(PolicyEnforcer.NO_ORG);
 
         this.groups = Arrays.stream(Optional.ofNullable(headers.getHeaderString(configuration.headerGroup))

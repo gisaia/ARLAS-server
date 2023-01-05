@@ -31,6 +31,7 @@ import org.junit.runners.MethodSorters;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORGANISATION;
 import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
@@ -100,6 +101,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         Map<String, Object> jsonAsMap = getJsonAsMap();
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
+        jsonAsMap.put(CollectionReference.ORGANISATIONS, getOrganisationsJsonAsMap(false));
 
         // PUT new collection 1
         given().contentType("application/json").body(jsonAsMap)
@@ -108,6 +110,9 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
         // GET all collections
         getAllCollections(COLLECTION_NAME, COLLECTION_NAME_ACTOR, "collection1");
+        getAllCollectionsWithOrg(DataSetTool.DATASET_ORG_OWNER, COLLECTION_NAME, COLLECTION_NAME_ACTOR, "collection1");
+        getAllCollectionsWithOrg(DataSetTool.DATASET_ORG_SHARED, COLLECTION_NAME, COLLECTION_NAME_ACTOR, "collection1");
+        getAllCollectionsWithOrg("foobar");
 
         // DELETE collection 1
         when().delete(arlasPath + "collections/collection1")
@@ -119,6 +124,10 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
     private void getAllCollections(String... collectionNames) throws InterruptedException {
         getAllCollections(given(), collectionNames);
+    }
+
+    private void getAllCollectionsWithOrg(String org, String... collectionNames) throws InterruptedException {
+        getAllCollections(given().header(ARLAS_ORGANISATION, org), collectionNames);
     }
 
     private void getAllCollections(RequestSpecification given, String... collectionNames) throws InterruptedException {
@@ -272,6 +281,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
         jsonAsMap.put(CollectionReference.DISPLAY_NAMES, getCollectionDescriptionJsonAsMap());
+        jsonAsMap.put(CollectionReference.ORGANISATIONS, getOrganisationsJsonAsMap(false));
 
         // PUT new collection
         given().contentType("application/json").body(jsonAsMap)
@@ -287,6 +297,13 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .body("params.display_names.fields['"+DataSetTool.DATASET_CENTROID_PATH+"']", equalTo(DataSetTool.DATASET_CENTROID_DESC))
                 .body("params.display_names.fields['"+DataSetTool.DATASET_GEOMETRY_PATH+"']", equalTo(DataSetTool.DATASET_GEOMETRY_DESC))
                 .body("params.display_names.fields['"+DataSetTool.DATASET_TIMESTAMP_PATH+"']", equalTo(DataSetTool.DATASET_TIMESTAMP_DESC));
+
+        given().header(ARLAS_ORGANISATION, DataSetTool.DATASET_ORG_OWNER).when().get(arlasPath + "collections/foo_described")
+                .then().statusCode(200);
+        given().header(ARLAS_ORGANISATION, DataSetTool.DATASET_ORG_SHARED).when().get(arlasPath + "collections/foo_described")
+                .then().statusCode(200);
+        given().header(ARLAS_ORGANISATION, "foobar").when().get(arlasPath + "collections/foo_described")
+                .then().statusCode(403);
 
         // DELETE collection
         when().delete(arlasPath + "collections/foo_described")
@@ -425,7 +442,13 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         return inspireSubJsonAsMap;
     }
 
-
+    private Map<String, Object> getOrganisationsJsonAsMap(boolean isPublic) {
+        Map<String, Object> orgJsonAsMap = new HashMap<>();
+        orgJsonAsMap.put(CollectionReference.ORGANISATIONS_OWNER, DataSetTool.DATASET_ORG_OWNER);
+        orgJsonAsMap.put(CollectionReference.ORGANISATIONS_PUBLIC, isPublic);
+        orgJsonAsMap.put(CollectionReference.ORGANISATIONS_SHARED, List.of(DataSetTool.DATASET_ORG_SHARED));
+        return orgJsonAsMap;
+    }
 
     @Override
     protected String getUrlPath(String collection) {

@@ -17,12 +17,28 @@
  * under the License.
  */
 
-package io.arlas.commons.rest.utils;
+package io.arlas.server.core.model;
 
-public final class ServerConstants {
-    public static final String COLUMN_FILTER = "column-filter";
-    public static final String PARTITION_FILTER = "partition-filter";
-    public static final String ARLAS_ORGANISATION = "arlas-organization";
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    private ServerConstants() { }
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+import static io.arlas.server.core.model.CollectionReference.*;
+
+public class CollectionOrganisations implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 4330989126306933505L;
+
+    @JsonProperty(value = ORGANISATIONS_OWNER, required = false)
+    public String owner = null;
+
+    @JsonProperty(value = ORGANISATIONS_SHARED, required = false)
+    public List<String> sharedWith = null;
+
+    @JsonProperty(value = ORGANISATIONS_PUBLIC, required = false)
+    public Boolean isPublic = false;
+
 }

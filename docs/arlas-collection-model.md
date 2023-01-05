@@ -30,6 +30,13 @@ A Collection has the following structure :
       "fields": { "${doc_json_path}" :  "string" },
       "shape_columns": { "${geojson_flatten_path}" :  "string" }
     },
+    "organisations": {
+      "owner": "string",
+      "shared": [
+        "string"
+      ],
+      "public": "boolean"
+    },
     "atom_feed": {
       ...
     },

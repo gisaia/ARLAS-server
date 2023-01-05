@@ -178,7 +178,6 @@ arlas_database_factory_class: ${ARLAS_DATABASE_FACTORY_CLASS:-io.arlas.server.im
 ############ AUTHENTICATION              ###############
 ########################################################
 arlas_auth_policy_class: ${ARLAS_AUTH_POLICY_CLASS:-io.arlas.filter.impl.NoPolicyEnforcer}
-arlas_default_org: ${ARLAS_DEFAULT_ORG:-arlas}
 
 arlas_auth:
   permission_url: ${ARLAS_AUTH_PERMISSION_URL:-http://arlas-iam-server/arlas_iam_server/auth/permissions}
@@ -188,7 +187,6 @@ arlas_auth:
   certificate_url: ${ARLAS_AUTH_CERT_URL:-}
   header_user: ${ARLAS_HEADER_USER:-arlas-user}
   header_group: ${ARLAS_HEADER_GROUP:-arlas-groups}
-  header_organisation: ${ARLAS_ORGANIZATION_HEADER:-arlas-organization}
   anonymous_value: ${ARLAS_ANONYMOUS_VALUE:-anonymous}
   claim_roles: ${ARLAS_CLAIM_ROLES:-http://arlas.io/roles}
   claim_permissions: ${ARLAS_CLAIM_PERMISSIONS:-http://arlas.io/permissions}

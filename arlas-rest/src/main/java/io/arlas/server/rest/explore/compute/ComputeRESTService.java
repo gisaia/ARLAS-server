@@ -42,8 +42,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 
-import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
-import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.*;
 
 public class ComputeRESTService extends ExploreRESTServices {
 
@@ -114,6 +113,9 @@ public class ComputeRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -129,7 +131,7 @@ public class ComputeRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
@@ -186,6 +188,9 @@ public class ComputeRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -201,7 +206,7 @@ public class ComputeRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }

@@ -80,10 +80,10 @@ Variables are injected in rules and headers.
 
 ```asciidoc
 "variable:organisation:acme",
-"header:arlas-organisation:${organisation}"
+"header:arlas-organization:${organisation}"
 ```
 
-*will inject a header `arlas-organisation:acme` in the request.*
+*will inject a header `arlas-organization:acme` in the request.*
 
 - **A list of headers** to be injected to all the requests that require a restricted access 
 (such as the partition-filter), e.g. `header:${header}:${value}`
@@ -131,3 +131,7 @@ This allows certain data to be restricted to certain users.
 !!! info "partition-filter syntax"
     See the `partition-filter` syntax in [ARLAS Exploration API configuration section](http://docs.arlas.io/arlas-tech/current/arlas-api-exploration/#column-filtering).
 
+#### Organisation filter
+If a header `arlas-organization` is present (can be empty, or be a comma separated list of values), it will be used
+to check if the collection's organisations (owner or shared with) match one of the provided values.
+If no header `arlas-organization` then no check is done on the collection's organisations.

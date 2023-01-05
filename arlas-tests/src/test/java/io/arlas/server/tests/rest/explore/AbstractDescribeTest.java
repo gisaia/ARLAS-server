@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.util.Optional;
 
+import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORGANISATION;
 import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
@@ -82,6 +83,9 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
     @Test
     abstract public void testDescribeFeatureWithCollectionBasedColumFiltering() throws Exception;
 
+    @Test
+    public abstract void testDescribeFeatureWithOrganisationFiltering() throws Exception;
+
     /**
      * Path to expected `describe` result
      * @return
@@ -116,6 +120,14 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
                     .get(getUrlPath("geodata"))
                     .then();
         }
+    }
+
+    protected ValidatableResponse get(String org) {
+        return given()
+                .header(ARLAS_ORGANISATION, org)
+                .when()
+                .get(getUrlPath("geodata"))
+                .then();
     }
 
     /**

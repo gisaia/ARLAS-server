@@ -76,6 +76,9 @@ public class CollectionReferenceParameters implements Serializable {
     @JsonProperty(value = CollectionReference.DISPLAY_NAMES)
     public CollectionDisplayNames collectionDisplayNames = null;
 
+    @JsonProperty(value = CollectionReference.ORGANISATIONS)
+    public CollectionOrganisations collectionOrganisations = null;
+
     @JsonProperty(value = "atom_feed")
     public Feed atomFeed = null;
 

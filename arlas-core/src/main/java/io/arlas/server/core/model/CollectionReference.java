@@ -40,6 +40,10 @@ public class CollectionReference implements Serializable {
     public static final String DISPLAY_NAMES = "display_names";
     public static final String COLLECTION_DISPLAY_NAME = "collection";
     public static final String FIELD_DISPLAY_NAME = "fields";
+    public static final String ORGANISATIONS = "organisations";
+    public static final String ORGANISATIONS_OWNER = "owner";
+    public static final String ORGANISATIONS_SHARED = "shared";
+    public static final String ORGANISATIONS_PUBLIC = "public";
     public static final String INSPIRE_PATH = "inspire";
     public static final String DUBLIN_CORE_PATH = "dublin_core_element_name";
     public static final String INSPIRE_LINEAGE = "lineage";

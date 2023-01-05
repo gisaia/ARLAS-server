@@ -37,6 +37,7 @@ import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.Optional;
 
+import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORGANISATION;
 import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 
 public class DescribeCollectionRESTService extends ExploreRESTServices {
@@ -66,6 +67,9 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -82,7 +86,7 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
     ) throws ArlasException {
 
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
 
         if (collectionReference == null) {
             throw new NotFoundException(collection);

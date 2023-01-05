@@ -24,13 +24,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Map;
 
+import static io.arlas.server.core.model.CollectionReference.COLLECTION_DISPLAY_NAME;
+import static io.arlas.server.core.model.CollectionReference.FIELD_DISPLAY_NAME;
+
 public class CollectionDisplayNames implements Serializable {
     private static final long serialVersionUID = 7438255714694047836L;
 
-    @JsonProperty(value = "collection", required = false)
+    @JsonProperty(value = COLLECTION_DISPLAY_NAME, required = false)
     public String collection = null;
 
-    @JsonProperty(value = "fields", required = false)
+    @JsonProperty(value = FIELD_DISPLAY_NAME, required = false)
     public Map<String, String> fields = null;
 
     @JsonProperty(value = "shape_columns", required = false)

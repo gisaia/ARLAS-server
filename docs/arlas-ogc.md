@@ -233,8 +233,10 @@ Examples of `column-filter`:
 - `params`, `:params`, `*:params` make available `params` and subfields for every collection
 - `*` makes all fields available
 - `*.*` makes only subfields available, e.g. `params.city` and `params.country` but not `id`
+- `` (empty value) makes all fields and collections forbidden.
 
-If no column filter, or a blank column filter is provided, then no filtering is done.
+If no column filter, then no filtering is done.
+An empty column filter will forbid all collections and columns.
 
 The following OGC operations use this header:
 

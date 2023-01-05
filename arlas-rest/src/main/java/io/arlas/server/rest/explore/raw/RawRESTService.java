@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORGANISATION;
 import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 
 public class RawRESTService extends ExploreRESTServices {
@@ -92,6 +93,9 @@ public class RawRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
@@ -99,7 +103,7 @@ public class RawRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new NotFoundException("Collection " + collection + " not found.");
         }

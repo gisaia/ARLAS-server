@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InternalServerErrorException;
@@ -101,7 +102,7 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
     }
 
     @Override
-    public List<CollectionReference> getAllCollectionReferences(Optional<String> columnFilter) throws ArlasException {
+    public List<CollectionReference> getAllCollectionReferences(Optional<String> columnFilter, Optional<String> organisations) throws ArlasException {
         List<CollectionReference> collections = new ArrayList<>();
 
         try {
@@ -120,15 +121,20 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
                 for (SearchHit hit : scrollResp.getHits().getHits()) {
                     String source = hit.getSourceAsString();
                     try {
+                        CollectionReference colRef = new CollectionReference(hit.getId(), reader.readValue(source));
+                        checkIfAllowedForOrganisations(colRef, organisations);
                         for (String c : allowedCollections) {
                             if ((c.endsWith("*") && hit.getId().startsWith(c.substring(0, c.indexOf("*"))))
-                                    || hit.getId().equals(c)){
-                                collections.add(new CollectionReference(hit.getId(), reader.readValue(source)));
+                                    || hit.getId().equals(c)) {
+                                collections.add(colRef);
                                 break;
                             }
                         }
                     } catch (IOException e) {
                         throw new InternalServerErrorException("Can not fetch collection", e);
+                    } catch (CollectionUnavailableException e) {
+                        LOGGER.warn(String.format("Collection %s not available for this organisation %s",
+                                hit.getId(), organisations));
                     }
                 }
                 SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollResp.getScrollId());

@@ -41,8 +41,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 
-import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
-import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.*;
 
 public class CountRESTService extends ExploreRESTServices {
 
@@ -94,6 +93,9 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -108,7 +110,7 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreService.getCollectionReferenceService().getCollectionReference(collection);
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService().getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
@@ -158,6 +160,9 @@ public class CountRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
@@ -171,7 +176,7 @@ public class CountRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
             Count count
     ) throws NotFoundException, ArlasException {
-        CollectionReference collectionReference = exploreService.getCollectionReferenceService().getCollectionReference(collection);
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService().getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
