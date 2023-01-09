@@ -52,6 +52,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORGANISATION;
 import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 
 public class CollectionService extends CollectionRESTServices {
@@ -84,6 +85,9 @@ public class CollectionService extends CollectionRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -91,7 +95,7 @@ public class CollectionService extends CollectionRESTServices {
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
-        List<CollectionReference> collections = collectionReferenceService.getAllCollectionReferences(columnFilter);
+        List<CollectionReference> collections = collectionReferenceService.getAllCollectionReferences(columnFilter, organisations);
         return ResponseFormatter.getResultResponse(collections);
     }
 
@@ -111,9 +115,12 @@ public class CollectionService extends CollectionRESTServices {
 
     public Response exportCollections(
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
             ) throws ArlasException {
-        List<CollectionReference> collections = collectionReferenceService.getAllCollectionReferences(columnFilter);
+        List<CollectionReference> collections = collectionReferenceService.getAllCollectionReferences(columnFilter, organisations);
         String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
         String fileName = "arlas-collections-export_" + date + ".json";
         removeMetacollection(collections);
@@ -136,6 +143,10 @@ public class CollectionService extends CollectionRESTServices {
     public Response importCollections(
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             @FormDataParam("file") InputStream inputStream,
             @FormDataParam("file") FormDataContentDisposition fileDetail
     ) throws ArlasException {
@@ -144,13 +155,14 @@ public class CollectionService extends CollectionRESTServices {
         removeMetacollection(collections);
         Set<String> allowedCollections = ColumnFilterUtil.getAllowedCollections(columnFilter);
         for (CollectionReference collection : collections) {
+            collectionReferenceService.checkIfAllowedForOrganisations(collection, organisations, true);
             for (String c : allowedCollections) {
                 if ((c.endsWith("*") && collection.collectionName.startsWith(c.substring(0, c.indexOf("*"))))
-                        || collection.collectionName.equals(c)){
+                        || collection.collectionName.equals(c)) {
                     try {
                         savedCollections.add(save(collection.collectionName, collection.params, true));
                     } catch (Exception e) {
-                            throw new ArlasException(e.getMessage());
+                        throw new ArlasException(e.getMessage());
                     }
                 } else {
                     throw new CollectionUnavailableException("Collection '" + collection.collectionName + "' not authorized by column filter");
@@ -194,6 +206,12 @@ public class CollectionService extends CollectionRESTServices {
                     required = true)
             @PathParam(value = "collection") String collection,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -202,7 +220,8 @@ public class CollectionService extends CollectionRESTServices {
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
-        CollectionReference cr = collectionReferenceService.getCollectionReference(collection);
+        CollectionReference cr = collectionReferenceService.getCollectionReference(collection, organisations);
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, List.of(cr));
         return ResponseFormatter.getResultResponse(cr);
     }
 

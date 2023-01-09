@@ -22,6 +22,7 @@ package io.arlas.server.core.services;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.commons.utils.StringUtil;
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.CollectionReferenceParameters;
@@ -61,18 +62,19 @@ public abstract class CollectionReferenceService {
 
     abstract public void initCollectionDatabase() throws ArlasException;
 
-    abstract public List<CollectionReference> getAllCollectionReferences(Optional<String> columnFilter) throws ArlasException;
+    abstract public List<CollectionReference> getAllCollectionReferences(Optional<String> columnFilter, Optional<String> organisations) throws ArlasException;
 
     abstract public void deleteCollectionReference(String ref) throws ArlasException;
 
     // -------
 
-    public CollectionReference getCollectionReference(String ref) throws ArlasException {
+    public CollectionReference getCollectionReference(String ref, Optional<String> organisations) throws ArlasException {
         CollectionReference collectionReference = cacheManager.getCollectionReference(ref);
         if (collectionReference == null) {
             collectionReference = getCollectionReferenceFromDao(ref);
             cacheManager.putCollectionReference(ref, collectionReference);
         }
+        checkIfAllowedForOrganisations(collectionReference, organisations);
         if (!getMapping(collectionReference.params.indexName).isEmpty()){
             return collectionReference;
         } else {
@@ -354,4 +356,43 @@ public abstract class CollectionReferenceService {
         return ret.get();
     }
 
+    protected void checkIfAllowedForOrganisations(CollectionReference collection,
+                                               Optional<String> organisations)
+            throws CollectionUnavailableException {
+        checkIfAllowedForOrganisations(collection, organisations, false);
+    }
+
+    public void checkIfAllowedForOrganisations(CollectionReference collection,
+                                               Optional<String> organisations,
+                                               boolean ownerOnly)
+            throws CollectionUnavailableException {
+        if (organisations.isEmpty()) {
+            // no header, we'll trust the column filter if any
+            LOGGER.debug("No organisation header");
+            return;
+        }
+
+        if (!ownerOnly &&
+                (collection.params.collectionOrganisations == null ||
+                        collection.params.collectionOrganisations.isPublic ||
+                        collection.params.collectionOrganisations.owner == null)) {
+            // do we consider a collection with no organisation attribute open to all?
+            LOGGER.debug(String.format("Collection %s organisation is public or null: %s",
+                    collection.collectionName, collection.params.collectionOrganisations));
+            return;
+        }
+
+        List<String> o = new ArrayList<>();
+        o.add(collection.params.collectionOrganisations.owner);
+        if (!ownerOnly && collection.params.collectionOrganisations.sharedWith != null) {
+            o.addAll(collection.params.collectionOrganisations.sharedWith);
+        }
+        LOGGER.debug("collection's organisations=" + o);
+        LOGGER.debug("header=" + organisations.get());
+        o.retainAll(Arrays.stream(organisations.get().split(",")).toList());
+        LOGGER.debug("allowed org=" + o);
+        if (o.isEmpty()) {
+            throw new CollectionUnavailableException("The collection not available with organisation header: " + organisations.get());
+        }
+    }
 }

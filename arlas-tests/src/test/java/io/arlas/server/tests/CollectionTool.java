@@ -21,6 +21,7 @@ package io.arlas.server.tests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.server.core.model.CollectionOrganisations;
 import io.arlas.server.core.model.CollectionReferenceParameters;
 import io.arlas.server.core.model.DublinCoreElementName;
 import io.arlas.server.core.model.Inspire;
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
@@ -98,6 +100,9 @@ public class CollectionTool extends AbstractTestContext {
         params.dublinCoreElementName.title = DataSetTool.DATASET_DUBLIN_CORE_TITLE;
         params.dublinCoreElementName.description = DataSetTool.DATASET_DUBLIN_CORE_DESCRIPTION;
         params.dublinCoreElementName.language = DataSetTool.DATASET_DUBLIN_CORE_LANGUAGE;
+        params.collectionOrganisations = new CollectionOrganisations();
+        params.collectionOrganisations.owner = DataSetTool.DATASET_ORG_OWNER;
+        params.collectionOrganisations.sharedWith = List.of(DataSetTool.DATASET_ORG_SHARED);
 
 
         // PUT new collection

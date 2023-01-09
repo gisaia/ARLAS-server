@@ -65,6 +65,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORGANISATION;
 import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.arlas.server.core.utils.CheckParams.isBboxLatLonInCorrectRanges;
 
@@ -231,6 +232,9 @@ public class CSWRESTService extends OGCRESTService {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -337,7 +341,7 @@ public class CSWRESTService extends OGCRESTService {
                 String serviceUrl = serverBaseUri + "ogc/csw/?";
                 getCapabilitiesHandler.setCapabilitiesType(responseSections, serviceUrl, serverBaseUri + "ogc/csw/opensearch");
                 if (cswHandler.inspireConfiguration.enabled) {
-                    collections = collectionReferenceService.getAllCollectionReferences(columnFilter);
+                    collections = collectionReferenceService.getAllCollectionReferences(columnFilter, organisations);
 
                     collections.removeIf(collectionReference -> collectionReference.collectionName.equals(getMetacollectionName()));
                     filterCollectionsByColumnFilter(columnFilter, collections);
@@ -419,7 +423,7 @@ public class CSWRESTService extends OGCRESTService {
 
     private CollectionReferences getCollectionReferencesForGetRecords(String[] elements, String[]
             excludes, int maxRecords, int startPosition, String[] ids, String q, String constraint, BoundingBox boundingBox) throws IOException, ArlasException {
-        CollectionReference metacollection = collectionReferenceService.getCollectionReference(getMetacollectionName());
+        CollectionReference metacollection = collectionReferenceService.getCollectionReference(getMetacollectionName(), Optional.empty());
 
         // First we check if there is only "metacollection" that is returned. If this is the case, it means that the queried param is a config param. Thus all collections should be returned
         CollectionReferences collectionReferences = ogcDao.getCollectionReferences(elements, null, 2, startPosition - 1, ids, q, constraint, boundingBox);

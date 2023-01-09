@@ -95,7 +95,7 @@ public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
 
             CollectionReference cr;
             try {
-                cr = exploreService.getCollectionReferenceService().getCollectionReference(hits.collection);
+                cr = exploreService.getCollectionReferenceService().getCollectionReference(hits.collection, Optional.empty());
             } catch (ArlasException e) {
                 throw new WebApplicationException("Can not access collection metadata", e);
             }

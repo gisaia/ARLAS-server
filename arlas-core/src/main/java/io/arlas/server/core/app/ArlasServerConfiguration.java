@@ -81,10 +81,6 @@ public class ArlasServerConfiguration extends ArlasBaseConfiguration {
     @JsonProperty("collection-auto-discover")
     public CollectionAutoDiscoverConfiguration collectionAutoDiscoverConfiguration;
 
-    @JsonProperty("arlas_default_org")
-    public String arlasDefaultOrg;
-
-
     public void check() throws ArlasConfigurationException {
         super.check();
 

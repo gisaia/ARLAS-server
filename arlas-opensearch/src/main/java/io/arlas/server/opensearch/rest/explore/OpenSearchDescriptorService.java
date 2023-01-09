@@ -47,6 +47,7 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.*;
 
+import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORGANISATION;
 import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 
 public class OpenSearchDescriptorService extends ExploreRESTServices {
@@ -79,6 +80,10 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             // --------------------------------------------------------
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
@@ -86,7 +91,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws IOException, NotFoundException, ArlasException {
         CollectionReference cr = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
         if (cr == null) {
             throw new NotFoundException(collection);
         }

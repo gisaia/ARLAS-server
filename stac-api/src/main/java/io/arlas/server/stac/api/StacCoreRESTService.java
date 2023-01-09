@@ -29,11 +29,12 @@ import io.arlas.server.core.utils.UriInfoWrapper;
 import io.arlas.server.stac.model.LandingPage;
 import io.arlas.server.stac.model.StacLink;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.http.client.utils.URIBuilder;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.Client;
@@ -46,6 +47,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORGANISATION;
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static javax.ws.rs.core.UriBuilder.fromUri;
 
 public class StacCoreRESTService extends StacRESTService {
@@ -78,7 +81,14 @@ public class StacCoreRESTService extends StacRESTService {
                     "`service-desc` and `service-doc`) and the Feature Collection (path `/collections`, link relation " +
                     "`data`).", response = LandingPage.class, responseContainer = "LandingPage"),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
-    public Response getLandingPage(@Context UriInfo uriInfo) throws ArlasException {
+    public Response getLandingPage(@Context UriInfo uriInfo,
+                                   @ApiParam(hidden = true)
+                                   @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+
+                                   @ApiParam(hidden = true)
+                                   @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
+
+    ) throws ArlasException {
 
         List<StacLink> links = new ArrayList<>();
         links.add(getSelfLink(uriInfo));
@@ -89,7 +99,7 @@ public class StacCoreRESTService extends StacRESTService {
         links.add(getLink(uriInfo, "collections", "data", MediaType.APPLICATION_JSON));
         links.add(getLink(uriInfo, "search", "search", "application/geo+json"));
         links.add(getLink(uriInfo, "search", "POST", "search", "application/geo+json"));
-        collectionReferenceService.getAllCollectionReferences(Optional.empty()).forEach(c -> {
+        collectionReferenceService.getAllCollectionReferences(columnFilter, organisations).forEach(c -> {
             if (!c.collectionName.equals("metacollection")) {
                 links.add(getLink(uriInfo, "collections/" + c.collectionName, "child", MediaType.APPLICATION_JSON));
             }

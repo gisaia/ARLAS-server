@@ -56,8 +56,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
-import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.*;
 
 public class StacSearchRESTService extends StacRESTService {
 
@@ -167,7 +166,10 @@ public class StacSearchRESTService extends StacRESTService {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
 
     ) throws ArlasException, JsonProcessingException {
         collections = collections.stream().flatMap(e -> Stream.of(e.split(","))).collect(Collectors.toList());
@@ -186,7 +188,7 @@ public class StacSearchRESTService extends StacRESTService {
             searchBody.setIntersects(GeoUtil.geojsonReader.readValue(intersects));
         }
 
-        return cache(Response.ok(getItems(partitionFilter, columnFilter, uriInfo, searchBody, "GET")), 0);
+        return cache(Response.ok(getItems(partitionFilter, columnFilter, organisations, uriInfo, searchBody, "GET")), 0);
 
     }
 
@@ -210,18 +212,22 @@ public class StacSearchRESTService extends StacRESTService {
                                    @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
                                    @ApiParam(hidden = true)
-                                   @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter
-                                   ) throws ArlasException {
-        return cache(Response.ok(getItems(partitionFilter, columnFilter, uriInfo, body, "POST")), 0);
+                                   @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+
+                                   @ApiParam(hidden = true)
+                                   @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
+
+    ) throws ArlasException {
+        return cache(Response.ok(getItems(partitionFilter, columnFilter, organisations, uriInfo, body, "POST")), 0);
     }
 
     // -----------
 
-    private StacFeatureCollection getItems(String partitionFilter, Optional<String> columnFilter, UriInfo uriInfo, SearchBody body, String method) throws ArlasException {
+    private StacFeatureCollection getItems(String partitionFilter, Optional<String> columnFilter, Optional<String> organisations, UriInfo uriInfo, SearchBody body, String method) throws ArlasException {
         // TODO search in more than the first collection given as parameter
         CollectionReference collectionReference = body.getCollections() == null || body.getCollections().isEmpty() ?
-                collectionReferenceService.getAllCollectionReferences(columnFilter).get(0) :
-                collectionReferenceService.getCollectionReference(body.getCollections().get(0));
+                collectionReferenceService.getAllCollectionReferences(columnFilter, organisations).get(0) :
+                collectionReferenceService.getCollectionReference(body.getCollections().get(0), organisations);
 
         return getStacFeatureCollection(collectionReference, partitionFilter, columnFilter, body,
                 getFilter(collectionReference, body), uriInfo, method, false);

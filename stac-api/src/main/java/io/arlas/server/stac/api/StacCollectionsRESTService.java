@@ -50,8 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
-import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.*;
 
 public class StacCollectionsRESTService extends StacRESTService {
 
@@ -87,7 +86,11 @@ public class StacCollectionsRESTService extends StacRESTService {
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response getCollections(@Context UriInfo uriInfo,
                                    @ApiParam(hidden = true)
-                                   @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter
+                                   @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+
+                                   @ApiParam(hidden = true)
+                                   @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
+
                                    ) throws ArlasException {
 
         List<StacLink> links = new ArrayList<>(); // TODO what do we put in there?
@@ -95,7 +98,7 @@ public class StacCollectionsRESTService extends StacRESTService {
 
         List<Collection> collectionList = new ArrayList<>();
         for (CollectionReference c :
-                collectionReferenceService.getAllCollectionReferences(columnFilter)
+                collectionReferenceService.getAllCollectionReferences(columnFilter, organisations)
                         .stream()
                         .filter(c -> !c.collectionName.equals("metacollection"))
                         .toList()) {
@@ -131,9 +134,13 @@ public class StacCollectionsRESTService extends StacRESTService {
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response describeCollection(@Context UriInfo uriInfo,
                                        @ApiParam(name = "collectionId", value = "Local identifier of a collection", required = true)
-                                       @PathParam(value = "collectionId") String collectionId) throws ArlasException {
+                                       @PathParam(value = "collectionId") String collectionId,
 
-        return cache(Response.ok(getCollection(collectionReferenceService.getCollectionReference(collectionId), uriInfo)), 0);
+                                       @ApiParam(hidden = true)
+                                       @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
+    ) throws ArlasException {
+
+        return cache(Response.ok(getCollection(collectionReferenceService.getCollectionReference(collectionId, organisations), uriInfo)), 0);
     }
 
     @Timed
@@ -228,10 +235,13 @@ public class StacCollectionsRESTService extends StacRESTService {
                                 @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
                                 @ApiParam(hidden = true)
-                                @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter
+                                @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+
+                                @ApiParam(hidden = true)
+                                @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
                                 ) throws ArlasException {
 
-        CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collectionId);
+        CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collectionId, organisations);
         String dateFilter = getDateFilter(datetime, collectionReference);
         String geoFilter = getGeoFilter(getBboxAsList(bbox), collectionReference);
 
@@ -273,10 +283,14 @@ public class StacCollectionsRESTService extends StacRESTService {
                                    @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
                                @ApiParam(hidden = true)
-                               @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter
+                               @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+
+                               @ApiParam(hidden = true)
+                               @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
+
     ) throws ArlasException {
 
-        CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collectionId);
+        CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collectionId, organisations);
 
         StacFeatureCollection features = getStacFeatureCollection(collectionReference, partitionFilter, columnFilter, null,
                 java.util.Collections.singletonList(getIdFilter(featureId, collectionReference)),

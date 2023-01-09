@@ -47,6 +47,13 @@ public class DescribeCollectionServiceIT extends AbstractDescribeTest {
     }
 
     @Override
+    public void testDescribeFeatureWithOrganisationFiltering() throws Exception {
+        handleMatchingResponse(get(DataSetTool.DATASET_ORG_OWNER), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(DataSetTool.DATASET_ORG_SHARED), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleUnavailableCollection(get("foobar"));
+    }
+
+    @Override
     protected String getDescribeResultPath() {
         return "results/" + (DataSetTool.ALIASED_COLLECTION ? "_describe_base_result_aliased.json" : "_describe_base_result.json");
     }

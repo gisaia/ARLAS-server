@@ -57,8 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
-import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.*;
 
 @Path("/ogc/wfs")
 @Api(value = "/ogc/wfs")
@@ -188,7 +187,10 @@ public class WFSRESTService extends OGCRESTService {
             @ApiParam(hidden = true)
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter
+            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
+
 
     ) throws IOException, ArlasException {
 
@@ -201,7 +203,7 @@ public class WFSRESTService extends OGCRESTService {
         startindex = Optional.ofNullable(startindex).orElse(0);
         count = Optional.ofNullable(count).orElse(ogcConfiguration.queryMaxFeature.intValue());
 
-        CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collection);
+        CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new OGCException(OGCExceptionCode.NOT_FOUND, "Collection not found " + collection, Service.WFS);
         }

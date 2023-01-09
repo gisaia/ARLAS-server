@@ -52,8 +52,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
-import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.*;
 
 public class GeoAggregateRESTService extends ExploreRESTServices {
 
@@ -122,6 +121,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -141,7 +143,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
@@ -207,6 +209,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -222,7 +227,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
@@ -290,6 +295,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- FORM ---------------------------
             // --------------------------------------------------------
@@ -310,7 +318,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
@@ -420,6 +428,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- FORM ---------------------------
             // --------------------------------------------------------
@@ -440,7 +451,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
@@ -488,7 +499,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         List<Interval> intervals = ParamsParser.getAggregations(collectionReference, agg).stream()
                 .filter(a -> a.type.equals(AggregationTypeEnum.geohash))
                 .map(a -> a.interval)
-                .collect(Collectors.toList());
+                .toList();
         if (intervals.size() > 0) {
             interval = intervals.get(0).value.intValue();
         }
@@ -515,7 +526,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         List<Interval> intervals = ParamsParser.getAggregations(collectionReference, agg).stream()
                 .filter(a -> a.type.equals(AggregationTypeEnum.geotile))
                 .map(a -> a.interval)
-                .collect(Collectors.toList());
+                .toList();
         if (intervals.size() > 0) {
             interval = intervals.get(0).value.intValue();
             if (interval - z > 7 || interval - z < 0) {
@@ -588,6 +599,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -603,7 +617,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
@@ -658,6 +672,9 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -673,7 +690,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }

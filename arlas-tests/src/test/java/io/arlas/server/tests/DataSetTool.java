@@ -47,6 +47,8 @@ public class DataSetTool {
     static Logger LOGGER = LoggerFactory.getLogger(DataSetTool.class);
 
     public final static String DATASET_COLLECTION_DISPLAY_NAME="Test Collection";
+    public final static String DATASET_ORG_OWNER="foo";
+    public final static String DATASET_ORG_SHARED="bar";
     public final static String DATASET_INDEX_NAME="dataset";
     public final static String DATASET_ID_PATH="id";
     public final static String DATASET_ID_DESC = "object identifier";

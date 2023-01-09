@@ -47,7 +47,7 @@ public class CSWService extends CSWRESTService {
     }
 
     private void initMetaCollection(String index, OGCConfiguration ogcConfiguration, InspireConfiguration inspireConfiguration) throws ArlasException {
-        List<CollectionReference> collectionReferences =  collectionReferenceService.getAllCollectionReferences(Optional.empty());
+        List<CollectionReference> collectionReferences =  collectionReferenceService.getAllCollectionReferences(Optional.empty(), Optional.empty());
         long count = collectionReferences.stream().filter(collectionReference -> collectionReference.collectionName.equals(getMetacollectionName())).count();
         if (count > 0) {
             collectionReferenceService.deleteCollectionReference(getMetacollectionName());

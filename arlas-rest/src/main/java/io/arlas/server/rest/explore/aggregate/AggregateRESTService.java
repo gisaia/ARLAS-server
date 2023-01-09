@@ -45,8 +45,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
-import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.*;
 
 public class AggregateRESTService extends ExploreRESTServices {
 
@@ -110,6 +109,9 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -128,7 +130,7 @@ public class AggregateRESTService extends ExploreRESTServices {
     ) throws ArlasException {
         long startArlasTime = System.nanoTime();
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }
@@ -184,6 +186,9 @@ public class AggregateRESTService extends ExploreRESTServices {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
 
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -200,7 +205,7 @@ public class AggregateRESTService extends ExploreRESTServices {
     ) throws NotFoundException, ArlasException {
         long startArlasTime = System.nanoTime();
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection);
+                .getCollectionReference(collection, organisations);
 
         if (collectionReference == null) {
             throw new NotFoundException(collection);

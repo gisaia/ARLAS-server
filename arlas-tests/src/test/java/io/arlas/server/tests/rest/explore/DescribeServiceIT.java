@@ -77,6 +77,13 @@ public class DescribeServiceIT extends AbstractDescribeTest {
                 .body("[1].collection_name", Matchers.equalTo(COLLECTION_NAME_ACTOR));
     }
 
+    @Override
+    public void testDescribeFeatureWithOrganisationFiltering() throws Exception {
+        get(DataSetTool.DATASET_ORG_OWNER).statusCode(200).body(".", Matchers.iterableWithSize(2));
+        get(DataSetTool.DATASET_ORG_SHARED).statusCode(200).body(".", Matchers.iterableWithSize(2));
+        get("foobar").statusCode(200).body(".", Matchers.iterableWithSize(0));
+    }
+
     protected ValidatableResponse getWithCollectionFilter(Optional<String> collectionFilter) {
         if (collectionFilter.isPresent()) {
             return given()
