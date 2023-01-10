@@ -108,18 +108,21 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
                     requestBuilder.searchAfter(hits.get(hits.size() - 1).sort());
                 }
                 hits = client.search(requestBuilder.build(), CollectionReferenceParameters.class).hits().hits();
-    // TODO ES8
-/*                for (Hit<CollectionReferenceParameters> hit : hits) {
-                    CollectionReference colRef = new CollectionReference(hit.getId(), reader.readValue(source));
-                    checkIfAllowedForOrganisations(colRef, organisations);
-                    for (String c : allowedCollections) {
-                        if ((c.endsWith("*") && hit.getId().startsWith(c.substring(0, c.indexOf("*"))))
-                                || hit.getId().equals(c)) {
-                            collections.add(colRef);
-                            break;
+                for (Hit<CollectionReferenceParameters> hit : hits) {
+                    try {
+                        CollectionReference colRef = new CollectionReference(hit.id(), hit.source());
+                        checkIfAllowedForOrganisations(colRef, organisations);
+                        for (String c : allowedCollections) {
+                            if (CollectionUtil.matches(c, hit.id())) {
+                                collections.add(colRef);
+                                break;
+                            }
                         }
+                    } catch (CollectionUnavailableException e) {
+                        LOGGER.warn(String.format("Collection %s not available for this organisation %s",
+                                hit.id(), organisations));
                     }
-                }*/
+                }
             } while (hits.size() > 0);
         } catch (NotFoundException e) {
             throw new InternalServerErrorException("Unreachable collections", e);

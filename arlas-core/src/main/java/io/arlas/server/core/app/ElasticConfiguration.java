@@ -35,9 +35,6 @@ public class ElasticConfiguration {
     @JsonProperty("elastic-credentials")
     public String elasticCredentials;
 
-    @JsonProperty("elastic-skip-master")
-    public Boolean elasticSkipMaster;
-
     @JsonProperty("elastic-socket-timeout")
     public Integer elasticSocketTimeout;
 
