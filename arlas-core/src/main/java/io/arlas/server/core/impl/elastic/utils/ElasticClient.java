@@ -45,6 +45,7 @@ import jakarta.json.stream.JsonGenerator;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
@@ -77,7 +78,9 @@ public class ElasticClient {
 
         // Create the low-level client
         RestClientBuilder restClientBuilder = RestClient.builder(configuration.getElasticNodes());
-
+        restClientBuilder.setHttpClientConfigCallback(
+                httpClientBuilder -> httpClientBuilder
+                        .setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(configuration.elasticSocketTimeout).build()));
         // Authentication needed ?
         if (!StringUtil.isNullOrEmpty(configuration.elasticCredentials)) {
             String[] credentials = ElasticConfiguration.getCredentials(configuration.elasticCredentials);
@@ -85,7 +88,8 @@ public class ElasticClient {
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(credentials[0], credentials[1]));
 
             restClientBuilder.setHttpClientConfigCallback(
-                    httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+                    httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+                            .setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(configuration.elasticSocketTimeout).build()));
         }
         mapper = new JacksonJsonpMapper();
         // Create the transport with a Jackson mapper

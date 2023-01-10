@@ -812,7 +812,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         return containerBuilder;
     }
 
-    private Builder.ContainerBuilder setRawGeometriesAndFetch(Aggregation aggregationModel, Builder.ContainerBuilder aggregationBuilder) throws ArlasException {
+    private Builder.ContainerBuilder setRawGeometriesAndFetch(Aggregation aggregationModel, Builder.ContainerBuilder containerBuilder) throws ArlasException {
         if(aggregationModel.rawGeometries != null && aggregationModel.fetchHits != null){
             Integer fetchSize = Optional.ofNullable(aggregationModel.fetchHits.size).orElse(1);
             List<String> signedFetchIncludes = new ArrayList<>();
@@ -835,9 +835,9 @@ public class ElasticFluidSearch extends FluidSearchService {
                 }
             });
             if(mergeableRS.isEmpty() || fetchSize != 1){
-                aggregationBuilder = this.setRawGeometries(aggregationModel,aggregationBuilder);
-                aggregationBuilder = this.setHitsToFetch(aggregationModel,aggregationBuilder);
-                return aggregationBuilder;
+                containerBuilder = this.setRawGeometries(aggregationModel,containerBuilder);
+                containerBuilder = this.setHitsToFetch(aggregationModel,containerBuilder);
+                return containerBuilder;
             }else{
                 Map<String, Set<String>> rgs = new HashMap<>();
                 mergeableRS.forEach(rg -> {
@@ -849,30 +849,32 @@ public class ElasticFluidSearch extends FluidSearchService {
                 });
                 for (String sort: rgs.keySet()) {
                     String[] includes = rgs.get(sort).stream().toArray(String[]::new);
-                    TopHitsAggregationBuilder topHitsAggregationBuilder = AggregationBuilders.topHits(RAW_GEOMETRY_SUFFIX + FETCH_HITS_AGG + sort).size(1).fetchSource(includes, null);
-                    for (String field : sort.split(",")) {
+
+                    TopHitsAggregation.Builder topHitsAggregationBuilder = AggregationBuilders.topHits().size(1)
+                            .source(builder -> builder.filter(builder1 -> builder1.includes(Arrays.stream(includes).toList())));for (String field : sort.split(",")) {
                         String unsignedField = (field.startsWith("+") || field.startsWith("-")) ? field.substring(1) : field;
                         if (field.startsWith("+")) {
                             CollectionUtil.checkAliasMappingFields(client.getMappings(collectionReference.params.indexName), unsignedField);
-                            topHitsAggregationBuilder.sort(unsignedField, SortOrder.ASC);
+                            topHitsAggregationBuilder.sort(builder -> builder.field(FieldSort.of(builder1 -> builder1.field(unsignedField).order(SortOrder.Asc))));
                         } else if(field.startsWith("-")) {
                             CollectionUtil.checkAliasMappingFields(client.getMappings(collectionReference.params.indexName), unsignedField);
-                            topHitsAggregationBuilder.sort(unsignedField, SortOrder.DESC);
+                            topHitsAggregationBuilder.sort(builder -> builder.field(FieldSort.of(builder1 -> builder1.field(unsignedField).order(SortOrder.Desc))));
                         }
                     }
-                    aggregationBuilder.subAggregation(topHitsAggregationBuilder);
+                    containerBuilder
+                            .aggregations(RAW_GEOMETRY_SUFFIX + FETCH_HITS_AGG + sort,topHitsAggregationBuilder.build()._toAggregation());
                 }
-                return  aggregationBuilder;
+                return  containerBuilder;
             }
         }
         if(aggregationModel.rawGeometries != null && aggregationModel.fetchHits == null){
-            return this.setRawGeometries(aggregationModel,aggregationBuilder);
+            return this.setRawGeometries(aggregationModel,containerBuilder);
         }
         if(aggregationModel.rawGeometries == null && aggregationModel.fetchHits != null){
-            return this.setHitsToFetch(aggregationModel,aggregationBuilder);
+            return this.setHitsToFetch(aggregationModel,containerBuilder);
         }
         //If no rawGeometries and no fetchHits
-        return  aggregationBuilder;
+        return  containerBuilder;
     }
 
 

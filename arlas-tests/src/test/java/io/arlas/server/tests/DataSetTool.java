@@ -85,6 +85,7 @@ public class DataSetTool {
         ElasticConfiguration conf = new ElasticConfiguration();
         conf.elasticnodes = Optional.ofNullable(System.getenv("ARLAS_ELASTIC_NODES")).orElse("localhost:9200");
         conf.elasticEnableSsl = false;
+        conf.elasticSocketTimeout = 30000;
         client = new ElasticClient(conf);
         ALIASED_COLLECTION = Optional.ofNullable(System.getenv("ALIASED_COLLECTION")).orElse("false").equals("true");
         WKT_GEOMETRIES = false;
