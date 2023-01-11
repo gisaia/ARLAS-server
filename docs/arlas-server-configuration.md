@@ -60,6 +60,7 @@ docker run -ti -d \
 ## ARLAS configuration properties
 
 ### Authentication
+Refer to [ARLAS IAM configuration](arlas-iam.md) for a comprehensive configuration guide of authentication.
 
 | Environment variable              | ARLAS Server configuration variable | Default                               | Description                                                                          |
 |-----------------------------------|-------------------------------------|---------------------------------------|--------------------------------------------------------------------------------------|
