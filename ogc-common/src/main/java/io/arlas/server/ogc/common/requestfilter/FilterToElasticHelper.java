@@ -167,7 +167,7 @@ class FilterToElasticHelper {
         if (shapeRelation != null && shapeBuilder != null) {
             delegate.queryBuilder = ImmutableMap.of("bool", ImmutableMap.of("must", MATCH_ALL,
                     "filter", ImmutableMap.of("geo_shape",
-                            ImmutableMap.of(key, ImmutableMap.of("shape", shapeBuilder, "relation", shapeRelation)))));
+                            ImmutableMap.of(key, ImmutableMap.of("shape", shapeBuilder, "relation", shapeRelation.toString().toLowerCase())))));
         } else {
             delegate.queryBuilder = MATCH_ALL;
         }

@@ -206,7 +206,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                         }
                         break;
                     case GEO_SHAPE:
-                        orBoolQueryBuilder = orBoolQueryBuilder.should(filterGWithin(field, value, rightHand));
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(filterGWithin(field, value));
                         break;
                     default:
                         throw new ArlasException("'within' op on field '" + field + "' of type '" + wType + "' is not supported");
@@ -223,7 +223,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                         }
                         break;
                     case GEO_SHAPE:
-                        orBoolQueryBuilder2 = orBoolQueryBuilder2.should(filterGWithin(field, value, rightHand));
+                        orBoolQueryBuilder2 = orBoolQueryBuilder2.should(filterGWithin(field, value));
                         break;
                     default:
                         throw new ArlasException("'notwithin' op on field '" + field + "' of type '" + type + "' is not supported");
@@ -231,10 +231,10 @@ public class ElasticFluidSearch extends FluidSearchService {
                 ret = ret.mustNot(orBoolQueryBuilder2.build()._toQuery());
                 break;
             case intersects:
-                ret = ret.filter(filterGIntersect(field, value, rightHand));
+                ret = ret.filter(filterGIntersect(field, value));
                 break;
             case notintersects:
-                ret = ret.mustNot(filterGIntersect(field, value, rightHand));
+                ret = ret.mustNot(filterGIntersect(field, value));
                 break;
             default:
                 throw new InvalidParameterException(INVALID_OPERATOR);
@@ -310,18 +310,14 @@ public class ElasticFluidSearch extends FluidSearchService {
             Geometry p = GeoUtil.readWKT(pwithinFilter);
             String geometryType = p.getGeometryType();
             if (geometryType.equals("Polygon") || geometryType.equals("MultiPolygon")) {
-                // If the polygon is not a rectangle, ES provides `geoPolygonQuery` that allows to search geo-points that are within a polygon formed by list of points
-                // ==> we can't pass polygons with holes nor multipolygons (for multipolygons we can split them)
-                // !!! ISSUE ES 6.X: points on the edge of a polygon are not considered as within. Fixed in 7.X
                 for (int i = 0; i< p.getNumGeometries(); i++) {
-                    List<GeoLocation> geoPoints = Arrays.stream(p.getGeometryN(i).getCoordinates())
-                            .map(c -> GeoLocation.of(b1 -> b1.latlon(b2 -> b2.lat(c.y).lon(c.x))))
-                            .collect(Collectors.toList());
-                    builderList.add(QueryBuilders.geoPolygon()
+                    JSONObject shapeObject = getShapeObject(p.getGeometryN(i));
+                    GeoShapeQuery.Builder andQueryBuilder = QueryBuilders.geoShape()
                             .field(field)
-                            .polygon(b -> b.points(geoPoints))
-                            .build()._toQuery()
-                    );
+                            .shape(s -> s
+                                    .relation(GeoShapeRelation.Within)
+                                    .shape(JsonData.of(shapeObject)));
+                    builderList.add(andQueryBuilder.build()._toQuery());
                 }
             } else {
                 throw new NotImplementedException("WKT is not supported for 'within' op on field '" + field + "' of type '" + geometryType + "'");
@@ -350,22 +346,15 @@ public class ElasticFluidSearch extends FluidSearchService {
             Geometry p = GeoUtil.readWKT(notpwithinFilter);
             String geometryType = p.getGeometryType();
             if (geometryType.equals("Polygon") || geometryType.equals("MultiPolygon")) {
-                // If the polygon is not a rectangle, ES provides `geoPolygonQuery` that allows to search geo-points that are within a polygon formed by list of points
-                // ==> we can't pass polygons with holes nor multipolygons (for multipolygons we can split them)
-                // !!! ISSUE ES 6.X: points on the edge of a polygon are not considered as within. Fixed in 7.X
-                BoolQuery.Builder andQueryBuilder = new BoolQuery.Builder();
-                for (int i = 0; i< p.getNumGeometries(); i++) {
-                    List<GeoLocation> geoPoints = Arrays.stream(p.getGeometryN(i).getCoordinates())
-                            .map(c -> GeoLocation.of(b1 -> b1.latlon(b2 -> b2.lat(c.y).lon(c.x))))
-                            .collect(Collectors.toList());
-                    // `andQueryBuilder` will allow us to consider a multipolygon as one entity when we apply notpwithin query
-                    andQueryBuilder = andQueryBuilder.should(QueryBuilders.geoPolygon()
+                     for (int i = 0; i< p.getNumGeometries(); i++) {
+                    JSONObject shapeObject = getShapeObject(p.getGeometryN(i));
+                    GeoShapeQuery.Builder andQueryBuilder = QueryBuilders.geoShape()
                             .field(field)
-                            .polygon(b -> b.points(geoPoints))
-                            .build()._toQuery()
-                    );
+                            .shape(s -> s
+                                    .relation(GeoShapeRelation.Within)
+                                    .shape(JsonData.of(shapeObject)));
+                    builderList.add(andQueryBuilder.build()._toQuery());
                 }
-                builderList.add(andQueryBuilder.build()._toQuery());
             } else {
                 throw new NotImplementedException(geometryType + " WKT is not supported for `notpwithin`");
             }
@@ -373,9 +362,9 @@ public class ElasticFluidSearch extends FluidSearchService {
         return builderList;
     }
 
-    public Query filterGWithin(String field, String geometry, Boolean rightHand) throws ArlasException {
+    public Query filterGWithin(String field, String geometry ) throws ArlasException {
         try {
-            JSONObject shapeObject = getShapeObject(geometry,rightHand);
+            JSONObject shapeObject = getShapeObject(geometry);
             return QueryBuilders.geoShape()
                     .field(field)
                     .shape(s -> s
@@ -387,9 +376,9 @@ public class ElasticFluidSearch extends FluidSearchService {
         }
     }
 
-    public Query filterGIntersect(String field, String geometry, Boolean rightHand) throws ArlasException {
+    public Query filterGIntersect(String field, String geometry ) throws ArlasException {
         try {
-            JSONObject shapeObject = getShapeObject(geometry,rightHand);
+            JSONObject shapeObject = getShapeObject(geometry);
             return QueryBuilders.geoShape()
                     .field(field)
                     .shape(s -> s
@@ -625,8 +614,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         //get the field, format, collect_field, collect_fct, order, on
         Builder.ContainerBuilder geoHexAggregationContainerBuilder =  setAggregationParameters(aggregationModel, geoHexAggregationBuilder);
         geoHexAggregationContainerBuilder = setAggregatedGeometries(aggregationModel, geoHexAggregationContainerBuilder);
-        geoHexAggregationContainerBuilder = setRawGeometries(aggregationModel, geoHexAggregationContainerBuilder);
-        geoHexAggregationContainerBuilder = setHitsToFetch(aggregationModel, geoHexAggregationContainerBuilder);
+        geoHexAggregationContainerBuilder = setRawGeometriesAndFetch(aggregationModel, geoHexAggregationContainerBuilder);
         return geoHexAggregationContainerBuilder;
     }
 
@@ -689,20 +677,15 @@ public class ElasticFluidSearch extends FluidSearchService {
         Builder.ContainerBuilder containerBuilder =  null;
         if (aggregationBuilder instanceof DateHistogramAggregation.Builder) {
             aggregationBuilder =  ((DateHistogramAggregation.Builder) aggregationBuilder).field(aggregationModel.field);
-        }
-        if (aggregationBuilder instanceof HistogramAggregation.Builder) {
+        } else if (aggregationBuilder instanceof HistogramAggregation.Builder) {
             aggregationBuilder =  ((HistogramAggregation.Builder) aggregationBuilder).field(aggregationModel.field);
-        }
-        if (aggregationBuilder instanceof GeoHashGridAggregation.Builder) {
+        } else if (aggregationBuilder instanceof GeoHashGridAggregation.Builder) {
             aggregationBuilder =  ((GeoHashGridAggregation.Builder) aggregationBuilder).field(aggregationModel.field);
-        }
-        if (aggregationBuilder instanceof GeohexGridAggregation.Builder) {
+        } else if (aggregationBuilder instanceof GeohexGridAggregation.Builder) {
             aggregationBuilder =  ((GeohexGridAggregation.Builder) aggregationBuilder).field(aggregationModel.field);
-        }
-        if (aggregationBuilder instanceof GeoTileGridAggregation.Builder) {
+        } else if (aggregationBuilder instanceof GeoTileGridAggregation.Builder) {
             aggregationBuilder =  ((GeoTileGridAggregation.Builder) aggregationBuilder).field(aggregationModel.field);
-        }
-        if (aggregationBuilder instanceof TermsAggregation.Builder) {
+        } else if (aggregationBuilder instanceof TermsAggregation.Builder) {
             aggregationBuilder =  ((TermsAggregation.Builder) aggregationBuilder).field(aggregationModel.field);
         }
         //Get the format
@@ -763,7 +746,8 @@ public class ElasticFluidSearch extends FluidSearchService {
             Integer s = ParamsParser.getValidAggregationSize(aggregationModel.size);
             if (aggregationBuilder instanceof TermsAggregation.Builder)
                 aggregationBuilder = ((TermsAggregation.Builder) aggregationBuilder).size(s);
-            else if (aggregationBuilder instanceof GeoHashGridAggregation.Builder || aggregationBuilder instanceof GeoTileGridAggregation.Builder )
+            else if (aggregationBuilder instanceof GeoHashGridAggregation.Builder || aggregationBuilder instanceof GeoTileGridAggregation.Builder
+                    || aggregationBuilder instanceof GeohexGridAggregation.Builder )
                 throw new NotImplementedException(SIZE_NOT_IMPLEMENTED);
             else
                 throw new BadRequestException(NO_SIZE_TO_SPECIFY);
@@ -772,20 +756,15 @@ public class ElasticFluidSearch extends FluidSearchService {
         aggregationBuilder = setOrder(aggregationModel, aggregationBuilder, firstMetricAggregation);
         if (aggregationBuilder instanceof DateHistogramAggregation.Builder) {
             containerBuilder = new Builder().dateHistogram(((DateHistogramAggregation.Builder) aggregationBuilder).build());
-        }
-        if (aggregationBuilder instanceof HistogramAggregation.Builder) {
+        } else if (aggregationBuilder instanceof HistogramAggregation.Builder) {
             containerBuilder = new Builder().histogram(((HistogramAggregation.Builder) aggregationBuilder).build());
-        }
-        if (aggregationBuilder instanceof GeoHashGridAggregation.Builder) {
+        } else if (aggregationBuilder instanceof GeoHashGridAggregation.Builder) {
             containerBuilder = new Builder().geohashGrid(((GeoHashGridAggregation.Builder) aggregationBuilder).build());
-        }
-        if (aggregationBuilder instanceof GeohexGridAggregation.Builder) {
+        } else if  (aggregationBuilder instanceof GeohexGridAggregation.Builder) {
             containerBuilder = new Builder().geohexGrid(((GeohexGridAggregation.Builder) aggregationBuilder).build());
-        }
-        if (aggregationBuilder instanceof GeoTileGridAggregation.Builder) {
+        } else if  (aggregationBuilder instanceof GeoTileGridAggregation.Builder) {
             containerBuilder = new Builder().geotileGrid(((GeoTileGridAggregation.Builder) aggregationBuilder).build());
-        }
-        if (aggregationBuilder instanceof TermsAggregation.Builder) {
+        } else if (aggregationBuilder instanceof TermsAggregation.Builder) {
             containerBuilder = new Builder().terms(((TermsAggregation.Builder) aggregationBuilder).build());
         }
         containerBuilder.aggregations(metricsAggregation);
@@ -1003,7 +982,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         return aggregationBuilder;
     }
 
-    private JSONObject createPolygon(org.locationtech.jts.geom.Polygon geomPolygon, Boolean rightHand) {
+    private JSONObject createPolygon(org.locationtech.jts.geom.Polygon geomPolygon) {
         Coordinate[] exteriorRing = geomPolygon.getExteriorRing().getCoordinates();
         // TODO : deal with interior ring too
         // int nInteriorRing = geomPolygon.getNumInteriorRing();
@@ -1020,7 +999,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         jsonAray.add(jsonArayExt);
         polygon.put("type", "Polygon");
         polygon.put("coordinates", jsonAray);
-        polygon = setOrientation(polygon,rightHand);
+        polygon = setOrientation(polygon);
         return polygon;
     }
 
@@ -1051,7 +1030,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         return polygon;
     }
 
-    private JSONObject createMultiPolygon(MultiPolygon geomMultiPolygon, Boolean rightHand) {
+    private JSONObject createMultiPolygon(MultiPolygon geomMultiPolygon ) {
 
         int nPolygon = geomMultiPolygon.getNumGeometries();
         JSONObject multiPolygon = new JSONObject();
@@ -1073,7 +1052,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         }
         multiPolygon.put("type", "MultiPolygon");
         multiPolygon.put("coordinates", coordinates);
-        multiPolygon = setOrientation(multiPolygon,rightHand);
+        multiPolygon = setOrientation(multiPolygon);
         return multiPolygon;
     }
 
@@ -1102,33 +1081,34 @@ public class ElasticFluidSearch extends FluidSearchService {
         return point;
     }
 
-    private JSONObject getShapeObject(String geometry,Boolean rightHand) throws ArlasException {
+    private JSONObject getShapeObject(String geometry) throws ArlasException {
         // test if geometry is 'west,south,east,north' or wkt string
         if (CheckParams.isBboxMatch(geometry)) {
             return createPolygonFromBbox(CheckParams.toDoubles(geometry));
         } else {
-            // TODO: multilinestring
             Geometry wktGeometry = GeoUtil.readWKT(geometry);
+            return getShapeObject(wktGeometry);
+        }
+    }
+
+    private JSONObject getShapeObject(Geometry wktGeometry) throws ArlasException {
+        // test if geometry is 'west,south,east,north' or wkt string
+            // TODO: multilinestring
             if (wktGeometry != null) {
                 String geometryType = wktGeometry.getGeometryType().toUpperCase();
                 return switch (geometryType) {
-                    case "POLYGON" -> createPolygon((org.locationtech.jts.geom.Polygon) wktGeometry, rightHand);
-                    case "MULTIPOLYGON" -> createMultiPolygon((MultiPolygon) wktGeometry, rightHand);
+                    case "POLYGON" -> createPolygon((org.locationtech.jts.geom.Polygon) wktGeometry);
+                    case "MULTIPOLYGON" -> createMultiPolygon((MultiPolygon) wktGeometry);
                     case "LINESTRING" -> createLineString((LineString) wktGeometry);
                     case "POINT" -> createPoint((Point) wktGeometry);
                     default -> throw new InvalidParameterException("The given geometry is not handled.");
                 };
             }
             throw new InvalidParameterException("The given geometry is invalid.");
-        }
     }
 
-    private JSONObject setOrientation(JSONObject jsonObject, Boolean rightHand){
-        if(rightHand){
+    private JSONObject setOrientation(JSONObject jsonObject){
             jsonObject.put("orientation","RIGHT");
-        }else{
-            jsonObject.put("orientation","LEFT");
-        }
         return jsonObject;
     }
 }

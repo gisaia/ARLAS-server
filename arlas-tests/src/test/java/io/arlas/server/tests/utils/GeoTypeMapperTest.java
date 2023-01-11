@@ -62,7 +62,7 @@ public class GeoTypeMapperTest {
 
         Point refPoint = new Point(-71.34, 41.12);
         // TODO is this test important for ES8 ??
-        //assertTrue(GeoTypeMapper.getGeoJsonObject(pointStringLatLon).equals(refPoint));
+        assertTrue(GeoTypeMapper.getGeoJsonObject(pointStringLatLon).equals(refPoint));
         assertTrue(GeoTypeMapper.getGeoJsonObject(pointStringGeohash) instanceof Point);
         assertTrue(GeoTypeMapper.getGeoJsonObject(pointStringWKT) instanceof Point);
         assertTrue(((Point)GeoTypeMapper.getGeoJsonObject(pointStringWKT)).getCoordinates().equals(refPoint.getCoordinates()));

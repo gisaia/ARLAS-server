@@ -94,7 +94,6 @@ public class ElasticClient {
         mapper = new JacksonJsonpMapper();
         // Create the transport with a Jackson mapper
         ElasticsearchTransport transport = new RestClientTransport(restClientBuilder.build(), mapper);
-
         // And create the API client
         client = new ElasticsearchClient(transport);
     }

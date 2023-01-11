@@ -20,6 +20,7 @@ jobs:
         image-ref: 'docker.io/gisaia/arlas-server:${{ github.sha }}'
         format: 'table'
         exit-code: '1'
+        timeout: '10m'
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'

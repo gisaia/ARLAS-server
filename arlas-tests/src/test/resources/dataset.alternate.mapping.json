@@ -53,8 +53,7 @@
     "geo_params": {
       "properties": {
         "geometry": {
-          "type": "geo_shape",
-          "tree": "geohash"
+          "type": "geo_shape"
         },
         "centroid": {
           "type": "geo_point"
