@@ -69,7 +69,11 @@ public class ElasticWFSToolService implements WFSToolService {
     public Map<String, Object> getFeature(String id, String bbox, String constraint, String resourceid, String storedquery_id, String partitionFilter, CollectionReference collectionReference, String[] excludes, Optional<String> columnFilter) throws ArlasException, IOException {
         buildWFSQuery(WFSRequestType.GetFeature, id, bbox, constraint, resourceid, storedquery_id, partitionFilter, collectionReference, columnFilter);
         String[] includes = columnFilterToIncludes(collectionReference, columnFilter);
-        SourceFilter sourceFilter = new SourceFilter.Builder().excludes(Arrays.asList(excludes)).includes(Arrays.asList(includes)).build();
+        SourceFilter.Builder sourceFilterBuilder = new SourceFilter.Builder().excludes(Arrays.asList(excludes));
+        if(includes != null){
+            sourceFilterBuilder=sourceFilterBuilder.includes(Arrays.asList(includes));
+        }
+        SourceFilter sourceFilter = sourceFilterBuilder.build();
         SourceConfig sourceConfig = new SourceConfig.Builder().filter(sourceFilter).build();
         SearchRequest request = SearchRequest.of(r -> r
                 .index(collectionReference.params.indexName)
@@ -94,8 +98,11 @@ public class ElasticWFSToolService implements WFSToolService {
         buildWFSQuery(null, id, bbox, constraint, resourceid, null, partitionFilter, collectionReference, columnFilter);
         List<Map<String, Object>> featureList = new ArrayList<>();
         String[] includes = columnFilterToIncludes(collectionReference, columnFilter);
-
-        SourceFilter sourceFilter = new SourceFilter.Builder().excludes(Arrays.asList(excludes)).includes(Arrays.asList(includes)).build();
+        SourceFilter.Builder sourceFilterBuilder = new SourceFilter.Builder().excludes(Arrays.asList(excludes));
+        if(includes != null){
+            sourceFilterBuilder=sourceFilterBuilder.includes(Arrays.asList(includes));
+        }
+        SourceFilter sourceFilter = sourceFilterBuilder.build();
         SourceConfig sourceConfig = new SourceConfig.Builder().filter(sourceFilter).build();
         SearchRequest request = SearchRequest.of(r -> r
                 .index(collectionReference.params.indexName)
@@ -159,7 +166,6 @@ public class ElasticWFSToolService implements WFSToolService {
 
         wfsQuery = new BoolQuery.Builder();
         ElasticFluidSearch fluidSearch = (ElasticFluidSearch) exploreServices.getFluidSearch(getCollectionReferenceDescription(collectionReference));
-        addCollectionFilter(fluidSearch, collectionReference);
         if (constraint != null) {
             wfsQuery.filter(ElasticFilter.filter(constraint, getCollectionReferenceDescription(collectionReference), Service.WFS, columnFilter).build()._toQuery());
         } else if (bbox != null) {
@@ -169,8 +175,11 @@ public class ElasticWFSToolService implements WFSToolService {
         } else if (storedquery_id != null) {
             buildStoredQueryIdQuery(id, storedquery_id, requestType, collectionReference);
         }
+        // Hack because Object builders can only be used once
         if (partitionFilter != null) {
             addPartitionFilter(collectionReference, fluidSearch, partitionFilter);
+        }else{
+            addCollectionFilter(fluidSearch, collectionReference);
         }
     }
 
@@ -210,8 +219,19 @@ public class ElasticWFSToolService implements WFSToolService {
 
     private void addPartitionFilter(CollectionReference collectionReference, ElasticFluidSearch fluidSearch, String partitionFilter) throws ArlasException {
         Filter headerFilter = ParamsParser.getFilter(collectionReference, partitionFilter);
-        exploreServices.applyFilter(headerFilter, fluidSearch);
-        wfsQuery.filter(fluidSearch.getBoolQueryBuilder().build()._toQuery());
+        Filter collectionFilter = collectionReference.params.filter;
+        Boolean applyFilter = false;
+        if(collectionFilter != null){
+            exploreServices.applyFilter(collectionFilter, fluidSearch);
+            applyFilter = true;
+        }
+        if(headerFilter.f != null || headerFilter.q != null){
+            exploreServices.applyFilter(headerFilter, fluidSearch);
+            applyFilter = true;
+        }
+        if(applyFilter){
+            wfsQuery.filter(fluidSearch.getBoolQueryBuilder().build()._toQuery());
+        }
     }
 
     private void addCollectionFilter(ElasticFluidSearch fluidSearch, CollectionReference collectionReference) throws ArlasException {

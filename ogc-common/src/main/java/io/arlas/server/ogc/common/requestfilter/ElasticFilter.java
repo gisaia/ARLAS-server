@@ -44,9 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -151,7 +149,8 @@ public class ElasticFilter {
                 ObjectMapper mapper = new ObjectMapper();
                 String filterQuery = mapper.writeValueAsString(filterToElastic.getQueryBuilder());
                 // TODO : find a better way to remove prefix xml in field name
-                boolQuery.filter(WrapperQuery.of(builder -> builder.query(filterQuery.replace("tns:", "")))._toQuery());
+                Reader queryJson = new StringReader(filterQuery.replace("tns:", ""));
+                boolQuery.filter(Query.of(builder -> builder.withJson(queryJson)));
             } catch (SAXException | ParserConfigurationException | RuntimeException e) {
                 if (filterToElastic.ogcException != null) {
                     LOGGER.debug(filterToElastic.ogcException.getMessage());

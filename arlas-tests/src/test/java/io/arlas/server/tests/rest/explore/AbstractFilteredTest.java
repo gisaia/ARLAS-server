@@ -349,17 +349,17 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         /** clock-wise WKT with west < east bbox*/
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "POLYGON((-5 -50, -5 50, 180 50, 180 -50, -5 -50))")),
                 new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "-180,-50,5,50")));
-        handleMatchingGeometryFilter(post(request), 10, everyItem(endsWith("0")));
+        handleMatchingGeometryFilter(post(request), 11, everyItem(endsWith("0")));
         handleMatchingGeometryFilter(
                 get(Arrays.asList(new ImmutablePair<>("f", request.filter.f.get(0).get(0).toString()),
                         new ImmutablePair<>("f", request.filter.f.get(1).get(0).toString()))),
-                10, everyItem(endsWith("0")));
-        handleMatchingGeometryFilter(header(request.filter), 10, everyItem(endsWith("0")));
+                11, everyItem(endsWith("0")));
+        handleMatchingGeometryFilter(header(request.filter), 11, everyItem(endsWith("0")));
         /** counter clock-wise WKT with righthand=true AND west < east bbox*/
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "POLYGON((-5 -50, 180 -50, 180 50, -5 50, -5 -50))")),
                 new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "-180,-50,5,50")));
         request.filter.righthand = true;
-        handleMatchingGeometryFilter(post(request), 10, everyItem(endsWith("0")));
+        handleMatchingGeometryFilter(post(request), 11, everyItem(endsWith("0")));
         getWithRightHand = this.getExtraParamsRequest().param("f", request.filter.f.get(0).get(0).toString())
                 .param("f", request.filter.f.get(0).get(0).toString())
                 .param("f", request.filter.f.get(1).get(0).toString())
@@ -368,8 +368,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .then();
         handleMatchingGeometryFilter(
                 getWithRightHand,
-                10, everyItem(endsWith("0")));
-        handleMatchingGeometryFilter(header(request.filter), 10, everyItem(endsWith("0")));
+                11, everyItem(endsWith("0")));
+        handleMatchingGeometryFilter(header(request.filter), 11, everyItem(endsWith("0")));
         request.filter.righthand = false;
 
 
@@ -384,25 +384,25 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
         /** west < east bbox*/
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "-170,-85,175,85")));
-        handleMatchingGeometryFilter(post(request), 17, everyItem(endsWith("170")));
-        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 17, everyItem(endsWith("170")));
-        handleMatchingGeometryFilter(header(request.filter), 17, everyItem(endsWith("170")));
+        handleMatchingGeometryFilter(post(request), 0, everyItem(endsWith("170")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 0, everyItem(endsWith("170")));
+        handleMatchingGeometryFilter(header(request.filter), 0, everyItem(endsWith("170")));
 
         /** clock-wise WKT */
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "POLYGON((-170 -85, -170 85, 175 85, 175 -85, -170 -85))")));
-        handleMatchingGeometryFilter(post(request), 17, everyItem(endsWith("170")));
-        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 17, everyItem(endsWith("170")));
-        handleMatchingGeometryFilter(header(request.filter), 17, everyItem(endsWith("170")));
+        handleMatchingGeometryFilter(post(request), 0, everyItem(endsWith("170")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 0, everyItem(endsWith("170")));
+        handleMatchingGeometryFilter(header(request.filter), 0, everyItem(endsWith("170")));
         /** clock-wise WKT with righthand=true*/
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "POLYGON((-170 -85, 175 -85, 175 85, -170 85, -170 -85))")));
         request.filter.righthand = true;
-        handleMatchingGeometryFilter(post(request), 17, everyItem(endsWith("170")));
+        handleMatchingGeometryFilter(post(request), 0, everyItem(endsWith("170")));
         getWithRightHand = this.getExtraParamsRequest().param("f", request.filter.f.get(0).get(0).toString())
                 .param("righthand", request.filter.righthand)
                 .when().get(getUrlPath("geodata"))
                 .then();
-        handleMatchingGeometryFilter(getWithRightHand, 17, everyItem(endsWith("170")));
-        handleMatchingGeometryFilter(header(request.filter), 17, everyItem(endsWith("170")));
+        handleMatchingGeometryFilter(getWithRightHand, 0, everyItem(endsWith("170")));
+        handleMatchingGeometryFilter(header(request.filter), 0, everyItem(endsWith("170")));
         request.filter.righthand = false;
 
         /** counter clock-wise WKT */
@@ -447,19 +447,19 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
         /** counter clock-wise WKT */
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "POLYGON((160 -2, 160 2, -160 2, -160 -2, 160 -2))")));
-        handleMatchingGeometryFilter(post(request), 592, everyItem(notNullValue()));
-        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 592, notNullValue());
-        handleMatchingGeometryFilter(header(request.filter), 592, everyItem(notNullValue()));
+        handleMatchingGeometryFilter(post(request), 591, everyItem(notNullValue()));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 591, notNullValue());
+        handleMatchingGeometryFilter(header(request.filter), 591, everyItem(notNullValue()));
         /** clock-wise WKT with righthand=true */
         request.filter.righthand = true;
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "POLYGON((160 -2,  -160 -2, -160 2, 160 2, 160 -2))")));
-        handleMatchingGeometryFilter(post(request), 592, everyItem(notNullValue()));
+        handleMatchingGeometryFilter(post(request), 591, everyItem(notNullValue()));
         getWithRightHand = givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
                 .param("righthand", request.filter.righthand)
                 .when().get(getUrlPath("geodata"))
                 .then();
-        handleMatchingGeometryFilter(getWithRightHand, 592, notNullValue());
-        handleMatchingGeometryFilter(header(request.filter), 592, everyItem(notNullValue()));
+        handleMatchingGeometryFilter(getWithRightHand, 591, notNullValue());
+        handleMatchingGeometryFilter(header(request.filter), 591, everyItem(notNullValue()));
         request.filter.righthand = false;
 
 
@@ -540,7 +540,6 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingGeometryFilter(header(request.filter), 595, everyItem(notNullValue()));
         request.filter.righthand = false;
 
-        //TODO support correct 10,-10,-10,10 bounding box
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.within, "-11,-11,11,11")),
                 new MultiValueFilter<>(new Expression("geo_params.centroid", OperatorEnum.notwithin, "-5,-5,5,5")));
         handleMatchingGeometryFilter(post(request), 8, hasItems("10,0", "10,-10", "10,10", "10,10", "10,0", "10,-10", "0,10", "0,-10"));
@@ -610,12 +609,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleMatchingGeometryFilter(header(request.filter), 1, everyItem(equalTo("0,0")));
         request.filter.righthand = false;
 
-        // TODO ES8 We change 33 to 32 because of the new ES (we split the poligon in two, and the feature in the midle is not within => problem with multi polygon in ES8
         /** clock-wise WKT*/
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.within, "POLYGON((-170 -2, -170 2, 170 2, 170 -2, -170 -2))")));
-        handleMatchingGeometryFilter(post(request), 32, everyItem(startsWith("0,")));
-        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 32, everyItem(startsWith("0,")));
-        handleMatchingGeometryFilter(header(request.filter), 32, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(post(request), 33, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 33, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 33, everyItem(startsWith("0,")));
         /** counter clock-wise WKT with righthand=true*/
         request.filter.righthand = true;
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.within, "POLYGON((-170 -2, 170 -2, 170 2, -170 2, -170 -2))")));
@@ -623,9 +621,9 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .param("righthand", request.filter.righthand)
                 .when().get(getUrlPath("geodata"))
                 .then();
-        handleMatchingGeometryFilter(post(request), 32, everyItem(startsWith("0,")));
-        handleMatchingGeometryFilter(getWithRightHand, 32, everyItem(startsWith("0,")));
-        handleMatchingGeometryFilter(header(request.filter), 32, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(post(request), 33, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(getWithRightHand, 33, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 33, everyItem(startsWith("0,")));
         request.filter.righthand = false;
 
 
@@ -664,7 +662,6 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.righthand = false;
 
 
-        // TODO ES8 We change 24 to 23 because of the new ES (we split the poligon in two, and the feature in the midle is not within => problem with multi polygon in ES8
         /** clock-wise WKT */
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.within, "POLYGON((-330 -2, -330 -1, -290 -1, -290 2, -15 2, -15 1, -40 1, -40 -2, -330 -2))")));
         handleMatchingGeometryFilter(post(request), 23, everyItem(startsWith("0,")));
@@ -1255,12 +1252,11 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleNotMatchingGintersectFilter(header(request.filter));
         request.filter.righthand = false;
 
-        //TODO ES8 : Linestring MUST BE betwen -180 and 180
         /** WKT Linestring that crosses the dateline*/
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.intersects, "LINESTRING(50 0, 340 0)")));
-        //handleMatchingGeometryFilter(post(request), 29, everyItem(startsWith("0,")));
-        //handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 29, everyItem(startsWith("0,")));
-        //handleMatchingGeometryFilter(header(request.filter), 29, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(post(request), 29, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(get("f", request.filter.f.get(0).get(0).toString()), 29, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 29, everyItem(startsWith("0,")));
         /** WKT Linestring that crosses the dateline with righthand = true*/
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.intersects, "LINESTRING(50 0, 340 0)")));
         request.filter.righthand = true;
@@ -1269,9 +1265,9 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 .param("righthand", request.filter.righthand)
                 .when().get(getUrlPath("geodata"))
                 .then();
-        //handleMatchingGeometryFilter(post(request), 29, everyItem(startsWith("0,")));
-        //handleMatchingGeometryFilter(getWithRightHand, 29, everyItem(startsWith("0,")));
-        //handleMatchingGeometryFilter(header(request.filter), 29, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(post(request), 29, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(getWithRightHand, 29, everyItem(startsWith("0,")));
+        handleMatchingGeometryFilter(header(request.filter), 29, everyItem(startsWith("0,")));
         request.filter.righthand = false;
 
 
@@ -1481,18 +1477,17 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         request.filter.righthand = false;
 
 
-        // TODO ES 8 FIX THIS TEST
         /** clock-wise wkts*/
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.intersects, "POLYGON((10 10,10 -10,-10 -10,-10 10,10 10))")),
                 new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.notintersects, "POLYGON((11 11, 11 -11, -11 -11, -11 11, 11 11))")));
-        //handleNotMatchingGintersectComboFilter(post(request));
-        //handleNotMatchingGintersectComboFilter(
-                //givenFilterableRequestParams()
-                        //.param("f", request.filter.f.get(0).get(0).toString())
-                        //.param("f", request.filter.f.get(1).get(0).toString())
-                        //.when().get(getUrlPath("geodata"))
-                        //.then());
-        //handleNotMatchingGintersectComboFilter(header(request.filter));
+        handleNotMatchingGintersectComboFilter(post(request));
+        handleNotMatchingGintersectComboFilter(
+                givenFilterableRequestParams()
+                        .param("f", request.filter.f.get(0).get(0).toString())
+                        .param("f", request.filter.f.get(1).get(0).toString())
+                        .when().get(getUrlPath("geodata"))
+                        .then());
+        handleNotMatchingGintersectComboFilter(header(request.filter));
         /** counter clock-wise wkts*/
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.intersects, "POLYGON((10 10, -10 10, -10 -10, 10 -10, 10 10))")),
                 new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.notintersects, "POLYGON((11 11, -11 11, -11 -11, 11 -11, 11 11))")));
@@ -1522,7 +1517,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 2, "Architect");
         handleFieldFilter(header(request.filter), 2, "Architect");
 
-        //
+
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),//"job:eq:Architect"
                 new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1970/01/01 00:16:49:799<1970/01/01 00:16:49:801]")));
         request.filter.dateformat = "yyyy/MM/dd HH:mm:ss:SSS";

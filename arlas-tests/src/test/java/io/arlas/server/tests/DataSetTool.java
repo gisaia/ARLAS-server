@@ -182,5 +182,8 @@ public class DataSetTool {
             client.deleteIndex(DATASET_INDEX_NAME + "_alt");
         }
     }
+    public static void close() throws IOException {
+        client.getClient()._transport().close();
+    }
 
 }

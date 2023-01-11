@@ -65,7 +65,7 @@ public class GeoTypeMapper {
             case GEOPOINT_AS_STRING:
                 try {
                     String[] geoPoint = elasticsearchGeoField.toString().split(",");
-                    geoObject = new Point(Double.parseDouble(geoPoint[0]), Double.parseDouble(geoPoint[1]));
+                    geoObject = new Point(Double.parseDouble(geoPoint[1]), Double.parseDouble(geoPoint[0]));
                 } catch (Exception e) {
                     LOGGER.error(loggerMsg, e);
                     throw new ParseException(parseExceptionMsg);

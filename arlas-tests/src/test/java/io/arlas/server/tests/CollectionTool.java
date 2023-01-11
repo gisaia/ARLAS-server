@@ -60,6 +60,7 @@ public class CollectionTool extends AbstractTestContext {
                 new CollectionTool().deleteCsw();
                 break;
         }
+        DataSetTool.close();
     }
 
     @Test

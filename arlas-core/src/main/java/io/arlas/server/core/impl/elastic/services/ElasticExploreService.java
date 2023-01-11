@@ -446,8 +446,8 @@ public class ElasticExploreService extends ExploreService {
         } else if (aggregate.isSterms()) {
             aggregate.sterms().buckets().array().forEach(bucket -> {
                 AggregationResponse element = new AggregationResponse();
-                element.keyAsString = bucket.key();
-                element.key = bucket.key();
+                element.keyAsString = bucket.key().stringValue();
+                element.key = bucket.key().stringValue();
                 buildResponseFromBucket(element, aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, bucket);
             });
         }
