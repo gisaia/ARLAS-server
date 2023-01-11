@@ -10,24 +10,15 @@ Depending on the use case, some configuration must be set. Refer to [ARLAS-serve
 The following use cases are illustrated with the ARLAS-server service but are valid for all other ARLAS back-ends such as [ARLAS-persistence](https://github.com/gisaia/ARLAS-persistence).
 
 * **Use case 1**: public access, no endpoint is protected (e.g. dev, test deployment)
-    - ARLAS-server:  set `arlas_auth.enabled` to `false`
+    - ARLAS-server:  set `arlas_auth_policy_class` to `io.arlas.filter.impl.NoPolicyEnforcer`.
     - ARLAS-wui: set [authentication.use_authent](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to `false` in `settings.yaml`. 
 
 * **Use case 2**: public access, some endpoints are protected (e.g. demo, freemium deployment)
-    - ARLAS-server:
-        * set `arlas_auth.enabled` to `true`
-        * set `arlas_auth.certificate_url` to the url of the .pem  certificat of the public key link to your identity provider.
-        * set `arlas_auth.public_uris` to the needed value, 
-    e.g. `swagger.*:*,explore/.*:*` will only allow public access to URIs `/swagger.*` and 
-    `/explore/.*`
+    - ARLAS-server: set `arlas_auth_policy_class` to the policy enforcer class you want to use
     - ARLAS-wui: set [authentication.use_authent](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to `false` or `true` in `settings.yaml`, it depends on whether ARLAS-wui must access protected end-points or not.
 
 * **Use case 3**: protected access (e.g. customer deployment)
-    - ARLAS-server:  
-        * set `arlas_auth.enabled` to `true`
-        * set `arlas_auth.certificate_url` to the url of the .pem  certificat of the public key link to your identity provider.
-        * set `arlas_auth.public_uris` to the needed value, 
-    e.g. `swagger.*:*` will only allow public access to URIs `/swagger.*`
+    - ARLAS-server: set `arlas_auth_policy_class` to the policy enforcer class you want to use
     - ARLAS-wui: set [authentication.use_authent](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to `true` and [authentication.force_connect](http://docs.arlas.io/arlas-tech/current/arlas-wui-configuration/) to true in `settings.yaml`.
 
         !!! info "ARLAS-wui authentication"
@@ -92,19 +83,18 @@ Variables are injected in rules and headers.
     Defining the same header name multiple times will result in its values to be comma-concatenated and injected in a single header of that name.
 
 
-- **A set of rules**, e.g. `rule:${resource}:${verbs}:${priority}`, composed of:
+- **A set of rules**, e.g. `rule:${resource}:${verbs}`, composed of:
     * ${resource} is the resource path pattern, relative to /arlas/ (regular expressions can be used)
     * ${verbs} is the comma separated list of allowed verbs (GET, POST...) for accessing the resources matching the resource path pattern
-    * ${priority} is the rule’s priority. 1 is the lowest priority.
 
 *For example, a user having the rules:*
 
 ```asciidoc
-rule:/collection/.*:GET:1,
-rule:/explore/.*/_search:GET:1
+rule:/collection/.*:GET,
+rule:/explore/.*/_search:GET
 ```
 
-*will be able to explore the `collections` and to `search` in all of them, but won’t be able to add or delete collections (only `GET` verb is allowed for collections) and won’t be able to make aggregations (the resource `_aggregate` is not defined).*
+* will be able to explore the `collections` and to `search` in all of them, but won’t be able to add or delete collections (only `GET` verb is allowed for collections) and won’t be able to make aggregations (the resource `_aggregate` is not defined).*
  
 ## Protect data access
 
