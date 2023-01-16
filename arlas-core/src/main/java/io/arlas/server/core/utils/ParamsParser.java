@@ -265,24 +265,33 @@ public class ParamsParser {
 
     public static Filter getFilter(CollectionReference collectionReference, String serializedFilter) throws InvalidParameterException {
         if (serializedFilter != null) {
+            List<Filter> fList;
+            String sf = "[" + serializedFilter + "]";
             try {
-                Map<String, Filter> pf = objectMapper.readValue(serializedFilter, new TypeReference<Map<String, Filter>>() {});
-                Filter f = pf.get(collectionReference.collectionName);
-                if (f.righthand == null) {
-                    f.righthand = Boolean.TRUE;
-                }
-                return f;
+                List<Map<String, Filter>> pf = objectMapper.readValue(sf,
+                        new TypeReference<List<Map<String, Filter>>>() {});
+                fList = pf.stream()
+                        .filter(m -> m.get(collectionReference.collectionName) != null)
+                        .map(m -> m.get(collectionReference.collectionName)).toList();
             } catch (IOException e) {
                 try {
-                    Filter f = objectMapper.readValue(serializedFilter, Filter.class);
-                    if (f.righthand == null) {
-                        f.righthand = Boolean.TRUE;
-                    }
-                    return f;
+                    fList = objectMapper.readValue(sf, new TypeReference<List<Filter>>() {});
                 } catch (JsonProcessingException ex) {
+
+                    throw new InvalidParameterException(INVALID_FILTER + ": '" + sf + "'", ex);
                 }
-                throw new InvalidParameterException(INVALID_FILTER + ": '" + serializedFilter + "'");
             }
+            // if not null and parsing ok then we have at least one filter
+            Filter retFilter = fList.get(0);
+            if (retFilter.righthand == null) {
+                retFilter.righthand = Boolean.TRUE;
+            }
+
+            for (int i=1; i<fList.size(); i++) {
+                // for now, a list of partition filters is combined with OR. TODO: support more complex combination
+                retFilter.f.get(0).addAll(fList.get(i).f.get(0));
+            }
+            return retFilter;
         } else {
             return null;
         }
