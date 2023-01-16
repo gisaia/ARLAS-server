@@ -5,11 +5,11 @@ technicalRoles:
 # ARLAS explore
     - h:arlas-organization:${org}
     - h:arlas-workspace:${ws}
-    - r:explore/${org}.*:GET,POST
-    - r:collections/${org}.*:GET
+    - r:explore/.*:GET,POST
+    - r:collections/.*:GET
     - r:explore/_list:GET
-    - r:explore/ogc/opensearch/${org}.*:GET
-    - r:ogc/${org}.*:GET
+    - r:explore/ogc/opensearch/.*:GET
+    - r:ogc/.*:GET
     - r:stac:GET
     - r:openapi.json:GET
     - r:stac/.*:GET,POST
@@ -25,8 +25,8 @@ technicalRoles:
     - r:permissions:GET
 
   role/arlas/tagger:
-    - r:write/${org}.*:POST
-    - r:status/${org}.*:GET
+    - r:write/.*:POST
+    - r:status/.*:GET
 
   role/arlas/builder:
     - r:collections:GET
@@ -34,12 +34,12 @@ technicalRoles:
 
   role/arlas/owner:
 # ARLAS explore
-    - r:collections/${org}.*:PUT,DELETE
+    - r:collections/.*:PUT,DELETE
     - r:collections/_export:GET
 # ARLAS city
-    - r:storage/${org}.*:GET,DELETE
-    - r:data/${org}.*:GET,POST,DELETE
-    - r:process/${org}.*:GET,POST
+    - r:storage/.*:GET,DELETE
+    - r:data/.*:GET,POST,DELETE
+    - r:process/.*:GET,POST
     - r:usage:GET
 # ARLAS IAM
     - r:organisations:GET,POST
