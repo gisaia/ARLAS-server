@@ -23,16 +23,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import io.arlas.server.core.exceptions.CollectionUnavailableException;
-import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InternalServerErrorException;
 import io.arlas.commons.exceptions.NotFoundException;
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
 import io.arlas.server.core.impl.elastic.utils.ElasticTool;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.CollectionReferenceParameters;
+import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -56,12 +56,12 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({"rawtypes"})
 public class ElasticCollectionReferenceService extends CollectionReferenceService {
-    private static Logger LOGGER = LoggerFactory.getLogger(ElasticCollectionReferenceService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticCollectionReferenceService.class);
 
-    private static ObjectMapper mapper;
-    private static ObjectReader reader;
+    private static final ObjectMapper mapper;
+    private static final ObjectReader reader;
     private static final String ARLAS_MAPPING_FILE_NAME = "arlas.mapping.json";
 
     static {
@@ -123,11 +123,15 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
                     try {
                         CollectionReference colRef = new CollectionReference(hit.getId(), reader.readValue(source));
                         checkIfAllowedForOrganisations(colRef, organisations);
-                        for (String c : allowedCollections) {
-                            if ((c.endsWith("*") && hit.getId().startsWith(c.substring(0, c.indexOf("*"))))
-                                    || hit.getId().equals(c)) {
-                                collections.add(colRef);
-                                break;
+                        if (isCollectionPublic(colRef)) {
+                            collections.add(colRef);
+                        } else {
+                            for (String c : allowedCollections) {
+                                if ((c.endsWith("*") && hit.getId().startsWith(c.substring(0, c.indexOf("*"))))
+                                        || hit.getId().equals(c)) {
+                                    collections.add(colRef);
+                                    break;
+                                }
                             }
                         }
                     } catch (IOException e) {
