@@ -112,10 +112,14 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
                     try {
                         CollectionReference colRef = new CollectionReference(hit.id(), hit.source());
                         checkIfAllowedForOrganisations(colRef, organisations);
-                        for (String c : allowedCollections) {
-                            if (CollectionUtil.matches(c, hit.id())) {
-                                collections.add(colRef);
-                                break;
+                        if (isCollectionPublic(colRef)) {
+                            collections.add(colRef);
+                        } else {
+                            for (String c : allowedCollections) {
+                                if (CollectionUtil.matches(c, hit.id())) {
+                                    collections.add(colRef);
+                                    break;
+                                }
                             }
                         }
                     } catch (CollectionUnavailableException e) {
