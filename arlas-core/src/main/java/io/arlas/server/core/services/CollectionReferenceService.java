@@ -29,7 +29,10 @@ import io.arlas.server.core.model.CollectionReferenceParameters;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.core.model.response.CollectionReferenceDescriptionProperty;
 import io.arlas.server.core.model.response.FieldType;
-import io.arlas.server.core.utils.*;
+import io.arlas.server.core.utils.CheckParams;
+import io.arlas.server.core.utils.CollectionUtil;
+import io.arlas.server.core.utils.ColumnFilterUtil;
+import io.arlas.server.core.utils.FilterMatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +114,8 @@ public abstract class CollectionReferenceService {
         List<CollectionReferenceDescription> res  = new ArrayList<>();
         for (CollectionReference collection : collectionReferenceList) {
             if (ColumnFilterUtil.cleanColumnFilter(columnFilter).isEmpty()
-                    || ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter,collection).isPresent()) {
+                    || isCollectionPublic(collection)
+                    || ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collection).isPresent()) {
                 try {
                     CollectionReferenceDescription describe = describeCollection(collection, columnFilter);
                     res.add(describe);
@@ -356,6 +360,12 @@ public abstract class CollectionReferenceService {
         return ret.get();
     }
 
+    protected boolean isCollectionPublic(CollectionReference collection) {
+        // check if collection is public in a context where organisation must be checked
+        return collection.params.collectionOrganisations != null
+                && collection.params.collectionOrganisations.isPublic;
+    }
+
     protected void checkIfAllowedForOrganisations(CollectionReference collection,
                                                Optional<String> organisations)
             throws CollectionUnavailableException {
@@ -372,13 +382,15 @@ public abstract class CollectionReferenceService {
             return;
         }
 
-        if (!ownerOnly &&
-                (collection.params.collectionOrganisations == null ||
-                        collection.params.collectionOrganisations.isPublic ||
-                        collection.params.collectionOrganisations.owner == null)) {
-            // do we consider a collection with no organisation attribute open to all?
-            LOGGER.debug(String.format("Collection %s organisation is public or null: %s",
-                    collection.collectionName, collection.params.collectionOrganisations));
+        if (collection.params.collectionOrganisations == null) {
+            throw new CollectionUnavailableException(
+                    "The collection %s is not available because has no organisation parameters"
+                            .format(collection.collectionName));
+        }
+
+        if (!ownerOnly && collection.params.collectionOrganisations.isPublic) {
+            LOGGER.debug("Collection %s organisation is public."
+                    .format(collection.collectionName));
             return;
         }
 
