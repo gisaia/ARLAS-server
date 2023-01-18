@@ -67,7 +67,7 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
             @PathParam(value = "collection") String collection,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -94,8 +94,8 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
-        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Collections.singletonList(collectionReference));
-        CollectionReferenceDescription collectionReferenceDescription = exploreService.describeCollection(collectionReference, columnFilter);
+        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), Collections.singletonList(collectionReference));
+        CollectionReferenceDescription collectionReferenceDescription = exploreService.describeCollection(collectionReference, Optional.ofNullable(columnFilter));
 
         return cache(Response.ok(collectionReferenceDescription), maxagecache);
     }

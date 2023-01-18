@@ -58,7 +58,7 @@
     <swaggerv3.version>2.2.8</swaggerv3.version>
     <jaxb.version>2.3.7</jaxb.version>
     <!-- warning: do not upgrade to 2.38+ -->
-    <jersey-media-jaxb.version>2.37</jersey-media-jaxb.version>
+    <jersey-media-jaxb.version>2.38</jersey-media-jaxb.version>
     <activation.version>2.1.0</activation.version>
 
     <!-- CACHE-->

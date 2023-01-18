@@ -97,7 +97,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -182,7 +182,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         }
 
         return geosearch(collectionReference,
-                ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand), partitionFilter, columnFilter,
+                ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand), partitionFilter, Optional.ofNullable(columnFilter),
                 flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries, false);
     }
 
@@ -227,7 +227,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -307,7 +307,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         }
 
         return geosearch(collectionReference,
-                ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand), partitionFilter, columnFilter,
+                ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand), partitionFilter, Optional.ofNullable(columnFilter),
                 true, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries, true);
     }
 
@@ -365,7 +365,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -456,7 +456,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
 
         return geosearch(collectionReference,
                 ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand, bbox, pwithinBbox),
-                partitionFilter, columnFilter, flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries, false);
+                partitionFilter, Optional.ofNullable(columnFilter), flat, include, exclude, size, from, sort, after, before, maxagecache, returned_geometries, false);
     }
 
 
@@ -490,7 +490,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -523,14 +523,14 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         exploreService.setValidGeoFilters(collectionReference, search);
         exploreService.setValidGeoFilters(collectionReference, searchHeader);
 
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, search);
 
         search.projection = ParamsParser.enrichIncludes(search.projection, search.returned_geometries);
 
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
 
         FeatureCollection fc = exploreService.getFeatures(request, collectionReference, (search.form != null && search.form.flat));
         return cache(Response.ok(fc), maxagecache);
@@ -566,7 +566,7 @@ public class GeoSearchRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -600,14 +600,14 @@ public class GeoSearchRESTService extends ExploreRESTServices {
         exploreService.setValidGeoFilters(collectionReference, search);
         exploreService.setValidGeoFilters(collectionReference, searchHeader);
 
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, search);
 
         search.projection = ParamsParser.enrichIncludes(search.projection, search.returned_geometries);
 
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
 
         FeatureCollection fc = exploreService.getFeatures(request, collectionReference, true);
         File result = toShapefile(fc, collectionReference.params.collectionDisplayNames!=null?collectionReference.params.collectionDisplayNames.shapeColumns:null);

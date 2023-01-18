@@ -107,7 +107,7 @@ public class SuggestRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------

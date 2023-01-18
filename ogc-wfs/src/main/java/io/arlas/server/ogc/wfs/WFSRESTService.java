@@ -187,7 +187,7 @@ public class WFSRESTService extends OGCRESTService {
             @ApiParam(hidden = true)
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
 
@@ -208,7 +208,7 @@ public class WFSRESTService extends OGCRESTService {
             throw new OGCException(OGCExceptionCode.NOT_FOUND, "Collection not found " + collection, Service.WFS);
         }
 
-        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, List.of(collectionReference));
+        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), List.of(collectionReference));
 
         CollectionReferenceDescription collectionReferenceDescription = wfsToolService.getCollectionReferenceDescription(collectionReference);
         String collectionName = collectionReferenceDescription.collectionName;
@@ -236,7 +236,7 @@ public class WFSRESTService extends OGCRESTService {
                         .build();
             }
             case DescribeFeatureType -> {
-                StreamingOutput describeFeatureTypeResponse = wfsHandler.describeFeatureTypeHandler.getDescribeFeatureTypeResponse(collectionReferenceDescription, serviceUrl, columnFilter);
+                StreamingOutput describeFeatureTypeResponse = wfsHandler.describeFeatureTypeHandler.getDescribeFeatureTypeResponse(collectionReferenceDescription, serviceUrl, Optional.ofNullable(columnFilter));
                 return Response.ok(describeFeatureTypeResponse).type(MediaType.APPLICATION_XML).build();
             }
             case ListStoredQueries -> {
@@ -257,19 +257,19 @@ public class WFSRESTService extends OGCRESTService {
                 WFSCheckParam.checkSrsName(srsname);
                 StreamingOutput getFeatureResponse = null;
                 if (storedquery_id != null) {
-                    Map<String, Object> response = wfsToolService.getFeature(id, bbox, filter, resourceid, storedquery_id, partitionFilter, collectionReference, excludes, columnFilter);
+                    Map<String, Object> response = wfsToolService.getFeature(id, bbox, filter, resourceid, storedquery_id, partitionFilter, collectionReference, excludes, Optional.ofNullable(columnFilter));
                     getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureByIdResponse(response, collectionReferenceDescription, serviceUrl);
                 } else {
-                    List<Map<String, Object>> featureList = wfsToolService.getFeatures(id, bbox, filter, resourceid, partitionFilter, collectionReference, excludes, startindex, count, columnFilter);
+                    List<Map<String, Object>> featureList = wfsToolService.getFeatures(id, bbox, filter, resourceid, partitionFilter, collectionReference, excludes, startindex, count, Optional.ofNullable(columnFilter));
                     getFeatureResponse = wfsHandler.getFeatureHandler.getFeatureResponse(wfsHandler.ogcConfiguration, collectionReferenceDescription, startindex, count, featureList, serviceUrl);
                 }
                 return Response.ok(getFeatureResponse).type(MediaType.APPLICATION_XML).build();
             }
             case GetPropertyValue -> {
                 String include = OGCCheckParam.formatValueReference(valuereference, collectionReferenceDescription);
-                ColumnFilterUtil.assertFieldAvailable(columnFilter, collectionReference, include);
+                ColumnFilterUtil.assertFieldAvailable(Optional.ofNullable(columnFilter), collectionReference, include);
                 ValueCollectionType valueCollectionType = wfsToolService.getPropertyValue(id, bbox, filter, resourceid, storedquery_id, partitionFilter,
-                        collectionReference, include, excludes, startindex, count, columnFilter);
+                        collectionReference, include, excludes, startindex, count, Optional.ofNullable(columnFilter));
                 return Response.ok(wfsHandler.wfsFactory.createValueCollection(valueCollectionType)).type(MediaType.APPLICATION_XML).build();
             }
             default ->

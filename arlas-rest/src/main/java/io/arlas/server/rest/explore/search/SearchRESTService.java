@@ -98,7 +98,7 @@ public class SearchRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -188,7 +188,7 @@ public class SearchRESTService extends ExploreRESTServices {
         search.page = ParamsParser.getPage(size, from, sort, after, before);
         search.projection = ParamsParser.getProjection(include, exclude);
         search.returned_geometries = returned_geometries;
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, search);
 
         search.projection = ParamsParser.enrichIncludes(search.projection, returned_geometries);
 
@@ -198,7 +198,7 @@ public class SearchRESTService extends ExploreRESTServices {
         request.basicRequest = search;
         exploreService.setValidGeoFilters(collectionReference, searchHeader);
         request.headerRequest = searchHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
 
         Hits hits = exploreService.search(request, collectionReference, Boolean.TRUE.equals(flat), uriInfo,"GET");
         return cache(Response.ok(hits), maxagecache);
@@ -234,7 +234,7 @@ public class SearchRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -268,7 +268,7 @@ public class SearchRESTService extends ExploreRESTServices {
         exploreService.setValidGeoFilters(collectionReference, search);
         exploreService.setValidGeoFilters(collectionReference, searchHeader);
 
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, search);
         CheckParams.checkReturnedGeometries(collectionReference, includes, excludes, search.returned_geometries);
 
         search.projection = ParamsParser.enrichIncludes(search.projection, search.returned_geometries);
@@ -276,7 +276,7 @@ public class SearchRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
 
         Hits hits = exploreService.search(request, collectionReference, (search.form != null && Boolean.TRUE.equals(search.form.flat)),uriInfo,"POST");
         return cache(Response.ok(hits), maxagecache);

@@ -91,7 +91,7 @@ public class RawRESTService extends ExploreRESTServices {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -108,9 +108,9 @@ public class RawRESTService extends ExploreRESTServices {
             throw new NotFoundException("Collection " + collection + " not found.");
         }
 
-        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Collections.singletonList(collectionReference));
+        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), Collections.singletonList(collectionReference));
 
-        String[] includes = ColumnFilterUtil.cleanColumnFilter(columnFilter)
+        String[] includes = ColumnFilterUtil.cleanColumnFilter(Optional.ofNullable(columnFilter))
                 .map(cf -> cf + "," + String.join(",", ColumnFilterUtil.getCollectionMandatoryPaths(collectionReference)))
                 .map(i -> i.split(","))
                 .orElse(null);

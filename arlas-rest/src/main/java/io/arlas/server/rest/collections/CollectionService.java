@@ -83,7 +83,7 @@ public class CollectionService extends CollectionRESTServices {
 
     public Response getAll(
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -95,7 +95,7 @@ public class CollectionService extends CollectionRESTServices {
                     defaultValue = "false")
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
-        List<CollectionReference> collections = collectionReferenceService.getAllCollectionReferences(columnFilter, organisations);
+        List<CollectionReference> collections = collectionReferenceService.getAllCollectionReferences(Optional.ofNullable(columnFilter), organisations);
         return ResponseFormatter.getResultResponse(collections);
     }
 
@@ -115,12 +115,12 @@ public class CollectionService extends CollectionRESTServices {
 
     public Response exportCollections(
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
             ) throws ArlasException {
-        List<CollectionReference> collections = collectionReferenceService.getAllCollectionReferences(columnFilter, organisations);
+        List<CollectionReference> collections = collectionReferenceService.getAllCollectionReferences(Optional.ofNullable(columnFilter), organisations);
         String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
         String fileName = "arlas-collections-export_" + date + ".json";
         removeMetacollection(collections);
@@ -142,7 +142,7 @@ public class CollectionService extends CollectionRESTServices {
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response importCollections(
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -153,7 +153,7 @@ public class CollectionService extends CollectionRESTServices {
         List<CollectionReference> collections = getCollectionsFromInputStream(inputStream);
         List<CollectionReference> savedCollections = new ArrayList<>();
         removeMetacollection(collections);
-        Set<String> allowedCollections = ColumnFilterUtil.getAllowedCollections(columnFilter);
+        Set<String> allowedCollections = ColumnFilterUtil.getAllowedCollections(Optional.ofNullable(columnFilter));
         for (CollectionReference collection : collections) {
             collectionReferenceService.checkIfAllowedForOrganisations(collection, organisations, true);
             for (String c : allowedCollections) {
@@ -207,7 +207,7 @@ public class CollectionService extends CollectionRESTServices {
             @PathParam(value = "collection") String collection,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -221,7 +221,7 @@ public class CollectionService extends CollectionRESTServices {
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         CollectionReference cr = collectionReferenceService.getCollectionReference(collection, organisations);
-        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, List.of(cr));
+        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), List.of(cr));
         return ResponseFormatter.getResultResponse(cr);
     }
 
