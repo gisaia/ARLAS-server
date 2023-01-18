@@ -111,7 +111,7 @@ public class ComputeRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -141,7 +141,7 @@ public class ComputeRESTService extends ExploreRESTServices {
         computationRequest.metric = ComputationEnum.fromValue(metric);
         computationRequest.precisionThreshold = precision;
 
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, computationRequest);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, computationRequest);
 
         ComputationRequest computationRequestHeader = new ComputationRequest();
         computationRequestHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
@@ -149,7 +149,7 @@ public class ComputeRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         request.basicRequest = computationRequest;
         request.headerRequest = computationRequestHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
         ComputationResponse computationResponse = exploreService.compute(request, collectionReference);
         return cache(Response.ok(computationResponse), maxagecache) ;
     }
@@ -186,7 +186,7 @@ public class ComputeRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -216,11 +216,11 @@ public class ComputeRESTService extends ExploreRESTServices {
         exploreService.setValidGeoFilters(collectionReference, computationRequest);
         exploreService.setValidGeoFilters(collectionReference, computationRequestHeader);
 
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, computationRequest);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, computationRequest);
 
         request.basicRequest = computationRequest;
         request.headerRequest = computationRequestHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
         ComputationResponse computationResponse = exploreService.compute(request, collectionReference);
         return cache(Response.ok(computationResponse), maxagecache) ;
     }

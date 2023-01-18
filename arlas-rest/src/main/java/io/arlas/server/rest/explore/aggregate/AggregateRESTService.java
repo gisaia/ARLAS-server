@@ -107,7 +107,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -138,7 +138,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         aggregationsRequest.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand);
         aggregationsRequest.aggregations = ParamsParser.getAggregations(collectionReference, agg);
 
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, aggregationsRequest);
 
         AggregationsRequest aggregationsRequestHeader = new AggregationsRequest();
         aggregationsRequestHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
@@ -146,7 +146,7 @@ public class AggregateRESTService extends ExploreRESTServices {
         request.basicRequest = aggregationsRequest;
         exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
         request.headerRequest = aggregationsRequestHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
 
         AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, Boolean.TRUE.equals(flat));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);
@@ -184,7 +184,7 @@ public class AggregateRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -217,11 +217,11 @@ public class AggregateRESTService extends ExploreRESTServices {
         exploreService.setValidGeoFilters(collectionReference, aggregationsRequest);
         exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
 
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationsRequest);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, aggregationsRequest);
 
         request.basicRequest = aggregationsRequest;
         request.headerRequest = aggregationsRequestHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
 
         AggregationResponse aggregationResponse = getArlasAggregation(request, collectionReference, (aggregationsRequest.form != null && Boolean.TRUE.equals(aggregationsRequest.form.flat)));
         aggregationResponse.totalTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startArlasTime);

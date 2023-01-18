@@ -86,7 +86,7 @@ public class StacCollectionsRESTService extends StacRESTService {
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response getCollections(@Context UriInfo uriInfo,
                                    @ApiParam(hidden = true)
-                                   @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+                                   @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
                                    @ApiParam(hidden = true)
                                    @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
@@ -98,7 +98,7 @@ public class StacCollectionsRESTService extends StacRESTService {
 
         List<Collection> collectionList = new ArrayList<>();
         for (CollectionReference c :
-                collectionReferenceService.getAllCollectionReferences(columnFilter, organisations)
+                collectionReferenceService.getAllCollectionReferences(Optional.ofNullable(columnFilter), organisations)
                         .stream()
                         .filter(c -> !c.collectionName.equals("metacollection"))
                         .toList()) {
@@ -235,7 +235,7 @@ public class StacCollectionsRESTService extends StacRESTService {
                                 @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
                                 @ApiParam(hidden = true)
-                                @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+                                @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
                                 @ApiParam(hidden = true)
                                 @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
@@ -256,7 +256,7 @@ public class StacCollectionsRESTService extends StacRESTService {
                 .after(after)
                 .before(before);
 
-        return cache(Response.ok(getStacFeatureCollection(collectionReference, partitionFilter, columnFilter,
+        return cache(Response.ok(getStacFeatureCollection(collectionReference, partitionFilter, Optional.ofNullable(columnFilter),
                 searchBody, f, uriInfo, "GET", true)), 0);
     }
 
@@ -283,7 +283,7 @@ public class StacCollectionsRESTService extends StacRESTService {
                                    @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
                                @ApiParam(hidden = true)
-                               @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+                               @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
                                @ApiParam(hidden = true)
                                @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
@@ -292,7 +292,7 @@ public class StacCollectionsRESTService extends StacRESTService {
 
         CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collectionId, organisations);
 
-        StacFeatureCollection features = getStacFeatureCollection(collectionReference, partitionFilter, columnFilter, null,
+        StacFeatureCollection features = getStacFeatureCollection(collectionReference, partitionFilter, Optional.ofNullable(columnFilter), null,
                 java.util.Collections.singletonList(getIdFilter(featureId, collectionReference)),
                 uriInfo, "GET", true);
 

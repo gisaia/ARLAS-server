@@ -79,7 +79,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             // ----------------------- FILTERS- -----------------------
             // --------------------------------------------------------
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -95,7 +95,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
         if (cr == null) {
             throw new NotFoundException(collection);
         }
-        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Collections.singletonList(cr));
+        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), Collections.singletonList(cr));
         OpenSearchDescription description = new OpenSearchDescription();
         String prefix = uri.getBaseUri().toURL() + uri.getPath() + "/../_search";
 
@@ -123,7 +123,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             description.syndicationRight = os.syndicationRight;
             description.tags = os.tags;
         }
-        addURLs(prefix, description.url, exploreService.describeCollection(cr, columnFilter).properties, new Stack<>());
+        addURLs(prefix, description.url, exploreService.describeCollection(cr, Optional.ofNullable(columnFilter)).properties, new Stack<>());
         List<Url> urls = new ArrayList<>();
         description.url.forEach(url -> {
             urls.add(url(url.template + "&f="+cr.params.geometryPath+":intersect:{geo:box?}"));

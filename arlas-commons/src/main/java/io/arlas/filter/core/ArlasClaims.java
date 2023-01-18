@@ -123,7 +123,7 @@ public class ArlasClaims {
     }
 
     public static String getHeaderColumnFilterDefault(String org) {
-        return String.format("%s:%s_*:*", COLUMN_FILTER_HEADER_PREFIX, org);
+        return String.format("%s:%s*:*", COLUMN_FILTER_HEADER_PREFIX, org);
     }
 
     public static String getHeaderColumnFilter(List<String> collections) {

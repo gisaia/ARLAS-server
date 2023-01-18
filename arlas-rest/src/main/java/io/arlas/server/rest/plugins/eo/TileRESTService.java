@@ -116,7 +116,7 @@ public class TileRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -194,14 +194,14 @@ public class TileRESTService extends ExploreRESTServices {
         search.page = ParamsParser.getPage(size, from, sort, after,before);
         search.projection = ParamsParser.getProjection(collectionReference.params.rasterTileURL.idPath+","+collectionReference.params.geometryPath, null);
 
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, search);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, search);
 
         Search searchHeader = new Search();
         searchHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
 
         Queue<TileProvider<RasterTile>> providers = findCandidateTiles(collectionReference, request).stream()
                 .filter(match -> match._2().map(

@@ -91,7 +91,7 @@ public class CountRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionfilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -118,7 +118,7 @@ public class CountRESTService extends ExploreRESTServices {
         Count count = new Count();
         count.filter = ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand);
 
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, count);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, count);
 
         MixedRequest request = new MixedRequest();
         request.basicRequest = count;
@@ -126,7 +126,7 @@ public class CountRESTService extends ExploreRESTServices {
         countHeader.filter = ParamsParser.getFilter(collectionReference, partitionfilter);
         exploreService.setValidGeoFilters(collectionReference, countHeader);
         request.headerRequest = countHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
 
         Hits hits = exploreService.count(request, collectionReference);
         return cache(Response.ok(hits), maxagecache);
@@ -158,7 +158,7 @@ public class CountRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionfilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -184,14 +184,14 @@ public class CountRESTService extends ExploreRESTServices {
         MixedRequest request = new MixedRequest();
         exploreService.setValidGeoFilters(collectionReference, count);
 
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, count);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, count);
 
         request.basicRequest = count;
         Count countHeader = new Count();
         countHeader.filter = ParamsParser.getFilter(collectionReference, partitionfilter);
         exploreService.setValidGeoFilters(collectionReference, countHeader);
         request.headerRequest = countHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
 
         Hits hits = exploreService.count(request, collectionReference);
         return Response.ok(hits).build();

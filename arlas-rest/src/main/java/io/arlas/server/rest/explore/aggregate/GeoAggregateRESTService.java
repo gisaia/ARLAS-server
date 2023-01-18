@@ -119,7 +119,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -150,7 +150,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
         return geoaggregate(collectionReference,
                 ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand),
-                partitionFilter, columnFilter, flat, agg, maxagecache, Optional.empty(), false);
+                partitionFilter, Optional.ofNullable(columnFilter), flat, agg, maxagecache, Optional.empty(), false);
 
     }
 
@@ -207,7 +207,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -234,7 +234,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
         return geoaggregate(collectionReference,
                 ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand),
-                partitionFilter, columnFilter, true, agg, maxagecache, Optional.empty(), true);
+                partitionFilter, Optional.ofNullable(columnFilter), true, agg, maxagecache, Optional.empty(), true);
 
     }
 
@@ -293,7 +293,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -340,7 +340,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                             + String.format(Locale.ROOT,"%.8f", b.getNorth() - GEOHASH_EPSILON));
             MixedRequest request = getGeoaggregateRequest(collectionReference,
                     ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand, b, pwithinBbox)
-                    , partitionFilter, columnFilter, agg);
+                    , partitionFilter, Optional.ofNullable(columnFilter), agg);
             aggType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
 
             futureList.add(CompletableFuture.supplyAsync(() -> {
@@ -426,7 +426,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -470,7 +470,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                             + String.format(Locale.ROOT, "%.8f", b.getNorth() - GEOHASH_EPSILON));
             MixedRequest request = getGeoaggregateRequest(collectionReference,
                     ParamsParser.getFilter(collectionReference, f, q, dateformat, righthand, b, pwithinBbox)
-                    , partitionFilter, columnFilter, agg);
+                    , partitionFilter, Optional.ofNullable(columnFilter), agg);
             aggType = ((AggregationsRequest) request.basicRequest).aggregations.get(0).type;
 
             futureList.add(CompletableFuture.supplyAsync(() -> {
@@ -597,7 +597,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -628,11 +628,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         exploreService.setValidGeoFilters(collectionReference, aggregationRequest);
         exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
 
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationRequest);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, aggregationRequest);
 
         request.basicRequest = aggregationRequest;
         request.headerRequest = aggregationsRequestHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
 
         FeatureCollection fc = getFeatureCollection(request, collectionReference, (aggregationRequest.form != null && aggregationRequest.form.flat), Optional.empty());
 
@@ -670,7 +670,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
@@ -701,11 +701,11 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         exploreService.setValidGeoFilters(collectionReference, aggregationRequest);
         exploreService.setValidGeoFilters(collectionReference, aggregationsRequestHeader);
 
-        ColumnFilterUtil.assertRequestAllowed(columnFilter, collectionReference, aggregationRequest);
+        ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, aggregationRequest);
 
         request.basicRequest = aggregationRequest;
         request.headerRequest = aggregationsRequestHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collectionReference);
 
         FeatureCollection fc = getFeatureCollection(request, collectionReference, true, Optional.empty());
         File result = toShapefile(fc, collectionReference.params.collectionDisplayNames!=null?collectionReference.params.collectionDisplayNames.shapeColumns:null);

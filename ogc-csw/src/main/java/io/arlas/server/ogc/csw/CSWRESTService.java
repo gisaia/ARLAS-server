@@ -230,7 +230,7 @@ public class CSWRESTService extends OGCRESTService {
             // --------------------------------------------------------
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = COLUMN_FILTER) Optional<String> columnFilter,
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
 
             @ApiParam(hidden = true)
@@ -341,7 +341,7 @@ public class CSWRESTService extends OGCRESTService {
                 String serviceUrl = serverBaseUri + "ogc/csw/?";
                 getCapabilitiesHandler.setCapabilitiesType(responseSections, serviceUrl, serverBaseUri + "ogc/csw/opensearch");
                 if (cswHandler.inspireConfiguration.enabled) {
-                    collections = collectionReferenceService.getAllCollectionReferences(columnFilter, organisations);
+                    collections = collectionReferenceService.getAllCollectionReferences(Optional.ofNullable(columnFilter), organisations);
 
                     collections.removeIf(collectionReference -> collectionReference.collectionName.equals(getMetacollectionName()));
                     filterCollectionsByColumnFilter(columnFilter, collections);
@@ -372,7 +372,7 @@ public class CSWRESTService extends OGCRESTService {
                 GetRecordsByIdHandler getRecordsByIdHandler = cswHandler.getRecordsByIdHandler;
                 CollectionReferences recordCollectionReferences = ogcDao.getCollectionReferences(elements, null, maxRecords, startPosition - 1, ids, query, constraint, boundingBox);
                 collections = new ArrayList<>(recordCollectionReferences.collectionReferences);
-                ColumnFilterUtil.assertCollectionsAllowed(columnFilter, collections);
+                ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), collections);
                 if (outputSchema != null && outputSchema.equals(CSWConstant.SUPPORTED_CSW_OUTPUT_SCHEMA[2])) {
                     GetRecordByIdResponse getRecordByIdResponse = getRecordsByIdHandler.getMDMetadaTypeResponse(collections, ElementSetName.valueOf(elementSetName));
                     return Response.ok(getRecordByIdResponse).type(outputFormatMediaType).build();
@@ -386,12 +386,18 @@ public class CSWRESTService extends OGCRESTService {
         }
     }
 
-    private void filterCollectionsByColumnFilter(@HeaderParam(COLUMN_FILTER) @ApiParam(hidden = true) Optional<String> columnFilter, List<CollectionReference> collections) throws CollectionUnavailableException {
-        ColumnFilterUtil.cleanColumnFilter(columnFilter);
+    private void filterCollectionsByColumnFilter(
+            @HeaderParam(COLUMN_FILTER)
+            @ApiParam(hidden = true) String columnFilter,
+
+            List<CollectionReference> collections
+    ) throws CollectionUnavailableException {
+        ColumnFilterUtil.cleanColumnFilter(Optional.ofNullable(columnFilter));
         collections.removeIf(collection ->
         {
             try {
-                return ColumnFilterUtil.cleanColumnFilter(columnFilter).isPresent() && ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collection).isEmpty();
+                return ColumnFilterUtil.cleanColumnFilter(Optional.ofNullable(columnFilter)).isPresent()
+                        && ColumnFilterUtil.getCollectionRelatedColumnFilter(Optional.ofNullable(columnFilter), collection).isEmpty();
             } catch (CollectionUnavailableException ignored) {
                 // already checked with the first line of this method
                 return true;
