@@ -189,7 +189,7 @@ public class WFSRESTService extends OGCRESTService {
             @ApiParam(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
             @ApiParam(hidden = true)
-            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations
 
 
     ) throws IOException, ArlasException {
@@ -203,7 +203,7 @@ public class WFSRESTService extends OGCRESTService {
         startindex = Optional.ofNullable(startindex).orElse(0);
         count = Optional.ofNullable(count).orElse(ogcConfiguration.queryMaxFeature.intValue());
 
-        CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collection, organisations);
+        CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collection, Optional.ofNullable(organisations));
         if (collectionReference == null) {
             throw new OGCException(OGCExceptionCode.NOT_FOUND, "Collection not found " + collection, Service.WFS);
         }

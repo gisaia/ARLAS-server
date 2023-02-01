@@ -70,7 +70,7 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
@@ -88,7 +88,7 @@ public class DescribeCollectionRESTService extends ExploreRESTServices {
     ) throws ArlasException {
 
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection, organisations);
+                .getCollectionReference(collection, Optional.ofNullable(organisations));
 
         if (collectionReference == null) {
             throw new NotFoundException(collection);
