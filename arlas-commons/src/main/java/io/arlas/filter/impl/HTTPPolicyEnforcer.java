@@ -40,6 +40,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 @Provider
 @Priority(Priorities.AUTHORIZATION)
@@ -62,7 +63,7 @@ public class HTTPPolicyEnforcer extends AbstractPolicyEnforcer {
     }
 
     @Override
-    protected Map<String, Object> getRolesClaim(Object token) {
+    protected Map<String, Object> getRolesClaim(Object token, Optional<String> org) {
         Claim jwtClaimRoles = ((DecodedJWT) token).getClaim(authConf.claimRoles);
         if (!jwtClaimRoles.isNull()) {
             return jwtClaimRoles.asMap();

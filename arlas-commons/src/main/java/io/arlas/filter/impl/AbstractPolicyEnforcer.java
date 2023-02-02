@@ -101,10 +101,10 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
         return ((DecodedJWT) token).getSubject();
     }
 
-    protected Map<String, Object> getRolesClaim(Object token) {
+    protected Map<String, Object> getRolesClaim(Object token, Optional<String> org) {
         Claim jwtClaimRoles = ((DecodedJWT) token).getClaim(authConf.claimRoles);
         if (!jwtClaimRoles.isNull()) {
-            return Collections.singletonMap("", jwtClaimRoles.asList(String.class));
+            return Collections.singletonMap(org.orElse(""), jwtClaimRoles.asList(String.class));
         } else {
             return Collections.emptyMap();
         }
@@ -181,6 +181,9 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                 }
                 String orgFilter = ctx.getHeaders().getFirst(ARLAS_ORG_FILTER);
                 Object token = getObjectToken(accessToken, orgFilter);
+                Set<String> permissions = getPermissionsClaim(token);
+                Optional<String> org = Optional.ofNullable(new ArlasClaims(permissions.stream().toList()).getVariables().get(VAR_ORG));
+
                 ctx.getHeaders().remove(authConf.headerUser); // remove it in case it's been set manually
                 String userId = getSubject(token);
                 if (!StringUtil.isNullOrEmpty(userId)) {
@@ -195,7 +198,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                 }
 
                 ctx.getHeaders().remove(authConf.headerGroup); // remove it in case it's been set manually
-                Map<String, Object> roles = getRolesClaim(token);
+                Map<String, Object> roles = getRolesClaim(token, org);
                 log = StringUtil.concat(log, String.format(" (orgs=%s)", roles.keySet()));
                 Set<String> groups = Collections.emptySet();
                 if (!roles.isEmpty()) {
@@ -210,7 +213,6 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                 }
                 log = StringUtil.concat(log, String.format(" (groups=%s)", groups));
 
-                Set<String> permissions = getPermissionsClaim(token);
                 addTechnicalRolesToPermissions(permissions, roles);
                 log = StringUtil.concat(log, String.format(" (permissions=%s)", permissions));
                 if (!permissions.isEmpty()) {

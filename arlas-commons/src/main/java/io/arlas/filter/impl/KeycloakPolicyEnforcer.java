@@ -33,10 +33,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.ext.Provider;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Provider
 @Priority(Priorities.AUTHORIZATION)
@@ -74,8 +71,8 @@ public class KeycloakPolicyEnforcer extends AbstractPolicyEnforcer {
     }
 
     @Override
-    protected Map<String, Object> getRolesClaim(Object token) {
-        return Collections.singletonMap("",
+    protected Map<String, Object> getRolesClaim(Object token, Optional<String> org) {
+        return Collections.singletonMap(org.orElse(""),
                 ((AccessToken)token).getResourceAccess(authConf.keycloakConfiguration.getResource()).getRoles().stream().toList());
     }
 
