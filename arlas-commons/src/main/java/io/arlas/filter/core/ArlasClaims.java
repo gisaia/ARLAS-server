@@ -106,7 +106,7 @@ public class ArlasClaims {
 
     public static String replaceVar(String original, String var, String val) {
         String result = original.replaceAll("\\$\\{" + var + "}", val);
-        LOGGER.debug("Injecting variable '" + var + "' in  '" + original +"' results in '" + result + "'");
+        LOGGER.debug(String.format("Injecting variable '%s' (val='%s') in  '%s' results in '%s'", var, val, original, result));
         return result;
     }
 
