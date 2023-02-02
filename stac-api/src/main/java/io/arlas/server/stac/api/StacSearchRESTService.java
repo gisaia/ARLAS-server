@@ -169,7 +169,7 @@ public class StacSearchRESTService extends StacRESTService {
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations
 
     ) throws ArlasException, JsonProcessingException {
         collections = collections.stream().flatMap(e -> Stream.of(e.split(","))).collect(Collectors.toList());
@@ -188,7 +188,7 @@ public class StacSearchRESTService extends StacRESTService {
             searchBody.setIntersects(GeoUtil.geojsonReader.readValue(intersects));
         }
 
-        return cache(Response.ok(getItems(partitionFilter, Optional.ofNullable(columnFilter), organisations, uriInfo, searchBody, "GET")), 0);
+        return cache(Response.ok(getItems(partitionFilter, Optional.ofNullable(columnFilter), Optional.ofNullable(organisations), uriInfo, searchBody, "GET")), 0);
 
     }
 
@@ -215,10 +215,10 @@ public class StacSearchRESTService extends StacRESTService {
                                    @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
                                    @ApiParam(hidden = true)
-                                   @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
+                                   @HeaderParam(value = ARLAS_ORGANISATION) String organisations
 
     ) throws ArlasException {
-        return cache(Response.ok(getItems(partitionFilter, Optional.ofNullable(columnFilter), organisations, uriInfo, body, "POST")), 0);
+        return cache(Response.ok(getItems(partitionFilter, Optional.ofNullable(columnFilter), Optional.ofNullable(organisations), uriInfo, body, "POST")), 0);
     }
 
     // -----------

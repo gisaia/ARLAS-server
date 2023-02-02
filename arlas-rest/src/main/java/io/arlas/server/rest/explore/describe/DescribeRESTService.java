@@ -62,7 +62,7 @@ public class DescribeRESTService extends ExploreRESTServices {
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
@@ -78,7 +78,8 @@ public class DescribeRESTService extends ExploreRESTServices {
             @ApiParam(value = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws ArlasException {
-        List<CollectionReference> collectionReferences = exploreService.getCollectionReferenceService().getAllCollectionReferences(Optional.ofNullable(columnFilter), organisations);
+        List<CollectionReference> collectionReferences = exploreService.getCollectionReferenceService()
+                .getAllCollectionReferences(Optional.ofNullable(columnFilter), Optional.ofNullable(organisations));
         List<CollectionReferenceDescription> collectionReferenceDescriptionList = exploreService.describeAllCollections(collectionReferences, Optional.ofNullable(columnFilter));
 
         return cache(Response.ok(collectionReferenceDescriptionList), maxagecache);

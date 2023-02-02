@@ -82,7 +82,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
@@ -91,7 +91,7 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws IOException, NotFoundException, ArlasException {
         CollectionReference cr = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection, organisations);
+                .getCollectionReference(collection, Optional.ofNullable(organisations));
         if (cr == null) {
             throw new NotFoundException(collection);
         }

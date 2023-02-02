@@ -234,7 +234,7 @@ public class CSWRESTService extends OGCRESTService {
 
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
@@ -341,7 +341,7 @@ public class CSWRESTService extends OGCRESTService {
                 String serviceUrl = serverBaseUri + "ogc/csw/?";
                 getCapabilitiesHandler.setCapabilitiesType(responseSections, serviceUrl, serverBaseUri + "ogc/csw/opensearch");
                 if (cswHandler.inspireConfiguration.enabled) {
-                    collections = collectionReferenceService.getAllCollectionReferences(Optional.ofNullable(columnFilter), organisations);
+                    collections = collectionReferenceService.getAllCollectionReferences(Optional.ofNullable(columnFilter), Optional.ofNullable(organisations));
 
                     collections.removeIf(collectionReference -> collectionReference.collectionName.equals(getMetacollectionName()));
                     filterCollectionsByColumnFilter(columnFilter, collections);

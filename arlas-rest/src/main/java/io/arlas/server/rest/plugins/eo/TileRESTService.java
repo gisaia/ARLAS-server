@@ -119,7 +119,7 @@ public class TileRESTService extends ExploreRESTServices {
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             @ApiParam(hidden = true)
-            @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations,
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // -----------------------  PAGE    -----------------------
@@ -173,7 +173,7 @@ public class TileRESTService extends ExploreRESTServices {
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collection, organisations);
+                .getCollectionReference(collection, Optional.ofNullable(organisations));
         if (collectionReference == null) {
             throw new NotFoundException(collection);
         }

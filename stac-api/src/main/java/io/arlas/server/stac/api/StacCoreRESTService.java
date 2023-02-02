@@ -86,7 +86,7 @@ public class StacCoreRESTService extends StacRESTService {
                                    @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
                                    @ApiParam(hidden = true)
-                                   @HeaderParam(value = ARLAS_ORGANISATION) Optional<String> organisations
+                                   @HeaderParam(value = ARLAS_ORGANISATION) String organisations
 
     ) throws ArlasException {
 
@@ -99,7 +99,7 @@ public class StacCoreRESTService extends StacRESTService {
         links.add(getLink(uriInfo, "collections", "data", MediaType.APPLICATION_JSON));
         links.add(getLink(uriInfo, "search", "search", "application/geo+json"));
         links.add(getLink(uriInfo, "search", "POST", "search", "application/geo+json"));
-        collectionReferenceService.getAllCollectionReferences(Optional.ofNullable(columnFilter), organisations).forEach(c -> {
+        collectionReferenceService.getAllCollectionReferences(Optional.ofNullable(columnFilter), Optional.ofNullable(organisations)).forEach(c -> {
             if (!c.collectionName.equals("metacollection")) {
                 links.add(getLink(uriInfo, "collections/" + c.collectionName, "child", MediaType.APPLICATION_JSON));
             }
