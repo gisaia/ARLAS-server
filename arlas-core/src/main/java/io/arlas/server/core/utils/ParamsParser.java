@@ -195,6 +195,7 @@ public class ParamsParser {
             List<CollectionFunction> collectFcts = agg.stream().filter(s -> s.contains(AGG_COLLECT_FCT_PARAM))
                     .map(s -> CollectionFunction.valueOf(s.substring(AGG_COLLECT_FCT_PARAM.length()).toUpperCase()))
                     .collect(Collectors.toList());
+            /** This code can be kept without commenting it. */
             List<String> collectPrecisionThreshold = agg.stream()
                     .map(s -> {
                         if(s.contains(AGG_COLLECT_FCT_PRECISION_THRESHOLD)){
@@ -208,11 +209,13 @@ public class ParamsParser {
             metrics = IntStream.range(0, collectFcts.size())
                     .filter(i -> i < collectFcts.size())
                     .mapToObj(i -> {
-                        if(collectPrecisionThreshold.get(i) == null){
+                        return  new Metric(collectFields.get(i), collectFcts.get(i));
+
+                         /**if(collectPrecisionThreshold.get(i) == null){
                           return  new Metric(collectFields.get(i), collectFcts.get(i));
                         }else{
                             return  new Metric(collectFields.get(i), collectFcts.get(i), Integer.parseInt(collectPrecisionThreshold.get(i)));
-                        }
+                        } */
                     }).collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
             throw new InvalidParameterException("Invalid collection function");

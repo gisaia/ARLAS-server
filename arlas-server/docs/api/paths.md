@@ -251,6 +251,7 @@ List the collections configured in ARLAS.
 |---|---|---|
 |**200**|Successful operation|< [CollectionReferenceDescription](#collectionreferencedescription) > array|
 |**400**|Bad request.|[Error](#error)|
+|**403**|Collection not authorized.|[Error](#error)|
 |**500**|Arlas Server Error.|[Error](#error)|
 
 
@@ -452,7 +453,6 @@ Computes the given metric on a field in the collection, given the filters
 |**Query**|**field**  <br>*required*|The field on which the metric is calculated.|string||
 |**Query**|**max-age-cache**  <br>*optional*|max-age-cache|integer (int32)||
 |**Query**|**metric**  <br>*required*|The metric to compute : `max, min, avg, sum, cardinality, spanning, geobbox, geocentroid`.|string||
-|**Query**|**precision**  <br>*optional*|The precision use to retrieve cardinality.|integer (int32)|`3000`|
 |**Query**|**pretty**  <br>*optional*|Pretty print|boolean|`"false"`|
 |**Query**|**q**  <br>*optional*|A full text search. Optionally, it's possible to search on a field using this syntax: {fieldname}:{text}|< string > array(multi)||
 |**Query**|**righthand**  <br>*optional*|If righthand = true, the passed WKT should be counter clock-wise; otherwise, ARLAS-server will attempt to parse it as the "Complementary" Polygon on the other facet of the planet. <br> Inversely, If righthand = false, the passed WKT should be clock-wise; otherwise, ARLAS-server will attempt to parse it as the "Complementary" Polygon on the other facet of the planet.|boolean|`"true"`|
@@ -585,6 +585,7 @@ Describe the structure and the content of the given collection.
 |---|---|---|
 |**200**|Successful operation|[CollectionReferenceDescription](#collectionreferencedescription)|
 |**400**|Bad request.|[Error](#error)|
+|**403**|Collection not authorized.|[Error](#error)|
 |**500**|Arlas Server Error.|[Error](#error)|
 
 

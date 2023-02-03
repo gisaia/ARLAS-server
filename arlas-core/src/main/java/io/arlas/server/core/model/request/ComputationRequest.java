@@ -19,10 +19,13 @@
 
 package io.arlas.server.core.model.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
 
 public class ComputationRequest extends Request {
     public String field;
     public ComputationEnum metric;
+    @JsonIgnore //ignore the property for now so that it doesn't appear when generating the api clients
     public int precisionThreshold = 3000;
+
 }

@@ -19,6 +19,7 @@
 
 package io.arlas.server.core.model.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.arlas.server.core.model.enumerations.CollectionFunction;
@@ -27,7 +28,8 @@ import io.arlas.server.core.model.enumerations.CollectionFunction;
 public class Metric {
     public String collectField;
     public CollectionFunction collectFct;
-    public Integer precisionThreshold;
+    @JsonIgnore /** Ignoring this property, initialise it to 3000 */
+    public Integer precisionThreshold = 3000;
 
     public Metric(String collectField, CollectionFunction collectFct) {
         this.collectField = collectField;

@@ -82,6 +82,16 @@
 |**shape_columns**  <br>*optional*|< string, string > map|
 
 
+<a name="collectionorganisations"></a>
+### CollectionOrganisations
+
+|Name|Schema|
+|---|---|
+|**owner**  <br>*optional*|string|
+|**public**  <br>*optional*|boolean|
+|**shared**  <br>*optional*|< string > array|
+
+
 <a name="collectionreference"></a>
 ### CollectionReference
 
@@ -135,6 +145,7 @@
 |**license_name**  <br>*optional*|string|
 |**license_urls**  <br>*optional*|< string > array|
 |**open_search**  <br>*optional*|[OpenSearch](#opensearch)|
+|**organisations**  <br>*optional*|[CollectionOrganisations](#collectionorganisations)|
 |**raster_tile_height**  <br>*optional*|integer (int32)|
 |**raster_tile_url**  <br>*optional*|[RasterTileURL](#rastertileurl)|
 |**raster_tile_width**  <br>*optional*|integer (int32)|
@@ -152,7 +163,6 @@
 |**filter**  <br>*optional*|[Filter](#filter)|
 |**form**  <br>*optional*|[Form](#form)|
 |**metric**  <br>*optional*|enum (AVG, MAX, MIN, SUM, CARDINALITY, SPANNING, GEOBBOX, GEOCENTROID)|
-|**precisionThreshold**  <br>*optional*|integer (int32)|
 
 
 <a name="computationresponse"></a>
@@ -471,7 +481,6 @@
 |---|---|
 |**collect_fct**  <br>*optional*|enum (AVG, CARDINALITY, MAX, MIN, SUM, GEOCENTROID, GEOBBOX)|
 |**collect_field**  <br>*optional*|string|
-|**precision_threshold**  <br>*optional*|integer (int32)|
 
 
 <a name="multilinestring"></a>
@@ -616,6 +625,8 @@
 |Name|Schema|
 |---|---|
 |**geometry**  <br>*optional*|string|
+|**include**  <br>*optional*|< string > array|
+|**signedSort**  <br>*optional*|string|
 |**sort**  <br>*optional*|string|
 
 
