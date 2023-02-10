@@ -42,6 +42,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORG_FILTER;
+
 @Provider
 @Priority(Priorities.AUTHORIZATION)
 /*

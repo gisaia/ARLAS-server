@@ -26,8 +26,9 @@ import javax.ws.rs.core.HttpHeaders;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORGANISATION;
+import static io.arlas.commons.rest.utils.ServerConstants.*;
 
 public class IdentityParam {
 
@@ -41,7 +42,15 @@ public class IdentityParam {
 
         // in a context where resources are publicly available, no organisation is defined
         this.organisation = Optional.ofNullable(headers.getHeaderString(ARLAS_ORGANISATION))
-                .orElse(PolicyEnforcer.NO_ORG);
+                .orElse(NO_ORG);
+
+        String filterOrg = headers.getHeaderString(ARLAS_ORG_FILTER);
+        if (filterOrg != null) {
+            this.organisation = Arrays.stream(this.organisation.split(","))
+                    .filter(o -> o.equals(filterOrg))
+                    .findFirst()
+                    .orElse("");
+        }
 
         this.groups = Arrays.stream(Optional.ofNullable(headers.getHeaderString(configuration.headerGroup))
                         .orElse(TechnicalRoles.GROUP_PUBLIC)
