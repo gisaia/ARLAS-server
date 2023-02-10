@@ -1,6 +1,26 @@
 # Change Log
 
-## [v23.0.8](https://github.com/gisaia/ARLAS-server/tree/v23.0.8) (2022-12-21)
+## [v23.0.9](https://github.com/gisaia/ARLAS-server/tree/v23.0.9) (2023-02-10)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.8-doc.2...v23.0.9)
+
+**New stuff:**
+
+- Support multiple Partition filter [\#869](https://github.com/gisaia/ARLAS-server/issues/869)
+- Filter collections on organisation name [\#864](https://github.com/gisaia/ARLAS-server/issues/864)
+- Empty column filter should forbid all collections [\#860](https://github.com/gisaia/ARLAS-server/issues/860)
+- \[fetch\_hits\]\[raw\_geometries\] share the same `top\_hits` call  [\#854](https://github.com/gisaia/ARLAS-server/issues/854)
+- \[fetch\_hits\]\[raw\_geometries\] make sort on chosen fields optional [\#853](https://github.com/gisaia/ARLAS-server/issues/853)
+
+## [v23.0.8-doc.2](https://github.com/gisaia/ARLAS-server/tree/v23.0.8-doc.2) (2022-12-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.8-doc...v23.0.8-doc.2)
+
+## [v23.0.8-doc](https://github.com/gisaia/ARLAS-server/tree/v23.0.8-doc) (2022-12-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.8...v23.0.8-doc)
+
+## [v23.0.8](https://github.com/gisaia/ARLAS-server/tree/v23.0.8) (2022-12-22)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.8-beta.1...v23.0.8)
 
