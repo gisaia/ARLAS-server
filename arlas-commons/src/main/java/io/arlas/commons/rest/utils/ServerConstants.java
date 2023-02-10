@@ -23,6 +23,8 @@ public final class ServerConstants {
     public static final String COLUMN_FILTER = "column-filter";
     public static final String PARTITION_FILTER = "partition-filter";
     public static final String ARLAS_ORGANISATION = "arlas-organization";
+    public static final String ARLAS_ORG_FILTER = "arlas-org-filter";
+    public static final String NO_ORG = "";
 
     private ServerConstants() { }
 }

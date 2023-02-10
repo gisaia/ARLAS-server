@@ -44,6 +44,7 @@ import javax.ws.rs.ext.Provider;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORG_FILTER;
 import static io.arlas.filter.config.TechnicalRoles.VAR_ORG;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
