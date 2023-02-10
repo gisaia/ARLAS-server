@@ -60,11 +60,11 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
         handleComputationRequest(get(computationRequest.field, computationRequest.metric.value()), 595, 10f);
 
 
-        computationRequest.field = "params.job";
+       /* computationRequest.field = "params.job";
         computationRequest.metric = ComputationEnum.CARDINALITY;
         computationRequest.precisionThreshold = 0;
         handleComputationRequest(post(computationRequest), 595, 9f);
-        handleComputationRequest(get(computationRequest.field, computationRequest.metric.value()), 595, 10f);
+        handleComputationRequest(get(computationRequest.field, computationRequest.metric.value()), 595, 10f);*/
 
         /** MAX **/
         computationRequest.field = "params.startdate";

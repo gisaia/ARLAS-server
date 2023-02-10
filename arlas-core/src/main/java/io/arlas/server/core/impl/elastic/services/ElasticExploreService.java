@@ -69,7 +69,7 @@ public class ElasticExploreService extends ExploreService {
                                  String baseUri, int arlasRestCacheTimeout, int arlasElasticMaxPrecisionThreshold) {
         super(baseUri, arlasRestCacheTimeout, collectionReferenceService);
         this.client = client;
-        this.arlasElasticMaxPrecisionThreshold =arlasElasticMaxPrecisionThreshold;
+        this.arlasElasticMaxPrecisionThreshold = arlasElasticMaxPrecisionThreshold;
     }
 
     public ElasticClient getClient() {
