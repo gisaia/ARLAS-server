@@ -7,9 +7,9 @@ ARLAS-server provides a highly simplified **REST API** for exploring data collec
 
 ## Documentation
 
-* [Overview](http://docs.arlas.io/arlas-tech/current/arlas-api/)
-* [Configuration](http://docs.arlas.io/arlas-tech/current/arlas-server-configuration/)
-* [API Reference](http://docs.arlas.io/arlas-tech/current/reference/)
+* [Overview](https://docs.arlas.io/arlas-api/)
+* [Configuration](https://docs.arlas.io/arlas-server-configuration/)
+* [API Reference](https://docs.arlas.io/reference/)
 
 ## Prerequisites :
 
@@ -114,7 +114,7 @@ For the available versions, see the [releases](https://github.com/gisaia/ARLAS-s
 
 ## Authors :
 
-- Gisaïa - *Initial work* - [Gisaïa](http://gisaia.fr/)
+- Gisaïa - *Initial work* - [Gisaïa](http://gisaia.com/)
 
 See also the list of [contributors](https://gitlab.com/GISAIA.ARLAS/ARLAS-server/graphs/develop) who participated in this project.
 
