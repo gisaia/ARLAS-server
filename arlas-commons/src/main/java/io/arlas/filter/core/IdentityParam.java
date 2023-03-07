@@ -33,7 +33,7 @@ import static io.arlas.commons.rest.utils.ServerConstants.*;
 public class IdentityParam {
 
     public String userId;
-    public String organisation;
+    public List<String> organisation;
     public List<String> groups;
 
     public IdentityParam(ArlasAuthConfiguration configuration, HttpHeaders headers) {
@@ -41,16 +41,13 @@ public class IdentityParam {
                 .orElse(configuration.anonymousValue);
 
         // in a context where resources are publicly available, no organisation is defined
-        this.organisation = Optional.ofNullable(headers.getHeaderString(ARLAS_ORGANISATION))
-                .orElse(NO_ORG);
-
         String filterOrg = headers.getHeaderString(ARLAS_ORG_FILTER);
-        if (filterOrg != null) {
-            this.organisation = Arrays.stream(this.organisation.split(","))
-                    .filter(o -> o.equals(filterOrg))
-                    .findFirst()
-                    .orElse("");
-        }
+        this.organisation = Arrays.stream(
+                        Optional.ofNullable(headers.getHeaderString(ARLAS_ORGANISATION))
+                                .orElse(NO_ORG)
+                                .split(","))
+                .filter(o -> filterOrg == null || o.equals(filterOrg))
+                .collect(Collectors.toList());
 
         this.groups = Arrays.stream(Optional.ofNullable(headers.getHeaderString(configuration.headerGroup))
                         .orElse(TechnicalRoles.GROUP_PUBLIC)
