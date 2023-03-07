@@ -53,16 +53,15 @@
     <io.rest-assured.version>5.3.0</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
-    <dropwizard.version>2.1.4</dropwizard.version>
+    <dropwizard.version>2.1.5</dropwizard.version>
     <dropwizard.swagger.version>2.0.12-1</dropwizard.swagger.version>
     <swaggerv3.version>2.2.8</swaggerv3.version>
-    <jaxb.version>2.3.7</jaxb.version>
-    <!-- warning: do not upgrade to 2.38+ -->
-    <jersey-media-jaxb.version>2.38</jersey-media-jaxb.version>
+    <jaxb.version>2.3.8</jaxb.version>
+    <jersey-media-jaxb.version>2.39</jersey-media-jaxb.version>
     <activation.version>2.1.0</activation.version>
 
     <!-- CACHE-->
-    <hazelcast.version>5.2.1</hazelcast.version>
+    <hazelcast.version>5.2.2</hazelcast.version>
 
     <!-- ELASTICSEARCH-->
     <elastic.version>7.17.6</elastic.version>
@@ -77,8 +76,8 @@
 
     <!-- AUTH -->
     <jwt.version>3.19.2</jwt.version>
-    <elastic-apm.version>1.35.0</elastic-apm.version>
-    <keycloak.version>20.0.3</keycloak.version>
+    <elastic-apm.version>1.36.0</elastic-apm.version>
+    <keycloak.version>21.0.1</keycloak.version>
 
     <nv-i18n.version>1.29</nv-i18n.version>
 
