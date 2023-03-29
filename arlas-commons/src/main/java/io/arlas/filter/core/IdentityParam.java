@@ -32,13 +32,16 @@ import static io.arlas.commons.rest.utils.ServerConstants.*;
 
 public class IdentityParam {
 
-    public String userId;
-    public List<String> organisation;
-    public List<String> groups;
+    public final String userId;
+    public final List<String> organisation;
+    public final List<String> groups;
+    public final boolean isAnonymous;
+
 
     public IdentityParam(ArlasAuthConfiguration configuration, HttpHeaders headers) {
         this.userId = Optional.ofNullable(headers.getHeaderString(configuration.headerUser))
                 .orElse(configuration.anonymousValue);
+        this.isAnonymous = this.userId.equals(configuration.anonymousValue);
 
         // in a context where resources are publicly available, no organisation is defined
         String filterOrg = headers.getHeaderString(ARLAS_ORG_FILTER);
