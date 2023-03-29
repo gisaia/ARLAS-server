@@ -30,12 +30,12 @@ technicalRoles:
 
   role/arlas/builder:
     - r:collections:GET
+    - r:collections/.*:PUT,DELETE
+    - r:collections/_export:GET
+    - r:collections/_import:POST
     - r:persist/resource/.*:PUT,POST,DELETE
 
   role/arlas/owner:
-# ARLAS explore
-    - r:collections/.*:PUT,DELETE
-    - r:collections/_export:GET
 # ARLAS city
     - r:storage/.*:GET,DELETE
     - r:data/.*:GET,POST,DELETE
