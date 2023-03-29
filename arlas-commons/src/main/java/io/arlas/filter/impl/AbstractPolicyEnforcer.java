@@ -45,6 +45,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORG_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.arlas.filter.config.TechnicalRoles.VAR_ORG;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
@@ -168,6 +169,8 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     if (!"OPTIONS".equals(ctx.getMethod())) {
                         logUAM(ALLOWED, "public (no token): " + log);
                     }
+                    // use a dummy CF in order to bypass the CFUtil and give access to public collections
+                    ctx.getHeaders().add(COLUMN_FILTER, "ThisIsADummyColumnFilter");
                 }
                 return;
             }
