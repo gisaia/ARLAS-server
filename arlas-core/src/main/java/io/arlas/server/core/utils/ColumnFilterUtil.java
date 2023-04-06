@@ -272,7 +272,9 @@ public class ColumnFilterUtil {
         }
 
         for (CollectionReference collection : collections) {
-            if (getCollectionRelatedColumnFilter(cleanColumnFilter, collection).isEmpty()) {
+            if (getCollectionRelatedColumnFilter(cleanColumnFilter, collection).isEmpty()
+                    && (collection.params.collectionOrganisations == null
+                    || !collection.params.collectionOrganisations.isPublic)) {
                 throw new CollectionUnavailableException(collection);
             }
         }
