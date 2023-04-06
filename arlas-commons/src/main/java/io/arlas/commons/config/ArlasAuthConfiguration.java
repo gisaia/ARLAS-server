@@ -78,7 +78,7 @@ public class ArlasAuthConfiguration {
     public String getPublicRegex()  {
         // [swagger.*:*, persist.*:GET/POST/DELETE}]
         if (this.publicRegex == null) {
-            final String allMethods = ":" + String.join("/", Arrays.asList(HttpMethod.DELETE, HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.POST, HttpMethod.PUT));
+            final String allMethods = ":" + String.join("/", Arrays.asList(HttpMethod.DELETE, HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH));
             String pathToVerbs = Optional.ofNullable(this.publicUris)
                     .orElse(Collections.emptyList())
                     .stream()
@@ -96,7 +96,7 @@ public class ArlasAuthConfiguration {
 
     public void check() throws ArlasConfigurationException  {
         // collect all invalid verbs declared after 'path:'
-        List<String> methods = Arrays.asList(HttpMethod.DELETE, HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.POST, HttpMethod.PUT);
+        List<String> methods = Arrays.asList(HttpMethod.DELETE, HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH);
         Set<String> invalidVerbs = Optional.ofNullable(this.publicUris)
                 .orElse(Collections.emptyList())
                 .stream()
